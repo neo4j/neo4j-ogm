@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.session.events;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
@@ -29,14 +29,14 @@ public class NodeEntityTest extends EventTestBaseClass {
     public void shouldNotFireEventsIfObjectHasNotChanged() {
 
         session.save(folder);
-        assertEquals(0, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(0);
     }
 
     @Test
     public void shouldNotFireEventsOnLoad() {
 
         session.load(Folder.class, folder.getId());
-        assertEquals(0, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(0);
     }
 
     @Test
@@ -46,10 +46,10 @@ public class NodeEntityTest extends EventTestBaseClass {
         e.setName("e");
         session.save(e);
 
-        assertEquals(2, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(2);
 
-        assertTrue(eventListener.captured(e, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(e, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(e, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(e, Event.TYPE.POST_SAVE)).isTrue();
     }
 
     @Test
@@ -58,10 +58,10 @@ public class NodeEntityTest extends EventTestBaseClass {
         a.setName("newA");
         session.save(a);
 
-        assertEquals(2, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(2);
 
-        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(a, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.POST_SAVE)).isTrue();
     }
 
     @Test
@@ -70,10 +70,10 @@ public class NodeEntityTest extends EventTestBaseClass {
         a.setName(null);
         session.save(a);
 
-        assertEquals(2, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(2);
 
-        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(a, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.POST_SAVE)).isTrue();
     }
 
     @Test
@@ -83,7 +83,7 @@ public class NodeEntityTest extends EventTestBaseClass {
 
         session.delete(unpersistedDocument);
 
-        assertEquals(0, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(0);
     }
 
     @Test
@@ -91,15 +91,15 @@ public class NodeEntityTest extends EventTestBaseClass {
 
         session.delete(knowsJL);
 
-        assertTrue(eventListener.captured(knowsJL, Event.TYPE.PRE_DELETE));
-        assertTrue(eventListener.captured(knowsJL, Event.TYPE.POST_DELETE));
+        assertThat(eventListener.captured(knowsJL, Event.TYPE.PRE_DELETE)).isTrue();
+        assertThat(eventListener.captured(knowsJL, Event.TYPE.POST_DELETE)).isTrue();
 
-        assertTrue(eventListener.captured(jim, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(jim, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(jim, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(jim, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertTrue(eventListener.captured(lee, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(lee, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(lee, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(lee, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(6, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(6);
     }
 }

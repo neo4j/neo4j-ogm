@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.relationships.direct.aaa;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -24,14 +24,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Luanne Misquitta
  */
-public class AAATest extends RelationshipTrait {
+public class AAATest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;
 
@@ -82,9 +82,9 @@ public class AAATest extends RelationshipTrait {
         loadedA2 = session.load(A.class, a2.id);
         loadedA3 = session.load(A.class, a3.id);
 
-        assertSameArray(new A[]{a2, a3}, loadedA1.a);
-        assertSameArray(new A[]{a1, a3}, loadedA2.a);
-        assertSameArray(new A[]{a2, a4}, loadedA3.a);
+        assertThat(loadedA1.a).containsExactlyInAnyOrder(a2, a3);
+        assertThat(loadedA2.a).containsExactlyInAnyOrder(a1, a3);
+        assertThat(loadedA3.a).containsExactlyInAnyOrder(a2, a4);
     }
 
     /**
@@ -103,9 +103,9 @@ public class AAATest extends RelationshipTrait {
         loadedA3 = session.load(A.class, a3.id);
         loadedA4 = session.load(A.class, a4.id);
 
-        assertSameArray(new A[]{loadedA2, loadedA3}, a1.a);
-        assertSameArray(new A[]{loadedA1, loadedA3}, a2.a);
-        assertSameArray(new A[]{loadedA2, loadedA4}, a3.a);
+        assertThat(a1.a).containsExactlyInAnyOrder(loadedA2, loadedA3);
+        assertThat(a2.a).containsExactlyInAnyOrder(loadedA1, loadedA3);
+        assertThat(a3.a).containsExactlyInAnyOrder(loadedA2, loadedA4);
     }
 
     /**
@@ -127,22 +127,22 @@ public class AAATest extends RelationshipTrait {
         //when we reload a2
         loadedA2 = session.load(A.class, a2.id);
         // expect its relationships have gone.
-        assertNull(loadedA2.a);
+        assertThat(loadedA2.a).isNull();
 
         // when we reload a1
         loadedA1 = session.load(A.class, a1.id);
         // expect the original relationships to remain intact.
-        assertSameArray(new A[]{a2, a3}, loadedA1.a);
+        assertThat(loadedA1.a).containsExactlyInAnyOrder(a2, a3);
 
         // when we reload a3
         loadedA3 = session.load(A.class, a3.id);
         // expect the original relationships to remain intact.
-        assertSameArray(new A[]{a2, a4}, loadedA3.a);
+        assertThat(loadedA3.a).containsExactlyInAnyOrder(a2, a4);
 
         //when we reload a4
         loadedA4 = session.load(A.class, a4.id);
         //expect the original relationships to remain intact.
-        assertNull(loadedA4.a);
+        assertThat(loadedA4.a).isNull();
     }
 
 

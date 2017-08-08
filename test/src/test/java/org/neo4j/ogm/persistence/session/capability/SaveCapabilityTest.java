@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -72,8 +72,8 @@ public class SaveCapabilityTest extends MultiDriverTestClass {
         List<Artist> artists = Arrays.asList(aerosmith, bonJovi, defLeppard);
         session.save(artists);
         session.clear();
-        assertEquals(3, session.countEntitiesOfType(Artist.class));
-        assertEquals(2, session.countEntitiesOfType(Album.class));
+        assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(3);
+        assertThat(session.countEntitiesOfType(Album.class)).isEqualTo(2);
     }
 
     /**
@@ -87,7 +87,7 @@ public class SaveCapabilityTest extends MultiDriverTestClass {
         artists.add(defLeppard);
         session.save(artists);
         session.clear();
-        assertEquals(3, session.countEntitiesOfType(Artist.class));
+        assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(3);
     }
 
 
@@ -99,7 +99,7 @@ public class SaveCapabilityTest extends MultiDriverTestClass {
         Artist[] artists = new Artist[]{aerosmith, bonJovi, defLeppard};
         session.save(artists);
         session.clear();
-        assertEquals(3, session.countEntitiesOfType(Artist.class));
+        assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(3);
     }
 
     @Test
@@ -112,20 +112,20 @@ public class SaveCapabilityTest extends MultiDriverTestClass {
         session.clear();
 
         Artist loadedLeann = session.load(Artist.class, leann.getId());
-        assertNotNull(loadedLeann);
-        assertEquals("Leann Rimes", loadedLeann.getName());
-        assertEquals(lost.getName(), loadedLeann.getGuestAlbums().iterator().next().getName());
+        assertThat(loadedLeann).isNotNull();
+        assertThat(loadedLeann.getName()).isEqualTo("Leann Rimes");
+        assertThat(loadedLeann.getGuestAlbums().iterator().next().getName()).isEqualTo(lost.getName());
 
         Artist loadedBonJovi = session.load(Artist.class, bonJovi.getId());
-        assertNotNull(loadedBonJovi);
-        assertEquals("Bon Jovi", loadedBonJovi.getName());
-        assertEquals(lost.getName(), loadedBonJovi.getAlbums().iterator().next().getName());
+        assertThat(loadedBonJovi).isNotNull();
+        assertThat(loadedBonJovi.getName()).isEqualTo("Bon Jovi");
+        assertThat(loadedBonJovi.getAlbums().iterator().next().getName()).isEqualTo(lost.getName());
 
         Album loadedLost = session.load(Album.class, lost.getId());
-        assertNotNull(loadedLost);
-        assertEquals("Lost Highway", loadedLost.getName());
-        assertEquals(loadedLeann, loadedLost.getGuestArtist());
-        assertEquals(loadedBonJovi.getName(), loadedLost.getArtist().getName());
+        assertThat(loadedLost).isNotNull();
+        assertThat(loadedLost.getName()).isEqualTo("Lost Highway");
+        assertThat(loadedLost.getGuestArtist()).isEqualTo(loadedLeann);
+        assertThat(loadedLost.getArtist().getName()).isEqualTo(loadedBonJovi.getName());
     }
 
 
@@ -142,28 +142,28 @@ public class SaveCapabilityTest extends MultiDriverTestClass {
         lost.setGuestArtist(leann);
 
         context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(lost, depth);
-        assertEquals("Should save 3 nodes and 2 relations (5 items)", 5, context.registry().size());
+        assertThat(context.registry()).as("Should save 3 nodes and 2 relations (5 items)").hasSize(5);
 
         session.save(lost);
 
         context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(lost, depth);
-        assertEquals("Should have nothing to save", 0, context.registry().size());
+        assertThat(context.registry()).as("Should have nothing to save").isEmpty();
 
         session.clear();
 
         Artist loadedLeann = session.load(Artist.class, leann.getId(), depth);
 
         context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(loadedLeann, depth);
-        assertEquals("Should have nothing to save", 0, context.registry().size());
+        assertThat(context.registry()).as("Should have nothing to save").isEmpty();
 
         loadedLeann.setName("New name");
         context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(loadedLeann, depth);
-        assertEquals("Should have one node to save", 1, context.registry().size());
+        assertThat(context.registry()).as("Should have one node to save").hasSize(1);
 
         loadedLeann.getGuestAlbums().iterator().next().setName("New Album Name");
 
         context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(loadedLeann, depth);
-        assertEquals("Should have two node to save", 2, context.registry().size());
+        assertThat(context.registry()).as("Should have two node to save").hasSize(2);
     }
 
     @Test
@@ -182,6 +182,6 @@ public class SaveCapabilityTest extends MultiDriverTestClass {
         session.save(recording1);
         session.save(recording2);
 
-        assertEquals(2, session.countEntitiesOfType(Recording.class));
+        assertThat(session.countEntitiesOfType(Recording.class)).isEqualTo(2);
     }
 }

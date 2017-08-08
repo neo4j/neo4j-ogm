@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.types;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
 import java.util.Arrays;
@@ -70,7 +70,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithAnnotatedAbstractNamedParent:Parent)");
 
-        assertNotNull(session.loadAll(AnnotatedChildWithAnnotatedAbstractNamedParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedChildWithAnnotatedAbstractNamedParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -82,7 +82,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithAnnotatedNamedInterfaceParent:Parent)");
 
-        assertNotNull(session.loadAll(AnnotatedChildWithAnnotatedNamedInterfaceParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedChildWithAnnotatedNamedInterfaceParent.class).iterator().next()).isNotNull();
     }
 
 
@@ -92,7 +92,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithAnnotatedAbstractParent:AnnotatedAbstractParent)");
 
-        assertNotNull(session.loadAll(AnnotatedChildWithAnnotatedAbstractParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedChildWithAnnotatedAbstractParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -104,7 +104,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithAnnotatedInterfaceParent:AnnotatedInterface)");
 
-        assertNotNull(session.loadAll(AnnotatedChildWithAnnotatedInterfaceParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedChildWithAnnotatedInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -113,7 +113,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithAnnotatedConcreteNamedParent:Parent)");
 
-        assertNotNull(session.loadAll(AnnotatedChildWithAnnotatedConcreteNamedParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedChildWithAnnotatedConcreteNamedParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -122,7 +122,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithAnnotatedConcreteParent:AnnotatedConcreteParent)");
 
-        assertNotNull(session.loadAll(AnnotatedChildWithAnnotatedConcreteParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedChildWithAnnotatedConcreteParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -131,7 +131,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithPlainAbstractParent)");
 
-        assertNotNull(session.loadAll(AnnotatedChildWithPlainAbstractParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedChildWithPlainAbstractParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -143,7 +143,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithPlainInterfaceParent)");
 
-        assertNotNull(session.loadAll(AnnotatedChildWithPlainInterfaceParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedChildWithPlainInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -152,7 +152,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithPlainConcreteParent:PlainConcreteParent)");
 
-        assertNotNull(session.loadAll(AnnotatedChildWithPlainConcreteParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedChildWithPlainConcreteParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -162,7 +162,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:Child:Parent)");
 
-        assertNotNull(session.loadAll(AnnotatedNamedChildWithAnnotatedAbstractNamedParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedAbstractNamedParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -175,7 +175,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:Child:Parent)");
 
-        assertNotNull(session.loadAll(AnnotatedNamedChildWithAnnotatedNamedInterfaceParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedNamedInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -185,7 +185,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:Child:AnnotatedAbstractParent)");
 
-        assertNotNull(session.loadAll(AnnotatedNamedChildWithAnnotatedAbstractParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedAbstractParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -198,7 +198,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:Child:AnnotatedInterface)");
 
-        assertNotNull(session.loadAll(AnnotatedNamedChildWithAnnotatedInterfaceParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -208,7 +208,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:Child:Parent)");
 
-        assertNotNull(session.loadAll(AnnotatedNamedChildWithAnnotatedConcreteNamedParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedConcreteNamedParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -218,7 +218,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:Child:AnnotatedConcreteParent)");
 
-        assertNotNull(session.loadAll(AnnotatedNamedChildWithAnnotatedConcreteParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedConcreteParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -228,7 +228,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:Child)");
 
-        assertNotNull(session.loadAll(AnnotatedNamedChildWithPlainAbstractParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedNamedChildWithPlainAbstractParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -241,7 +241,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:Child)");
 
-        assertNotNull(session.loadAll(AnnotatedNamedChildWithPlainInterfaceParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedNamedChildWithPlainInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -251,7 +251,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:Child:PlainConcreteParent)");
 
-        assertNotNull(session.loadAll(AnnotatedNamedChildWithPlainConcreteParent.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedNamedChildWithPlainConcreteParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -260,7 +260,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:Single)");
 
-        assertNotNull(session.loadAll(AnnotatedNamedSingleClass.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedNamedSingleClass.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -269,7 +269,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedSingleClass)");
 
-        assertNotNull(session.loadAll(AnnotatedSingleClass.class).iterator().next());
+        assertThat(session.loadAll(AnnotatedSingleClass.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -278,7 +278,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithAnnotatedAbstractNamedParent:Parent)");
 
-        assertNotNull(session.loadAll(PlainChildWithAnnotatedAbstractNamedParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithAnnotatedAbstractNamedParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -290,7 +290,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithAnnotatedNamedInterfaceParent:Parent)");
 
-        assertNotNull(session.loadAll(PlainChildWithAnnotatedNamedInterfaceParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithAnnotatedNamedInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -299,7 +299,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithAnnotatedAbstractParent:AnnotatedAbstractParent)");
 
-        assertNotNull(session.loadAll(PlainChildWithAnnotatedAbstractParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithAnnotatedAbstractParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -311,7 +311,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithAnnotatedInterfaceParent:AnnotatedInterface)");
 
-        assertNotNull(session.loadAll(PlainChildWithAnnotatedInterfaceParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithAnnotatedInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -320,7 +320,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithAnnotatedConcreteNamedParent:Parent)");
 
-        assertNotNull(session.loadAll(PlainChildWithAnnotatedConcreteNamedParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithAnnotatedConcreteNamedParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -329,7 +329,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithAnnotatedConcreteParent:AnnotatedConcreteParent)");
 
-        assertNotNull(session.loadAll(PlainChildWithAnnotatedConcreteParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithAnnotatedConcreteParent.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -338,7 +338,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithPlainAbstractParent)");
 
-        assertNotNull(session.loadAll(PlainChildWithPlainAbstractParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithPlainAbstractParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -350,7 +350,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithPlainInterfaceParent)");
 
-        assertNotNull(session.loadAll(PlainChildWithPlainInterfaceParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithPlainInterfaceParent.class).iterator().next()).isNotNull();
     }
 
 
@@ -360,7 +360,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithPlainConcreteParent:PlainConcreteParent)");
 
-        assertNotNull(session.loadAll(PlainChildWithPlainConcreteParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithPlainConcreteParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -372,8 +372,8 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithPlainConcreteParentImplementingInterface:PlainConcreteParent)");
 
-        assertNotNull(session.loadAll(PlainChildWithPlainConcreteParentImplementingInterface.class).iterator().next());
-        assertNotNull(session.loadAll(PlainConcreteParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithPlainConcreteParentImplementingInterface.class).iterator().next()).isNotNull();
+        assertThat(session.loadAll(PlainConcreteParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -385,7 +385,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithPlainInterfaceChild)");
 
-        assertNotNull(session.loadAll(PlainChildWithPlainInterfaceChild.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithPlainInterfaceChild.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -399,7 +399,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new PlainChildWithAnnotatedSuperInterface());
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithAnnotatedSuperInterface:AnnotatedInterface)");
-        assertNotNull(session.loadAll(PlainChildWithAnnotatedSuperInterface.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithAnnotatedSuperInterface.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -413,9 +413,9 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new AnnotatedChildWithAnnotatedInterface());
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithAnnotatedInterface:AnnotatedInterfaceWithSingleImpl)");
-        assertNotNull(session.loadAll(AnnotatedChildWithAnnotatedInterface.class).iterator().next());
-        assertNotNull(session.loadAll(AnnotatedInterfaceWithSingleImpl.class).iterator().next()); //AnnotatedInterfaceWithSingleImpl has a single implementation so we should be able to load it
-        assertEquals("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface", session.loadAll(AnnotatedInterfaceWithSingleImpl.class).iterator().next().getClass().getName());
+        assertThat(session.loadAll(AnnotatedChildWithAnnotatedInterface.class).iterator().next()).isNotNull();
+        assertThat(session.loadAll(AnnotatedInterfaceWithSingleImpl.class).iterator().next()).isNotNull(); //AnnotatedInterfaceWithSingleImpl has a single implementation so we should be able to load it
+        assertThat(session.loadAll(AnnotatedInterfaceWithSingleImpl.class).iterator().next().getClass().getName()).isEqualTo("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface");
     }
 
     /**
@@ -429,9 +429,9 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new PlainChildWithAnnotatedConcreteSuperclass());
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithAnnotatedConcreteSuperclass:PlainChildWithAnnotatedConcreteParent:AnnotatedConcreteParent)");
-        assertNotNull(session.loadAll(PlainChildWithAnnotatedConcreteSuperclass.class).iterator().next());
-        assertNotNull(session.loadAll(PlainChildWithAnnotatedConcreteParent.class).iterator().next());
-        assertNotNull(session.loadAll(AnnotatedConcreteParent.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithAnnotatedConcreteSuperclass.class).iterator().next()).isNotNull();
+        assertThat(session.loadAll(PlainChildWithAnnotatedConcreteParent.class).iterator().next()).isNotNull();
+        assertThat(session.loadAll(AnnotatedConcreteParent.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -444,9 +444,9 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
          */
         session.save(new PlainChildWithAbstractParentAndAnnotatedSuperclass());
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainChildWithAbstractParentAndAnnotatedSuperclass:AnnotatedSingleClass)");
-        assertNotNull(session.loadAll(PlainChildWithAbstractParentAndAnnotatedSuperclass.class).iterator().next());
-//        assertNotNull(session.loadAll(PlainAbstractWithAnnotatedParent.class).iterator().next());
-        assertNotNull(session.loadAll(AnnotatedSingleClass.class).iterator().next());
+        assertThat(session.loadAll(PlainChildWithAbstractParentAndAnnotatedSuperclass.class).iterator().next()).isNotNull();
+//        assertThat(session.loadAll(PlainAbstractWithAnnotatedParent.class).iterator().next()).isNotNull();
+        assertThat(session.loadAll(AnnotatedSingleClass.class).iterator().next()).isNotNull();
     }
 
     /**
@@ -458,9 +458,9 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:AnnotatedChildWithMultipleAnnotatedInterfaces:AnnotatedInterface:Parent)");
 
-        assertNotNull(session.loadAll(AnnotatedChildWithMultipleAnnotatedInterfaces.class).iterator().next());
-        assertEquals(1, session.loadAll(AnnotatedInterface.class).size());
-        assertEquals(1, session.loadAll(AnnotatedNamedInterfaceParent.class).size());
+        assertThat(session.loadAll(AnnotatedChildWithMultipleAnnotatedInterfaces.class).iterator().next()).isNotNull();
+        assertThat(session.loadAll(AnnotatedInterface.class)).hasSize(1);
+        assertThat(session.loadAll(AnnotatedNamedInterfaceParent.class)).hasSize(1);
     }
 
     @Test
@@ -469,7 +469,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainSingleClass)");
 
-        assertNotNull(session.loadAll(PlainSingleClass.class).iterator().next());
+        assertThat(session.loadAll(PlainSingleClass.class).iterator().next()).isNotNull();
     }
 
     @Test
@@ -477,7 +477,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new PlainChildOfTransientParent());
 
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            assertFalse(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext());
+            assertThat(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext()).isFalse();
             tx.success();
         }
     }
@@ -489,7 +489,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
     public void plainChildOfTransientInterface() {
         session.save(new PlainChildOfTransientInterface());
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            assertFalse(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext());
+            assertThat(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext()).isFalse();
             tx.success();
         }
     }
@@ -499,7 +499,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new TransientChildWithPlainConcreteParent());
 
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            assertFalse(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext());
+            assertThat(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext()).isFalse();
             tx.success();
         }
     }
@@ -509,7 +509,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new TransientSingleClass());
 
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            assertFalse(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext());
+            assertThat(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext()).isFalse();
             tx.success();
         }
     }
@@ -519,7 +519,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new TransientSingleClassWithId());
 
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            assertFalse(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext());
+            assertThat(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext()).isFalse();
             tx.success();
         }
     }
@@ -537,13 +537,13 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainClassWithTransientFields)");
 
-        assertNotNull(session.loadAll(PlainClassWithTransientFields.class).iterator().next());
+        assertThat(session.loadAll(PlainClassWithTransientFields.class).iterator().next()).isNotNull();
     }
 
     @Test
     public void shouldNotBeAbleToLoadClassOfWrongType() {
         session.save(new AnnotatedNamedSingleClass());
-        assertFalse(session.loadAll(PlainSingleClass.class).iterator().hasNext());
+        assertThat(session.loadAll(PlainSingleClass.class).iterator().hasNext()).isFalse();
     }
 
     @Test
@@ -582,21 +582,21 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         Collection<Female> females = session.loadAll(Female.class);
         Collection<Bloke> blokes = session.loadAll(Bloke.class);
 
-        assertTrue("Shouldn't be able to load by non-annotated, abstract classes", entities.isEmpty());
+        assertThat(entities.isEmpty()).as("Shouldn't be able to load by non-annotated, abstract classes").isTrue();
 
-        assertEquals(3, people.size());
-        assertEquals(people.size(), session.countEntitiesOfType(Person.class));
-        assertTrue(people.containsAll(Arrays.asList(daniela, michal, adam)));
+        assertThat(people).hasSize(3);
+        assertThat(session.countEntitiesOfType(Person.class)).isEqualTo(people.size());
+        assertThat(people.containsAll(Arrays.asList(daniela, michal, adam))).isTrue();
 
-        assertEquals(2, males.size());
-        assertTrue(males.containsAll(Arrays.asList(michal, adam)));
+        assertThat(males).hasSize(2);
+        assertThat(males.containsAll(Arrays.asList(michal, adam))).isTrue();
 
-        assertEquals(1, females.size());
-        assertEquals(females.size(), session.countEntitiesOfType(Female.class));
-        assertTrue(females.contains(daniela));
+        assertThat(females).hasSize(1);
+        assertThat(session.countEntitiesOfType(Female.class)).isEqualTo(females.size());
+        assertThat(females.contains(daniela)).isTrue();
 
-        assertEquals(1, blokes.size());
-        assertTrue(blokes.contains(adam));
+        assertThat(blokes).hasSize(1);
+        assertThat(blokes.contains(adam)).isTrue();
     }
 
     @Test
@@ -616,20 +616,20 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         Collection<Female> females = session.loadAll(Female.class);
         Collection<Bloke> blokes = session.loadAll(Bloke.class);
 
-        assertEquals(3, entities.size());
-        assertTrue(entities.containsAll(Arrays.asList(daniela, michal, adam)));
+        assertThat(entities).hasSize(3);
+        assertThat(entities.containsAll(Arrays.asList(daniela, michal, adam))).isTrue();
 
-        assertEquals(3, people.size());
-        assertTrue(people.containsAll(Arrays.asList(daniela, michal, adam)));
+        assertThat(people).hasSize(3);
+        assertThat(people.containsAll(Arrays.asList(daniela, michal, adam))).isTrue();
 
-        assertEquals(2, males.size());
-        assertTrue(males.containsAll(Arrays.asList(michal, adam)));
+        assertThat(males).hasSize(2);
+        assertThat(males.containsAll(Arrays.asList(michal, adam))).isTrue();
 
-        assertEquals(1, females.size());
-        assertTrue(females.contains(daniela));
+        assertThat(females).hasSize(1);
+        assertThat(females.contains(daniela)).isTrue();
 
-        assertEquals(1, blokes.size());
-        assertTrue(blokes.contains(adam));
+        assertThat(blokes).hasSize(1);
+        assertThat(blokes.contains(adam)).isTrue();
     }
 
     @Test
@@ -647,17 +647,17 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         Collection<Female> females = session.loadAll(Female.class);
         Collection<Bloke> blokes = session.loadAll(Bloke.class);
 
-        assertEquals(3, people.size());
-        assertTrue(people.containsAll(Arrays.asList(daniela, michal, adam)));
+        assertThat(people).hasSize(3);
+        assertThat(people.containsAll(Arrays.asList(daniela, michal, adam))).isTrue();
 
-        assertEquals(2, males.size());
-        assertTrue(males.containsAll(Arrays.asList(michal, adam)));
+        assertThat(males).hasSize(2);
+        assertThat(males.containsAll(Arrays.asList(michal, adam))).isTrue();
 
-        assertEquals(1, females.size());
-        assertTrue(females.contains(daniela));
+        assertThat(females).hasSize(1);
+        assertThat(females.contains(daniela)).isTrue();
 
-        assertEquals(1, blokes.size());
-        assertTrue(blokes.contains(adam));
+        assertThat(blokes).hasSize(1);
+        assertThat(blokes.contains(adam)).isTrue();
     }
 
     @Test
@@ -674,14 +674,14 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         Collection<Female> females = session.loadAll(Female.class);
         Collection<Bloke> blokes = session.loadAll(Bloke.class);
 
-        assertEquals(2, males.size());
-        assertTrue(males.containsAll(Arrays.asList(michal, adam)));
+        assertThat(males).hasSize(2);
+        assertThat(males.containsAll(Arrays.asList(michal, adam))).isTrue();
 
-        assertEquals(1, females.size());
-        assertTrue(females.contains(daniela));
+        assertThat(females).hasSize(1);
+        assertThat(females.contains(daniela)).isTrue();
 
-        assertEquals(1, blokes.size());
-        assertTrue(blokes.contains(adam));
+        assertThat(blokes).hasSize(1);
+        assertThat(blokes.contains(adam)).isTrue();
     }
 
     @Test
@@ -700,20 +700,20 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         Collection<Female> females = session.loadAll(Female.class);
         Collection<Bloke> blokes = session.loadAll(Bloke.class);
 
-        assertEquals(1, males.size());
-        assertTrue(males.containsAll(Arrays.asList(michal)));
+        assertThat(males).hasSize(1);
+        assertThat(males.containsAll(Arrays.asList(michal))).isTrue();
 
-        assertEquals(1, females.size());
-        assertTrue(females.contains(daniela));
+        assertThat(females).hasSize(1);
+        assertThat(females.contains(daniela)).isTrue();
 
-        assertEquals(1, blokes.size());
-        assertTrue(blokes.contains(adam));
+        assertThat(blokes).hasSize(1);
+        assertThat(blokes.contains(adam)).isTrue();
     }
 
     @Test
     public void shouldNotReadHierarchy() {
         getGraphDatabaseService().execute("CREATE (:Person {name:'Daniela'})");
-        assertEquals(0, session.loadAll(Person.class).size());
+        assertThat(session.loadAll(Person.class)).isEmpty();
     }
 
     @Test
@@ -733,7 +733,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.hierarchy.conflicting");
         session = sessionFactory.openSession();
 
-        assertEquals(0, session.loadAll(Female.class).size());
+        assertThat(session.loadAll(Female.class)).isEmpty();
     }
 
     /**
@@ -748,8 +748,8 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
                 "(m1)-[:CHILD]->(c1)");
 
         Male m1 = session.loadAll(Male.class).iterator().next();
-        assertNotNull(m1);
-        assertEquals("m1", m1.getName());
-        assertEquals("c1", m1.getChildren().iterator().next().getName());
+        assertThat(m1).isNotNull();
+        assertThat(m1.getName()).isEqualTo("m1");
+        assertThat(m1.getChildren().iterator().next().getName()).isEqualTo("c1");
     }
 }

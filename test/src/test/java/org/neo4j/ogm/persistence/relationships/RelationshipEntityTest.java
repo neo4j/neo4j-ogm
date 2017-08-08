@@ -13,13 +13,12 @@
 
 package org.neo4j.ogm.persistence.relationships;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -77,7 +76,7 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         m = session.load(M.class, m.id);
 
-        assertEquals(2, m.rset.size());
+        assertThat(m.rset).hasSize(2);
     }
 
     @Test
@@ -92,8 +91,8 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         m = session.load(M.class, m.id);
 
-        assertEquals(1, m.rset.size());
-        assertEquals(3, m.rset.iterator().next().stars.intValue());
+        assertThat(m.rset).hasSize(1);
+        assertThat(m.rset.iterator().next().stars.intValue()).isEqualTo(3);
     }
 
 
@@ -111,11 +110,11 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         m = session.load(M.class, m.id);
         u = session.load(U.class, u.id);
-        assertNotNull(m);
-        assertEquals(0, m.rset.size());
+        assertThat(m).isNotNull();
+        assertThat(m.rset).isEmpty();
 
-        assertNotNull(u);
-        assertEquals(0, u.rset.size());
+        assertThat(u).isNotNull();
+        assertThat(u.rset).isEmpty();
     }
 
     @Test
@@ -136,8 +135,8 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         m = session.load(M.class, m.id);
 
-        assertEquals(1, m.rset.size());
-        assertEquals(0, m.rset.iterator().next().stars.intValue());
+        assertThat(m.rset).hasSize(1);
+        assertThat(m.rset.iterator().next().stars.intValue()).isEqualTo(0);
     }
 
     @Test
@@ -148,8 +147,8 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         r1 = session.load(R.class, r1.id);
 
-        assertEquals(1, r1.m.rset.size());
-        assertEquals(1, r1.u.rset.size());
+        assertThat(r1.m.rset).hasSize(1);
+        assertThat(r1.u.rset).hasSize(1);
     }
 
     /**
@@ -163,15 +162,15 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         r1.stars = 5;
         session.save(r1);
         session.clear();
-        assertEquals(1, r1.m.rset.size());
-        assertEquals(1, r1.u.rset.size());
-        assertEquals(Integer.valueOf(5), r1.stars);
+        assertThat(r1.m.rset).hasSize(1);
+        assertThat(r1.u.rset).hasSize(1);
+        assertThat(r1.stars).isEqualTo(Integer.valueOf(5));
 
         u = session.load(U.class, u.id);
-        assertEquals(1, u.rset.size());
+        assertThat(u.rset).hasSize(1);
         m = session.load(M.class, m.id);
-        assertEquals(1, m.rset.size());
-        assertEquals(Integer.valueOf(5), m.rset.iterator().next().stars);
+        assertThat(m.rset).hasSize(1);
+        assertThat(m.rset.iterator().next().stars).isEqualTo(Integer.valueOf(5));
     }
 
     @Test
@@ -179,22 +178,22 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         session.save(r1);
 
-        assertNull(session.getTransaction());
+        assertThat(session.getTransaction()).isNull();
 
         r1 = session.load(R.class, r1.id);
         u = session.load(U.class, u.id);
         m = session.load(M.class, m.id);
 
-        assertNotNull(m);
-        assertNotNull(u);
-        assertNotNull(r1);
-        assertNull(session.getTransaction());
+        assertThat(m).isNotNull();
+        assertThat(u).isNotNull();
+        assertThat(r1).isNotNull();
+        assertThat(session.getTransaction()).isNull();
 
         u.rset.clear();
         m.rset.clear();
 
         session.delete(r1);
-        assertNull(session.getTransaction());
+        assertThat(session.getTransaction()).isNull();
 
         session.clear();
 
@@ -202,21 +201,21 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         M findM = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } RETURN n", Utils.map("id", m.id));
         M findM2 = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN nodes(p)", Utils.map("id", m.id));
 
-        assertNotNull(qryM);
-        assertNotNull(findM);
-        assertNotNull(findM2);
+        assertThat(qryM).isNotNull();
+        assertThat(findM).isNotNull();
+        assertThat(findM2).isNotNull();
 
         session.clear();
 
-        assertNull(session.load(R.class, r1.id));
+        assertThat(session.load(R.class, r1.id)).isNull();
 
         m = session.load(M.class, m.id);
-        assertNotNull(m);
-        assertEquals(0, m.rset.size());
+        assertThat(m).isNotNull();
+        assertThat(m.rset).isEmpty();
 
         u = session.load(U.class, u.id);
-        assertNotNull(u);
-        assertEquals(0, u.rset.size());
+        assertThat(u).isNotNull();
+        assertThat(u.rset).isEmpty();
     }
 
     /**
@@ -230,13 +229,13 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         r1.m = m2;
 
         session.save(r1);
-        assertEquals(m2, u.rset.iterator().next().m);
+        assertThat(u.rset.iterator().next().m).isEqualTo(m2);
 
         session.clear();
 
         u = session.load(U.class, u.id);
-        assertEquals(1, u.rset.size()); //we've lost all R's from u
-        assertEquals(m2.title, u.rset.iterator().next().m.title);
+        assertThat(u.rset).hasSize(1); //we've lost all R's from u
+        assertThat(u.rset.iterator().next().m.title).isEqualTo(m2.title);
     }
 
     /**
@@ -289,16 +288,16 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         session.clear();
 
-        Assert.assertNotNull(link.id);
+        assertThat(link.id).isNotNull();
         Arc reloaded = session.queryForObject(Arc.class, "MATCH (f:Vertex)-[a:Arc]->(t:Vertex) return f, a, t", Utils.map());
 
-        Assert.assertNotNull(reloaded);
-        Assert.assertNotNull(reloaded.from);
-        Assert.assertNotNull(reloaded.to);
+        assertThat(reloaded).isNotNull();
+        assertThat(reloaded.from).isNotNull();
+        assertThat(reloaded.to).isNotNull();
 
-        Assert.assertEquals(link.id, reloaded.id);
-        Assert.assertEquals(from.id, reloaded.from.id);
-        Assert.assertEquals(to.id, reloaded.to.id);
+        assertThat(reloaded.id).isEqualTo(link.id);
+        assertThat(reloaded.from.id).isEqualTo(from.id);
+        assertThat(reloaded.to.id).isEqualTo(to.id);
     }
 
     @NodeEntity(label = "U")

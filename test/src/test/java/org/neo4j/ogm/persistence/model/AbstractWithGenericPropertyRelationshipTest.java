@@ -14,6 +14,8 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Issue #54, ##66, #186 & #298 (Zendesk ticket XXX)
  *
@@ -53,8 +55,8 @@ public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTest
 
         StageActor reloadedActor = session.load(StageActor.class, stageActor.id);
 
-        Assert.assertEquals(2, reloadedActor.dramas.size());
-        Assert.assertNotNull(reloadedActor.lastDrama);
+        assertThat(reloadedActor.dramas).hasSize(2);
+        assertThat(reloadedActor.lastDrama).isNotNull();
     }
 
     /**
@@ -83,7 +85,7 @@ public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTest
 
         // we can not query by abstract class
         Collection<L> relationship = session.loadAll(L.class);
-        Assert.assertEquals(1, relationship.size());
+        assertThat(relationship).hasSize(1);
     }
 
     @Test
@@ -105,7 +107,7 @@ public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTest
         session.save(anotherRelationshipImplementation);
 
         AnotherRelationshipImplementation<String> retrieved = session.load(AnotherRelationshipImplementation.class, anotherRelationshipImplementation.id);
-        Assert.assertEquals(retrieved.a.id, someNode.id);
+        assertThat(someNode.id).isEqualTo(retrieved.a.id);
     }
 
     @RelationshipEntity(type = "otherRelDynamicProperty")

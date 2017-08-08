@@ -13,11 +13,11 @@
 
 package org.neo4j.ogm.cypher;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class FilterTest {
@@ -26,7 +26,7 @@ public class FilterTest {
     public void toCypher() {
         Filter filter = new Filter("moons", ComparisonOperator.LESS_THAN, 23);
         filter.setBooleanOperator(BooleanOperator.AND);
-        assertEquals("WHERE n.`moons` < { `moons_0` } ", filter.toCypher("n", true));
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`moons` < { `moons_0` } ");
     }
 
     @Test
@@ -35,6 +35,6 @@ public class FilterTest {
         Filter filter = new Filter(function, ComparisonOperator.LESS_THAN);
         filter.setBooleanOperator(BooleanOperator.AND);
         filter.setNegated(true);
-        assertEquals("WHERE NOT(distance(point(n),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ", filter.toCypher("n", true));
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE NOT(distance(point(n),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ");
     }
 }

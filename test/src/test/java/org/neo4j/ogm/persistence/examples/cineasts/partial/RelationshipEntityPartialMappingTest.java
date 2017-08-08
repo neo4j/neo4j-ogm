@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.partial;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -59,7 +59,7 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
         Actor keanu2 = session.load(Actor.class, keanu.getId());
 
-        assertEquals(1, keanu2.roles().size());
+        assertThat(keanu2.roles()).hasSize(1);
     }
 
     @Test
@@ -76,13 +76,13 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
         Actor keanu2 = session.load(Actor.class, keanu.getId());
 
-        assertEquals(2, keanu2.roles().size());
+        assertThat(keanu2.roles()).hasSize(2);
 
         keanu2.addRole("John Constantine", new Movie("Constantine"));
         session.save(keanu2);
 
         Actor keanu3 = session.load(Actor.class, keanu2.getId());
-        assertEquals(3, keanu3.roles().size());
+        assertThat(keanu3.roles()).hasSize(3);
     }
 
     @Test
@@ -99,13 +99,13 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
         Actor keanu2 = session.load(Actor.class, keanu.getId());
 
-        assertEquals(2, keanu2.roles().size());
+        assertThat(keanu2.roles()).hasSize(2);
 
         keanu2.removeRole("Dumbledore");
 
         session.save(keanu2);
 
         Actor keanu3 = session.load(Actor.class, keanu2.getId());
-        assertEquals(1, keanu3.roles().size());
+        assertThat(keanu3.roles()).hasSize(1);
     }
 }

@@ -22,14 +22,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Vince Bickers
  */
-public class AABBTest extends RelationshipTrait {
+public class AABBTest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -82,9 +84,9 @@ public class AABBTest extends RelationshipTrait {
         b2 = session.load(B.class, b2.id);
         b3 = session.load(B.class, b3.id);
 
-        assertSameArray(new A[]{a1, a2}, b1.a);
-        assertSameArray(new A[]{a1, a3}, b2.a);
-        assertSameArray(new A[]{a2, a3}, b3.a);
+        assertThat(b1.a).containsExactlyInAnyOrder(a1, a2);
+        assertThat(b2.a).containsExactlyInAnyOrder(a1, a3);
+        assertThat(b3.a).containsExactlyInAnyOrder(a2, a3);
     }
 
     @Test
@@ -98,9 +100,9 @@ public class AABBTest extends RelationshipTrait {
         a2 = session.load(A.class, a2.id);
         a3 = session.load(A.class, a3.id);
 
-        assertSameArray(new B[]{b1, b2}, a1.b);
-        assertSameArray(new B[]{b1, b3}, a2.b);
-        assertSameArray(new B[]{b2, b3}, a3.b);
+        assertThat(a1.b).containsExactlyInAnyOrder(b1, b2);
+        assertThat(a2.b).containsExactlyInAnyOrder(b1, b3);
+        assertThat(a3.b).containsExactlyInAnyOrder(b2, b3);
     }
 
     @Test
@@ -121,13 +123,13 @@ public class AABBTest extends RelationshipTrait {
         a1 = session.load(A.class, a1.id);
 
         // expect the b2 relationship to have gone.
-        assertSameArray(new B[]{b1}, a1.b);
+        assertThat(a1.b).containsExactlyInAnyOrder(b1);
 
         // when we reload a3
         a3 = session.load(A.class, a3.id);
 
         // expect the b2 relationship to have gone.
-        assertSameArray(new B[]{b3}, a3.b);
+        assertThat(a3.b).containsExactlyInAnyOrder(b3);
 
         // but when we reload a2
         //session.clear();
@@ -135,7 +137,7 @@ public class AABBTest extends RelationshipTrait {
         a2 = session.load(A.class, a2.id);
 
         // expect its relationships to be intact.
-        assertSameArray(new B[]{b1, b3}, a2.b);
+        assertThat(a2.b).containsExactlyInAnyOrder(b1, b3);
     }
 
     @Test
@@ -151,7 +153,7 @@ public class AABBTest extends RelationshipTrait {
 
         a1 = session.load(A.class, a1.id);
 
-        assertSameArray(new B[]{b1, b2, b3}, a1.b);
+        assertThat(a1.b).containsExactlyInAnyOrder(b1, b2, b3);
     }
 
     @NodeEntity(label = "A")

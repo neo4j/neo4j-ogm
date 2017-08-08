@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.utils;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
@@ -86,6 +86,6 @@ public class RelationshipUtilsTest {
     }
 
     private void expect(String expected, String actual) {
-        assertEquals(expected, actual);
+        assertThat(actual).isEqualTo(expected);
     }
 }

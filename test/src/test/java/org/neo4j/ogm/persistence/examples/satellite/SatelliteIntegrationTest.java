@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.satellite;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -65,11 +65,11 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
         Collection<Program> programs = session.loadAll(Program.class);
 
         if (!programs.isEmpty()) {
-            assertEquals(4, programs.size());
+            assertThat(programs).hasSize(4);
             for (Program program : programs) {
                 for (Satellite satellite : program.getSatellites()) {
                     // 1-side of many->1 is auto-hydrated
-                    assertNull(satellite.getProgram());
+                    assertThat(satellite.getProgram()).isNull();
                 }
             }
         } else {
@@ -82,10 +82,10 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
         Collection<Satellite> satellites = session.loadAll(Satellite.class);
         if (!satellites.isEmpty()) {
-            assertEquals(11, satellites.size());
+            assertThat(satellites).hasSize(11);
 
             for (Satellite satellite : satellites) {
-                assertEquals(satellite.getRef(), satellite.getName());
+                assertThat(satellite.getName()).isEqualTo(satellite.getRef());
             }
         } else {
             fail("Satellite Integration Tests not run: Is there a database?");
@@ -109,8 +109,8 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
             session.save(satellite);
 
             Satellite updatedSatellite = session.load(Satellite.class, id);
-            assertEquals("Updated satellite", updatedSatellite.getName());
-            assertEquals(date, updatedSatellite.getUpdated());
+            assertThat(updatedSatellite.getName()).isEqualTo("Updated satellite");
+            assertThat(updatedSatellite.getUpdated()).isEqualTo(date);
         } else {
             fail("Satellite Integration Tests not run: Is there a database?");
         }
@@ -123,7 +123,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
             // load all
             Collection<Satellite> satellites = session.loadAll(Satellite.class);
-            assertEquals(11, satellites.size());
+            assertThat(satellites).hasSize(11);
 
             Satellite satellite = satellites.iterator().next();
             Long id = satellite.getId();
@@ -134,7 +134,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
             // refetch
             Satellite updatedSatellite = session.load(Satellite.class, id);
-            assertEquals("Updated satellite", updatedSatellite.getName());
+            assertThat(updatedSatellite.getName()).isEqualTo("Updated satellite");
         }  // transaction will be rolled back
     }
 
@@ -149,7 +149,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
             // load all
             Collection<Satellite> satellites = session.loadAll(Satellite.class);
-            assertEquals(11, satellites.size());
+            assertThat(satellites).hasSize(11);
 
             Satellite satellite = satellites.iterator().next();
             id = satellite.getId();
@@ -163,7 +163,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
             // refetch
             Satellite updatedSatellite = session.load(Satellite.class, id);
-            assertEquals("Updated satellite", updatedSatellite.getName());
+            assertThat(updatedSatellite.getName()).isEqualTo("Updated satellite");
 
             tx.rollback();
         }
@@ -172,7 +172,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
         // fetch - after rollback should not be changed
         // note, that because we aren't starting a new tx, we will be given an autocommit one.
         Satellite reloadedSatellite = session.load(Satellite.class, id);
-        assertEquals(name, reloadedSatellite.getName());
+        assertThat(reloadedSatellite.getName()).isEqualTo(name);
     }
 
     @Test
@@ -185,7 +185,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
             // load all
             Collection<Satellite> satellites = session.loadAll(Satellite.class);
-            assertEquals(11, satellites.size());
+            assertThat(satellites).hasSize(11);
 
             Satellite satellite = satellites.iterator().next();
             id = satellite.getId();
@@ -198,14 +198,14 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
             session.clear();
             // refetch
             Satellite updatedSatellite = session.load(Satellite.class, id);
-            assertEquals("Updated satellite", updatedSatellite.getName());
+            assertThat(updatedSatellite.getName()).isEqualTo("Updated satellite");
         }
         session.clear();
 
         // fetch - after rollback should not be changed
         // note, that because we aren't starting a new tx, we will be given an autocommit one.
         Satellite reloadedSatellite = session.load(Satellite.class, id);
-        assertEquals(name, reloadedSatellite.getName());
+        assertThat(reloadedSatellite.getName()).isEqualTo(name);
     }
 
     @Test
@@ -217,7 +217,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
             // load all
             Collection<Satellite> satellites = session.loadAll(Satellite.class);
-            assertEquals(11, satellites.size());
+            assertThat(satellites).hasSize(11);
 
             Satellite satellite = satellites.iterator().next();
             id = satellite.getId();
@@ -229,7 +229,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
             session.clear();
             // refetch
             Satellite updatedSatellite = session.load(Satellite.class, id);
-            assertEquals("Updated satellite", updatedSatellite.getName());
+            assertThat(updatedSatellite.getName()).isEqualTo("Updated satellite");
 
             tx.commit();
         }
@@ -239,7 +239,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
         // fetch - after commit should be changed
         // note, that because we aren't starting a new tx, we will be given an autocommit one.
         Satellite reloadedSatellite = session.load(Satellite.class, id);
-        assertEquals("Updated satellite", reloadedSatellite.getName());
+        assertThat(reloadedSatellite.getName()).isEqualTo("Updated satellite");
     }
 
     @Test
@@ -251,7 +251,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
         Satellite first = iter.next();
         while (iter.hasNext()) {
             Satellite next = iter.next();
-            assertTrue(first.getRef().compareTo(next.getRef()) < 0);
+            assertThat(first.getRef().compareTo(next.getRef()) < 0).isTrue();
             first = next;
         }
     }
@@ -265,7 +265,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
         Program first = iter.next();
         while (iter.hasNext()) {
             Program next = iter.next();
-            assertTrue(first.getRef().compareTo(next.getRef()) > 0);
+            assertThat(first.getRef().compareTo(next.getRef()) > 0).isTrue();
             first = next;
         }
     }
@@ -279,7 +279,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
         Satellite first = iter.next();
         while (iter.hasNext()) {
             Satellite next = iter.next();
-            assertTrue(first.getRef().compareTo(next.getRef()) < 0);
+            assertThat(first.getRef().compareTo(next.getRef()) < 0).isTrue();
             first = next;
         }
     }

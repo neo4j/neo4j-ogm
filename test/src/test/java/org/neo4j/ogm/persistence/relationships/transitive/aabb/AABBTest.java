@@ -13,22 +13,22 @@
 
 package org.neo4j.ogm.persistence.relationships.transitive.aabb;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.UUID;
 
 import org.junit.*;
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class AABBTest extends RelationshipTrait {
+public class AABBTest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -91,9 +91,9 @@ public class AABBTest extends RelationshipTrait {
         a2 = session.load(A.class, a2.id);
         a3 = session.load(A.class, a3.id);
 
-        assertSameArray(new B[]{a1.r[0].b, a1.r[1].b}, new B[]{b1, b2});
-        assertSameArray(new B[]{a2.r[0].b, a2.r[1].b}, new B[]{b1, b3});
-        assertSameArray(new B[]{a3.r[0].b, a3.r[1].b}, new B[]{b2, b3});
+        assertThat(a1.r).extracting(x -> x.b).containsExactlyInAnyOrder(b1, b2);
+        assertThat(a2.r).extracting(x -> x.b).containsExactlyInAnyOrder(b1, b3);
+        assertThat(a3.r).extracting(x -> x.b).containsExactlyInAnyOrder(b2, b3);
     }
 
     @Test
@@ -106,12 +106,12 @@ public class AABBTest extends RelationshipTrait {
         b2 = session.load(B.class, b2.id);
         b3 = session.load(B.class, b3.id);
 
-        assertEquals(2, b1.r.length);
-        assertEquals(2, b2.r.length);
-        assertEquals(2, b3.r.length);
-        assertSameArray(new A[]{b1.r[0].a, b1.r[1].a}, new A[]{a1, a2});
-        assertSameArray(new A[]{b2.r[0].a, b2.r[1].a}, new A[]{a1, a3});
-        assertSameArray(new A[]{b3.r[0].a, b3.r[1].a}, new A[]{a2, a3});
+        assertThat(b1.r.length).isEqualTo(2);
+        assertThat(b2.r.length).isEqualTo(2);
+        assertThat(b3.r.length).isEqualTo(2);
+        assertThat(b1.r).extracting(b -> b.a).containsExactlyInAnyOrder(a1, a2);
+        assertThat(b2.r).extracting(b -> b.a).containsExactlyInAnyOrder(a1, a3);
+        assertThat(b3.r).extracting(b -> b.a).containsExactlyInAnyOrder(a2, a3);
     }
 
     @Test
@@ -130,18 +130,18 @@ public class AABBTest extends RelationshipTrait {
         // when we reload a1
         a1 = session.load(A.class, a1.id);
         // expect the b2 relationship to have gone.
-        assertEquals(1, a1.r.length);
-        assertSameArray(new B[]{b1}, new B[]{a1.r[0].b});
+        assertThat(a1.r.length).isEqualTo(1);
+        assertThat(a1.r[0].b).isEqualTo(b1);
 
         // when we reload a3
         a3 = session.load(A.class, a3.id);
         // expect the b2 relationship to have gone.
-        assertSameArray(new B[]{b3}, new B[]{a3.r[0].b});
+        assertThat(a3.r[0].b).isEqualTo(b3);
 
         // and when we reload a2
         a2 = session.load(A.class, a2.id);
         // expect its relationships to be intact.
-        assertSameArray(new B[]{b1, b3}, new B[]{a2.r[0].b, a2.r[1].b});
+        assertThat(a2.r).extracting(x -> x.b).containsExactlyInAnyOrder(b1, b3);
     }
 
 
@@ -160,8 +160,8 @@ public class AABBTest extends RelationshipTrait {
 
         b1 = session.load(B.class, b1.id);
 
-        assertSameArray(new R[]{r1, r3, r7}, b1.r);
-        assertSameArray(new R[]{r1, r2, r7}, a1.r);
+        assertThat(b1.r).containsExactlyInAnyOrder(r1, r3, r7);
+        assertThat(a1.r).containsExactlyInAnyOrder(r1, r2, r7);
     }
 
     /**
@@ -174,7 +174,7 @@ public class AABBTest extends RelationshipTrait {
         session.clear();
 
         a1 = session.load(A.class, a1.id);
-        assertSameArray(new R[]{r1, r2}, a1.r);
+        assertThat(a1.r).containsExactlyInAnyOrder(r1, r2);
     }
 
     /**
@@ -187,7 +187,7 @@ public class AABBTest extends RelationshipTrait {
         session.clear();
 
         a2 = session.load(A.class, a2.id);
-        assertSameArray(new R[]{r3, r4}, a2.r);
+        assertThat(a2.r).containsExactlyInAnyOrder(r3, r4);
     }
 
     /**
@@ -200,7 +200,7 @@ public class AABBTest extends RelationshipTrait {
         session.clear();
 
         a3 = session.load(A.class, a3.id);
-        assertSameArray(new R[]{r5, r6}, a3.r);
+        assertThat(a3.r).containsExactlyInAnyOrder(r5, r6);
     }
 
     /**
@@ -213,7 +213,7 @@ public class AABBTest extends RelationshipTrait {
         session.clear();
 
         b1 = session.load(B.class, b1.id);
-        assertSameArray(new R[]{r1, r3}, b1.r);
+        assertThat(b1.r).containsExactlyInAnyOrder(r1, r3);
     }
 
     /**
@@ -226,7 +226,7 @@ public class AABBTest extends RelationshipTrait {
         session.clear();
 
         b2 = session.load(B.class, b2.id);
-        assertSameArray(new R[]{r2, r5}, b2.r);
+        assertThat(b2.r).containsExactlyInAnyOrder(r2, r5);
     }
 
     /**
@@ -239,7 +239,7 @@ public class AABBTest extends RelationshipTrait {
         session.clear();
 
         b3 = session.load(B.class, b3.id);
-        assertSameArray(new R[]{r4, r6}, b3.r);
+        assertThat(b3.r).containsExactlyInAnyOrder(r4, r6);
     }
 
     /**
@@ -262,7 +262,7 @@ public class AABBTest extends RelationshipTrait {
 
         session.clear();
         b3 = session.load(B.class, b3.id);
-        assertEquals(2, b3.r[0].number);
+        assertThat(b3.r[0].number).isEqualTo(2);
     }
 
     /**
@@ -285,7 +285,7 @@ public class AABBTest extends RelationshipTrait {
 
         session.clear();
         b3 = session.load(B.class, b3.id);
-        assertEquals(2, b3.r[0].number);
+        assertThat(b3.r[0].number).isEqualTo(2);
     }
 
     /**
@@ -308,7 +308,7 @@ public class AABBTest extends RelationshipTrait {
 
         session.clear();
         b3 = session.load(B.class, b3.id);
-        assertEquals(2, b3.r[0].number);
+        assertThat(b3.r[0].number).isEqualTo(2);
     }
 
 
@@ -327,9 +327,9 @@ public class AABBTest extends RelationshipTrait {
     }
 
     @RelationshipEntity(type = "EDGE")
-    public static class R {
+    public static class R extends E {
 
-        Long id;
+//        Long id;
 
         @StartNode
         A a;

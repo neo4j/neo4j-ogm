@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class MetaDataTest {
      */
     @Test
     public void testClassInfo() {
-        assertEquals("org.neo4j.ogm.domain.forum.Topic", metaData.classInfo("Topic").name());
+        assertThat(metaData.classInfo("Topic").name()).isEqualTo("org.neo4j.ogm.domain.forum.Topic");
     }
 
     /**
@@ -44,21 +44,21 @@ public class MetaDataTest {
      */
     @Test
     public void testAnnotatedClassInfo() {
-        assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.classInfo("User").name());
-        assertEquals("org.neo4j.ogm.domain.forum.BronzeMembership", metaData.classInfo("Bronze").name());
+        assertThat(metaData.classInfo("User").name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
+        assertThat(metaData.classInfo("Bronze").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
     }
 
     @Test
     public void testCanResolveRelationshipEntityFromRelationshipType() {
         ClassInfo classInfo = metaData.resolve("MEMBER_OF");
-        assertNotNull("The resolved class info shouldn't be null", classInfo);
-        assertEquals("org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity", classInfo.name());
+        assertThat(classInfo).as("The resolved class info shouldn't be null").isNotNull();
+        assertThat(classInfo.name()).isEqualTo("org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity");
     }
 
     @Test
     public void testCanResolveClassHierarchies() {
         ClassInfo classInfo = metaData.resolve("Login", "User");
-        assertEquals("org.neo4j.ogm.domain.forum.Member", classInfo.name());
+        assertThat(classInfo.name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
     }
 
     @Test(expected = AmbiguousBaseClassException.class)
@@ -72,7 +72,7 @@ public class MetaDataTest {
      * Taxa corresponding to interfaces with multiple implementations can't be resolved
      */
     public void testInterfaceWithMultipleImplTaxa() {
-        assertEquals(null, metaData.resolve("IMembership"));
+        assertThat(metaData.resolve("IMembership")).isEqualTo(null);
     }
 
     @Test
@@ -83,8 +83,8 @@ public class MetaDataTest {
      */
     public void testInterfaceWithSingleImplTaxa() {
         ClassInfo classInfo = metaData.resolve("AnnotatedInterfaceWithSingleImpl");
-        assertNotNull(classInfo);
-        assertEquals("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface", classInfo.name());
+        assertThat(classInfo).isNotNull();
+        assertThat(classInfo.name()).isEqualTo("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface");
     }
 
     @Test
@@ -92,7 +92,7 @@ public class MetaDataTest {
      * Taxa corresponding to abstract classes can't be resolved
      */
     public void testAbstractClassTaxa() {
-        assertEquals(null, metaData.resolve("Membership"));
+        assertThat(metaData.resolve("Membership")).isEqualTo(null);
     }
 
     @Test(expected = AmbiguousBaseClassException.class)
@@ -108,12 +108,12 @@ public class MetaDataTest {
      * The ordering of taxa is unimportant.
      */
     public void testOrderingOfTaxaIsUnimportant() {
-        assertEquals("org.neo4j.ogm.domain.forum.BronzeMembership", metaData.resolve("Bronze", "Membership", "IMembership").name());
-        assertEquals("org.neo4j.ogm.domain.forum.BronzeMembership", metaData.resolve("Bronze", "IMembership", "Membership").name());
-        assertEquals("org.neo4j.ogm.domain.forum.BronzeMembership", metaData.resolve("Membership", "IMembership", "Bronze").name());
-        assertEquals("org.neo4j.ogm.domain.forum.BronzeMembership", metaData.resolve("Membership", "Bronze", "IMembership").name());
-        assertEquals("org.neo4j.ogm.domain.forum.BronzeMembership", metaData.resolve("IMembership", "Bronze", "Membership").name());
-        assertEquals("org.neo4j.ogm.domain.forum.BronzeMembership", metaData.resolve("IMembership", "Membership", "Bronze").name());
+        assertThat(metaData.resolve("Bronze", "Membership", "IMembership").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("Bronze", "IMembership", "Membership").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("Membership", "IMembership", "Bronze").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("Membership", "Bronze", "IMembership").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("IMembership", "Bronze", "Membership").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("IMembership", "Membership", "Bronze").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
     }
 
     /**
@@ -121,10 +121,10 @@ public class MetaDataTest {
      */
     @Test
     public void testLiskovSubstitutionPrinciple() {
-        assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.resolve("Member").name());
-        assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.resolve("Login", "Member").name());
-        assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.resolve("Login", "Member").name());
-        assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.resolve("Member", "Login").name());
+        assertThat(metaData.resolve("Member").name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
+        assertThat(metaData.resolve("Login", "Member").name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
+        assertThat(metaData.resolve("Login", "Member").name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
+        assertThat(metaData.resolve("Member", "Login").name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
     }
 
     @Test
@@ -132,7 +132,7 @@ public class MetaDataTest {
      * Taxa not in the domain will be ignored.
      */
     public void testAllNonMemberTaxa() {
-        assertEquals(null, metaData.resolve("Knight", "Baronet"));
+        assertThat(metaData.resolve("Knight", "Baronet")).isNull();
     }
 
     @Test
@@ -140,6 +140,6 @@ public class MetaDataTest {
      * Mixing domain and non-domain taxa is permitted.
      */
     public void testNonMemberAndMemberTaxa() {
-        assertEquals("org.neo4j.ogm.domain.forum.SilverMembership", metaData.resolve("Silver", "Pewter", "Tin").name());
+        assertThat(metaData.resolve("Silver", "Pewter", "Tin").name()).isEqualTo("org.neo4j.ogm.domain.forum.SilverMembership");
     }
 }

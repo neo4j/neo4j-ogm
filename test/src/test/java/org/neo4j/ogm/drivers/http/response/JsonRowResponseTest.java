@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -50,8 +51,8 @@ public class JsonRowResponseTest {
         when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
 
         try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
-            TestCase.assertEquals(1, rsp.columns().length);
-            TestCase.assertEquals("collect(p)", rsp.columns()[0]);
+            assertThat(rsp.columns().length).isEqualTo(1);
+            assertThat(rsp.columns()[0]).isEqualTo("collect(p)");
         }
     }
 
@@ -61,8 +62,8 @@ public class JsonRowResponseTest {
         when(entity.getContent()).thenReturn(noRowResultsAndNoErrors());
 
         try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
-            TestCase.assertEquals(1, rsp.columns().length);
-            TestCase.assertEquals("collect(p)", rsp.columns()[0]);
+            assertThat(rsp.columns().length).isEqualTo(1);
+            assertThat(rsp.columns()[0]).isEqualTo("collect(p)");
         }
     }
 
@@ -73,11 +74,11 @@ public class JsonRowResponseTest {
 
         try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             DefaultRowModel rowModel = rsp.next();
-            TestCase.assertNotNull(rowModel);
+            assertThat(rowModel).isNotNull();
             Object[] rows = rowModel.getValues();
-            TestCase.assertEquals(1, rows.length);
+            assertThat(rows.length).isEqualTo(1);
             List<List<Map>> data = (List<List<Map>>) rows[0];
-            TestCase.assertEquals("My Test", data.get(0).get(0).get("name"));
+            assertThat(data.get(0).get(0).get("name")).isEqualTo("My Test");
         }
     }
 
@@ -88,13 +89,13 @@ public class JsonRowResponseTest {
 
         try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             DefaultRowModel rowModel = rsp.next();
-            TestCase.assertNotNull(rowModel);
+            assertThat(rowModel).isNotNull();
             Object[] rows = rowModel.getValues();
-            TestCase.assertEquals(4, rows.length);
-            TestCase.assertEquals(388L, rows[0]);
-            TestCase.assertEquals(527L, rows[1]);
-            TestCase.assertEquals(389L, rows[2]);
-            TestCase.assertEquals(528L, rows[3]);
+            assertThat(rows.length).isEqualTo(4);
+            assertThat(rows[0]).isEqualTo(388L);
+            assertThat(rows[1]).isEqualTo(527L);
+            assertThat(rows[2]).isEqualTo(389L);
+            assertThat(rows[3]).isEqualTo(528L);
         }
     }
 
@@ -105,13 +106,13 @@ public class JsonRowResponseTest {
 
         try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             DefaultRowModel rowModel = rsp.next();
-            TestCase.assertNotNull(rowModel);
+            assertThat(rowModel).isNotNull();
             Object[] rows = rowModel.getValues();
-            TestCase.assertEquals(3, rows.length);
+            assertThat(rows.length).isEqualTo(3);
             Map obj1 = (Map) rows[0];
-            TestCase.assertEquals("Betty", obj1.get("name"));
-            TestCase.assertEquals(0, ((Map) rows[1]).size());
-            TestCase.assertEquals("Peter", (String) rows[2]);
+            assertThat(obj1.get("name")).isEqualTo("Betty");
+            assertThat(((Map) rows[1])).isEmpty();
+            assertThat((String) rows[2]).isEqualTo("Peter");
         }
     }
 

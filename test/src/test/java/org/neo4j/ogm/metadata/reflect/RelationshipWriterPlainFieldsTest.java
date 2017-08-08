@@ -14,7 +14,7 @@
 package org.neo4j.ogm.metadata.reflect;
 
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
@@ -37,9 +37,9 @@ public class RelationshipWriterPlainFieldsTest {
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
         FieldInfo objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "LIST", Relationship.OUTGOING, new T());
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldInfo);
-        assertEquals("LIST", objectAccess.relationshipName());
+        assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
+        assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
+        assertThat(objectAccess.relationshipName()).isEqualTo("LIST");
     }
 
 
@@ -49,9 +49,9 @@ public class RelationshipWriterPlainFieldsTest {
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
         FieldInfo objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "SCALAR", Relationship.OUTGOING, new T());
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldInfo);
-        assertEquals("SCALAR", objectAccess.relationshipName());
+        assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
+        assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
+        assertThat(objectAccess.relationshipName()).isEqualTo("SCALAR");
     }
 
 
@@ -61,9 +61,9 @@ public class RelationshipWriterPlainFieldsTest {
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
         FieldInfo objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "ARRAY", Relationship.OUTGOING, new T());
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldInfo);
-        assertEquals("ARRAY", objectAccess.relationshipName());
+        assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
+        assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
+        assertThat(objectAccess.relationshipName()).isEqualTo("ARRAY");
     }
 
     static class S {

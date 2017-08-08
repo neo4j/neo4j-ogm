@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.relationships;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -74,31 +74,31 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
                 "create (_7)-[:`RATED` {`value`:5}]->(_9)\n" +
                 ";\n", Collections.EMPTY_MAP);
         Person jim = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Jim")).iterator().next();
-        assertEquals(2, jim.movieRatings.size());
-        assertEquals(1, jim.peopleILike.size());
-        assertEquals(1, jim.peopleWhoLikeMe.size());
-        assertEquals(1, jim.peopleIFollow.size());
-        assertEquals(2, jim.peopleWhoFollowMe.size());
-        assertEquals("Mary", jim.peopleILike.get(0).name);
+        assertThat(jim.movieRatings).hasSize(2);
+        assertThat(jim.peopleILike).hasSize(1);
+        assertThat(jim.peopleWhoLikeMe).hasSize(1);
+        assertThat(jim.peopleIFollow).hasSize(1);
+        assertThat(jim.peopleWhoFollowMe).hasSize(2);
+        assertThat(jim.peopleILike.get(0).name).isEqualTo("Mary");
 
         Person bill = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Bill")).iterator().next();
-        assertEquals(2, bill.movieRatings.size());
-        assertEquals(1, bill.peopleILike.size());
-        assertEquals(0, bill.peopleWhoLikeMe.size());
-        assertEquals(1, bill.peopleIFollow.size());
-        assertEquals(1, bill.peopleWhoFollowMe.size());
+        assertThat(bill.movieRatings).hasSize(2);
+        assertThat(bill.peopleILike).hasSize(1);
+        assertThat(bill.peopleWhoLikeMe).isEmpty();
+        assertThat(bill.peopleIFollow).hasSize(1);
+        assertThat(bill.peopleWhoFollowMe).hasSize(1);
 
         Person mary = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Mary")).iterator().next();
         Movie dieHard = session.loadAll(Movie.class, new Filter("name", ComparisonOperator.EQUALS, "Die Hard")).iterator().next();
         Movie matrix = session.loadAll(Movie.class, new Filter("name", ComparisonOperator.EQUALS, "The Matrix")).iterator().next();
-        assertEquals(1, mary.movieRatings.size());
-        assertEquals(1, mary.peopleILike.size());
-        assertEquals(2, mary.peopleWhoLikeMe.size());
-        assertEquals(2, mary.peopleIFollow.size());
-        assertEquals(1, mary.peopleWhoFollowMe.size());
+        assertThat(mary.movieRatings).hasSize(1);
+        assertThat(mary.peopleILike).hasSize(1);
+        assertThat(mary.peopleWhoLikeMe).hasSize(2);
+        assertThat(mary.peopleIFollow).hasSize(2);
+        assertThat(mary.peopleWhoFollowMe).hasSize(1);
 
-        assertEquals(3, matrix.ratings.size());
-        assertEquals(2, dieHard.ratings.size());
+        assertThat(matrix.ratings).hasSize(3);
+        assertThat(dieHard.ratings).hasSize(2);
     }
 
     /**
@@ -172,30 +172,30 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
         session.clear();
 
         jim = session.load(Person.class, idJim);
-        assertEquals(2, jim.movieRatings.size());
-        assertEquals(1, jim.peopleILike.size());
-        assertEquals(1, jim.peopleWhoLikeMe.size());
-        assertEquals(1, jim.peopleIFollow.size());
-        assertEquals(2, jim.peopleWhoFollowMe.size());
+        assertThat(jim.movieRatings).hasSize(2);
+        assertThat(jim.peopleILike).hasSize(1);
+        assertThat(jim.peopleWhoLikeMe).hasSize(1);
+        assertThat(jim.peopleIFollow).hasSize(1);
+        assertThat(jim.peopleWhoFollowMe).hasSize(2);
 
         bill = session.load(Person.class, idBill);
-        assertEquals(2, bill.movieRatings.size());
-        assertEquals(1, bill.peopleILike.size());
-        assertEquals(0, bill.peopleWhoLikeMe.size());
-        assertEquals(1, bill.peopleIFollow.size());
-        assertEquals(1, bill.peopleWhoFollowMe.size());
+        assertThat(bill.movieRatings).hasSize(2);
+        assertThat(bill.peopleILike).hasSize(1);
+        assertThat(bill.peopleWhoLikeMe).isEmpty();
+        assertThat(bill.peopleIFollow).hasSize(1);
+        assertThat(bill.peopleWhoFollowMe).hasSize(1);
 
         mary = session.load(Person.class, idMary);
-        assertEquals(1, mary.movieRatings.size());
-        assertEquals(1, mary.peopleILike.size());
-        assertEquals(2, mary.peopleWhoLikeMe.size());
-        assertEquals(2, mary.peopleIFollow.size());
-        assertEquals(1, mary.peopleWhoFollowMe.size());
+        assertThat(mary.movieRatings).hasSize(1);
+        assertThat(mary.peopleILike).hasSize(1);
+        assertThat(mary.peopleWhoLikeMe).hasSize(2);
+        assertThat(mary.peopleIFollow).hasSize(2);
+        assertThat(mary.peopleWhoFollowMe).hasSize(1);
 
         dieHard = session.load(Movie.class, idDieHard);
         matrix = session.load(Movie.class, idMatrix);
-        assertEquals(3, matrix.ratings.size());
-        assertEquals(2, dieHard.ratings.size());
+        assertThat(matrix.ratings).hasSize(3);
+        assertThat(dieHard.ratings).hasSize(2);
 
         Person bob = new Person();
         bob.name = "Bob";
@@ -211,6 +211,6 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
         session.clear();
 
         bob = session.load(Person.class, bob.id);
-        assertEquals(2, bob.movieRatings.size());
+        assertThat(bob.movieRatings).hasSize(2);
     }
 }

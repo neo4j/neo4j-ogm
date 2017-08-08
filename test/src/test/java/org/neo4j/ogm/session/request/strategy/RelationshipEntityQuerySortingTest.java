@@ -12,7 +12,7 @@
  */
 package org.neo4j.ogm.session.request.strategy;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
@@ -47,7 +47,7 @@ public class RelationshipEntityQuerySortingTest {
         String expected = "MATCH ()-[r0:`ORBITS`]-()  WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
                 "ORDER BY r0.distance MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
                 "MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId";
-        assertEquals(expected, statement);
+        assertThat(statement).isEqualTo(expected);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class RelationshipEntityQuerySortingTest {
                 "MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
                 "MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
                 "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId";
-        assertEquals(expected, query.findByType("ORBITS", filters, 1).setSortOrder(sortOrder).getStatement());
+        assertThat(query.findByType("ORBITS", filters, 1).setSortOrder(sortOrder).getStatement()).isEqualTo(expected);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class RelationshipEntityQuerySortingTest {
                 "MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
                 "MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
                 "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId";
-        assertEquals(expected, statement);
+        assertThat(statement).isEqualTo(expected);
     }
 
     @Test
@@ -82,6 +82,6 @@ public class RelationshipEntityQuerySortingTest {
                 "ORDER BY r0.type DESC,r0.name MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
                 "MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
                 "UNWIND paths AS p RETURN DISTINCT p, rId";
-        assertEquals(expected, statement);
+        assertThat(statement).isEqualTo(expected);
     }
 }

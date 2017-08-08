@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.session.events;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
@@ -34,10 +34,10 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
         a.setName("newA");
         session.save(a);
 
-        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(a, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(2, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(2);
     }
 
     @Test
@@ -50,14 +50,14 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
         c.setName("newC");
         session.save(a);
 
-        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
-        assertTrue(eventListener.captured(b, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(b, Event.TYPE.POST_SAVE));
-        assertTrue(eventListener.captured(c, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(c, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(a, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(eventListener.captured(b, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(b, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(eventListener.captured(c, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(c, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(6, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(6);
     }
 
     @Test
@@ -71,13 +71,13 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
         // the folder and the document has been deleted in the graph, we must
         // fire events for the folder.
 
-        assertTrue(eventListener.captured(a, Event.TYPE.PRE_DELETE));
-        assertTrue(eventListener.captured(a, Event.TYPE.POST_DELETE));
+        assertThat(eventListener.captured(a, Event.TYPE.PRE_DELETE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.POST_DELETE)).isTrue();
 
-        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(folder, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(4, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(4);
     }
 
     @Test
@@ -86,13 +86,13 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
         folder.getDocuments().remove(a);
         session.delete(a);  // a has a folder object reference
 
-        assertTrue(eventListener.captured(a, Event.TYPE.PRE_DELETE));
-        assertTrue(eventListener.captured(a, Event.TYPE.POST_DELETE));
+        assertThat(eventListener.captured(a, Event.TYPE.PRE_DELETE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.POST_DELETE)).isTrue();
 
-        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(folder, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(4, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(4);
     }
 
     @Test
@@ -105,12 +105,12 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
 
         session.save(folder);
 
-        assertTrue(eventListener.captured(z, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(z, Event.TYPE.POST_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(z, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(z, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(4, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(4);
     }
 
     @Test
@@ -123,12 +123,12 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
 
         session.save(z);
 
-        assertTrue(eventListener.captured(z, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(z, Event.TYPE.POST_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(z, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(z, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(4, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(4);
     }
 
     @Test
@@ -139,12 +139,12 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
 
         session.save(d);
 
-        assertTrue(eventListener.captured(d, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(d, Event.TYPE.POST_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(d, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(d, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(4, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(4);
     }
 
     @Test
@@ -156,36 +156,36 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
         session.save(a);
 
         // events for creation of new object
-        assertTrue(eventListener.captured(new Folder(), Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(new Folder(), Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(new Folder(), Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(new Folder(), Event.TYPE.POST_SAVE)).isTrue();
 
         // events for update of a's folder relationship
-        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(a, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.POST_SAVE)).isTrue();
 
         // events for updates of folder's relationship to a
-        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(folder, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(6, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(6);
     }
 
     @Test
     public void shouldFireEventsWhenAddExistingObjectToCollectionAndSaveCollection() {
 
-        assertNull(d.getFolder());
+        assertThat(d.getFolder()).isNull();
 
         d.setFolder(folder);
         folder.getDocuments().add(d);
 
         session.save(folder);
 
-        assertTrue(eventListener.captured(d, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(d, Event.TYPE.POST_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(d, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(d, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(4, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(4);
     }
 
     @Test
@@ -196,12 +196,12 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
 
         session.save(folder);
 
-        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
-        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(folder, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(4, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(4);
     }
 
     @Test
@@ -212,11 +212,11 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
 
         session.save(a);
 
-        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
-        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
+        assertThat(eventListener.captured(folder, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(folder, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(eventListener.captured(a, Event.TYPE.POST_SAVE)).isTrue();
 
-        assertEquals(4, eventListener.count());
+        assertThat(eventListener.count()).isEqualTo(4);
     }
 }

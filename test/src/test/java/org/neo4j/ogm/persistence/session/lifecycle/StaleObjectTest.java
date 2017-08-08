@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.session.lifecycle;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
@@ -78,8 +78,8 @@ public class StaleObjectTest extends MultiDriverTestClass {
 
         session.save(f);
 
-        assertEquals("Document{folder=Folder{name='f', documents=2, archived=0}, name='a'}", a.toString());
-        assertEquals("Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}", b.toString());
+        assertThat(a.toString()).isEqualTo("Document{folder=Folder{name='f', documents=2, archived=0}, name='a'}");
+        assertThat(b.toString()).isEqualTo("Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}");
     }
 
     @Test
@@ -92,7 +92,7 @@ public class StaleObjectTest extends MultiDriverTestClass {
 
         Folder p = session.load(Folder.class, f.getId());
 
-        assertEquals("Folder{name='f', documents=1, archived=0}", p.toString());
+        assertThat(p.toString()).isEqualTo("Folder{name='f', documents=1, archived=0}");
 
         // the document object loaded into the session by virtue of reloading f is no longer b. we guarantee to fetch the latest version of all reachable objects
         // and we overwrite objects in the mapping context.
@@ -100,12 +100,12 @@ public class StaleObjectTest extends MultiDriverTestClass {
         // directly after a save all objects in the save tree are guaranteed to not be dirty
         // directly after a load, all objects in the load tree are guaranteed to not be dirty
 
-        assertFalse(p.getDocuments().iterator().next() == b);
+        assertThat(p.getDocuments().iterator().next() == b).isFalse();
 
-        assertEquals("Document{folder=null, name='a'}", a.toString());
-        assertEquals("Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}", b.toString());   // b is attached to f, which hasn't been saved or reloaded, so is unchanged
+        assertThat(a.toString()).isEqualTo("Document{folder=null, name='a'}");
+        assertThat(b.toString()).isEqualTo("Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}");   // b is attached to f, which hasn't been saved or reloaded, so is unchanged
 
-        assertEquals("Document{folder=Folder{name='f', documents=1, archived=0}, name='b'}", p.getDocuments().iterator().next().toString());
+        assertThat(p.getDocuments().iterator().next().toString()).isEqualTo("Document{folder=Folder{name='f', documents=1, archived=0}, name='b'}");
     }
 
     @Test
@@ -116,14 +116,14 @@ public class StaleObjectTest extends MultiDriverTestClass {
 
         session.save(f);
 
-        assertEquals("Folder{name='f', documents=0, archived=0}", f.toString());
-        assertEquals("Document{folder=Folder{name='f', documents=0, archived=0}, name='a'}", a.toString());
-        assertEquals("Document{folder=Folder{name='f', documents=0, archived=0}, name='b'}", b.toString());
+        assertThat(f.toString()).isEqualTo("Folder{name='f', documents=0, archived=0}");
+        assertThat(a.toString()).isEqualTo("Document{folder=Folder{name='f', documents=0, archived=0}, name='a'}");
+        assertThat(b.toString()).isEqualTo("Document{folder=Folder{name='f', documents=0, archived=0}, name='b'}");
 
         Document aa = session.load(Document.class, a.getId());
         Document bb = session.load(Document.class, b.getId());
 
-        assertEquals("Document{folder=null, name='a'}", aa.toString());
-        assertEquals("Document{folder=null, name='b'}", bb.toString());
+        assertThat(aa.toString()).isEqualTo("Document{folder=null, name='a'}");
+        assertThat(bb.toString()).isEqualTo("Document{folder=null, name='b'}");
     }
 }

@@ -12,7 +12,7 @@
  */
 package org.neo4j.ogm.drivers;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,9 +60,9 @@ public class BasicDriverTest extends MultiDriverTestClass {
     @Test
     public void shouldSaveObject() {
         User user = new User("Bilbo Baggins");
-        assertNull(user.getId());
+        assertThat(user.getId()).isNull();
         session.save(user);
-        assertNotNull(user.getId());
+        assertThat(user.getId()).isNotNull();
     }
 
 
@@ -71,7 +71,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
     public void shouldLoadByType() {
         session.save(new User());
         session.clear();
-        assertEquals(1, session.loadAll(User.class).size());
+        assertThat(session.loadAll(User.class)).hasSize(1);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(user);
         session.clear();
         User userByType = session.load(User.class, user.getId());
-        assertNotNull(userByType);
+        assertThat(userByType).isNotNull();
     }
 
     @Test
@@ -89,7 +89,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(user);
         session.clear();
         User userByProperty = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "Bilbo Baggins")).iterator().next();
-        assertNotNull(userByProperty);
+        assertThat(userByProperty).isNotNull();
     }
 
     @Test
@@ -102,8 +102,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(users);
         session.clear();
         Collection<User> userByInstances = session.loadAll(users);
-        assertNotNull(userByInstances);
-        assertEquals(2, userByInstances.size());
+        assertThat(userByInstances).isNotNull();
+        assertThat(userByInstances).hasSize(2);
     }
 
     @Test
@@ -114,8 +114,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(frodo);
         session.clear();
         Collection<User> userByInstances = session.loadAll(User.class, Arrays.asList(frodo.getId(), bilbo.getId()));
-        assertNotNull(userByInstances);
-        assertEquals(2, userByInstances.size());
+        assertThat(userByInstances).isNotNull();
+        assertThat(userByInstances).hasSize(2);
     }
 
     // query tests
@@ -124,7 +124,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Bilbo Baggins"));
         session.clear();
         User bilbo = session.queryForObject(User.class, "MATCH(u:User) RETURN u", Utils.map("name", "Bilbo Baggins"));
-        assertNotNull(bilbo);
+        assertThat(bilbo).isNotNull();
     }
 
     @Test
@@ -133,8 +133,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Frodo Baggins"));
         session.clear();
         Collection<User> users = (Collection) session.query(User.class, "MATCH(u:User) WHERE u.name =~ '.*Baggins' RETURN u", Utils.map());
-        assertNotNull(users);
-        assertEquals(2, users.size());
+        assertThat(users).isNotNull();
+        assertThat(users).hasSize(2);
     }
 
     @Test
@@ -143,8 +143,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Frodo Baggins"));
         session.clear();
         Collection<String> userNames = (Collection) session.query(String.class, "MATCH(u:User) WHERE u.name =~ '.*Baggins' RETURN u.name", Utils.map());
-        assertNotNull(userNames);
-        assertEquals(2, userNames.size());
+        assertThat(userNames).isNotNull();
+        assertThat(userNames).hasSize(2);
     }
 
     @Test
@@ -153,8 +153,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Frodo Baggins"));
         session.clear();
         Result result = session.query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit'", Utils.map());
-        assertEquals(2, result.queryStatistics().getPropertiesSet());
-        assertFalse(result.queryResults().iterator().hasNext());
+        assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(2);
+        assertThat(result.queryResults().iterator().hasNext()).isFalse();
     }
 
     @Test
@@ -163,8 +163,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Frodo Baggins"));
         session.clear();
         Result result = session.query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit' RETURN u.name", Utils.map());
-        assertEquals(2, result.queryStatistics().getPropertiesSet());
-        assertTrue(result.queryResults().iterator().hasNext());
+        assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(2);
+        assertThat(result.queryResults().iterator().hasNext()).isTrue();
     }
 
     //
@@ -175,7 +175,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User());
         tx.commit();
         session.clear();
-        assertEquals(1, session.loadAll(User.class).size());
+        assertThat(session.loadAll(User.class)).hasSize(1);
     }
 
 
@@ -186,7 +186,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User());
         tx.rollback();
         session.clear();
-        assertEquals(0, session.loadAll(User.class).size());
+        assertThat(session.loadAll(User.class)).isEmpty();
     }
 
     @Test
@@ -195,7 +195,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
             doExtendedCommitRollbackCommit();
             fail("Should have thrown exception");
         } catch (TransactionException txe) {
-            assertEquals(0, session.loadAll(User.class).size());
+            assertThat(session.loadAll(User.class)).isEmpty();
         }
     }
 
@@ -205,7 +205,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
             doExtendedRollbackCommitCommit();
             fail("Should have thrown exception");
         } catch (TransactionException txe) {
-            assertEquals(0, session.loadAll(User.class).size());
+            assertThat(session.loadAll(User.class)).isEmpty();
         }
     }
 
@@ -216,20 +216,20 @@ public class BasicDriverTest extends MultiDriverTestClass {
             doExtendedRollbackRollbackCommit();
             fail("Should have thrown exception");
         } catch (TransactionException txe) {
-            assertEquals(0, session.loadAll(User.class).size());
+            assertThat(session.loadAll(User.class)).isEmpty();
         }
     }
 
     @Test
     public void shouldSucceedExtendedCommitCommitCommit() {
         doExtendedCommitCommitCommit();
-        assertEquals(2, session.loadAll(User.class).size());
+        assertThat(session.loadAll(User.class)).hasSize(2);
     }
 
     @Test
     public void shouldSucceedExtendedCommitRollbackRollback() {
         doExtendedCommitRollbackRollback();
-        assertEquals(0, session.loadAll(User.class).size());
+        assertThat(session.loadAll(User.class)).isEmpty();
     }
 
     @Test
@@ -238,20 +238,20 @@ public class BasicDriverTest extends MultiDriverTestClass {
             doExtendedRollbackCommitRollback();
             fail("Should have caught exception"); // invalid transaction state after rollback, commit
         } catch (TransactionException txe) {
-            assertEquals(0, session.loadAll(User.class).size());
+            assertThat(session.loadAll(User.class)).isEmpty();
         }
     }
 
     @Test
     public void shouldSucceedExtendedRollbackRollbackRollback() {
         doExtendedRollbackRollbackRollback();
-        assertEquals(0, session.loadAll(User.class).size());
+        assertThat(session.loadAll(User.class)).isEmpty();
     }
 
     @Test
     public void shouldSucceedExtendedCommitCommitRollback() {
         doExtendedCommitCommitRollback();
-        assertEquals(0, session.loadAll(User.class).size());
+        assertThat(session.loadAll(User.class)).isEmpty();
     }
 
     /**
@@ -264,8 +264,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
             session.query(User.class, "MATCH(u:User) WHERE u.name ~ '.*Baggins' RETURN u", Utils.map());
             fail("Expected a CypherException but got none");
         } catch (CypherException ce) {
-            assertTrue(ce.getCode().contains("Neo.ClientError.Statement"));
-            assertTrue(ce.getDescription().contains("Invalid input"));
+            assertThat(ce.getCode().contains("Neo.ClientError.Statement")).isTrue();
+            assertThat(ce.getDescription().contains("Invalid input")).isTrue();
         }
     }
 

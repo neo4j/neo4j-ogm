@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.relationships.transitive.ab;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -77,7 +77,7 @@ public class ABTest extends MultiDriverTestClass {
 
         a = session.load(A.class, a.id);
 
-        assertEquals(b, a.r.b);
+        assertThat(a.r.b).isEqualTo(b);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class ABTest extends MultiDriverTestClass {
 
         b = session.load(B.class, b.id);
 
-        assertEquals(a, b.r.a);
+        assertThat(b.r.a).isEqualTo(a);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class ABTest extends MultiDriverTestClass {
         a = session.load(A.class, a.id);
 
         // expect the relationship to have gone.
-        assertNull(a.r);
+        assertThat(a.r).isNull();
     }
 
     /**
@@ -129,7 +129,7 @@ public class ABTest extends MultiDriverTestClass {
 
         session.clear();
         b3 = session.load(B.class, b3.id);
-        assertEquals(2, b3.r.number);
+        assertThat(b3.r.number).isEqualTo(2);
     }
 
     /**
@@ -152,7 +152,7 @@ public class ABTest extends MultiDriverTestClass {
 
         session.clear();
         b3 = session.load(B.class, b3.id);
-        assertEquals(2, b3.r.number);
+        assertThat(b3.r.number).isEqualTo(2);
     }
 
     /**
@@ -175,7 +175,7 @@ public class ABTest extends MultiDriverTestClass {
 
         session.clear();
         b3 = session.load(B.class, b3.id);
-        assertEquals(2, b3.r.number);
+        assertThat(b3.r.number).isEqualTo(2);
     }
 
     @NodeEntity(label = "A")

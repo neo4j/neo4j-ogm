@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +25,8 @@ import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Vince Bickers
@@ -44,6 +44,6 @@ public class ParameterisedStatementsTest {
 
         String cypher = mapper.writeValueAsString(new Statements(statements));
 
-        assertEquals("{\"statements\":[{\"statement\":\"MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}", cypher);
+        assertThat(cypher).isEqualTo("{\"statements\":[{\"statement\":\"MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}");
     }
 }

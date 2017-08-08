@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -66,15 +66,15 @@ public class EndToEndTest extends MultiDriverTestClass {
         parameters.put("material", "Leather");
         Saddle actual = session.queryForObject(Saddle.class, "MATCH (saddle:Saddle{material: {material}}) RETURN saddle", parameters);
 
-        assertEquals(expected.getId(), actual.getId());
-        assertEquals(expected.getMaterial(), actual.getMaterial());
+        assertThat(actual.getId()).isEqualTo(expected.getId());
+        assertThat(actual.getMaterial()).isEqualTo(expected.getMaterial());
 
         HashMap<String, Object> parameters2 = new HashMap<>();
         parameters2.put("brand", "Huffy");
         Bike actual2 = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand: {brand}}) RETURN bike", parameters2);
 
-        assertEquals(bike.getId(), actual2.getId());
-        assertEquals(bike.getBrand(), actual2.getBrand());
+        assertThat(actual2.getId()).isEqualTo(bike.getId());
+        assertThat(actual2.getBrand()).isEqualTo(bike.getBrand());
     }
 
 
@@ -90,7 +90,7 @@ public class EndToEndTest extends MultiDriverTestClass {
 
         long actual = session.queryForObject(Long.class, "MATCH (saddle:Saddle{material: {material}}) RETURN COUNT(saddle)", parameters);
 
-        assertEquals(1, actual);
+        assertThat(actual).isEqualTo(1);
     }
 
     @Test
@@ -112,10 +112,10 @@ public class EndToEndTest extends MultiDriverTestClass {
 
         Bike actual = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand:{brand}})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters);
 
-        assertEquals(bike.getId(), actual.getId());
-        assertEquals(bike.getBrand(), actual.getBrand());
-        assertEquals(bike.getWheels().size(), actual.getWheels().size());
-        assertNotNull(actual.getSaddle());
+        assertThat(actual.getId()).isEqualTo(bike.getId());
+        assertThat(actual.getBrand()).isEqualTo(bike.getBrand());
+        assertThat(actual.getWheels().size()).isEqualTo(bike.getWheels().size());
+        assertThat(actual.getSaddle()).isNotNull();
     }
 
     @Test
@@ -149,9 +149,9 @@ public class EndToEndTest extends MultiDriverTestClass {
         parameters2.put("brand", "Huffy");
         Bike actual = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand:{brand}})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters2);
 
-        assertEquals(bike.getId(), actual.getId());
-        assertEquals(bike.getBrand(), actual.getBrand());
-        assertEquals(bike.getWheels().size(), actual.getWheels().size());
+        assertThat(actual.getId()).isEqualTo(bike.getId());
+        assertThat(actual.getBrand()).isEqualTo(bike.getBrand());
+        assertThat(actual.getWheels().size()).isEqualTo(bike.getWheels().size());
     }
 
     @Test
@@ -165,18 +165,18 @@ public class EndToEndTest extends MultiDriverTestClass {
         bike.setSaddle(new Saddle());
         bike.setWheels(Arrays.asList(frontWheel, backWheel));
 
-        assertNull(frontWheel.getId());
-        assertNull(backWheel.getId());
-        assertNull(bike.getId());
-        assertNull(bike.getFrame().getId());
-        assertNull(bike.getSaddle().getId());
+        assertThat(frontWheel.getId()).isNull();
+        assertThat(backWheel.getId()).isNull();
+        assertThat(bike.getId()).isNull();
+        assertThat(bike.getFrame().getId()).isNull();
+        assertThat(bike.getSaddle().getId()).isNull();
 
         session.save(bike);
 
-        assertNotNull(frontWheel.getId());
-        assertNotNull(backWheel.getId());
-        assertNotNull(bike.getId());
-        assertNotNull(bike.getFrame().getId());
-        assertNotNull(bike.getSaddle().getId());
+        assertThat(frontWheel.getId()).isNotNull();
+        assertThat(backWheel.getId()).isNotNull();
+        assertThat(bike.getId()).isNotNull();
+        assertThat(bike.getFrame().getId()).isNotNull();
+        assertThat(bike.getSaddle().getId()).isNotNull();
     }
 }

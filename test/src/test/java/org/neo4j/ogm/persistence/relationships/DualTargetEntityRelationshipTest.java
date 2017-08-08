@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.relationships;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -63,16 +63,16 @@ public class DualTargetEntityRelationshipTest extends MultiDriverTestClass {
 
         session.save(event);
 
-        assertNotNull(event.getNodeId());
-        assertNotNull(event.getCategory().getNodeId());
-        assertNotNull(event.getTags().iterator().next().getNodeId());
+        assertThat(event.getNodeId()).isNotNull();
+        assertThat(event.getCategory().getNodeId()).isNotNull();
+        assertThat(event.getTags().iterator().next().getNodeId()).isNotNull();
 
         session.clear();
         event = session.load(Event.class, event.getNodeId(), 1);
 
-        assertNotNull(event);
-        assertEquals(category, event.getCategory());
-        assertEquals(tag1, event.getTags().iterator().next());
+        assertThat(event).isNotNull();
+        assertThat(event.getCategory()).isEqualTo(category);
+        assertThat(event.getTags().iterator().next()).isEqualTo(tag1);
     }
 
     /**
@@ -93,29 +93,29 @@ public class DualTargetEntityRelationshipTest extends MultiDriverTestClass {
 
         session.save(event);
 
-        assertNotNull(event.getNodeId());
-        assertNotNull(category.getNodeId());
-        assertNotNull(tag1.getNodeId());
+        assertThat(event.getNodeId()).isNotNull();
+        assertThat(category.getNodeId()).isNotNull();
+        assertThat(tag1.getNodeId()).isNotNull();
 
         session.clear();
 
         Collection<Tag> tagsFound = session.loadAll(Tag.class, new Filter("name", ComparisonOperator.EQUALS, "tag1"));
-        assertEquals(1, tagsFound.size());
+        assertThat(tagsFound).hasSize(1);
         event.setTags(new HashSet<>(tagsFound));
 
         Collection<Category> categoriesFound = session.loadAll(Category.class, new Filter("name", ComparisonOperator.EQUALS, "cat1"));
-        assertEquals(1, categoriesFound.size());
+        assertThat(categoriesFound).hasSize(1);
         event.setCategory(categoriesFound.iterator().next());
 
-        assertEquals(tag1, event.getTags().iterator().next());
-        assertEquals(category, event.getCategory());
+        assertThat(event.getTags().iterator().next()).isEqualTo(tag1);
+        assertThat(event.getCategory()).isEqualTo(category);
         session.save(event);
 
         session.clear();
         Event eventFound = session.load(Event.class, event.getNodeId(), 1);
 
-        assertNotNull(eventFound.getNodeId());
-        assertEquals(category, eventFound.getCategory());
-        assertEquals(tag1, eventFound.getTags().iterator().next());
+        assertThat(eventFound.getNodeId()).isNotNull();
+        assertThat(eventFound.getCategory()).isEqualTo(category);
+        assertThat(eventFound.getTags().iterator().next()).isEqualTo(tag1);
     }
 }

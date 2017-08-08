@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.companies;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -67,13 +67,13 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         company = session.load(Company.class, company.getId());
-        assertNotNull(company);
-        assertEquals(2, company.getEmployees().size());
-        assertNull(company.getOwners());
+        assertThat(company).isNotNull();
+        assertThat(company.getEmployees()).hasSize(2);
+        assertThat(company.getOwners()).isNull();
 
         for (Person employee : company.getEmployees()) {
-            assertNotNull(employee.getEmployer());
-            assertNull(employee.getOwns());
+            assertThat(employee.getEmployer()).isNotNull();
+            assertThat(employee.getOwns()).isNull();
         }
     }
 
@@ -93,14 +93,14 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         company = session.load(Company.class, company.getId());
-        assertNotNull(company);
-        assertEquals(2, company.getEmployees().size());
-        assertEquals(2, company.getOwners().size());
+        assertThat(company).isNotNull();
+        assertThat(company.getEmployees()).hasSize(2);
+        assertThat(company.getOwners()).hasSize(2);
 
         for (Person employee : company.getEmployees()) {
-            assertEquals(company.getId(), employee.getEmployer().getId());
-            assertEquals(1, employee.getOwns().size());
-            assertEquals(company.getId(), employee.getOwns().iterator().next().getId());
+            assertThat(employee.getEmployer().getId()).isEqualTo(company.getId());
+            assertThat(employee.getOwns()).hasSize(1);
+            assertThat(employee.getOwns().iterator().next().getId()).isEqualTo(company.getId());
         }
     }
 
@@ -114,12 +114,12 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
         person.addDevice(device);
         session.save(person);
         person.removeDevice(device);
-        assertEquals(0, person.getDevices().size());
+        assertThat(person.getDevices()).isEmpty();
         session.save(person);
 
         session.clear();
         person = session.load(Person.class, person.getId());
-        assertNotNull(person);
-        assertNull(person.getDevices());
+        assertThat(person).isNotNull();
+        assertThat(person.getDevices()).isNull();
     }
 }

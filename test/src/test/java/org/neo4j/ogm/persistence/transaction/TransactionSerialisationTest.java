@@ -17,7 +17,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.session.Session;
@@ -25,6 +24,8 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author vince
@@ -91,7 +92,7 @@ public class TransactionSerialisationTest extends MultiDriverTestClass {
                 session.query(query, Utils.map());
                 tx.commit();
             } catch (Exception e) {
-                Assert.assertTrue(e instanceof CypherException);
+                assertThat(e instanceof CypherException).isTrue();
             } finally {
                 latch.countDown();
             }

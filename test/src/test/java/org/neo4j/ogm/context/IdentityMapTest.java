@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.context;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class IdentityMapTest {
 
         mrsJones.setId(115L); // the id field must not be part of the memoised property list
         mappingContext.addNodeEntity(mrsJones, mrsJones.getId());
-        assertFalse(mappingContext.isDirty(mrsJones));
+        assertThat(mappingContext.isDirty(mrsJones)).isFalse();
     }
 
     @Test
@@ -51,7 +51,7 @@ public class IdentityMapTest {
         mappingContext.addNodeEntity(teacher, teacher.getId());
 
         teacher.setName("Mrs Jones"); // the teacher's name property has changed.
-        assertTrue(mappingContext.isDirty(teacher));
+        assertThat(mappingContext.isDirty(teacher)).isTrue();
     }
 
     @Test
@@ -63,6 +63,6 @@ public class IdentityMapTest {
 
         teacher.setSchool(new School("Roedean")); // a related object does not affect the property list.
 
-        assertFalse(mappingContext.isDirty(teacher));
+        assertThat(mappingContext.isDirty(teacher)).isFalse();
     }
 }

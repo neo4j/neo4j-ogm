@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.canonical;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -98,49 +98,49 @@ public class CanonicalTest extends MultiDriverTestClass {
         session.clear();
 
         Result result = session.query("match (n) return n", Collections.EMPTY_MAP);
-        assertNotNull(result);
+        assertThat(result).isNotNull();
         Mappable loaded = (Mappable) result.iterator().next().get("n");
-        assertNotNull(loaded);
+        assertThat(loaded).isNotNull();
 
-        assertFalse(loaded.isPrimitiveBoolean());
-        assertEquals(mappable.getPrimitiveByte(), loaded.getPrimitiveByte());
-        assertEquals(mappable.getPrimitiveChar(), loaded.getPrimitiveChar());
-        assertEquals(mappable.getPrimitiveDouble(), loaded.getPrimitiveDouble(), 0);
-        assertEquals(mappable.getPrimitiveFloat(), loaded.getPrimitiveFloat(), 0);
-        assertEquals(mappable.getPrimitiveInt(), loaded.getPrimitiveInt());
-        assertEquals(mappable.getPrimitiveLong(), loaded.getPrimitiveLong());
-        assertEquals(mappable.getPrimitiveShort(), loaded.getPrimitiveShort());
+        assertThat(loaded.isPrimitiveBoolean()).isFalse();
+        assertThat(loaded.getPrimitiveByte()).isEqualTo(mappable.getPrimitiveByte());
+        assertThat(loaded.getPrimitiveChar()).isEqualTo(mappable.getPrimitiveChar());
+        assertThat(loaded.getPrimitiveDouble()).isEqualTo(mappable.getPrimitiveDouble(), within(0.0));
+        assertThat(loaded.getPrimitiveFloat()).isEqualTo(mappable.getPrimitiveFloat(), within(0.0f));
+        assertThat(loaded.getPrimitiveInt()).isEqualTo(mappable.getPrimitiveInt());
+        assertThat(loaded.getPrimitiveLong()).isEqualTo(mappable.getPrimitiveLong());
+        assertThat(loaded.getPrimitiveShort()).isEqualTo(mappable.getPrimitiveShort());
 
-        assertArrayEquals(mappable.getPrimitiveBooleanArray(), loaded.getPrimitiveBooleanArray());
-        assertArrayEquals(mappable.getPrimitiveByteArray(), loaded.getPrimitiveByteArray());
-        assertArrayEquals(mappable.getPrimitiveCharArray(), loaded.getPrimitiveCharArray());
-        assertArrayEquals(mappable.getPrimitiveDoubleArray(), loaded.getPrimitiveDoubleArray(), 0);
-        assertArrayEquals(mappable.getPrimitiveFloatArray(), loaded.getPrimitiveFloatArray(), 0);
-        assertArrayEquals(mappable.getPrimitiveIntArray(), loaded.getPrimitiveIntArray());
-        assertArrayEquals(mappable.getPrimitiveLongArray(), loaded.getPrimitiveLongArray());
-        assertArrayEquals(mappable.getPrimitiveShortArray(), loaded.getPrimitiveShortArray());
+        assertThat(loaded.getPrimitiveBooleanArray()).isEqualTo(mappable.getPrimitiveBooleanArray());
+        assertThat(loaded.getPrimitiveByteArray()).isEqualTo(mappable.getPrimitiveByteArray());
+        assertThat(loaded.getPrimitiveCharArray()).isEqualTo(mappable.getPrimitiveCharArray());
+        assertThat(loaded.getPrimitiveDoubleArray()).isEqualTo(mappable.getPrimitiveDoubleArray());
+        assertThat(loaded.getPrimitiveFloatArray()).isEqualTo(mappable.getPrimitiveFloatArray());
+        assertThat(loaded.getPrimitiveIntArray()).isEqualTo(mappable.getPrimitiveIntArray());
+        assertThat(loaded.getPrimitiveLongArray()).isEqualTo(mappable.getPrimitiveLongArray());
+        assertThat(loaded.getPrimitiveShortArray()).isEqualTo(mappable.getPrimitiveShortArray());
 
-        assertEquals(mappable.getObjectBoolean(), loaded.getObjectBoolean());
-        assertEquals(mappable.getObjectByte(), loaded.getObjectByte());
-        assertEquals(mappable.getObjectDouble(), loaded.getObjectDouble());
-        assertEquals(mappable.getObjectFloat(), loaded.getObjectFloat());
-        assertEquals(mappable.getObjectInteger(), loaded.getObjectInteger());
-        assertEquals(mappable.getObjectLong(), loaded.getObjectLong());
-        assertEquals(mappable.getObjectShort(), loaded.getObjectShort());
-        assertEquals(mappable.getObjectString(), loaded.getObjectString());
-        assertEquals(mappable.getObjectCharacter(), loaded.getObjectCharacter());
+        assertThat(loaded.getObjectBoolean()).isEqualTo(mappable.getObjectBoolean());
+        assertThat(loaded.getObjectByte()).isEqualTo(mappable.getObjectByte());
+        assertThat(loaded.getObjectDouble()).isEqualTo(mappable.getObjectDouble());
+        assertThat(loaded.getObjectFloat()).isEqualTo(mappable.getObjectFloat());
+        assertThat(loaded.getObjectInteger()).isEqualTo(mappable.getObjectInteger());
+        assertThat(loaded.getObjectLong()).isEqualTo(mappable.getObjectLong());
+        assertThat(loaded.getObjectShort()).isEqualTo(mappable.getObjectShort());
+        assertThat(loaded.getObjectString()).isEqualTo(mappable.getObjectString());
+        assertThat(loaded.getObjectCharacter()).isEqualTo(mappable.getObjectCharacter());
 
-        assertArrayEquals(mappable.getObjectBooleanArray(), loaded.getObjectBooleanArray());
-        assertArrayEquals(mappable.getObjectByteArray(), loaded.getObjectByteArray());
-        assertArrayEquals(mappable.getObjectCharArray(), loaded.getObjectCharArray());
-        assertArrayEquals(mappable.getObjectDoubleArray(), loaded.getObjectDoubleArray());
-        assertArrayEquals(mappable.getObjectFloatArray(), loaded.getObjectFloatArray());
-        assertArrayEquals(mappable.getObjectIntegerArray(), loaded.getObjectIntegerArray());
-        assertArrayEquals(mappable.getObjectLongArray(), loaded.getObjectLongArray());
-        assertArrayEquals(mappable.getObjectShortArray(), loaded.getObjectShortArray());
-        assertArrayEquals(mappable.getObjectStringArray(), loaded.getObjectStringArray());
+        assertThat(loaded.getObjectBooleanArray()).isEqualTo(mappable.getObjectBooleanArray());
+        assertThat(loaded.getObjectByteArray()).isEqualTo(mappable.getObjectByteArray());
+        assertThat(loaded.getObjectCharArray()).isEqualTo(mappable.getObjectCharArray());
+        assertThat(loaded.getObjectDoubleArray()).isEqualTo(mappable.getObjectDoubleArray());
+        assertThat(loaded.getObjectFloatArray()).isEqualTo(mappable.getObjectFloatArray());
+        assertThat(loaded.getObjectIntegerArray()).isEqualTo(mappable.getObjectIntegerArray());
+        assertThat(loaded.getObjectLongArray()).isEqualTo(mappable.getObjectLongArray());
+        assertThat(loaded.getObjectShortArray()).isEqualTo(mappable.getObjectShortArray());
+        assertThat(loaded.getObjectStringArray()).isEqualTo(mappable.getObjectStringArray());
 
-        assertEquals(mappable.getListOfString(), loaded.getListOfString());
-        assertEquals(mappable.getListOfCharacter(), loaded.getListOfCharacter());
+        assertThat(loaded.getListOfString()).isEqualTo(mappable.getListOfString());
+        assertThat(loaded.getListOfCharacter()).isEqualTo(mappable.getListOfCharacter());
     }
 }

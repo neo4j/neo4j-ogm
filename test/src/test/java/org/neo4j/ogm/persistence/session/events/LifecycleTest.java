@@ -15,7 +15,6 @@ package org.neo4j.ogm.persistence.session.events;
 
 import java.util.UUID;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.FileSystemEntity;
@@ -23,6 +22,8 @@ import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author vince
@@ -37,17 +38,17 @@ public class LifecycleTest extends EventTestBaseClass {
 
         Folder f = new Folder();
         f.setName("folder");
-        Assert.assertNull(f.getUuid());
+        assertThat(f.getUuid()).isNull();
 
         session.save(f);
-        Assert.assertNotNull(f.getUuid());
+        assertThat(f.getUuid()).isNotNull();
 
         session.clear();
 
         Folder f2 = session.load(Folder.class, f.getId());
 
-        Assert.assertNotNull(f2.getName());
-        Assert.assertNotNull(f2.getUuid());
+        assertThat(f2.getName()).isNotNull();
+        assertThat(f2.getUuid()).isNotNull();
     }
 
     @Test
@@ -63,25 +64,25 @@ public class LifecycleTest extends EventTestBaseClass {
         d.setFolder(f);
         f.getDocuments().add(d);
 
-        Assert.assertNull(f.getUuid());
+        assertThat(f.getUuid()).isNull();
 
         session.save(f);
-        Assert.assertNotNull(f.getUuid());
+        assertThat(f.getUuid()).isNotNull();
 
         //
-        Assert.assertFalse(((Neo4jSession) session).context().isDirty(f));
+        assertThat(((Neo4jSession) session).context().isDirty(f)).isFalse();
 
         session.delete(d);
 
-        Assert.assertEquals("updated by pre-delete", f.getName());
-        Assert.assertTrue(((Neo4jSession) session).context().isDirty(f));
+        assertThat(f.getName()).isEqualTo("updated by pre-delete");
+        assertThat(((Neo4jSession) session).context().isDirty(f)).isTrue();
 
         session.clear();
 
         Folder f2 = session.load(Folder.class, f.getId());
 
-        Assert.assertTrue(f2.getDocuments().isEmpty());
-        Assert.assertEquals("folder", f2.getName());
+        assertThat(f2.getDocuments().isEmpty()).isTrue();
+        assertThat(f2.getName()).isEqualTo("folder");
     }
 
     private EventListener uuidEventListener = new EventListener() {

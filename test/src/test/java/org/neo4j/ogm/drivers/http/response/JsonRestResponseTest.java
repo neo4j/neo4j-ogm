@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -21,14 +22,10 @@ import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.drivers.http.response.AbstractHttpResponse;
-import org.neo4j.ogm.drivers.http.response.RestModelAdapter;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.NodeModel;
@@ -53,8 +50,8 @@ public class JsonRestResponseTest {
         when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
 
         try (Response<DefaultRestModel> rsp = new TestRestHttpResponse()) {
-            Assert.assertEquals(3, rsp.columns().length);
-            Assert.assertEquals("count", rsp.columns()[0]);
+            assertThat(rsp.columns().length).isEqualTo(3);
+            assertThat(rsp.columns()[0]).isEqualTo("count");
         }
     }
 
@@ -64,8 +61,8 @@ public class JsonRestResponseTest {
         when(entity.getContent()).thenReturn(noRowResultsAndNoErrors());
 
         try (Response<DefaultRestModel> rsp = new TestRestHttpResponse()) {
-            Assert.assertEquals(3, rsp.columns().length);
-            Assert.assertEquals("director", rsp.columns()[1]);
+            assertThat(rsp.columns().length).isEqualTo(3);
+            assertThat(rsp.columns()[1]).isEqualTo("director");
         }
     }
 
@@ -76,25 +73,25 @@ public class JsonRestResponseTest {
 
         try (Response<DefaultRestModel> rsp = new TestRestHttpResponse()) {
             DefaultRestModel restModel = rsp.next();
-            TestCase.assertNotNull(restModel);
+            assertThat(restModel).isNotNull();
             Map<String, Object> rows = restModel.getRow();
-            Assert.assertEquals(3, rows.entrySet().size());
+            assertThat(rows.entrySet()).hasSize(3);
 
-            Assert.assertEquals(1L, rows.get("count"));
+            assertThat(rows.get("count")).isEqualTo(1L);
             NodeModel data = (NodeModel) rows.get("director");
-            Assert.assertEquals(1931L, data.property("born"));
+            assertThat(data.property("born")).isEqualTo(1931L);
             data = (NodeModel) rows.get("movie");
-            Assert.assertEquals("The Birdcage", data.property("title"));
-            Assert.assertEquals(395L, data.getId().longValue());
+            assertThat(data.property("title")).isEqualTo("The Birdcage");
+            assertThat(data.getId().longValue()).isEqualTo(395L);
 
             restModel = rsp.next();
             rows = restModel.getRow();
-            Assert.assertEquals(3, rows.entrySet().size());
-            Assert.assertEquals(1L, rows.get("count"));
+            assertThat(rows.entrySet()).hasSize(3);
+            assertThat(rows.get("count")).isEqualTo(1L);
             data = (NodeModel) rows.get("director");
-            Assert.assertEquals(1931L, data.property("born"));
+            assertThat(data.property("born")).isEqualTo(1931L);
             data = (NodeModel) rows.get("movie");
-            Assert.assertEquals(2007L, data.property("released"));
+            assertThat(data.property("released")).isEqualTo(2007L);
         }
     }
 

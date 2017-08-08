@@ -15,7 +15,7 @@ package org.neo4j.ogm.persistence.types.convertible;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -77,12 +77,12 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         session.save(person);
 
         Person luanne = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "luanne")).iterator().next();
-        assertEquals(Gender.FEMALE, luanne.getGender());
-        assertTrue(luanne.getCompletedEducation().contains(Education.HIGHSCHOOL));
-        assertTrue(luanne.getCompletedEducation().contains(Education.BACHELORS));
-        assertEquals(2, luanne.getInProgressEducation().length);
-        assertTrue(luanne.getInProgressEducation()[0].equals(Education.MASTERS) || luanne.getInProgressEducation()[1].equals(Education.MASTERS));
-        assertTrue(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1].equals(Education.PHD));
+        assertThat(luanne.getGender()).isEqualTo(Gender.FEMALE);
+        assertThat(luanne.getCompletedEducation().contains(Education.HIGHSCHOOL)).isTrue();
+        assertThat(luanne.getCompletedEducation().contains(Education.BACHELORS)).isTrue();
+        assertThat(luanne.getInProgressEducation().length).isEqualTo(2);
+        assertThat(luanne.getInProgressEducation()[0].equals(Education.MASTERS) || luanne.getInProgressEducation()[1].equals(Education.MASTERS)).isTrue();
+        assertThat(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1].equals(Education.PHD)).isTrue();
     }
 
     @Test
@@ -101,12 +101,12 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
         Result res = session.query("MATCH (p:Person{name:'luanne'}) return p", Collections.EMPTY_MAP);
         Person luanne = (Person) res.queryResults().iterator().next().get("p");
-        assertEquals(Gender.FEMALE, luanne.getGender());
-        assertTrue(luanne.getCompletedEducation().contains(Education.HIGHSCHOOL));
-        assertTrue(luanne.getCompletedEducation().contains(Education.BACHELORS));
-        assertEquals(2, luanne.getInProgressEducation().length);
-        assertTrue(luanne.getInProgressEducation()[0].equals(Education.MASTERS) || luanne.getInProgressEducation()[1].equals(Education.MASTERS));
-        assertTrue(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1].equals(Education.PHD));
+        assertThat(luanne.getGender()).isEqualTo(Gender.FEMALE);
+        assertThat(luanne.getCompletedEducation().contains(Education.HIGHSCHOOL)).isTrue();
+        assertThat(luanne.getCompletedEducation().contains(Education.BACHELORS)).isTrue();
+        assertThat(luanne.getInProgressEducation().length).isEqualTo(2);
+        assertThat(luanne.getInProgressEducation()[0].equals(Education.MASTERS) || luanne.getInProgressEducation()[1].equals(Education.MASTERS)).isTrue();
+        assertThat(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1].equals(Education.PHD)).isTrue();
     }
 
     /**
@@ -146,32 +146,32 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
         Calendar loadedCal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         loadedCal.setTime(loadedMemo.getActioned());
-        assertEquals(actioned.get(Calendar.DAY_OF_MONTH), loadedCal.get(Calendar.DAY_OF_MONTH));
-        assertEquals(actioned.get(Calendar.MONTH), loadedCal.get(Calendar.MONTH));
-        assertEquals(actioned.get(Calendar.YEAR), loadedCal.get(Calendar.YEAR));
+        assertThat(loadedCal.get(Calendar.DAY_OF_MONTH)).isEqualTo(actioned.get(Calendar.DAY_OF_MONTH));
+        assertThat(loadedCal.get(Calendar.MONTH)).isEqualTo(actioned.get(Calendar.MONTH));
+        assertThat(loadedCal.get(Calendar.YEAR)).isEqualTo(actioned.get(Calendar.YEAR));
 
-        assertEquals(2, loadedMemo.getImplementations().size());
+        assertThat(loadedMemo.getImplementations()).hasSize(2);
         Iterator<Date> implementationsIter = loadedMemo.getImplementations().iterator();
         loadedCal.setTime(implementationsIter.next());
-        assertEquals(date0.get(Calendar.DAY_OF_MONTH), loadedCal.get(Calendar.DAY_OF_MONTH));
-        assertEquals(date0.get(Calendar.MONTH), loadedCal.get(Calendar.MONTH));
-        assertEquals(date0.get(Calendar.YEAR), loadedCal.get(Calendar.YEAR));
+        assertThat(loadedCal.get(Calendar.DAY_OF_MONTH)).isEqualTo(date0.get(Calendar.DAY_OF_MONTH));
+        assertThat(loadedCal.get(Calendar.MONTH)).isEqualTo(date0.get(Calendar.MONTH));
+        assertThat(loadedCal.get(Calendar.YEAR)).isEqualTo(date0.get(Calendar.YEAR));
 
         loadedCal.setTime(implementationsIter.next());
-        assertEquals(date20000.get(Calendar.DAY_OF_MONTH), loadedCal.get(Calendar.DAY_OF_MONTH));
-        assertEquals(date20000.get(Calendar.MONTH), loadedCal.get(Calendar.MONTH));
-        assertEquals(date20000.get(Calendar.YEAR), loadedCal.get(Calendar.YEAR));
+        assertThat(loadedCal.get(Calendar.DAY_OF_MONTH)).isEqualTo(date20000.get(Calendar.DAY_OF_MONTH));
+        assertThat(loadedCal.get(Calendar.MONTH)).isEqualTo(date20000.get(Calendar.MONTH));
+        assertThat(loadedCal.get(Calendar.YEAR)).isEqualTo(date20000.get(Calendar.YEAR));
 
-        assertEquals(2, loadedMemo.getEscalations().length);
+        assertThat(loadedMemo.getEscalations().length).isEqualTo(2);
         loadedCal.setTime(loadedMemo.getEscalations()[0]);
-        assertEquals(date40000.get(Calendar.DAY_OF_MONTH), loadedCal.get(Calendar.DAY_OF_MONTH));
-        assertEquals(date40000.get(Calendar.MONTH), loadedCal.get(Calendar.MONTH));
-        assertEquals(date40000.get(Calendar.YEAR), loadedCal.get(Calendar.YEAR));
+        assertThat(loadedCal.get(Calendar.DAY_OF_MONTH)).isEqualTo(date40000.get(Calendar.DAY_OF_MONTH));
+        assertThat(loadedCal.get(Calendar.MONTH)).isEqualTo(date40000.get(Calendar.MONTH));
+        assertThat(loadedCal.get(Calendar.YEAR)).isEqualTo(date40000.get(Calendar.YEAR));
 
         loadedCal.setTime(loadedMemo.getEscalations()[1]);
-        assertEquals(date100000.get(Calendar.DAY_OF_MONTH), loadedCal.get(Calendar.DAY_OF_MONTH));
-        assertEquals(date100000.get(Calendar.MONTH), loadedCal.get(Calendar.MONTH));
-        assertEquals(date100000.get(Calendar.YEAR), loadedCal.get(Calendar.YEAR));
+        assertThat(loadedCal.get(Calendar.DAY_OF_MONTH)).isEqualTo(date100000.get(Calendar.DAY_OF_MONTH));
+        assertThat(loadedCal.get(Calendar.MONTH)).isEqualTo(date100000.get(Calendar.MONTH));
+        assertThat(loadedCal.get(Calendar.YEAR)).isEqualTo(date100000.get(Calendar.YEAR));
     }
 
     @Test
@@ -185,14 +185,14 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.recorded, m.closed, m.approved", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
-        assertEquals("2007-12-03T09:15:30.001Z", record.get("m.recorded"));
-        assertEquals(1196673330001L, record.get("m.closed"));
-        assertEquals("2007-12-03", record.get("m.approved"));
+        assertThat(record.get("m.recorded")).isEqualTo("2007-12-03T09:15:30.001Z");
+        assertThat(record.get("m.closed")).isEqualTo(1196673330001L);
+        assertThat(record.get("m.approved")).isEqualTo("2007-12-03");
 
         Java8DatesMemo memo = session.loadAll(Java8DatesMemo.class).iterator().next();
-        assertEquals(instant, memo.getRecorded());
-        assertEquals(instant, memo.getClosed());
-        assertEquals(LocalDateTime.ofInstant(instant, ZoneOffset.UTC).toLocalDate(), memo.getApproved());
+        assertThat(memo.getRecorded()).isEqualTo(instant);
+        assertThat(memo.getClosed()).isEqualTo(instant);
+        assertThat(memo.getApproved()).isEqualTo(LocalDateTime.ofInstant(instant, ZoneOffset.UTC).toLocalDate());
     }
 
     @Test
@@ -211,10 +211,10 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.dateList", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
         String[] dateArray = (String[]) record.get("m.dateList");
-        assertArrayEquals(new String[] {"2017-07-23", "2017-07-24"}, dateArray);
+        assertThat(dateArray).isEqualTo(new String[] {"2017-07-23", "2017-07-24"});
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
-        assertEquals(dateList, loaded.getDateList());
+        assertThat(loaded.getDateList()).isEqualTo(dateList);
     }
 
     @Test
@@ -230,10 +230,10 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.dateTime", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
-        assertEquals("2017-07-23T01:02:03", record.get("m.dateTime"));
+        assertThat(record.get("m.dateTime")).isEqualTo("2017-07-23T01:02:03");
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
-        assertEquals(dateTime, loaded.getDateTime());
+        assertThat(loaded.getDateTime()).isEqualTo(dateTime);
     }
 
     @Test
@@ -252,10 +252,10 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.dateTimeList", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
         String[] dateArray = (String[]) record.get("m.dateTimeList");
-        assertArrayEquals(new String[] {"2017-07-23T01:02:03", "2017-07-24T01:02:03"}, dateArray);
+        assertThat(dateArray).isEqualTo(new String[] {"2017-07-23T01:02:03", "2017-07-24T01:02:03"});
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
-        assertEquals(dateTimeList, loaded.getDateTimeList());
+        assertThat(loaded.getDateTimeList()).isEqualTo(dateTimeList);
     }
 
     @Test
@@ -272,10 +272,10 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.offsetDateTime", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
-        assertEquals("2017-07-23T01:02:03+01:00", record.get("m.offsetDateTime"));
+        assertThat(record.get("m.offsetDateTime")).isEqualTo("2017-07-23T01:02:03+01:00");
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
-        assertEquals(offsetDateTime, loaded.getOffsetDateTime());
+        assertThat(loaded.getOffsetDateTime()).isEqualTo(offsetDateTime);
     }
 
     @Test
@@ -294,10 +294,10 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.offsetDateTimeList", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
         String[] dateArray = (String[]) record.get("m.offsetDateTimeList");
-        assertArrayEquals(new String[] {"2017-07-23T01:02:03+01:00", "2017-07-24T01:02:03+01:00"}, dateArray);
+        assertThat(dateArray).isEqualTo(new String[] {"2017-07-23T01:02:03+01:00", "2017-07-24T01:02:03+01:00"});
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
-        assertEquals(offsetDateTimeList, loaded.getOffsetDateTimeList());
+        assertThat(loaded.getOffsetDateTimeList()).isEqualTo(offsetDateTimeList);
     }
 
     /**
@@ -321,11 +321,11 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         session.save(account);
 
         Account loadedAccount = session.loadAll(Account.class).iterator().next();
-        assertEquals((short) 1000, account.getCode());
-        assertEquals(new BigDecimal("12345.67"), loadedAccount.getBalance());
-        assertEquals(new BigInteger("1000"), loadedAccount.getFacility());
-        assertEquals(loans, loadedAccount.getLoans());
-        assertSameArray(deposits, loadedAccount.getDeposits());
+        assertThat(account.getCode()).isEqualTo((short) 1000);
+        assertThat(loadedAccount.getBalance()).isEqualTo(new BigDecimal("12345.67"));
+        assertThat(loadedAccount.getFacility()).isEqualTo(new BigInteger("1000"));
+        assertThat(loadedAccount.getLoans()).isEqualTo(loans);
+        assertThat(loadedAccount.getDeposits()).isEqualTo(deposits);
     }
 
     /**
@@ -338,7 +338,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         session.save(memo);
 
         memo = session.load(Memo.class, memo.getId());
-        assertEquals(new Date(0).getTime(), memo.getClosed().getTime());
+        assertThat(memo.getClosed().getTime()).isEqualTo(new Date(0).getTime());
     }
 
     /**
@@ -351,12 +351,12 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         session.save(account);
 
         Account loadedAccount = session.load(Account.class, account.getId());
-        assertEquals(account.getLimit(), loadedAccount.getLimit());
+        assertThat(loadedAccount.getLimit()).isEqualTo(account.getLimit());
 
         account.setLimit(18277.55f);
         session.save(account);
         loadedAccount = session.load(Account.class, account.getId());
-        assertEquals(account.getLimit(), loadedAccount.getLimit());
+        assertThat(loadedAccount.getLimit()).isEqualTo(account.getLimit());
     }
 
     public void assertSameArray(Object[] as, Object[] bs) {

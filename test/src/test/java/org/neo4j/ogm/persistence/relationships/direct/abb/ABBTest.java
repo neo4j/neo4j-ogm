@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.relationships.direct.abb;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -24,14 +24,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Vince Bickers
  */
-public class ABBTest extends RelationshipTrait {
+public class ABBTest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -73,8 +73,8 @@ public class ABBTest extends RelationshipTrait {
         b1 = session.load(B.class, b1.id);
         b2 = session.load(B.class, b2.id);
 
-        assertEquals(a, b1.a);
-        assertEquals(a, b2.a);
+        assertThat(b1.a).isEqualTo(a);
+        assertThat(b2.a).isEqualTo(a);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class ABBTest extends RelationshipTrait {
 
         a = session.load(A.class, a.id);
 
-        assertSameArray(new B[]{b1, b2}, a.b);
+        assertThat(a.b).containsExactlyInAnyOrder(b1, b2);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class ABBTest extends RelationshipTrait {
         a = session.load(A.class, a.id);
 
         // expect the b1 relationship to have gone.
-        assertSameArray(new B[]{b2}, a.b);
+        assertThat(a.b).containsExactlyInAnyOrder(new B[]{b2});
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ABBTest extends RelationshipTrait {
 
         a = session.load(A.class, a.id);
 
-        assertSameArray(new B[]{b1, b2, b3}, a.b);
+        assertThat(a.b).containsExactlyInAnyOrder(b1, b2, b3);
     }
 
     @NodeEntity(label = "A")

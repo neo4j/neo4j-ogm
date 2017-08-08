@@ -23,8 +23,7 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *
@@ -50,8 +49,8 @@ public class SingleDirectionMappingTest extends MultiDriverTestClass {
 
         Node loaded = session.load(Node.class, node1.getId());
 
-        assertEquals(1, loaded.getNodes().size());
-        assertEquals(1, loaded.getNodes().iterator().next().getNodes().size());
+        assertThat(loaded.getNodes()).hasSize(1);
+        assertThat(loaded.getNodes().iterator().next().getNodes()).hasSize(1);
     }
 }
 

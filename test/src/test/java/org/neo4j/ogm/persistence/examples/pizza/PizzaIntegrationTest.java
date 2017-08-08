@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.pizza;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -61,10 +61,10 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
-        assertNotNull(loadedPizza);
-        assertEquals(pizza.getName(), loadedPizza.getName());
-        assertNotNull(loadedPizza.getCrust());
-        assertEquals(crust.getName(), loadedPizza.getCrust().getName());
+        assertThat(loadedPizza).isNotNull();
+        assertThat(loadedPizza.getName()).isEqualTo(pizza.getName());
+        assertThat(loadedPizza.getCrust()).isNotNull();
+        assertThat(loadedPizza.getCrust().getName()).isEqualTo(crust.getName());
     }
 
     @Test
@@ -78,12 +78,12 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
-        assertNotNull(loadedPizza);
-        assertEquals(pizza.getName(), loadedPizza.getName());
-        assertNotNull(loadedPizza.getToppings());
-        assertEquals(2, loadedPizza.getToppings().size());
-        assertTrue(loadedPizza.getToppings().contains(mushroom));
-        assertTrue(loadedPizza.getToppings().contains(pepperoni));
+        assertThat(loadedPizza).isNotNull();
+        assertThat(loadedPizza.getName()).isEqualTo(pizza.getName());
+        assertThat(loadedPizza.getToppings()).isNotNull();
+        assertThat(loadedPizza.getToppings()).hasSize(2);
+        assertThat(loadedPizza.getToppings().contains(mushroom)).isTrue();
+        assertThat(loadedPizza.getToppings().contains(pepperoni)).isTrue();
     }
 
     @Test
@@ -97,14 +97,14 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
-        assertNotNull(loadedPizza);
-        assertEquals(pizza.getName(), loadedPizza.getName());
-        assertNotNull(loadedPizza.getCrust());
-        assertEquals(crust.getName(), loadedPizza.getCrust().getName());
-        assertNotNull(loadedPizza.getToppings());
-        assertEquals(2, loadedPizza.getToppings().size());
-        assertTrue(loadedPizza.getToppings().contains(mushroom));
-        assertTrue(loadedPizza.getToppings().contains(pepperoni));
+        assertThat(loadedPizza).isNotNull();
+        assertThat(loadedPizza.getName()).isEqualTo(pizza.getName());
+        assertThat(loadedPizza.getCrust()).isNotNull();
+        assertThat(loadedPizza.getCrust().getName()).isEqualTo(crust.getName());
+        assertThat(loadedPizza.getToppings()).isNotNull();
+        assertThat(loadedPizza.getToppings()).hasSize(2);
+        assertThat(loadedPizza.getToppings().contains(mushroom)).isTrue();
+        assertThat(loadedPizza.getToppings().contains(pepperoni)).isTrue();
     }
 
     /**
@@ -124,11 +124,11 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
-        assertNotNull(loadedPizza);
-        assertEquals(pizza.getName(), loadedPizza.getName());
-        assertNotNull(loadedPizza.getPizzaSauce());
-        assertTrue(loadedPizza.getPizzaSauce().isSpicy());
-        assertEquals(sauce.getName(), loadedPizza.getPizzaSauce().getSauce().getName());
+        assertThat(loadedPizza).isNotNull();
+        assertThat(loadedPizza.getName()).isEqualTo(pizza.getName());
+        assertThat(loadedPizza.getPizzaSauce()).isNotNull();
+        assertThat(loadedPizza.getPizzaSauce().isSpicy()).isTrue();
+        assertThat(loadedPizza.getPizzaSauce().getSauce().getName()).isEqualTo(sauce.getName());
     }
 
     /**
@@ -143,11 +143,11 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
-        assertNotNull(loadedPizza);
-        assertEquals(pizza.getName(), loadedPizza.getName());
-        assertEquals(1, loadedPizza.getSeasonings().size());
-        assertEquals(seasoning.getName(), loadedPizza.getSeasonings().iterator().next().getSeasoning().getName());
-        assertEquals(Quantity.DIE_TOMORROW, loadedPizza.getSeasonings().iterator().next().getQuantity());
+        assertThat(loadedPizza).isNotNull();
+        assertThat(loadedPizza.getName()).isEqualTo(pizza.getName());
+        assertThat(loadedPizza.getSeasonings()).hasSize(1);
+        assertThat(loadedPizza.getSeasonings().iterator().next().getSeasoning().getName()).isEqualTo(seasoning.getName());
+        assertThat(loadedPizza.getSeasonings().iterator().next().getQuantity()).isEqualTo(Quantity.DIE_TOMORROW);
     }
 
     /**
@@ -162,11 +162,11 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
-        assertNotNull(loadedPizza);
-        assertEquals(pizza.getName(), loadedPizza.getName());
-        assertEquals(1, loadedPizza.getCheeses().size());
-        assertEquals(cheese.getName(), loadedPizza.getCheeses().iterator().next().getCheese().getName());
-        assertEquals(Quantity.DOUBLE, loadedPizza.getCheeses().iterator().next().getQuantity());
+        assertThat(loadedPizza).isNotNull();
+        assertThat(loadedPizza.getName()).isEqualTo(pizza.getName());
+        assertThat(loadedPizza.getCheeses()).hasSize(1);
+        assertThat(loadedPizza.getCheeses().iterator().next().getCheese().getName()).isEqualTo(cheese.getName());
+        assertThat(loadedPizza.getCheeses().iterator().next().getQuantity()).isEqualTo(Quantity.DOUBLE);
     }
 
 
@@ -195,23 +195,23 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
-        assertNotNull(loadedPizza);
-        assertEquals(pizza.getName(), loadedPizza.getName());
-        assertNotNull(loadedPizza.getPizzaSauce());
-        assertTrue(loadedPizza.getPizzaSauce().isSpicy());
-        assertEquals(sauce.getName(), loadedPizza.getPizzaSauce().getSauce().getName());
-        assertNotNull(loadedPizza.getCrust());
-        assertEquals(crust.getName(), loadedPizza.getCrust().getName());
-        assertNotNull(loadedPizza.getToppings());
-        assertEquals(2, loadedPizza.getToppings().size());
-        assertTrue(loadedPizza.getToppings().contains(mushroom));
-        assertTrue(loadedPizza.getToppings().contains(pepperoni));
-        assertEquals(1, loadedPizza.getSeasonings().size());
-        assertEquals(seasoning.getName(), loadedPizza.getSeasonings().iterator().next().getSeasoning().getName());
-        assertEquals(Quantity.DIE_TOMORROW, loadedPizza.getSeasonings().iterator().next().getQuantity());
-        assertEquals(1, loadedPizza.getCheeses().size());
-        assertEquals(cheese.getName(), loadedPizza.getCheeses().iterator().next().getCheese().getName());
-        assertEquals(Quantity.DOUBLE, loadedPizza.getCheeses().iterator().next().getQuantity());
+        assertThat(loadedPizza).isNotNull();
+        assertThat(loadedPizza.getName()).isEqualTo(pizza.getName());
+        assertThat(loadedPizza.getPizzaSauce()).isNotNull();
+        assertThat(loadedPizza.getPizzaSauce().isSpicy()).isTrue();
+        assertThat(loadedPizza.getPizzaSauce().getSauce().getName()).isEqualTo(sauce.getName());
+        assertThat(loadedPizza.getCrust()).isNotNull();
+        assertThat(loadedPizza.getCrust().getName()).isEqualTo(crust.getName());
+        assertThat(loadedPizza.getToppings()).isNotNull();
+        assertThat(loadedPizza.getToppings()).hasSize(2);
+        assertThat(loadedPizza.getToppings().contains(mushroom)).isTrue();
+        assertThat(loadedPizza.getToppings().contains(pepperoni)).isTrue();
+        assertThat(loadedPizza.getSeasonings()).hasSize(1);
+        assertThat(loadedPizza.getSeasonings().iterator().next().getSeasoning().getName()).isEqualTo(seasoning.getName());
+        assertThat(loadedPizza.getSeasonings().iterator().next().getQuantity()).isEqualTo(Quantity.DIE_TOMORROW);
+        assertThat(loadedPizza.getCheeses()).hasSize(1);
+        assertThat(loadedPizza.getCheeses().iterator().next().getCheese().getName()).isEqualTo(cheese.getName());
+        assertThat(loadedPizza.getCheeses().iterator().next().getQuantity()).isEqualTo(Quantity.DOUBLE);
     }
 
     /**
@@ -236,14 +236,14 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
-        assertNotNull(loadedPizza);
-        assertEquals(pizza.getName(), loadedPizza.getName());
-        assertNotNull(loadedPizza.getCrust());
-        assertEquals(crust.getName(), loadedPizza.getCrust().getName());
-        assertNotNull(loadedPizza.getToppings());
-        assertEquals(2, loadedPizza.getToppings().size());
-        assertTrue(loadedPizza.getToppings().contains(mushroom));
-        assertTrue(loadedPizza.getToppings().contains(pepperoni));
+        assertThat(loadedPizza).isNotNull();
+        assertThat(loadedPizza.getName()).isEqualTo(pizza.getName());
+        assertThat(loadedPizza.getCrust()).isNotNull();
+        assertThat(loadedPizza.getCrust().getName()).isEqualTo(crust.getName());
+        assertThat(loadedPizza.getToppings()).isNotNull();
+        assertThat(loadedPizza.getToppings()).hasSize(2);
+        assertThat(loadedPizza.getToppings().contains(mushroom)).isTrue();
+        assertThat(loadedPizza.getToppings().contains(pepperoni)).isTrue();
     }
 
     /**
@@ -265,10 +265,10 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:`Pizza`:`Spicy`:`Hot`:`Delicious` {name: 'Mushroom & Pepperoni'})");
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
-        assertTrue(loadedPizza.getLabels().contains("Delicious"));
-        assertTrue(loadedPizza.getLabels().contains("Hot"));
-        assertTrue(loadedPizza.getLabels().contains("Spicy"));
-        assertEquals(3, loadedPizza.getLabels().size());
+        assertThat(loadedPizza.getLabels().contains("Delicious")).isTrue();
+        assertThat(loadedPizza.getLabels().contains("Hot")).isTrue();
+        assertThat(loadedPizza.getLabels().contains("Spicy")).isTrue();
+        assertThat(loadedPizza.getLabels()).hasSize(3);
 
         List<String> newLabels = new ArrayList<>();
         newLabels.add("Cold");
@@ -279,9 +279,9 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Pizza reloadedPizza = session.load(Pizza.class, pizza.getId());
-        assertEquals(2, reloadedPizza.getLabels().size());
-        assertTrue(reloadedPizza.getLabels().contains("Cold"));
-        assertTrue(reloadedPizza.getLabels().contains("Stale"));
+        assertThat(reloadedPizza.getLabels()).hasSize(2);
+        assertThat(reloadedPizza.getLabels().contains("Cold")).isTrue();
+        assertThat(reloadedPizza.getLabels().contains("Stale")).isTrue();
 
         newLabels = new ArrayList<>();
         newLabels.add("Cold");
@@ -292,9 +292,9 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Pizza zombiePizza = session.load(Pizza.class, pizza.getId());
-        assertEquals(2, zombiePizza.getLabels().size());
-        assertTrue(zombiePizza.getLabels().contains("Cold"));
-        assertTrue(zombiePizza.getLabels().contains("Decomposed"));
+        assertThat(zombiePizza.getLabels()).hasSize(2);
+        assertThat(zombiePizza.getLabels().contains("Cold")).isTrue();
+        assertThat(zombiePizza.getLabels().contains("Decomposed")).isTrue();
     }
 
     /**
@@ -316,10 +316,10 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:`Pizza`:`Spicy`:`Hot`:`Delicious` {name: 'Mushroom & Pepperoni'})");
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
-        assertTrue(loadedPizza.getLabels().contains("Delicious"));
-        assertTrue(loadedPizza.getLabels().contains("Hot"));
-        assertTrue(loadedPizza.getLabels().contains("Spicy"));
-        assertEquals(3, loadedPizza.getLabels().size());
+        assertThat(loadedPizza.getLabels().contains("Delicious")).isTrue();
+        assertThat(loadedPizza.getLabels().contains("Hot")).isTrue();
+        assertThat(loadedPizza.getLabels().contains("Spicy")).isTrue();
+        assertThat(loadedPizza.getLabels()).hasSize(3);
 
         List<String> newLabels = new ArrayList<>();
         newLabels.add("Cold");
@@ -330,9 +330,9 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.save(loadedPizza);
 
         Pizza reloadedPizza = session.load(Pizza.class, pizza.getId());
-        assertEquals(2, reloadedPizza.getLabels().size());
-        assertTrue(reloadedPizza.getLabels().contains("Cold"));
-        assertTrue(reloadedPizza.getLabels().contains("Stale"));
+        assertThat(reloadedPizza.getLabels()).hasSize(2);
+        assertThat(reloadedPizza.getLabels().contains("Cold")).isTrue();
+        assertThat(reloadedPizza.getLabels().contains("Stale")).isTrue();
     }
 
 
@@ -357,7 +357,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         try {
             session.load(Pizza.class, pizza.getId());
         } catch (MappingException e) {
-            assertEquals("Multiple classes found in type hierarchy that map to: [Pizza, Studio]", e.getCause().getMessage());
+            assertThat(e.getCause().getMessage()).isEqualTo("Multiple classes found in type hierarchy that map to: [Pizza, Studio]");
         }
     }
 
@@ -385,10 +385,10 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         pizza.setName("Just bread");
 
         // pizza should be dirty
-        Assert.assertTrue(((Neo4jSession) session).context().isDirty(pizza));
+        assertThat(((Neo4jSession) session).context().isDirty(pizza)).isTrue();
         session.save(pizza);
         // pizza should NOT be dirty
-        Assert.assertFalse(((Neo4jSession) session).context().isDirty(pizza)); // this should pass
+        assertThat(((Neo4jSession) session).context().isDirty(pizza)).isFalse(); // this should pass
     }
 
 
@@ -411,7 +411,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
         Long id = pizza.getId();
 
-        Assert.assertNotNull(id);
+        assertThat(id).isNotNull();
         // detach the pizza
 
         Session session2 = sessionFactory.openSession();
@@ -436,10 +436,10 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         loadedPizza.getToppings().add(mushroomTopping);
 
         // pizza should be dirty
-        Assert.assertTrue(((Neo4jSession) session2).context().isDirty(loadedPizza));
+        assertThat(((Neo4jSession) session2).context().isDirty(loadedPizza)).isTrue();
         session2.save(loadedPizza);
         // pizza should NOT be dirty - but it is, indicating it's not current in the cache.
-        Assert.assertFalse(((Neo4jSession) session2).context().isDirty(loadedPizza)); // this should pass
+        assertThat(((Neo4jSession) session2).context().isDirty(loadedPizza)).isFalse(); // this should pass
     }
 
     /**
@@ -461,7 +461,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         labels = session.load(Pizza.class, entity.getId()).getLabels();
-        assertEquals(1, labels.size());
+        assertThat(labels).hasSize(1);
     }
 
     @Test
@@ -506,6 +506,6 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         Result result = session.query("MATCH (p:Pizza)-[r]-() return count(r) as c", new HashMap<String, Object>());
         Map<String, Object> row = result.iterator().next();
         Number count = (Number) row.get("c");
-        assertEquals(1L, count.longValue());
+        assertThat(count.longValue()).isEqualTo(1L);
     }
 }

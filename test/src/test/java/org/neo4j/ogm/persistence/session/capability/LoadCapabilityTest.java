@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -72,70 +72,70 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
     @Test
     public void loadAllShouldRespectEntityType() {
         Collection<Artist> artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId));
-        assertEquals(1, artists.size());
-        assertEquals("The Beatles", artists.iterator().next().getName());
+        assertThat(artists).hasSize(1);
+        assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
 
         Collection<Album> albums = session.loadAll(Album.class, Collections.singletonList(beatlesId));
-        assertEquals(0, albums.size());
+        assertThat(albums).isEmpty();
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), 0);
-        assertEquals(1, artists.size());
-        assertEquals("The Beatles", artists.iterator().next().getName());
+        assertThat(artists).hasSize(1);
+        assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
 
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), 0);
-        assertEquals(0, albums.size());
+        assertThat(albums).isEmpty();
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"));
-        assertEquals(1, artists.size());
-        assertEquals("The Beatles", artists.iterator().next().getName());
+        assertThat(artists).hasSize(1);
+        assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
 
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"));
-        assertEquals(0, albums.size());
+        assertThat(albums).isEmpty();
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), 0);
-        assertEquals(1, artists.size());
-        assertEquals("The Beatles", artists.iterator().next().getName());
+        assertThat(artists).hasSize(1);
+        assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
 
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), 0);
-        assertEquals(0, albums.size());
+        assertThat(albums).isEmpty();
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new Pagination(0, 5));
-        assertEquals(1, artists.size());
-        assertEquals("The Beatles", artists.iterator().next().getName());
+        assertThat(artists).hasSize(1);
+        assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
 
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new Pagination(0, 5));
-        assertEquals(0, albums.size());
+        assertThat(albums).isEmpty();
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new Pagination(0, 5), 0);
-        assertEquals(1, artists.size());
-        assertEquals("The Beatles", artists.iterator().next().getName());
+        assertThat(artists).hasSize(1);
+        assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
 
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new Pagination(0, 5), 0);
-        assertEquals(0, albums.size());
+        assertThat(albums).isEmpty();
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5));
-        assertEquals(1, artists.size());
-        assertEquals("The Beatles", artists.iterator().next().getName());
+        assertThat(artists).hasSize(1);
+        assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
 
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5));
-        assertEquals(0, albums.size());
+        assertThat(albums).isEmpty();
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5), 0);
-        assertEquals(1, artists.size());
-        assertEquals("The Beatles", artists.iterator().next().getName());
+        assertThat(artists).hasSize(1);
+        assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
 
         Artist bonJovi = new Artist("Bon Jovi");
         session.save(bonJovi);
 
         artists = session.loadAll(Artist.class, Arrays.asList(beatlesId, pleaseId, bonJovi.getId()), new SortOrder().add("name"), new Pagination(0, 5), 0);
-        assertEquals(2, artists.size());
+        assertThat(artists).hasSize(2);
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5), 0);
-        assertEquals(1, artists.size());
-        assertEquals("The Beatles", artists.iterator().next().getName()); //make sure Bon Jovi isn't returned as well
+        assertThat(artists).hasSize(1);
+        assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles"); //make sure Bon Jovi isn't returned as well
 
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5), 0);
-        assertEquals(0, albums.size());
+        assertThat(albums).isEmpty();
     }
 
 
@@ -145,19 +145,19 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
     @Test
     public void loadOneShouldRespectEntityType() {
         Artist artist = session.load(Artist.class, beatlesId);
-        assertEquals("The Beatles", artist.getName());
+        assertThat(artist.getName()).isEqualTo("The Beatles");
 
         Album album = session.load(Album.class, beatlesId);
-        assertNull(album);
+        assertThat(album).isNull();
 
         artist = session.load(Artist.class, beatlesId, 0);
-        assertEquals("The Beatles", artist.getName());
+        assertThat(artist.getName()).isEqualTo("The Beatles");
 
         album = session.load(Album.class, beatlesId, 0);
-        assertNull(album);
+        assertThat(album).isNull();
 
         artist = session.load(Artist.class, 10l); //ID does not exist
-        assertNull(artist);
+        assertThat(artist).isNull();
     }
 
     /**
@@ -178,22 +178,22 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         //Load Pink Floyd to depth 1 in a new session
         Session session1 = sessionFactory.openSession();
         Artist pinkfloyd1 = session1.load(Artist.class, pinkFloyd.getId(), 1);
-        assertNotNull(pinkfloyd1);
-        assertEquals(1, pinkfloyd1.getAlbums().size());
-        assertNull(pinkfloyd1.getAlbums().iterator().next().getRecording());
+        assertThat(pinkfloyd1).isNotNull();
+        assertThat(pinkfloyd1.getAlbums()).hasSize(1);
+        assertThat(pinkfloyd1.getAlbums().iterator().next().getRecording()).isNull();
 
         //Load Pink Floyd to depth -1 in a new session
         Session session2 = sessionFactory.openSession();
         Artist pinkfloyd2 = session2.load(Artist.class, pinkFloyd.getId(), -1);
-        assertNotNull(pinkfloyd2);
-        assertEquals(1, pinkfloyd2.getAlbums().size());
-        assertNotNull(pinkfloyd2.getAlbums().iterator().next().getRecording());
+        assertThat(pinkfloyd2).isNotNull();
+        assertThat(pinkfloyd2.getAlbums()).hasSize(1);
+        assertThat(pinkfloyd2.getAlbums().iterator().next().getRecording()).isNotNull();
 
         //Load Pink Floyd to depth -1 in an existing session which has loaded it to depth 1 previously
         Artist pinkfloyd_1_1 = session1.load(Artist.class, pinkFloyd.getId(), -1);
-        assertNotNull(pinkfloyd_1_1);
-        assertEquals(1, pinkfloyd_1_1.getAlbums().size());
-        assertNotNull(pinkfloyd2.getAlbums().iterator().next().getRecording());
+        assertThat(pinkfloyd_1_1).isNotNull();
+        assertThat(pinkfloyd_1_1.getAlbums()).hasSize(1);
+        assertThat(pinkfloyd2.getAlbums().iterator().next().getRecording()).isNotNull();
     }
 
     @Test
@@ -205,14 +205,14 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         //Load Pink Floyd in a new session, session1
         Session session1 = sessionFactory.openSession();
         Artist pinkfloyd1 = session1.load(Artist.class, pinkFloyd.getId(), 1);
-        assertNotNull(pinkfloyd1);
-        assertEquals("Pink Floyd", pinkfloyd1.getName());
+        assertThat(pinkfloyd1).isNotNull();
+        assertThat(pinkfloyd1.getName()).isEqualTo("Pink Floyd");
 
         //Load Pink Floyd to in another new session, session2
         Session session2 = sessionFactory.openSession();
         Artist pinkfloyd2 = session2.load(Artist.class, pinkFloyd.getId(), -1);
-        assertNotNull(pinkfloyd2);
-        assertEquals("Pink Floyd", pinkfloyd2.getName());
+        assertThat(pinkfloyd2).isNotNull();
+        assertThat(pinkfloyd2.getName()).isEqualTo("Pink Floyd");
         //update the name property
         pinkfloyd2.setName("Purple Floyd");
         //and save it in session2. Now the name in the graph is Purple Floyd
@@ -220,8 +220,8 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Reload Pink Floyd in session1
         Artist pinkfloyd_1_1 = session1.load(Artist.class, pinkFloyd.getId(), -1);
-        assertNotNull(pinkfloyd_1_1);
-        assertEquals("Pink Floyd", pinkfloyd_1_1.getName()); //the name should be refreshed from the graph
+        assertThat(pinkfloyd_1_1).isNotNull();
+        assertThat(pinkfloyd_1_1.getName()).isEqualTo("Pink Floyd"); //the name should be refreshed from the graph
     }
 
     /**
@@ -233,30 +233,30 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         MappingContext context = ((Neo4jSession) session).context();
 
         Artist pinkFloyd = new Artist("Pink Floyd");
-        assertTrue(context.isDirty(pinkFloyd));     // new object not saved is always dirty
+        assertThat(context.isDirty(pinkFloyd)).isTrue();     // new object not saved is always dirty
 
         //System.out.println("saving new object: pinkFloyd");
         session.save(pinkFloyd);
-        assertFalse(context.isDirty(pinkFloyd));    // object hash updated by save.
+        assertThat(context.isDirty(pinkFloyd)).isFalse();    // object hash updated by save.
 
         session.clear();                            // forget everything we've done
 
         //System.out.println("reloading object: pinkFloyd");
         pinkFloyd = session.load(Artist.class, pinkFloyd.getId());
-        assertFalse(context.isDirty(pinkFloyd));    // a freshly loaded object is never dirty
+        assertThat(context.isDirty(pinkFloyd)).isFalse();    // a freshly loaded object is never dirty
 
         pinkFloyd.setName("Purple Floyd");
-        assertTrue(context.isDirty(pinkFloyd));     // we changed the name so it is now dirty
+        assertThat(context.isDirty(pinkFloyd)).isTrue();     // we changed the name so it is now dirty
 
         //System.out.println("saving changed object: pinkFloyd->purpleFloyd");
         session.save(pinkFloyd);
-        assertFalse(context.isDirty(pinkFloyd));    // object saved, no longer dirty
+        assertThat(context.isDirty(pinkFloyd)).isFalse();    // object saved, no longer dirty
 
         //System.out.println("reloading object: purpleFloyd");
         Artist purpleFloyd = session.load(Artist.class, pinkFloyd.getId()); // load the same identity, but to a copy ref
-        assertFalse(context.isDirty(purpleFloyd));  // nothing has changed, so it should not be dirty
+        assertThat(context.isDirty(purpleFloyd)).isFalse();  // nothing has changed, so it should not be dirty
 
-        assertTrue(pinkFloyd == purpleFloyd);       // two refs pointing to the same object
+        assertThat(pinkFloyd == purpleFloyd).isTrue();       // two refs pointing to the same object
     }
 
     /**
@@ -275,30 +275,30 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         divisionBell.setRecording(recording);
         pinkFloyd.addAlbum(divisionBell);
 
-        assertTrue(context.isDirty(recording));     // new object not saved is always dirty
+        assertThat(context.isDirty(recording)).isTrue();     // new object not saved is always dirty
 
         //System.out.println("saving new object: recording");
         session.save(recording);
-        assertFalse(context.isDirty(recording));    // object hash updated by save.
+        assertThat(context.isDirty(recording)).isFalse();    // object hash updated by save.
 
         session.clear();                            // forget everything we've done
 
         //System.out.println("reloading object: recording");
         recording = session.load(Recording.class, recording.getId(), 2);
-        assertFalse(context.isDirty(recording));    // a freshly loaded object is never dirty
+        assertThat(context.isDirty(recording)).isFalse();    // a freshly loaded object is never dirty
 
         recording.setYear(1995);
-        assertTrue(context.isDirty(recording));     // we changed the year so it is now dirty
+        assertThat(context.isDirty(recording)).isTrue();     // we changed the year so it is now dirty
 
         //System.out.println("saving changed recording year: 1994->1995");
         session.save(recording);
-        assertFalse(context.isDirty(recording));    // object saved, no longer dirty
+        assertThat(context.isDirty(recording)).isFalse();    // object saved, no longer dirty
 
         //System.out.println("reloading recording as recording1995");
         Recording recording1995 = session.load(Recording.class, recording.getId(), 2); // load the same identity, but to a copy ref
-        assertFalse(context.isDirty(recording1995));  // nothing has changed, so it should not be dirty
+        assertThat(context.isDirty(recording1995)).isFalse();  // nothing has changed, so it should not be dirty
 
-        assertTrue(recording == recording1995);       // two refs pointing to the same object
+        assertThat(recording == recording1995).isTrue();       // two refs pointing to the same object
     }
 
     /**
@@ -319,36 +319,36 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Load Artist to depth 2
         Artist ledZeppelin = session.load(Artist.class, led.getId(), 2);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNotNull(ledZeppelinIV.getRecording());
-        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNotNull();
+        assertThat(ledZeppelinIV.getRecording().getStudio().getName()).isEqualTo(studio.getName());
 
         //Now load to depth 1
         ledZeppelin = session.load(Artist.class, led.getId(), 0);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNotNull(ledZeppelinIV.getRecording());
-        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNotNull();
+        assertThat(ledZeppelinIV.getRecording().getStudio().getName()).isEqualTo(studio.getName());
 
         //Now load to depth 0
         ledZeppelin = session.load(Artist.class, led.getId(), 0);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNotNull(ledZeppelinIV.getRecording());
-        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNotNull();
+        assertThat(ledZeppelinIV.getRecording().getStudio().getName()).isEqualTo(studio.getName());
     }
 
     /**
@@ -369,30 +369,30 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Load to depth 0
         Artist ledZeppelin = session.load(Artist.class, led.getId(), 0);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(0, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).isEmpty();
 
         //Load to depth 1
         ledZeppelin = session.load(Artist.class, led.getId(), 1);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNull(ledZeppelinIV.getRecording());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNull();
 
         //Load to depth 2
         ledZeppelin = session.load(Artist.class, led.getId(), 2);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNotNull(ledZeppelinIV.getRecording());
-        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNotNull();
+        assertThat(ledZeppelinIV.getRecording().getStudio().getName()).isEqualTo(studio.getName());
     }
 
     /**
@@ -413,9 +413,9 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Load the Artist to depth 0 in the first session
         Artist ledZeppelin = session.load(Artist.class, led.getId(), 0);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(0, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).isEmpty();
 
         //In session 2, update the name of the artist
         Session session2 = sessionFactory.openSession();
@@ -425,13 +425,13 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Back in the first session, load the artist to depth 1
         ledZeppelin = session.load(Artist.class, led.getId(), 1);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNull(ledZeppelinIV.getRecording());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNull();
     }
 
     /**
@@ -452,13 +452,13 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Load the Artist to depth 1 in the first session
         Artist ledZeppelin = session.load(Artist.class, led.getId(), 1);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNull(ledZeppelinIV.getRecording());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNull();
 
         //In session 2, update the name of the artist
         Session session2 = sessionFactory.openSession();
@@ -468,9 +468,9 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Back in the first session, load the artist to depth 0
         ledZeppelin = session.load(Artist.class, led.getId(), 0);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
     }
 
     /**
@@ -491,21 +491,21 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //In the first session, load the artist to depth 2
         Artist ledZeppelin = session.load(Artist.class, led.getId(), 2);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNotNull(ledZeppelinIV.getRecording());
-        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNotNull();
+        assertThat(ledZeppelinIV.getRecording().getStudio().getName()).isEqualTo(studio.getName());
 
         //In the second session, load the artist to depth 0
         Session session2 = sessionFactory.openSession();
         Artist ledZeppelin0 = session2.load(Artist.class, led.getId(), 0);
-        assertNotNull(ledZeppelin0);
-        assertEquals(led.getName(), ledZeppelin0.getName());
-        assertEquals(0, ledZeppelin0.getAlbums().size());
+        assertThat(ledZeppelin0).isNotNull();
+        assertThat(ledZeppelin0.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin0.getAlbums()).isEmpty();
     }
 
     /**
@@ -526,13 +526,13 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Load the Artist to depth 1 in the first session
         Artist ledZeppelin = session.load(Artist.class, led.getId(), 1);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNull(ledZeppelinIV.getRecording());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNull();
 
         //In session 2, update the name of the artist
         Session session2 = sessionFactory.openSession();
@@ -542,13 +542,13 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Reload the artist in the first session
         ledZeppelin = session.load(Artist.class, led.getId(), 1);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNull(ledZeppelinIV.getRecording());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNull();
     }
 
     /**
@@ -569,14 +569,14 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Load the Artist to depth 2 in the first session
         Artist ledZeppelin = session.load(Artist.class, led.getId(), 2);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNotNull(ledZeppelinIV.getRecording());
-        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNotNull();
+        assertThat(ledZeppelinIV.getRecording().getStudio().getName()).isEqualTo(studio.getName());
 
         //In session 2, add an album and recording
         Session session2 = sessionFactory.openSession();
@@ -591,13 +591,13 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Reload the artist in the first session
         ledZeppelin = session.load(Artist.class, led.getId(), 2);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(2, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(2);
         for (Album loadedAlbum : ledZeppelin.getAlbums()) {
-            assertEquals(ledZeppelin, loadedAlbum.getArtist());
-            assertNotNull(loadedAlbum.getRecording());
-            assertNotNull(loadedAlbum.getRecording().getStudio());
+            assertThat(loadedAlbum.getArtist()).isEqualTo(ledZeppelin);
+            assertThat(loadedAlbum.getRecording()).isNotNull();
+            assertThat(loadedAlbum.getRecording().getStudio()).isNotNull();
         }
     }
 
@@ -619,13 +619,13 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         //Load the Artist to depth 1 in the first session
         Artist ledZeppelin = session.load(Artist.class, led.getId(), 1);
-        assertNotNull(ledZeppelin);
-        assertEquals(led.getName(), ledZeppelin.getName());
-        assertEquals(1, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
+        assertThat(ledZeppelin.getAlbums()).hasSize(1);
         Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
-        assertEquals(album.getName(), ledZeppelinIV.getName());
-        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
-        assertNull(ledZeppelinIV.getRecording());
+        assertThat(ledZeppelinIV.getName()).isEqualTo(album.getName());
+        assertThat(ledZeppelinIV.getArtist()).isEqualTo(ledZeppelin);
+        assertThat(ledZeppelinIV.getRecording()).isNull();
 
         //In session 2, update the name of the artist, delete the album
         Session session2 = sessionFactory.openSession();
@@ -638,9 +638,9 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         //Reload the artist in a clean session
         session.clear();
         ledZeppelin = session.load(Artist.class, led.getId(), 1);
-        assertNotNull(ledZeppelin);
-        assertEquals(ledZepp.getName(), ledZeppelin.getName());
-        assertEquals(0, ledZeppelin.getAlbums().size());
+        assertThat(ledZeppelin).isNotNull();
+        assertThat(ledZeppelin.getName()).isEqualTo(ledZepp.getName());
+        assertThat(ledZeppelin.getAlbums()).isEmpty();
     }
 
     /**
@@ -657,25 +657,25 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         SortOrder sortOrder = new SortOrder();
         sortOrder.add(SortOrder.Direction.ASC, "name");
         Iterable<Artist> artists = session.loadAll(Artist.class, ids, sortOrder);
-        assertNotNull(artists);
+        assertThat(artists).isNotNull();
         List<String> artistNames = new ArrayList<>();
         for (Artist artist : artists) {
             artistNames.add(artist.getName());
         }
-        assertEquals("Bon Jovi", artistNames.get(0));
-        assertEquals("Led Zeppelin", artistNames.get(1));
-        assertEquals("The Beatles", artistNames.get(2));
+        assertThat(artistNames.get(0)).isEqualTo("Bon Jovi");
+        assertThat(artistNames.get(1)).isEqualTo("Led Zeppelin");
+        assertThat(artistNames.get(2)).isEqualTo("The Beatles");
 
         sortOrder = new SortOrder();
         sortOrder.add(SortOrder.Direction.DESC, "name");
         artists = session.loadAll(Artist.class, ids, sortOrder);
-        assertNotNull(artists);
+        assertThat(artists).isNotNull();
         artistNames = new ArrayList<>();
         for (Artist artist : artists) {
             artistNames.add(artist.getName());
         }
-        assertEquals("The Beatles", artistNames.get(0));
-        assertEquals("Led Zeppelin", artistNames.get(1));
-        assertEquals("Bon Jovi", artistNames.get(2));
+        assertThat(artistNames.get(0)).isEqualTo("The Beatles");
+        assertThat(artistNames.get(1)).isEqualTo("Led Zeppelin");
+        assertThat(artistNames.get(2)).isEqualTo("Bon Jovi");
     }
 }

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
@@ -33,33 +33,33 @@ public class NodeDeleteStatementsTest {
 
     @Test
     public void testDeleteOne() throws Exception {
-        assertEquals("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", statements.delete(0L).getStatement());
+        assertThat(statements.delete(0L).getStatement()).isEqualTo("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
     }
 
     @Test
     public void testDeleteMany() throws Exception {
-        assertEquals("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", statements.delete(Arrays.asList(1L, 2L)).getStatement());
+        assertThat(statements.delete(Arrays.asList(1L, 2L)).getStatement()).isEqualTo("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
     }
 
     @Test
     public void testDeleteAll() throws Exception {
-        assertEquals("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", statements.deleteAll().getStatement());
+        assertThat(statements.deleteAll().getStatement()).isEqualTo("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
     }
 
     @Test
     public void testDeleteWithLabel() throws Exception {
-        assertEquals("MATCH (n:`TRAFFIC_WARDENS`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", statements.delete("TRAFFIC_WARDENS").getStatement());
+        assertThat(statements.delete("TRAFFIC_WARDENS").getStatement()).isEqualTo("MATCH (n:`TRAFFIC_WARDENS`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
     }
 
     @Test
     public void testDeleteWithLabelAndFilters() throws Exception {
         CypherQuery query = statements.delete("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
-        assertEquals("MATCH (n:`INFLUENCE`) WHERE n.`score` = { `score_0` }  OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", query.getStatement());
+        assertThat(query.getStatement()).isEqualTo("MATCH (n:`INFLUENCE`) WHERE n.`score` = { `score_0` }  OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
     }
 
     @Test
     public void testDeleteWithLabelAndFiltersAndList() throws Exception {
         CypherQuery query = statements.deleteAndList("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
-        assertEquals("MATCH (n:`INFLUENCE`) WHERE n.`score` = { `score_0` }  OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN ID(n)", query.getStatement());
+        assertThat(query.getStatement()).isEqualTo("MATCH (n:`INFLUENCE`) WHERE n.`score` = { `score_0` }  OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN ID(n)");
     }
 }

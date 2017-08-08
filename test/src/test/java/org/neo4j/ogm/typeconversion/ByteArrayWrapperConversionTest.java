@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.typeconversion;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.convertible.bytes.PhotoWrapper;
@@ -30,7 +30,7 @@ public class ByteArrayWrapperConversionTest {
 
     @Test
     public void testConvertersLoaded() {
-        assertTrue(photoInfo.propertyField("image").hasPropertyConverter());
+        assertThat(photoInfo.propertyField("image").hasPropertyConverter()).isTrue();
     }
 
     @Test
@@ -41,7 +41,7 @@ public class ByteArrayWrapperConversionTest {
 
         photo.setImage(new Byte[]{1, 2, 3, 4});
 
-        assertEquals("AQIDBA==", converter.toGraphProperty(photo.getImage()));
+        assertThat(converter.toGraphProperty(photo.getImage())).isEqualTo("AQIDBA==");
     }
 
     @Test
@@ -53,10 +53,10 @@ public class ByteArrayWrapperConversionTest {
         photo.setImage((Byte[]) converter.toEntityAttribute("AQIDBA=="));
 
         Byte[] image = photo.getImage();
-        assertEquals(4, image.length);
-        assertEquals(Byte.decode("1"), image[0]);
-        assertEquals(Byte.decode("2"), image[1]);
-        assertEquals(Byte.decode("3"), image[2]);
-        assertEquals(Byte.decode("4"), image[3]);
+        assertThat(image.length).isEqualTo(4);
+        assertThat(image[0]).isEqualTo(Byte.decode("1"));
+        assertThat(image[1]).isEqualTo(Byte.decode("2"));
+        assertThat(image[2]).isEqualTo(Byte.decode("3"));
+        assertThat(image[3]).isEqualTo(Byte.decode("4"));
     }
 }

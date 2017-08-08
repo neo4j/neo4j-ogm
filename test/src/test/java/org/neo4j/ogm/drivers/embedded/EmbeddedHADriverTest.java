@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.drivers.embedded;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class EmbeddedHADriverTest /*extends EmbeddedDriverTest*/ {
 
 	@Test
 	public void fixme() {
-		assertTrue(true);
+		assertThat(true).isTrue();
 	}
 
 //    @Override

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.blog;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashSet;
 
@@ -56,16 +56,16 @@ public class BlogTest extends MultiDriverTestClass {
         p2.setNext(p3);
         p3.setNext(p4);
 
-        assertEquals(p1, p2.getPrevious());
+        assertThat(p2.getPrevious()).isEqualTo(p1);
 
-        assertEquals(p2, p1.getNext());
-        assertEquals(p2, p3.getPrevious());
+        assertThat(p1.getNext()).isEqualTo(p2);
+        assertThat(p3.getPrevious()).isEqualTo(p2);
 
-        assertEquals(p3, p2.getNext());
-        assertEquals(p3, p4.getPrevious());
+        assertThat(p2.getNext()).isEqualTo(p3);
+        assertThat(p4.getPrevious()).isEqualTo(p3);
 
-        assertEquals(p4, p3.getNext());
-        assertNull(p4.getNext());
+        assertThat(p3.getNext()).isEqualTo(p4);
+        assertThat(p4.getNext()).isNull();
 
         session.save(p1);
 
@@ -76,15 +76,15 @@ public class BlogTest extends MultiDriverTestClass {
         Post f1 = f2.getPrevious();
         Post f4 = f3.getNext();
 
-        assertNull(f1.getPrevious());
-        assertEquals(p1.getId(), f2.getPrevious().getId());
-        assertEquals(p2.getId(), f3.getPrevious().getId());
-        assertEquals(p3.getId(), f4.getPrevious().getId());
+        assertThat(f1.getPrevious()).isNull();
+        assertThat(f2.getPrevious().getId()).isEqualTo(p1.getId());
+        assertThat(f3.getPrevious().getId()).isEqualTo(p2.getId());
+        assertThat(f4.getPrevious().getId()).isEqualTo(p3.getId());
 
-        assertEquals(p2.getId(), f1.getNext().getId());
-        assertEquals(p3.getId(), f2.getNext().getId());
-        assertEquals(p4.getId(), f3.getNext().getId());
-        assertNull(f4.getNext());
+        assertThat(f1.getNext().getId()).isEqualTo(p2.getId());
+        assertThat(f2.getNext().getId()).isEqualTo(p3.getId());
+        assertThat(f3.getNext().getId()).isEqualTo(p4.getId());
+        assertThat(f4.getNext()).isNull();
     }
 
     /**
@@ -107,7 +107,7 @@ public class BlogTest extends MultiDriverTestClass {
 
         author = session.load(Author.class, author.id);
 
-        assertTrue(author.posts == null || author.posts.size() == 0);
+        assertThat(author.posts == null || author.posts.size() == 0).isTrue();
     }
 
     /**
@@ -132,6 +132,6 @@ public class BlogTest extends MultiDriverTestClass {
 
         author = session.load(Author.class, author.id);
 
-        assertTrue(author.comments == null || author.comments.size() == 0);
+        assertThat(author.comments == null || author.comments.size() == 0).isTrue();
     }
 }

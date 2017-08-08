@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.convertible;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
@@ -63,8 +63,8 @@ public class ParameterizedConversionTest extends MultiDriverTestClass {
 
         JsonNode found = session.load(JsonNode.class, jsonNode.id);
 
-        assertTrue(found.payload.containsKey("key"));
-        assertEquals("value", found.payload.get("key"));
+        assertThat(found.payload.containsKey("key")).isTrue();
+        assertThat(found.payload.get("key")).isEqualTo("value");
     }
 
     /**
@@ -78,7 +78,7 @@ public class ParameterizedConversionTest extends MultiDriverTestClass {
         session.clear();
 
         StringMapEntity loaded = session.load(StringMapEntity.class, entity.getId());
-        assertNotNull(loaded);
-        assertEquals(3, loaded.getStringMap().size());
+        assertThat(loaded).isNotNull();
+        assertThat(loaded.getStringMap()).hasSize(3);
     }
 }

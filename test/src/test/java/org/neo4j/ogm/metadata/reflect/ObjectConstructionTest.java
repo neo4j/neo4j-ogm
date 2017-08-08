@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.metadata.reflect;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.lang.reflect.Constructor;
 
@@ -32,7 +32,7 @@ public class ObjectConstructionTest {
             Class<?> loadedClass = Class.forName(fqn);
             Constructor<?> defaultConstructor = loadedClass.getDeclaredConstructor();
             defaultConstructor.setAccessible(true);
-            assertNotNull(defaultConstructor.newInstance());
+            assertThat(defaultConstructor.newInstance()).isNotNull();
         } catch (SecurityException | IllegalArgumentException | ReflectiveOperationException e) {
             fail("Unable to instantiate class: " + fqn + e.getLocalizedMessage());
         }

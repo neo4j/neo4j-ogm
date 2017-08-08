@@ -12,7 +12,7 @@
  */
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -59,11 +59,11 @@ public class EnumsScannedTest extends MultiDriverTestClass {
         session.clear();
 
         pizza = session.load(Pizza.class, pizza.id);
-        assertNotNull(pizza);
-        assertEquals(Risk.LOW, pizza.strokeRisk);
-        assertNull(pizza.cancerRisk);
-        assertNull(pizza.diabetesRisk);
-        assertNull(pizza.hypertensionRisk);
+        assertThat(pizza).isNotNull();
+        assertThat(pizza.strokeRisk).isEqualTo(Risk.LOW);
+        assertThat(pizza.cancerRisk).isNull();
+        assertThat(pizza.diabetesRisk).isNull();
+        assertThat(pizza.hypertensionRisk).isNull();
     }
 
     @Test
@@ -75,11 +75,11 @@ public class EnumsScannedTest extends MultiDriverTestClass {
         session.clear();
 
         pizza = session.load(Pizza.class, pizza.id);
-        assertNotNull(pizza);
-        assertEquals(Risk.HIGH, pizza.diabetesRisk);
-        assertNull(pizza.cancerRisk);
-        assertNull(pizza.strokeRisk);
-        assertNull(pizza.hypertensionRisk);
+        assertThat(pizza).isNotNull();
+        assertThat(pizza.diabetesRisk).isEqualTo(Risk.HIGH);
+        assertThat(pizza.cancerRisk).isNull();
+        assertThat(pizza.strokeRisk).isNull();
+        assertThat(pizza.hypertensionRisk).isNull();
     }
 
     @Test
@@ -91,11 +91,11 @@ public class EnumsScannedTest extends MultiDriverTestClass {
         session.clear();
 
         pizza = session.load(Pizza.class, pizza.id);
-        assertNotNull(pizza);
-        assertEquals(Risk.LOW, pizza.cancerRisk);
-        assertNull(pizza.diabetesRisk);
-        assertNull(pizza.strokeRisk);
-        assertNull(pizza.hypertensionRisk);
+        assertThat(pizza).isNotNull();
+        assertThat(pizza.cancerRisk).isEqualTo(Risk.LOW);
+        assertThat(pizza.diabetesRisk).isNull();
+        assertThat(pizza.strokeRisk).isNull();
+        assertThat(pizza.hypertensionRisk).isNull();
     }
 
     @Test
@@ -107,10 +107,10 @@ public class EnumsScannedTest extends MultiDriverTestClass {
         session.clear();
 
         pizza = session.load(Pizza.class, pizza.id);
-        assertNotNull(pizza);
-        assertEquals(Risk.HIGH, pizza.hypertensionRisk);
-        assertNull(pizza.diabetesRisk);
-        assertNull(pizza.strokeRisk);
-        assertNull(pizza.cancerRisk);
+        assertThat(pizza).isNotNull();
+        assertThat(pizza.hypertensionRisk).isEqualTo(Risk.HIGH);
+        assertThat(pizza.diabetesRisk).isNull();
+        assertThat(pizza.strokeRisk).isNull();
+        assertThat(pizza.cancerRisk).isNull();
     }
 }

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.relationships.direct.aa;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -24,14 +24,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Luanne Misquitta
  */
-public class AATest extends RelationshipTrait {
+public class AATest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -82,10 +82,10 @@ public class AATest extends RelationshipTrait {
         loadedA3 = session.load(A.class, a3.id);
         loadedA4 = session.load(A.class, a4.id);
 
-        assertEquals(a2, loadedA1.a);
-        assertEquals(a3, loadedA2.a);
-        assertEquals(a4, loadedA3.a);
-        assertNull(loadedA4.a);
+        assertThat(loadedA1.a).isEqualTo(a2);
+        assertThat(loadedA2.a).isEqualTo(a3);
+        assertThat(loadedA3.a).isEqualTo(a4);
+        assertThat(loadedA4.a).isNull();
     }
 
     /**
@@ -104,9 +104,9 @@ public class AATest extends RelationshipTrait {
         loadedA3 = session.load(A.class, a3.id);
         loadedA4 = session.load(A.class, a4.id);
 
-        assertEquals(loadedA2, a1.a);
-        assertEquals(loadedA3, a2.a);
-        assertEquals(loadedA4, a3.a);
+        assertThat(a1.a).isEqualTo(loadedA2);
+        assertThat(a2.a).isEqualTo(loadedA3);
+        assertThat(a3.a).isEqualTo(loadedA4);
     }
 
     /**
@@ -128,22 +128,22 @@ public class AATest extends RelationshipTrait {
         //when we reload a2
         loadedA2 = session.load(A.class, a2.id);
         // expect its relationships have gone.
-        assertNull(loadedA2.a);
+        assertThat(loadedA2.a).isNull();
 
         // when we reload a1
         loadedA1 = session.load(A.class, a1.id);
         // expect the original relationship to remain intact.
-        assertEquals(a2, loadedA1.a);
+        assertThat(loadedA1.a).isEqualTo(a2);
 
         // when we reload a3
         loadedA3 = session.load(A.class, a3.id);
         // expect the original relationship to remain intact.
-        assertEquals(a4, loadedA3.a);
+        assertThat(loadedA3.a).isEqualTo(a4);
 
         //when we reload a4
         loadedA4 = session.load(A.class, a4.id);
         //expect the original relationships to remain intact.
-        assertNull(loadedA4.a);
+        assertThat(loadedA4.a).isNull();
     }
 
 

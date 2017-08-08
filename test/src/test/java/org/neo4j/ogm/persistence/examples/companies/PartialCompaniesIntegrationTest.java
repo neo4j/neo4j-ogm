@@ -26,7 +26,7 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import static java.util.Collections.singleton;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Frantisek Hartman
@@ -62,11 +62,11 @@ public class PartialCompaniesIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Company loaded = session.load(Company.class, company.getId());
-        assertEquals("Alice the Founder", loaded.getFounder().getName());
+        assertThat(loaded.getFounder().getName()).isEqualTo("Alice the Founder");
 
-        assertEquals(1, loaded.getEmployees().size());
+        assertThat(loaded.getEmployees()).hasSize(1);
         Person employee = loaded.getEmployees().iterator().next();
-        assertEquals("Bob the employee", employee.getName());
+        assertThat(employee.getName()).isEqualTo("Bob the employee");
 
     }
 }

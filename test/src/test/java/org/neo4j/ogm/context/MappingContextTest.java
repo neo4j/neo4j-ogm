@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.context;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -48,9 +48,9 @@ public class MappingContextTest {
         mappingContext.addNodeEntity(policy, policy.getId());
         mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
 
-        assertEquals(jim, mappingContext.getNodeEntity(jim.getId()));
-        assertEquals(policy, mappingContext.getNodeEntity(policy.getId()));
-        assertTrue(mappingContext.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
+        assertThat(mappingContext.getNodeEntity(jim.getId())).isEqualTo(jim);
+        assertThat(mappingContext.getNodeEntity(policy.getId())).isEqualTo(policy);
+        assertThat(mappingContext.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class))).isTrue();
     }
 
     @Test
@@ -67,9 +67,9 @@ public class MappingContextTest {
         mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
         mappingContext.removeEntity(jim);
 
-        assertEquals(null, mappingContext.getNodeEntity(jim.getId()));
-        assertEquals(policy, mappingContext.getNodeEntity(policy.getId()));
-        assertFalse(mappingContext.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
+        assertThat(mappingContext.getNodeEntity(jim.getId())).isEqualTo(null);
+        assertThat(mappingContext.getNodeEntity(policy.getId())).isEqualTo(policy);
+        assertThat(mappingContext.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class))).isFalse();
     }
 
     /**
@@ -93,10 +93,10 @@ public class MappingContextTest {
         mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
         mappingContext.removeEntity(jim);
 
-        assertEquals(null, mappingContext.getNodeEntity(jim.getId()));
-        assertEquals(policy, mappingContext.getNodeEntity(policy.getId()));
-        assertEquals(another, mappingContext.getNodeEntity(another.getId()));
-        assertFalse(mappingContext.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
+        assertThat(mappingContext.getNodeEntity(jim.getId())).isEqualTo(null);
+        assertThat(mappingContext.getNodeEntity(policy.getId())).isEqualTo(policy);
+        assertThat(mappingContext.getNodeEntity(another.getId())).isEqualTo(another);
+        assertThat(mappingContext.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class))).isFalse();
     }
 
     @Test
@@ -124,13 +124,13 @@ public class MappingContextTest {
 
         mappingContext.removeType(Policy.class);
 
-        assertEquals(0, mappingContext.getEntities(Policy.class).size());
-        assertEquals(null, mappingContext.getNodeEntity(healthcare.getId()));
-        assertEquals(null, mappingContext.getNodeEntity(immigration.getId()));
+        assertThat(mappingContext.getEntities(Policy.class)).isEmpty();
+        assertThat(mappingContext.getNodeEntity(healthcare.getId())).isEqualTo(null);
+        assertThat(mappingContext.getNodeEntity(immigration.getId())).isEqualTo(null);
 
-        assertEquals(jim, mappingContext.getNodeEntity(jim.getId()));
-        assertEquals(rik, mappingContext.getNodeEntity(rik.getId()));
-        assertEquals(1, mappingContext.getRelationships().size());
+        assertThat(mappingContext.getNodeEntity(jim.getId())).isEqualTo(jim);
+        assertThat(mappingContext.getNodeEntity(rik.getId())).isEqualTo(rik);
+        assertThat(mappingContext.getRelationships()).hasSize(1);
     }
 
     @Test
@@ -154,9 +154,9 @@ public class MappingContextTest {
 
         rik.setName("newRik");
 
-        assertFalse(mappingContext.isDirty(jim));
-        assertTrue(mappingContext.isDirty(rik));
-        assertFalse(mappingContext.isDirty(healthcare));
-        assertFalse(mappingContext.isDirty(immigration));
+        assertThat(mappingContext.isDirty(jim)).isFalse();
+        assertThat(mappingContext.isDirty(rik)).isTrue();
+        assertThat(mappingContext.isDirty(healthcare)).isFalse();
+        assertThat(mappingContext.isDirty(immigration)).isFalse();
     }
 }

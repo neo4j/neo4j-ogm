@@ -12,7 +12,7 @@
  */
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,23 +36,23 @@ public class DomainInfoTest {
 
         ClassInfo classInfo = domainInfo.getClassSimpleName("IMembership");
 
-        assertNotNull(classInfo);
-        assertEquals(4, classInfo.directImplementingClasses().size());
+        assertThat(classInfo).isNotNull();
+        assertThat(classInfo.directImplementingClasses()).hasSize(4);
     }
 
     @Test
     public void testAbstractClassMembership() {
 
         ClassInfo classInfo = domainInfo.getClassSimpleName("Membership");
-        assertNotNull(classInfo);
-        assertEquals(1, classInfo.directInterfaces().size());
+        assertThat(classInfo).isNotNull();
+        assertThat(classInfo.directInterfaces()).hasSize(1);
     }
 
     @Test
     public void testConcreteClassSilverMembership() {
 
         ClassInfo classInfo = domainInfo.getClassSimpleName("SilverMembership");
-        assertNotNull(classInfo);
-        assertEquals(1, classInfo.interfacesInfo().list().size());
+        assertThat(classInfo).isNotNull();
+        assertThat(classInfo.interfacesInfo().list()).hasSize(1);
     }
 }

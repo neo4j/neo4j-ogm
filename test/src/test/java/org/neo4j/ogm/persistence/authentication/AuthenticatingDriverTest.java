@@ -14,7 +14,7 @@
 package org.neo4j.ogm.persistence.authentication;
 
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
 
 import org.apache.http.client.HttpResponseException;
@@ -56,7 +56,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
 			while (!(cause instanceof HttpResponseException)) {
 				cause = cause.getCause();
 			}
-			assertTrue(cause.getMessage().startsWith("Invalid username or password"));
+			assertThat(cause.getMessage().startsWith("Invalid username or password")).isTrue();
 		}
 	}
 
@@ -66,7 +66,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
 		session = new SessionFactory(driver, "dummy").openSession();
 
 		try (Transaction ignored = session.beginTransaction()) {
-			assertNotNull(ignored);
+			assertThat(ignored).isNotNull();
 		} catch (Exception rpe) {
 			fail("'" + rpe.getLocalizedMessage() + "' was not expected here");
 		}
@@ -87,7 +87,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
 			while (!(cause instanceof HttpResponseException)) {
 				cause = cause.getCause();
 			}
-			assertEquals("Invalid username or password.", cause.getMessage());
+			assertThat(cause.getMessage()).isEqualTo("Invalid username or password.");
 		}
 	}
 }

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
@@ -71,8 +71,8 @@ public class GraphIdCapabilityTest extends MultiDriverTestClass {
      */
     @Test
     public void idShouldBeResolvedForValidNodeEntity() {
-        assertEquals(pleaseId, session.resolveGraphIdFor(please));
-        assertEquals(beatlesId, session.resolveGraphIdFor(theBeatles));
+        assertThat(session.resolveGraphIdFor(please)).isEqualTo(pleaseId);
+        assertThat(session.resolveGraphIdFor(theBeatles)).isEqualTo(beatlesId);
     }
 
     /**
@@ -80,7 +80,7 @@ public class GraphIdCapabilityTest extends MultiDriverTestClass {
      */
     @Test
     public void idShouldBeResolvedForValidRelationshipEntity() {
-        assertEquals(recordingId, session.resolveGraphIdFor(recording));
+        assertThat(session.resolveGraphIdFor(recording)).isEqualTo(recordingId);
     }
 
     /**
@@ -89,10 +89,10 @@ public class GraphIdCapabilityTest extends MultiDriverTestClass {
     @Test
     public void idShouldReturnNullForEntitiesNotPersisted() {
         Album revolver = new Album("Revolver");
-        assertNull(session.resolveGraphIdFor(revolver));
+        assertThat(session.resolveGraphIdFor(revolver)).isNull();
 
         Recording revolverRecording = new Recording(revolver, new Studio(), 1966);
-        assertNull(session.resolveGraphIdFor(revolverRecording));
+        assertThat(session.resolveGraphIdFor(revolverRecording)).isNull();
     }
 
     /**
@@ -101,10 +101,10 @@ public class GraphIdCapabilityTest extends MultiDriverTestClass {
     @Test
     public void idShouldReturnNullForNonEntities() {
         Movie movie = new Movie(); //not in the mapping context
-        assertNull(session.resolveGraphIdFor(movie));
+        assertThat(session.resolveGraphIdFor(movie)).isNull();
 
         Long aLong = (long) 5;
-        assertNull(session.resolveGraphIdFor(aLong));
+        assertThat(session.resolveGraphIdFor(aLong)).isNull();
     }
 
     /**
@@ -112,7 +112,7 @@ public class GraphIdCapabilityTest extends MultiDriverTestClass {
      */
     @Test
     public void idShouldReturnNullForEntitiesWithNoIdentity() {
-        assertNull(session.resolveGraphIdFor(ReleaseFormat.VINYL));
+        assertThat(session.resolveGraphIdFor(ReleaseFormat.VINYL)).isNull();
     }
 
     /**
@@ -120,8 +120,8 @@ public class GraphIdCapabilityTest extends MultiDriverTestClass {
      */
     @Test
     public void idShouldReturnNullForNullsOrPrimitives() {
-        assertNull(session.resolveGraphIdFor(null));
-        assertNull(session.resolveGraphIdFor(true));
-        assertNull(session.resolveGraphIdFor(1));
+        assertThat(session.resolveGraphIdFor(null)).isNull();
+        assertThat(session.resolveGraphIdFor(true)).isNull();
+        assertThat(session.resolveGraphIdFor(1)).isNull();
     }
 }

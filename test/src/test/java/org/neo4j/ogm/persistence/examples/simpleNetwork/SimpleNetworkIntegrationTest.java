@@ -25,6 +25,8 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author vince
  */
@@ -92,7 +94,7 @@ public class SimpleNetworkIntegrationTest extends MultiDriverTestClass {
         IdentityNode loadedIdentityNode = session.load(IdentityNode.class, identityNode.getId());
 
         // assert
-        Assert.assertEquals(2, loadedIdentityNode.getStates().size());
+        assertThat(loadedIdentityNode.getStates()).hasSize(2);
     }
 }
 

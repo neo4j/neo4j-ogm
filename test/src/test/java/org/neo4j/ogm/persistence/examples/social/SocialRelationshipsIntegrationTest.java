@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.social;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
 import java.util.Arrays;
@@ -214,9 +214,9 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         userA = session.load(SocialUser.class, userA.getId());
-        assertEquals(2, userA.getFriends().size());
-        assertEquals(2, userA.getFollowers().size());
-        assertEquals(2, userA.getFollowing().size());
+        assertThat(userA.getFriends()).hasSize(2);
+        assertThat(userA.getFollowers()).hasSize(2);
+        assertThat(userA.getFollowing()).hasSize(2);
     }
 
     /**
@@ -252,9 +252,9 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         userA = session.load(SocialUser.class, userA.getId());
-        assertEquals(2, userA.getFriends().size());
-        assertEquals(2, userA.getFollowers().size());
-        assertEquals(2, userA.getFollowing().size());
+        assertThat(userA.getFriends()).hasSize(2);
+        assertThat(userA.getFollowers()).hasSize(2);
+        assertThat(userA.getFollowing()).hasSize(2);
     }
 
     /**

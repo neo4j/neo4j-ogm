@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.metadata.reflect;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,12 +41,12 @@ public class EntityFactoryTest {
         RelationshipModel personRelationshipModel = new RelationshipModel();
         personRelationshipModel.setType("MEMBER_OF");
         ArbitraryRelationshipEntity gary = this.entityFactory.newObject(personRelationshipModel);
-        assertNotNull(gary);
+        assertThat(gary).isNotNull();
 
         NodeModel personNodeModel = new NodeModel();
         personNodeModel.setLabels(new String[]{"Individual"});
         Individual sheila = this.entityFactory.newObject(personNodeModel);
-        assertNotNull(sheila);
+        assertThat(sheila).isNotNull();
     }
 
     @Test
@@ -54,7 +54,7 @@ public class EntityFactoryTest {
         NodeModel personNodeModel = new NodeModel();
         personNodeModel.setLabels(new String[]{"Female", "Individual", "Lass"});
         Individual ourLass = this.entityFactory.newObject(personNodeModel);
-        assertNotNull(ourLass);
+        assertThat(ourLass).isNotNull();
     }
 
     @Test(expected = MappingException.class)
@@ -84,6 +84,6 @@ public class EntityFactoryTest {
     @Test
     public void shouldConstructObjectIfExplicitlyGivenClassToInstantiate() {
         Individual instance = this.entityFactory.newObject(Individual.class);
-        assertNotNull("The resultant instance shouldn't be null", instance);
+        assertThat(instance).as("The resultant instance shouldn't be null").isNotNull();
     }
 }

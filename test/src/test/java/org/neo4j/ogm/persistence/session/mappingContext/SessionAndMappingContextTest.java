@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.context.MappingContext;
@@ -16,6 +15,8 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Mihai Raulea
@@ -96,72 +97,72 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     @Test
     public void disposeFromMappingContextOnDeleteWithTransientRelationshipTest() {
         MappingContext mappingContext = session.context();
-        Assert.assertTrue(mappingContext.getNodeEntity(artist1.getId()).getClass() == Artist.class);
+        assertThat(mappingContext.getNodeEntity(artist1.getId()).getClass() == Artist.class).isTrue();
         session.delete(artist1);
 
         // check that the mapping context does not hold a reference to the deleted entity anymore
         Object object = mappingContext.getNodeEntity(artist1.getId());
-        Assert.assertTrue(object == null);
+        assertThat(object == null).isTrue();
 
         // check that objects with references to the deleted object have been cleared
         // check for TransientRelationship, where the object connected to the deleted object holds ref in a Set
         Album retrievedAlbum1 = (Album) mappingContext.getNodeEntity(album1.getId());
-        Assert.assertTrue(retrievedAlbum1.getArtist() == null);
+        assertThat(retrievedAlbum1.getArtist() == null).isTrue();
 
         Album retrievedAlbum2 = (Album) mappingContext.getNodeEntity(album2.getId());
-        Assert.assertTrue(retrievedAlbum2.getArtist() == null);
+        assertThat(retrievedAlbum2.getArtist() == null).isTrue();
 
         Album retrievedAlbum3 = (Album) mappingContext.getNodeEntity(album3.getId());
-        Assert.assertTrue(retrievedAlbum3.getArtist() == null);
+        assertThat(retrievedAlbum3.getArtist() == null).isTrue();
     }
 
     @Test
     public void disposeFromMappingContextOnDeleteWithRelationshipEntityTest() {
-        Assert.assertTrue(session.context().getNodeEntity(actor1.getId()).getClass() == Actor.class);
+        assertThat(session.context().getNodeEntity(actor1.getId()).getClass() == Actor.class).isTrue();
         Object objectRel = session.context().getRelationshipEntity(knows.id);
-        Assert.assertTrue(objectRel.getClass() == Knows.class);
+        assertThat(objectRel.getClass() == Knows.class).isTrue();
 
         session.delete(actor1);
 
         Result result = session.query("MATCH (n) RETURN n", Collections.EMPTY_MAP);
         // check that the mapping context does not hold a reference to the deleted entity anymore
         Object object = session.context().getNodeEntity(actor1.getId());
-        Assert.assertTrue(object == null);
+        assertThat(object == null).isTrue();
         // check for a defined RelationshipEntity; the relationship should also be removed from the mappingContext
         objectRel = session.context().getRelationshipEntity(knows.id);
-        Assert.assertTrue(objectRel == null);
-        Assert.assertTrue(session.context().getNodeEntity(actor1.getId()) == null);
+        assertThat(objectRel == null).isTrue();
+        assertThat(session.context().getNodeEntity(actor1.getId()) == null).isTrue();
         // does it exist in the session?
         Knows inSessionKnows = session.load(Knows.class, knows.id);
-        Assert.assertTrue(inSessionKnows == null);
+        assertThat(inSessionKnows == null).isTrue();
         // the other knows relationship should not have been deleted
         Knows inSessionKnows2 = session.load(Knows.class, knows2.id);
-        Assert.assertTrue(inSessionKnows2 != null);
+        assertThat(inSessionKnows2 != null).isTrue();
     }
 
     @Test
     public void testEntityRelationshipProperlyRemoved() {
         session.delete(knows);
         Knows testKnows = session.load(Knows.class, knows.id);
-        Assert.assertTrue(testKnows == null);
+        assertThat(testKnows == null).isTrue();
     }
 
     @Test
     public void testDetachNode() {
-        Assert.assertTrue(session.detachNodeEntity(actor1.getId()));
-        Assert.assertFalse(session.detachNodeEntity(actor1.getId()));
+        assertThat(session.detachNodeEntity(actor1.getId())).isTrue();
+        assertThat(session.detachNodeEntity(actor1.getId())).isFalse();
     }
 
     @Test
     public void testDetachNode2() {
-        Assert.assertTrue(session.detachNodeEntity(actor2.getId()));
-        Assert.assertFalse(session.detachNodeEntity(actor2.getId()));
+        assertThat(session.detachNodeEntity(actor2.getId())).isTrue();
+        assertThat(session.detachNodeEntity(actor2.getId())).isFalse();
     }
 
     @Test
     public void testDetachRelationshipEntity() {
-        Assert.assertTrue(session.detachRelationshipEntity(knows.id));
-        Assert.assertFalse(session.detachRelationshipEntity(knows.id));
+        assertThat(session.detachRelationshipEntity(knows.id)).isTrue();
+        assertThat(session.detachRelationshipEntity(knows.id)).isFalse();
     }
 
     @Test
@@ -179,15 +180,15 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
 
             session.save(maryKnowsJohn);
 
-            Assert.assertNotNull(mary.getId());
-            Assert.assertNotNull(maryKnowsJohn.id);
-            Assert.assertNotNull(john.getId());
+            assertThat(mary.getId()).isNotNull();
+            assertThat(maryKnowsJohn.id).isNotNull();
+            assertThat(john.getId()).isNotNull();
 
             tx.rollback();
 
-            Assert.assertNull(mary.getId());
-            Assert.assertNull(maryKnowsJohn.id);
-            Assert.assertNull(john.getId());
+            assertThat(mary.getId()).isNull();
+            assertThat(maryKnowsJohn.id).isNull();
+            assertThat(john.getId()).isNull();
         }
     }
 

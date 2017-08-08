@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -70,14 +70,14 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
         Iterable<Map<String, Object>> resultsIterable = session.query("MATCH (a:Actor) WHERE ID(a)={param} RETURN a.name as name",
                 Collections.<String, Object>singletonMap("param", alec.getId())); //make sure the change is backward compatible
-        assertNotNull("Results are empty", resultsIterable);
+        assertThat(resultsIterable).as("Results are empty").isNotNull();
         Map<String, Object> row = resultsIterable.iterator().next();
-        assertEquals("Alec Baldwin", row.get("name"));
+        assertThat(row.get("name")).isEqualTo("Alec Baldwin");
 
         Result results = session.query("MATCH (a:Actor) WHERE ID(a)={param} RETURN a.name as name",
                 Collections.<String, Object>singletonMap("param", alec.getId()));
-        assertNotNull("Results are empty", results);
-        assertEquals("Alec Baldwin", results.iterator().next().get("name"));
+        assertThat(results).as("Results are empty").isNotNull();
+        assertThat(results.iterator().next().get("name")).isEqualTo("Alec Baldwin");
     }
 
 
@@ -100,14 +100,14 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
         Result result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), false);
-        assertNotNull(result);
-        assertNotNull(result.queryStatistics());
-        assertEquals(3, result.queryStatistics().getPropertiesSet());
+        assertThat(result).isNotNull();
+        assertThat(result.queryStatistics()).isNotNull();
+        assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(3);
 
         result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5));
-        assertNotNull(result);
-        assertNotNull(result.queryStatistics());
-        assertEquals(3, result.queryStatistics().getPropertiesSet());
+        assertThat(result).isNotNull();
+        assertThat(result.queryStatistics()).isNotNull();
+        assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(3);
     }
 
     /**
@@ -119,9 +119,9 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
         Result result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name", MapUtil.map("age", 5), false);
-        assertNotNull(result);
-        assertNotNull(result.queryStatistics());
-        assertEquals(3, result.queryStatistics().getPropertiesSet());
+        assertThat(result).isNotNull();
+        assertThat(result.queryStatistics()).isNotNull();
+        assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(3);
         List<String> names = new ArrayList<>();
 
         Iterator<Map<String, Object>> namesIterator = result.queryResults().iterator();
@@ -129,28 +129,28 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
             names.add((String) namesIterator.next().get("a.name"));
         }
 
-        assertEquals(3, names.size());
-        assertTrue(names.contains("Jeff"));
-        assertTrue(names.contains("John"));
-        assertTrue(names.contains("Colin"));
+        assertThat(names).hasSize(3);
+        assertThat(names.contains("Jeff")).isTrue();
+        assertThat(names.contains("John")).isTrue();
+        assertThat(names.contains("Colin")).isTrue();
 
         result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name, a.age", MapUtil.map("age", 5));
-        assertNotNull(result);
-        assertNotNull(result.queryStatistics());
-        assertEquals(3, result.queryStatistics().getPropertiesSet());
+        assertThat(result).isNotNull();
+        assertThat(result.queryStatistics()).isNotNull();
+        assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(3);
         names = new ArrayList<>();
 
         namesIterator = result.queryResults().iterator();
         while (namesIterator.hasNext()) {
             Map<String, Object> row = namesIterator.next();
             names.add((String) row.get("a.name"));
-            assertEquals(5l, ((Number) row.get("a.age")).longValue());
+            assertThat(((Number) row.get("a.age")).longValue()).isEqualTo(5l);
         }
 
-        assertEquals(3, names.size());
-        assertTrue(names.contains("Jeff"));
-        assertTrue(names.contains("John"));
-        assertTrue(names.contains("Colin"));
+        assertThat(names).hasSize(3);
+        assertThat(names.contains("Jeff")).isTrue();
+        assertThat(names.contains("John")).isTrue();
+        assertThat(names.contains("Colin")).isTrue();
     }
 
     /**
@@ -162,8 +162,8 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
         Result result = session.query("MATCH (a:Actor) RETURN a.name", Collections.EMPTY_MAP, true);
-        assertNotNull(result);
-        assertNull(result.queryStatistics());
+        assertThat(result).isNotNull();
+        assertThat(result.queryStatistics()).isNull();
 
         List<String> names = new ArrayList<>();
 
@@ -172,10 +172,10 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
             names.add((String) namesIterator.next().get("a.name"));
         }
 
-        assertEquals(3, names.size());
-        assertTrue(names.contains("Jeff"));
-        assertTrue(names.contains("John"));
-        assertTrue(names.contains("Colin"));
+        assertThat(names).hasSize(3);
+        assertThat(names.contains("Jeff")).isTrue();
+        assertThat(names.contains("John")).isTrue();
+        assertThat(names.contains("Colin")).isTrue();
     }
 
     /**
@@ -187,8 +187,8 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
         Actor jeff = session.queryForObject(Actor.class, "MATCH (a:Actor {name:{name}}) set a.age={age} return a", MapUtil.map("name", "Jeff", "age", 40));
-        assertNotNull(jeff);
-        assertEquals("Jeff", jeff.getName());
+        assertThat(jeff).isNotNull();
+        assertThat(jeff.getName()).isEqualTo("Jeff");
     }
 
     /**
@@ -200,7 +200,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
         Iterable<Actor> actors = session.query(Actor.class, "MATCH (a:Actor) set a.age={age} return a", MapUtil.map("age", 40));
-        assertNotNull(actors);
+        assertThat(actors).isNotNull();
 
         List<String> names = new ArrayList<>();
 
@@ -209,10 +209,10 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
             names.add(actorIterator.next().getName());
         }
 
-        assertEquals(3, names.size());
-        assertTrue(names.contains("Jeff"));
-        assertTrue(names.contains("John"));
-        assertTrue(names.contains("Colin"));
+        assertThat(names).hasSize(3);
+        assertThat(names.contains("Jeff")).isTrue();
+        assertThat(names.contains("John")).isTrue();
+        assertThat(names.contains("Colin")).isTrue();
     }
 
     @Test
@@ -220,7 +220,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("Jeff"));
         Iterable<Map<String, Object>> results = session.query("MATCH (a:Actor) return a.nonExistent as nonExistent", Collections.EMPTY_MAP);
         Map<String, Object> result = results.iterator().next();
-        assertNull(result.get("nonExistent"));
+        assertThat(result.get("nonExistent")).isNull();
     }
 
     /**
@@ -229,16 +229,16 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapEntities() {
         Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}})-[:RATED]->(m) RETURN u as user, m as movie", MapUtil.map("name", "Vince")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
         User user = (User) result.get("user");
-        assertNotNull(user);
+        assertThat(user).isNotNull();
         Movie movie = (Movie) result.get("movie");
-        assertNotNull(movie);
-        assertEquals("Vince", user.getName());
-        assertEquals("Top Gear", movie.getTitle());
-        assertFalse(results.hasNext());
+        assertThat(movie).isNotNull();
+        assertThat(user.getName()).isEqualTo("Vince");
+        assertThat(movie.getTitle()).isEqualTo("Top Gear");
+        assertThat(results.hasNext()).isFalse();
     }
 
     /**
@@ -247,15 +247,15 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapEntitiesAndScalars() {
         Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}})-[:RATED]->(m) RETURN u as user, count(m) as count", MapUtil.map("name", "Michal")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
         User user = (User) result.get("user");
-        assertNotNull(user);
-        assertEquals("Michal", user.getName());
+        assertThat(user).isNotNull();
+        assertThat(user.getName()).isEqualTo("Michal");
         Number count = (Number) result.get("count");
-        assertEquals(2L, count.longValue());
-        assertFalse(results.hasNext());
+        assertThat(count.longValue()).isEqualTo(2L);
+        assertThat(results.hasNext()).isFalse();
     }
 
     /**
@@ -264,25 +264,25 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapEntitiesAndScalarsMultipleRows() {
         Iterator<Map<String, Object>> results = session.query("MATCH (u:User)-[r:RATED]->(m) RETURN m as movie, avg(r.stars) as average ORDER BY average DESC", Collections.EMPTY_MAP).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
 
         Movie movie = (Movie) result.get("movie");
-        assertNotNull(movie);
-        assertEquals("Pulp Fiction", movie.getTitle());
+        assertThat(movie).isNotNull();
+        assertThat(movie.getTitle()).isEqualTo("Pulp Fiction");
         Number avg = (Number) result.get("average");
-        assertEquals(5.0, avg);
+        assertThat(avg).isEqualTo(5.0);
 
         result = results.next();
 
         movie = (Movie) result.get("movie");
-        assertNotNull(movie);
-        assertEquals("Top Gear", movie.getTitle());
+        assertThat(movie).isNotNull();
+        assertThat(movie.getTitle()).isEqualTo("Top Gear");
         avg = (Number) result.get("average");
-        assertEquals(3.5, avg);
+        assertThat(avg).isEqualTo(3.5);
 
-        assertFalse(results.hasNext());
+        assertThat(results.hasNext()).isFalse();
     }
 
     /**
@@ -291,25 +291,25 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapEntitiesAndScalarsMultipleRowsAndNoAlias() {
         Iterator<Map<String, Object>> results = session.query("MATCH (u:User)-[r:RATED]->(m) RETURN m, avg(r.stars) ORDER BY avg(r.stars) DESC", Collections.EMPTY_MAP).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
 
         Movie movie = (Movie) result.get("m");
-        assertNotNull(movie);
-        assertEquals("Pulp Fiction", movie.getTitle());
+        assertThat(movie).isNotNull();
+        assertThat(movie.getTitle()).isEqualTo("Pulp Fiction");
         Number avg = (Number) result.get("avg(r.stars)");
-        assertEquals(5.0, avg);
+        assertThat(avg).isEqualTo(5.0);
 
         result = results.next();
 
         movie = (Movie) result.get("m");
-        assertNotNull(movie);
-        assertEquals("Top Gear", movie.getTitle());
+        assertThat(movie).isNotNull();
+        assertThat(movie.getTitle()).isEqualTo("Top Gear");
         avg = (Number) result.get("avg(r.stars)");
-        assertEquals(3.5, avg);
+        assertThat(avg).isEqualTo(3.5);
 
-        assertFalse(results.hasNext());
+        assertThat(results.hasNext()).isFalse();
     }
 
     /**
@@ -318,21 +318,21 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapEntitiesAndRelationships() {
         Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}})-[r:FRIENDS]->(friend) RETURN u as user, friend as friend, r", MapUtil.map("name", "Michal")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
 
         User user = (User) result.get("user");
-        assertNotNull(user);
-        assertEquals("Michal", user.getName());
+        assertThat(user).isNotNull();
+        assertThat(user.getName()).isEqualTo("Michal");
 
         User friend = (User) result.get("friend");
-        assertNotNull(friend);
-        assertEquals("Vince", friend.getName());
+        assertThat(friend).isNotNull();
+        assertThat(friend.getName()).isEqualTo("Vince");
 
-        assertEquals(friend.getName(), user.getFriends().iterator().next().getName());
+        assertThat(user.getFriends().iterator().next().getName()).isEqualTo(friend.getName());
 
-        assertFalse(results.hasNext());
+        assertThat(results.hasNext()).isFalse();
     }
 
 
@@ -342,30 +342,30 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapEntitiesAndRelationshipsOfDifferentTypes() {
         Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}})-[r:FRIENDS]->(friend)-[r2:RATED]->(m) RETURN u as user, friend as friend, r, r2, m as movie, r2.stars as stars", MapUtil.map("name", "Michal")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
 
         User user = (User) result.get("user");
-        assertNotNull(user);
-        assertEquals("Michal", user.getName());
+        assertThat(user).isNotNull();
+        assertThat(user.getName()).isEqualTo("Michal");
 
         User friend = (User) result.get("friend");
-        assertNotNull(friend);
-        assertEquals("Vince", friend.getName());
+        assertThat(friend).isNotNull();
+        assertThat(friend.getName()).isEqualTo("Vince");
 
-        assertEquals(friend.getName(), user.getFriends().iterator().next().getName());
+        assertThat(user.getFriends().iterator().next().getName()).isEqualTo(friend.getName());
 
         Movie topGear = (Movie) result.get("movie");
-        assertNotNull(topGear);
-        assertEquals("Top Gear", topGear.getTitle());
+        assertThat(topGear).isNotNull();
+        assertThat(topGear.getTitle()).isEqualTo("Top Gear");
 
-        assertEquals(1, friend.getRatings().size());
-        assertEquals(topGear.getTitle(), friend.getRatings().iterator().next().getMovie().getTitle());
+        assertThat(friend.getRatings()).hasSize(1);
+        assertThat(friend.getRatings().iterator().next().getMovie().getTitle()).isEqualTo(topGear.getTitle());
         Number stars = (Number) result.get("stars");
-        assertEquals(4L, stars.longValue());
+        assertThat(stars.longValue()).isEqualTo(4L);
 
-        assertFalse(results.hasNext());
+        assertThat(results.hasNext()).isFalse();
     }
 
     /**
@@ -374,26 +374,26 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapRelationshipEntities() {
         Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}})-[r:RATED]->(m) RETURN u,r,m", MapUtil.map("name", "Vince")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
 
         Movie movie = (Movie) result.get("m");
-        assertNotNull(movie);
-        assertEquals("Top Gear", movie.getTitle());
+        assertThat(movie).isNotNull();
+        assertThat(movie.getTitle()).isEqualTo("Top Gear");
 
         User user = (User) result.get("u");
-        assertNotNull(user);
-        assertEquals("Vince", user.getName());
+        assertThat(user).isNotNull();
+        assertThat(user.getName()).isEqualTo("Vince");
 
         Rating rating = (Rating) result.get("r");
-        assertNotNull(rating);
-        assertEquals(4, rating.getStars());
+        assertThat(rating).isNotNull();
+        assertThat(rating.getStars()).isEqualTo(4);
 
-        assertEquals(rating.getId(), movie.getRatings().iterator().next().getId());
-        assertEquals(rating.getId(), user.getRatings().iterator().next().getId());
+        assertThat(movie.getRatings().iterator().next().getId()).isEqualTo(rating.getId());
+        assertThat(user.getRatings().iterator().next().getId()).isEqualTo(rating.getId());
 
-        assertFalse(results.hasNext());
+        assertThat(results.hasNext()).isFalse();
     }
 
     /**
@@ -402,9 +402,9 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapVariableDepthRelationshipsWithIncompletePaths() {
         Iterator<Map<String, Object>> results = session.query("match (u:User {name:{name}}) match (m:Movie {title:{title}}) match (u)-[r*0..2]-(m) return u,r,m", MapUtil.map("name", "Vince", "title", "Top Gear")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
 
         /*
             Expect 2 rows:
@@ -413,47 +413,47 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
          */
         boolean ratedRelationshipFound = false;
         Movie movie = (Movie) result.get("m");
-        assertNotNull(movie);
-        assertEquals("Top Gear", movie.getTitle());
+        assertThat(movie).isNotNull();
+        assertThat(movie.getTitle()).isEqualTo("Top Gear");
 
         User user = (User) result.get("u");
-        assertNotNull(user);
-        assertEquals("Vince", user.getName());
+        assertThat(user).isNotNull();
+        assertThat(user.getName()).isEqualTo("Vince");
 
         List<Rating> ratings = (List) result.get("r");
         if (ratings.size() == 1) { //because the list of ratings with size 2= friends,rated relationships
             Rating rating = ratings.get(0);
-            assertNotNull(rating);
-            assertEquals(4, rating.getStars());
-            assertEquals(rating.getId(), movie.getRatings().iterator().next().getId());
-            assertEquals(rating.getId(), user.getRatings().iterator().next().getId());
+            assertThat(rating).isNotNull();
+            assertThat(rating.getStars()).isEqualTo(4);
+            assertThat(movie.getRatings().iterator().next().getId()).isEqualTo(rating.getId());
+            assertThat(user.getRatings().iterator().next().getId()).isEqualTo(rating.getId());
             ratedRelationshipFound = true;
         }
 
-        assertNull(user.getFriends());
+        assertThat(user.getFriends()).isNull();
 
         result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
 
         movie = (Movie) result.get("m");
-        assertNotNull(movie);
-        assertEquals("Top Gear", movie.getTitle());
+        assertThat(movie).isNotNull();
+        assertThat(movie.getTitle()).isEqualTo("Top Gear");
 
         user = (User) result.get("u");
-        assertNotNull(user);
-        assertEquals("Vince", user.getName());
+        assertThat(user).isNotNull();
+        assertThat(user.getName()).isEqualTo("Vince");
 
         ratings = (List) result.get("r");
         if (ratings.size() == 1) { //because the list of ratings with size 2= friends,rated relationships
             Rating rating = ratings.get(0);
-            assertNotNull(rating);
-            assertEquals(4, rating.getStars());
-            assertEquals(rating.getId(), movie.getRatings().iterator().next().getId());
-            assertEquals(rating.getId(), user.getRatings().iterator().next().getId());
+            assertThat(rating).isNotNull();
+            assertThat(rating.getStars()).isEqualTo(4);
+            assertThat(movie.getRatings().iterator().next().getId()).isEqualTo(rating.getId());
+            assertThat(user.getRatings().iterator().next().getId()).isEqualTo(rating.getId());
             ratedRelationshipFound = true;
         }
-        assertTrue(ratedRelationshipFound);
-        assertNull(user.getFriends());
+        assertThat(ratedRelationshipFound).isTrue();
+        assertThat(user.getFriends()).isNull();
     }
 
     /**
@@ -462,9 +462,9 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapVariableDepthRelationshipsWithCompletePaths() {
         Iterator<Map<String, Object>> results = session.query("match (u:User {name:{name}}) match (u)-[r*0..1]-(n) return u,r,n", MapUtil.map("name", "Vince")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
         boolean foundMichal = false;
         /*
             Expect 3 rows:
@@ -474,19 +474,19 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
          */
 
         User user = (User) result.get("u");
-        assertNotNull(user);
-        assertEquals("Vince", user.getName());
+        assertThat(user).isNotNull();
+        assertThat(user.getName()).isEqualTo("Vince");
         foundMichal = checkForMichal(result, foundMichal);
 
         result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
         foundMichal = checkForMichal(result, foundMichal);
 
         result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
         foundMichal = checkForMichal(result, foundMichal);
 
-        assertTrue(foundMichal);
+        assertThat(foundMichal).isTrue();
     }
 
     /**
@@ -495,28 +495,28 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapCollectionsOfNodes() {
         Iterator<Map<String, Object>> results = session.query("match (u:User {name:{name}})-[r:RATED]->(m) return u as user,collect(r), collect(m) as movies", MapUtil.map("name", "Michal")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
-        assertEquals("Michal", ((User) result.get("user")).getName());
+        assertThat(result).isNotNull();
+        assertThat(((User) result.get("user")).getName()).isEqualTo("Michal");
 
         List<Rating> ratings = (List) result.get("collect(r)");
-        assertEquals(2, ratings.size());
+        assertThat(ratings).hasSize(2);
         for (Rating rating : ratings) {
-            assertEquals("Michal", rating.getUser().getName());
+            assertThat(rating.getUser().getName()).isEqualTo("Michal");
         }
 
         List<Movie> movies = (List) result.get("movies");
-        assertEquals(2, movies.size());
+        assertThat(movies).hasSize(2);
         for (Movie movie : movies) {
             if (movie.getRatings().iterator().next().getStars() == 3) {
-                assertEquals("Top Gear", movie.getTitle());
+                assertThat(movie.getTitle()).isEqualTo("Top Gear");
             } else {
-                assertEquals("Pulp Fiction", movie.getTitle());
-                assertEquals(5, movie.getRatings().iterator().next().getStars());
+                assertThat(movie.getTitle()).isEqualTo("Pulp Fiction");
+                assertThat(movie.getRatings().iterator().next().getStars()).isEqualTo(5);
             }
         }
-        assertFalse(results.hasNext());
+        assertThat(results.hasNext()).isFalse();
     }
 
     /**
@@ -525,26 +525,26 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapCollectionsFromPath() {
         Iterator<Map<String, Object>> results = session.query("MATCH p=(u:User {name:{name}})-[r:RATED]->(m) RETURN nodes(p) as nodes, rels(p) as rels", MapUtil.map("name", "Vince")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
+        assertThat(result).isNotNull();
 
         List<Object> nodes = (List) result.get("nodes");
         List<Object> rels = (List) result.get("rels");
-        assertEquals(2, nodes.size());
-        assertEquals(1, rels.size());
+        assertThat(nodes).hasSize(2);
+        assertThat(rels).hasSize(1);
 
         for (Object o : nodes) {
             if (o instanceof User) {
                 User user = (User) o;
-                assertEquals("Vince", user.getName());
-                assertEquals(1, user.getRatings().size());
+                assertThat(user.getName()).isEqualTo("Vince");
+                assertThat(user.getRatings()).hasSize(1);
                 Movie movie = user.getRatings().iterator().next().getMovie();
-                assertNotNull(movie);
-                assertEquals("Top Gear", movie.getTitle());
+                assertThat(movie).isNotNull();
+                assertThat(movie.getTitle()).isEqualTo("Top Gear");
                 Rating rating = movie.getRatings().iterator().next();
-                assertNotNull(rating);
-                assertEquals(4, rating.getStars());
+                assertThat(rating).isNotNull();
+                assertThat(rating.getStars()).isEqualTo(4);
             }
         }
     }
@@ -555,10 +555,10 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapArrays() {
         Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}}) RETURN u.array as arr", MapUtil.map("name", "Christophe")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
-        assertEquals(2, ((String[]) result.get("arr")).length);
+        assertThat(result).isNotNull();
+        assertThat(((String[]) result.get("arr")).length).isEqualTo(2);
     }
 
     /**
@@ -567,15 +567,15 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapMixedArrays() {
         Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}}) RETURN u.array as arr, [1,'two',true] as mixed", MapUtil.map("name", "Christophe")).iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
-        assertNotNull(result);
-        assertEquals(2, ((String[]) result.get("arr")).length);
+        assertThat(result).isNotNull();
+        assertThat(((String[]) result.get("arr")).length).isEqualTo(2);
         Object[] mixed = (Object[]) result.get("mixed");
-        assertEquals(3, mixed.length);
-        assertEquals(1L, ((Number) mixed[0]).longValue());
-        assertEquals("two", mixed[1]);
-        assertEquals(true, mixed[2]);
+        assertThat(mixed.length).isEqualTo(3);
+        assertThat(((Number) mixed[0]).longValue()).isEqualTo(1L);
+        assertThat(mixed[1]).isEqualTo("two");
+        assertThat(mixed[2]).isEqualTo(true);
     }
 
     /**
@@ -585,16 +585,16 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     public void modifyingQueryShouldBeAbleToMapEntitiesAndReturnStatistics() {
         Result result = session.query("MATCH (u:User {name:{name}})-[:RATED]->(m) WITH u,m SET u.age={age} RETURN u as user, m as movie", MapUtil.map("name", "Vince", "age", 20));
         Iterator<Map<String, Object>> results = result.queryResults().iterator();
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         Map<String, Object> row = results.next();
-        assertNotNull(row);
+        assertThat(row).isNotNull();
         User user = (User) row.get("user");
-        assertNotNull(user);
+        assertThat(user).isNotNull();
         Movie movie = (Movie) row.get("movie");
-        assertNotNull(movie);
-        assertEquals("Vince", user.getName());
-        assertEquals("Top Gear", movie.getTitle());
-        assertFalse(results.hasNext());
+        assertThat(movie).isNotNull();
+        assertThat(user.getName()).isEqualTo("Vince");
+        assertThat(movie.getTitle()).isEqualTo("Top Gear");
+        assertThat(results.hasNext()).isFalse();
     }
 
 
@@ -609,12 +609,12 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         String incrementStmt = "MATCH (n:Sequence) WHERE n.id = {id} REMOVE n.lock SET n.next = n.next + {increment} RETURN n.next - {increment} as current";
 
         Result result = session.query(incrementStmt, MapUtil.map("id", "test", "increment", 1));
-        assertEquals(start, ((Number) result.iterator().next().get("current")).longValue());
+        assertThat(((Number) result.iterator().next().get("current")).longValue()).isEqualTo(start);
 
         result = session.query(incrementStmt, MapUtil.map("id", "test", "increment", 1));
 
         //expected:<2147483648> but was:<-2147483648>
-        assertEquals(start + 1, ((Number) result.iterator().next().get("current")).longValue());
+        assertThat(((Number) result.iterator().next().get("current")).longValue()).isEqualTo(start + 1);
     }
 
     /**
@@ -627,7 +627,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.query("CREATE (unknown), (m:Unmapped), (n:Movie), (n)-[:UNKNOWN]->(m)", Collections.EMPTY_MAP);
 
         Result result = session.query("MATCH (n) return n", Collections.EMPTY_MAP);
-        assertNotNull(result);
+        assertThat(result).isNotNull();
 
         Iterator<Map<String, Object>> resultIterator = result.iterator();
         while (resultIterator.hasNext()) {
@@ -645,10 +645,10 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
                 }
             }
         }
-        assertEquals(1, unmappedCount);
-        assertEquals(1, noLabelCount);
-        assertEquals(4, movieCount);
-        assertEquals(4, userCount);
+        assertThat(unmappedCount).isEqualTo(1);
+        assertThat(noLabelCount).isEqualTo(1);
+        assertThat(movieCount).isEqualTo(4);
+        assertThat(userCount).isEqualTo(4);
     }
 
     /**
@@ -657,30 +657,30 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldMapCypherCollectionsToArrays() {
         Iterator<Map<String, Object>> iterator = session.query("MATCH (n:User) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
-        assertTrue(iterator.hasNext());
+        assertThat(iterator.hasNext()).isTrue();
         Map<String, Object> row = iterator.next();
-        assertTrue(row.get("names").getClass().isArray());
-        assertEquals(4, ((String[]) row.get("names")).length);
+        assertThat(row.get("names").getClass().isArray()).isTrue();
+        assertThat(((String[]) row.get("names")).length).isEqualTo(4);
 
         iterator = session.query("MATCH (n:User {name:'Michal'}) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
-        assertTrue(iterator.hasNext());
+        assertThat(iterator.hasNext()).isTrue();
         row = iterator.next();
-        assertTrue(row.get("names").getClass().isArray());
-        assertEquals(1, ((String[]) row.get("names")).length);
+        assertThat(row.get("names").getClass().isArray()).isTrue();
+        assertThat(((String[]) row.get("names")).length).isEqualTo(1);
 
         iterator = session.query("MATCH (n:User {name:'Does Not Exist'}) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
-        assertTrue(iterator.hasNext());
+        assertThat(iterator.hasNext()).isTrue();
         row = iterator.next();
-        assertTrue(row.get("names").getClass().isArray());
-        assertEquals(0, ((Object[]) row.get("names")).length);
+        assertThat(row.get("names").getClass().isArray()).isTrue();
+        assertThat(((Object[]) row.get("names")).length).isEqualTo(0);
     }
 
     private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {
         if (result.get("n") instanceof User) {
             User u = (User) result.get("n");
             if (u.getName().equals("Michal")) {
-                assertEquals(1, u.getFriends().size());
-                assertEquals("Vince", u.getFriends().iterator().next().getName());
+                assertThat(u.getFriends()).hasSize(1);
+                assertThat(u.getFriends().iterator().next().getName()).isEqualTo("Vince");
                 foundMichal = true;
             }
         }

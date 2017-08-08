@@ -13,8 +13,9 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.junit.Assert;
 import org.neo4j.ogm.utils.ClassUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author vince
@@ -28,8 +29,8 @@ public class TestMetaDataTypeResolution {
         ClassInfo classInfo = metaData.classInfo("POJO");
         FieldInfo fieldInfo = classInfo.fieldsInfo().get(name);
         String fieldDescriptor = fieldInfo.getTypeDescriptor();
-        Assert.assertEquals(expectedDescriptor, fieldDescriptor);
+        assertThat(fieldDescriptor).isEqualTo(expectedDescriptor);
         Class clazz = ClassUtils.getType(fieldDescriptor);
-        Assert.assertEquals(expectedPersistableType, clazz);
+        assertThat(clazz).isEqualTo(expectedPersistableType);
     }
 }

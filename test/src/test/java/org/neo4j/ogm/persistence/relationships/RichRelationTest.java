@@ -12,7 +12,7 @@
  */
 package org.neo4j.ogm.persistence.relationships;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -79,12 +79,12 @@ public class RichRelationTest extends MultiDriverTestClass {
         session.save(person, 1);
 
         Article updateArticle = session.load(Article.class, article1.getNodeId(), 1);
-        assertSame(updateArticle, ((RichRelation) updateArticle.relations.toArray()[0]).article);
+        assertThat(((RichRelation) updateArticle.relations.toArray()[0]).article).isSameAs(updateArticle);
         updateArticle.tags = Collections.singletonList(new Tag("tag2"));
         session.save(updateArticle, 1);
 
         updateArticle = session.load(Article.class, article1.getNodeId(), 1);
-        assertSame(updateArticle, ((RichRelation) updateArticle.relations.toArray()[0]).article);
+        assertThat(((RichRelation) updateArticle.relations.toArray()[0]).article).isSameAs(updateArticle);
         session.save(updateArticle, 1);
     }
 
@@ -103,16 +103,16 @@ public class RichRelationTest extends MultiDriverTestClass {
 
         session.save(relation);
 
-        assertNotNull(person.getNodeId());
-        assertNotNull(article.getNodeId());
+        assertThat(person.getNodeId()).isNotNull();
+        assertThat(article.getNodeId()).isNotNull();
 
         session.clear();
 
         Person savedPerson = session.load(Person.class, person.getNodeId());
         Article savedArticle = session.load(Article.class, article.getNodeId());
 
-        assertNotNull(savedPerson);
-        assertNotNull(savedArticle);
+        assertThat(savedPerson).isNotNull();
+        assertThat(savedArticle).isNotNull();
     }
 
     /**
@@ -133,16 +133,16 @@ public class RichRelationTest extends MultiDriverTestClass {
 
         session.save(relation);
 
-        assertNotNull(person.getNodeId());
-        assertNotNull(article.getNodeId());
+        assertThat(person.getNodeId()).isNotNull();
+        assertThat(article.getNodeId()).isNotNull();
 
         session.clear();
 
         Person savedPerson = session.load(Person.class, person.getNodeId());
         Article savedArticle = session.load(Article.class, article.getNodeId());
 
-        assertNotNull(savedPerson);
-        assertNotNull(savedArticle);
+        assertThat(savedPerson).isNotNull();
+        assertThat(savedArticle).isNotNull();
     }
 
     /**
@@ -163,15 +163,15 @@ public class RichRelationTest extends MultiDriverTestClass {
 
         session.save(relation);
 
-        assertNotNull(person.getNodeId());
-        assertNotNull(article.getNodeId());
+        assertThat(person.getNodeId()).isNotNull();
+        assertThat(article.getNodeId()).isNotNull();
 
         session.clear();
 
         Person savedPerson = session.load(Person.class, person.getNodeId());
         Article savedArticle = session.load(Article.class, article.getNodeId());
 
-        assertNotNull(savedPerson);
-        assertNotNull(savedArticle);
+        assertThat(savedPerson).isNotNull();
+        assertThat(savedArticle).isNotNull();
     }
 }

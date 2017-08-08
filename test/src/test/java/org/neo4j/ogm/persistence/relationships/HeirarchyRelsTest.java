@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.relationships;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
@@ -68,10 +68,10 @@ public class HeirarchyRelsTest extends MultiDriverTestClass {
         transaction = session.beginTransaction();
         BaseEntity entity = session.load(BaseEntity.class, node1.getGraphId());
         transaction.close();
-        assertEquals(1, entity.getIncoming().size());
-        assertEquals(1, entity.getOutgoing().size());
-        assertEquals(entity.getIncoming().get(0).getGraphId(), node2.getGraphId());
-        assertEquals(entity.getOutgoing().get(0).getGraphId(), node2.getGraphId());
+        assertThat(entity.getIncoming()).hasSize(1);
+        assertThat(entity.getOutgoing()).hasSize(1);
+        assertThat(node2.getGraphId()).isEqualTo(entity.getIncoming().get(0).getGraphId());
+        assertThat(node2.getGraphId()).isEqualTo(entity.getOutgoing().get(0).getGraphId());
     }
 
     @Test
@@ -88,12 +88,12 @@ public class HeirarchyRelsTest extends MultiDriverTestClass {
 
         session.clear();
         Type3 type3_1 = session.load(Type3.class, node1.getGraphId());
-        assertEquals(1, type3_1.getType3In().size());
-        assertEquals(1, type3_1.getType3Out().size());
+        assertThat(type3_1.getType3In()).hasSize(1);
+        assertThat(type3_1.getType3Out()).hasSize(1);
 
         session.clear();
         Type3 type3_2 = session.load(Type3.class, node2.getGraphId());
-        assertEquals(1, type3_2.getType3In().size());
-        assertEquals(1, type3_2.getType3Out().size());
+        assertThat(type3_2.getType3In()).hasSize(1);
+        assertThat(type3_2.getType3Out()).hasSize(1);
     }
 }

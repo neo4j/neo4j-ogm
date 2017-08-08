@@ -11,8 +11,7 @@
 
 package org.neo4j.ogm.persistence.examples.meetup;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
@@ -61,9 +60,9 @@ public class MeetupIntegrationTest extends MultiDriverTestClass {
 		session.clear();
 
 		Meetup neoUae = session.load(Meetup.class, meetup.getId());
-		assertNotNull(neoUae);
-		assertNotNull(neoUae.getOrganiser());
-		assertEquals(1, neoUae.getAttendees().size());
+		assertThat(neoUae).isNotNull();
+		assertThat(neoUae.getOrganiser()).isNotNull();
+		assertThat(neoUae.getAttendees()).hasSize(1);
 
 	}
 }

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.education;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -62,9 +62,9 @@ public class EducationIntegrationTest extends MultiDriverTestClass {
 
         //fetch Courses by name
         Collection<Course> courses = session.loadAll(Course.class, new Filter("name", ComparisonOperator.EQUALS, "CompSci"));
-        assertEquals(1, courses.size());
-        assertEquals(course, courses.iterator().next());
-        assertEquals(1, courses.iterator().next().getStudents().size());
+        assertThat(courses).hasSize(1);
+        assertThat(courses.iterator().next()).isEqualTo(course);
+        assertThat(courses.iterator().next().getStudents()).hasSize(1);
     }
 
     /**
@@ -102,20 +102,20 @@ public class EducationIntegrationTest extends MultiDriverTestClass {
         session.clear();
         //Load the school with depth -1
         hogwarts = session.load(School.class, hogwarts.getId(), -1);
-        assertEquals(2, hogwarts.getTeachers().size());
+        assertThat(hogwarts.getTeachers()).hasSize(2);
         for (Teacher teacher : hogwarts.getTeachers()) {
             if (teacher.getName().equals("Severus Snape")) {
-                assertEquals(2, teacher.getCourses().size());
+                assertThat(teacher.getCourses()).hasSize(2);
                 for (Course course : teacher.getCourses()) {
                     if (course.getName().equals("Potions")) {
-                        assertEquals(2, course.getStudents().size());
+                        assertThat(course.getStudents()).hasSize(2);
                     } else {
-                        assertEquals(1, course.getStudents().size());
+                        assertThat(course.getStudents()).hasSize(1);
                     }
                 }
             } else {
-                assertEquals(1, teacher.getCourses().size());
-                assertEquals(3, teacher.getCourses().get(0).getStudents().size());
+                assertThat(teacher.getCourses()).hasSize(1);
+                assertThat(teacher.getCourses().get(0).getStudents()).hasSize(3);
             }
         }
     }

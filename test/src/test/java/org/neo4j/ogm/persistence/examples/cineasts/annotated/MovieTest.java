@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.UUID;
 
@@ -38,13 +38,13 @@ public class MovieTest {
 
         Movie movie = session.load(Movie.class, UUID.fromString("38ebe777-bc85-4810-8217-096f29a361f1"), 1);
 
-        assertEquals("Pulp Fiction", movie.getTitle());
-        assertNotNull(movie.getRatings());
-        assertEquals(1, movie.getRatings().size());
+        assertThat(movie.getTitle()).isEqualTo("Pulp Fiction");
+        assertThat(movie.getRatings()).isNotNull();
+        assertThat(movie.getRatings()).hasSize(1);
 
         Rating rating = movie.getRatings().iterator().next();
 
-        assertEquals("Michal", rating.getUser().getName());
-        assertEquals("Pulp Fiction", rating.getMovie().getTitle());
+        assertThat(rating.getUser().getName()).isEqualTo("Michal");
+        assertThat(rating.getMovie().getTitle()).isEqualTo("Pulp Fiction");
     }
 }

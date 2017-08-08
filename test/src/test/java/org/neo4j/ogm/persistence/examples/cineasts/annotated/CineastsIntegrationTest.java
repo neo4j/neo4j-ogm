@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -70,15 +70,15 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
     public void loadRatingsAndCommentsAboutMovies() {
         Collection<Movie> movies = session.loadAll(Movie.class);
 
-        assertEquals(3, movies.size());
+        assertThat(movies).hasSize(3);
 
         for (Movie movie : movies) {
 
             if (movie.getRatings() != null) {
                 for (Rating rating : movie.getRatings()) {
-                    assertNotNull("The film on the rating shouldn't be null", rating.getMovie());
-                    assertSame("The film on the rating was not mapped correctly", movie, rating.getMovie());
-                    assertNotNull("The film critic wasn't set", rating.getUser());
+                    assertThat(rating.getMovie()).as("The film on the rating shouldn't be null").isNotNull();
+                    assertThat(rating.getMovie()).as("The film on the rating was not mapped correctly").isSameAs(movie);
+                    assertThat(rating.getUser()).as("The film critic wasn't set").isNotNull();
                 }
             }
         }
@@ -87,31 +87,31 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
     @Test
     public void loadParticularUserRatingsAndComments() {
         Collection<User> filmCritics = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "Michal"));
-        assertEquals(1, filmCritics.size());
+        assertThat(filmCritics).hasSize(1);
 
         User critic = filmCritics.iterator().next();
-        assertEquals(2, critic.getRatings().size());
+        assertThat(critic.getRatings()).hasSize(2);
 
         for (Rating rating : critic.getRatings()) {
-            assertNotNull("The comment should've been mapped", rating.getComment());
-            assertTrue("The star rating should've been mapped", rating.getStars() > 0);
-            assertNotNull("The user start node should've been mapped", rating.getUser());
-            assertNotNull("The movie end node should've been mapped", rating.getMovie());
+            assertThat(rating.getComment()).as("The comment should've been mapped").isNotNull();
+            assertThat(rating.getStars() > 0).as("The star rating should've been mapped").isTrue();
+            assertThat(rating.getUser()).as("The user start node should've been mapped").isNotNull();
+            assertThat(rating.getMovie()).as("The movie end node should've been mapped").isNotNull();
         }
     }
 
     @Test
     public void loadRatingsForSpecificFilm() {
         Collection<Movie> films = session.loadAll(Movie.class, new Filter("title", ComparisonOperator.EQUALS, "Top Gear"));
-        assertEquals(1, films.size());
+        assertThat(films).hasSize(1);
 
         Movie film = films.iterator().next();
-        assertEquals(2, film.getRatings().size());
+        assertThat(film.getRatings()).hasSize(2);
 
         for (Rating rating : film.getRatings()) {
-            assertTrue("The star rating should've been mapped", rating.getStars() > 0);
-            assertNotNull("The user start node should've been mapped", rating.getUser());
-            assertSame("The wrong film was mapped to the rating", film, rating.getMovie());
+            assertThat(rating.getStars() > 0).as("The star rating should've been mapped").isTrue();
+            assertThat(rating.getUser()).as("The user start node should've been mapped").isNotNull();
+            assertThat(rating.getMovie()).as("The wrong film was mapped to the rating").isSameAs(film);
         }
     }
 
@@ -125,10 +125,10 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(user);
 
         User daniela = session.load(User.class, "daniela");
-        assertNotNull(daniela);
-        assertEquals("Daniela", daniela.getName());
-        assertEquals(1, daniela.getSecurityRoles().length);
-        assertEquals(SecurityRole.USER, daniela.getSecurityRoles()[0]);
+        assertThat(daniela).isNotNull();
+        assertThat(daniela.getName()).isEqualTo("Daniela");
+        assertThat(daniela.getSecurityRoles().length).isEqualTo(1);
+        assertThat(daniela.getSecurityRoles()[0]).isEqualTo(SecurityRole.USER);
     }
 
     @Test
@@ -141,10 +141,10 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(user);
 
         User vince = session.load(User.class, "vince");
-        assertNotNull(vince);
-        assertEquals("Vince", vince.getName());
-        assertEquals(1, vince.getTitles().size());
-        assertEquals(Title.MR, vince.getTitles().get(0));
+        assertThat(vince).isNotNull();
+        assertThat(vince.getName()).isEqualTo("Vince");
+        assertThat(vince.getTitles()).hasSize(1);
+        assertThat(vince.getTitles().get(0)).isEqualTo(Title.MR);
     }
 
     /**
@@ -158,9 +158,9 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         user.setPassword("aki");
         session.save(user);
         User aki = session.load(User.class, "aki");
-        assertNotNull(aki);
+        assertThat(aki).isNotNull();
         try {
-            assertArrayEquals("Aki Kaurism\u00E4ki".getBytes("UTF-8"), aki.getName().getBytes("UTF-8"));
+            assertThat(aki.getName().getBytes("UTF-8")).isEqualTo("Aki Kaurism\u00E4ki".getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             fail("UTF-8 encoding not supported on this platform");
         }
@@ -174,8 +174,8 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
         Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE a.name={param} RETURN a",
                 Collections.singletonMap("param", "Alec Baldwin"));
-        assertNotNull("The entity wasn't loaded", loadedActor);
-        assertEquals("Alec Baldwin", loadedActor.getName());
+        assertThat(loadedActor).as("The entity wasn't loaded").isNotNull();
+        assertThat(loadedActor.getName()).isEqualTo("Alec Baldwin");
     }
 
     @Test
@@ -186,11 +186,9 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
         Iterable<Actor> actors = session.query(Actor.class, "MATCH (a:Actor) WHERE a.name=~'J.*' RETURN a",
                 Collections.<String, Object>emptyMap());
-        assertNotNull("The entities weren't loaded", actors);
-        assertTrue("The entity wasn't loaded", actors.iterator().hasNext());
-        for (Actor actor : actors) {
-            assertTrue("Shouldn't've loaded " + actor.getName(), actor.getName().equals("John") || actor.getName().equals("Jeff"));
-        }
+        assertThat(actors).as("The entities weren't loaded").isNotNull();
+        assertThat(actors.iterator().hasNext()).as("The entity wasn't loaded").isTrue();
+        assertThat(actors).extracting(Actor::getName).containsOnly("John", "Jeff");
     }
 
     @Test
@@ -202,8 +200,8 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
         Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE a.uuid={param} RETURN a",
                 Collections.<String, Object>singletonMap("param", carrie.getUuid()));
-        assertNotNull("The entity wasn't loaded", loadedActor);
-        assertEquals("Carrie-Ann Moss", loadedActor.getName());
+        assertThat(loadedActor).as("The entity wasn't loaded").isNotNull();
+        assertThat(loadedActor.getName()).isEqualTo("Carrie-Ann Moss");
     }
 
     /**
@@ -233,13 +231,13 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
         // Test that arrays with and without custom converters are saved and loaded correctly when their content is updated
         user = session.load(User.class, user.getLogin());
-        assertEquals(3, user.getUrls().length);
-        assertEquals("http://www.graphaware.com", user.getUrls()[0].toString());
-        assertEquals("http://www.google.com", user.getUrls()[1].toString());
-        assertEquals("http://www.neo4j.com", user.getUrls()[2].toString());
-        assertEquals(2, user.getNicknames().length);
-        assertEquals("batgirl", user.getNicknames()[0]);
-        assertEquals("robin", user.getNicknames()[1]);
+        assertThat(user.getUrls().length).isEqualTo(3);
+        assertThat(user.getUrls()[0].toString()).isEqualTo("http://www.graphaware.com");
+        assertThat(user.getUrls()[1].toString()).isEqualTo("http://www.google.com");
+        assertThat(user.getUrls()[2].toString()).isEqualTo("http://www.neo4j.com");
+        assertThat(user.getNicknames().length).isEqualTo(2);
+        assertThat(user.getNicknames()[0]).isEqualTo("batgirl");
+        assertThat(user.getNicknames()[1]).isEqualTo("robin");
     }
 
     /**
@@ -257,12 +255,12 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(movie);
 
         movie = session.load(Movie.class, movie.getUuid());
-        assertNull(movie.getTitle());
-        assertNull(movie.getImdbUrl());
+        assertThat(movie.getTitle()).isNull();
+        assertThat(movie.getImdbUrl()).isNull();
 
         session.clear();
         movie = session.load(Movie.class, movie.getUuid());
-        assertNull(movie.getTitle());
-        assertNull(movie.getImdbUrl());
+        assertThat(movie.getTitle()).isNull();
+        assertThat(movie.getImdbUrl()).isNull();
     }
 }

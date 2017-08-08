@@ -14,16 +14,14 @@
 
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.*;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.annotation.Relationship;
+
 import org.neo4j.ogm.domain.cineasts.partial.Knows;
 import org.neo4j.ogm.domain.cineasts.partial.Rating;
 import org.neo4j.ogm.domain.cineasts.partial.Role;
@@ -34,6 +32,14 @@ import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.utils.EntityUtils;
+
+import static java.util.Arrays.asList;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import static org.neo4j.ogm.annotation.Relationship.INCOMING;
+import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
 
 
 public class ClassInfoTest {
@@ -57,11 +63,11 @@ public class ClassInfoTest {
     @Test
     public void identityField() {
         ClassInfo classInfo = metaData.classInfo("Login");
-        assertEquals("id", classInfo.identityField().getName());
+        assertThat(classInfo.identityField().getName()).isEqualTo("id");
         classInfo = metaData.classInfo("Bronze");
-        assertEquals("id", classInfo.identityField().getName());
+        assertThat(classInfo.identityField().getName()).isEqualTo("id");
         classInfo = metaData.classInfo("ValidAnnotations$InternalIdWithAnnotation");
-        assertEquals("identifier", classInfo.identityField().getName());
+        assertThat(classInfo.identityField().getName()).isEqualTo("identifier");
     }
 
     /**
@@ -70,7 +76,7 @@ public class ClassInfoTest {
     @Test
     public void testAnnotatedIdentity() {
         ClassInfo classInfo = metaData.classInfo("Topic");
-        assertEquals("topicId", classInfo.identityField().getName());
+        assertThat(classInfo.identityField().getName()).isEqualTo("topicId");
     }
 
     /**
@@ -83,11 +89,11 @@ public class ClassInfoTest {
         Collection<FieldInfo> fieldInfos = classInfo.propertyFields();
 
         int count = 1;
-        assertEquals(count, fieldInfos.size());
+        assertThat(fieldInfos.size()).isEqualTo(count);
         for (FieldInfo fieldInfo : fieldInfos) {
             if (fieldInfo.getName().equals("fees")) count--;
         }
-        assertEquals(0, count);
+        assertThat(count).isEqualTo(0);
     }
 
     @Test
@@ -95,35 +101,35 @@ public class ClassInfoTest {
 
         ClassInfo classInfo = metaData.classInfo("Login");
 
-        assertTrue(classInfo.containsIndexes());
+        assertThat(classInfo.containsIndexes()).isTrue();
 
         Collection<FieldInfo> fieldInfos = classInfo.getIndexFields();
 
         int count = 1;
-        assertEquals(count, fieldInfos.size());
+        assertThat(fieldInfos.size()).isEqualTo(count);
         for (FieldInfo fieldInfo : fieldInfos) {
             if (fieldInfo.getName().equals("userName")) count--;
         }
-        assertEquals(0, count);
+        assertThat(count).isEqualTo(0);
 
         FieldInfo userNameField = fieldInfos.iterator().next();
 
-        assertTrue(userNameField.isConstraint());
+        assertThat(userNameField.isConstraint()).isTrue();
     }
 
     @Test
     public void testIndexFieldInfoForIdAnnotation() throws Exception {
         ClassInfo classInfo = metaData.classInfo("ValidAnnotations$Basic");
 
-        assertTrue(classInfo.containsIndexes());
+        assertThat(classInfo.containsIndexes()).isTrue();
 
         Collection<FieldInfo> fieldInfos = classInfo.getIndexFields();
 
-        assertEquals(1, fieldInfos.size());
+        assertThat(fieldInfos.size()).isEqualTo(1);
 
         FieldInfo fieldInfo = fieldInfos.iterator().next();
-        assertEquals("identifier", fieldInfo.getName());
-        assertTrue(fieldInfo.isConstraint());
+        assertThat(fieldInfo.getName()).isEqualTo("identifier");
+        assertThat(fieldInfo.isConstraint()).isTrue();
     }
 
     /**
@@ -136,8 +142,8 @@ public class ClassInfoTest {
         Collection<FieldInfo> fieldInfos = classInfo.propertyFields();
 
         FieldInfo fieldInfo = fieldInfos.iterator().next();
-        assertEquals("annualFees", fieldInfo.property()); // the node property name
-        assertEquals("fees", fieldInfo.getName()); // the field name
+        assertThat(fieldInfo.property()).isEqualTo("annualFees"); // the node property name
+        assertThat(fieldInfo.getName()).isEqualTo("fees"); // the field name
     }
 
     /**
@@ -150,7 +156,7 @@ public class ClassInfoTest {
         Collection<FieldInfo> fieldInfos = classInfo.propertyFields();
 
         FieldInfo fieldInfo = fieldInfos.iterator().next();
-        assertNull(fieldInfo.relationship());
+        assertThat(fieldInfo.relationship()).isNull();
     }
 
     /**
@@ -162,14 +168,14 @@ public class ClassInfoTest {
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
 
         int count = 4;
-        assertEquals(count, fieldInfos.size());
+        assertThat(fieldInfos.size()).isEqualTo(count);
         for (FieldInfo fieldInfo : fieldInfos) {
             if (fieldInfo.getName().equals("activityList")) count--;
             if (fieldInfo.getName().equals("followees")) count--;
             if (fieldInfo.getName().equals("memberShip")) count--;
             if (fieldInfo.getName().equals("followers")) count--;
         }
-        assertEquals(0, count);
+        assertThat(count).isEqualTo(0);
     }
 
     /**
@@ -181,7 +187,7 @@ public class ClassInfoTest {
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
 
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("posts")) assertEquals("HAS_POSTS", fieldInfo.relationship());
+            if (fieldInfo.getName().equals("posts")) assertThat(fieldInfo.relationship()).isEqualTo("HAS_POSTS");
         }
     }
 
@@ -195,7 +201,7 @@ public class ClassInfoTest {
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
 
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("posts")) assertEquals("HAS_POSTS", fieldInfo.relationship());
+            if (fieldInfo.getName().equals("posts")) assertThat(fieldInfo.relationship()).isEqualTo("HAS_POSTS");
         }
     }
 
@@ -209,7 +215,7 @@ public class ClassInfoTest {
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
 
         FieldInfo fieldInfo = fieldInfos.iterator().next();
-        assertNull(fieldInfo.property());
+        assertThat(fieldInfo.property()).isNull();
     }
 
 
@@ -220,7 +226,7 @@ public class ClassInfoTest {
     public void testNamedPropertyField() {
         ClassInfo classInfo = metaData.classInfo("Gold");
         FieldInfo fieldInfo = classInfo.propertyField("annualFees");
-        assertEquals("fees", fieldInfo.getName());
+        assertThat(fieldInfo.getName()).isEqualTo("fees");
     }
 
     /**
@@ -230,7 +236,7 @@ public class ClassInfoTest {
     public void testNamedRelationshipField() {
         ClassInfo classInfo = metaData.classInfo("Topic");
         FieldInfo fieldInfo = classInfo.relationshipField("HAS_POSTS");
-        assertEquals("posts", fieldInfo.getName());
+        assertThat(fieldInfo.getName()).isEqualTo("posts");
     }
 
 
@@ -239,14 +245,14 @@ public class ClassInfoTest {
         ClassInfo classInfo = metaData.classInfo("User");
         Collection<FieldInfo> relationshipFields = classInfo.relationshipFields();
         int count = 4;
-        assertEquals(count, relationshipFields.size());
+        assertThat(relationshipFields.size()).isEqualTo(count);
         for (FieldInfo relationshipField : relationshipFields) {
             if (relationshipField.getName().equals("activityList")) count--;
             if (relationshipField.getName().equals("followees")) count--;
             if (relationshipField.getName().equals("memberShip")) count--;
             if (relationshipField.getName().equals("followers")) count--;
         }
-        assertEquals(0, count);
+        assertThat(count).isEqualTo(0);
     }
 
 
@@ -258,7 +264,7 @@ public class ClassInfoTest {
         ClassInfo classInfo = metaData.classInfo("User");
         Collection<FieldInfo> propertyFields = classInfo.propertyFields();
         int count = 5;
-        assertEquals(count, propertyFields.size());
+        assertThat(propertyFields.size()).isEqualTo(count);
         for (FieldInfo propertyField : propertyFields) {
             if (propertyField.getName().equals("renewalDate")) count--;
             if (propertyField.getName().equals("userName")) count--;
@@ -266,7 +272,7 @@ public class ClassInfoTest {
             if (propertyField.getName().equals("membershipNumber")) count--;
             if (propertyField.getName().equals("nicknames")) count--;
         }
-        assertEquals(0, count);
+        assertThat(count).isEqualTo(0);
     }
 
 
@@ -274,7 +280,7 @@ public class ClassInfoTest {
     public void testClassInfoIsFoundForFQN() {
         String fqn = "org.neo4j.ogm.domain.forum.Topic";
         ClassInfo classInfo = metaData.classInfo(fqn);
-        assertEquals(fqn, classInfo.name());
+        assertThat(classInfo.name()).isEqualTo(fqn);
     }
 
     @Test
@@ -282,8 +288,8 @@ public class ClassInfoTest {
         ClassInfo classInfo = metaData.classInfo("Member");
         List<FieldInfo> fieldInfos = classInfo.findFields(Date.class);
         FieldInfo fieldInfo = fieldInfos.iterator().next();
-        assertEquals("renewalDate", fieldInfo.getName());
-        assertTrue(fieldInfo.hasPropertyConverter());
+        assertThat(fieldInfo.getName()).isEqualTo("renewalDate");
+        assertThat(fieldInfo.hasPropertyConverter()).isTrue();
     }
 
     @Test
@@ -291,27 +297,27 @@ public class ClassInfoTest {
         ClassInfo classInfo = metaData.classInfo("User");
         List<FieldInfo> fieldInfos = classInfo.findIterableFields();
         int count = 4;
-        assertEquals(count, fieldInfos.size());
+        assertThat(fieldInfos.size()).isEqualTo(count);
         for (FieldInfo fieldInfo : fieldInfos) {
             if (fieldInfo.getName().equals("followees")) count--;
             if (fieldInfo.getName().equals("followers")) count--;
             if (fieldInfo.getName().equals("activityList")) count--;
             if (fieldInfo.getName().equals("nicknames")) count--;
         }
-        assertEquals(0, count);
+        assertThat(count).isEqualTo(0);
     }
 
 
     @Test
     public void testStaticLabelsForClassInfo() {
         ClassInfo annotatedClassInfo = metaData.classInfo(Member.class.getSimpleName());
-        assertEquals(Arrays.asList("User", "Login"), annotatedClassInfo.staticLabels());
+        assertThat(annotatedClassInfo.staticLabels()).isEqualTo(asList("User", "Login"));
 
         ClassInfo simpleClassInfo = metaData.classInfo("Topic");
-        assertEquals(Arrays.asList("Topic"), simpleClassInfo.staticLabels());
+        assertThat(simpleClassInfo.staticLabels()).isEqualTo(asList("Topic"));
 
         ClassInfo nonAnnotatedClassInfo = new MetaData("org.neo4j.ogm.domain.education").classInfo(Student.class.getSimpleName());
-        assertEquals(Arrays.asList("Student", "DomainObject"), nonAnnotatedClassInfo.staticLabels());
+        assertThat(nonAnnotatedClassInfo.staticLabels()).isEqualTo(asList("Student", "DomainObject"));
     }
 
     /**
@@ -321,8 +327,8 @@ public class ClassInfoTest {
     public void labelFieldOrNull() {
         ClassInfo classInfo = metaData.classInfo(Pizza.class.getSimpleName());
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
-        assertNotNull(fieldInfo);
-        assertEquals("labels", fieldInfo.getName());
+        assertThat(fieldInfo).isNotNull();
+        assertThat(fieldInfo.getName()).isEqualTo("labels");
     }
 
     /**
@@ -330,24 +336,23 @@ public class ClassInfoTest {
      */
     @Test
     public void labelFieldOrNullThrowsMappingExceptionForInvalidType() {
-        try {
+        assertThatThrownBy(() -> {
             LabelsAnnotationWithWrongTye entity = new LabelsAnnotationWithWrongTye();
             Collection<String> collatedLabels = EntityUtils.labels(entity, metaData);
-            fail("Should have thrown exception");
-        } catch (MappingException e) {
-            assertEquals("Field 'labels' in class 'org.neo4j.ogm.metadata.LabelsAnnotationWithWrongTye' includes the @Labels annotation, however this field is not a type of collection.", e.getMessage());
-        }
+        }).isInstanceOf(MappingException.class)
+                .hasMessage("Field 'labels' in class 'org.neo4j.ogm.metadata.LabelsAnnotationWithWrongTye' "
+                        + "includes the @Labels annotation, however this field is not a type of collection.");
     }
 
 
     @Test
     public void testClassInfoForAbstractClassImplementingInterface() {
-        assertEquals(1, metaData.classInfo("Membership").interfacesInfo().list().size());
+        assertThat(metaData.classInfo("Membership").interfacesInfo().list().size()).isEqualTo(1);
     }
 
     @Test
     public void testClassInfoForAbstractClassImplementingInterfaceName() {
-        assertTrue(metaData.classInfo("Membership").interfacesInfo().list().iterator().next().toString().contains("IMembership"));
+        assertThat(metaData.classInfo("Membership").interfacesInfo().list().iterator().next().toString().contains("IMembership")).isTrue();
     }
 
     @Test
@@ -355,7 +360,7 @@ public class ClassInfoTest {
 
         ClassInfo classInfo = metaData.classInfo("Member");
         FieldInfo fieldInfo = classInfo.relationshipField("followers");
-        assertFalse(fieldInfo.isScalar());
+        assertThat(fieldInfo.isScalar()).isFalse();
     }
 
     @Test
@@ -363,7 +368,7 @@ public class ClassInfoTest {
 
         ClassInfo classInfo = metaData.classInfo("Member");
         FieldInfo fieldInfo = classInfo.fieldsInfo().get("nicknames");
-        assertFalse(fieldInfo.isScalar());
+        assertThat(fieldInfo.isScalar()).isFalse();
     }
 
     @Test
@@ -371,7 +376,7 @@ public class ClassInfoTest {
 
         ClassInfo classInfo = metaData.classInfo("Member");
         FieldInfo fieldInfo = classInfo.fieldsInfo().get("userName");
-        assertTrue(fieldInfo.isScalar());
+        assertThat(fieldInfo.isScalar()).isTrue();
     }
 
 
@@ -381,7 +386,7 @@ public class ClassInfoTest {
     @Test
     public void testDefaultLabelOfNodeEntities() {
         ClassInfo classInfo = metaData.classInfo("Forum");
-        assertEquals("Forum", classInfo.neo4jName());
+        assertThat(classInfo.neo4jName()).isEqualTo("Forum");
     }
 
     /**
@@ -390,7 +395,7 @@ public class ClassInfoTest {
     @Test
     public void testDefaultLabelOfRelationshipEntities() {
         ClassInfo classInfo = metaData.classInfo("Nomination");
-        assertEquals("NOMINATION", classInfo.neo4jName());
+        assertThat(classInfo.neo4jName()).isEqualTo("NOMINATION");
     }
 
     /**
@@ -399,29 +404,29 @@ public class ClassInfoTest {
     @Test
     public void testTypeParameterDescriptorForRelationships() {
         ClassInfo classInfo = metaData.classInfo("Topic");
-        assertEquals(Post.class, classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", Relationship.OUTGOING));
-        assertNull(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", Relationship.INCOMING));
-        assertNull(classInfo.getTypeParameterDescriptorForRelationship("DOES_NOT_EXIST", Relationship.OUTGOING));
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", OUTGOING)).isEqualTo(Post.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", INCOMING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("DOES_NOT_EXIST", OUTGOING)).isNull();
 
         classInfo = metaData.classInfo("Member");
-        assertEquals(Activity.class, classInfo.getTypeParameterDescriptorForRelationship("HAS_ACTIVITY", Relationship.OUTGOING));
-        assertEquals(Member.class, classInfo.getTypeParameterDescriptorForRelationship("FOLLOWERS", Relationship.OUTGOING));
-        assertEquals(Member.class, classInfo.getTypeParameterDescriptorForRelationship("FOLLOWEES", Relationship.OUTGOING));
-        assertNull(classInfo.getTypeParameterDescriptorForRelationship("HAS_ACTIVITY", Relationship.INCOMING));
-        assertNull(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWERS", Relationship.INCOMING));
-        assertNull(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWEES", Relationship.INCOMING));
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_ACTIVITY", OUTGOING)).isEqualTo(Activity.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWERS", OUTGOING)).isEqualTo(Member.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWEES", OUTGOING)).isEqualTo(Member.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_ACTIVITY", INCOMING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWERS", INCOMING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWEES", INCOMING)).isNull();
 
         classInfo = metaData.classInfo("Actor");
-        assertEquals(Role.class, classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Relationship.OUTGOING));
-        assertEquals(Knows.class, classInfo.getTypeParameterDescriptorForRelationship("KNOWS", Relationship.OUTGOING));
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", OUTGOING)).isEqualTo(Role.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("KNOWS", OUTGOING)).isEqualTo(Knows.class);
 
         classInfo = metaData.classInfo("Movie");
-        assertEquals(Role.class, classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Relationship.INCOMING));
-        assertEquals(Rating.class, classInfo.getTypeParameterDescriptorForRelationship("RATED", Relationship.INCOMING));
-        assertNull(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Relationship.OUTGOING));
-        assertNull(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Relationship.OUTGOING));
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", INCOMING)).isEqualTo(Role.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("RATED", INCOMING)).isEqualTo(Rating.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", OUTGOING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", OUTGOING)).isNull();
 
-        assertNull(classInfo.getTypeParameterDescriptorForRelationship("HAS", Relationship.OUTGOING));
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS", OUTGOING)).isNull();
     }
 
     @Test
@@ -431,7 +436,7 @@ public class ClassInfoTest {
         Collection<MethodInfo> methodInfos = classInfo.methodsInfo().methods();
 
         for (MethodInfo methodInfo : methodInfos) {
-            assertFalse(methodInfo.getName().equals("<clinit>"));
+            assertThat(methodInfo.getName().equals("<clinit>")).isFalse();
         }
     }
 }

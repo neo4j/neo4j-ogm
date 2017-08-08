@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.session;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
@@ -27,11 +27,11 @@ public class UtilsTest {
      */
     @Test
     public void nullInputObjectsShouldReturnNull() {
-        assertNull(Utils.coerceTypes(Integer.class, null));
-        assertNull(Utils.coerceTypes(Float.class, null));
-        assertNull(Utils.coerceTypes(Byte.class, null));
-        assertNull(Utils.coerceTypes(Double.class, null));
-        assertNull(Utils.coerceTypes(Long.class, null));
+        assertThat(Utils.coerceTypes(Integer.class, null)).isNull();
+        assertThat(Utils.coerceTypes(Float.class, null)).isNull();
+        assertThat(Utils.coerceTypes(Byte.class, null)).isNull();
+        assertThat(Utils.coerceTypes(Double.class, null)).isNull();
+        assertThat(Utils.coerceTypes(Long.class, null)).isNull();
     }
 
     /**
@@ -39,11 +39,11 @@ public class UtilsTest {
      */
     @Test
     public void nullInputPrimitivesShouldReturnDefaults() {
-        assertEquals(0, Utils.coerceTypes(int.class, null));
-        assertEquals(0f, Utils.coerceTypes(float.class, null));
-        assertEquals(0, Utils.coerceTypes(byte.class, null));
-        assertEquals(0.0d, Utils.coerceTypes(double.class, null));
-        assertEquals(0l, Utils.coerceTypes(long.class, null));
-        assertEquals(0, Utils.coerceTypes(short.class, null));
+        assertThat(Utils.coerceTypes(int.class, null)).isEqualTo(0);
+        assertThat(Utils.coerceTypes(float.class, null)).isEqualTo(0f);
+        assertThat(Utils.coerceTypes(byte.class, null)).isEqualTo(0);
+        assertThat(Utils.coerceTypes(double.class, null)).isEqualTo(0.0d);
+        assertThat(Utils.coerceTypes(long.class, null)).isEqualTo(0l);
+        assertThat(Utils.coerceTypes(short.class, null)).isEqualTo(0);
     }
 }

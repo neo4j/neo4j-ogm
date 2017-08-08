@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.*;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -28,6 +26,8 @@ import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.exception.MetadataException;
 import org.neo4j.ogm.session.request.RowStatementFactory;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Mark Angrish
@@ -58,21 +58,19 @@ public class MergeWithPrimaryIndexTests {
     @Test
     public void newNodeUsesGraphIdWhenPrimaryIndexNotPresent() {
         Pizza pizza = new Pizza("Plain");
-        assertNull(pizza.getId());
+        assertThat(pizza.getId()).isNull();
         Compiler compiler = mapAndCompile(pizza);
-        assertFalse(compiler.hasStatementsDependentOnNewNodes());
-        assertEquals("UNWIND {rows} as row CREATE (n:`Pizza`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type",
-                compiler.createNodesStatements().get(0).getStatement());
+        assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
+        assertThat(compiler.createNodesStatements().get(0).getStatement()).isEqualTo("UNWIND {rows} as row CREATE (n:`Pizza`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
     }
 
     @Test
     public void newNodeUsesPrimaryIndexWhenPresent() {
         User newUser = new User("bachmania", "Michal Bachman", "password");
-        assertNull(newUser.getId());
+        assertThat(newUser.getId()).isNull();
         Compiler compiler = mapAndCompile(newUser);
-        assertFalse(compiler.hasStatementsDependentOnNewNodes());
-        assertEquals("UNWIND {rows} as row MERGE (n:`User`{login: row.props.login}) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type",
-                compiler.createNodesStatements().get(0).getStatement());
+        assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
+        assertThat(compiler.createNodesStatements().get(0).getStatement()).isEqualTo("UNWIND {rows} as row MERGE (n:`User`{login: row.props.login}) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
     }
 
     @Test(expected = MetadataException.class)

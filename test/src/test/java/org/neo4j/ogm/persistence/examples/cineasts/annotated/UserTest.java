@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
@@ -38,8 +38,8 @@ public class UserTest {
 
         User user = session.load(User.class, "luanne", 1);
 
-        assertEquals("luanne", user.getLogin());
-        assertNotNull(user.getSecurityRoles());
-        assertEquals(2, user.getSecurityRoles().length);
+        assertThat(user.getLogin()).isEqualTo("luanne");
+        assertThat(user.getSecurityRoles()).isNotNull();
+        assertThat(user.getSecurityRoles().length).isEqualTo(2);
     }
 }

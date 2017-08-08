@@ -12,7 +12,7 @@
  */
 package org.neo4j.ogm.persistence.model;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
 import java.time.ZonedDateTime;
@@ -133,7 +133,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         compiler.useStatementFactory(new RowStatementFactory());
         Statements cypher = new Statements(compiler.getAllStatements());
 
-        assertEquals(0, cypher.getStatements().size());
+        assertThat(cypher.getStatements()).isEmpty();
     }
 
     @Test
@@ -185,7 +185,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         jim.setSchool(waller);
 
         // ensure that the domain objects are mutually established by the code
-        assertTrue(waller.getTeachers().contains(jim));
+        assertThat(waller.getTeachers().contains(jim)).isTrue();
 
         session.save(jim);
 
@@ -388,7 +388,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         session.clear();
 
         Individual loadedIndividual = session.load(Individual.class, individual.getId());
-        assertArrayEquals(individual.getPrimitiveIntArray(), loadedIndividual.getPrimitiveIntArray());
+        assertThat(loadedIndividual.getPrimitiveIntArray()).isEqualTo(individual.getPrimitiveIntArray());
     }
 
     @Test
@@ -406,7 +406,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         Result executionResult = getGraphDatabaseService().execute("MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes");
         Map<String, Object> result = executionResult.next();
         executionResult.close();
-        assertEquals("The array wasn't persisted as the correct type", "AQIDBAU=", result.get("bytes")); //Byte arrays are converted to Base64 Strings
+        assertThat(result.get("bytes")).as("The array wasn't persisted as the correct type").isEqualTo("AQIDBAU="); //Byte arrays are converted to Base64 Strings
     }
 
     @Test
@@ -754,13 +754,13 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         session.save(entity);
         session.clear();
         EntityWithUnmanagedFieldType loaded = session.load(EntityWithUnmanagedFieldType.class, entity.getId());
-        assertNotNull(loaded);
+        assertThat(loaded).isNotNull();
     }
 
     private void executeStatementsAndAssertSameGraph(Statements cypher, String sameGraphCypher) {
 
-        assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());
-        assertFalse("The resultant cypher statements shouldn't be empty", cypher.getStatements().isEmpty());
+        assertThat(cypher.getStatements()).as("The resultant cypher statements shouldn't be null").isNotNull();
+        assertThat(cypher.getStatements().isEmpty()).as("The resultant cypher statements shouldn't be empty").isFalse();
 
         for (Statement query : cypher.getStatements()) {
             getGraphDatabaseService().execute(query.getStatement(), query.getParameters());
@@ -769,7 +769,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     }
 
     private void expect(String expected, Statements cypher) {
-        assertEquals(expected, cypher.getStatements().get(0).getStatement());
+        assertThat(cypher.getStatements().get(0).getStatement()).isEqualTo(expected);
     }
 
     private String var(Long nodeId) {

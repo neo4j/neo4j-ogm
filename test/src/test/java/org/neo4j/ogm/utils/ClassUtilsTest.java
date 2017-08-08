@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.utils;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Date;
 
@@ -29,23 +29,23 @@ public class ClassUtilsTest {
 
     @Test
     public void shouldResolveParameterTypeForSetterMethodFromSignatureString() {
-        assertEquals(Date.class, ClassUtils.getType("java.util.Date"));
-        assertEquals(boolean.class, ClassUtils.getType("boolean"));
-        assertEquals(byte.class, ClassUtils.getType("byte"));
-        assertEquals(char.class, ClassUtils.getType("char"));
-        assertEquals(double.class, ClassUtils.getType("double"));
-        assertEquals(float.class, ClassUtils.getType("float"));
-        assertEquals(int.class, ClassUtils.getType("int"));
-        assertEquals(long.class, ClassUtils.getType("long"));
-        assertEquals(short.class, ClassUtils.getType("short"));
-        assertEquals(School.class, ClassUtils.getType("org.neo4j.ogm.domain.education.School"));
-        assertEquals(Education.class, ClassUtils.getType("org.neo4j.ogm.domain.convertible.enums.Education"));
-        assertEquals(Education.class, ClassUtils.getType("org.neo4j.ogm.domain.convertible.enums.Education[]"));
-        assertEquals(String.class, ClassUtils.getType("java.lang.String[]"));
+        assertThat(ClassUtils.getType("java.util.Date")).isEqualTo(Date.class);
+        assertThat(ClassUtils.getType("boolean")).isEqualTo(boolean.class);
+        assertThat(ClassUtils.getType("byte")).isEqualTo(byte.class);
+        assertThat(ClassUtils.getType("char")).isEqualTo(char.class);
+        assertThat(ClassUtils.getType("double")).isEqualTo(double.class);
+        assertThat(ClassUtils.getType("float")).isEqualTo(float.class);
+        assertThat(ClassUtils.getType("int")).isEqualTo(int.class);
+        assertThat(ClassUtils.getType("long")).isEqualTo(long.class);
+        assertThat(ClassUtils.getType("short")).isEqualTo(short.class);
+        assertThat(ClassUtils.getType("org.neo4j.ogm.domain.education.School")).isEqualTo(School.class);
+        assertThat(ClassUtils.getType("org.neo4j.ogm.domain.convertible.enums.Education")).isEqualTo(Education.class);
+        assertThat(ClassUtils.getType("org.neo4j.ogm.domain.convertible.enums.Education[]")).isEqualTo(Education.class);
+        assertThat(ClassUtils.getType("java.lang.String[]")).isEqualTo(String.class);
     }
 
     @Test
     public void shouldReturnNullWhenClassCannotBeLoaded() {
-        assertEquals(null, ClassUtils.getType("org.mozilla.javascript.xml.impl.xmlbeans.XML$XScriptAnnotation"));
+        assertThat(ClassUtils.getType("org.mozilla.javascript.xml.impl.xmlbeans.XML$XScriptAnnotation")).isEqualTo(null);
     }
 }

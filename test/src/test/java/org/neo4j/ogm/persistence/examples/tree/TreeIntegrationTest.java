@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.tree;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,16 +64,16 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         parent = session.load(Entity.class, parent.getId());
-        assertNotNull(parent);
-        assertEquals(2, parent.getChildren().size());
-        assertNull(parent.getParent());
+        assertThat(parent).isNotNull();
+        assertThat(parent.getChildren()).hasSize(2);
+        assertThat(parent.getParent()).isNull();
         List<String> childNames = new ArrayList<>();
         for (Entity child : parent.getChildren()) {
             childNames.add(child.getName());
-            assertEquals(parent.getName(), child.getParent().getName());
+            assertThat(child.getParent().getName()).isEqualTo(parent.getName());
         }
-        assertTrue(childNames.contains(child01.getName()));
-        assertTrue(childNames.contains(child02.getName()));
+        assertThat(childNames.contains(child01.getName())).isTrue();
+        assertThat(childNames.contains(child02.getName())).isTrue();
     }
 
     /**
@@ -85,16 +85,16 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         session.query(cypher, Utils.map());
         session.clear();
         Entity parent = session.loadAll(Entity.class, new Filter("name", ComparisonOperator.EQUALS, "parent")).iterator().next();
-        assertNotNull(parent);
-        assertEquals(2, parent.getChildren().size());
-        assertNull(parent.getParent());
+        assertThat(parent).isNotNull();
+        assertThat(parent.getChildren()).hasSize(2);
+        assertThat(parent.getParent()).isNull();
         List<String> childNames = new ArrayList<>();
         for (Entity child : parent.getChildren()) {
             childNames.add(child.getName());
-            assertEquals(parent.getName(), child.getParent().getName());
+            assertThat(child.getParent().getName()).isEqualTo(parent.getName());
         }
-        assertTrue(childNames.contains("c1"));
-        assertTrue(childNames.contains("c2"));
+        assertThat(childNames.contains("c1")).isTrue();
+        assertThat(childNames.contains("c2")).isTrue();
     }
 
     /**
@@ -106,15 +106,15 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         session.query(cypher, Utils.map());
         session.clear();
         Entity parent = session.loadAll(Entity.class, new Filter("name", ComparisonOperator.EQUALS, "parent")).iterator().next();
-        assertNotNull(parent);
-        assertEquals(2, parent.getChildren().size());
-        assertNull(parent.getParent());
+        assertThat(parent).isNotNull();
+        assertThat(parent.getChildren()).hasSize(2);
+        assertThat(parent.getParent()).isNull();
         List<String> childNames = new ArrayList<>();
         for (Entity child : parent.getChildren()) {
             childNames.add(child.getName());
-            assertEquals(parent.getName(), child.getParent().getName());
+            assertThat(child.getParent().getName()).isEqualTo(parent.getName());
         }
-        assertEquals("c1", childNames.get(0));
-        assertEquals("c2", childNames.get(1));
+        assertThat(childNames.get(0)).isEqualTo("c1");
+        assertThat(childNames.get(1)).isEqualTo("c2");
     }
 }

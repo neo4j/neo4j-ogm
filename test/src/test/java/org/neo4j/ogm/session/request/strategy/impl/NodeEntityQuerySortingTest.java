@@ -12,7 +12,7 @@
  */
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
@@ -92,6 +92,6 @@ public class NodeEntityQuerySortingTest {
     }
 
     private void check(String expected, String actual) {
-        assertEquals(expected, actual);
+        assertThat(actual).isEqualTo(expected);
     }
 }

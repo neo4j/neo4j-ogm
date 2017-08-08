@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.pets;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
@@ -62,10 +62,10 @@ public class PetIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldResolveMetadataCorrectly() {
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.pets");
-        assertEquals("org.neo4j.ogm.domain.pets.Animal", metaData.resolve("Animal").name());
-        assertEquals("org.neo4j.ogm.domain.pets.Mammal", metaData.resolve("Mammal", "Animal").name());
-        assertEquals("org.neo4j.ogm.domain.pets.Dog", metaData.resolve("Mammal", "Animal", "Dog").name());
-        assertEquals("org.neo4j.ogm.domain.pets.Dog", metaData.resolve("Dog", "Mammal", "Animal").name());
+        assertThat(metaData.resolve("Animal").name()).isEqualTo("org.neo4j.ogm.domain.pets.Animal");
+        assertThat(metaData.resolve("Mammal", "Animal").name()).isEqualTo("org.neo4j.ogm.domain.pets.Mammal");
+        assertThat(metaData.resolve("Mammal", "Animal", "Dog").name()).isEqualTo("org.neo4j.ogm.domain.pets.Dog");
+        assertThat(metaData.resolve("Dog", "Mammal", "Animal").name()).isEqualTo("org.neo4j.ogm.domain.pets.Dog");
     }
 
     /**
@@ -80,9 +80,9 @@ public class PetIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         Kid charlie = session.loadAll(Kid.class).iterator().next();
-        assertNotNull(charlie);
-        assertEquals(1, charlie.getPets().size());
-        assertEquals(mammal.getName(), charlie.getPets().iterator().next().getName());
+        assertThat(charlie).isNotNull();
+        assertThat(charlie.getPets()).hasSize(1);
+        assertThat(charlie.getPets().iterator().next().getName()).isEqualTo(mammal.getName());
     }
 
     /**
@@ -97,9 +97,9 @@ public class PetIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         Kid charlie = session.loadAll(Kid.class).iterator().next();
-        assertNotNull(charlie);
-        assertEquals(1, charlie.getPets().size());
-        assertEquals(dog.getName(), charlie.getPets().iterator().next().getName());
+        assertThat(charlie).isNotNull();
+        assertThat(charlie.getPets()).hasSize(1);
+        assertThat(charlie.getPets().iterator().next().getName()).isEqualTo(dog.getName());
     }
 
     /**
@@ -113,8 +113,8 @@ public class PetIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Dog snoopy = session.loadAll(Dog.class).iterator().next();
-        assertNotNull(snoopy);
-        assertEquals(dog.getName(), snoopy.getName());
+        assertThat(snoopy).isNotNull();
+        assertThat(snoopy.getName()).isEqualTo(dog.getName());
     }
 
     /**
@@ -128,7 +128,7 @@ public class PetIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         DomesticDog snoopy = session.loadAll(DomesticDog.class).iterator().next();
-        assertNotNull(snoopy);
-        assertEquals(dog.getName(), snoopy.getName());
+        assertThat(snoopy).isNotNull();
+        assertThat(snoopy.getName()).isEqualTo(dog.getName());
     }
 }

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.metadata.reflect;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -47,11 +47,11 @@ public class AnnotatedFieldAndNoSetterTest {
         parameter.addAll(Arrays.asList(relEntity));
 
         FieldInfo objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldInfo);
+        assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
+        assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
         End end = new End();
         objectAccess.write(end, parameter);
-        assertEquals(end.getRelEntities(), parameter);
+        assertThat(parameter).isEqualTo(end.getRelEntities());
     }
 
     @RelationshipEntity(type = "REL_ENTITY_TYPE")

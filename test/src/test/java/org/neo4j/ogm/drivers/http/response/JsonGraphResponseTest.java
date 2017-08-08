@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -51,8 +52,8 @@ public class JsonGraphResponseTest {
         when(entity.getContent()).thenReturn(graphResultsAndNoErrors());
 
         try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
-            TestCase.assertEquals(1, rsp.columns().length);
-            TestCase.assertEquals("_0", rsp.columns()[0]);
+            assertThat(rsp.columns().length).isEqualTo(1);
+            assertThat(rsp.columns()[0]).isEqualTo("_0");
         }
     }
 
@@ -61,8 +62,8 @@ public class JsonGraphResponseTest {
         when(entity.getContent()).thenReturn(noGraphResultsAndNoErrors());
 
         try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
-            TestCase.assertEquals(1, rsp.columns().length);
-            TestCase.assertEquals("_0", rsp.columns()[0]);
+            assertThat(rsp.columns().length).isEqualTo(1);
+            assertThat(rsp.columns()[0]).isEqualTo("_0");
         }
     }
 
@@ -73,26 +74,26 @@ public class JsonGraphResponseTest {
 
         try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
             GraphModel graphModel = rsp.next();
-            TestCase.assertNotNull(graphModel);
+            assertThat(graphModel).isNotNull();
             Set<Node> nodes = graphModel.getNodes();
-            TestCase.assertEquals(1, nodes.size());
-            TestCase.assertEquals("adam", nodes.iterator().next().getPropertyList().get(0).getValue());
-            TestCase.assertEquals(0, graphModel.getRelationships().size());
+            assertThat(nodes).hasSize(1);
+            assertThat(nodes.iterator().next().getPropertyList().get(0).getValue()).isEqualTo("adam");
+            assertThat(graphModel.getRelationships()).isEmpty();
 
             graphModel = rsp.next();
-            TestCase.assertNotNull(graphModel);
+            assertThat(graphModel).isNotNull();
             nodes = graphModel.getNodes();
-            TestCase.assertEquals(2, nodes.size());
+            assertThat(nodes).hasSize(2);
             Iterator<Node> nodeIterator = nodes.iterator();
             nodeIterator.next(); //skip adam
-            TestCase.assertEquals("GraphAware", nodeIterator.next().getPropertyList().get(0).getValue());
-            TestCase.assertEquals(1, graphModel.getRelationships().size());
-            TestCase.assertEquals("EMPLOYED_BY", graphModel.getRelationships().iterator().next().getType());
+            assertThat(nodeIterator.next().getPropertyList().get(0).getValue()).isEqualTo("GraphAware");
+            assertThat(graphModel.getRelationships()).hasSize(1);
+            assertThat(graphModel.getRelationships().iterator().next().getType()).isEqualTo("EMPLOYED_BY");
 
             for (int i = 0; i < 4; i++) {
-                TestCase.assertNotNull(rsp.next());
+                assertThat(rsp.next()).isNotNull();
             }
-            TestCase.assertNull(rsp.next());
+            assertThat(rsp.next()).isNull();
         }
     }
 

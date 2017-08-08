@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.config;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.net.URI;
 import java.io.File;
@@ -59,7 +59,7 @@ public class DriverServiceTest {
 
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
         Driver driver = sf.getDriver();
-        assertNotNull(driver);
+        assertThat(driver).isNotNull();
         sf.close();
     }
 
@@ -69,7 +69,7 @@ public class DriverServiceTest {
 
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
         Driver driver = sf.getDriver();
-        assertNotNull(driver);
+        assertThat(driver).isNotNull();
         driver.close();
         sf.close();
     }

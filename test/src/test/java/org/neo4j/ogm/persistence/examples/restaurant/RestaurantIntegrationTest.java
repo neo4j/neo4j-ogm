@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.restaurant;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -75,8 +75,8 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Branch loaded = session.load(Branch.class, branch.getId());
-        assertEquals(37.61649, loaded.getLocation().getLatitude(), 0.00001);
-        assertEquals(-122.38681, loaded.getLocation().getLongitude(), 0.00001);
+        assertThat(loaded.getLocation().getLatitude()).isCloseTo(37.61649, within(0.00001));
+        assertThat(loaded.getLocation().getLongitude()).isCloseTo(-122.38681, within(0.00001));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
                         "WHERE distance(point(r),point({latitude:37.0, longitude:-118.0, crs: 'WGS-84'})) < {distance}*1000 RETURN r;",
                 parameters);
 
-        Assert.assertNotNull(found);
+        assertThat(found).isNotNull();
     }
 
     @Test
@@ -106,8 +106,8 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
         Filter filter = new Filter(new DistanceComparison(new DistanceFromPoint(37.61649, -122.38681, 1000 * 1000.0)), ComparisonOperator.LESS_THAN);
         Collection<Restaurant> found = session.loadAll(Restaurant.class, filter);
-        Assert.assertNotNull(found);
-        assertTrue(found.size() >= 1);
+        assertThat(found).isNotNull();
+        assertThat(found.size() >= 1).isTrue();
     }
 
     @Test
@@ -121,11 +121,11 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class,
                 new Filter("name", ComparisonOperator.EQUALS, "San Francisco International Airport (SFO)"));
-        assertEquals(1, results.size());
+        assertThat(results).hasSize(1);
         Restaurant result = results.iterator().next();
-        assertNotNull(result.getLocation());
-        assertEquals(37.61649, result.getLocation().getLatitude(), 0);
-        assertEquals(-122.38681, result.getLocation().getLongitude(), 0);
+        assertThat(result.getLocation()).isNotNull();
+        assertThat(result.getLocation().getLatitude()).isCloseTo(37.61649, within(0d));
+        assertThat(result.getLocation().getLongitude()).isCloseTo(-122.38681, within(0d));
     }
 
     /**
@@ -146,10 +146,10 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Restaurant loaded = session.load(Restaurant.class, restaurant.getId());
-        assertTrue(loaded.labels.contains("Delicious"));
-        assertTrue(loaded.labels.contains("Ambiance"));
-        assertTrue(loaded.labels.contains("Convenience"));
-        assertEquals(3, loaded.labels.size());
+        assertThat(loaded.labels.contains("Delicious")).isTrue();
+        assertThat(loaded.labels.contains("Ambiance")).isTrue();
+        assertThat(loaded.labels.contains("Convenience")).isTrue();
+        assertThat(loaded.labels).hasSize(3);
     }
 
     /**
@@ -176,7 +176,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         filters.add(secondFilter);
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, filters);
-        Assert.assertTrue(results.size() >= 1);
+        assertThat(results.size() >= 1).isTrue();
     }
 
     /**
@@ -196,17 +196,17 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         Filter descriptionIsNull = new Filter("description", ComparisonOperator.IS_NULL, null);
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(descriptionIsNull));
 
-        Assert.assertEquals(1, results.size());
+        assertThat(results).hasSize(1);
         Restaurant restaurant = results.iterator().next();
-        Assert.assertEquals("Cyma", restaurant.getName());
+        assertThat(restaurant.getName()).isEqualTo("Cyma");
 
         Filter descriptionIsNotNull = new Filter("description", ComparisonOperator.IS_NULL, null);
         descriptionIsNotNull.setNegated(true);
         results = session.loadAll(Restaurant.class, new Filters().add(descriptionIsNotNull));
 
-        Assert.assertEquals(1, results.size());
+        assertThat(results).hasSize(1);
         restaurant = results.iterator().next();
-        Assert.assertEquals("Kuroda", restaurant.getName());
+        assertThat(restaurant.getName()).isEqualTo("Kuroda");
     }
 
     /**
@@ -225,15 +225,15 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         Filter launchDateFilter = new Filter("launchDate", ComparisonOperator.LESS_THAN, new Date(1001));
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(launchDateFilter));
-        assertNotNull(results);
-        assertEquals(1, results.size());
-        assertEquals("Kuroda", results.iterator().next().getName());
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(1);
+        assertThat(results.iterator().next().getName()).isEqualTo("Kuroda");
 
         Filter anotherFilter = new Filter("launchDate", ComparisonOperator.EQUALS, new Date(999));
         results = session.loadAll(Restaurant.class, new Filters().add(anotherFilter));
 
-        assertNotNull(results);
-        assertEquals(0, results.size());
+        assertThat(results).isNotNull();
+        assertThat(results).isEmpty();
     }
 
     /**
@@ -252,9 +252,9 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         Filter filter = new Filter("name", ComparisonOperator.STARTING_WITH, "San Francisco");
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
-        assertNotNull(results);
-        assertEquals(1, results.size());
-        assertEquals("San Francisco International Airport (SFO)", results.iterator().next().getName());
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(1);
+        assertThat(results.iterator().next().getName()).isEqualTo("San Francisco International Airport (SFO)");
     }
 
     /**
@@ -273,9 +273,9 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         Filter filter = new Filter("name", ComparisonOperator.ENDING_WITH, "Airport (SFO)");
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
-        assertNotNull(results);
-        assertEquals(1, results.size());
-        assertEquals("San Francisco International Airport (SFO)", results.iterator().next().getName());
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(1);
+        assertThat(results.iterator().next().getName()).isEqualTo("San Francisco International Airport (SFO)");
     }
 
     /**
@@ -294,9 +294,9 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         Filter filter = new Filter("name", ComparisonOperator.CONTAINING, "International Airport");
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
-        assertNotNull(results);
-        assertEquals(1, results.size());
-        assertEquals("San Francisco International Airport (SFO)", results.iterator().next().getName());
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(1);
+        assertThat(results.iterator().next().getName()).isEqualTo("San Francisco International Airport (SFO)");
     }
 
     /**
@@ -315,9 +315,9 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         Filter filter = new Filter("name", ComparisonOperator.IN, new String[]{"Kuroda", "Foo", "Bar"});
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
-        assertNotNull(results);
-        assertEquals(1, results.size());
-        assertEquals("Kuroda", results.iterator().next().getName());
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(1);
+        assertThat(results.iterator().next().getName()).isEqualTo("Kuroda");
     }
 
     /**
@@ -336,15 +336,15 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         Filter exists = new Filter("name", ComparisonOperator.EXISTS);
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(exists));
-        assertNotNull(results);
-        assertEquals(2, results.size());
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(2);
 
         Filter notExists = new Filter("name", ComparisonOperator.EXISTS);
         notExists.setNegated(true);
 
         results = session.loadAll(Restaurant.class, new Filters().add(notExists));
-        assertNotNull(results);
-        assertEquals(0, results.size());
+        assertThat(results).isNotNull();
+        assertThat(results).isEmpty();
     }
 
     /**
@@ -364,16 +364,16 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         Filter isHalal = new Filter("halal", ComparisonOperator.IS_TRUE);
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(isHalal));
-        assertNotNull(results);
-        assertEquals(1, results.size());
-        assertEquals("Kazan", results.iterator().next().getName());
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(1);
+        assertThat(results.iterator().next().getName()).isEqualTo("Kazan");
 
         Filter notHalal = new Filter("halal", ComparisonOperator.IS_TRUE);
         notHalal.setNegated(true);
 
         results = session.loadAll(Restaurant.class, new Filters().add(notHalal));
-        assertNotNull(results);
-        assertEquals(1, results.size());
-        assertEquals("Kuroda", results.iterator().next().getName());
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(1);
+        assertThat(results.iterator().next().getName()).isEqualTo("Kuroda");
     }
 }

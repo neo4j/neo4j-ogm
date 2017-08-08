@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.spies;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
@@ -73,16 +73,16 @@ public class SpyIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         mata = session.load(Spy.class, mata.getId());
-        assertNotNull(mata);
-        assertEquals(julius.getName(), mata.getSpiesOn().getTarget().getName());
-        assertEquals("Robin", mata.getSpiedOnBy().getCode());
-        assertEquals(julius.getName(), mata.getSpiedOnBy().getSpy().getName());
+        assertThat(mata).isNotNull();
+        assertThat(mata.getSpiesOn().getTarget().getName()).isEqualTo(julius.getName());
+        assertThat(mata.getSpiedOnBy().getCode()).isEqualTo("Robin");
+        assertThat(mata.getSpiedOnBy().getSpy().getName()).isEqualTo(julius.getName());
 
         session.clear();
         julius = session.load(Spy.class, julius.getId());
-        assertNotNull(julius);
-        assertEquals(mata.getName(), julius.getSpiesOn().getTarget().getName());
-        assertEquals("Hawk", julius.getSpiedOnBy().getCode());
-        assertEquals(mata.getName(), julius.getSpiedOnBy().getSpy().getName());
+        assertThat(julius).isNotNull();
+        assertThat(julius.getSpiesOn().getTarget().getName()).isEqualTo(mata.getName());
+        assertThat(julius.getSpiedOnBy().getCode()).isEqualTo("Hawk");
+        assertThat(julius.getSpiedOnBy().getSpy().getName()).isEqualTo(mata.getName());
     }
 }

@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.config;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.driver.Driver;
@@ -21,7 +20,7 @@ import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -40,7 +39,7 @@ public class BoltDriverServiceTest extends MultiDriverTestClass {
         Configuration driverConfiguration = new Configuration.Builder().uri(uri).build();
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
         Driver driver = sf.getDriver();
-        assertNotNull(driver);
+        assertThat(driver).isNotNull();
         sf.close();
     }
 

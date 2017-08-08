@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.friendships;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -59,9 +59,9 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
 
         session.save(dave);
 
-        assertNotNull(dave.getId());
-        assertNotNull(mike.getId());
-        assertNotNull(dave.getFriends().get(0).getId());
+        assertThat(dave.getId()).isNotNull();
+        assertThat(mike.getId()).isNotNull();
+        assertThat(dave.getFriends().get(0).getId()).isNotNull();
     }
 
     @Test
@@ -76,17 +76,17 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
         Collection<Person> personList = session.loadAll(Person.class);
 
         int expected = 2;
-        assertEquals(expected, personList.size());
+        assertThat(personList.size()).isEqualTo(expected);
         for (Person person : personList) {
             if (person.getName().equals("Dave")) {
                 expected--;
-                assertEquals("Mike", person.getFriends().get(0).getFriend().getName());
+                assertThat(person.getFriends().get(0).getFriend().getName()).isEqualTo("Mike");
             } else if (person.getName().equals("Mike")) {
                 expected--;
-                assertEquals("Dave", person.getFriends().get(0).getPerson().getName());
+                assertThat(person.getFriends().get(0).getPerson().getName()).isEqualTo("Dave");
             }
         }
-        assertEquals(0, expected);
+        assertThat(expected).isEqualTo(0);
     }
 
     @Test
@@ -100,9 +100,9 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
 
         session.save(friendship);
 
-        assertNotNull(dave.getId());
-        assertNotNull(mike.getId());
-        assertNotNull(dave.getFriends().get(0).getId());
+        assertThat(dave.getId()).isNotNull();
+        assertThat(mike.getId()).isNotNull();
+        assertThat(dave.getFriends().get(0).getId()).isNotNull();
     }
 
     @Test
@@ -119,13 +119,13 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
         Friendship friendshipCopy = daveCopy.getFriends().get(0);
         Person mikeCopy = friendshipCopy.getFriend();
 
-        assertNotNull(daveCopy.getId());
-        assertNotNull(mikeCopy.getId());
-        assertNotNull(friendshipCopy.getId());
+        assertThat(daveCopy.getId()).isNotNull();
+        assertThat(mikeCopy.getId()).isNotNull();
+        assertThat(friendshipCopy.getId()).isNotNull();
 
-        assertEquals("Dave", daveCopy.getName());
-        assertEquals("Mike", mikeCopy.getName());
-        assertEquals(5, friendshipCopy.getStrength());
+        assertThat(daveCopy.getName()).isEqualTo("Dave");
+        assertThat(mikeCopy.getName()).isEqualTo("Mike");
+        assertThat(friendshipCopy.getStrength()).isEqualTo(5);
     }
 
     @Test
@@ -142,13 +142,13 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
         Person daveCopy = friendshipCopy.getPerson();
         Person mikeCopy = friendshipCopy.getFriend();
 
-        assertNotNull(daveCopy.getId());
-        assertNotNull(mikeCopy.getId());
-        assertNotNull(friendshipCopy.getId());
+        assertThat(daveCopy.getId()).isNotNull();
+        assertThat(mikeCopy.getId()).isNotNull();
+        assertThat(friendshipCopy.getId()).isNotNull();
 
-        assertEquals("Dave", daveCopy.getName());
-        assertEquals("Mike", mikeCopy.getName());
-        assertEquals(5, friendshipCopy.getStrength());
+        assertThat(daveCopy.getName()).isEqualTo("Dave");
+        assertThat(mikeCopy.getName()).isEqualTo("Mike");
+        assertThat(friendshipCopy.getStrength()).isEqualTo(5);
     }
 
     /**
@@ -167,14 +167,14 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
 
         session.save(dave);
 
-        assertNotNull(dave.getId());
-        assertNotNull(mike.getId());
-        assertNotNull(dave.getFriends().get(0).getId());
+        assertThat(dave.getId()).isNotNull();
+        assertThat(mike.getId()).isNotNull();
+        assertThat(dave.getFriends().get(0).getId()).isNotNull();
 
         session.clear();
 
         mike = session.load(Person.class, mike.getId());
-        assertEquals(2, mike.getFriends().get(0).getSharedHobbies().size());
+        assertThat(mike.getFriends().get(0).getSharedHobbies()).hasSize(2);
 
     }
 }

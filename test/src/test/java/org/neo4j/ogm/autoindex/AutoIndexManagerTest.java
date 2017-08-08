@@ -1,20 +1,18 @@
 package org.neo4j.ogm.autoindex;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.exception.ConfigurationException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
@@ -31,8 +29,27 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
     private static final String DROP_LOGIN_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (login:Login) ASSERT login.userName IS UNIQUE";
 
     @Test
-    public void shouldPreserveConfiguration() {
-        assertEquals(AutoIndexMode.VALIDATE, getBaseConfiguration().autoIndex("validate").build().getAutoIndex());
+    public void shouldPreserveNoneConfiguration() {
+        Configuration configuration = getBaseConfiguration().autoIndex("none").build();
+        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
+    }
+
+    @Test
+    public void shouldPreserveAssertConfiguration() {
+        Configuration configuration = getBaseConfiguration().autoIndex("assert").build();
+        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.ASSERT);
+    }
+
+    @Test
+    public void shouldPreserveValidateConfiguration() {
+        Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
+        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.VALIDATE);
+    }
+
+    @Test
+    public void shouldPreserveDumpConfiguration() {
+        Configuration configuration = getBaseConfiguration().autoIndex("dump").build();
+        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.DUMP);
     }
 
     @Test
@@ -40,10 +57,9 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
         createLoginConstraint();
 
-        final Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
+        Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
         AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
-        assertEquals(AutoIndexMode.VALIDATE, configuration.getAutoIndex());
-        assertEquals(1, indexManager.getIndexes().size());
+        assertThat(indexManager.getIndexes()).hasSize(1);
         indexManager.build();
 
         dropLoginConstraint();
@@ -51,9 +67,8 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
     @Test(expected = MissingIndexException.class)
     public void testIndexesAreFailValidation() {
-        final Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
+        Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
         AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
-        assertEquals(AutoIndexMode.VALIDATE, configuration.getAutoIndex());
         indexManager.build();
     }
 
@@ -64,17 +79,22 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
         File file = new File("./test.cql");
 
         try {
-            final Configuration configuration = getBaseConfiguration().autoIndex("dump").generatedIndexesOutputDir(".").generatedIndexesOutputFilename("test.cql").build();
+            Configuration configuration = getBaseConfiguration()
+                    .autoIndex("dump")
+                    .generatedIndexesOutputDir(".")
+                    .generatedIndexesOutputFilename("test.cql")
+                    .build();
+
             AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
-            assertEquals(AutoIndexMode.DUMP, configuration.getAutoIndex());
-            assertEquals(1, indexManager.getIndexes().size());
+            assertThat(indexManager.getIndexes()).hasSize(1);
             indexManager.build();
-            assertTrue(file.exists());
-            assertTrue(file.length() > 0);
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            String actual = reader.readLine();
-            assertEquals(CREATE_LOGIN_CONSTRAINT_CYPHER, actual);
-            reader.close();
+
+            assertThat(file.exists()).isTrue();
+            try (InputStream is = new FileInputStream("./test.cql")) {
+                String actual = IOUtils.toString(is);
+                assertThat(actual).isEqualToIgnoringWhitespace(CREATE_LOGIN_CONSTRAINT_CYPHER);
+            }
+
         } finally {
             file.delete();
         }
@@ -87,10 +107,10 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
         createLoginConstraint();
 
-        final Configuration configuration = getBaseConfiguration().autoIndex("assert").build();
+        Configuration configuration = getBaseConfiguration().autoIndex("assert").build();
         AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
-        assertEquals(AutoIndexMode.ASSERT, configuration.getAutoIndex());
-        assertEquals(1, indexManager.getIndexes().size());
+
+        assertThat(indexManager.getIndexes()).hasSize(1);
         indexManager.build();
 
         dropLoginConstraint();

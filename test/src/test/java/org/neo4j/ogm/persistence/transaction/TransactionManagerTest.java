@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.transaction;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
@@ -59,9 +59,9 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(session, sessionFactory.getDriver());
-        assertNull(session.getLastBookmark());
+        assertThat(session.getLastBookmark()).isNull();
         try (Transaction tx = transactionManager.openTransaction()) {
-            assertEquals(Transaction.Status.OPEN, tx.status());
+            assertThat(tx.status()).isEqualTo(Transaction.Status.OPEN);
         }
     }
 
@@ -86,12 +86,12 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Test
     public void shouldRollbackManagedTransaction() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(session, sessionFactory.getDriver());
-        assertNull(session.getLastBookmark());
+        assertThat(session.getLastBookmark()).isNull();
 
         try (Transaction tx = transactionManager.openTransaction()) {
-            assertEquals(Transaction.Status.OPEN, tx.status());
+            assertThat(tx.status()).isEqualTo(Transaction.Status.OPEN);
             tx.rollback();
-            assertEquals(Transaction.Status.ROLLEDBACK, tx.status());
+            assertThat(tx.status()).isEqualTo(Transaction.Status.ROLLEDBACK);
         }
     }
 }

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.music;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -75,13 +75,13 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         session.save(theBeatles);
 
         theBeatles = session.loadAll(Artist.class).iterator().next();
-        assertEquals("The Beatles", theBeatles.getName());
-        assertEquals(1, theBeatles.getAlbums().size());
-        assertEquals("Please Please Me", theBeatles.getAlbums().iterator().next().getName());
-        assertEquals("EMI Studios, London", theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName());
+        assertThat(theBeatles.getName()).isEqualTo("The Beatles");
+        assertThat(theBeatles.getAlbums()).hasSize(1);
+        assertThat(theBeatles.getAlbums().iterator().next().getName()).isEqualTo("Please Please Me");
+        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName()).isEqualTo("EMI Studios, London");
 
         please = session.loadAll(Album.class, new Filter("name", ComparisonOperator.EQUALS, "Please Please Me")).iterator().next();
-        assertEquals("The Beatles", please.getArtist().getName());
+        assertThat(please.getArtist().getName()).isEqualTo("The Beatles");
 
         Album hard = new Album("A Hard Day's Night");
         hard.setArtist(theBeatles);
@@ -91,12 +91,12 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         session.save(hard);
 
         Collection<Album> albums = session.loadAll(Album.class);
-        assertEquals(2, albums.size());
+        assertThat(albums).hasSize(2);
         for (Album album : albums) {
             if (album.getName().equals("Please Please Me")) {
-                assertEquals(1963, album.getRecording().getYear());
+                assertThat(album.getRecording().getYear()).isEqualTo(1963);
             } else {
-                assertEquals(1964, album.getRecording().getYear());
+                assertThat(album.getRecording().getYear()).isEqualTo(1964);
             }
         }
     }
@@ -108,7 +108,7 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
     public void shouldLoadStudioWithLocationMissingInDomainModel() {
         session.query("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})", Utils.map());
         Studio studio = session.loadAll(Studio.class, new Filter("name", ComparisonOperator.EQUALS, "Abbey Road Studios")).iterator().next();
-        assertNotNull(studio);
+        assertThat(studio).isNotNull();
     }
 
     /**
@@ -127,17 +127,17 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         session.save(theBeatles);
 
         theBeatles = session.loadAll(Artist.class).iterator().next();
-        assertEquals("The Beatles", theBeatles.getName());
-        assertEquals(1, theBeatles.getAlbums().size());
-        assertEquals("Please Please Me", theBeatles.getAlbums().iterator().next().getName());
-        assertEquals("EMI Studios, London", theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName());
+        assertThat(theBeatles.getName()).isEqualTo("The Beatles");
+        assertThat(theBeatles.getAlbums()).hasSize(1);
+        assertThat(theBeatles.getAlbums().iterator().next().getName()).isEqualTo("Please Please Me");
+        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName()).isEqualTo("EMI Studios, London");
 
         session.clear();
 
         please = session.loadAll(Album.class, new Filter("name", ComparisonOperator.EQUALS, "Please Please Me"), 0).iterator().next();
-        assertEquals("Please Please Me", please.getName());
-        assertNull(please.getArtist());
-        assertNull(please.getRecording());
+        assertThat(please.getName()).isEqualTo("Please Please Me");
+        assertThat(please.getArtist()).isNull();
+        assertThat(please.getRecording()).isNull();
     }
 
     /**
@@ -167,18 +167,18 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         session.save(theBeatlesAlbum);
 
         theBeatles = session.loadAll(Artist.class, new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "The Beatles"))).iterator().next();
-        assertEquals("The Beatles", theBeatles.getName());
-        assertEquals(1, theBeatles.getAlbums().size());
-        assertEquals("The Beatles", theBeatles.getAlbums().iterator().next().getName());
-        assertEquals("EMI Studios, London", theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName());
-        assertEquals(eric, theBeatles.getAlbums().iterator().next().getGuestArtist());
+        assertThat(theBeatles.getName()).isEqualTo("The Beatles");
+        assertThat(theBeatles.getAlbums()).hasSize(1);
+        assertThat(theBeatles.getAlbums().iterator().next().getName()).isEqualTo("The Beatles");
+        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName()).isEqualTo("EMI Studios, London");
+        assertThat(theBeatles.getAlbums().iterator().next().getGuestArtist()).isEqualTo(eric);
 
         //Eric has 2 albums now
         session.clear();
         Artist loadedEric = session.loadAll(Artist.class, new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Eric Clapton"))).iterator().next();
-        assertNotNull(loadedEric);
-        assertEquals("The Beatles", loadedEric.getGuestAlbums().iterator().next().getName());
-        assertEquals("Slowhand", loadedEric.getAlbums().iterator().next().getName());
+        assertThat(loadedEric).isNotNull();
+        assertThat(loadedEric.getGuestAlbums().iterator().next().getName()).isEqualTo("The Beatles");
+        assertThat(loadedEric.getAlbums().iterator().next().getName()).isEqualTo("Slowhand");
     }
 
     /**
@@ -204,17 +204,17 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         session.save(theBeatles);
 
         Iterator<Map<String, Object>> resultIterator = session.query("MATCH (n:`l'artiste`)-[:`HAS-ALBUM`]-(a) return {artist: collect(distinct n.name), albums: collect(a.name)} as result", Collections.EMPTY_MAP).queryResults().iterator();
-        assertTrue(resultIterator.hasNext());
+        assertThat(resultIterator.hasNext()).isTrue();
         Map<String, Object> row = resultIterator.next();
         Map data = (Map) row.get("result");
         List<String> albums = (List<String>) data.get("albums");
         List<String> artist = (List<String>) data.get("artist");
-        assertEquals(1, artist.size());
-        assertEquals("The Beatles", artist.get(0));
-        assertEquals(2, albums.size());
-        assertTrue(albums.contains("The Beatles"));
-        assertTrue(albums.contains("Please Please Me"));
-        assertFalse(resultIterator.hasNext());
+        assertThat(artist).hasSize(1);
+        assertThat(artist.get(0)).isEqualTo("The Beatles");
+        assertThat(albums).hasSize(2);
+        assertThat(albums.contains("The Beatles")).isTrue();
+        assertThat(albums.contains("Please Please Me")).isTrue();
+        assertThat(resultIterator.hasNext()).isFalse();
     }
 
     /**
@@ -240,17 +240,17 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         session.save(theBeatles);
 
         Iterator<Map<String, Object>> resultIterator = session.query("MATCH (n:`l'artiste`)-[:`HAS-ALBUM`]-(a) return {artist: collect(distinct n.name), albums: collect(a.name)}", Collections.EMPTY_MAP).queryResults().iterator();
-        assertTrue(resultIterator.hasNext());
+        assertThat(resultIterator.hasNext()).isTrue();
         Map<String, Object> row = resultIterator.next();
         Map data = (Map) row.get("{artist: collect(distinct n.name), albums: collect(a.name)}");
         List<String> albums = (List<String>) data.get("albums");
         List<String> artist = (List<String>) data.get("artist");
-        assertEquals(1, artist.size());
-        assertEquals("The Beatles", artist.get(0));
-        assertEquals(2, albums.size());
-        assertTrue(albums.contains("The Beatles"));
-        assertTrue(albums.contains("Please Please Me"));
-        assertFalse(resultIterator.hasNext());
+        assertThat(artist).hasSize(1);
+        assertThat(artist.get(0)).isEqualTo("The Beatles");
+        assertThat(albums).hasSize(2);
+        assertThat(albums.contains("The Beatles")).isTrue();
+        assertThat(albums.contains("Please Please Me")).isTrue();
+        assertThat(resultIterator.hasNext()).isFalse();
     }
 
     /**
@@ -267,9 +267,9 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Collection<Studio> studios = session.loadAll(Studio.class, new SortOrder().add("name"));
-        assertEquals("EMI Studios, London", studios.iterator().next().getName());
+        assertThat(studios.iterator().next().getName()).isEqualTo("EMI Studios, London");
 
         studios = session.loadAll(Studio.class, new SortOrder().add(SortOrder.Direction.DESC, "name"));
-        assertEquals("Olympic Studios, London", studios.iterator().next().getName());
+        assertThat(studios.iterator().next().getName()).isEqualTo("Olympic Studios, London");
     }
 }

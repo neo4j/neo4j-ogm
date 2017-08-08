@@ -13,9 +13,10 @@
 
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author vince
@@ -28,8 +29,8 @@ public class AnnotationsTest {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.annotations");
 
-        assertEquals("org.neo4j.ogm.domain.annotations.SimpleNode", metaData.classInfo("SimpleNode").name());
-        assertEquals("org.neo4j.ogm.domain.annotations.OtherNode", metaData.classInfo("OtherNode").name());
+        assertThat(metaData.classInfo("SimpleNode").name()).isEqualTo("org.neo4j.ogm.domain.annotations.SimpleNode");
+        assertThat(metaData.classInfo("OtherNode").name()).isEqualTo("org.neo4j.ogm.domain.annotations.OtherNode");
     }
 
     @Test
@@ -42,16 +43,16 @@ public class AnnotationsTest {
         AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get("org.neo4j.ogm.domain.annotations.IndexedEntity$Indexed");
 
         // string-y types
-        assertEquals("97", annotationInfo.get("b", ""));
-        assertEquals("1", annotationInfo.get("c", ""));
-        assertEquals("t", annotationInfo.get("t", ""));
+        assertThat(annotationInfo.get("b", "")).isEqualTo("97");
+        assertThat(annotationInfo.get("c", "")).isEqualTo("1");
+        assertThat(annotationInfo.get("t", "")).isEqualTo("t");
         // numeric types
-        assertEquals("0.01", annotationInfo.get("d", "0.0d"));
-        assertEquals("0.02", annotationInfo.get("f", "0.0f"));
-        assertEquals("3", annotationInfo.get("s", "0"));
-        assertEquals("5", annotationInfo.get("i", "0"));
-        assertEquals("6", annotationInfo.get("j", "0"));
+        assertThat(annotationInfo.get("d", "0.0d")).isEqualTo("0.01");
+        assertThat(annotationInfo.get("f", "0.0f")).isEqualTo("0.02");
+        assertThat(annotationInfo.get("s", "0")).isEqualTo("3");
+        assertThat(annotationInfo.get("i", "0")).isEqualTo("5");
+        assertThat(annotationInfo.get("j", "0")).isEqualTo("6");
         // boolean
-        assertEquals("true", annotationInfo.get("z", "false"));
+        assertThat(annotationInfo.get("z", "false")).isEqualTo("true");
     }
 }

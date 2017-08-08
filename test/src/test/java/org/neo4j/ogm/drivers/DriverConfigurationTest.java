@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.drivers;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
@@ -30,23 +30,23 @@ public class DriverConfigurationTest {
 	@Test
 	public void shouldLoadHttpDriverConfigFromPropertiesFile() {
 		Configuration driverConfig = new Configuration.Builder(new ClasspathConfigurationSource("http.driver.properties")).build();
-		assertEquals("http://localhost:7474", driverConfig.getURI());
+		assertThat(driverConfig.getURI()).isEqualTo("http://localhost:7474");
 	}
 
 	@Test
 	public void shouldLoadEmbeddedDriverConfigFromPropertiesFile() {
 		Configuration driverConfig = new Configuration.Builder(new ClasspathConfigurationSource("embedded.driver.properties")).build();
-		assertEquals("file:///var/tmp/neo4j.db", driverConfig.getURI());
+		assertThat(driverConfig.getURI()).isEqualTo("file:///var/tmp/neo4j.db");
 	}
 
 	@Test
 	public void shouldLoadBoltDriverConfigFromPropertiesFile() {
 		Configuration driverConfig = new Configuration.Builder(new ClasspathConfigurationSource("bolt.driver.properties")).build();
-		assertEquals("bolt://localhost", driverConfig.getURI());
-		assertEquals(150, driverConfig.getConnectionPoolSize());
-		assertEquals("NONE", driverConfig.getEncryptionLevel());
-		assertEquals("TRUST_ON_FIRST_USE", driverConfig.getTrustStrategy());
-		assertEquals("/tmp/cert", driverConfig.getTrustCertFile());
+		assertThat(driverConfig.getURI()).isEqualTo("bolt://localhost");
+		assertThat(driverConfig.getConnectionPoolSize()).isEqualTo(150);
+		assertThat(driverConfig.getEncryptionLevel()).isEqualTo("NONE");
+		assertThat(driverConfig.getTrustStrategy()).isEqualTo("TRUST_ON_FIRST_USE");
+		assertThat(driverConfig.getTrustCertFile()).isEqualTo("/tmp/cert");
 	}
 
 	@Test
@@ -56,14 +56,14 @@ public class DriverConfigurationTest {
 		Configuration dbConfig = new Configuration.Builder().uri("bolt://" + username + ":" + password + "@localhost").build();
 		Credentials credentials = dbConfig.getCredentials();
 		UsernamePasswordCredentials basic = (UsernamePasswordCredentials) credentials;
-		assertNotNull(basic);
-		assertEquals(username, basic.getUsername());
-		assertEquals(password, basic.getPassword());
+		assertThat(basic).isNotNull();
+		assertThat(basic.getUsername()).isEqualTo(username);
+		assertThat(basic.getPassword()).isEqualTo(password);
 	}
 
 	@Test
 	public void shouldGetNeo4jHaPropertiesFileFromDriverConfiguration() {
 		Configuration config = new Configuration.Builder(new ClasspathConfigurationSource("embedded.ha.driver.properties")).build();
-		assertEquals("neo4j-ha.properties", config.getNeo4jHaPropertiesFile());
+		assertThat(config.getNeo4jHaPropertiesFile()).isEqualTo("neo4j-ha.properties");
 	}
 }

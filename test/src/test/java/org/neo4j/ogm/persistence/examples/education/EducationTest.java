@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.education;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.*;
 
@@ -89,14 +89,14 @@ public class EducationTest {
                 }
             }
         }
-        assertEquals(7, courses.size());
+        assertThat(courses).hasSize(7);
     }
 
     private void test(long hash, List<Student> students) {
         for (Student student : students) {
             hash -= student.getId();
         }
-        assertEquals(0, hash);
+        assertThat(hash).isEqualTo(0);
     }
 
     // all students study english
@@ -192,6 +192,6 @@ public class EducationTest {
                 n--;
             }
         }
-        assertEquals(0, n);
+        assertThat(n).isEqualTo(0);
     }
 }

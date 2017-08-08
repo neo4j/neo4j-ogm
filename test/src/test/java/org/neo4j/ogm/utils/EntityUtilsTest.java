@@ -13,16 +13,17 @@
 
 package org.neo4j.ogm.utils;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.metadata.MetaData;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class EntityUtilsTest {
@@ -46,10 +47,7 @@ public class EntityUtilsTest {
         pizza.setLabels(labels);
 
         Collection<String> collatedLabels = EntityUtils.labels(pizza, metaData);
-        assertNotNull(collatedLabels);
-        assertTrue(collatedLabels.contains("Delicious"));
-        assertTrue(collatedLabels.contains("Hot"));
-        assertTrue(collatedLabels.contains("Spicy"));
-        assertTrue(collatedLabels.contains("Pizza"));
+        assertThat(collatedLabels).isNotNull();
+        assertThat(collatedLabels).containsOnly("Delicious", "Hot", "Spicy", "Pizza");
     }
 }

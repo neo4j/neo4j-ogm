@@ -15,7 +15,6 @@ package org.neo4j.ogm.persistence.session.lifecycle;
 
 import java.io.IOException;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
@@ -23,6 +22,8 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author vince
@@ -42,7 +43,7 @@ public class DirtyObjectsTest extends MultiDriverTestClass {
     public void newObjectShouldBeDirty() {
 
         Document d = new Document();
-        Assert.assertTrue(session.context().isDirty(d));
+        assertThat(session.context().isDirty(d)).isTrue();
     }
 
     @Test
@@ -50,7 +51,7 @@ public class DirtyObjectsTest extends MultiDriverTestClass {
 
         Document d = new Document();
         session.save(d);
-        Assert.assertFalse(session.context().isDirty(d));
+        assertThat(session.context().isDirty(d)).isFalse();
     }
 
     @Test
@@ -59,7 +60,7 @@ public class DirtyObjectsTest extends MultiDriverTestClass {
         Document d = new Document();
         session.save(d);
         d.setName("Document");
-        Assert.assertTrue(session.context().isDirty(d));
+        assertThat(session.context().isDirty(d)).isTrue();
     }
 
     @Test
@@ -68,7 +69,7 @@ public class DirtyObjectsTest extends MultiDriverTestClass {
         Document d = new Document();
         session.save(d);
         d = session.load(Document.class, d.getId());
-        Assert.assertFalse(session.context().isDirty(d));
+        assertThat(session.context().isDirty(d)).isFalse();
     }
 
     @Test
@@ -77,7 +78,7 @@ public class DirtyObjectsTest extends MultiDriverTestClass {
         Document d = new Document();
         session.save(d);
         session.clear();
-        Assert.assertTrue(session.context().isDirty(d));
+        assertThat(session.context().isDirty(d)).isTrue();
     }
 
     @Test
@@ -89,8 +90,8 @@ public class DirtyObjectsTest extends MultiDriverTestClass {
         session.clear();
         Document d2 = session.load(Document.class, d.getId());
 
-        Assert.assertFalse(session.context().isDirty(d));
-        Assert.assertFalse(session.context().isDirty(d2));
+        assertThat(session.context().isDirty(d)).isFalse();
+        assertThat(session.context().isDirty(d2)).isFalse();
     }
 
     @Test
@@ -99,7 +100,7 @@ public class DirtyObjectsTest extends MultiDriverTestClass {
         Document d = new Document();
 
         session.save(d);
-        Assert.assertSame(d, session.load(Document.class, d.getId()));
+        assertThat(session.load(Document.class, d.getId())).isSameAs(d);
     }
 
     @Test
@@ -113,14 +114,14 @@ public class DirtyObjectsTest extends MultiDriverTestClass {
 
         // get a copy of the document into a different session
         Document d2 = sessionFactory.openSession().load(Document.class, d.getId());
-        Assert.assertEquals("Document", d2.getName());
+        assertThat(d2.getName()).isEqualTo("Document");
 
         // now get a copy of the object from the original session
         Document d3 = session.load(Document.class, d.getId());
 
         // it does not reflect the changes made in the database
-        Assert.assertEquals(null, d3.getName());
+        assertThat(d3.getName()).isEqualTo(null);
         // and in fact, d3 and d are the same object.
-        Assert.assertSame(d, d3);
+        assertThat(d3).isSameAs(d);
     }
 }

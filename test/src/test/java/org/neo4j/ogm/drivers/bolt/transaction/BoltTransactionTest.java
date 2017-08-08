@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.drivers.bolt.transaction;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.neo4j.ogm.transaction.Transaction.Type.*;
 
@@ -65,7 +65,7 @@ public class BoltTransactionTest {
             boltTx.commit();
             fail("Exception expected");
         } catch (Exception e) {
-            assertEquals("Close failed", e.getMessage());
+            assertThat(e.getMessage()).isEqualTo("Close failed");
         }
 
         verify(nativeSession).close();
@@ -107,7 +107,7 @@ public class BoltTransactionTest {
             boltTx.rollback();
             fail("Exception expected");
         } catch (Exception e) {
-            assertEquals("Close failed", e.getMessage());
+            assertThat(e.getMessage()).isEqualTo("Close failed");
         }
 
         verify(nativeSession).close();

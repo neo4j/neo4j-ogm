@@ -12,7 +12,7 @@
  */
 package org.neo4j.ogm.persistence.identity;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -62,13 +62,13 @@ public class IdentityTest extends MultiDriverTestClass {
         Node end = new Node();
 
         // user code deliberately sets the nodes to be equal
-        assertEquals(start, end);
+        assertThat(end).isEqualTo(start);
         Set<Node> nodes = new HashSet<>();
         nodes.add(start);
         nodes.add(end);
 
         // same hashcode, so a single object, not two in set
-        assertEquals(1, nodes.size());
+        assertThat(nodes).hasSize(1);
 
         session.save(start);
         session.save(end);
@@ -86,9 +86,9 @@ public class IdentityTest extends MultiDriverTestClass {
 
         Node checkNode = session.load(Node.class, start.id);
 
-        assertNotNull(checkNode.link);
-        assertEquals(start.id, checkNode.link.start.id);
-        assertEquals(end.id, checkNode.link.end.id);
+        assertThat(checkNode.link).isNotNull();
+        assertThat(checkNode.link.start.id).isEqualTo(start.id);
+        assertThat(checkNode.link.end.id).isEqualTo(end.id);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class IdentityTest extends MultiDriverTestClass {
 
         session.clear();
         Collection<Node> allNodes = session.loadAll(Node.class);
-        assertEquals(2, allNodes.size());
+        assertThat(allNodes).hasSize(2);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class IdentityTest extends MultiDriverTestClass {
 
         session.clear();
         Collection<Edge> allEdges = session.loadAll(Edge.class);
-        assertEquals(2, allEdges.size());
+        assertThat(allEdges).hasSize(2);
     }
 
     @NodeEntity(label = "NODE")

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.relationships.direct.ab;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -24,14 +24,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Vince Bickers
  */
-public class ABTest extends RelationshipTrait {
+public class ABTest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -68,7 +68,7 @@ public class ABTest extends RelationshipTrait {
         session.save(b);
 
         a = session.load(A.class, a.id);
-        assertEquals(b, a.b);
+        assertThat(a.b).isEqualTo(b);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ABTest extends RelationshipTrait {
         session.save(a);
 
         b = session.load(B.class, b.id);
-        assertEquals(a, b.a);
+        assertThat(b.a).isEqualTo(a);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ABTest extends RelationshipTrait {
         a = session.load(A.class, a.id);
 
         // expect the relationship to have gone.
-        assertNull(a.b);
+        assertThat(a.b).isNull();
     }
 
     @NodeEntity(label = "A")

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.ingredients;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -129,7 +129,7 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
 
         while (it.hasNext()) {
             Ingredient i = it.next();
-            assertEquals(i.getName(), 0, i.getPairings().size());
+            assertThat(i.getPairings()).as(i.getName()).hasSize(0);
         }
     }
 
@@ -191,12 +191,12 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
 
         //Load pairing (carrot-chicken) to default depth 1. Carrot and Chicken should be loaded to depth 1
         Pairing carrotChicken = session.load(Pairing.class, pairing.getId());
-        assertNotNull(carrotChicken);
-        assertEquals("EXCELLENT", carrotChicken.getAffinity());
-        assertNotNull(carrotChicken.getFirst());
-        assertEquals(2, carrotChicken.getFirst().getPairings().size());
-        assertNotNull(carrotChicken.getSecond());
-        assertEquals(2, carrotChicken.getSecond().getPairings().size());
+        assertThat(carrotChicken).isNotNull();
+        assertThat(carrotChicken.getAffinity()).isEqualTo("EXCELLENT");
+        assertThat(carrotChicken.getFirst()).isNotNull();
+        assertThat(carrotChicken.getFirst().getPairings()).hasSize(2);
+        assertThat(carrotChicken.getSecond()).isNotNull();
+        assertThat(carrotChicken.getSecond().getPairings()).hasSize(2);
 
         Ingredient loadedChicken;
         if (carrotChicken.getFirst().getName().equals("Chicken")) {
@@ -214,8 +214,8 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
                 loadedPineapple = p.getSecond();
             }
         }
-        assertNotNull(loadedPineapple);
-        assertEquals(1, loadedPineapple.getPairings().size());
+        assertThat(loadedPineapple).isNotNull();
+        assertThat(loadedPineapple.getPairings()).hasSize(1);
 
         Ingredient loadedCarrot;
         if (carrotChicken.getFirst().getName().equals("Carrot")) {
@@ -233,19 +233,19 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
                 loadedButter = p.getSecond();
             }
         }
-        assertNotNull(loadedButter);
-        assertEquals(1, loadedButter.getPairings().size());
+        assertThat(loadedButter).isNotNull();
+        assertThat(loadedButter.getPairings()).hasSize(1);
 
         session.clear();
 
         //Load pairing (carrot-chicken) to depth 2. Carrot and chicken should be loaded to depth 2
         carrotChicken = session.load(Pairing.class, pairing.getId(), 2);
-        assertNotNull(carrotChicken);
-        assertEquals("EXCELLENT", carrotChicken.getAffinity());
-        assertNotNull(carrotChicken.getFirst());
-        assertEquals(2, carrotChicken.getFirst().getPairings().size());
-        assertNotNull(carrotChicken.getSecond());
-        assertEquals(2, carrotChicken.getSecond().getPairings().size());
+        assertThat(carrotChicken).isNotNull();
+        assertThat(carrotChicken.getAffinity()).isEqualTo("EXCELLENT");
+        assertThat(carrotChicken.getFirst()).isNotNull();
+        assertThat(carrotChicken.getFirst().getPairings()).hasSize(2);
+        assertThat(carrotChicken.getSecond()).isNotNull();
+        assertThat(carrotChicken.getSecond().getPairings()).hasSize(2);
         if (carrotChicken.getFirst().getName().equals("Chicken")) {
             loadedChicken = carrotChicken.getFirst();
         } else {
@@ -261,8 +261,8 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
                 loadedPineapple = p.getSecond();
             }
         }
-        assertNotNull(loadedPineapple);
-        assertEquals(2, loadedPineapple.getPairings().size());
+        assertThat(loadedPineapple).isNotNull();
+        assertThat(loadedPineapple.getPairings()).hasSize(2);
 
         if (carrotChicken.getFirst().getName().equals("Carrot")) {
             loadedCarrot = carrotChicken.getFirst();
@@ -279,8 +279,8 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
                 loadedButter = p.getSecond();
             }
         }
-        assertNotNull(loadedButter);
-        assertEquals(2, loadedButter.getPairings().size());
+        assertThat(loadedButter).isNotNull();
+        assertThat(loadedButter.getPairings()).hasSize(2);
     }
 
     /**
@@ -322,38 +322,38 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Collection<Ingredient> ingredients = session.loadAll(Ingredient.class, new Pagination(0, 1));
-        assertEquals(1, ingredients.size());
+        assertThat(ingredients).hasSize(1);
 
         session.clear();
 
         ingredients = session.loadAll(Ingredient.class, new Pagination(1, 1));
-        assertEquals(1, ingredients.size());
+        assertThat(ingredients).hasSize(1);
 
         session.clear();
 
         ingredients = session.loadAll(Ingredient.class, new Pagination(0, 2));
-        assertEquals(2, ingredients.size());
+        assertThat(ingredients).hasSize(2);
 
         ingredients = session.loadAll(Ingredient.class, new Pagination(0, 3));
-        assertEquals(3, ingredients.size());
+        assertThat(ingredients).hasSize(3);
 
         session.clear();
 
         Collection<Pairing> pairings = session.loadAll(Pairing.class, new Pagination(0, 1));
-        assertEquals(1, pairings.size());
+        assertThat(pairings).hasSize(1);
 
         session.clear();
 
         pairings = session.loadAll(Pairing.class, new Pagination(1, 1));
-        assertEquals(1, pairings.size());
+        assertThat(pairings).hasSize(1);
 
         session.clear();
 
         pairings = session.loadAll(Pairing.class, new Pagination(0, 2));
-        assertEquals(2, pairings.size());
+        assertThat(pairings).hasSize(2);
 
         pairings = session.loadAll(Pairing.class, new Pagination(0, 3));
-        assertEquals(3, pairings.size());
+        assertThat(pairings).hasSize(3);
     }
 
     /**
@@ -395,37 +395,37 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Collection<Ingredient> ingredients = session.loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(0, 1));
-        assertEquals(1, ingredients.size());
+        assertThat(ingredients).hasSize(1);
 
         session.clear();
 
         ingredients = session.loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(1, 1));
-        assertEquals(1, ingredients.size());
+        assertThat(ingredients).hasSize(1);
 
         session.clear();
 
         ingredients = session.loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(0, 2));
-        assertEquals(2, ingredients.size());
+        assertThat(ingredients).hasSize(2);
 
         ingredients = session.loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(0, 3));
-        assertEquals(3, ingredients.size());
+        assertThat(ingredients).hasSize(3);
 
         session.clear();
 
         Collection<Pairing> pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"), new Pagination(0, 1));
-        assertEquals(1, pairings.size());
+        assertThat(pairings).hasSize(1);
 
         session.clear();
 
         pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"), new Pagination(1, 1));
-        assertEquals(1, pairings.size());
+        assertThat(pairings).hasSize(1);
 
         session.clear();
 
         pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"), new Pagination(0, 2));
-        assertEquals(2, pairings.size());
+        assertThat(pairings).hasSize(2);
 
         pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"), new Pagination(0, 3));
-        assertEquals(3, pairings.size());
+        assertThat(pairings).hasSize(3);
     }
 }

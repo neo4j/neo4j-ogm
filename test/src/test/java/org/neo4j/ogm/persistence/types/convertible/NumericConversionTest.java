@@ -29,9 +29,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
+
 
 /**
  * @author Luanne Misquitta
@@ -76,24 +76,22 @@ public class NumericConversionTest extends MultiDriverTestClass {
         session.clear();
 
         individual = session.load(Individual.class, individual.getId());
-        assertEquals("Gary", individual.getName());
-        assertEquals(36, individual.getAge());
-        assertEquals(99.99f, individual.getBankBalance(), 0);
-        assertEquals(10, individual.getCode());
-        assertEquals(Integer.valueOf(301), individual.getNumberOfPets());
-        assertEquals(Byte.valueOf((byte) 101), individual.getNumberOfShoes());
-        assertEquals(Float.valueOf(215.50f), individual.getDistanceFromZoo());
-        assertEquals(3, individual.getFavouriteRadioStations().size());
-        assertTrue(individual.getFavouriteRadioStations().contains(97.4));
-        assertTrue(individual.getFavouriteRadioStations().contains(98.2));
-        assertTrue(individual.getFavouriteRadioStations().contains(105.4));
-        assertEquals(2, individual.primitiveFloatArray.length);
-        assertEquals(5, individual.getPrimitiveByteArray().length);
-        assertEquals(2, individual.floatArray.length);
-        assertEquals(3, individual.integerArray.length);
-        assertEquals(2, individual.integerCollection.size());
-        assertEquals(3, individual.getFloatCollection().size());
-        assertEquals(2, individual.getByteCollection().size());
+        assertThat(individual.getName()).isEqualTo("Gary");
+        assertThat(individual.getAge()).isEqualTo(36);
+        assertThat(individual.getBankBalance()).isEqualTo(99.99f, within(0f));
+        assertThat(individual.getCode()).isEqualTo((byte) 10);
+        assertThat(individual.getNumberOfPets()).isEqualTo(Integer.valueOf(301));
+        assertThat(individual.getNumberOfShoes()).isEqualTo(Byte.valueOf((byte) 101));
+        assertThat(individual.getDistanceFromZoo()).isEqualTo(Float.valueOf(215.50f));
+        assertThat(individual.getFavouriteRadioStations()).hasSize(3);
+        assertThat(individual.getFavouriteRadioStations()).contains(97.4, 98.2, 105.4);
+        assertThat(individual.primitiveFloatArray).hasSize(2);
+        assertThat(individual.getPrimitiveByteArray()).hasSize(5);
+        assertThat(individual.floatArray).hasSize(2);
+        assertThat(individual.integerArray).hasSize(3);
+        assertThat(individual.integerCollection).hasSize(2);
+        assertThat(individual.getFloatCollection()).hasSize(3);
+        assertThat(individual.getByteCollection()).hasSize(2);
     }
 
     /**
@@ -166,7 +164,7 @@ public class NumericConversionTest extends MultiDriverTestClass {
     public void shouldLoadDoubleWhenDecimalIsMissing() {
         session.query("CREATE (i:Individual {name: 'Gary', maxTemp: 31})", Collections.EMPTY_MAP);
         Individual i = session.loadAll(Individual.class).iterator().next();
-        assertEquals(new Double(31), i.getMaxTemp());
+        assertThat(i.getMaxTemp()).isEqualTo(new Double(31));
     }
 
     /**
@@ -181,7 +179,7 @@ public class NumericConversionTest extends MultiDriverTestClass {
         session.clear();
         individual = session.load(Individual.class, individual.getId());
         for (Number number : individual.getLongCollection()) {
-            assertTrue(number instanceof Long);
+            assertThat(number instanceof Long).isTrue();
         }
     }
 

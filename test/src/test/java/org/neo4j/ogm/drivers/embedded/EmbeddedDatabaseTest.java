@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.drivers.embedded;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.IOException;
@@ -47,8 +47,8 @@ public class EmbeddedDatabaseTest {
 
 		try (EmbeddedDriver driver = new EmbeddedDriver()) {
 			driver.configure(configuration);
-			assertNull(configuration.getURI());
-			assertNotNull(driver.getGraphDatabaseService());
+			assertThat(configuration.getURI()).isNull();
+			assertThat(driver.getGraphDatabaseService()).isNotNull();
 		}
 	}
 
@@ -63,7 +63,7 @@ public class EmbeddedDatabaseTest {
 			try (Transaction tx = databaseService.beginTx()) {
 				databaseService.execute("CREATE (n: Node {name: 'node'})");
 				Result r = databaseService.execute("MATCH (n) RETURN n");
-				assertTrue(r.hasNext());
+				assertThat(r.hasNext()).isTrue();
 				tx.success();
 			}
 		}
@@ -81,7 +81,7 @@ public class EmbeddedDatabaseTest {
 			try (Transaction tx = databaseService.beginTx()) {
 				databaseService.execute("CREATE (n: Node {name: 'node'})");
 				Result r = databaseService.execute("MATCH (n) RETURN n");
-				assertTrue(r.hasNext());
+				assertThat(r.hasNext()).isTrue();
 				tx.success();
 			}
 		}
@@ -99,14 +99,14 @@ public class EmbeddedDatabaseTest {
 			driver1.configure(configuration);
 			driver2.configure(configuration);
 
-			assertNotNull(driver1.getGraphDatabaseService());
-			assertNotNull(driver2.getGraphDatabaseService());
+			assertThat(driver1.getGraphDatabaseService()).isNotNull();
+			assertThat(driver2.getGraphDatabaseService()).isNotNull();
 
 			// instances should be different
-			assertFalse(driver1.getGraphDatabaseService() == driver2.getGraphDatabaseService());
+			assertThat(driver1.getGraphDatabaseService() == driver2.getGraphDatabaseService()).isFalse();
 
 			// underlying file stores should be different
-			assertFalse(driver1.getGraphDatabaseService().toString().equals(driver2.getGraphDatabaseService().toString()));
+			assertThat(driver1.getGraphDatabaseService().toString().equals(driver2.getGraphDatabaseService().toString())).isFalse();
 		}
 	}
 
@@ -135,8 +135,8 @@ public class EmbeddedDatabaseTest {
 				Result r1 = db1.execute("MATCH (n) RETURN n");
 				Result r2 = db2.execute("MATCH (n) RETURN n");
 
-				assertTrue(r1.hasNext());
-				assertFalse(r2.hasNext());
+				assertThat(r1.hasNext()).isTrue();
+				assertThat(r2.hasNext()).isFalse();
 
 				tx1.success();
 				tx2.success();
@@ -161,9 +161,9 @@ public class EmbeddedDatabaseTest {
 
 		try (EmbeddedDriver driver = new EmbeddedDriver()) {
 			driver.configure(configuration);
-			assertEquals("file://" + EMBEDDED_DIR, configuration.getURI());
-			assertNotNull(driver.getGraphDatabaseService());
-			assertTrue(Files.exists(path));
+			assertThat(configuration.getURI()).isEqualTo("file://" + EMBEDDED_DIR);
+			assertThat(driver.getGraphDatabaseService()).isNotNull();
+			assertThat(Files.exists(path)).isTrue();
 		}
 		deleteDirectory(path);
 	}

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.friendships;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -49,7 +49,7 @@ public class FriendsInLongTransactionTest extends MultiDriverTestClass {
     @Test
     public void createPersonAndFriendsInLongTransaction() {
         try (Transaction tx = session.beginTransaction()) {
-            assertEquals(Transaction.Status.OPEN, tx.status());
+            assertThat(tx.status()).isEqualTo(Transaction.Status.OPEN);
             Person john = new Person("John");
             session.save(john);
 
@@ -71,7 +71,7 @@ public class FriendsInLongTransactionTest extends MultiDriverTestClass {
 
             session.clear();
             session.load(Person.class, john.getId());
-            assertEquals(2, john.getFriends().size());
+            assertThat(john.getFriends()).hasSize(2);
         }
     }
 }

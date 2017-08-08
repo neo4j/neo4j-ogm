@@ -1,6 +1,6 @@
 package org.neo4j.ogm.session;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -71,6 +71,6 @@ public class ConcurrentSessionTest extends MultiDriverTestClass {
             });
         }
         countDownLatch.await();
-        assertFalse(failed);
+        assertThat(failed).isFalse();
     }
 }

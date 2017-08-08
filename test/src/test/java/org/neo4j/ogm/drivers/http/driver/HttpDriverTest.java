@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.driver;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -41,6 +41,6 @@ public class HttpDriverTest {
 //        TODO does this stille have any value?
 //        DriverManager.register(new HttpDriver(httpClient));
 
-//        assertNotNull(DriverManager.getDriver());
+//        assertThat(DriverManager.getDriver()).isNotNull();
     }
 }

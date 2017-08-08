@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -21,12 +22,10 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.drivers.http.response.AbstractHttpResponse;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.GraphRowModel;
@@ -53,19 +52,19 @@ public class JsonGraphRowResponseTest {
 
         try (Response<GraphRowListModel> rsp = new TestGraphRowHttpResponse()) {
             GraphRowListModel graphRowListModel = rsp.next();
-            TestCase.assertNotNull(graphRowListModel);
+            assertThat(graphRowListModel).isNotNull();
 
             List<GraphRowModel> graphRowModels = graphRowListModel.model();
-            TestCase.assertEquals(8, graphRowModels.size());
+            assertThat(graphRowModels).hasSize(8);
             GraphRowModel model = graphRowModels.get(0);
             GraphModel graph = model.getGraph();
-            TestCase.assertEquals(Long.valueOf(26), graph.getNodes().iterator().next().getId());
-            TestCase.assertEquals(0, graph.getRelationships().size());
+            assertThat(graph.getNodes().iterator().next().getId()).isEqualTo(Long.valueOf(26));
+            assertThat(graph.getRelationships()).isEmpty();
             Object[] rows = model.getRow();
-            TestCase.assertEquals(2, rows.length);
+            assertThat(rows.length).isEqualTo(2);
             Map row1 = (Map) ((List) rows[0]).get(0);
-            TestCase.assertEquals("GraphAware", row1.get("name"));
-            TestCase.assertEquals(26L, rows[1]);
+            assertThat(row1.get("name")).isEqualTo("GraphAware");
+            assertThat(rows[1]).isEqualTo(26L);
         }
     }
 

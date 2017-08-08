@@ -13,11 +13,9 @@
 
 package org.neo4j.ogm.metadata;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
 import java.util.Collection;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,6 +29,8 @@ import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static java.util.Arrays.asList;
 
 /**
  * @author Mark Angrish
@@ -117,8 +117,8 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         final Session session2 = sessionFactory.openSession();
 
         final User retrievedUser1 = session2.load(User.class, "login1");
-        assertNotNull(retrievedUser1);
-        assertEquals(user1.getLogin(), retrievedUser1.getLogin());
+        assertThat(retrievedUser1).isNotNull();
+        assertThat(retrievedUser1.getLogin()).isEqualTo(user1.getLogin());
     }
 
     @Test
@@ -130,16 +130,16 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         session.save(user2);
 
         session.clear();
-        Collection<User> users = session.loadAll(User.class, Arrays.asList("login1", "login2"));
-        assertEquals(2, users.size());
+        Collection<User> users = session.loadAll(User.class, asList("login1", "login2"));
+        assertThat(users.size()).isEqualTo(2);
 
         session.clear();
-        users = session.loadAll(User.class, Arrays.asList("login1", "login2"), 0);
-        assertEquals(2, users.size());
+        users = session.loadAll(User.class, asList("login1", "login2"), 0);
+        assertThat(users.size()).isEqualTo(2);
 
         session.clear();
-        users = session.loadAll(User.class, Arrays.asList("login1", "login2"), -1);
-        assertEquals(2, users.size());
+        users = session.loadAll(User.class, asList("login1", "login2"), -1);
+        assertThat(users.size()).isEqualTo(2);
     }
 
     @Test
@@ -151,8 +151,8 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         final Session session2 = sessionFactory.openSession();
 
         final User retrievedUser1 = session2.load(ExtendedUser.class, "login2");
-        assertNotNull(retrievedUser1);
-        assertEquals(user1.getLogin(), retrievedUser1.getLogin());
+        assertThat(retrievedUser1).isNotNull();
+        assertThat(retrievedUser1.getLogin()).isEqualTo(user1.getLogin());
     }
 
     @Test
@@ -168,8 +168,8 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         final Session session2 = sessionFactory.openSession();
 
         final Actor retrievedActor = session2.load(Actor.class, id);
-        assertNotNull(retrievedActor);
-        assertEquals(actor.getName(), retrievedActor.getName());
+        assertThat(retrievedActor).isNotNull();
+        assertThat(retrievedActor.getName()).isEqualTo(actor.getName());
     }
 
     @Test(expected = Neo4jException.class)
@@ -200,7 +200,7 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         final Session session2 = sessionFactory.openSession();
 
         Invoice retrievedInvoice = session2.load(Invoice.class, 223L);
-        assertNotNull(retrievedInvoice);
-        assertEquals(invoice.getId(), retrievedInvoice.getId());
+        assertThat(retrievedInvoice).isNotNull();
+        assertThat(retrievedInvoice.getId()).isEqualTo(invoice.getId());
     }
 }

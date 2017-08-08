@@ -15,7 +15,7 @@ package org.neo4j.ogm.metadata;
 
 
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,22 +39,22 @@ public class TransientObjectsTest {
     @Test
     public void testFieldMarkedWithTransientModifierIsNotInMetaData() {
         ClassInfo classInfo = metaData.classInfo("PersistableClass");
-        assertNotNull(classInfo);
+        assertThat(classInfo).isNotNull();
         FieldInfo fieldInfo = classInfo.propertyField("transientObject");
-        assertNull(fieldInfo);
+        assertThat(fieldInfo).isNull();
     }
 
     @Test
     public void testClassAnnotatedTransientIsExcludedFromMetaData() {
         ClassInfo classInfo = metaData.classInfo("TransientObjectsTest$TransientClass");
-        assertNull(classInfo);
+        assertThat(classInfo).isNull();
     }
 
     @Test
     public void testFieldAnnotatedTransientIsExcludedFromMetaData() {
         ClassInfo classInfo = metaData.classInfo("PersistableClass");
         FieldInfo fieldInfo = classInfo.propertyField("chickenCounting");
-        assertNull(fieldInfo);
+        assertThat(fieldInfo).isNull();
     }
 
 
@@ -62,7 +62,7 @@ public class TransientObjectsTest {
     public void testMethodWithTransientReturnTypeIsExcludedFromRelationshipFields() {
         ClassInfo classInfo = metaData.classInfo("PersistableClass");
         FieldInfo fieldInfo = classInfo.relationshipField("TRANSIENT_SINGLE_CLASS");
-        assertNull(fieldInfo);
+        assertThat(fieldInfo).isNull();
         for (FieldInfo field : classInfo.relationshipFields()) {
             if (field.getName().equals("transientSingleClassField")) {
                 fail("transientSingleClassField should not be returned in relationshipFields");

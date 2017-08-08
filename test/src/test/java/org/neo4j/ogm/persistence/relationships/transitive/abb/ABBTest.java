@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.relationships.transitive.abb;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -23,15 +23,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class ABBTest extends RelationshipTrait {
+public class ABBTest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -83,8 +83,8 @@ public class ABBTest extends RelationshipTrait {
 
         a = session.load(A.class, a.id);
 
-        assertEquals(2, a.r.length);
-        assertSameArray(new B[]{a.r[0].b, a.r[1].b}, new B[]{b1, b2});
+        assertThat(a.r.length).isEqualTo(2);
+        assertThat(a.r).extracting(x -> x.b).containsExactlyInAnyOrder(b1, b2);
     }
 
     @Test
@@ -95,8 +95,8 @@ public class ABBTest extends RelationshipTrait {
         b1 = session.load(B.class, b1.id);
         b2 = session.load(B.class, b2.id);
 
-        assertEquals(a, b1.r.a);
-        assertEquals(a, b2.r.a);
+        assertThat(b1.r.a).isEqualTo(a);
+        assertThat(b2.r.a).isEqualTo(a);
     }
 
     @Test
@@ -114,8 +114,8 @@ public class ABBTest extends RelationshipTrait {
         a = session.load(A.class, a.id);
 
         // expect the b1 relationship to have gone.
-        assertEquals(1, a.r.length);
-        assertSameArray(new B[]{b2}, new B[]{a.r[0].b});
+        assertThat(a.r.length).isEqualTo(1);
+        assertThat(new B[]{a.r[0].b}).isEqualTo(new B[]{b2});
     }
 
     @Test
@@ -138,7 +138,8 @@ public class ABBTest extends RelationshipTrait {
 
         b3 = session.load(B.class, b3.id);
 
-        assertSameArray(new A[]{a}, new A[]{b3.r.a});
+        assertThat(new A[]{b3.r.a}).isEqualTo(new A[]{a});
+        assertThat(new A[]{b3.r.a}).isEqualTo(new A[]{a});
     }
 
     @Test
@@ -159,9 +160,9 @@ public class ABBTest extends RelationshipTrait {
 
         b3 = session.load(B.class, b3.id);
 
-        assertSameArray(new A[]{a}, new A[]{b3.r.a});
-        assertSameArray(new R[]{r1, r2, r3}, a.r);
-        assertSameArray(new B[]{b1, b2, b3}, new B[]{a.r[0].b, a.r[1].b, a.r[2].b});
+        assertThat(new A[]{b3.r.a}).isEqualTo(new A[]{a});
+        assertThat(a.r).isEqualTo(new R[]{r1, r2, r3});
+        assertThat(new B[]{a.r[0].b, a.r[1].b, a.r[2].b}).isEqualTo(new B[]{b1, b2, b3});
     }
 
     /**
@@ -184,7 +185,7 @@ public class ABBTest extends RelationshipTrait {
 
         session.clear();
         b3 = session.load(B.class, b3.id);
-        assertEquals(2, b3.r.number);
+        assertThat(b3.r.number).isEqualTo(2);
     }
 
     /**
@@ -207,7 +208,7 @@ public class ABBTest extends RelationshipTrait {
 
         session.clear();
         b3 = session.load(B.class, b3.id);
-        assertEquals(2, b3.r.number);
+        assertThat(b3.r.number).isEqualTo(2);
     }
 
     /**
@@ -230,7 +231,7 @@ public class ABBTest extends RelationshipTrait {
 
         session.clear();
         b3 = session.load(B.class, b3.id);
-        assertEquals(2, b3.r.number);
+        assertThat(b3.r.number).isEqualTo(2);
     }
 
     @NodeEntity(label = "A")

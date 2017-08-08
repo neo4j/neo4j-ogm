@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.social;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,13 +67,13 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
                 " create (p4:Person {name:'D'}) create (p1)-[:LIKES]->(p2) create (p1)-[:LIKES]->(p3) create (p4)-[:LIKES]->(p1)", Collections.EMPTY_MAP);
 
         Person personA = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
-        assertNotNull(personA);
-        assertEquals(2, personA.getPeopleILike().size());
+        assertThat(personA).isNotNull();
+        assertThat(personA.getPeopleILike()).hasSize(2);
 
         Person personD = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "D")).iterator().next();
-        assertNotNull(personD);
-        assertEquals(1, personD.getPeopleILike().size());
-        assertEquals(personA, personD.getPeopleILike().get(0));
+        assertThat(personD).isNotNull();
+        assertThat(personD.getPeopleILike()).hasSize(1);
+        assertThat(personD.getPeopleILike().get(0)).isEqualTo(personA);
     }
 
     /**
@@ -85,8 +85,8 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
                 " create (p4:Individual {name:'D'}) create (p1)-[:FRIENDS]->(p2) create (p1)-[:FRIENDS]->(p3) create (p4)-[:FRIENDS]->(p1)", Collections.EMPTY_MAP);
 
         Individual individualA = session.loadAll(Individual.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
-        assertNotNull(individualA);
-        assertEquals(2, individualA.getFriends().size());
+        assertThat(individualA).isNotNull();
+        assertThat(individualA.getFriends()).hasSize(2);
     }
 
     /**
@@ -98,18 +98,18 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
                 " create (p4:User {name:'D'}) create (p1)-[:FRIEND]->(p2) create (p1)-[:FRIEND]->(p3) create (p4)-[:FRIEND]->(p1)", Collections.EMPTY_MAP);
 
         User userA = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
-        assertNotNull(userA);
-        assertEquals(3, userA.getFriends().size());
+        assertThat(userA).isNotNull();
+        assertThat(userA.getFriends()).hasSize(3);
 
         User userB = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "B")).iterator().next();
-        assertNotNull(userB);
-        assertEquals(1, userB.getFriends().size());
-        assertEquals(userA, userB.getFriends().get(0));
+        assertThat(userB).isNotNull();
+        assertThat(userB.getFriends()).hasSize(1);
+        assertThat(userB.getFriends().get(0)).isEqualTo(userA);
 
         User userD = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "D")).iterator().next();
-        assertNotNull(userD);
-        assertEquals(1, userD.getFriends().size());
-        assertEquals(userA, userD.getFriends().get(0));
+        assertThat(userD).isNotNull();
+        assertThat(userD.getFriends()).hasSize(1);
+        assertThat(userD.getFriends().get(0)).isEqualTo(userA);
     }
 
     /**
@@ -134,18 +134,18 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         userA = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
-        assertNotNull(userA);
-        assertEquals(3, userA.getFriends().size());
+        assertThat(userA).isNotNull();
+        assertThat(userA.getFriends()).hasSize(3);
 
         userB = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "B")).iterator().next();
-        assertNotNull(userB);
-        assertEquals(1, userB.getFriends().size());
-        assertEquals(userA.getName(), userB.getFriends().get(0).getName());
+        assertThat(userB).isNotNull();
+        assertThat(userB.getFriends()).hasSize(1);
+        assertThat(userB.getFriends().get(0).getName()).isEqualTo(userA.getName());
 
         userD = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "D")).iterator().next();
-        assertNotNull(userD);
-        assertEquals(1, userD.getFriends().size());
-        assertEquals(userA.getName(), userD.getFriends().get(0).getName());
+        assertThat(userD).isNotNull();
+        assertThat(userD.getFriends()).hasSize(1);
+        assertThat(userD.getFriends().get(0).getName()).isEqualTo(userA.getName());
     }
 
     /**
@@ -163,12 +163,12 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         userA = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
-        assertNotNull(userA);
-        assertEquals(1, userA.getPeopleILike().size());
+        assertThat(userA).isNotNull();
+        assertThat(userA.getPeopleILike()).hasSize(1);
         session.clear();
         userB = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "B")).iterator().next();
-        assertNotNull(userB);
-        assertEquals(1, userB.getPeopleILike().size());
+        assertThat(userB).isNotNull();
+        assertThat(userB.getPeopleILike()).hasSize(1);
     }
 
     /**
@@ -193,21 +193,21 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         mortalA = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
-        assertNotNull(mortalA);
-        assertEquals(2, mortalA.getKnownBy().size());
+        assertThat(mortalA).isNotNull();
+        assertThat(mortalA.getKnownBy()).hasSize(2);
 
         mortalB = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "B")).iterator().next();
-        assertNotNull(mortalB);
-        assertEquals(0, mortalB.getKnownBy().size());
+        assertThat(mortalB).isNotNull();
+        assertThat(mortalB.getKnownBy()).isEmpty();
 
         mortalC = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "C")).iterator().next();
-        assertNotNull(mortalC);
-        assertEquals(0, mortalC.getKnownBy().size());
+        assertThat(mortalC).isNotNull();
+        assertThat(mortalC.getKnownBy()).isEmpty();
 
         mortalD = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "D")).iterator().next();
-        assertNotNull(mortalD);
-        assertEquals(1, mortalD.getKnownBy().size());
-        assertEquals("A", mortalD.getKnownBy().iterator().next().getName());
+        assertThat(mortalD).isNotNull();
+        assertThat(mortalD.getKnownBy()).hasSize(1);
+        assertThat(mortalD.getKnownBy().iterator().next().getName()).isEqualTo("A");
     }
 
     /**
@@ -219,21 +219,21 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
                 " create (m4:Mortal {name:'D'}) create (m1)<-[:KNOWN_BY]-(m2) create (m1)<-[:KNOWN_BY]-(m3) create (m4)<-[:KNOWN_BY]-(m1)", Collections.EMPTY_MAP);
 
         Mortal mortalA = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
-        assertNotNull(mortalA);
-        assertEquals(2, mortalA.getKnownBy().size());
+        assertThat(mortalA).isNotNull();
+        assertThat(mortalA.getKnownBy()).hasSize(2);
 
         Mortal mortalB = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "B")).iterator().next();
-        assertNotNull(mortalB);
-        assertEquals(0, mortalB.getKnownBy().size());
+        assertThat(mortalB).isNotNull();
+        assertThat(mortalB.getKnownBy()).isEmpty();
 
         Mortal mortalC = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "C")).iterator().next();
-        assertNotNull(mortalC);
-        assertEquals(0, mortalC.getKnownBy().size());
+        assertThat(mortalC).isNotNull();
+        assertThat(mortalC.getKnownBy()).isEmpty();
 
         Mortal mortalD = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "D")).iterator().next();
-        assertNotNull(mortalD);
-        assertEquals(1, mortalD.getKnownBy().size());
-        assertEquals("A", mortalD.getKnownBy().iterator().next().getName());
+        assertThat(mortalD).isNotNull();
+        assertThat(mortalD.getKnownBy()).hasSize(1);
+        assertThat(mortalD.getKnownBy().iterator().next().getName()).isEqualTo("A");
     }
 
 
@@ -253,24 +253,24 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         adam = session.load(User.class, adam.getId());
-        assertEquals(1, adam.getFriends().size());
+        assertThat(adam.getFriends()).hasSize(1);
 
         daniela = session.load(User.class, daniela.getId());
-        assertEquals(2, daniela.getFriends().size());
+        assertThat(daniela.getFriends()).hasSize(2);
         List<String> friendNames = new ArrayList<>();
         for (User friend : daniela.getFriends()) {
             friendNames.add(friend.getName());
         }
-        assertTrue(friendNames.contains("Adam"));
-        assertTrue(friendNames.contains("Michal"));
+        assertThat(friendNames.contains("Adam")).isTrue();
+        assertThat(friendNames.contains("Michal")).isTrue();
 
         session.clear();
 
         michal = session.load(User.class, michal.getId());
-        assertEquals(2, michal.getFriends().size());
+        assertThat(michal.getFriends()).hasSize(2);
 
         session.clear();
         vince = session.load(User.class, vince.getId());
-        assertEquals(1, vince.getFriends().size());
+        assertThat(vince.getFriends()).hasSize(1);
     }
 }

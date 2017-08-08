@@ -1,6 +1,6 @@
 package org.neo4j.ogm.persistence.model;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
 import java.util.Arrays;
@@ -46,7 +46,7 @@ public class ArraysMappingTest extends MultiDriverTestClass {
 		session.clear();
 
 		Individual loadedIndividual = session.load(Individual.class, individual.getId());
-		assertArrayEquals(individual.getPrimitiveIntArray(), loadedIndividual.getPrimitiveIntArray());
+		assertThat(loadedIndividual.getPrimitiveIntArray()).isEqualTo(individual.getPrimitiveIntArray());
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class ArraysMappingTest extends MultiDriverTestClass {
 		Result executionResult = getGraphDatabaseService().execute("MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes");
 		Map<String, Object> result = executionResult.next();
 		executionResult.close();
-		assertEquals("The array wasn't persisted as the correct type", "AQIDBAU=", result.get("bytes")); //Byte arrays are converted to Base64 Strings
+		assertThat(result.get("bytes")).as("The array wasn't persisted as the correct type").isEqualTo("AQIDBAU="); //Byte arrays are converted to Base64 Strings
 	}
 
 	@Test

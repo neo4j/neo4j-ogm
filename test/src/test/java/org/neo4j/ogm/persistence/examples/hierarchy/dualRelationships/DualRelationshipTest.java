@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.hierarchy.dualRelationships;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
@@ -80,9 +80,9 @@ public class DualRelationshipTest extends MultiDriverTestClass {
 
         DataView found = session.load(DataView.class, dataview.getId());
 
-        assertEquals("owner", found.getOwner().getName());
-        assertEquals("shared", found.getSharedWith().get(0).getName());
-        assertEquals(1, found.getSharedWith().size());
+        assertThat(found.getOwner().getName()).isEqualTo("owner");
+        assertThat(found.getSharedWith().get(0).getName()).isEqualTo("shared");
+        assertThat(found.getSharedWith()).hasSize(1);
     }
 
     @Test
@@ -107,9 +107,9 @@ public class DualRelationshipTest extends MultiDriverTestClass {
 
         DataView found = session.queryForObject(DataView.class, query, Utils.map());
 
-        assertEquals(1, found.getSharedWith().size());
-        assertEquals("owner", found.getOwner().getName());
-        assertEquals("shared", found.getSharedWith().get(0).getName());
+        assertThat(found.getSharedWith()).hasSize(1);
+        assertThat(found.getOwner().getName()).isEqualTo("owner");
+        assertThat(found.getSharedWith().get(0).getName()).isEqualTo("shared");
     }
 
     @Test
@@ -132,9 +132,9 @@ public class DualRelationshipTest extends MultiDriverTestClass {
 
         DataViewOwned found = session.load(DataViewOwned.class, dataview.getId());
 
-        assertEquals("owner", found.getOwner().getName());
-        assertEquals("shared", found.getSharedWith().get(0).getName());
-        assertEquals(1, found.getSharedWith().size());
+        assertThat(found.getOwner().getName()).isEqualTo("owner");
+        assertThat(found.getSharedWith().get(0).getName()).isEqualTo("shared");
+        assertThat(found.getSharedWith()).hasSize(1);
     }
 
     @Test
@@ -159,9 +159,9 @@ public class DualRelationshipTest extends MultiDriverTestClass {
 
         DataViewOwned found = session.queryForObject(DataViewOwned.class, query, Utils.map());
 
-        assertNotNull(found);
-        assertEquals(1, found.getSharedWith().size());
-        assertEquals("owner", found.getOwner().getName());
-        assertEquals("shared", found.getSharedWith().get(0).getName());
+        assertThat(found).isNotNull();
+        assertThat(found.getSharedWith()).hasSize(1);
+        assertThat(found.getOwner().getName()).isEqualTo("owner");
+        assertThat(found.getSharedWith().get(0).getName()).isEqualTo("shared");
     }
 }

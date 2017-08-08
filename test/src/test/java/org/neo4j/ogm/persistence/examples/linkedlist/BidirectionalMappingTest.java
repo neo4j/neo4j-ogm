@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.linkedlist;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
@@ -81,13 +81,13 @@ public class BidirectionalMappingTest extends MultiDriverTestClass {
 
         first = session.load(Item.class, first.getId(), -1);
 
-        assertEquals(second.getId(), first.next.getId());
-        assertEquals(third.getId(), first.next.next.getId());
-        assertNull(first.next.next.next);
+        assertThat(first.next.getId()).isEqualTo(second.getId());
+        assertThat(first.next.next.getId()).isEqualTo(third.getId());
+        assertThat(first.next.next.next).isNull();
 
-        assertNull(first.previous);
-        assertEquals(first.getId(), first.next.previous.getId());
-        assertEquals(second.getId(), first.next.next.previous.getId());
+        assertThat(first.previous).isNull();
+        assertThat(first.next.previous.getId()).isEqualTo(first.getId());
+        assertThat(first.next.next.previous.getId()).isEqualTo(second.getId());
     }
 
     @Test

@@ -328,6 +328,13 @@
         </profile>
 
         <profile>
+            <id>bolt-1.5</id>
+            <properties>
+                <bolt>1.5.0-alpha01</bolt>
+            </properties>
+        </profile>
+
+        <profile>
             <id>embedded</id>
             <properties>
                 <ogm.properties>ogm-embedded.properties</ogm.properties>

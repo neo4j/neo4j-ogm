@@ -1,0 +1,46 @@
+[appendix]
+
+= Migration from 2.1 to 3.0
+
+This migration guide should help with migration from OGM 2.1.x version to 3.0.x.
+
+== Field access only
+
+Probably the most invasive change is how OGM accesses entity fields.
+Up to version 2.1.x any setters/getters took precedence before direct field access.
+This was also the reason why some annotations had to be on both setters and getters/fields and was a frequent source of
+confusion and many questions on Slack and StackOverflow.
+
+Since version 3.0.0 all properties and relationships are accessed (read and write) by direct field access only.
+All annotations on getters or setters must be moved to field directly.
+If there is an annotation duplicated on both field and setter/getter, only the annotation on the field should stay.
+
+[NOTE]
+The `@Target` type of the annotations (`@Relationship`, `@Property`, etc.)` was changed to `ElementType.FIELD`,
+so you can easily identify places which needs updating by trying to compile your project.
+
+It was possible to perform some initialisation, validation or logic in annotated setters.
+New annotation @PostLoad was introduced to allow for any such action after the entity is fully hydrated.
+
+
+== Configuration
+
+New class Configuration.Builder was introduced for java configuration using properties or property file.
+See #configuration section and JavaDoc for details for details.
+
+`Components` class was removed, if you need to provide custom driver instance use appropriate constructor of SessionFactory.
+
+
+== Unlimited load depth
+
+New load policy based on list comprehension generated from schema does not support unlimited depth (depth = -1).
+Either use specific depth or use `PATH_BASED_LOAD_STRATEGY`.
+
+[source,java]
+----
+session.setLoadStrategy(LoadStrategy.PATH_LOAD_STRATEGY);
+----
+
+[NOTE]
+Default depth for `Session.load*` methods without depth parameter is 1, so there is no need to change anything.
+Only calls with explicit `depth = -1` need to be changed.

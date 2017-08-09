@@ -213,6 +213,19 @@ This means that reloading entities will always result in retaining related objec
 If it is required to load entities with a lower depth than previously requested, this must be done on a new session, or after clearing your current session with `Session.clear()`.
 ====
 
+[[reference:session:loading-entities:query-strategy]]
+=== Query Strategy
+When OGM loads entities through `load*` methods (including ones with filters) it uses `LoadStrategy` to generate the `RETURN` part of the query.
+
+Available load strategies are
+
+* *schema load strategy* - uses metadata on domain entities and pattern comprehensions to retrieve nodes and relationships (default since OGM 3.0)
+
+* *path load strategy* - uses paths from root node to fetch related nodes, `p=(n)-[0..]-()` (default before OGM 3.0)
+
+The strategy can be overridden globally by calling `SessionFactory.setLoadStrategy(strategy)` or for single session only
+(e.g. when different strategy is more effective for given query) by calling `Session.setLoadStrategy(strategy)`
+
 
 [[reference:session:loading-entities:cypher-queries]]
 === Cypher queries

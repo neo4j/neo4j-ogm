@@ -415,6 +415,11 @@ The node property name defaults to the field name when not specified.
 Property fields to be persisted to the graph must not be declared `final`.
 ====
 
+[[reference:annotating-entities:postload]]
+== @PostLoad
+
+A method annotated with `@PostLoad` will be called once the entity is loaded from the database.
+
 [[reference:annotating-entities:rw-ordering]]
 == Object Read/Write Ordering
 

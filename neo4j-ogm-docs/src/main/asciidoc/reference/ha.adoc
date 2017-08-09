@@ -49,8 +49,9 @@ Causal consistency allows you to specify guarantees around query ordering, inclu
 
 The cluster returns a bookmark when it commits an update transaction, so then the driver links a bookmark to the user’s next transaction. The server that received query starts this new bookmarked transaction only when its internal state reached the desired bookmark. This ensures that the view of related data is always consistent, that all servers are eventually updated, and that users reading and re-reading data always see the same — and the latest — data.
 
-If you have multiple application tier JVM instances you will need to manage this state across them. The `Session` object
-allows you to set and retrieve bookmarks through the use of: `Session.withBookmark()` and `Session.getLastBookmark()`.
+If you have multiple application tier JVM instances you will need to manage this state across them.
+The `Session` object allows you to retrieve bookmarks through the use of `Session.getLastBookmark()` and
+start new transactions with given bookmark through `Session.beginTransaction(type, bookmarks)`.
 
 
 [[reference:ha:ha-cluster]]

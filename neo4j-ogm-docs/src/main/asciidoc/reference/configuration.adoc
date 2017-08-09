@@ -143,16 +143,40 @@ Configuration configuration = new Configuration()
 
 
 [[reference:configuration:driver:embedded:unmanaged]]
-==== Embedded Driver in an Unmanaged Extension
+==== Configuration in an Unmanaged Extension
 
-When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set up the Driver configuration slightly differently.
-In this situation, an existing `GraphDatabaseService` will already be available via a `@Context` annotation, and you must configure the Components framework to enable the OGM to use the provided instance.
-Note your application should typically do this only once before the call to set up a `Configuration` object.
+When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set up OGM configuration slightly differently.
+Neo4j provides `PluginLifecycle` SPI that allows to initialize extensions. Extend `OgmPluginInitializer` and list the full class name in
+`META-INF/services/org.neo4j.server.plugins.PluginLifecycle`:
+
 
 [source, java]
 ----
-    Components.setDriver(new EmbeddedDriver(graphDatabaseService));
+public class MyApplicationPluginInitializer extends OgmPluginInitializer {
+
+    public MyApplicationPluginInitializer() {
+        super(MyDomain..class.getPackage().getName());
+    }
+}
 ----
+
+This provides `SessionFactory` as injectable in your resources:
+
+[source, java]
+----
+@Path("/movies")
+public static class MovieService {
+
+    @Context
+    private SessionFactory sessionFactory;
+
+    ...
+}
+----
+[NOTE]
+Don't forget to list your resources in `dbms.unmanaged_extension_classes` property in neo4j configuration file as you
+would with any other unmanaged extension.
+
 
 [[reference:configuration:driver:credentials]]
 === Credentials
@@ -271,6 +295,13 @@ Configuration configuration = new Configuration();
 
 
 The `ACCEPT_UNSIGNED` strategy permits the Http Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
+
+=== Eager connection verification
+
+OGM by default does not connect to Neo4j server when it is configured.
+This allows you to start the application and database independently and Neo4j will be accessed on first read/write.
+To change this behaviour set the property `verify.connection` (or `Builder.verifyConnection(boolean)`) to true.
+This settings is valid only for Bolt and HTTP drivers.
 
 [[reference:configuration:logging]]
 == Logging

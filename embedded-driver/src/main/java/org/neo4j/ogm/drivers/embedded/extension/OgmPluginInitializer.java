@@ -41,9 +41,9 @@ import java.util.Collection;
  */
 public abstract class OgmPluginInitializer implements PluginLifecycle {
 
-    private final String packages;
+    protected final String packages;
 
-    private SessionFactory sessionFactory;
+    protected SessionFactory sessionFactory;
 
     public OgmPluginInitializer(String packages) {
         this.packages = packages;
@@ -52,8 +52,12 @@ public abstract class OgmPluginInitializer implements PluginLifecycle {
     @Override
     public Collection<Injectable<?>> start(GraphDatabaseService graphDatabaseService, Configuration config) {
         EmbeddedDriver embeddedDriver = new EmbeddedDriver(graphDatabaseService);
-        sessionFactory = new SessionFactory(packages);
+        sessionFactory = createSessionFactory(embeddedDriver);
         return Arrays.asList(new OgmInjectable<>(sessionFactory, SessionFactory.class));
+    }
+
+    protected SessionFactory createSessionFactory(EmbeddedDriver embeddedDriver) {
+        return new SessionFactory(embeddedDriver, packages);
     }
 
     @Override

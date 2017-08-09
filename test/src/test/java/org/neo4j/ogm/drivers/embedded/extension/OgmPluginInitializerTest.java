@@ -13,21 +13,9 @@
 
 package org.neo4j.ogm.drivers.embedded.extension;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.configuration.Configuration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilders;
-import org.neo4j.ogm.domain.simple.User;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.server.plugins.Injectable;
-import org.neo4j.test.server.HTTP;
+import java.net.URI;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -35,12 +23,24 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileWriter;
-import java.net.URI;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.configuration.Configuration;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.server.plugins.Injectable;
+import org.neo4j.test.server.HTTP;
+
+import org.neo4j.ogm.domain.simple.User;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,12 +53,12 @@ public class OgmPluginInitializerTest {
 
     @Before
     public void setUp() throws Exception {
-        TestOgmPluginLifecycle.shouldInitialize = true;
+        TestOgmPluginInitializer.shouldInitialize = true;
     }
 
     @After
     public void after() throws Exception {
-        TestOgmPluginLifecycle.shouldInitialize = false;
+        TestOgmPluginInitializer.shouldInitialize = false;
     }
 
     @Test
@@ -73,6 +73,30 @@ public class OgmPluginInitializerTest {
 
             HTTP.Response saveResponse = HTTP.POST(testURI.toString());
             assertThat(saveResponse.status()).isEqualTo(200);
+
+            HTTP.Response loadResponse = HTTP.GET(testURI.toString());
+
+            assertThat(loadResponse.rawContent()).isEqualTo("[{\"id\":0,\"name\":\"new user\"}]");
+        }
+
+    }
+
+    @Test
+    public void ogmExtensionShouldUseProvidedDatabase() throws Exception {
+        try (ServerControls controls = TestServerBuilders.newInProcessBuilder()
+                .withConfig(GraphDatabaseSettings.auth_enabled, "false")
+                .withExtension(TEST_PATH, TestOgmExtension.class)
+                .newServer()) {
+
+            URI testURI = controls.httpURI().resolve(TEST_PATH);
+
+            GraphDatabaseService service = controls.graph();
+
+            try (Transaction tx = service.beginTx()) {
+                service.execute("CREATE (u:User {name:'new user'})");
+
+                tx.success();
+            }
 
             HTTP.Response loadResponse = HTTP.GET(testURI.toString());
 
@@ -115,12 +139,12 @@ public class OgmPluginInitializerTest {
 
     }
 
-    public static class TestOgmPluginLifecycle extends OgmPluginInitializer {
+    public static class TestOgmPluginInitializer extends OgmPluginInitializer {
 
         public static boolean shouldInitialize = false;
 
-        public TestOgmPluginLifecycle() {
-            super(User.class.getName());
+        public TestOgmPluginInitializer() {
+            super(User.class.getPackage().getName());
         }
 
         @Override

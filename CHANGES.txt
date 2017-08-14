@@ -6,6 +6,7 @@ o Update Neo4j to version 3.2.3 in 3.2 profile
 o Update Neo4j to version 3.3.0-alpha05 in 3.3 profile
 o Update java driver version to 1.4.3
 o Test against java driver 1.5-alpha1 in driver-1.5 profile
+o Don't merge collection property default value with graph value
 
 3.0.0-RC1
 o Add verifyConnection configuration property for bolt and http driver

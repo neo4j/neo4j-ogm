@@ -300,28 +300,21 @@
     <profiles>
 
         <profile>
-            <id>3.0</id>
-            <properties>
-                <neo4j>3.0.8</neo4j>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>3.1</id>
+            <id>neo4j-3.1</id>
             <properties>
                 <neo4j>3.1.6</neo4j>
             </properties>
         </profile>
 
         <profile>
-            <id>3.2</id>
+            <id>neo4j-3.2</id>
             <properties>
                 <neo4j>3.2.3</neo4j>
             </properties>
         </profile>
 
         <profile>
-            <id>3.3</id>
+            <id>neo4j-3.3</id>
             <properties>
                 <neo4j>3.3.0-alpha05</neo4j>
             </properties>

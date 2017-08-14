@@ -213,13 +213,12 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
                 PropertyReader reader = EntityAccessManager.getPropertyReader(classInfo, property.getKey().toString());
                 if (reader != null) {
-                    Object currentValue = reader.readProperty(instance);
                     Class<?> paramType = writer.type();
                     Class elementType = underlyingElementType(classInfo, property.getKey().toString());
                     if (paramType.isArray()) {
-                        value = EntityAccess.merge(paramType, value, (Object[]) currentValue, elementType);
+                        value = EntityAccess.merge(paramType, value, new Object[]{} , elementType);
                     } else {
-                        value = EntityAccess.merge(paramType, value, (Collection) currentValue, elementType);
+                        value = EntityAccess.merge(paramType, value, Collections.emptyList(), elementType);
                     }
                 }
             }

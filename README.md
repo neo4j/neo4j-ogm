@@ -147,7 +147,6 @@ Movie matrix = session.load(Movie.class, movie.getId());
 for(Actor actor : matrix.getActors()) {
     System.out.println("Actor: " + actor.getName());
 }
-
 ```
 
 ## Getting Help

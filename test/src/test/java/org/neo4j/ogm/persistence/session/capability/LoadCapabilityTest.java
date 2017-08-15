@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
@@ -677,5 +678,53 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(artistNames.get(0)).isEqualTo("The Beatles");
         assertThat(artistNames.get(1)).isEqualTo("Led Zeppelin");
         assertThat(artistNames.get(2)).isEqualTo("Bon Jovi");
+    }
+
+    @Test
+    public void loadAllByIdsShouldSortByIdsIfSortOrderIsNotProvided() throws Exception {
+        Artist beatles = session.load(Artist.class, beatlesId);
+
+        Artist led = new Artist("Led Zeppelin");
+        session.save(led);
+        Artist bonJovi = new Artist("Bon Jovi");
+        session.save(bonJovi);
+
+        Long ledId = led.getId();
+        Long bonJoviId = bonJovi.getId();
+
+        Collection<Artist> artists;
+
+        artists = session.loadAll(Artist.class, newArrayList(beatlesId, ledId, bonJoviId));
+        assertThat(artists).containsExactly(beatles, led, bonJovi);
+
+        artists = session.loadAll(Artist.class, newArrayList(ledId, beatlesId, bonJoviId));
+        assertThat(artists).containsExactly(led, beatles, bonJovi);
+
+        artists = session.loadAll(Artist.class, newArrayList(ledId, bonJoviId, beatlesId));
+        assertThat(artists).containsExactly(led, bonJovi, beatles);
+    }
+
+    @Test
+    public void loadAllByInstancesShouldSortByIdsIfSortOrderIsNotProvided() throws Exception {
+        Artist beatles = session.load(Artist.class, beatlesId);
+
+        Artist led = new Artist("Led Zeppelin");
+        session.save(led);
+        Artist bonJovi = new Artist("Bon Jovi");
+        session.save(bonJovi);
+
+        Long ledId = led.getId();
+        Long bonJoviId = bonJovi.getId();
+
+        Collection<Artist> artists;
+
+        artists = session.loadAll(newArrayList(beatles, led, bonJovi));
+        assertThat(artists).containsExactly(beatles, led, bonJovi);
+
+        artists = session.loadAll(newArrayList(led, beatles, bonJovi));
+        assertThat(artists).containsExactly(led, beatles, bonJovi);
+
+        artists = session.loadAll(newArrayList(led, bonJovi, beatles));
+        assertThat(artists).containsExactly(led, bonJovi, beatles);
     }
 }

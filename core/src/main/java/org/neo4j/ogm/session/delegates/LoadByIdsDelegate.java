@@ -14,7 +14,9 @@ package org.neo4j.ogm.session.delegates;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.neo4j.ogm.context.GraphEntityMapper;
@@ -55,6 +57,10 @@ public class LoadByIdsDelegate {
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
         try (Response<GraphModel> response = session.requestHandler().execute(request)) {
             Iterable<T> mapped = new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+
+            if (sortOrder.sortClauses().isEmpty()) {
+                return sortResultsByIds(type, ids, mapped);
+            }
             Set<T> results = new LinkedHashSet<>();
             for (T entity : mapped) {
                 if (includeMappedEntity(ids, entity)) {
@@ -63,6 +69,32 @@ public class LoadByIdsDelegate {
             }
             return results;
         }
+    }
+
+    private <T, ID extends Serializable> Set<T> sortResultsByIds(Class<T> type, Collection<ID> ids, Iterable<T> mapped) {
+        Map<ID, T> items = new HashMap<>();
+        ClassInfo classInfo = session.metaData().classInfo(type.getName());
+
+        FieldInfo idField = classInfo.primaryIndexField();
+        if (idField == null) {
+            idField = classInfo.identityField();
+        }
+
+        for (T t : mapped) {
+            Object id = idField.read(t);
+            if (id != null) {
+                items.put((ID) id, t);
+            }
+        }
+
+        Set<T> results = new LinkedHashSet<>();
+        for (ID id : ids) {
+            T item = items.get(id);
+            if (item != null) {
+                results.add(item);
+            }
+        }
+        return results;
     }
 
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids) {

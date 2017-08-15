@@ -14,7 +14,7 @@ package org.neo4j.ogm.session.delegates;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -40,7 +40,7 @@ public class LoadByInstancesDelegate {
             return objects;
         }
 
-        Set<Long> ids = new HashSet<>();
+        Set<Long> ids = new LinkedHashSet<>();
         Class type = objects.iterator().next().getClass();
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
         Field identityField = classInfo.getField(classInfo.identityField());

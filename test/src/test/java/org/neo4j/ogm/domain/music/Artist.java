@@ -78,4 +78,12 @@ public class Artist {
     public Long getId() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return "Artist{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

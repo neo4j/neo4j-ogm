@@ -1,4 +1,4 @@
-2.1.4-SNAPSHOT
+2.1.4
 --------------
 o Allow use of CompositeConverter on fields in @RelationshipEntity classes
 o Allow passing custom driver instance to BoltDriver for custom driver configuration
@@ -10,6 +10,7 @@ o Change graph id handling for new entities, fix #381
 o Check if node is in MappingContext before firing events, fixes #305
 o Fix mapping of @Relationship with default direction
 o Don't merge collection property default value with graph value
+o Fix issue with empty (non null) collections, #388
 
 2.1.3
 --------------

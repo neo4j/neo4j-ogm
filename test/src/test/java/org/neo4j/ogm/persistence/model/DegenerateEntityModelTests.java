@@ -74,12 +74,6 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         Document b = session.load(Document.class, (Long) resultSet.get("bid"));
 
         f = session.load(Folder.class, (Long) resultSet.get("fid"));
-
-        f.getDocuments().add(a);
-        f.getDocuments().add(b);
-
-        a.setFolder(f);
-        b.setFolder(f);
     }
 
 

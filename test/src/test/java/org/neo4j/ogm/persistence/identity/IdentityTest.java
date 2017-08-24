@@ -12,20 +12,33 @@
  */
 package org.neo4j.ogm.persistence.identity;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
 
 /**
  * These tests relate to the concept of node and relationship identity in the OGM. Identity
@@ -35,6 +48,8 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author vince
  */
 public class IdentityTest extends MultiDriverTestClass {
+
+    private static final Logger logger = LoggerFactory.getLogger(IdentityTest.class);
 
     private static SessionFactory sessionFactory;
 
@@ -130,6 +145,53 @@ public class IdentityTest extends MultiDriverTestClass {
         assertThat(allEdges).hasSize(2);
     }
 
+    @Test
+    public void shouldBeAbleToLoadAllRelatedNodesIfTheyAreConsideredEqual() throws Exception {
+        Node nodeA = new Node();
+
+        Node nodeB = new Node();
+
+        Node nodeC = new Node();
+
+        nodeA.related = newArrayList(nodeB, nodeC);
+
+        session.save(nodeA);
+        logger.info("related: {}", nodeA.related);
+
+        session.clear();
+
+        Node loadedA = session.load(Node.class, nodeA.id);
+        logger.info("related: {}", loadedA.related);
+        assertThat(loadedA.related).hasSize(2);
+    }
+
+    @Test
+    public void indistinguishableRelationshipsMapAsSingleRelatedEntityInstance() throws Exception {
+
+        Map<String, Object> ids = getGraphDatabaseService().execute("CREATE "
+                + "(n1:NODE), (n2:NODE),"
+                + "(n1)-[:RELATED]->(n2),"
+                + "(n1)-[:RELATED]->(n2)"
+                + "RETURN id(n1) AS id1, id(n2) AS id2").next();
+
+        Node node = session.load(Node.class, (Long) ids.get("id1"));
+        assertThat(node.related).hasSize(1);
+    }
+
+    @Test
+    public void indistinguishableEntityInstancesMapAsSingleRelationship() throws Exception {
+        Node nodeA = new Node();
+        Node nodeB = new Node();
+
+        nodeA.related = newArrayList(nodeB, nodeB);
+
+        session.save(nodeA);
+
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+                "CREATE (n1:NODE), (n2:NODE),"
+                        + "(n1)-[:RELATED]->(n2)");
+    }
+
     @NodeEntity(label = "NODE")
     public static class Node {
 
@@ -137,6 +199,9 @@ public class IdentityTest extends MultiDriverTestClass {
 
         @Relationship(type = "EDGE")
         Edge link;
+
+        @Relationship(type = "RELATED", direction = OUTGOING)
+        List<Node> related;
 
         @Override
         public boolean equals(Object o) {
@@ -149,6 +214,13 @@ public class IdentityTest extends MultiDriverTestClass {
         @Override
         public int hashCode() {
             return 1;
+        }
+
+        @Override
+        public String toString() {
+            return "Node{" +
+                    "id=" + id +
+                    '}';
         }
     }
 

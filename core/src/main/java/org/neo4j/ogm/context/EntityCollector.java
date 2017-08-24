@@ -16,8 +16,8 @@ package org.neo4j.ogm.context;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -32,131 +32,110 @@ import static java.util.stream.Collectors.toList;
  */
 class EntityCollector {
 
-    // node id -> relationship -> target type -> (relId, objectId, object)
-    private final Map<Long, Map<DirectedRelationship, Map<Class, Collection<IdRelIdObjectTriple>>>> relationshipCollectibles = new HashMap<>(); //TODO bad, we'll never remember what this does in a months time!! refactor this class!
+    // node id -> relationship -> target type -> (relationshipId, targetGraphId, target)
+    private final Map<Long, Map<DirectedRelationship, Map<Class, Collection<TargetTriple>>>> collected = new HashMap<>();
 
     /**
-     * Adds the given collectible element into a collection based on relationship type and direction ready to be set on the given owning type.
+     * Adds the given collectible target into a collection based on relationship type and direction ready to be set on
+     * the given owning entity.
      *
-     * @param owningEntityId The id of the instance on which the collection is to be set
-     * @param collectibleElement The element to add to the collection that will eventually be set on the owning type
+     * @param sourceId The id of the instance on which the collection is to be set
      * @param relationshipType The relationship type that this collection corresponds to
      * @param relationshipDirection The relationship direction
-     * @param relationshipId
-     * @param targetId
+     * @param relationshipId id of collected relationship
+     * @param targetId id of target element
+     * @param target The element to add to the collection that will eventually be set on the owning type
      */
-    public void recordTypeRelationship(Long owningEntityId, Object collectibleElement, String relationshipType, String relationshipDirection, long relationshipId, long targetId) {
-        record(owningEntityId, collectibleElement, relationshipType, relationshipDirection, new IdRelIdObjectTriple(relationshipId, targetId, collectibleElement));
+    public void collectRelationship(Long sourceId, String relationshipType, String relationshipDirection, long relationshipId, long targetId, Object target) {
+        record(sourceId, target, relationshipType, relationshipDirection, new TargetTriple(relationshipId, targetId, target));
     }
 
-    public void recordTypeRelationship(Long owningEntityId, Object collectibleElement, String relationshipType, String relationshipDirection, long targetId) {
-        record(owningEntityId, collectibleElement, relationshipType, relationshipDirection, new IdRelIdObjectTriple(targetId, collectibleElement));
+    /**
+     * Adds the given collectible target into a collection based on relationship type and direction ready to be set on
+     * the given owning entity.
+     *
+     * @param sourceId The id of the instance on which the collection is to be set
+     * @param relationshipType The relationship type that this collection corresponds to
+     * @param relationshipDirection The relationship direction
+     * @param targetId id of target element
+     * @param target The element to add to the collection that will eventually be set on the owning type
+     */
+    public void collectRelationship(Long sourceId, String relationshipType, String relationshipDirection, long targetId, Object target) {
+        record(sourceId, target, relationshipType, relationshipDirection, new TargetTriple(targetId, target));
     }
 
-    private void record(Long owningEntityId, Object collectibleElement, String relationshipType, String relationshipDirection, IdRelIdObjectTriple triple) {
-        this.relationshipCollectibles.computeIfAbsent(owningEntityId, k -> new HashMap<>());
+    private void record(Long owningEntityId, Object collectibleElement, String relationshipType, String relationshipDirection, TargetTriple triple) {
+        this.collected.computeIfAbsent(owningEntityId, k -> new HashMap<>());
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
-        this.relationshipCollectibles.get(owningEntityId).computeIfAbsent(directedRelationship, k -> new HashMap<>());
-        this.relationshipCollectibles.get(owningEntityId).get(directedRelationship).computeIfAbsent(collectibleElement.getClass(), k -> new HashSet<>());
-        this.relationshipCollectibles.get(owningEntityId).get(directedRelationship).get(collectibleElement.getClass()).add(triple);
+        this.collected.get(owningEntityId).computeIfAbsent(directedRelationship, k -> new HashMap<>());
+        this.collected.get(owningEntityId).get(directedRelationship).computeIfAbsent(collectibleElement.getClass(), k -> new HashSet<>());
+        this.collected.get(owningEntityId).get(directedRelationship).get(collectibleElement.getClass()).add(triple);
     }
+
+    public void forCollectedEntities(CollectedHandler handler) {
+
+        collected.forEach((sourceId, relationshipMap) -> {
+
+            relationshipMap.forEach((relationship, targetTypeMap) -> {
+                String type = relationship.type();
+                String direction = relationship.direction();
+
+                targetTypeMap.forEach((targetType, entityTriples) -> {
+
+                    List<Object> entities = entityTriples.stream().map(TargetTriple::getTarget).collect(toList());
+
+                    handler.handle(sourceId, type, direction, targetType, entities);
+                });
+
+            });
+
+        });
+
+    }
+
+    interface CollectedHandler {
+
+        void handle(Long sourceId, String type, String direction, Class targetType, Collection<Object> entities);
+    }
+
 
     /**
-     * @return All the owning entity ids that have been added to this {@link EntityCollector}
-     */
-    public Iterable<Long> getOwningTypes() {
-        return this.relationshipCollectibles.keySet();
-    }
-
-    /**
-     * Retrieves all relationship types for which collectibles can be set on an owning object
+     * This is (relationshipId, targetGraphId, target) triple that keeps track of relationships.
      *
-     * @param owningObjectId the owning object id
-     * @return all relationship types owned by the owning object
-     */
-    public Iterable<String> getOwningRelationshipTypes(Long owningObjectId) {
-        Set<String> relTypes = new HashSet<>();
-        for (DirectedRelationship rel : this.relationshipCollectibles.get(owningObjectId).keySet()) {
-            relTypes.add(rel.type());
-        }
-        return relTypes;
-    }
-
-    public Iterable<String> getRelationshipDirectionsForOwningTypeAndRelationshipType(Long owningObjectId, String relationshipType) {
-        Set<String> relDirections = new HashSet<>();
-        for (DirectedRelationship rel : this.relationshipCollectibles.get(owningObjectId).keySet()) {
-            if (rel.type().equals(relationshipType)) {
-                relDirections.add(rel.direction());
-            }
-        }
-        return relDirections;
-    }
-
-    public Iterable<Class> getEntityClassesForOwningTypeAndRelationshipTypeAndRelationshipDirection(Long owningObjectId, String relationshipType, String relationshipDirection) {
-        Set<Class> classes = new HashSet<>();
-        for (DirectedRelationship rel : this.relationshipCollectibles.get(owningObjectId).keySet()) {
-            if (rel.type().equals(relationshipType) && rel.direction().equals(relationshipDirection)) {
-                classes.addAll(this.relationshipCollectibles.get(owningObjectId).get(rel).keySet());
-            }
-        }
-        return classes;
-    }
-
-    /**
-     * A set of collectibles based on relationship type for an owning object
+     * Relationship id and object id are used for equality - target equality is intentionally ignored.
      *
-     * @param owningObjectId the owning object id
-     * @param relationshipType the relationship type
-     * @param relationshipDirection the relationship direction
-     * @param entityClass the entity class
-     * @return set of instances to be set for the relationship type on the owning object
+     * Relationship id is used when relationship has a corresponding RelationshipEntity.
+     * For simple relationships only target object id is used because we don't distinguish between simple relationships
+     * to same node.
      */
-    public Collection<Object> getCollectiblesForOwnerAndRelationship(Long owningObjectId, String relationshipType, String relationshipDirection, Class entityClass) {
-        DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
-        return relationshipCollectibles
-                .get(owningObjectId)
-                .get(directedRelationship)
-                .get(entityClass)
-                .stream()
-                .map(IdRelIdObjectTriple::getObject)
-                .collect(toList());
-    }
+    private static class TargetTriple {
 
-    /**
-     * This is relationship id, object id, object triple that keeps track of relationships.
-     *
-     * Relationship id and object id are used for equality - object equality is intentionally ignored.
-     *
-     * Relationship id is used for RelationshipEntities, for simple relationships only target object id is used.
-     */
-    private static class IdRelIdObjectTriple {
+        private final long relationshipId;
+        private final long targetGraphId;
+        private final Object target;
 
-        private final long relId;
-        private final long objectId;
-        private final Object object;
-
-        public IdRelIdObjectTriple(long objectId, Object object) {
-            this.relId = -1;
-            this.objectId = objectId;
-            this.object = object;
+        public TargetTriple(long targetGraphId, Object target) {
+            this.relationshipId = -1;
+            this.targetGraphId = targetGraphId;
+            this.target = target;
         }
 
-        public IdRelIdObjectTriple(long relId, long objectId, Object object) {
-            this.relId = relId;
-            this.objectId = objectId;
-            this.object = requireNonNull(object);
+        public TargetTriple(long relationshipId, long targetGraphId, Object target) {
+            this.relationshipId = relationshipId;
+            this.targetGraphId = targetGraphId;
+            this.target = requireNonNull(target);
         }
 
-        public long getRelId() {
-            return relId;
+        public long getRelationshipId() {
+            return relationshipId;
         }
 
-        public long getObjectId() {
-            return objectId;
+        public long getTargetGraphId() {
+            return targetGraphId;
         }
 
-        public Object getObject() {
-            return object;
+        public Object getTarget() {
+            return target;
         }
 
         @Override
@@ -164,16 +143,16 @@ class EntityCollector {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            IdRelIdObjectTriple that = (IdRelIdObjectTriple) o;
+            TargetTriple that = (TargetTriple) o;
 
-            if (relId != that.relId) return false;
-            return objectId == that.objectId;
+            if (relationshipId != that.relationshipId) return false;
+            return targetGraphId == that.targetGraphId;
         }
 
         @Override
         public int hashCode() {
-            int result = (int) (relId ^ (relId >>> 32));
-            result = 31 * result + (int) (objectId ^ (objectId >>> 32));
+            int result = (int) (relationshipId ^ (relationshipId >>> 32));
+            result = 31 * result + (int) (targetGraphId ^ (targetGraphId >>> 32));
             return result;
         }
     }

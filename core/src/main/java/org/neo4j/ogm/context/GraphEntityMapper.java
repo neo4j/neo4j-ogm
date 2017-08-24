@@ -387,12 +387,12 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 // establish a relationship between
                 FieldInfo outgoingWriter = findIterableWriter(instance, relationshipEntity, edge.getType(), OUTGOING);
                 if (outgoingWriter != null) {
-                    entityCollector.recordTypeRelationship(edge.getStartNode(), relationshipEntity, edge.getType(), OUTGOING, edge.getId(), edge.getEndNode());
+                    entityCollector.collectRelationship(edge.getStartNode(), edge.getType(), OUTGOING, edge.getId(), edge.getEndNode(), relationshipEntity);
                     relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(outgoingWriter.typeParameterDescriptor())));
                 }
                 FieldInfo incomingWriter = findIterableWriter(parameter, relationshipEntity, edge.getType(), INCOMING);
                 if (incomingWriter != null) {
-                    entityCollector.recordTypeRelationship(edge.getEndNode(), relationshipEntity, edge.getType(), INCOMING, edge.getId(), edge.getStartNode());
+                    entityCollector.collectRelationship(edge.getEndNode(), edge.getType(), INCOMING, edge.getId(), edge.getStartNode(), relationshipEntity);
                     relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
                 }
             } else {
@@ -402,7 +402,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 FieldInfo outgoingWriter = getRelationalWriter(metadata.classInfo(instance), edge.getType(), OUTGOING, parameter);
                 if (outgoingWriter != null) {
                     if (!outgoingWriter.forScalar()) {
-                        entityCollector.recordTypeRelationship(edge.getStartNode(), parameter, edge.getType(), OUTGOING, edge.getEndNode());
+                        entityCollector.collectRelationship(edge.getStartNode(), edge.getType(), OUTGOING, edge.getEndNode(), parameter);
                     } else {
                         outgoingWriter.write(instance, parameter);
                     }
@@ -412,7 +412,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 FieldInfo incomingWriter = getRelationalWriter(metadata.classInfo(parameter), edge.getType(), INCOMING, instance);
                 if (incomingWriter != null) {
                     if (!incomingWriter.forScalar()) {
-                        entityCollector.recordTypeRelationship(edge.getEndNode(), instance, edge.getType(), INCOMING, edge.getStartNode());
+                        entityCollector.collectRelationship(edge.getEndNode(), edge.getType(), INCOMING, edge.getStartNode(), instance);
                     } else {
                         incomingWriter.write(parameter, instance);
                     }
@@ -421,21 +421,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
             }
         }
 
-        // then set the entire collection at the same time for each owning type
-        for (Long instanceId : entityCollector.getOwningTypes()) {
-            //get all relationship types for which we're trying to set collections of instances
-            for (String relationshipType : entityCollector.getOwningRelationshipTypes(instanceId)) {
-                //for each relationship type, get all the directions for which we're trying to set collections of instances
-                for (String relationshipDirection : entityCollector.getRelationshipDirectionsForOwningTypeAndRelationshipType(instanceId, relationshipType)) {
-                    //for each direction, get all the entity types for which we're trying to set collections of instances
-                    for (Class entityClass : entityCollector.getEntityClassesForOwningTypeAndRelationshipTypeAndRelationshipDirection(instanceId, relationshipType, relationshipDirection)) {
-                        Collection<?> entities = entityCollector.getCollectiblesForOwnerAndRelationship(instanceId, relationshipType, relationshipDirection, entityClass);
-                        //Class entityType = entityCollector.getCollectibleTypeForOwnerAndRelationship(instanceId, relationshipType, relationshipDirection);
-                        mapOneToMany(mappingContext.getNodeEntity(instanceId), entityClass, entities, relationshipType, relationshipDirection);
-                    }
-                }
-            }
-        }
+        entityCollector.forCollectedEntities((sourceId, type, direction, targetType, entities) ->
+                mapOneToMany(mappingContext.getNodeEntity(sourceId), targetType, entities, type, direction)
+        );
 
         // now register all the relationships we've mapped as iterable types into the mapping context
         for (MappedRelationship mappedRelationship : relationshipsToRegister) {

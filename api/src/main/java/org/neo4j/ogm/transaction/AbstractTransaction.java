@@ -101,6 +101,8 @@ public abstract class AbstractTransaction implements Transaction {
 
     /**
      * Extends the current transaction.
+     *
+     * @param type type of the transaction
      */
     public void extend(Type type) {
         if (this.type == type) {

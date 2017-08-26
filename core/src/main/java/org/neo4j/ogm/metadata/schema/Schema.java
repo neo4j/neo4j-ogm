@@ -21,9 +21,11 @@ import java.util.Map;
 public interface Schema {
 
     /**
+     * Return schema {@link Node} for given label
      *
-     * @param label
-     * @return
+     * @param label label of the node
+     *
+     * @return schema {@link Node}
      */
     Node findNode(String label);
 

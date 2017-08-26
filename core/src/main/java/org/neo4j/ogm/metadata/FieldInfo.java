@@ -477,8 +477,9 @@ public class FieldInfo {
     }
 
     /**
-     * ClassInfo for the class this field is defined in -
-     * @return
+     * ClassInfo for the class this field is defined in
+     *
+     * @return ClassInfo of containing
      */
     public ClassInfo containingClassInfo() {
         return containingClassInfo;

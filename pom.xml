@@ -231,6 +231,14 @@
                         </goals>
                     </execution>
                 </executions>
+                <!--
+                Check for some javadoc issues, but not for all missing @param and @return etc..
+                See http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javadoc.html#BEJEFABE
+                -->
+                <configuration>
+                    <additionalparam>-Xdoclint:html</additionalparam>
+                    <additionalparam>-Xdoclint:syntax</additionalparam>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

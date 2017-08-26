@@ -79,14 +79,13 @@ public class MappingContext {
     /**
      * Get a node entity from the MappingContext by its primary id
      *
-     *
-     * @param typeInfo
+     * @param classInfo class info of the entity (this must be provided because id itself is not unique)
      * @param id primary id of the entity
      *
      * @return the entity or null if not found
      */
-    public Object getNodeEntityById(ClassInfo typeInfo, Object id) {
-        return primaryIndexNodeRegister.get(new LabelPrimaryId(typeInfo, id));
+    public Object getNodeEntityById(ClassInfo classInfo, Object id) {
+        return primaryIndexNodeRegister.get(new LabelPrimaryId(classInfo, id));
     }
 
     public Object addNodeEntity(Object entity, Long id) {

@@ -35,7 +35,7 @@ public abstract class RowModelAdapter implements ResultAdapter<Map<String, Objec
      * Reads the next row from the result object and transforms it into a RowModel object
      *
      * @param data the data to transform, given as a map
-     * @return @return the data transformed to an {@link RowModel}
+     * @return the data transformed to an {@link RowModel}
      */
     public RowModel adapt(Map<String, Object> data) {
 

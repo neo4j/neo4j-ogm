@@ -96,8 +96,8 @@ public class SessionFactory {
      *
      * Use this constructor when you need to provide fully customized driver.
      *
-     * @param driver
-     * @param packages
+     * @param driver driver to use with new SessionFactory
+     * @param packages the packages to scan for domain objects
      */
     public SessionFactory(Driver driver, String... packages) {
         this.metaData = new MetaData(packages);
@@ -189,7 +189,7 @@ public class SessionFactory {
      * <p>
      * {@code @Id @GeneratedValue(strategy=SomeClass.class)}
      *
-     * @param strategy
+     * @param strategy {@link org.neo4j.ogm.id.IdStrategy} to use
      */
     public void register(IdStrategy strategy) {
         requireNonNull(strategy);

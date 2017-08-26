@@ -53,16 +53,16 @@ class IdentityMap {
      * and maps the object to that hash. The object must not be null
      *
      * @param object the object whose persistable properties we want to hash
+     * @param entityId
      */
-    void remember(Object object) {
+    void remember(Object object, Long entityId) {
         ClassInfo classInfo = metaData.classInfo(object);
-        Long entityId = EntityUtils.getEntityId(metaData, object);
         if (metaData.isRelationshipEntity(classInfo.name())) {
             relEntityHash.put(entityId, hash(object, classInfo));
         } else {
             nodeHash.put(entityId, hash(object, classInfo));
         }
-        collectLabelHistory(object, classInfo);
+        collectLabelHistory(object, entityId, classInfo);
     }
 
     /**
@@ -72,11 +72,11 @@ class IdentityMap {
      * is identical to a recalculation of its hash value.
      *
      * @param object the object whose persistable properties we want to check
+     * @param entityId
      * @return true if the object hasn't changed since it was remembered, false otherwise
      */
-    boolean remembered(Object object) {
+    boolean remembered(Object object, Long entityId) {
         ClassInfo classInfo = metaData.classInfo(object);
-        Long entityId = EntityUtils.getEntityId(metaData, object);
         boolean isRelEntity = false;
 
         if (entityId != null) {
@@ -97,17 +97,16 @@ class IdentityMap {
         return false;
     }
 
-    private void collectLabelHistory(Object entity, ClassInfo classInfo) {
+    private void collectLabelHistory(Object entity, Long entityId, ClassInfo classInfo) {
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {
             Collection<String> labels = (Collection<String>) fieldInfo.read(entity);
-            labelHistory(entity).push(labels);
+            labelHistory(entity, entityId).push(labels);
         }
     }
 
-    LabelHistory labelHistory(Object entity) {
-        Long identity = EntityUtils.getEntityId(metaData, entity);
-        return labelHistoryRegister.computeIfAbsent(identity, k -> new LabelHistory());
+    LabelHistory labelHistory(Object entity, Long entityId) {
+        return labelHistoryRegister.computeIfAbsent(entityId, k -> new LabelHistory());
     }
 
     void clear() {
@@ -128,8 +127,7 @@ class IdentityMap {
             Field field = classInfo.getField(fieldInfo);
             Object value = FieldInfo.read(field, object);
             if (value != null) {
-                // TODO is it correct ? seems not to be based on java hashcode and not only on sub objects
-                // persistent fields ?
+
                 if (value.getClass().isArray()) {
                     hash = hash * 31L + Arrays.hashCode(convertToObjectArray(value));
                 } else if (value instanceof Iterable) {

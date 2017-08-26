@@ -11,16 +11,27 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.metadata.schema.simple;
+package org.neo4j.ogm.context;
 
-import org.neo4j.ogm.annotation.NodeEntity;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Frantisek Hartman
  */
-@NodeEntity
-public class Organisation {
+public class NoGraphIdMappingContextTest {
 
-    Long id;
+    private MappingContext context;
 
+    @Before
+    public void setUp() {
+        context = new MappingContext(new MetaData("org.neo4j.ogm.domain.drink"));
+    }
+
+    @Test
+    public void shouldHaveMappingContext() throws Exception {
+
+    }
 }

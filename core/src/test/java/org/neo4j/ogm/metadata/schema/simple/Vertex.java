@@ -19,6 +19,8 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity
 public class Vertex {
 
+    Long id;
+
     @Relationship(type = "EDGE", direction = Relationship.OUTGOING)
     Vertex[] vertices;
 }

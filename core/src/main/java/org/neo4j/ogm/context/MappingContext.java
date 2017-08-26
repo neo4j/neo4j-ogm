@@ -16,6 +16,10 @@ package org.neo4j.ogm.context;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.id.IdStrategy;
+import org.neo4j.ogm.id.InternalIdStrategy;
+import org.neo4j.ogm.id.UuidStrategy;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
@@ -38,6 +42,9 @@ public class MappingContext {
     // map primary index value -> entity
     private final Map<LabelPrimaryId, Object> primaryIndexNodeRegister;
 
+    // LabelPrimaryId - > native id (contains both nodes and relationship entities)
+    private final Map<LabelPrimaryId, Long> primaryIdToNativeId;
+
     private final Map<Long, Object> relationshipEntityRegister;
 
     private final Map<LabelPrimaryId, Object> primaryIdToRelationship;
@@ -54,6 +61,7 @@ public class MappingContext {
         this.identityMap = new IdentityMap(metaData);
         this.nodeEntityRegister = new HashMap<>();
         this.primaryIndexNodeRegister = new HashMap<>();
+        this.primaryIdToNativeId = new HashMap<>();
         this.relationshipEntityRegister = new HashMap<>();
         this.primaryIdToRelationship = new HashMap<>();
         this.relationshipRegister = new HashSet<>();
@@ -89,10 +97,17 @@ public class MappingContext {
      * @param entity The object to add.
      * @return The object added, never null.
      */
-    public Object addNodeEntity(Object entity) {
+    public Object addNodeEntity(Object entity) {return addNodeEntity(entity, nativeId(entity));}
+
+    /**
+     * Adds an entity to the MappingContext.
+     * @param entity The object to add.
+     * @param id
+     * @return The object added, never null.
+     */
+    public Object addNodeEntity(Object entity, Long id) {
 
         ClassInfo classInfo = metaData.classInfo(entity);
-        Long id = EntityUtils.getEntityId(metaData, entity);
 
         if (nodeEntityRegister.putIfAbsent(id, entity) == null) {
             remember(entity);
@@ -102,6 +117,7 @@ public class MappingContext {
                 if (primaryIndexValue != null) {
                     LabelPrimaryId key = new LabelPrimaryId(classInfo, primaryIndexValue);
                     primaryIndexNodeRegister.putIfAbsent(key, entity);
+                    primaryIdToNativeId.put(key, id);
                 }
             }
         }
@@ -123,7 +139,7 @@ public class MappingContext {
      */
     void removeNodeEntity(Object entity, boolean deregisterDependentRelationshipEntity) {
 
-        Long id = EntityUtils.getEntityId(metaData, entity);
+        Long id = nativeId(entity);
 
         nodeEntityRegister.remove(id);
         final ClassInfo primaryIndexClassInfo = metaData.classInfo(entity);
@@ -140,10 +156,16 @@ public class MappingContext {
         }
     }
 
-    public void replaceNodeEntity(Object entity) {
-
+    public void replaceNodeEntity(Object entity, Long identity) {
         removeNodeEntity(entity, false);
-        addNodeEntity(entity);
+
+        ClassInfo classInfo = metaData.classInfo(entity);
+        if (classInfo.hasPrimaryIndexField()) {
+            LabelPrimaryId key = new LabelPrimaryId(classInfo, classInfo.primaryIndexField().readProperty(entity));
+            primaryIdToNativeId.put(key, identity);
+        }
+
+        addNodeEntity(entity, identity);
         deregisterDependentRelationshipEntity(entity);
     }
 
@@ -153,7 +175,9 @@ public class MappingContext {
         FieldInfo primaryIndexField = classInfo.primaryIndexField();
         if (primaryIndexField != null) {
             Object primaryId = primaryIndexField.read(entity);
-            primaryIdToRelationship.remove(new LabelPrimaryId(classInfo, primaryId));
+            LabelPrimaryId labelPrimaryId = new LabelPrimaryId(classInfo, primaryId);
+            primaryIdToRelationship.remove(labelPrimaryId);
+            primaryIdToNativeId.remove(labelPrimaryId);
         }
         addRelationshipEntity(entity, id);
     }
@@ -185,7 +209,7 @@ public class MappingContext {
      * @return The label information
      */
     LabelHistory labelHistory(Object entity) {
-        return identityMap.labelHistory(entity);
+        return identityMap.labelHistory(entity, nativeId(entity));
     }
 
     /**
@@ -195,7 +219,8 @@ public class MappingContext {
      * @return true if the entity was changed, false otherwise.
      */
     public boolean isDirty(Object entity) {
-        return !identityMap.remembered(entity);
+        Long graphId = nativeId(entity);
+        return !identityMap.remembered(entity, graphId);
     }
 
     public boolean containsRelationship(MappedRelationship relationship) {
@@ -250,6 +275,7 @@ public class MappingContext {
             if (primaryIdField != null) {
                 Object primaryId = primaryIdField.read(relationshipEntity);
                 primaryIdToRelationship.put(new LabelPrimaryId(classInfo, primaryId), relationshipEntity);
+                primaryIdToNativeId.put(new LabelPrimaryId(classInfo, primaryId), id);
             }
         }
         return relationshipEntity;
@@ -327,7 +353,7 @@ public class MappingContext {
      */
     public void reset(Object entity) {
         removeEntity(entity);
-        EntityUtils.setEntityId(metaData, entity, null);
+        EntityUtils.setIdentity(entity, null, metaData);
     }
 
 
@@ -341,8 +367,7 @@ public class MappingContext {
         Set<Object> neighbours = new HashSet<>();
 
         Class<?> type = entity.getClass();
-        ClassInfo classInfo = metaData.classInfo(type.getName());
-        Long id = EntityUtils.identity(entity, metaData);
+        Long id = nativeId(entity);
 
         if (id >= 0) {
             if (!metaData.isRelationshipEntity(type.getName())) {
@@ -359,6 +384,7 @@ public class MappingContext {
                     }
                 }
             } else if (relationshipEntityRegister.containsKey(id)) {
+                ClassInfo classInfo = metaData.classInfo(type.getName());
                 FieldInfo startNodeReader = classInfo.getStartNodeReader();
                 FieldInfo endNodeReader = classInfo.getEndNodeReader();
                 neighbours.add(startNodeReader.read(entity));
@@ -389,7 +415,7 @@ public class MappingContext {
     }
 
     private void purge(Object entity, Class type) {
-        Long id = EntityUtils.getEntityId(metaData, entity);
+        Long id = nativeId(entity);
         Set<Object> relEntitiesToPurge = new HashSet<>();
         if (id >= 0) {
             // remove a NodeEntity
@@ -438,7 +464,51 @@ public class MappingContext {
     }
 
     private void remember(Object entity) {
-        identityMap.remember(entity);
+        identityMap.remember(entity, nativeId(entity));
     }
 
+    public Long nativeId(Object entity) {
+        ClassInfo classInfo = metaData.classInfo(entity);
+        generateIdIfNecessary(entity, classInfo);
+
+        if (classInfo.hasIdentityField()) {
+            return EntityUtils.identity(entity, metaData);
+        } else {
+            FieldInfo fieldInfo = classInfo.primaryIndexField();
+            Object primaryId = fieldInfo.readProperty(entity);
+
+            if (primaryId == null) {
+                throw new MappingException("Field with primary id is null for entity " + entity);
+            }
+            LabelPrimaryId key = new LabelPrimaryId(classInfo, primaryId);
+            Long graphId = primaryIdToNativeId.get(key);
+            if (graphId == null) {
+                graphId = EntityUtils.nextRef();
+                primaryIdToNativeId.put(key, graphId);
+            }
+            return graphId;
+        }
+    }
+
+    private void generateIdIfNecessary(Object entity, ClassInfo classInfo) {
+        if (classInfo.idStrategyClass() == null || InternalIdStrategy.class.equals(classInfo.idStrategyClass())) {
+            return;
+        }
+
+        if (classInfo.idStrategy() == null) {
+            throw new MappingException("Id strategy " + classInfo.idStrategyClass() + " could not be instantiated " +
+                    "and wasn't registered. Either provide no argument constructor or register instance " +
+                    "with SessionFactory");
+        }
+        FieldInfo primaryIndexField = classInfo.primaryIndexField();
+        Object existingUuid = primaryIndexField.read(entity);
+        if (existingUuid == null) {
+            IdStrategy strategy = classInfo.idStrategy();
+            Object id = strategy.generateId(entity);
+            if (strategy instanceof UuidStrategy && primaryIndexField.isTypeOf(String.class)) {
+                id = id.toString();
+            }
+            primaryIndexField.writeDirect(entity, id);
+        }
+    }
 }

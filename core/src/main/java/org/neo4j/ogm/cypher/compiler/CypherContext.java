@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -127,7 +128,10 @@ public class CypherContext implements CompileContext {
         List<Mappable> cleared = new ArrayList<>();
         while (iterator.hasNext()) {
             Mappable mappedRelationship = iterator.next();
-            if (mappedRelationship.getStartNodeId() == src && mappedRelationship.getRelationshipType().equals(relationshipType) && endNodeType.equals(mappedRelationship.getEndNodeType())) {
+            if (mappedRelationship.getStartNodeId() == src &&
+                    mappedRelationship.getRelationshipType().equals(relationshipType) &&
+                    endNodeType.equals(mappedRelationship.getEndNodeType())) {
+
                 cleared.add(mappedRelationship);
                 iterator.remove();
                 nothingToDelete = false;
@@ -173,7 +177,10 @@ public class CypherContext implements CompileContext {
         boolean nothingToDelete = true;
         while (iterator.hasNext()) {
             Mappable mappedRelationship = iterator.next();
-            if (mappedRelationship.getEndNodeId() == tgt && mappedRelationship.getRelationshipType().equals(relationshipType) && endNodeType.equals(relationshipEntity ? mappedRelationship.getEndNodeType() : mappedRelationship.getStartNodeType())) {
+            if (mappedRelationship.getEndNodeId() == tgt &&
+                    mappedRelationship.getRelationshipType().equals(relationshipType) &&
+                    endNodeType.equals(relationshipEntity ? mappedRelationship.getEndNodeType() : mappedRelationship.getStartNodeType())) {
+
                 cleared.add(mappedRelationship);
                 iterator.remove();
                 nothingToDelete = false;
@@ -250,7 +257,9 @@ public class CypherContext implements CompileContext {
 
     private boolean isMappableAlreadyDeleted(Mappable mappedRelationship) {
         for (Mappable deletedRelationship : deletedRelationships) {
-            if (deletedRelationship.getEndNodeId() == mappedRelationship.getEndNodeId() && deletedRelationship.getStartNodeId() == mappedRelationship.getStartNodeId() && deletedRelationship.getRelationshipType().equals(mappedRelationship.getRelationshipType())) {
+            if (deletedRelationship.getEndNodeId() == mappedRelationship.getEndNodeId() &&
+                    deletedRelationship.getStartNodeId() == mappedRelationship.getStartNodeId() &&
+                    deletedRelationship.getRelationshipType().equals(mappedRelationship.getRelationshipType())) {
                 return true;
             }
         }

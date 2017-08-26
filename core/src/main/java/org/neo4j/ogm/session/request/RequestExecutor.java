@@ -163,7 +163,7 @@ public class RequestExecutor {
             if (!(obj instanceof TransientRelationship)) {
                 ClassInfo classInfo = session.metaData().classInfo(obj);
                 if (!classInfo.isRelationshipEntity()) {
-                    Long id = EntityUtils.getEntityId(session.metaData(), obj);
+                    Long id = session.context().nativeId(obj);
                     if (id >= 0) {
                         LOGGER.debug("updating existing node id: {}, {}", id, obj);
                         registerEntity(session.context(), classInfo, id, obj);
@@ -328,7 +328,7 @@ public class RequestExecutor {
         Transaction tx = session.getTransaction();
         if (persisted != null) {  // it will be null if the variable represents a simple relationship.
             // set the id field of the newly created domain object
-            EntityUtils.setEntityId(session.metaData(), persisted, identity);
+            EntityUtils.setIdentity(persisted, identity, session.metaData());
             ClassInfo classInfo = session.metaData().classInfo(persisted);
 
             if (tx != null) {
@@ -342,7 +342,7 @@ public class RequestExecutor {
     private void registerEntity(MappingContext mappingContext, ClassInfo classInfo, Long identity, Object entity) {
         // ensure the newly created domain object is added into the mapping context
         if (classInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
-            mappingContext.replaceNodeEntity(entity);      // force the node entity object to be overwritten
+            mappingContext.replaceNodeEntity(entity, identity);      // force the node entity object to be overwritten
         } else {
             mappingContext.replaceRelationshipEntity(entity, identity); // force the relationship entity to be overwritten
         }

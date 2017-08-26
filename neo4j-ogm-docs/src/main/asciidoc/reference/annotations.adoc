@@ -337,13 +337,25 @@ This annotation is optional on superclasses.
 ====
 
 
+[[reference:annotating-entities:entity-identifier]]
+== Entity identifier
 
-[[reference:annotating-entities:graph-id]]
-== @GraphId: Neo4j id field
+Every node and relationship persisted to the graph must have an ID.
+The OGM uses this to identify and re-connect the entity to the graph in memory.
+Identifier may be either a primary id or a native graph id.
 
-This is a required field which must be of type `java.lang.Long`.
-It is used by Neo4j OGM to store the node or relationship-id to re-connect the entity to the graph.
-As such, user code should _never_ assign a value to it.
+For primary id use the `@Id` on a field of any supported type or a field with provided `AttributeConverter`.
+A unique index is created for such property (if index creation is enabled).
+User code should either set the id manually when the entity instance is created or id generation strategy should be used.
+It is not possible to store an entity with null id value and no generation strategy.
+[NOTE]
+====
+Specifying primary id on a relationship entity is possible, but lookups by this id are slow, because Neo4j database doesn't support schema indexes on relationships.
+====
+
+For native graph id use `@Id @GeneratedValue` (with default strategy `InternalIdStrategy`).
+The field type must be `Long`.
+This id is assigned automatically upon saving the entity to the graph and user code should _never_ assign a value to it.
 
 [NOTE]
 ====
@@ -351,11 +363,26 @@ It must not be a primitive type because then an object in a transient state cann
 ====
 
 [WARNING]
+====
 ***Do not*** rely on this ID for long running applications. Neo4j will reuse deleted node ID's. It is recommended users come up with their own
 unique identifier for their domain objects (or use a UUID).
+====
 
+An entity can be looked up by this either type of id by using `Session.load(Class<T>, ID)` and `Session.loadAll(Class<T>, Collection<ID>)` methods.
 
-If the field is simply named 'id' then it is not necessary to annotate it with `@GraphId` as the OGM will use it automatically.
+It is possible to have both natural and native id in one entity. In such situation lookups prefer the primary id.
+
+If the field of type `Long` is simply named 'id' then it is not necessary to annotate it with `@Id @GeneratedValue` as the OGM will use it automatically as native id.
+
+[[reference:annotating-entities:graph-id]]
+== @GraphId: Neo4j id field
+
+The `@GraphId` annotation is superseded by `@Id @GeneratedValue` and exists for backwards compatibility.
+It will be eventually deprecated and removed.
+
+[WARNING]
+***Do not*** rely on this ID for long running applications. Neo4j will reuse deleted node ID's. It is recommended users come up with their own
+unique identifier for their domain objects (or use a UUID).
 
 [[reference:annotating-entities:graph-id:equality]]
 === Entity Equality
@@ -369,13 +396,6 @@ The graph-id field is directly checked to see if two entities represent the same
 You are free to write your `equals` and `hashcode` in a domain specific way for managed entities.  However, *we strongly advise developers to not use the `@GraphId` field in these implementations*.
 This is because when you first persist an entity, its hashcode changes because the OGM populates the database ID on save.
 This causes problems if you had inserted the newly created entity into a hash-based collection before saving.
-
-
-== @Id: Arbitrary identifier
-
-It is possible (but optional) to annotate a property of a node entity with @Id annotation, which signifies the property is a primary id.
-A unique index is created for such property.
-An entity with @Id annotation can be looked up by this primary id by using `Session.load(Class<T>, ID)` and `Session.loadAll(Class<T>, Collection<ID>)` methods.
 
 === Id Generation Strategy
 If the `@Id` annotation is used on its own it is expected that the field will be set by the application code.

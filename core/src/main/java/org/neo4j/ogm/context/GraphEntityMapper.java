@@ -88,7 +88,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         while ((graphModel = model.next()) != null) {
             List<T> mappedEntities = map(type, graphModel, nodeIds, edgeIds);
             for (T entity : mappedEntities) {
-                Long identity = EntityUtils.identity(entity, metadata);
+                Long identity = mappingContext.nativeId(entity);
                 if (!objectIds.contains(identity)) {
                     objects.add(entity);
                     objectIds.add(identity);
@@ -177,10 +177,10 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 try {
                     if (entity == null) {
                         entity = entityFactory.newObject(node);
-                        setIdentity(entity, node.getId());
+                        EntityUtils.setIdentity(entity, node.getId(), metadata);
                         setProperties(node.getPropertyList(), entity);
                         setLabels(node, entity);
-                        mappingContext.addNodeEntity(entity);
+                        mappingContext.addNodeEntity(entity, node.getId());
                     }
                     nodeIds.add(node.getId());
                 } catch (BaseClassNotFoundException e) {
@@ -201,10 +201,6 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 logger.error("Failed to execute post load method", e);
             }
         }
-    }
-
-    private void setIdentity(Object instance, Long id) {
-        EntityUtils.setEntityId(metadata, instance, id);
     }
 
     private void setProperties(List<Property<String, Object>> propertyList, Object instance) {
@@ -340,7 +336,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
         // create and hydrate the new RE
         Object relationshipEntity = entityFactory.newObject(getRelationshipEntity(edge));
-        setIdentity(relationshipEntity, edge.getId());
+        EntityUtils.setIdentity(relationshipEntity, edge.getId(), metadata);
 
         // REs also have properties
         setProperties(edge.getPropertyList(), relationshipEntity);

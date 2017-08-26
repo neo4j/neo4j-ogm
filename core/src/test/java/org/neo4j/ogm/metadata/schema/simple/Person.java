@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.metadata.schema.simple;
 
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -23,6 +24,8 @@ import java.util.Set;
  */
 @NodeEntity
 public class Person {
+
+    Long id;
 
     @Relationship(type = "EMPLOYED_BY")
     Organisation employer;

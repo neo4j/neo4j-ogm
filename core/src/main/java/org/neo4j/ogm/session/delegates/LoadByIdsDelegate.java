@@ -137,7 +137,7 @@ public class LoadByIdsDelegate {
                 return true;
             }
         }
-        Object id = EntityUtils.getEntityId(session.metaData(), mapped);
+        Object id = EntityUtils.identity(mapped, session.metaData());
         return ids.contains(id);
     }
 }

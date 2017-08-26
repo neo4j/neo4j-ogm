@@ -30,6 +30,7 @@ public class ValidAnnotations {
 
     public static class WithoutId {
         //@Id not implemented yet
+        @Id
         public String identifier;
     }
 

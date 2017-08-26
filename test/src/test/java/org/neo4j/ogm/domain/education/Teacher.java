@@ -63,6 +63,10 @@ public class Teacher {
 
     public void setSchool(School school) {
 
+        if (this.school == school) {
+            return;
+        }
+
         if (this.school != null) {
             this.school.getTeachers().remove(this);
         }

@@ -31,13 +31,14 @@ public class IdAnnotationTest {
     }
 
     @Test
-    @Ignore("Classes without graph id field not implemented yet")
+//    @Ignore("Classes without graph id field not implemented yet")
     public void shouldSupportClassWithoutId() throws Exception {
 
         ValidAnnotations.WithoutId entity = new ValidAnnotations.WithoutId();
 
         ClassInfo classInfo = metaData.classInfo(entity);
-        assertThat(classInfo.primaryIndexField()).isNull();
+        assertThat(classInfo.identityFieldOrNull()).isNull();
+        assertThat(classInfo.primaryIndexField().getName()).isEqualTo("identifier");
     }
 
     @Test

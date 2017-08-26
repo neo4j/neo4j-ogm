@@ -23,6 +23,8 @@ import static java.util.Objects.requireNonNull;
  * The label is needed because primary id is unique for given label. There might be 1 primary id pointing to
  * two different entities having different label.
  *
+ * Label is either Node label or relationship type.
+ *
  * @author Frantisek Hartman
  */
 class LabelPrimaryId {

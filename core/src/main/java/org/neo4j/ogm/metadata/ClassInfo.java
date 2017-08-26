@@ -74,7 +74,7 @@ public class ClassInfo {
     private volatile Set<FieldInfo> fieldInfos;
     private volatile Map<String, FieldInfo> propertyFields;
     private volatile Map<String, FieldInfo> indexFields;
-    private volatile FieldInfo identityField = null;
+    private volatile LazyInstance<FieldInfo> identityField;
     private volatile FieldInfo primaryIndexField = null;
     private volatile FieldInfo labelField = null;
     private volatile boolean labelFieldMapped = false;
@@ -285,12 +285,9 @@ public class ClassInfo {
     }
 
 
-    private FieldInfo identityFieldOrNull() {
-        try {
-            return identityField();
-        } catch (MetadataException me) {
-            return null;
-        }
+    public FieldInfo identityFieldOrNull() {
+        initIdentityField();
+        return identityField.get();
     }
 
     /**
@@ -301,30 +298,39 @@ public class ClassInfo {
      * @throws MappingException if no identity field can be found
      */
     public FieldInfo identityField() {
-        if (identityField != null) {
-            return identityField;
-        }
-        if (identityField == null) {
-            Collection<FieldInfo> identityFields = getFieldInfos(this::isInternalIdentity);
-            if (identityFields.size() == 1) {
-                identityField = identityFields.iterator().next();
-                return identityField;
-            }
-            if (identityFields.size() > 1) {
-                throw new MetadataException("Expected exactly one internal identity field (@GraphId or @Id with " +
-                        "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
-            }
-            FieldInfo fieldInfo = fieldsInfo().get("id");
-            if (fieldInfo != null) {
-                if (fieldInfo.getTypeDescriptor().equals("java.lang.Long")) {
-                    identityField = fieldInfo;
-                    return fieldInfo;
-                }
-            }
+        initIdentityField();
+        FieldInfo field = identityField.get();
+        if (field == null) {
             throw new MetadataException("No internal identity field found for class: " + this.className);
-        } else {
-            return identityField;
         }
+        return field;
+    }
+
+    private void initIdentityField() {
+        if (identityField == null) {
+            identityField = new LazyInstance<>(() -> {
+                Collection<FieldInfo> identityFields = getFieldInfos(this::isInternalIdentity);
+                if (identityFields.size() == 1) {
+                    return identityFields.iterator().next();
+                }
+                if (identityFields.size() > 1) {
+                    throw new MetadataException("Expected exactly one internal identity field (@GraphId or @Id with " +
+                            "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
+                }
+                FieldInfo fieldInfo = fieldsInfo().get("id");
+                if (fieldInfo != null) {
+                    if (fieldInfo.getTypeDescriptor().equals("java.lang.Long")) {
+                        return fieldInfo;
+                    }
+                }
+                return null;
+            });
+        }
+    }
+
+    public boolean hasIdentityField() {
+        initIdentityField();
+        return identityField.exists();
     }
 
     // Identity field
@@ -829,6 +835,13 @@ public class ClassInfo {
         }
 
         return primaryIndexField;
+    }
+
+    public boolean hasPrimaryIndexField() {
+        if (!primaryIndexFieldChecked) {
+            primaryIndexField();
+        }
+        return primaryIndexField != null;
     }
 
     private boolean isPrimaryIndexField(FieldInfo fieldInfo) {

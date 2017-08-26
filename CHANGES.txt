@@ -11,6 +11,7 @@ o Lookup by Long primary id returns correct instance when conflicts with other g
 o Generate correct statements for entities with label field
 o Fix creation of relationship entities with identical properties
 o Add @Id to relationship entities
+o Remove requirement to have graph id in entities
 
 3.0.0-RC1
 o Add verifyConnection configuration property for bolt and http driver

@@ -23,7 +23,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.PersistenceEvent;
 import org.neo4j.ogm.utils.ClassUtils;
-import org.neo4j.ogm.utils.EntityUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,7 +163,7 @@ final class SaveEventDelegate {
 
     // registers this object as visited and returns true if it was not previously visited, false otherwise
     private boolean visit(Object object) {
-        return this.visited.add(EntityUtils.identity(object, this.session.metaData()));
+        return this.visited.add(session.context().nativeId(object));
     }
 
 
@@ -233,7 +233,7 @@ final class SaveEventDelegate {
     // have been deleted since the last time the objects were loaded.
     private void clearPreviousRelationships(Object parent, FieldInfo reader) {
 
-        Long id = EntityUtils.identity(parent, session.metaData());
+        Long id = session.context().nativeId(parent);
         String type = reader.relationshipType();
         Class endNodeType = ClassUtils.getType(reader.typeDescriptor());
 
@@ -354,13 +354,13 @@ final class SaveEventDelegate {
         String direction = reader.relationshipDirection();
 
         ClassInfo parentInfo = this.session.metaData().classInfo(parent);
-        Long parentId = EntityUtils.identity(parent, session.metaData());
+        Long parentId = session.context().nativeId(parent);
 
         ClassInfo referenceInfo = this.session.metaData().classInfo(reference);
 
         if (referenceInfo != null) {
 
-            Long referenceId = EntityUtils.identity(reference, this.session.metaData());
+            Long referenceId = session.context().nativeId(reference);
 
             if (!referenceInfo.isRelationshipEntity()) {
 
@@ -375,11 +375,11 @@ final class SaveEventDelegate {
                 // graph relationship is transitive across the RE domain object
                 Object startNode = referenceInfo.getStartNodeReader().read(reference);
                 ClassInfo startNodeInfo = this.session.metaData().classInfo(startNode);
-                Long startNodeId = EntityUtils.identity(startNode, session.metaData());
+                Long startNodeId = session.context().nativeId(startNode);
 
                 Object endNode = referenceInfo.getEndNodeReader().read(reference);
                 ClassInfo endNodeInfo = this.session.metaData().classInfo(endNode);
-                Long endNodeId = EntityUtils.identity(endNode, session.metaData());
+                Long endNodeId = session.context().nativeId(endNode);
 
                 MappedRelationship edge = new MappedRelationship(startNodeId, type, endNodeId, referenceId, startNodeInfo.getUnderlyingClass(), endNodeInfo.getUnderlyingClass());
                 mappedRelationships.add(edge);

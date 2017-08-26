@@ -49,7 +49,6 @@ import org.neo4j.ogm.domain.travel.Visit;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.RowStatementFactory;
-import org.neo4j.ogm.utils.EntityUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -855,8 +854,8 @@ public class CompilerTest {
         assertThat(rows).hasSize(1);
 
         Map row = (Map) rows.get(0);
-        assertThat(row.get("startNodeId")).isEqualTo(EntityUtils.identity(adam, mappingMetadata));
-        assertThat(row.get("endNodeId")).isEqualTo(EntityUtils.identity(vince, mappingMetadata));
+        assertThat(row.get("startNodeId")).isEqualTo(mappingContext.nativeId(adam));
+        assertThat(row.get("endNodeId")).isEqualTo(mappingContext.nativeId(vince));
     }
 
     /**
@@ -888,8 +887,8 @@ public class CompilerTest {
         assertThat(rows).hasSize(1);
 
         Map row = (Map) rows.get(0);
-        assertThat(row.get("startNodeId")).isEqualTo(EntityUtils.identity(vince, mappingMetadata));
-        assertThat(row.get("endNodeId")).isEqualTo(EntityUtils.identity(adam, mappingMetadata));
+        assertThat(row.get("startNodeId")).isEqualTo(mappingContext.nativeId(vince));
+        assertThat(row.get("endNodeId")).isEqualTo(mappingContext.nativeId(adam));
     }
 
     private Compiler mapAndCompile(Object object) {

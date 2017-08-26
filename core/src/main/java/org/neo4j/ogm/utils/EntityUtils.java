@@ -12,12 +12,13 @@
  */
 package org.neo4j.ogm.utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 
-import java.lang.reflect.Field;import org.neo4j.ogm.metadata.MetaData;import java.util.concurrent.atomic.AtomicLong;
+import org.neo4j.ogm.metadata.MetaData;import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The utility methods here will all throw a <code>NullPointerException</code> if invoked with <code>null</code>.
@@ -28,6 +29,24 @@ public class EntityUtils {
 
     private static AtomicLong idSequence = new AtomicLong(0);
 
+    public static Long nextRef() {
+        return idSequence.decrementAndGet();
+    }
+
+    /**
+     * Return native id of given node or relationship entity.
+     *
+     * If the id field is null the field is set to unique negative refId, which is then returned.
+     *
+     * You most likely want to use {@link org.neo4j.ogm.context.MappingContext#nativeId(Object)}
+     *
+     * @param entity entity
+     * @param metaData metadata
+     *
+     * @return native id or refId
+     *
+     * @throws org.neo4j.ogm.exception.MetadataException when there is no native id field on the entity class
+     */
     public static Long identity(Object entity, MetaData metaData) {
 
         ClassInfo classInfo = metaData.classInfo(entity);
@@ -39,6 +58,14 @@ public class EntityUtils {
             return generated;
         } else {
             return (Long) id;
+        }
+    }
+
+    public static void setIdentity(Object entity, Long identity, MetaData metaData) {
+        ClassInfo classInfo = metaData.classInfo(entity);
+        if (classInfo.hasIdentityField()) {
+            FieldInfo identityField = classInfo.identityField();
+            identityField.write(entity, identity);
         }
     }
 
@@ -56,19 +83,11 @@ public class EntityUtils {
         FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
         if (labelFieldInfo != null) {
             Collection<String> dynamicLabels = (Collection<String>) labelFieldInfo.readProperty(entity);
-            labels.addAll(dynamicLabels);
+            if (dynamicLabels != null) {
+                labels.addAll(dynamicLabels);
+            }
         }
         return labels;
-    }
-
-    public static Long getEntityId(MetaData metaData, Object entity) {
-        return (Long) metaData.classInfo(entity).identityField().readProperty(entity);
-    }
-
-    public static void setEntityId(MetaData metaData, Object entity, Long identity) {
-		ClassInfo classInfo = metaData.classInfo(entity);
-		Field identityField = classInfo.getField(classInfo.identityField());
-		FieldInfo.write(identityField, entity, identity);
     }
 
 }

@@ -17,6 +17,7 @@ package org.neo4j.ogm.metadata;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.MetadataException;
 import org.neo4j.ogm.typeconversion.*;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
@@ -183,6 +184,12 @@ public class DomainInfo {
 
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             classInfo.primaryIndexField();
+            /*if (classInfo.primaryIndexField() == null && classInfo.identityField() == null &&
+                    !classInfo.isInterface()) {
+                throw new MetadataException("No id field found for " + classInfo.name() + " , provide either "
+                        + "natural or native id field.");
+            }*/
+
         }
         LOGGER.info("Post-processing complete");
     }

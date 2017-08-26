@@ -29,9 +29,6 @@ import org.neo4j.ogm.cypher.compiler.MultiStatementCypherCompiler;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.id.IdStrategy;
-import org.neo4j.ogm.id.InternalIdStrategy;
-import org.neo4j.ogm.id.UuidStrategy;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -108,12 +105,8 @@ public class EntityGraphMapper implements EntityMapper {
             NodeBuilder startNodeBuilder = mapEntity(startNode, horizon, compiler);
             NodeBuilder endNodeBuilder = mapEntity(endNode, horizon, compiler);
 
-            if (reInfo.idStrategyClass() != null && !InternalIdStrategy.class.equals(reInfo.idStrategyClass())) {
-                generateIdIfNecessary(entity, reInfo);
-            }
-
             // create or update the relationship if its not already been visited in the current compile context
-            if (!compiler.context().visitedRelationshipEntity(EntityUtils.identity(entity, metaData))) {
+            if (!compiler.context().visitedRelationshipEntity(mappingContext.nativeId(entity))) {
 
                 AnnotationInfo annotationInfo = reInfo.annotationsInfo().get(RelationshipEntity.class);
                 String relationshipType = annotationInfo.get(RelationshipEntity.TYPE, null);
@@ -124,8 +117,8 @@ public class EntityGraphMapper implements EntityMapper {
                 // 2. create or update the actual relationship (edge) in the graph
                 updateRelationshipEntity(compiler.context(), entity, relationshipBuilder, reInfo);
 
-                Long srcIdentity = EntityUtils.getEntityId(metaData, startNode);
-                Long tgtIdentity = EntityUtils.getEntityId(metaData, endNode);;
+                Long srcIdentity = mappingContext.nativeId(startNode);
+                Long tgtIdentity = mappingContext.nativeId(endNode);
 
                 RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNode.getClass(), endNode.getClass());
 
@@ -217,8 +210,6 @@ public class EntityGraphMapper implements EntityMapper {
             return context.visitedNode(entity);
         }
 
-        generateIdIfNecessary(entity, classInfo);
-
         NodeBuilder nodeBuilder = getNodeBuilder(compiler, entity);
         if (nodeBuilder != null) {
             updateNode(entity, context, nodeBuilder);
@@ -229,28 +220,6 @@ public class EntityGraphMapper implements EntityMapper {
             }
         }
         return nodeBuilder;
-    }
-
-    private void generateIdIfNecessary(Object entity, ClassInfo classInfo) {
-        if (classInfo.idStrategyClass() == null || InternalIdStrategy.class.equals(classInfo.idStrategyClass())) {
-            return;
-        }
-
-        if (classInfo.idStrategy() == null) {
-            throw new MappingException("Id strategy " + classInfo.idStrategyClass() + " could not be instantiated " +
-                    "and wasn't registered. Either provide no argument constructor or register instance " +
-                    "with SessionFactory");
-        }
-        FieldInfo primaryIndexField = classInfo.primaryIndexField();
-        Object existingUuid = primaryIndexField.read(entity);
-        if (existingUuid == null) {
-            IdStrategy strategy = classInfo.idStrategy();
-            Object id = strategy.generateId(entity);
-            if (strategy instanceof UuidStrategy && primaryIndexField.isTypeOf(String.class)) {
-                id = id.toString();
-            }
-            primaryIndexField.writeDirect(entity, id);
-        }
     }
 
     /**
@@ -298,15 +267,15 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         CompileContext context = compiler.context();
-        Long id = EntityUtils.identity(entity, metaData);
+        Long id = mappingContext.nativeId(entity);
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
         NodeBuilder nodeBuilder;
         final String primaryIndex = classInfo.primaryIndexField() != null ? classInfo.primaryIndexField().property() : null;
         if (id < 0) {
-            Long entityIdRef = EntityUtils.identity(entity, metaData);
-            nodeBuilder = compiler.newNode(entityIdRef).addLabels(labels).setPrimaryIndex(primaryIndex);
-            context.registerNewObject(entityIdRef, entity);
+//            Long entityIdRef = EntityUtils.identity(entity, metaData);
+            nodeBuilder = compiler.newNode(id).addLabels(labels).setPrimaryIndex(primaryIndex);
+            context.registerNewObject(id, entity);
         } else {
             nodeBuilder = compiler.existingNode(Long.valueOf(id.toString()));
             nodeBuilder.addLabels(labels).setPrimaryIndex(primaryIndex);
@@ -342,7 +311,7 @@ public class EntityGraphMapper implements EntityMapper {
         LOGGER.debug("mapping references declared by: {} ", entity);
 
         ClassInfo srcInfo = metaData.classInfo(entity);
-        Long srcIdentity = EntityUtils.getEntityId(metaData, entity);
+        Long srcIdentity = mappingContext.nativeId(entity);
 
         for (FieldInfo reader : srcInfo.relationshipFields()) {
 
@@ -462,11 +431,7 @@ public class EntityGraphMapper implements EntityMapper {
             RelationshipBuilder relationshipBuilder = getRelationshipBuilder(cypherCompiler, relNodes.target, directedRelationship, mapBothDirections);
 
             if (isRelationshipEntity(relNodes.target)) {
-
-                generateIdIfNecessary(relNodes.target, metaData.classInfo(relNodes.target));
-
-
-                Long reIdentity = EntityUtils.identity(relNodes.target, metaData);
+                Long reIdentity = mappingContext.nativeId(relNodes.target);
                 if (!context.visitedRelationshipEntity(reIdentity)) {
                     mapRelationshipEntity(relNodes.target, relNodes.source, relationshipBuilder, context, nodeBuilder, cypherCompiler, horizon, relNodes.sourceType, relNodes.targetType);
                 } else {
@@ -497,14 +462,14 @@ public class EntityGraphMapper implements EntityMapper {
         RelationshipBuilder relationshipBuilder;
 
         if (isRelationshipEntity(entity)) {
-            Long relId = (Long) EntityUtils.identity(entity, metaData);
+            Long relId = mappingContext.nativeId(entity);
 
             boolean relationshipEndsChanged = haveRelationEndsChanged(entity, relId);
 
             if (relId < 0 || relationshipEndsChanged) { //if the RE itself is new, or it exists but has one of it's end nodes changed
                 relationshipBuilder = cypherBuilder.newRelationship(directedRelationship.type());
                 if (relationshipEndsChanged) {
-                    EntityUtils.setEntityId(metaData, entity, null);
+                    EntityUtils.setIdentity(entity, null, metaData);
                 }
             } else {
                 relationshipBuilder = cypherBuilder.existingRelationship(relId, directedRelationship.type());
@@ -516,7 +481,7 @@ public class EntityGraphMapper implements EntityMapper {
         relationshipBuilder.direction(directedRelationship.direction());
         if (isRelationshipEntity(entity)) {
             relationshipBuilder.setSingleton(false);  // indicates that this relationship type can be mapped multiple times between 2 nodes
-            relationshipBuilder.setReference(EntityUtils.identity(entity, metaData));
+            relationshipBuilder.setReference(mappingContext.nativeId(entity));
             relationshipBuilder.setRelationshipEntity(true);
 
             ClassInfo classInfo = metaData.classInfo(entity);
@@ -541,8 +506,8 @@ public class EntityGraphMapper implements EntityMapper {
         if (startEntity == null || targetEntity == null) {
             throw new MappingException("Relationship entity " + entity + " cannot have a missing start or end node");
         }
-        Long tgtIdentity = EntityUtils.getEntityId(metaData, targetEntity);
-        Long srcIdentity = EntityUtils.getEntityId(metaData, startEntity);
+        Long tgtIdentity = mappingContext.nativeId(targetEntity);
+        Long srcIdentity = mappingContext.nativeId(startEntity);
 
         boolean relationshipEndsChanged = false;
 
@@ -578,8 +543,8 @@ public class EntityGraphMapper implements EntityMapper {
         Object startEntity = getStartEntity(relEntityClassInfo, relationshipEntity);
         Object targetEntity = getTargetEntity(relEntityClassInfo, relationshipEntity);
 
-        Long tgtIdentity = EntityUtils.identity(targetEntity, metaData);
-        Long srcIdentity = EntityUtils.identity(startEntity, metaData);
+        Long tgtIdentity = mappingContext.nativeId(targetEntity);
+        Long srcIdentity = mappingContext.nativeId(startEntity);
 
 
         // create or update the relationship mapping register between the start and end nodes. Note, this
@@ -610,8 +575,8 @@ public class EntityGraphMapper implements EntityMapper {
         // finally we continue mapping the object graph, creating/updating the edge in the graph from START->END nodes.
         // If we approached the RE from its END-NODE, we then continue mapping the object graph from the START_NODE,
         // or, if we approached the RE from its START_NODE, we continue mapping the object graph from the END_NODE.
-        Long startIdentity = EntityUtils.identity(startEntity, metaData);
-        Long targetIdentity = EntityUtils.identity(targetEntity, metaData);
+        /*Long startIdentity = EntityUtils.identity(startEntity, metaData);
+        Long targetIdentity = EntityUtils.identity(targetEntity, metaData);*/
 
         NodeBuilder srcNodeBuilder = context.visitedNode(startEntity);
         NodeBuilder tgtNodeBuilder = context.visitedNode(targetEntity);
@@ -637,7 +602,7 @@ public class EntityGraphMapper implements EntityMapper {
 
     private void updateRelationshipEntity(CompileContext context, Object relationshipEntity, RelationshipBuilder relationshipBuilder, ClassInfo relEntityClassInfo) {
 
-        Long reIdentity = EntityUtils.identity(relationshipEntity, metaData);
+        Long reIdentity = mappingContext.nativeId(relationshipEntity);
         context.visitRelationshipEntity(reIdentity);
 
         AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.class);
@@ -646,8 +611,7 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         // if the RE is new, register it in the context so that we can set its ID correctly when it is created,
-        Long id = (Long) relEntityClassInfo.identityField().readProperty(relationshipEntity);
-        if (id < 0) {
+        if (reIdentity < 0) {
             context.registerNewObject(reIdentity, relationshipEntity);
         }
 
@@ -736,9 +700,8 @@ public class EntityGraphMapper implements EntityMapper {
         // tgtNodeBuilder will be null if tgtObject is a transient class, or a subclass of a transient class
         if (tgtNodeBuilder != null) {
             LOGGER.debug("trying to map relationship between {} and {}", relNodes.source, relNodes.target);
-            Long tgtIdentity = EntityUtils.getEntityId(metaData, relNodes.target);
             CompileContext context = compiler.context();
-            relNodes.targetId = tgtIdentity;
+            relNodes.targetId = mappingContext.nativeId(relNodes.target);
             updateRelationship(context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, relNodes);
         }
     }

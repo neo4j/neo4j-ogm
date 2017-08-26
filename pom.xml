@@ -39,7 +39,6 @@
         <commonslang>3.4</commonslang>
         <commonscodec>1.10</commonscodec>
         <commonsio>2.4</commonsio>
-        <commonscollections>4.1</commonscollections>
         <jackson>2.7.1</jackson>
         <httpclient>4.5.2</httpclient>
         <junit>4.12</junit>
@@ -99,12 +98,6 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commonsio}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-collections4</artifactId>
-                <version>${commonscollections}</version>
             </dependency>
 
             <!--Testing  Dependencies -->
@@ -229,7 +222,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>2.10.4</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>

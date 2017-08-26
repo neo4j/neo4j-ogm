@@ -16,8 +16,6 @@ package org.neo4j.ogm.context;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 /**
  * Tracks changes of labels to allow removing unused labels from the database node, when they're removed from an
  * entity in OGM.
@@ -30,7 +28,7 @@ public class LabelHistory {
     public void push(Collection<String> values) {
         this.previousValues = new HashSet<>();
         if (values != null) {
-            CollectionUtils.addAll(previousValues, values);
+            previousValues.addAll(values);
         }
         currentValues = values;
     }

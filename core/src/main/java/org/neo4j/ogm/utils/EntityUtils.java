@@ -12,9 +12,9 @@
  */
 package org.neo4j.ogm.utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 
@@ -45,15 +45,20 @@ public class EntityUtils {
 
     /**
      * Returns the full set of labels, both static and dynamic, if any, to apply to a node.
+     *
+     * @param entity entity to get the labels for
+     * @param metaData metadata
+     *
+     * @return collection of labels
      */
     public static Collection<String> labels(Object entity, MetaData metaData) {
         ClassInfo classInfo = metaData.classInfo(entity);
-        Collection<String> staticLabels = classInfo.staticLabels();
+        Collection<String> labels = new ArrayList<>(classInfo.staticLabels());
         FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
         if (labelFieldInfo != null) {
-            Collection<String> labels = (Collection<String>) labelFieldInfo.readProperty(entity);
-            return CollectionUtils.union(staticLabels, labels);
+            Collection<String> dynamicLabels = (Collection<String>) labelFieldInfo.readProperty(entity);
+            labels.addAll(dynamicLabels);
         }
-        return staticLabels;
+        return labels;
     }
 }

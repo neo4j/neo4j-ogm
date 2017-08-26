@@ -39,7 +39,7 @@ public class MappingContext {
 
     private final Map<Long, Object> nodeEntityRegister;
 
-    private final Map<Object, Object> primaryIndexNodeRegister;
+    private final Map<LabelPrimaryId, Object> primaryIndexNodeRegister;
 
     private final Map<Long, Object> relationshipEntityRegister;
 
@@ -66,7 +66,7 @@ public class MappingContext {
     /**
      * Gets a node entity from the MappingContext by its graph id.
      *
-     * NOTE: to get entity by field with @Id use {@link #getNodeEntityById(Object)} - you also need to check if such id
+     * NOTE: to get entity by field with @Id use {@link #getNodeEntityById(ClassInfo, Object)} - you also need to check if such id
      * exists and is of correct type
      *
      * @param graphId The graph id to look for.
@@ -76,8 +76,17 @@ public class MappingContext {
         return nodeEntityRegister.get(graphId);
     }
 
-    public Object getNodeEntityById(Object id) {
-        return primaryIndexNodeRegister.get(id);
+    /**
+     * Get a node entity from the MappingContext by its primary id
+     *
+     *
+     * @param typeInfo
+     * @param id primary id of the entity
+     *
+     * @return the entity or null if not found
+     */
+    public Object getNodeEntityById(ClassInfo typeInfo, Object id) {
+        return primaryIndexNodeRegister.get(new LabelPrimaryId(typeInfo, id));
     }
 
     public Object addNodeEntity(Object entity, Long id) {
@@ -91,7 +100,10 @@ public class MappingContext {
             final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
             if (primaryIndexField != null) {
                 final Object primaryIndexValue = primaryIndexField.read(entity);
-                primaryIndexNodeRegister.putIfAbsent(primaryIndexValue, entity);
+                if (primaryIndexValue != null) {
+                    LabelPrimaryId key = new LabelPrimaryId(primaryIndexClassInfo, primaryIndexValue);
+                    primaryIndexNodeRegister.putIfAbsent(key, entity);
+                }
             }
         }
 
@@ -118,7 +130,9 @@ public class MappingContext {
         final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
         if (primaryIndexField != null) {
             final Object primaryIndexValue = primaryIndexField.read(entity);
-            primaryIndexNodeRegister.remove(primaryIndexValue);
+            if (primaryIndexValue != null) {
+                primaryIndexNodeRegister.remove(new LabelPrimaryId(primaryIndexClassInfo, primaryIndexValue));
+            }
         }
 
         deregisterDependentRelationshipEntity(entity);
@@ -130,7 +144,7 @@ public class MappingContext {
         final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
         if (primaryIndexField != null) {
             final Object primaryIndexValue = primaryIndexField.read(entity);
-            primaryIndexNodeRegister.remove(primaryIndexValue);
+            primaryIndexNodeRegister.remove(new LabelPrimaryId(primaryIndexClassInfo, primaryIndexValue));
         }
         addNodeEntity(entity, id);
     }

@@ -20,6 +20,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
+import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations.IdAndGenerationType;
 import org.neo4j.ogm.domain.autoindex.valid.Invoice;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
@@ -42,7 +43,11 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.annotations.ids");
+        sessionFactory = new SessionFactory(driver,
+                "org.neo4j.ogm.domain.cineasts.annotated",
+                "org.neo4j.ogm.domain.annotations.ids",
+                "org.neo4j.ogm.domain.autoindex.valid"
+        );
     }
 
     @Before
@@ -81,14 +86,14 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test
     public void saveWithStringUuidGeneration() {
 
-        ValidAnnotations.IdAndGenerationType entity = new ValidAnnotations.IdAndGenerationType();
+        IdAndGenerationType entity = new IdAndGenerationType();
         session.save(entity);
 
         assertThat(entity.identifier).isNotNull();
 
         final Session session2 = sessionFactory.openSession();
 
-        final ValidAnnotations.IdAndGenerationType retrievedEntity = session2.load(ValidAnnotations.IdAndGenerationType.class, entity.identifier);
+        final IdAndGenerationType retrievedEntity = session2.load(IdAndGenerationType.class, entity.identifier);
         assertThat(retrievedEntity).isNotNull();
         assertThat(retrievedEntity.identifier).isNotNull().isEqualTo(entity.identifier);
     }
@@ -190,12 +195,8 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
      */
     @Test
     public void loadUsesPrimaryIndexWhenPresentEvenIfTypeIsLong() {
-
-        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.autoindex.valid");
-        Session session1 = sessionFactory.openSession();
-
         Invoice invoice = new Invoice(223L, "Company", 100000L);
-        session1.save(invoice);
+        session.save(invoice);
 
         final Session session2 = sessionFactory.openSession();
 
@@ -209,8 +210,6 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
      */
     @Test
     public void loadShouldNotMixLongPrimaryIndexAndGraphId() throws Exception {
-        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.autoindex.valid");
-        Session session = sessionFactory.openSession();
 
         Invoice invoice1 = new Invoice(223L, "Company", 100000L);
         session.save(invoice1);
@@ -231,9 +230,27 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     public void exceptionRaisedWhenLookupDoneByNonLongKeyAndThereIsNoPrimaryIndex() throws Exception {
         SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.partial");
         Session session1 = sessionFactory.openSession();
+
         Actor actor = new Actor("David Hasslehoff");
         session1.save(actor);
 
         session1.load(Actor.class, "david-id");
+    }
+
+    @Test
+    public void loadShouldNotMixPrimaryKeysOfDifferentLabels() throws Exception {
+
+        User user = new User("login", "name", "password");
+        session.save(user);
+
+        IdAndGenerationType entity = new IdAndGenerationType();
+        entity.identifier = "login";
+        session.save(entity);
+
+        User loadedUser = session.load(User.class, "login");
+        assertThat(loadedUser).isEqualTo(user);
+
+        IdAndGenerationType loadedEntity = session.load(IdAndGenerationType.class, "login");
+        assertThat(loadedEntity).isEqualTo(entity);
     }
 }

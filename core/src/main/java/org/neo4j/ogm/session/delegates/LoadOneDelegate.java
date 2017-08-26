@@ -14,6 +14,9 @@ package org.neo4j.ogm.session.delegates;
 
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
@@ -33,6 +36,8 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  * @author Mark Angrish
  */
 public class LoadOneDelegate {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoadOneDelegate.class);
 
     private Neo4jSession session;
 
@@ -79,7 +84,7 @@ public class LoadOneDelegate {
             if (primaryIndex == null) {
                 ref = session.context().getNodeEntity((Long) id);
             } else {
-                ref = session.context().getNodeEntityById(id);
+                ref = session.context().getNodeEntityById(typeInfo, id);
             }
         } else {
             // Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
@@ -89,6 +94,7 @@ public class LoadOneDelegate {
         try {
             return type.cast(ref);
         } catch (ClassCastException cce) {
+            logger.warn("Could not cast entity {} for id {} to {}", ref, id, type);
             return null;
         }
     }

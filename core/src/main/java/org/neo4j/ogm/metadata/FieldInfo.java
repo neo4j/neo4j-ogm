@@ -475,4 +475,12 @@ public class FieldInfo {
     public Field getField() {
         return field;
     }
+
+    /**
+     * ClassInfo for the class this field is defined in -
+     * @return
+     */
+    public ClassInfo containingClassInfo() {
+        return containingClassInfo;
+    }
 }

@@ -20,9 +20,9 @@ import java.lang.annotation.Target;
 
 /**
  * Identifies the domain entity representing the end node of
- * a relationship in the graph, and, along with @StartNode
+ * a relationship in the graph, and, along with @{@link StartNode}
  * is a mandatory annotation on any domain entity that is annotated
- * with @RelationshipEntity
+ * with @{@link RelationshipEntity}
  *
  * @author Michal Bachman
  */

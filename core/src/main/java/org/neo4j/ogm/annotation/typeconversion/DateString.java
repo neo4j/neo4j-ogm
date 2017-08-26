@@ -16,6 +16,10 @@ package org.neo4j.ogm.annotation.typeconversion;
 import java.lang.annotation.*;
 
 /**
+ * Indicates OGM to store dates as String in ISO_8601 format in the database.
+ * <p>
+ * Applicable to `java.util.Date` and `java.time.Instant`
+ *
  * @author Vince Bickers
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -13,18 +13,20 @@
 
 package org.neo4j.ogm.annotation;
 
-import org.neo4j.ogm.id.IdStrategy;
-import org.neo4j.ogm.id.InternalIdStrategy;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.neo4j.ogm.id.IdStrategy;
+import org.neo4j.ogm.id.InternalIdStrategy;
+
 /**
- * Used to generate an ID. Must be used with the <code>@Id</code> annotation, otherwise it will be ignored.
- *
- * <p>Currently the two supported strategies are UUID and Internal Neo4j Id.
+ * Used to generate an ID. Must be used with the @{@link Id} annotation, otherwise it will be ignored.
+ * <p>
+ * Two strategies are provided {@link org.neo4j.ogm.id.UuidStrategy} and {@link org.neo4j.ogm.id.InternalIdStrategy}.
+ * <p>
+ * Custom strategies may be implemented using {@link IdStrategy}
  *
  * @since 3.0
  */

@@ -14,6 +14,9 @@
 package org.neo4j.ogm.session;
 
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
@@ -23,17 +26,17 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.event.EventListener;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import static java.util.Objects.requireNonNull;
 
 /**
- * Used to create {@link Session} instances for interacting with Neo4j.
+ * This is the main initialization point of OGM. Used to create {@link Session} instances for interacting with Neo4j.
+ * <p>
+ * In a typical scenario one instance of SessionFactory is created, shared across whole application.
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Frantisek Hartman
  */
 public class SessionFactory {
 
@@ -96,8 +99,8 @@ public class SessionFactory {
      *
      * Use this constructor when you need to provide fully customized driver.
      *
-     * @param driver driver to use with new SessionFactory
-     * @param packages the packages to scan for domain objects
+     * @param driver driver to be used with this SessionFactory
+     * @param packages The packages to scan for domain objects
      */
     public SessionFactory(Driver driver, String... packages) {
         this.metaData = new MetaData(packages);
@@ -126,7 +129,9 @@ public class SessionFactory {
     }
 
     /**
-     * Asynchronously registers the specified listener on all <code>Session</code> events generated from <code>this SessionFactory</code>.
+     * Registers the specified listener on all <code>Session</code> events generated from
+     * <code>this SessionFactory</code>.
+     * Only Session instances created after this call are affected.
      *
      * @param eventListener The event listener to register.
      */
@@ -135,7 +140,8 @@ public class SessionFactory {
     }
 
     /**
-     * Asynchronously removes the the specified listener from <code>this SessionFactory</code>.
+     * Removes the the specified listener from <code>this SessionFactory</code>.
+     * Only Session instances created after this call are affected.
      *
      * @param eventListener The event listener to deregister.
      */

@@ -46,7 +46,12 @@ public class Configuration {
     private Boolean verifyConnection;
 
 
-    Configuration(Builder builder) {
+	/**
+	 * Protected constructor of the Configuration class.
+	 *
+	 * Use {@link Builder} to create an instance of Configuration class
+	 */
+	Configuration(Builder builder) {
 		this.uri = builder.uri;
 		this.connectionPoolSize = builder.connectionPoolSize != null ? builder.connectionPoolSize : 50;
 		this.encryptionLevel = builder.encryptionLevel;
@@ -202,6 +207,9 @@ public class Configuration {
 		return result;
 	}
 
+	/**
+	 * Builder for {@link Configuration} class
+	 */
 	public static class Builder {
 
 		public static Builder copy(Builder builder) {
@@ -246,9 +254,19 @@ public class Configuration {
 		private String username;
 		private String password;
 
+		/**
+		 * Creates new Configuration builder
+		 *
+		 * Use for Java configuration.
+		 */
 		public Builder() {
 		}
 
+		/**
+		 * Creates new Configuration builder
+		 *
+		 * @param configurationSource source of the configuration, file on classpath or filesystem
+		 */
 		public Builder(ConfigurationSource configurationSource) {
 			for (Map.Entry<Object, Object> entry : configurationSource.properties().entrySet()) {
 				switch (entry.getKey().toString()) {
@@ -291,16 +309,39 @@ public class Configuration {
 			}
 		}
 
+		/**
+		 * Set URI of the database.
+		 *
+		 * The driver is determined from the URI based on its scheme (http/https for HttpDriver,
+		 * file for EmbeddedDriver,
+		 * bolt for BoltDriver).
+		 *
+		 * @param uri uri of the database
+		 */
 		public Builder uri(String uri) {
 			this.uri = uri;
 			return this;
 		}
 
+		/**
+		 * Number of connections to the database.
+		 *
+		 * Valid only for http and bolt drivers
+		 *
+		 * @param connectionPoolSize number of connections to the database
+		 */
 		public Builder connectionPoolSize(Integer connectionPoolSize) {
 			this.connectionPoolSize = connectionPoolSize;
 			return this;
 		}
 
+		/**
+		 * Required encryption level for the connection to the database.
+		 *
+		 * See org.neo4j.driver.v1.Config.EncryptionLevel for possible values.
+		 *
+		 * @param encryptionLevel required enryption level
+		 */
 		public Builder encryptionLevel(String encryptionLevel) {
 			this.encryptionLevel = encryptionLevel;
 			return this;
@@ -339,6 +380,11 @@ public class Configuration {
             return this;
         }
 
+		/**
+		 * Auto index config, for possible values see {@link org.neo4j.ogm.config.AutoIndexMode}
+		 *
+		 * @param autoIndex auto index config
+		 */
 		public Builder autoIndex(String autoIndex) {
 			this.autoIndex = autoIndex;
 			return this;
@@ -363,6 +409,12 @@ public class Configuration {
 			return new Configuration(this);
 		}
 
+		/**
+		 * Credentials to use to access the database
+		 *
+		 * @param username username
+		 * @param password password
+		 */
 		public Builder credentials(String username, String password) {
 			this.username = username;
 			this.password = password;

@@ -32,5 +32,8 @@ public @interface Property {
 
     String NAME = "name";
 
+    /**
+     * Name of the property in the graph
+     */
     String name() default "";
 }

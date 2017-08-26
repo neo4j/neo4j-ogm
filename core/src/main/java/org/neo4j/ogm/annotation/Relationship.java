@@ -16,7 +16,10 @@ package org.neo4j.ogm.annotation;
 import java.lang.annotation.*;
 
 /**
+ * Identifies field that is to be represented as a relationship
+ *
  * @author Vince Bickers
+ * @author Frantisek Hartman
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -30,7 +33,15 @@ public @interface Relationship {
     String OUTGOING = "OUTGOING";
     String UNDIRECTED = "UNDIRECTED";
 
+    /**
+     * Type of the relationship, defaults to name of the field in SNAKE_CASE
+     */
     String type() default "";
 
+    /**
+     * Direction of the relationship. Defaults to OUTGOING.
+     *
+     * Possible values are {@link #OUTGOING}, {@link #INCOMING}, {@link #UNDIRECTED}.
+     */
     String direction() default OUTGOING;
 }

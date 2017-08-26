@@ -63,19 +63,21 @@ public class MappingContext {
         this.labelHistoryRegister = new HashMap<>();
     }
 
-    public Object getNodeEntity(Object id) {
+    /**
+     * Gets a node entity from the MappingContext by its graph id.
+     *
+     * NOTE: to get entity by field with @Id use {@link #getNodeEntityById(Object)} - you also need to check if such id
+     * exists and is of correct type
+     *
+     * @param graphId The graph id to look for.
+     * @return The entity or null if not found.
+     */
+    public Object getNodeEntity(Long graphId) {
+        return nodeEntityRegister.get(graphId);
+    }
 
-        Object result = null;
-
-        if (id instanceof Long) {
-            result = nodeEntityRegister.get(id);
-        }
-
-        if (result == null) {
-            result = primaryIndexNodeRegister.get(id);
-        }
-
-        return result;
+    public Object getNodeEntityById(Object id) {
+        return primaryIndexNodeRegister.get(id);
     }
 
     public Object addNodeEntity(Object entity, Long id) {
@@ -220,7 +222,7 @@ public class MappingContext {
     /*
      * purges all information about a node entity with this id
      */
-    public boolean detachNodeEntity(Object id) {
+    public boolean detachNodeEntity(Long id) {
         Object objectToDetach = getNodeEntity(id);
         if (objectToDetach != null) {
             removeEntity(objectToDetach);

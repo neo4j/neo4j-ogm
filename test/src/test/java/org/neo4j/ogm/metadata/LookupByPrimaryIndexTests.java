@@ -15,22 +15,22 @@ package org.neo4j.ogm.metadata;
 
 import java.util.Collection;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.domain.autoindex.valid.Invoice;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
-import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import static java.util.Arrays.asList;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Mark Angrish
@@ -172,7 +172,7 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         assertThat(retrievedActor.getName()).isEqualTo(actor.getName());
     }
 
-    @Test(expected = Neo4jException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void exceptionRaisedWhenLookupIsDoneWithGraphIdAndThereIsAPrimaryIndexPresent() {
 
         final Session session = sessionFactory.openSession();
@@ -202,5 +202,38 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         Invoice retrievedInvoice = session2.load(Invoice.class, 223L);
         assertThat(retrievedInvoice).isNotNull();
         assertThat(retrievedInvoice.getId()).isEqualTo(invoice.getId());
+    }
+
+    /**
+     * Case where primary key is of type Long and entity with such graph id exists - DATAGRAPH-1008
+     */
+    @Test
+    public void loadShouldNotMixLongPrimaryIndexAndGraphId() throws Exception {
+        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.autoindex.valid");
+        Session session = sessionFactory.openSession();
+
+        Invoice invoice1 = new Invoice(223L, "Company", 100000L);
+        session.save(invoice1);
+
+        // use graph id value as primary key of type long
+        Invoice invoice2 = new Invoice(invoice1.getId(), "Company", 100000L);
+        session.save(invoice2);
+
+        // return `invoice 2`, not `invoice 1`
+        Invoice loaded = session.load(Invoice.class, invoice2.getNumber());
+        assertThat(loaded).isEqualTo(invoice2);
+
+        Collection<Invoice> invoices = session.loadAll(Invoice.class);
+        assertThat(invoices).containsOnly(invoice1, invoice2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void exceptionRaisedWhenLookupDoneByNonLongKeyAndThereIsNoPrimaryIndex() throws Exception {
+        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.partial");
+        Session session1 = sessionFactory.openSession();
+        Actor actor = new Actor("David Hasslehoff");
+        session1.save(actor);
+
+        session1.load(Actor.class, "david-id");
     }
 }

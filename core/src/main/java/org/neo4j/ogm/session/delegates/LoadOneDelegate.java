@@ -18,6 +18,7 @@ import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
+import org.neo4j.ogm.exception.OgmException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
@@ -51,7 +52,12 @@ public class LoadOneDelegate {
         }
         final FieldInfo primaryIndexField = classInfo.primaryIndexField();
         if (primaryIndexField != null && !primaryIndexField.isTypeOf(id.getClass())) {
-            throw new Neo4jException("Supplied id does not match primary index type on supplied class " + type.getName());
+            throw new IllegalArgumentException("Supplied id does not match primary index type on supplied class " + type.getName());
+        }
+
+        if (primaryIndexField == null && !(id instanceof Long)) {
+            throw new IllegalArgumentException("Supplied id must be of type Long (native graph id) when supplied class "
+                    + "does not have primary id" + type.getName());
         }
 
         QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
@@ -69,7 +75,12 @@ public class LoadOneDelegate {
         ClassInfo typeInfo = session.metaData().classInfo(type.getName());
 
         if (typeInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
-            ref = session.context().getNodeEntity(id);
+            FieldInfo primaryIndex = typeInfo.primaryIndexField();
+            if (primaryIndex == null) {
+                ref = session.context().getNodeEntity((Long) id);
+            } else {
+                ref = session.context().getNodeEntityById(id);
+            }
         } else {
             // Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
             // But we know this will always be Long.
@@ -81,4 +92,5 @@ public class LoadOneDelegate {
             return null;
         }
     }
+
 }

@@ -250,48 +250,55 @@ public class RequestExecutor {
             newTransaction = true;
         }
 
-        //If there are statements that depend on new nodes i.e. relationships created between new nodes,
-        //we must create the new nodes first, and then use their node IDs when creating relationships between them
-        if (compiler.hasStatementsDependentOnNewNodes()) {
+        try {
+            //If there are statements that depend on new nodes i.e. relationships created between new nodes,
+            //we must create the new nodes first, and then use their node IDs when creating relationships between them
+            if (compiler.hasStatementsDependentOnNewNodes()) {
 
-            DefaultRequest createNodesRowRequest = new DefaultRequest();
-            createNodesRowRequest.setStatements(compiler.createNodesStatements());
+                DefaultRequest createNodesRowRequest = new DefaultRequest();
+                createNodesRowRequest.setStatements(compiler.createNodesStatements());
 
-            // execute the statements to create new nodes. The ids will be returned
-            // and will be used in subsequent statements that refer to these new nodes.
-            try (Response<RowModel> response = session.requestHandler().execute(createNodesRowRequest)) {
-                registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-            }
+                // execute the statements to create new nodes. The ids will be returned
+                // and will be used in subsequent statements that refer to these new nodes.
+                try (Response<RowModel> response = session.requestHandler().execute(createNodesRowRequest)) {
+                    registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
+                }
 
-            List<Statement> statements = new ArrayList<>();
-            statements.addAll(compiler.createRelationshipsStatements());
-            statements.addAll(compiler.updateNodesStatements());
-            statements.addAll(compiler.updateRelationshipStatements());
-            statements.addAll(compiler.deleteRelationshipStatements());
-            statements.addAll(compiler.deleteRelationshipEntityStatements());
+                List<Statement> statements = new ArrayList<>();
+                statements.addAll(compiler.createRelationshipsStatements());
+                statements.addAll(compiler.updateNodesStatements());
+                statements.addAll(compiler.updateRelationshipStatements());
+                statements.addAll(compiler.deleteRelationshipStatements());
+                statements.addAll(compiler.deleteRelationshipEntityStatements());
 
-            DefaultRequest defaultRequest = new DefaultRequest();
-            defaultRequest.setStatements(statements);
-
-            try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
-                registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-                registerNewRelIds(response, relReferenceMappings);
-            }
-        } else { // only update / delete statements
-            List<Statement> statements = compiler.getAllStatements();
-            if (statements.size() > 0) {
                 DefaultRequest defaultRequest = new DefaultRequest();
                 defaultRequest.setStatements(statements);
+
                 try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
                     registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
                     registerNewRelIds(response, relReferenceMappings);
                 }
+            } else { // only update / delete statements
+                List<Statement> statements = compiler.getAllStatements();
+                if (statements.size() > 0) {
+                    DefaultRequest defaultRequest = new DefaultRequest();
+                    defaultRequest.setStatements(statements);
+                    try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
+                        registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
+                        registerNewRelIds(response, relReferenceMappings);
+                    }
+                }
             }
-        }
 
-        if (transactionRequired && newTransaction) {
-            tx.commit();
-            tx.close();
+            if (transactionRequired && newTransaction) {
+                tx.commit();
+                tx.close();
+            }
+        } catch (Exception e) {
+            if (transactionRequired && newTransaction) {
+                tx.rollback();
+                tx.close();
+            }
         }
 
         //Update the mapping context now that the request is successful

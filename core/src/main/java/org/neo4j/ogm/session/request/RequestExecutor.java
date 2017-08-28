@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016 "Neo Technology,"
+ * Copyright (c) 2002-2017 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
@@ -28,6 +31,7 @@ import org.neo4j.ogm.context.TransientRelationship;
 import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.entity.io.PropertyReader;
+import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
@@ -36,8 +40,6 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Plans request execution and processes the response.
@@ -253,45 +255,55 @@ public class RequestExecutor {
 			newTransaction = true;
 		}
 
-		//If there are statements that depend on new nodes i.e. relationships created between new nodes,
-		//we must create the new nodes first, and then use their node IDs when creating relationships between them
-		if (compiler.hasStatementsDependentOnNewNodes()) {
+        try {
+            //If there are statements that depend on new nodes i.e. relationships created between new nodes,
+            //we must create the new nodes first, and then use their node IDs when creating relationships between them
+            if (compiler.hasStatementsDependentOnNewNodes()) {
 
-			DefaultRequest createNodesRowRequest = new DefaultRequest();
-			createNodesRowRequest.setStatements(compiler.createNodesStatements());
+                DefaultRequest createNodesRowRequest = new DefaultRequest();
+                createNodesRowRequest.setStatements(compiler.createNodesStatements());
 
-			// execute the statements to create new nodes. The ids will be returned
-			// and will be used in subsequent statements that refer to these new nodes.
-			try (Response<RowModel> response = session.requestHandler().execute(createNodesRowRequest)) {
-				registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-			}
+                // execute the statements to create new nodes. The ids will be returned
+                // and will be used in subsequent statements that refer to these new nodes.
+                try (Response<RowModel> response = session.requestHandler().execute(createNodesRowRequest)) {
+                    registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
+                }
 
-			List<Statement> statements = new ArrayList<>();
-			statements.addAll(compiler.createRelationshipsStatements());
-			statements.addAll(compiler.updateNodesStatements());
-			statements.addAll(compiler.updateRelationshipStatements());
-			statements.addAll(compiler.deleteRelationshipStatements());
-			statements.addAll(compiler.deleteRelationshipEntityStatements());
+                List<Statement> statements = new ArrayList<>();
+                statements.addAll(compiler.createRelationshipsStatements());
+                statements.addAll(compiler.updateNodesStatements());
+                statements.addAll(compiler.updateRelationshipStatements());
+                statements.addAll(compiler.deleteRelationshipStatements());
+                statements.addAll(compiler.deleteRelationshipEntityStatements());
 
-			DefaultRequest defaultRequest = new DefaultRequest();
-			defaultRequest.setStatements(statements);
+                DefaultRequest defaultRequest = new DefaultRequest();
+                defaultRequest.setStatements(statements);
 
-			try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
-				registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-				registerNewRelIds(response, relReferenceMappings);
-			}
-
-		} else { // only update / delete statements
-			List<Statement> statements = compiler.getAllStatements();
-			if (statements.size() > 0) {
-				DefaultRequest defaultRequest = new DefaultRequest();
-				defaultRequest.setStatements(statements);
-				try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
-					registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-					registerNewRelIds(response, relReferenceMappings);
-				}
-			}
-		}
+                try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
+                    registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
+                    registerNewRelIds(response, relReferenceMappings);
+                }
+            } else { // only update / delete statements
+                List<Statement> statements = compiler.getAllStatements();
+                if (statements.size() > 0) {
+                    DefaultRequest defaultRequest = new DefaultRequest();
+                    defaultRequest.setStatements(statements);
+                    try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
+                        registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
+                        registerNewRelIds(response, relReferenceMappings);
+                    }
+                }
+            }
+        } catch (CypherException e) {
+            // all tx management logic should be here in case of error. At the moment it is
+            // split in various parts of the drivers. Needs to be refactored in next major version.
+            // This is intended to fix #393. Replacing previous workaround to make HTTP work
+            if (transactionRequired && newTransaction) {
+                tx.rollback();
+                tx.close();
+                throw e;
+            }
+        }
 
 		if (transactionRequired && newTransaction) {
 			tx.commit();
@@ -324,23 +336,23 @@ public class RequestExecutor {
 			}
 		}
 	}
-	
+
 	/**
 	 * Append {@link TransientRelationship} of {@link CompileContext} to an index.
-	 * 
+	 *
 	 * @param context the compile context
-	 * @return an index of {@link TransientRelationship} 
+	 * @return an index of {@link TransientRelationship}
 	 */
 	private Map<Long, TransientRelationship> buildRegisteredTransientRelationshipIndex(CompileContext context) {
 		final Map<Long, TransientRelationship> transientRelationshipIndex = new HashMap<>();
-		
+
 		for (Object obj : context.registry()) {
 			if(TransientRelationship.class.isAssignableFrom(obj.getClass())) {
 				TransientRelationship transientRelationship = (TransientRelationship) obj;
 				transientRelationshipIndex.put(transientRelationship.getRef(), transientRelationship);
 			}
 		}
-		
+
 		return transientRelationshipIndex;
 	}
 

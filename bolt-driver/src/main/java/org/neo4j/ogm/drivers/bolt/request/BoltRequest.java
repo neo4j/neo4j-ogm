@@ -23,6 +23,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.neo4j.ogm.drivers.bolt.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.RestModelResponse;
@@ -35,12 +38,16 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.request.DefaultRequest;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.request.RestModelRequest;
+import org.neo4j.ogm.request.RowModelRequest;
+import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.transaction.TransactionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author vince
@@ -76,23 +83,23 @@ public class BoltRequest implements Request {
 		return new RowModelResponse(executeRequest(request), transactionManager);
 	}
 
-	@Override
-	public Response<RowModel> execute(DefaultRequest query) {
-		final List<RowModel> rowmodels = new ArrayList<>();
-		String[] columns = null;
-		for (Statement statement : query.getStatements()) {
-			StatementResult result = executeRequest(statement);
-			if (columns == null) {
-				List<String> columnSet = result.keys();
-				columns = columnSet.toArray(new String[columnSet.size()]);
-			}
-			RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager);
-			RowModel model;
-			while ((model = rowModelResponse.next()) != null) {
-				rowmodels.add(model);
-			}
-			  result.consume();
-		}
+    @Override
+    public Response<RowModel> execute(DefaultRequest query) {
+        final List<RowModel> rowmodels = new ArrayList<>();
+        String[] columns = null;
+        for (Statement statement : query.getStatements()) {
+            StatementResult result = executeRequest(statement);
+
+            RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager);
+            RowModel model;
+            while ((model = rowModelResponse.next()) != null) {
+                rowmodels.add(model);
+            }
+            if (columns == null) {
+                columns = rowModelResponse.columns();
+            }
+            result.consume();
+        }
 
 		final String[] finalColumns = columns;
 		return new Response<RowModel>() {

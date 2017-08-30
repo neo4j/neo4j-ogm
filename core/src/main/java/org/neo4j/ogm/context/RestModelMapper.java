@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
@@ -160,7 +161,9 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
 		} else if (entity instanceof RelationshipModel) {
 			RelationshipModel relationshipModel = (RelationshipModel) entity;
 			relationshipModels.add(relationshipModel);
-			if (relationshipModel.getPropertyList().size() > 0) {
+			ClassInfo classInfo = metaData.classInfo(relationshipModel.getType());
+
+			if (classInfo != null && classInfo.isRelationshipEntity()) {
 				relationshipEntityColumns.put(relationshipModel.getId(), column);
 			}
 		}

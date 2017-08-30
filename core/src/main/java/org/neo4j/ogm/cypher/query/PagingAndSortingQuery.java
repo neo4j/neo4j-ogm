@@ -14,6 +14,8 @@ package org.neo4j.ogm.cypher.query;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Extends {@link CypherQuery} with additional functionality for Paging and Sorting.
  *
@@ -50,7 +52,7 @@ public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorti
                 if (stmt.contains(")-[r0")) {
                     sorting = sorting.replace("$", "r0");
                     if (!withClause.contains(",r0") && (!withClause.contains("r0,"))) {
-                        newWithClause = newWithClause + ",r0";
+                        newWithClause = StringUtils.removeEnd(newWithClause, "n") + "distinct n";                    	
                     }
                 } else {
                     sorting = sorting.replace("$", "n");

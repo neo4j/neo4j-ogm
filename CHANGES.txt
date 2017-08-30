@@ -2,6 +2,7 @@
 --------------
 o Expose connection.liveness.check.timeout driver property to fix connection problems with firewalls. See #358.
 o Map relationship entities without any properties
+o Return correct results when paging and filtering on relationship property
 
 2.1.4
 --------------

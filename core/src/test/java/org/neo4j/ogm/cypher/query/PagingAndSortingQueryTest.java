@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.cypher.query;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +45,7 @@ public class PagingAndSortingQueryTest {
 		String stmt = query.getStatement();
 		assertEquals("MATCH (n:`User`) WHERE n.`name` = { `name_0` } " +
 				"MATCH (n)-[r0:`RATED`]-(m0) WHERE r0.`stars` = { `ratings_stars_1` } " +
-				"WITH n,r0 SKIP 0 LIMIT 4 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", stmt);
+				"WITH distinct n SKIP 0 LIMIT 4 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", stmt);
 		System.out.println(stmt);
 	}
 

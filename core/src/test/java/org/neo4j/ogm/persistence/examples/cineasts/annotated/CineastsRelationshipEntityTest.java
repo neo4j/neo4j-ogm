@@ -28,8 +28,10 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.internal.util.collections.Sets;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
@@ -818,6 +820,59 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         assertNull(movie.getRatings().iterator().next().getComment());
     }
 
+    @Test
+    public void testFilterOnRelationshipEntity() throws Exception {
+        Movie pulpFiction = new Movie("Pulp Fiction", 1994);
+
+        Movie ootf = new Movie("Harry Potter and the Order of the Phoenix", 2009);
+
+        User frantisek = new User();
+        frantisek.setName("Frantisek");
+        frantisek.setLogin("frantisek");
+
+        Rating pulpRating = new Rating();
+        pulpRating.setStars(3);
+        pulpRating.setMovie(pulpFiction);
+        pulpRating.setUser(frantisek);            
+        pulpFiction.setRatings(Sets.newSet(pulpRating));
+
+        Rating ootfRating = new Rating();
+        ootfRating.setStars(3);
+        ootfRating.setMovie(ootf);
+        ootfRating.setUser(frantisek);
+
+        frantisek.setRatings(Sets.newSet(ootfRating, pulpRating));
+
+        User otto = new User();
+        otto.setName("Otto");
+        otto.setLogin("otto");
+
+        Rating pulpRating2 = new Rating();
+        pulpRating2.setStars(3);
+        pulpRating2.setMovie(pulpFiction);
+        pulpRating2.setUser(otto);
+
+        Rating ootfRating2 = new Rating();
+        ootfRating2.setStars(3);
+        ootfRating2.setMovie(ootf);
+        ootfRating2.setUser(otto);
+
+        pulpFiction.setRatings(Sets.newSet(pulpRating, pulpRating2));
+        ootf.setRatings(Sets.newSet(ootfRating, ootfRating2));
+        otto.setRatings(Sets.newSet(pulpRating2, ootfRating2));
+        session.save(otto);
+
+        session.clear();
+
+        Filter filter = new Filter("stars", ComparisonOperator.EQUALS, 3);
+        filter.setNestedPropertyName("ratings");
+        filter.setNestedPropertyType(Rating.class);
+        filter.setNestedRelationshipEntity(true);
+        Collection<User> users = session.loadAll(User.class, filter, new Pagination(0, 2));
+
+        assertEquals(2, users.size());
+    }
+    
     private void bootstrap(String cqlFileName) {
         session.query(TestUtils.readCQLFile(cqlFileName).toString(), Utils.map());
     }

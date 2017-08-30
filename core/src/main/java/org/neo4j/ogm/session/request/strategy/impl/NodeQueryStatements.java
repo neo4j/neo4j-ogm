@@ -92,7 +92,7 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
     @Override
     public PagingAndSortingQuery findByType(String label, Filters parameters, int depth) {
         FilteredQuery filteredQuery = FilteredQueryBuilder.buildNodeQuery(label, parameters);
-        String matchClause = filteredQuery.statement()+ "WITH n";
+        String matchClause = filteredQuery.statement();
         String returnClause = loadClauseBuilder.build(label, depth);
         return new PagingAndSortingQuery(matchClause, returnClause, filteredQuery.parameters(), depth != 0, true);
     }

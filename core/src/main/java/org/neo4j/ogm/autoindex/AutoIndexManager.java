@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -39,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * This class controls the deletion and creation of indexes in the OGM.
  *
  * @author Mark Angrish
+ * @author Eric Spiegelberg
  */
 public class AutoIndexManager {
 
@@ -141,7 +141,13 @@ public class AutoIndexManager {
                     continue;
                 }
                 for (AutoIndex index : indexes) {
-                    if (index.getDescription().replaceAll("\\s+", "").equalsIgnoreCase(((String) rowModel.getValues()[0]).replaceAll("\\s+", ""))) {
+                	String description = index.getDescription();
+                	
+                	// The rowModel values below, as returned from the request to Neo4j, do not contain escape characters
+                	// Therefore remove escape characters from the description so as to correctly match the rowModel values
+                	description = description.replace("`", "");
+
+                    if (description.replaceAll("\\s+", "").equalsIgnoreCase(((String) rowModel.getValues()[0]).replaceAll("\\s+", ""))) {
                         copyOfIndexes.remove(index);
                     }
                 }
@@ -174,7 +180,17 @@ public class AutoIndexManager {
                     continue;
                 }
                 // can replace this with a lookup of the Index by description but attaching DROP here is faster.
-                final String dropStatement = "DROP " + rowModel.getValues()[0];
+                String statement = (String) rowModel.getValues()[0];
+
+                // The statement is provided by the response from Neo4j and may not be property escaped for execution
+                if (statement.startsWith("CONSTRAINT")) {
+                	statement = escapeConstraintStatement(statement);	
+                } else if (statement.startsWith("INDEX")) {
+                	statement = escapeIndexStatement(statement);
+                }
+                
+                final String dropStatement = "DROP " + statement;
+
                 LOGGER.debug("[{}] added to drop statements.", dropStatement);
                 dropStatements.add(new RowDataStatement(dropStatement, EMPTY_MAP));
             }
@@ -216,5 +232,82 @@ public class AutoIndexManager {
         try (Response<RowModel> response = driver.request().execute(request)) {
             // Success
         }
+    }
+    
+    /**
+     * Perform String manipulations to transform the incoming constraint statement to be property escaped.
+     * @param statement A constraint statement, possibly unescaped.
+     * @return A properly escaped constraint statement.
+     */
+    private String escapeConstraintStatement(String statement) {
+    	
+        int startIndex = statement.indexOf("CONSTRAINT ON (");
+        
+        if (startIndex != -1) {
+        	
+        	StringBuilder str = new StringBuilder(statement);
+        	
+        	startIndex = startIndex + 16;
+        	str = str.insert(startIndex, "`");
+        	
+        	startIndex = str.indexOf(":", startIndex);
+        	str = str.insert(startIndex, "`");
+
+        	startIndex = startIndex + 2;
+        	str = str.insert(startIndex, "`");
+        	
+        	startIndex = str.indexOf(" ", startIndex);
+        	str = str.insert(startIndex, "`");
+        	
+        	startIndex = str.indexOf("ASSERT ", startIndex);
+        	startIndex = startIndex + 7;                	
+        	str = str.insert(startIndex, "`");
+        	
+        	startIndex = str.indexOf(".", startIndex);
+        	str = str.insert(startIndex, "`");
+        	
+        	startIndex = startIndex + 2;
+        	str = str.insert(startIndex, "`");
+        	
+        	startIndex = str.indexOf(" ", startIndex);
+        	str = str.insert(startIndex, "`");
+        	
+        	statement = str.toString();
+        }    	
+        
+        return statement;
+
+    }
+    
+    /**
+     * Perform String manipulations to transform the incoming index statement to be property escaped.
+     * @param statement A index statement, possibly unescaped.
+     * @return A properly escaped index statement.
+     */
+    private String escapeIndexStatement(String statement) {
+    	
+        int startIndex = statement.indexOf("INDEX ON :");
+
+        if (startIndex != -1) {
+        	
+        	StringBuilder str = new StringBuilder(statement);
+        	
+        	startIndex = startIndex + 10;
+        	str = str.insert(startIndex, "`");
+        
+        	startIndex = str.indexOf("(", startIndex);
+        	str = str.insert(startIndex, "`");
+
+        	startIndex = startIndex + 2;
+        	str = str.insert(startIndex, "`");
+        	
+        	startIndex = str.indexOf(")", startIndex);
+        	str = str.insert(startIndex, "`");
+        	
+        	statement = str.toString();
+        }
+        
+        return statement;
+        
     }
 }

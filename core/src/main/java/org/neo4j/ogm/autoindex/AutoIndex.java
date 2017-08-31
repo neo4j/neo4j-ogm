@@ -22,6 +22,7 @@ import org.neo4j.ogm.session.request.RowDataStatement;
  * Represents an Index that can be auto generated in Neo4j.
  *
  * @author Mark Angrish
+ * @author Eric Spiegelberg
  */
 class AutoIndex {
 
@@ -35,9 +36,9 @@ class AutoIndex {
     AutoIndex(String label, String property, boolean unique) {
 
         if (unique) {
-            this.description = "CONSTRAINT ON ( " + label.toLowerCase() + ":" + label + " ) ASSERT " + label.toLowerCase() + "." + property + " IS UNIQUE";
+            this.description = "CONSTRAINT ON ( `" + label.toLowerCase() + "`:`" + label + "` ) ASSERT `" + label.toLowerCase() + "`.`" + property + "` IS UNIQUE";
         } else {
-            this.description = "INDEX ON :" + label + "( " + property + " )";
+            this.description = "INDEX ON :`" + label + "`( `" + property + "` )";
         }
     }
 

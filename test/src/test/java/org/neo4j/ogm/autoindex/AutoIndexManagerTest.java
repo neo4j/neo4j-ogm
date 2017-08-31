@@ -25,11 +25,11 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
     private MetaData metaData = new MetaData("org.neo4j.ogm.domain.forum");
 
     private static final String CREATE_LOGIN_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( `login`:`Login` ) ASSERT `login`.`userName` IS UNIQUE";
-    private static final String CREATE_TAG_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( `t-a-g`:`T-A-G` ) ASSERT `t-a-g`.`description` IS UNIQUE";    
-    private static final String CREATE_TAG_INDEX_CYPHER = "CREATE INDEX ON :`t-a-g`(`description`)";
+    private static final String CREATE_TAG_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( `t-a-g`:`T-A-G` ) ASSERT `t-a-g`.`short-description` IS UNIQUE";    
+    private static final String CREATE_TAG_INDEX_CYPHER = "CREATE INDEX ON :`t-a-g`(`short-description`)";
     
     private static final String DROP_LOGIN_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (`login`:`Login`) ASSERT `login`.`userName` IS UNIQUE";
-    private static final String DROP_TAG_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (`t-a-g`:`T-A-G`) ASSERT `t-a-g`.`description` IS UNIQUE";
+    private static final String DROP_TAG_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (`t-a-g`:`T-A-G`) ASSERT `t-a-g`.`short-description` IS UNIQUE";
 
     @Test
     public void shouldPreserveNoneConfiguration() {

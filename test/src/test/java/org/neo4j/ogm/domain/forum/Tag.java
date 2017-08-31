@@ -16,9 +16,10 @@ package org.neo4j.ogm.domain.forum;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
 
 /**
- * A entity class used to demonstrate/test labels that require being escaped. 
+ * A entity class used to demonstrate/test labels and properties that require being escaped. 
  *  
  * @author Eric Spiegelberg
  */
@@ -29,6 +30,7 @@ public class Tag {
     private Long tagId;
 
     @Index(unique = true)
+    @Property(name="short-description")
     private String description;
     
 	public Long getTagId() {

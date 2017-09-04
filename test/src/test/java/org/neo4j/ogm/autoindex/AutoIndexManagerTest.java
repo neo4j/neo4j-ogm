@@ -1,11 +1,9 @@
 package org.neo4j.ogm.autoindex;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -20,13 +18,18 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * Make sure this tests works across all drivers supporting Neo4j 3.x and above.
  *
  * @author Mark Angrish
+ * @author Eric Spiegelberg
  */
 public class AutoIndexManagerTest extends MultiDriverTestClass {
 
     private MetaData metaData = new MetaData("org.neo4j.ogm.domain.forum");
 
-    private static final String CREATE_LOGIN_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( login:Login ) ASSERT login.userName IS UNIQUE";
-    private static final String DROP_LOGIN_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (login:Login) ASSERT login.userName IS UNIQUE";
+    private static final String CREATE_LOGIN_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( `login`:`Login` ) ASSERT `login`.`userName` IS UNIQUE";
+    private static final String CREATE_TAG_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( `t-a-g`:`T-A-G` ) ASSERT `t-a-g`.`short-description` IS UNIQUE";    
+    private static final String CREATE_TAG_INDEX_CYPHER = "CREATE INDEX ON :`t-a-g`(`short-description`)";
+    
+    private static final String DROP_LOGIN_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (`login`:`Login`) ASSERT `login`.`userName` IS UNIQUE";
+    private static final String DROP_TAG_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (`t-a-g`:`T-A-G`) ASSERT `t-a-g`.`short-description` IS UNIQUE";
 
     @Test
     public void shouldPreserveNoneConfiguration() {
@@ -55,14 +58,14 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
     @Test
     public void testIndexesAreSuccessfullyValidated() {
 
-        createLoginConstraint();
+        createConstraints();
 
         Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
         AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
-        assertThat(indexManager.getIndexes()).hasSize(1);
+        assertThat(indexManager.getIndexes()).hasSize(2);
         indexManager.build();
 
-        dropLoginConstraint();
+        dropConstraints();
     }
 
     @Test(expected = MissingIndexException.class)
@@ -75,7 +78,8 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
     @Test
     public void testIndexDumpMatchesDatabaseIndexes() throws IOException {
 
-        createLoginConstraint();
+        createConstraints();
+        
         File file = new File("./test.cql");
 
         try {
@@ -86,41 +90,46 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
                     .build();
 
             AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
-            assertThat(indexManager.getIndexes()).hasSize(1);
+            assertThat(indexManager.getIndexes()).hasSize(2);
             indexManager.build();
 
             assertThat(file.exists()).isTrue();
             try (InputStream is = new FileInputStream("./test.cql")) {
                 String actual = IOUtils.toString(is);
-                assertThat(actual).isEqualToIgnoringWhitespace(CREATE_LOGIN_CONSTRAINT_CYPHER);
+                String expected = CREATE_LOGIN_CONSTRAINT_CYPHER + " " + CREATE_TAG_CONSTRAINT_CYPHER;
+                assertThat(actual).isEqualToIgnoringWhitespace(expected);
             }
 
         } finally {
             file.delete();
         }
 
-        dropLoginConstraint();
+        dropConstraints();
     }
 
     @Test
     public void testIndexesAreSuccessfullyAsserted() {
 
-        createLoginConstraint();
+        createConstraints();
 
         Configuration configuration = getBaseConfiguration().autoIndex("assert").build();
         AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
 
-        assertThat(indexManager.getIndexes()).hasSize(1);
+        assertThat(indexManager.getIndexes()).hasSize(2);
         indexManager.build();
 
-        dropLoginConstraint();
+        dropConstraints();
     }
 
-    private void createLoginConstraint() {
+    private void createConstraints() {
         getGraphDatabaseService().execute(CREATE_LOGIN_CONSTRAINT_CYPHER);
+        getGraphDatabaseService().execute(CREATE_TAG_CONSTRAINT_CYPHER);        
+        getGraphDatabaseService().execute(CREATE_TAG_INDEX_CYPHER);
     }
 
-    private void dropLoginConstraint() {
+    private void dropConstraints() {
         getGraphDatabaseService().execute(DROP_LOGIN_CONSTRAINT_CYPHER);
+        getGraphDatabaseService().execute(DROP_TAG_CONSTRAINT_CYPHER);
     }
+    
 }

@@ -14,7 +14,6 @@
 package org.neo4j.ogm.persistence.transaction;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +31,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import static java.util.Collections.emptyMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Test of behaviour of the Session for default transactions (transactions without explicit handling)
@@ -70,6 +70,7 @@ public class DefaultTransactionTest extends MultiDriverTestClass {
 
         try {
             session.save(new User("frantisek"));
+            fail("Constraint violation should have make the second save fail");
         } catch (Exception ex) {
             logger.info("Caught exception", ex);
         }

@@ -35,6 +35,7 @@ public class NodeQueryBuilder {
     private Map<String, Object> parameters;
     private int matchClauseId;
     private boolean built = false;
+    private boolean hasRelationshipMatch = false;
 
     public NodeQueryBuilder(String principalLabel, Iterable<Filter> filters) {
         this.principalClause = new PrincipalNodeMatchClause(principalLabel);
@@ -56,6 +57,7 @@ public class NodeQueryBuilder {
                 }
                 if (filter.isNested()) {
                     appendNestedFilter(filter);
+                    hasRelationshipMatch = true;
                 } else {
                     //If the filter is not nested, it belongs to the node we're returning
                     principalClause().append(filter);
@@ -130,6 +132,12 @@ public class NodeQueryBuilder {
 
         for (MatchClause matchClause : pathClauses) {
             stringBuilder.append(matchClause.toCypher());
+        }
+
+        if (hasRelationshipMatch) {
+            stringBuilder.append("WITH DISTINCT n");
+        } else {
+            stringBuilder.append("WITH n");
         }
 
         return stringBuilder;

@@ -12,8 +12,6 @@
  */
 package org.neo4j.ogm.cypher.query;
 
-import org.neo4j.ogm.session.request.NodeQueryBuilder;
-
 import java.util.Map;
 
 /**
@@ -67,6 +65,7 @@ public class PagingAndSortingQuery implements PagingAndSorting {
             StringBuilder sb = new StringBuilder();
 
             String returnClause = this.returnClause;
+
             sb.append(matchClause);
             if (!sorting.isEmpty()) {
                 sb.append(sorting.replace("$", "n"));

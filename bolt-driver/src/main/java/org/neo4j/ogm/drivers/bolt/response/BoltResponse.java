@@ -18,12 +18,13 @@ import java.util.Set;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.exceptions.ClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.transaction.TransactionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Luanne Misquitta
@@ -69,13 +70,25 @@ public abstract class BoltResponse<T> implements Response {
 
     @Override
     public String[] columns() {
-        if (result.hasNext()) {
-            Record record = result.peek();
-            if (record != null) {
-                Set<String> columns = result.peek().asMap().keySet();
-                return columns.toArray(new String[columns.size()]);
+        try {
+            if (result.hasNext()) {
+                Record record = result.peek();
+                if (record != null) {
+                    Set<String> columns = result.peek().asMap().keySet();
+                    return columns.toArray(new String[columns.size()]);
+                }
             }
+        } catch (ClientException ce) {
+            // exception may occur if records has not been fetched yet
+            // should we catch other things than ClientException ?
+            BoltTransaction tx = (BoltTransaction) transactionManager.getCurrentTransaction();
+            if (tx != null) {
+                tx.rollback();
+            }
+            LOGGER.debug("Error executing Cypher: {}, {}", ce.code(), ce.getMessage());
+            throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
         }
+
         return new String[0];
     }
 }

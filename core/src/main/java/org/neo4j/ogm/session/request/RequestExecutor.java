@@ -19,12 +19,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.context.TransientRelationship;
 import org.neo4j.ogm.cypher.compiler.CompileContext;
 import org.neo4j.ogm.cypher.compiler.Compiler;
+import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.RowModel;
@@ -34,8 +38,6 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Plans request execution and processes the response.
@@ -289,16 +291,20 @@ public class RequestExecutor {
                     }
                 }
             }
-
-            if (transactionRequired && newTransaction) {
-                tx.commit();
-                tx.close();
-            }
-        } catch (Exception e) {
+        } catch (CypherException e) {
+            // all tx management logic should be here in case of error. At the moment it is
+            // split in various parts of the drivers. Needs to be refactored in next major version.
+            // This is intended to fix #393. Replacing previous workaround to make HTTP work
             if (transactionRequired && newTransaction) {
                 tx.rollback();
                 tx.close();
+                throw e;
             }
+        }
+
+        if (transactionRequired && newTransaction) {
+            tx.commit();
+            tx.close();
         }
 
         //Update the mapping context now that the request is successful

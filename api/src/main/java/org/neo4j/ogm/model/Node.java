@@ -30,4 +30,10 @@ public interface Node {
     List<Property<String, Object>> getPropertyList();
 
     String getPrimaryIndex();
+
+    /**
+     * Returns "label signature" for this node - added and removed labels, sorted alphabetically
+     */
+    String labelSignature();
+
 }

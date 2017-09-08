@@ -14,13 +14,10 @@
 package org.neo4j.ogm.cypher.compiler;
 
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.plaf.nimbus.State;
 
 import org.junit.After;
 import org.junit.Before;
@@ -40,6 +37,10 @@ import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
+import org.neo4j.ogm.domain.restaurant.Branch;
+import org.neo4j.ogm.domain.restaurant.Franchise;
+import org.neo4j.ogm.domain.restaurant.Location;
+import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
 import org.neo4j.ogm.metadata.MetaData;
@@ -62,7 +63,7 @@ public class CompilerTest {
 
     @BeforeClass
     public static void setUpTestDatabase() {
-        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.social", "org.neo4j.domain.policy", "org.neo4j.ogm.domain.music");
+        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.social", "org.neo4j.domain.policy", "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.restaurant");
         mappingContext = new MappingContext(mappingMetadata);
     }
 
@@ -90,7 +91,31 @@ public class CompilerTest {
         Compiler compiler = mapAndCompile(newStudent);
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
         assertThat(compiler.createNodesStatements()).extracting(Statement::getStatement).containsOnly(
-                "UNWIND {rows} as row CREATE (n:`Student`:`DomainObject`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"
+                "UNWIND {rows} as row CREATE (n:`DomainObject`:`Student`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"
+        );
+    }
+
+    @Test
+    public void createSingleStatementForLabelsInDifferentOrder() throws Exception {
+        Franchise franchise = new Franchise();
+
+        Restaurant r1 = new Restaurant();
+        r1.setName("La Strada Tooting");
+        r1.labels = newArrayList("Delicious", "Foreign");
+
+        Restaurant r2 = new Restaurant();
+        r2.setName("La Strada Brno");
+        r2.labels = newArrayList("Foreign", "Delicious");
+
+        franchise.addBranch(new Branch(new Location(0.0, 0.0), franchise, r1));
+        franchise.addBranch(new Branch(new Location(0.0, 0.0), franchise, r2));
+
+        Compiler compiler = mapAndCompile(franchise);
+        assertThat(compiler.createNodesStatements()).extracting(Statement::getStatement).containsOnly(
+                "UNWIND {rows} as row CREATE (n:`Franchise`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type",
+                // the order of labels here does not matter
+                // the point is only one query for this combination of labels
+                "UNWIND {rows} as row CREATE (n:`Delicious`:`Foreign`:`Restaurant`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"
         );
     }
 
@@ -111,7 +136,7 @@ public class CompilerTest {
         compiler.useStatementFactory(new RowStatementFactory());
         assertThat(compiler.createNodesStatements()).isEmpty();
         assertThat(compiler.updateNodesStatements()).extracting(Statement::getStatement).containsOnly(
-                "UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`Student`:`DomainObject` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type"
+                "UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`DomainObject`:`Student` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type"
         );
     }
 
@@ -144,7 +169,7 @@ public class CompilerTest {
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isTrue();
 
         assertThat(compiler.createNodesStatements()).extracting(Statement::getStatement).containsOnly(
-                "UNWIND {rows} as row CREATE (n:`School`:`DomainObject`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type",
+                "UNWIND {rows} as row CREATE (n:`DomainObject`:`School`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type",
                 "UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"
         );
 
@@ -317,7 +342,7 @@ public class CompilerTest {
         assertThat(createNodesStatements).extracting(Statement::getStatement).containsOnly(
                 "UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type",
                 "UNWIND {rows} as row CREATE (n:`Course`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type",
-                "UNWIND {rows} as row CREATE (n:`Student`:`DomainObject`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"
+                "UNWIND {rows} as row CREATE (n:`DomainObject`:`Student`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"
         );
 
         for (Statement statement : createNodesStatements) {

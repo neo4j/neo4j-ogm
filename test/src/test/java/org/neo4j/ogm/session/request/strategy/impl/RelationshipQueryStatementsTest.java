@@ -12,18 +12,23 @@
  */
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
+
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.exception.InvalidDepthException;
 import org.neo4j.ogm.exception.MissingOperatorException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
 import static java.util.Arrays.asList;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import static org.neo4j.ogm.cypher.ComparisonOperator.EQUALS;
 
@@ -34,7 +39,8 @@ import static org.neo4j.ogm.cypher.ComparisonOperator.EQUALS;
  */
 public class RelationshipQueryStatementsTest {
 
-    private final QueryStatements query = new RelationshipQueryStatements();
+    private final QueryStatements<Long> query = new RelationshipQueryStatements<>();
+    private final QueryStatements<String> primaryQuery = new RelationshipQueryStatements<>("uuid");
 
     @Test
     public void testFindOne() throws Exception {
@@ -61,6 +67,19 @@ public class RelationshipQueryStatementsTest {
     }
 
     @Test
+    public void testFindOneByTypePrimaryIndex() throws Exception {
+        PagingAndSortingQuery query = primaryQuery.findOneByType("ORBITS", "test-uuid", 2);
+        assertThat(query.getStatement())
+                .isEqualTo("MATCH ()-[r0:`ORBITS`]-() WHERE r0.`uuid`={id}  " +
+                        "WITH STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
+                        "WITH COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
+                        "WITH startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                        "WITH startPaths + endPaths AS paths UNWIND paths AS p RETURN DISTINCT p");
+
+        assertThat(query.getParameters()).contains(entry("id", "test-uuid"));
+    }
+
+    @Test
     public void testFindByLabel() throws Exception {
         assertThat(query.findByType("ORBITS", 3).getStatement()).isEqualTo("MATCH ()-[r0:`ORBITS`]-()  WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
                 "MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
@@ -77,10 +96,25 @@ public class RelationshipQueryStatementsTest {
     public void testFindAllByTypeCollection() throws Exception {
         assertThat(query.findAllByType("ORBITS", asList(1L, 2L, 3L), 1).getStatement()).isEqualTo("MATCH ()-[r0:`ORBITS`]-() WHERE ID(r0) IN {ids}  " +
                 "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() " +
-                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*1..1]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
                 "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
                 "UNWIND paths AS p RETURN DISTINCT p, rId");
+    }
+
+    @Test
+    public void testFindAllByTypePrimaryIndex() throws Exception {
+        PagingAndSortingQuery query = primaryQuery.findAllByType("ORBITS", newArrayList("test-uuid-1", "test-uuid-2"), 2);
+
+        assertThat(query.getStatement())
+                .isEqualTo("MATCH ()-[r0:`ORBITS`]-() WHERE r0.`uuid` IN {ids}  " +
+                        "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
+                        "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
+                        "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                        "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
+                        "UNWIND paths AS p RETURN DISTINCT p, rId");
+
+        assertThat(query.getParameters()).contains(entry("ids", newArrayList("test-uuid-1", "test-uuid-2")));
     }
 
     @Test

@@ -109,6 +109,10 @@ public class EntityGraphMapper implements EntityMapper {
             NodeBuilder startNodeBuilder = mapEntity(startNode, horizon, compiler);
             NodeBuilder endNodeBuilder = mapEntity(endNode, horizon, compiler);
 
+            if (reInfo.idStrategyClass() != null && !InternalIdStrategy.class.equals(reInfo.idStrategyClass())) {
+                generateIdIfNecessary(entity, reInfo);
+            }
+
             // create or update the relationship if its not already been visited in the current compile context
             if (!compiler.context().visitedRelationshipEntity(EntityUtils.identity(entity, metaData))) {
 
@@ -218,9 +222,7 @@ public class EntityGraphMapper implements EntityMapper {
             return context.visitedNode(identity);
         }
 
-        if (classInfo.idStrategyClass() != null && !InternalIdStrategy.class.equals(classInfo.idStrategyClass())) {
-            generateIdIfNecessary(entity, classInfo);
-        }
+        generateIdIfNecessary(entity, classInfo);
 
         NodeBuilder nodeBuilder = getNodeBuilder(compiler, entity);
         if (nodeBuilder != null) {
@@ -235,6 +237,10 @@ public class EntityGraphMapper implements EntityMapper {
     }
 
     private void generateIdIfNecessary(Object entity, ClassInfo classInfo) {
+        if (classInfo.idStrategyClass() == null || InternalIdStrategy.class.equals(classInfo.idStrategyClass())) {
+            return;
+        }
+
         if (classInfo.idStrategy() == null) {
             throw new MappingException("Id strategy " + classInfo.idStrategyClass() + " could not be instantiated " +
                     "and wasn't registered. Either provide no argument constructor or register instance " +
@@ -462,6 +468,10 @@ public class EntityGraphMapper implements EntityMapper {
             RelationshipBuilder relationshipBuilder = getRelationshipBuilder(cypherCompiler, relNodes.target, directedRelationship, mapBothDirections);
 
             if (isRelationshipEntity(relNodes.target)) {
+
+                generateIdIfNecessary(relNodes.target, metaData.classInfo(relNodes.target));
+
+
                 Long reIdentity = EntityUtils.identity(relNodes.target, metaData);
                 if (!context.visitedRelationshipEntity(reIdentity)) {
                     mapRelationshipEntity(relNodes.target, relNodes.source, relationshipBuilder, context, nodeBuilder, cypherCompiler, horizon, relNodes.sourceType, relNodes.targetType);
@@ -515,6 +525,11 @@ public class EntityGraphMapper implements EntityMapper {
             relationshipBuilder.setSingleton(false);  // indicates that this relationship type can be mapped multiple times between 2 nodes
             relationshipBuilder.setReference(EntityUtils.identity(entity, metaData));
             relationshipBuilder.setRelationshipEntity(true);
+
+            ClassInfo classInfo = metaData.classInfo(entity);
+            if (classInfo.primaryIndexField() != null) {
+                relationshipBuilder.setPrimaryIdName(classInfo.primaryIndexField().propertyName());
+            }
         }
         return relationshipBuilder;
     }

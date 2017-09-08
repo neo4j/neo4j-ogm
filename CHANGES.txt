@@ -10,6 +10,7 @@ o Don't merge collection property default value with graph value
 o Lookup by Long primary id returns correct instance when conflicts with other graph id (DATAGRAPH-1008)
 o Generate correct statements for entities with label field
 o Fix creation of relationship entities with identical properties
+o Add @Id to relationship entities
 
 3.0.0-RC1
 o Add verifyConnection configuration property for bolt and http driver

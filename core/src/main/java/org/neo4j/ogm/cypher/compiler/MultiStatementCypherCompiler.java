@@ -23,7 +23,6 @@ import org.neo4j.ogm.cypher.compiler.builders.statement.*;
 import org.neo4j.ogm.exception.UnknownStatementTypeException;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;
-import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
 import org.neo4j.ogm.response.model.RelationshipModel;
@@ -125,36 +124,27 @@ public class MultiStatementCypherCompiler implements Compiler {
         assertStatementFactoryExists();
         //Group relationships by type and non-null properties
         //key: relationship type, value: Map where key=Set<Property strings>, value: Set of edges with those properties
-        Map<String, Map<Set<String>, Set<Edge>>> relsByTypeAndProps = new HashMap<>();
+        Map<String, Map<String, Set<Edge>>> relsByTypeAndProps = new HashMap<>();
         for (RelationshipBuilder relationshipBuilder : newRelationshipBuilders) {
             if (relationshipBuilder.edge().getStartNode() == null || relationshipBuilder.edge().getEndNode() == null) {
                 continue; //TODO this is a carry forward from the old emitters. We want to prevent this rel builder getting created or remove it
             }
-            if (!relsByTypeAndProps.containsKey(relationshipBuilder.type())) {
-                relsByTypeAndProps.put(relationshipBuilder.type(), new HashMap<>());
-            }
+            Map<String, Set<Edge>> relsByProps = relsByTypeAndProps
+                    .computeIfAbsent(relationshipBuilder.type(), (key) -> new HashMap<>());
+
             RelationshipModel edge = (RelationshipModel) relationshipBuilder.edge();
-            Set<String> nonNullPropertyKeys = new HashSet<>();
-            Iterator<Property<String, Object>> propertyIterator = edge.getPropertyList().iterator();
-            while (propertyIterator.hasNext()) {
-                Property property = propertyIterator.next();
-                if (property.getValue() == null) {
-                    propertyIterator.remove();
-                } else {
-                    nonNullPropertyKeys.add((String) property.getKey());
-                }
-            }
-            if (!relsByTypeAndProps.get(relationshipBuilder.type()).containsKey(nonNullPropertyKeys)) {
-                relsByTypeAndProps.get(relationshipBuilder.type()).put(nonNullPropertyKeys, new HashSet<>());
-            }
+
+            String primaryId = edge.getPrimaryIdName();
+
+            Set<Edge> rels = relsByProps.computeIfAbsent(primaryId, (s) -> new HashSet<>());
             edge.setStartNode(context.getId(edge.getStartNode()));
             edge.setEndNode(context.getId(edge.getEndNode()));
-            relsByTypeAndProps.get(relationshipBuilder.type()).get(nonNullPropertyKeys).add(edge);
+            rels.add(edge);
         }
 
         List<Statement> statements = new ArrayList<>();
         //For each relationship type
-        for (Map<Set<String>, Set<Edge>> edgesByProperties : relsByTypeAndProps.values()) {
+        for (Map<String, Set<Edge>> edgesByProperties : relsByTypeAndProps.values()) {
             //For each set of unique property keys
             for (Set<Edge> edges : edgesByProperties.values()) {
                 NewRelationshipStatementBuilder newRelationshipBuilder = new NewRelationshipStatementBuilder(edges, statementFactory);

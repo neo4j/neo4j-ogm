@@ -17,13 +17,12 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
-import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.exception.InvalidDepthException;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
+import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
 /**
@@ -32,8 +31,6 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 public class RelationshipQueryStatements<ID extends Serializable> implements QueryStatements<ID> {
 
     private static final String MATCH_WITH_ID = "MATCH ()-[r0]-() WHERE ID(r0)={id} ";
-    private static final String MATCH_WITH_TYPE_AND_ID = "MATCH ()-[r0:`%s`]-() WHERE ID(r0)={id} ";
-    private static final String MATCH_WITH_IDS = "MATCH ()-[r0]-() WHERE ID(r0) IN {ids} ";
     private static final String MATCH_WITH_TYPE_AND_IDS = "MATCH ()-[r0:`%s`]-() WHERE ID(r0) IN {ids} ";
     private static final String MATCH_PATHS_WITH_REL_ID = " WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
             "MATCH p1 = (n)-[*%d..%d]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
@@ -47,6 +44,18 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
             "WITH startPaths + endPaths AS paths " +
             "UNWIND paths AS p " +
             "RETURN DISTINCT p";
+
+    private MatchClauseBuilder idMatchClauseBuilder = new IdMatchRelationshipClauseBuilder();
+    private MatchClauseBuilder idCollectionMatchClauseBuilder = new IdCollectionMatchRelationshipClauseBuilder();
+
+    private String primaryId;
+
+    public RelationshipQueryStatements() {
+    }
+
+    public RelationshipQueryStatements(String primaryId) {
+        this.primaryId = primaryId;
+    }
 
     @Override
     public PagingAndSortingQuery findOne(ID id, int depth) {
@@ -69,7 +78,13 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
-            String qry = String.format(MATCH_WITH_TYPE_AND_ID + MATCH_PATHS, label, min, max, min, max);
+            String matchClause;
+            if (primaryId == null) {
+                matchClause = idMatchClauseBuilder.build(label);
+            } else {
+                matchClause = idMatchClauseBuilder.build(label, primaryId);
+            }
+            String qry = String.format(matchClause + MATCH_PATHS, min, max, min, max);
             return new PagingAndSortingQuery(qry, Utils.map("id", id));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
@@ -81,7 +96,13 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
-            String qry = String.format(MATCH_WITH_TYPE_AND_IDS + MATCH_PATHS_WITH_REL_ID, type, min, max, max, max);
+            String matchClause;
+            if (primaryId == null) {
+                matchClause = idCollectionMatchClauseBuilder.build(type);
+            } else {
+                matchClause = idCollectionMatchClauseBuilder.build(type, primaryId);
+            }
+            String qry = String.format(matchClause + MATCH_PATHS_WITH_REL_ID, min, max, min, max);
             return new PagingAndSortingQuery(qry, Utils.map("ids", ids));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");

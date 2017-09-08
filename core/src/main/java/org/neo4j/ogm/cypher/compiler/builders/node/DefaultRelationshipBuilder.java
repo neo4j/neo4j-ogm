@@ -129,4 +129,9 @@ public class DefaultRelationshipBuilder implements RelationshipBuilder {
     public void setReference(Long reference) {
         relationship.setId(reference);
     }
+
+    @Override
+    public void setPrimaryIdName(String primaryIdName) {
+        relationship.setPrimaryIdName(primaryIdName);
+    }
 }

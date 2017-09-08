@@ -30,6 +30,7 @@ public class RelationshipModel implements Edge {
     private Long startNode;
     private Long endNode;
     private List<Property<String, Object>> properties = new ArrayList<>();
+    private String primaryIdName;
 
     public Long getId() {
         return id;
@@ -67,7 +68,12 @@ public class RelationshipModel implements Edge {
         return properties;
     }
 
-//    public Map<String, Object> getProperties() {
+    @Override
+    public String getPrimaryIdName() {
+        return primaryIdName;
+    }
+
+    //    public Map<String, Object> getProperties() {
 //        Map<String, Object> map = new HashMap<>();
 //        for (Property<String, Object> property : properties) {
 //            map.put(property.getKey(), property.getValue());
@@ -82,6 +88,9 @@ public class RelationshipModel implements Edge {
         }
     }
 
+    public void setPrimaryIdName(String primaryIdPropertyName) {
+        this.primaryIdName = primaryIdPropertyName;
+    }
 
     @Override
     public String toString() {

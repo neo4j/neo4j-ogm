@@ -52,15 +52,14 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
         if (edges != null && edges.size() > 0) {
             Edge firstEdge = edges.iterator().next();
             String relType = firstEdge.getType();
-            if (firstEdge.getPropertyList().size() > 0) {
-                hasProperties = true;
-            }
+            hasProperties = firstEdge.getPropertyList().size() > 0;
+            boolean hasPrimaryId = firstEdge.getPrimaryIdName() != null;
 
             queryBuilder.append("UNWIND {rows} as row ")
                     .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
                     .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ");
 
-            if (hasProperties) {
+            if (hasProperties && !hasPrimaryId) {
                 queryBuilder.append("CREATE ");
             } else {
                 queryBuilder.append("MERGE ");
@@ -68,7 +67,18 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
 
             queryBuilder.append("(startNode)-[rel:`")
                     .append(relType)
-                    .append("`]->(endNode) ");
+                    .append("`");
+
+
+            if (hasPrimaryId) {
+                queryBuilder.append(" {`")
+                        .append(firstEdge.getPrimaryIdName())
+                        .append("`: row.props.`")
+                        .append(firstEdge.getPrimaryIdName())
+                        .append("`}");
+            }
+            queryBuilder.append("]->(endNode) ");
+
             if (hasProperties) {
                 queryBuilder.append("SET rel += row.props ");
 

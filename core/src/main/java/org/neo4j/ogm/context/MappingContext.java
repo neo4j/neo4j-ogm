@@ -43,6 +43,8 @@ public class MappingContext {
 
     private final Map<Long, Object> relationshipEntityRegister;
 
+    private final Map<LabelPrimaryId, Object> primaryIdToRelationship;
+
     private final Set<MappedRelationship> relationshipRegister;
 
     private final Map<Long, LabelHistory> labelHistoryRegister;
@@ -59,6 +61,7 @@ public class MappingContext {
         this.nodeEntityRegister = new HashMap<>();
         this.primaryIndexNodeRegister = new HashMap<>();
         this.relationshipEntityRegister = new HashMap<>();
+        this.primaryIdToRelationship = new HashMap<>();
         this.relationshipRegister = new HashSet<>();
         this.labelHistoryRegister = new HashMap<>();
     }
@@ -150,6 +153,12 @@ public class MappingContext {
 
     public void replaceRelationshipEntity(Object entity, Long id) {
         relationshipEntityRegister.remove(id);
+        ClassInfo classInfo = metaData.classInfo(entity);
+        FieldInfo primaryIndexField = classInfo.primaryIndexField();
+        if (primaryIndexField != null) {
+            Object primaryId = primaryIndexField.read(entity);
+            primaryIdToRelationship.remove(new LabelPrimaryId(classInfo, primaryId));
+        }
         addRelationshipEntity(entity, id);
     }
 
@@ -185,6 +194,7 @@ public class MappingContext {
     public void clear() {
         identityMap.clear();
         relationshipRegister.clear();
+        primaryIdToRelationship.clear();
         nodeEntityRegister.clear();
         primaryIndexNodeRegister.clear();
         typeRegister.clear();
@@ -196,11 +206,32 @@ public class MappingContext {
         return relationshipEntityRegister.get(relationshipId);
     }
 
+    /**
+     * Get a relationship entity from MappingContext by primary id
+     *
+     * @param classInfo classInfo of the relationship entity (it is needed to because primary id may not be unique
+     * across all relationship types)
+     * @param id primary id of the entity
+     *
+     * @return relationship entity
+     */
+    public Object getRelationshipEntityById(ClassInfo classInfo, Object id) {
+        return primaryIdToRelationship.get(new LabelPrimaryId(classInfo, id));
+    }
+
     public Object addRelationshipEntity(Object relationshipEntity, Long id) {
+
         if (relationshipEntityRegister.putIfAbsent(id, relationshipEntity) == null) {
             relationshipEntity = relationshipEntityRegister.get(id);
             addType(relationshipEntity.getClass(), relationshipEntity, id);
             remember(relationshipEntity);
+
+            ClassInfo classInfo = metaData.classInfo(relationshipEntity);
+            FieldInfo primaryIdField = classInfo.primaryIndexField();
+            if (primaryIdField != null) {
+                Object primaryId = primaryIdField.read(relationshipEntity);
+                primaryIdToRelationship.put(new LabelPrimaryId(classInfo, primaryId), relationshipEntity);
+            }
         }
         return relationshipEntity;
     }

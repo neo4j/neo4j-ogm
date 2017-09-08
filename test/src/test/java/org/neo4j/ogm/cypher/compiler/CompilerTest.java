@@ -43,6 +43,9 @@ import org.neo4j.ogm.domain.restaurant.Location;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
+import org.neo4j.ogm.domain.travel.Person;
+import org.neo4j.ogm.domain.travel.Place;
+import org.neo4j.ogm.domain.travel.Visit;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.RowStatementFactory;
@@ -63,7 +66,15 @@ public class CompilerTest {
 
     @BeforeClass
     public static void setUpTestDatabase() {
-        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.social", "org.neo4j.domain.policy", "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.restaurant");
+        mappingMetadata = new MetaData(
+                "org.neo4j.ogm.domain.education",
+                "org.neo4j.ogm.domain.forum",
+                "org.neo4j.ogm.domain.social",
+                "org.neo4j.domain.policy",
+                "org.neo4j.ogm.domain.music",
+                "org.neo4j.ogm.domain.restaurant",
+                "org.neo4j.ogm.domain.travel");
+
         mappingContext = new MappingContext(mappingMetadata);
     }
 
@@ -656,6 +667,26 @@ public class CompilerTest {
 
         statements = compiler.createRelationshipsStatements();
         assertThat(statements).isEmpty();
+    }
+
+    @Test
+    public void shouldMergeNewRelationshipEntity() throws Exception {
+        Person frantisek = new Person("Frantisek");
+        Place scotland = new Place("Scotland");
+        Visit visit = frantisek.addVisit(scotland, "Holiday");
+
+        Compiler compiler = mapAndCompile(frantisek);
+
+        List<Statement> statements = compiler.createRelationshipsStatements();
+
+        assertThat(statements)
+                .extracting(Statement::getStatement)
+                .containsOnly("UNWIND {rows} as row "
+                        + "MATCH (startNode) WHERE ID(startNode) = row.startNodeId "
+                        + "MATCH (endNode) WHERE ID(endNode) = row.endNodeId "
+                        + "MERGE (startNode)-[rel:`VISITED` {`identifier`: row.props.`identifier`}]->(endNode) "
+                        + "SET rel += row.props "
+                        + "RETURN row.relRef as ref, ID(rel) as id, row.type as type");
     }
 
     @Test

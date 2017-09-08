@@ -151,25 +151,6 @@ public class RequestExecutor {
     }
 
     /**
-     * Maintain a mapping of relationship references used in the compile context and the relationship id created in the graph.
-     * Note that the mapping context is not updated at this point
-     *
-     * @param response query response
-     * @param relRefMappings mapping of relationship reference used in the compile context and the relationship id from the database
-     */
-    private void registerNewRelIds(Response<RowModel> response, List<ReferenceMapping> relRefMappings) {
-        RowModel rowModel;
-        while ((rowModel = response.next()) != null) {
-            Object[] results = rowModel.getValues();
-            Long relRef;
-            Long relId;
-            relRef = ((Number) results[0]).longValue();
-            relId = ((Number) results[1]).longValue();
-            relRefMappings.add(new ReferenceMapping(relRef, relId));
-        }
-    }
-
-    /**
      * Update the mapping context with entity ids for new/existing nodes created or updated in the request.
      *
      * @param context the compile context
@@ -275,7 +256,6 @@ public class RequestExecutor {
 
             try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
                 registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-                registerNewRelIds(response, relReferenceMappings);
             }
         } else { // only update / delete statements
             List<Statement> statements = compiler.getAllStatements();
@@ -284,7 +264,6 @@ public class RequestExecutor {
                 defaultRequest.setStatements(statements);
                 try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
                     registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-                    registerNewRelIds(response, relReferenceMappings);
                 }
             }
         }

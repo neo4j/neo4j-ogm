@@ -671,7 +671,7 @@ public class CompilerTest {
         assertThat(statements).isEmpty();
         statements = compiler.updateRelationshipStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-                "MATCH ()-[r]-() WHERE ID(r) IN {relIds} FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props) RETURN ID(r) as ref, ID(r) as id, {type} as type"
+                "UNWIND {rows} AS row MATCH ()-[r]-() WHERE ID(r) = row.relId SET r += row.props RETURN ID(r) as ref, ID(r) as id, {type} as type"
         );
         assertThat((List) statements.get(0).getParameters().get("rows")).hasSize(1);
     }

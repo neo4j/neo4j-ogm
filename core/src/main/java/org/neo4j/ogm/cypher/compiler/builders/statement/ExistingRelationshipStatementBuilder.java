@@ -43,10 +43,8 @@ public class ExistingRelationshipStatementBuilder implements CypherStatementBuil
         final StringBuilder queryBuilder = new StringBuilder();
 
         if (edges.size() > 0) {
-            //queryBuilder.append("START r=rels({relIds}) SET r += ({rows}[toString(id(r))]).props"); //TODO 2.3+
-            queryBuilder.append("MATCH ()-[r]-() WHERE ID(r) IN {relIds} FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props) ");
+            queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]-() WHERE ID(r) = row.relId SET r += row.props ");
             queryBuilder.append("RETURN ID(r) as ref, ID(r) as id, {type} as type");
-            List<Long> relIds = new ArrayList<>(edges.size());
             List<Map> rows = new ArrayList<>();
             for (Edge edge : edges) {
                 Map<String, Object> rowMap = new HashMap<>();
@@ -57,10 +55,8 @@ public class ExistingRelationshipStatementBuilder implements CypherStatementBuil
                 }
                 rowMap.put("props", props);
                 rows.add(rowMap);
-                relIds.add(edge.getId());
             }
             parameters.put("rows", rows);
-            parameters.put("relIds", relIds);
             parameters.put("type", "rel");
         }
 

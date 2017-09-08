@@ -512,11 +512,12 @@ public class Neo4jSession implements Session {
     // These helper methods for the delegates are deliberately NOT defined on the Session interface
     //
     public <T, ID extends Serializable> QueryStatements<ID> queryStatementsFor(Class<T> type, int depth) {
+        final FieldInfo fieldInfo = metaData.classInfo(type.getName()).primaryIndexField();
+        String primaryIdName = fieldInfo != null ? fieldInfo.property() : null;
         if (metaData.isRelationshipEntity(type.getName())) {
-            return new RelationshipQueryStatements<>();
+            return new RelationshipQueryStatements<>(primaryIdName);
         } else {
-            final FieldInfo fieldInfo = metaData.classInfo(type.getName()).primaryIndexField();
-            return new NodeQueryStatements<>(fieldInfo != null ? fieldInfo.property() : null, loadClauseBuilder(depth));
+            return new NodeQueryStatements<>(primaryIdName, loadClauseBuilder(depth));
         }
     }
 

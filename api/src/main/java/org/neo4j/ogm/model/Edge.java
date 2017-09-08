@@ -29,4 +29,10 @@ public interface Edge {
     Long getId();
 
     List<Property<String, Object>> getPropertyList();
+
+    /**
+     * Returns name of the primary id property (property annotated with @Id)
+     */
+    String getPrimaryIdName();
+
 }

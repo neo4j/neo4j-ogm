@@ -142,6 +142,25 @@ public class IdGenerationTest extends MultiDriverTestClass {
         session.save(entity);
     }
 
+    @Test
+    public void saveRelationshipEntityWithId() throws Exception {
+        ValidAnnotations.IdAndGenerationType b1 = new ValidAnnotations.IdAndGenerationType();
+        ValidAnnotations.IdAndGenerationType b2 = new ValidAnnotations.IdAndGenerationType();
+        ValidAnnotations.RelationshipEntityWithId rel = new ValidAnnotations.RelationshipEntityWithId(b1, b2, 100);
+
+        session.save(rel);
+        assertThat(rel.uuid).isNotNull();
+
+        ValidAnnotations.RelationshipEntityWithId loaded = session.load(ValidAnnotations.RelationshipEntityWithId.class, rel.uuid);
+        assertThat(loaded).isSameAs(rel);
+
+        session.clear();
+
+        loaded = session.load(ValidAnnotations.RelationshipEntityWithId.class, rel.uuid);
+        assertThat(loaded.startNode.identifier).isEqualTo(b1.identifier);
+        assertThat(loaded.endNode.identifier).isEqualTo(b2.identifier);
+    }
+
     public static class CustomIdStrategy implements IdStrategy {
 
         @Override

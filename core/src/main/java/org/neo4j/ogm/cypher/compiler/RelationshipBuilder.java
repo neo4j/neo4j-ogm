@@ -55,4 +55,6 @@ public interface RelationshipBuilder {
     boolean isNew();
 
     Edge edge();
+
+    void setPrimaryIdName(String primaryIdName);
 }

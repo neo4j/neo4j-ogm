@@ -79,17 +79,21 @@ public class LoadOneDelegate {
         Object ref;
         ClassInfo typeInfo = session.metaData().classInfo(type.getName());
 
+        FieldInfo primaryIndex = typeInfo.primaryIndexField();
         if (typeInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
-            FieldInfo primaryIndex = typeInfo.primaryIndexField();
             if (primaryIndex == null) {
                 ref = session.context().getNodeEntity((Long) id);
             } else {
                 ref = session.context().getNodeEntityById(typeInfo, id);
             }
         } else {
-            // Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
-            // But we know this will always be Long.
-            ref = session.context().getRelationshipEntity((Long) id);
+            if (primaryIndex == null) {
+                // Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
+                // But we know this will always be Long.
+                ref = session.context().getRelationshipEntity((Long) id);
+            } else {
+                ref = session.context().getRelationshipEntityById(typeInfo, id);
+            }
         }
         try {
             return type.cast(ref);

@@ -14,6 +14,8 @@
 package org.neo4j.ogm.cypher.compiler;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.cypher.compiler.builders.node.DefaultNodeBuilder;
 import org.neo4j.ogm.cypher.compiler.builders.node.DefaultRelationshipBuilder;
@@ -25,6 +27,8 @@ import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
 import org.neo4j.ogm.response.model.RelationshipModel;
+
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * Cypher compiler that produces multiple statements that can be executed together or split over a transaction.
@@ -287,16 +291,9 @@ public class MultiStatementCypherCompiler implements Compiler {
     }
 
     private Map<String, Set<Node>> groupNodesByLabel(List<NodeBuilder> nodeBuilders) {
-        Map<String, Set<Node>> nodesByLabels = new HashMap<>();
-        for (NodeBuilder nodeBuilder : nodeBuilders) {
-            //String joinedLabels = String.join(",", nodeBuilder.addedLabels());
-            String joinedLabels = join(nodeBuilder.addedLabels());
-            if (!nodesByLabels.containsKey(joinedLabels)) {
-                nodesByLabels.put(joinedLabels, new HashSet<>());
-            }
-            nodesByLabels.get(joinedLabels).add(nodeBuilder.node());
-        }
-        return nodesByLabels;
+        return nodeBuilders.stream()
+                .map(NodeBuilder::node)
+                .collect(groupingBy(Node::labelSignature, Collectors.mapping(Function.identity(), Collectors.toSet())));
     }
 
     private Map<String, Set<Edge>> groupRelationshipsByType(List<RelationshipBuilder> relationshipBuilders) {
@@ -315,14 +312,4 @@ public class MultiStatementCypherCompiler implements Compiler {
         return relsByType;
     }
 
-    private String join(String[] parts) { //TODO drop when we start compiling with Java 8
-        StringBuilder str = new StringBuilder();
-        for (String part : parts) {
-            if (str.length() > 0) {
-                str.append(",");
-            }
-            str.append(part);
-        }
-        return str.toString();
-    }
 }

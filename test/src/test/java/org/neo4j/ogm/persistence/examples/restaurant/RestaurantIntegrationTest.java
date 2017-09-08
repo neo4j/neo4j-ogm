@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.restaurant;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
@@ -150,6 +151,37 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         assertThat(loaded.labels.contains("Ambiance")).isTrue();
         assertThat(loaded.labels.contains("Convenience")).isTrue();
         assertThat(loaded.labels).hasSize(3);
+    }
+
+    @Test
+    public void shouldUpdateLabelsCorrectly() throws Exception {
+        Franchise franchise = new Franchise();
+
+        Restaurant r1 = new Restaurant();
+        r1.setName("La Strada Tooting");
+        r1.labels = newArrayList("Delicious", "Foreign");
+
+        Restaurant r2 = new Restaurant();
+        r2.setName("La Strada Brno");
+        r2.labels = newArrayList("Average", "Foreign");
+
+        franchise.addBranch(new Branch(new Location(0.0, 0.0), franchise, r1));
+        franchise.addBranch(new Branch(new Location(0.0, 0.0), franchise, r2));
+
+        session.save(franchise);
+
+        // remove labels, different label for each entity
+        r1.labels = newArrayList("Foreign");
+        r2.labels = newArrayList("Foreign");
+        session.save(franchise);
+
+        session.clear();
+
+        Restaurant loadedR1 = session.load(Restaurant.class, r1.getId());
+        assertThat(loadedR1.labels).containsOnly("Foreign");
+
+        Restaurant loadedR2 = session.load(Restaurant.class, r2.getId());
+        assertThat(loadedR2.labels).containsOnly("Foreign");
     }
 
     /**

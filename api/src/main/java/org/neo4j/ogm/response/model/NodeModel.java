@@ -14,11 +14,15 @@
 package org.neo4j.ogm.response.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
+
+import static java.util.stream.Collectors.joining;
 
 /**
  * @author Michal Bachman
@@ -74,10 +78,12 @@ public class NodeModel implements Node {
     }
 
     public void setLabels(String[] labels) {
+        Arrays.sort(labels);
         this.labels = labels;
     }
 
     public void removeLabels(String[] labels) {
+        Arrays.sort(labels);
         this.removedLabels = labels;
     }
 
@@ -86,6 +92,18 @@ public class NodeModel implements Node {
             if (property.getKey().equals(key)) return property.getValue();
         }
         return null;
+    }
+
+    public String labelSignature() {
+        ArrayList<String> allLabels = new ArrayList<>();
+        Collections.addAll(allLabels, labels);
+
+        if (removedLabels != null) {
+            allLabels.add("_SEPARATOR_");
+            Collections.addAll(allLabels, removedLabels);
+        }
+
+        return allLabels.stream().collect(joining(","));
     }
 
     @Override

@@ -8,6 +8,7 @@ o Update java driver version to 1.4.3
 o Test against java driver 1.5-alpha1 in driver-1.5 profile
 o Don't merge collection property default value with graph value
 o Lookup by Long primary id returns correct instance when conflicts with other graph id (DATAGRAPH-1008)
+o Generate correct statements for entities with label field
 
 3.0.0-RC1
 o Add verifyConnection configuration property for bolt and http driver

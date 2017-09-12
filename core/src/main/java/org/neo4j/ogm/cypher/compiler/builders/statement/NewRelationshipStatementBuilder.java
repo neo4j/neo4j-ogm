@@ -13,13 +13,19 @@
 
 package org.neo4j.ogm.cypher.compiler.builders.statement;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
+
+import static java.util.Collections.emptyMap;
 
 /**
  * @author Luanne Misquitta
@@ -52,29 +58,22 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
 
             queryBuilder.append("UNWIND {rows} as row ")
                     .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
-                    .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ")
-                    .append("MERGE (startNode)-[rel:`").append(relType).append("`");
+                    .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ");
 
             if (hasProperties) {
-                boolean firstProperty = true;
-                queryBuilder.append("{ ");
-                Set<String> sortedProperties = new TreeSet<>();
-                for (Property property : firstEdge.getPropertyList()) {
-                    sortedProperties.add("`" + property.getKey() + "`: row.props.`" + property.getKey() + "`");
-                }
-
-                for (String propertyString : sortedProperties) {
-                    if (!firstProperty) {
-                        queryBuilder.append(", ");
-                    }
-                    queryBuilder.append(propertyString);
-                    firstProperty = false;
-                }
-                queryBuilder.append("}");
+                queryBuilder.append("CREATE ");
+            } else {
+                queryBuilder.append("MERGE ");
             }
 
-            queryBuilder.append("]->(endNode) ")
-                    .append("RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+            queryBuilder.append("(startNode)-[rel:`")
+                    .append(relType)
+                    .append("`]->(endNode) ");
+            if (hasProperties) {
+                queryBuilder.append("SET rel += row.props ");
+
+            }
+            queryBuilder.append("RETURN row.relRef as ref, ID(rel) as id, row.type as type");
 
             List<Map> rows = new ArrayList<>();
             for (Edge edge : edges) {
@@ -89,6 +88,10 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
                         props.put((String) property.getKey(), property.getValue());
                     }
                     rowMap.put("props", props);
+                } else {
+                    // need to put empty map here for simple relationships to avoid Cypher error because
+                    // props is used in the query
+                    rowMap.put("props", emptyMap());
                 }
                 rows.add(rowMap);
             }

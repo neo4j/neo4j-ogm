@@ -613,7 +613,7 @@ public class CompilerTest {
 
         statements = compiler.createRelationshipsStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS_TOPIC`{ `timestamp`: row.props.`timestamp`}]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId CREATE (startNode)-[rel:`HAS_TOPIC`]->(endNode) SET rel += row.props RETURN row.relRef as ref, ID(rel) as id, row.type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -635,7 +635,7 @@ public class CompilerTest {
 
         statements = compiler.createRelationshipsStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-                "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS_TOPIC`{ `timestamp`: row.props.`timestamp`}]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"
+                "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId CREATE (startNode)-[rel:`HAS_TOPIC`]->(endNode) SET rel += row.props RETURN row.relRef as ref, ID(rel) as id, row.type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");

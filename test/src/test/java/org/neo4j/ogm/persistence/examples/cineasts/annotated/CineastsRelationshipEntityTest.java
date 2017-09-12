@@ -622,7 +622,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldSaveSingleRoleRelationshipBetweenTheSameTwoObjects() {
+    public void shouldSaveSameRoleTwiceRelationshipBetweenTheSameTwoObjects() {
 
         Movie movie = new Movie("The big John Travolta Party", 2016);
 
@@ -645,7 +645,32 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         session.clear();
         loadedActor = session.load(Actor.class, actor.getUuid());
 
-        assertThat(loadedActor.getRoles()).hasSize(1);
+        assertThat(loadedActor.getRoles()).hasSize(2);
+    }
+
+    @Test
+    public void updateRoleToSameValueResultsInTwoRelationshipBetweenSameObjects() throws Exception {
+        Movie movie = new Movie("The big John Travolta Party", 2016);
+
+        Actor actor = new Actor("John Travolta");
+        Role role1 = actor.playedIn(movie, "He danced mostly");
+        Role role2 = actor.playedIn(movie, "He was dancing mostly");
+
+        assertThat(actor.getRoles()).hasSize(2);
+
+        session.save(actor);
+
+        session.clear();
+        Actor loaded = session.load(Actor.class, actor.getUuid());
+        assertThat(loaded.getRoles()).hasSize(2);
+
+        // set to identical role - this should behave consistently to previous test case
+        role2.setRole("He danced mostly");
+        session.save(actor);
+
+        session.clear();
+        loaded = session.load(Actor.class, actor.getUuid());
+        assertThat(loaded.getRoles()).hasSize(2);
     }
 
     /**

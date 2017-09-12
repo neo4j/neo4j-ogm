@@ -16,6 +16,7 @@ package org.neo4j.ogm.persistence.transaction;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import org.junit.After;
 import org.junit.Before;

@@ -30,6 +30,7 @@ public class DriverConfiguration {
     public static final String[] DRIVER = {"neo4j.ogm.driver","spring.data.neo4j.driver", "driver"};
     public static final String[] CREDENTIALS = {"neo4j.ogm.credentials","spring.data.neo4j.credentials", "credentials"};
     public static final String[] URI = {"neo4j.ogm.URI", "spring.data.neo4j.URI", "URI"};
+    public static final String[] URIS = {"neo4j.ogm.URIS", "spring.data.neo4j.URIS", "URIS"};
     public static final String[] USERNAME = {"neo4j.ogm.username", "spring.data.neo4j.username", "username"};
     public static final String[] PASSWORD = {"neo4j.ogm.password", "spring.data.neo4j.password", "password"};
 
@@ -140,6 +141,15 @@ public class DriverConfiguration {
 
     public String getURI() {
         return (String)  configuration.get(URI);
+    }
+
+    public String[] getURIS() {
+        String value = (String) configuration.get(URIS);
+        if (value != null) {
+            return value.split(",");
+        } else {
+            return new String[0];
+        }
     }
 
     public String getDriverClassName() {

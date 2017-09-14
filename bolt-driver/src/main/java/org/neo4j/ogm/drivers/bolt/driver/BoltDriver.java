@@ -15,6 +15,9 @@ package org.neo4j.ogm.drivers.bolt.driver;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.neo4j.driver.v1.*;
@@ -67,14 +70,40 @@ public class BoltDriver extends AbstractConfigurableDriver {
 		if (config.getCredentials() != null) {
 			UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) config.getCredentials();
 			AuthToken authToken = AuthTokens.basic(credentials.getUsername(), credentials.getPassword());
-			boltDriver = GraphDatabase.driver(config.getURI(), authToken, driverConfig);
+			boltDriver = createDriver(config, driverConfig, authToken);
 		} else {
 			try {
-				boltDriver = GraphDatabase.driver(config.getURI(), driverConfig);
+				boltDriver = createDriver(config, driverConfig, AuthTokens.none());
 			} catch (ServiceUnavailableException e) {
 				throw new ConnectionException("Could not create driver instance.", e);
 			}
 			LOGGER.debug("Bolt Driver credentials not supplied");
+		}
+	}
+
+	private Driver createDriver(DriverConfiguration config, Config driverConfig, AuthToken authToken) {
+		if (config.getURIS() == null) {
+			return GraphDatabase.driver(config.getURI(), authToken, driverConfig);
+		} else {
+			List<String> uris = new ArrayList<>();
+			uris.add(config.getURI());
+			uris.addAll(Arrays.asList(config.getURIS()));
+
+			// OGM 2.1.x depends on driver 1.2.x, higher driver versions provide
+			// GraphDatabase.driver(Iterable<String> uri, ..)
+			for (String uri : uris) {
+				try {
+					Driver driver = GraphDatabase.driver(uri, authToken, driverConfig);
+					LOGGER.info("Driver initialised with URI={}", uri);
+					return driver;
+				}
+				catch (ServiceUnavailableException ex) {
+					LOGGER.warn("Failed to initialise driver with URI={}", uri);
+					LOGGER.debug("Driver initialisation for URI={} failed exception", uri, ex);
+					// This URI failed, so loop around again if we have another.
+				}
+			}
+			throw new ServiceUnavailableException("No valid database URI found");
 		}
 	}
 

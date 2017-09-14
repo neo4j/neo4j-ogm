@@ -76,4 +76,9 @@ public class DriverConfigurationTest {
 		assertEquals("neo4j-ha.properties", config.getNeo4jHaPropertiesFile());
 	}
 
+    @Test
+    public void testURISInConfiguration() throws Exception {
+        DriverConfiguration config = new DriverConfiguration(new Configuration("ogm-bolt-uris.properties"));
+        assertArrayEquals(new String[] {"bolt://localhost:9998", "bolt://localhost:9999"}, config.getURIS());
+    }
 }

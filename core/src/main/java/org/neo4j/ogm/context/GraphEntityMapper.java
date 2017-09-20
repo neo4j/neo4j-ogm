@@ -95,6 +95,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 }
             }
         }
+        executePostLoad(nodeIds, edgeIds);
 
         model.close();
         return objects;
@@ -116,23 +117,22 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     public <T> List<T> map(Class<T> type, GraphModel graphModel) {
         Set<Long> nodeIds = new LinkedHashSet<>();
         Set<Long> edgeIds = new LinkedHashSet<>();
-        return map(type, graphModel, nodeIds, edgeIds);
+        List<T> results = map(type, graphModel, nodeIds, edgeIds);
+        executePostLoad(nodeIds, edgeIds);
+        return results;
     }
 
     public <T> List<T> map(Class<T> type, GraphModel graphModel, Set<Long> nodeIds, Set<Long> edgeIds) {
 
-        mapEntities(type, graphModel, nodeIds, edgeIds);
+        Set<Long> modelNodeIds = new LinkedHashSet<>();
+        Set<Long> modelEdgeIds = new LinkedHashSet<>();
+        mapEntities(type, graphModel, modelNodeIds, modelEdgeIds);
         List<T> results = new ArrayList<>();
-        Set<Long> seenNodeIds = new HashSet<>();
-        Set<Long> seenEdgeIds = new HashSet<>();
 
-        for (Long id : nodeIds) {
+        for (Long id : modelNodeIds) {
             Object o = mappingContext.getNodeEntity(id);
 
-            if (!seenNodeIds.contains(id)) {
-                executePostLoad(o);
-                seenNodeIds.add(id);
-            }
+            nodeIds.add(id);
 
             if (o != null && type.isAssignableFrom(o.getClass())) {
                 results.add(type.cast(o));
@@ -141,15 +141,10 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
         // only look for REs if no node entities were found
         if (results.isEmpty()) {
-            for (Long id : edgeIds) {
+            for (Long id : modelEdgeIds) {
                 Object o = mappingContext.getRelationshipEntity(id);
 
-                if (!seenEdgeIds.contains(id)) {
-                    if (o != null) {
-                        executePostLoad(o);
-                    }
-                    seenEdgeIds.add(id);
-                }
+                edgeIds.add(id);
 
                 if (o != null && type.isAssignableFrom(o.getClass())) {
                     results.add(type.cast(o));
@@ -158,6 +153,43 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         }
 
         return results;
+    }
+
+    /**
+     * Executes method annotated with @PostLoad on node and relationship entities with given ids
+     *
+     * This method must be executed after processing all result rows:
+     * - post load must be called after the entity is fully hydrated
+     * - to avoid executing post load multiple times on same entity
+     *
+     * @param nodeIds nodeIds
+     * @param edgeIds edgeIds
+     */
+    public void executePostLoad(Set<Long> nodeIds, Set<Long> edgeIds) {
+        for (Long id : nodeIds) {
+            Object o = mappingContext.getNodeEntity(id);
+            executePostLoad(o);
+        }
+
+        for (Long id : edgeIds) {
+            Object o = mappingContext.getRelationshipEntity(id);
+            if (o != null) {
+                executePostLoad(o);
+            }
+        }
+    }
+    private void executePostLoad(Object instance) {
+        ClassInfo classInfo = metadata.classInfo(instance);
+        MethodInfo postLoadMethod = classInfo.postLoadMethodOrNull();
+        if (postLoadMethod != null) {
+            final Method method = classInfo.getMethod(postLoadMethod);
+            try {
+                method.invoke(instance);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                logger.warn("Cannot call PostLoad annotated method {} on class {}. "
+                    + "Make sure it is public and has no arguments", method.getName(), classInfo.name(), e);
+            }
+        }
     }
 
     private <T> void mapEntities(Class<T> type, GraphModel graphModel, Set<Long> nodeIds, Set<Long> edgeIds) {
@@ -186,19 +218,6 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 } catch (BaseClassNotFoundException e) {
                     logger.debug(e.getMessage());
                 }
-            }
-        }
-    }
-
-    private void executePostLoad(Object instance) {
-        ClassInfo classInfo = metadata.classInfo(instance);
-        MethodInfo postLoadMethod = classInfo.postLoadMethodOrNull();
-        if (postLoadMethod != null) {
-            final Method method = classInfo.getMethod(postLoadMethod);
-            try {
-                method.invoke(instance);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                logger.error("Failed to execute post load method", e);
             }
         }
     }

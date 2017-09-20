@@ -12,6 +12,7 @@ o Generate correct statements for entities with label field
 o Fix creation of relationship entities with identical properties
 o Add @Id to relationship entities
 o Remove requirement to have graph id in entities
+o Execute @PostLoad method after fully hydrating all entities, fixes #403
 
 3.0.0-RC1
 o Add verifyConnection configuration property for bolt and http driver

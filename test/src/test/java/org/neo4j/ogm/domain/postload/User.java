@@ -13,7 +13,13 @@
 
 package org.neo4j.ogm.domain.postload;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.neo4j.ogm.annotation.PostLoad;
+import org.neo4j.ogm.annotation.Relationship;
+
+import static org.neo4j.ogm.annotation.Relationship.UNDIRECTED;
 
 /**
  * @author Frantisek Hartman
@@ -23,6 +29,9 @@ public class User {
     static int postLoadCount = 0;
 
     Long id;
+
+    @Relationship(type = "FRIEND_OF", direction = UNDIRECTED)
+    private Set<User> friends;
 
     public static int getPostLoadCount() {
         return postLoadCount;
@@ -41,4 +50,20 @@ public class User {
         postLoadCount++;
     }
 
+    public Set<User> getFriends() {
+        return friends;
+    }
+
+    public void addFriend(User friend) {
+        if (friends == null) {
+            friends = new HashSet<>();
+        }
+        friends.add(friend);
+
+        if (friend.friends == null) {
+            friend.friends = new HashSet<>();
+        }
+
+        friend.friends.add(this);
+    }
 }

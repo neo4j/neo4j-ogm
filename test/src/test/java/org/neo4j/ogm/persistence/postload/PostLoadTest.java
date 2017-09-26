@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.postload;
 
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -68,5 +70,24 @@ public class PostLoadTest extends MultiDriverTestClass {
         session.load(User.class, user.getId());
 
         assertThat(User.getPostLoadCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldCallPostLoadForEachEntityOnce() throws Exception {
+        User commonFriend = new User();
+        User u1 = new User();
+        User u2 = new User();
+
+        commonFriend.addFriend(u1);
+        commonFriend.addFriend(u2);
+
+        session.save(commonFriend);
+        session.clear();
+
+        // this returns multiple rows (2^3 = 8 rows), but should execute post load only once when all entities are
+        // hydrated
+        session.query("MATCH (u:User)-[rel]-(friend:User) RETURN u,rel,friend", Collections.emptyMap());
+
+        assertThat(User.getPostLoadCount()).isEqualTo(3);
     }
 }

@@ -114,14 +114,20 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         return results;
     }
 
-    public <T> List<T> map(Class<T> type, GraphModel graphModel) {
-        Set<Long> nodeIds = new LinkedHashSet<>();
-        Set<Long> edgeIds = new LinkedHashSet<>();
-        List<T> results = map(type, graphModel, nodeIds, edgeIds);
-        executePostLoad(nodeIds, edgeIds);
-        return results;
-    }
-
+    /**
+     * Map graph model and return found entities of given type type
+     *
+     * This method doesn't execute @PostLoad, call this method after processing whole request while accumulating
+     * nodeIds and edgeIds.
+     *
+     * @param type class of entities to return
+     * @param graphModel graph model to map
+     * @param nodeIds accumulator for mapped nodeIds
+     * @param edgeIds accumulator for mapped edgeIds
+     * @param <T> type
+     *
+     * @return list of entities matching given type
+     */
     public <T> List<T> map(Class<T> type, GraphModel graphModel, Set<Long> nodeIds, Set<Long> edgeIds) {
 
         Set<Long> modelNodeIds = new LinkedHashSet<>();

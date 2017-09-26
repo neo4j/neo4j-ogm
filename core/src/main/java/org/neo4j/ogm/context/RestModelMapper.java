@@ -48,6 +48,8 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
 
         restStatisticsModel.setStatistics(model.getStats());
 
+        Set<Long> nodeIds = new LinkedHashSet<>();
+        Set<Long> edgeIds = new LinkedHashSet<>();
         while (model.getRow().entrySet().size() > 0) {
             Map<String, Object> row = model.getRow();
             List<RelationshipModel> relationshipModels = new ArrayList<>();
@@ -57,7 +59,7 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
                     List entityList = (List) value;
                     if (isMappable(entityList)) {
                         for (int i = 0; i < entityList.size(); i++) {
-                            Object mapped = mapEntity(entry.getKey(), entityList.get(i), relationshipModels, relationshipEntityColumns);
+                            Object mapped = mapEntity(entry.getKey(), entityList.get(i), relationshipModels, relationshipEntityColumns, nodeIds, edgeIds);
                             if (mapped != null) { //if null, it'll be a relationship, which we're mapping after all nodes
                                 entityList.set(i, mapped);
                             }
@@ -67,7 +69,7 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
                     }
                 } else {
                     if (isMappable(Collections.singletonList(value))) {
-                        Object mapped = mapEntity(entry.getKey(), value, relationshipModels, relationshipEntityColumns);
+                        Object mapped = mapEntity(entry.getKey(), value, relationshipModels, relationshipEntityColumns, nodeIds, edgeIds);
                         if (mapped != null) {
                             entry.setValue(mapped);
                         }
@@ -97,6 +99,9 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
             result.add(row);
             model = response.next();
         }
+
+        graphEntityMapper.executePostLoad(nodeIds, edgeIds);
+
         restStatisticsModel.setResult(result);
         return (Iterable<T>) Collections.singletonList(restStatisticsModel);
     }
@@ -138,13 +143,18 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
         return false;
     }
 
-    private Object mapEntity(String column, Object entity, List<RelationshipModel> relationshipModels, Map<Long, String> relationshipEntityColumns) {
+    private Object mapEntity(String column, Object entity,
+                             List<RelationshipModel> relationshipModels,
+                             Map<Long, String> relationshipEntityColumns,
+                             Set<Long> nodeIds, Set<Long> edgeIds) {
+
         if (entity instanceof NodeModel) {
             NodeModel nodeModel = (NodeModel) entity;
             DefaultGraphModel graphModel = new DefaultGraphModel();
             graphModel.setNodes(new NodeModel[]{nodeModel});
             if (nodeModel.getLabels() != null && metaData.resolve(nodeModel.getLabels()) != null) {
-                List mapped = graphEntityMapper.map(metaData.resolve(nodeModel.getLabels()).getUnderlyingClass(), graphModel);
+                Class<?> underlyingClass = metaData.resolve(nodeModel.getLabels()).getUnderlyingClass();
+                List mapped = graphEntityMapper.map(underlyingClass, graphModel, nodeIds, edgeIds);
                 return mapped.get(0);
             }
         } else if (entity instanceof RelationshipModel) {

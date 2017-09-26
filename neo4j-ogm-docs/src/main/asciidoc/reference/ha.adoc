@@ -24,7 +24,7 @@ The bolt driver will fully handle any load balancing, which operate in concert w
 
 [[reference:ha:causal-clustering:configuration]]
 === Configuring the OGM
-
+// FIXME
 To use clustering, simply configure your bolt URI (in `ogm.properties` or through `Components.driver().setURI()`) to use the bolt routing protocol:
 
 [source, configs]
@@ -117,7 +117,7 @@ This configuration will also ensure that requests against a specific transaction
 .OGM Binding via HAProxy
 [source, java]
 ----
-Components.driver().setURI("http://10.0.2.200");
+Components.driver().setURI("http://10.0.2.200"); // FIXME
 ----
 
 .Sample haproxy.cfg

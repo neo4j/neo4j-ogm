@@ -26,15 +26,23 @@ New annotation @PostLoad was introduced to allow for any such action after the e
 == Configuration
 
 New class Configuration.Builder was introduced for java configuration using properties or property file.
-See #configuration section and JavaDoc for details for details.
+See <<configuration.adoc#, configuration>> section and JavaDoc for details.
 
 `Components` class was removed, if you need to provide custom driver instance use appropriate constructor of SessionFactory.
 
 
-== Unlimited load depth
+== Performance and unlimited load depth
 
-New load policy based on list comprehension generated from schema does not support unlimited depth (depth = -1).
-Either use specific depth or use `PATH_BASED_LOAD_STRATEGY`.
+In order to improve loading performance, some optimizations are now used by OGM when querying.
+A new load policy based on list comprehension generated from schema is now used.
+(see https://neo4j.com/docs/developer-manual/current/cypher/syntax/lists/#cypher-list-comprehension[here] for details)
+
+It means that, instead of loading blindly object graphs up to a certain depth, OGM will now only query the nodes and
+relationships that are expressed in your domain model.
+For applications that do not require following all the relationships, this can be a huge performance improvement.
+
+However, this new load strategy does not support unlimited depth (depth = -1).
+Either use specific depth or use `PATH_BASED_LOAD_STRATEGY`, to revert to the old strategy.
 
 [source,java]
 ----
@@ -44,3 +52,15 @@ session.setLoadStrategy(LoadStrategy.PATH_LOAD_STRATEGY);
 [NOTE]
 Default depth for `Session.load*` methods without depth parameter is 1, so there is no need to change anything.
 Only calls with explicit `depth = -1` need to be changed.
+
+
+== Migration checklist
+
+Here are the things you (may) have to adapt :
+
+* The `ogm.properties` file and environment variable have been removed. You now have to provide explicitly the configuration file or configure programmatically. See <<configuration.adoc#reference:configuration:driver, the configuration section>>
+* The driver class name in the configuration is now inferred from connection URL
+* TBC
+*
+
+

@@ -18,7 +18,7 @@ If the `label` attribute is set then this will replace the default label applied
 The default label is just the simple class name of the annotated entity.
 All parent classes (excluding `java.lang.Object`) are also added as labels so that retrieving a collection of nodes via a parent type is supported.
 
-Entity fields can be annotated with `@Property`, `@GraphId`, `@Transient` or `@Relationship`.
+Entity fields can be annotated with annotations like `@Property`, `@Id`, `@GeneratedValue`, `@Transient` or `@Relationship`.
 All annotations live in the `org.neo4j.ogm.annotation` package.
 Marking a field with the transient modifier has the same effect as annotating it with `@Transient`; it won't be persisted to the graph database.
 
@@ -28,7 +28,7 @@ Marking a field with the transient modifier has the same effect as annotating it
 @NodeEntity
 public class Actor extends DomainObject {
 
-   @GraphId
+   @Id @GeneratedValue
    private Long id;
 
    @Property(name="name")
@@ -42,7 +42,7 @@ public class Actor extends DomainObject {
 @NodeEntity(label="Film")
 public class Movie {
 
-   @GraphId Long id;
+   @Id @GeneratedValue Long id;
 
    @Property(name="title")
    private String name;
@@ -57,7 +57,8 @@ Saving a simple object graph containing one actor and one film using the above a
 (:Actor:DomainObject {name:'Tom Cruise'})-[:ACTED_IN]->(:Film {title:'Mission Impossible'})
 ----
 
-When annotating your objects, you can apply the annotations to either the fields or their accessor methods, but bear in mind the aforementioned `EntityAccessStrategy` ordering when annotating your domain model.
+When annotating your objects, you can choose to NOT apply the annotations on the fields.
+OGM will then use conventions to determine property names in the database for each field.
 
 .Persisting a non-annotated entity
 [source, java]
@@ -88,6 +89,8 @@ In this case, a graph similar to the following would be persisted.
 While this will map successfully to the database, it's important to understand that the names of the properties and relationship types are tightly coupled to the class's member names.
 Renaming any of these fields will cause parts of the graph to map incorrectly, hence the recommendation to use annotations.
 
+Please read <<reference:annotating-entities:non-annotated-properties>> for more details and best pratices on this.
+
 [[reference:annotating-entities:node-entity:dynamic-properties]]
 === @Properties: dynamically mapping properties to graph
 
@@ -95,7 +98,7 @@ Renaming any of these fields will cause parts of the graph to map incorrectly, h
 A `@Properties` annotation  tells OGM to map values of a Map field in a node or relationship entity to properties of
 a node or a relationship in the graph.
 
-The property names are derived from field name or `prefix()`, `delimiter` and keys in the Map.
+The property names are derived from field name or `prefix`, `delimiter` and keys in the Map.
 For example Map field with name `address` containing following entries:
 
 [source]
@@ -114,12 +117,13 @@ address.number=10
 
 Supported types for keys in the Map are String and Enum.
 
-The values in the Map can be of any Java type equivalent to Cypher types. If full type information is provided other
-Java types are also supported.
+The values in the Map can be of any Java type equivalent to Cypher types.
+If full type information is provided other Java types are also supported.
 
-If {@link #allowCast()} is set to true then types that can be cast to corresponding Cypher types are allowed as well.
-Note that the original type cannot be deduced and the value will be deserialized to corresponding type - e.g.
-when Integer instance is put to {@code Map<String, Object>} it will be deserialized as Long.
+If annotation parameter `allowCast` is set to true then types that can be cast to corresponding Cypher types are allowed as well.
+[NOTE]
+The original type cannot be deduced and the value will be deserialized to corresponding type - e.g.
+when Integer instance is put to ``Map<String, Object>` it will be deserialized as Long.
 
 [source, java]
 ----
@@ -160,7 +164,11 @@ public class Student {
 Now, upon save, the node's labels will correspond to the entity's class hierarchy _plus_ whatever the contents of the backing field are.
 We can use one `@Labels` field per class hierarchy - it should be exposed or hidden from sub-classes as appropriate.
 
+Runtime labels must not conflict with static labels defined on node entities.
 
+[NOTE]
+In a typical situation OGM issues one request per node entity type when saving node entities to the database.
+Using many distinct labels will result into many requests to the database (one request per unique combination of labels).
 
 
 [[reference:annotating-entities:relationship]]
@@ -259,8 +267,7 @@ If you wanted a person to own two cars, for example, then you'd have to use a `C
 In cases where the relationship mappings could be ambiguous, the recommendation is that:
 
 * The objects be navigable in both directions.
-* The @Relationship annotations are explicit.
-  This means if the entity has setter methods, they must be annotated
+* The `@Relationship` annotations are explicit.
 
 Examples of ambiguous relationship mappings are multiple relationship types that resolve to the same types of entities, in a given direction, but whose domain objects are not navigable in both directions.
 
@@ -269,11 +276,11 @@ Examples of ambiguous relationship mappings are multiple relationship types that
 Neo4j doesn't have any ordering on relationships, so the relationships are fetched without any specific ordering.
 If you want to impose order on collections of relationships you have several options:
 
-- use a -SortedSet- and implement `Comparable`
-- sort relationships in @PostLoad method
+- use a `SortedSet` and implement `Comparable`
+- sort relationships in <<reference:annotating-entities:postload, `@PostLoad`>> annotated method
 
 You can sort either by a property of a related node or by relationship property.
-To sort by relationship property you need to use relationship entity. See <<reference:annotating-entities:relationship-entity>>.
+To sort by relationship property you need to use a relationship entity. See <<reference:annotating-entities:relationship-entity>>.
 
 [[reference:annotating-entities:relationship-entity]]
 == @RelationshipEntity: Rich relationships
@@ -288,7 +295,7 @@ A field annotated with one of these annotations will provide access to the corre
 
 For controlling the relationship-type a `String` attribute called `type` is available on the `@RelationshipEntity` annotation.
 Like the simple strategy for labelling node entities, if this is not provided then the name of the class is used to derive the relationship type,
-although it's converted into SNAKE_CASE to honour the naming conventions of Neo4j relationships
+although it's converted into SNAKE_CASE to honour the naming conventions of Neo4j relationships.
 As of the current version of the OGM, the `type` *must* be specified on the `@RelationshipEntity` annotation as well as its corresponding `@Relationship` annotations.
 
 
@@ -309,7 +316,7 @@ public class Actor {
 
 @RelationshipEntity(type="PLAYED_IN")
 public class Role {
-    @GraphId   private Long relationshipId;
+    @Id @GeneratedValue   private Long relationshipId;
     @Property  private String title;
     @StartNode private Actor actor;
     @EndNode   private Movie movie;
@@ -342,7 +349,7 @@ This annotation is optional on superclasses.
 
 Every node and relationship persisted to the graph must have an ID.
 The OGM uses this to identify and re-connect the entity to the graph in memory.
-Identifier may be either a primary id or a native graph id.
+Identifier may be either a primary id or a native graph id (_the technical id attributed by Neo4j at node creation time_).
 
 For primary id use the `@Id` on a field of any supported type or a field with provided `AttributeConverter`.
 A unique index is created for such property (if index creation is enabled).
@@ -398,6 +405,7 @@ This is because when you first persist an entity, its hashcode changes because t
 This causes problems if you had inserted the newly created entity into a hash-based collection before saving.
 
 === Id Generation Strategy
+
 If the `@Id` annotation is used on its own it is expected that the field will be set by the application code.
 To automatically generate and assign a value of the property the annotation `@GeneratedValue` can be used.
 
@@ -417,6 +425,8 @@ All fields convertible to a `String` using the conversion services will be store
 Neo4j OGM includes default type converters that deal with the following types:
 
 * `java.util.Date` to a String in the ISO 8601 format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+* `java.time.Instant` to a String in the ISO 8601 with timezone format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXXZ"
+* `java.time.LocalDate` to a String in the ISO 8601 with format: "yyyy-MM-dd"
 * `java.math.BigInteger` to a String property
 * `java.math.BigDecimal` to a String property
 * binary data (as byte[] or Byte[]) to base-64 String
@@ -440,22 +450,17 @@ Property fields to be persisted to the graph must not be declared `final`.
 
 A method annotated with `@PostLoad` will be called once the entity is loaded from the database.
 
-[[reference:annotating-entities:rw-ordering]]
-== Object Read/Write Ordering
+[[reference:annotating-entities:non-annotated-properties]]
+== Non-annotated properties and best practices
 
 Neo4j OGM supports mapping annotated and non-annotated objects models.
 It's possible to save any POJO without annotations to the graph, as the framework applies conventions to decide what to do.
 This is useful in cases when you don't have control over the classes that you want to persist.
 The recommended approach, however, is to use annotations wherever possible, since this gives greater control and means that code can be refactored safely without risking breaking changes to the labels and relationships in your graph.
 
-Annotated and non-annotated objects can be used within the same project without issue.
-There is an `EntityAccessStrategy` used to control how objects are read from or written to.
-The default implementation of this uses the following convention:
+NOTE: The support for non-annotated domain classes might be dropped in the future, to allow startup optimizations.
 
-. Annotated method (getter/setter).
-. Annotated field.
-. Plain method (getter/setter).
-. Plain field.
+Annotated and non-annotated objects can be used within the same project without issue.
 
 The object graph mapping comes into play whenever an entity is constructed from a node or relationship.
 This could be done explicitly during the lookup or create operations of the `Session` but also implicitly while executing any graph operation that returns nodes or relationships and expecting mapped entities to be returned.

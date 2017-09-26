@@ -23,7 +23,7 @@ Getting started can sometimes be a chore. What versions of the OGM do you need? 
 
 
 Configuration::
-Drivers, Logging; properties, configuration via Java. How to make sense of all the options? <<reference:configuration, Configuration>> has got you covered.
+Drivers, logging, properties, configuration via Java. How to make sense of all the options? <<reference:configuration, Configuration>> has got you covered.
 
 
 Annotating your Domain Objects::
@@ -41,7 +41,7 @@ what needs to happen to get you up and running.
 
 Indexing and Primary Constraints::
 Indexing is an important part of any database. The Neo4j OGM provides a variety of features to support the management of Indexes as well
-as the ability to query your domain objects by something other than the internal Neo4j ID. <<reference:indexing, Indexing>> has everything you will
+as the ability to query your domain objects by something other than the internal Neo4j id. <<reference:indexing, Indexing>> has everything you will
 want to know when it comes to getting that working.
 
 Interacting with the Graph Model::
@@ -58,15 +58,17 @@ See <<reference:type-conversion,Type Converstion>> for more details.
 
 
 Filtering your domain objects::
-Filters provides a simple API to append criteria to your stock `Session.loadX()` behaviour. This is covered in more detail in <<reference:filters,Filters>>
+Filters provides a simple API to append criteria to your stock `Session.loadX()` behaviour.
+This is covered in more detail in <<reference:filters,Filters>>.
 
 Reacting to Persistence events::
 The Events mechanism allows users to register event listeners for handling persistence events related both to top-level objects being saved as well as connected objects.
 <<reference:events, Event handling>> discusses all the aspects of working with events.
 
 Testing in your application::
-Sometimes you want to be able to run your tests against an in-memory version of the OGM. <<reference:testing,Testing>> goes into more detail of how to set that up.
+Sometimes you want to be able to run your tests against an in-memory version of the OGM.
+<<reference:testing,Testing>> goes into more detail of how to set that up.
 
 Support for High Availability::
-For those using Neo4j Enterprise, support for high availability is extremely important. The chapter on <<reference:ha,High Availability>> goes into
-all the options the OGM provides to support this.
+For those using Neo4j Enterprise, support for high availability is extremely important.
+The chapter on <<reference:ha,High Availability>> goes into all the options the OGM provides to support this.

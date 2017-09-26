@@ -11,7 +11,7 @@ Consult the version table to determine which version of the OGM to use with a pa
 [frame="topbot",options="header"]
 |======================
 |Neo4j OGM Version   |Neo4j Version       | Bolt Version^#^ | Spring Data Neo4j Version | Spring Boot Version
-|3.0.0+              |3.0.x, 3.1.x        | 1.1.0+          | 5.0.0+                    | 2.0.0+
+|3.0.0+              |3.1.x, 3.2.x        | 1.4.0+          | 5.0.0+                    | 2.0.0+
 |2.1.0+              |2.3.x, 3.0.x, 3.1.x | 1.1.0+          | 4.2.0+                    | 1.5.0+
 |2.0.2+              |2.3.x, 3.0.x        | 1.0.0+          | 4.1.2 - 4.1.6+            | 1.4.x
 |2.0.1^*^            |2.2.x, 2.3.x        | 1.0.0-RC1       | 4.1.0 - 4.1.1             | 1.4.x
@@ -31,7 +31,8 @@ verify versions used (e.g through `mvn dependency:tree`) and report them as well
 [frame="topbot",options="header"]
 |======================
 |Spring Boot Version | Spring Data Neo4j Version | Neo4j OGM Version | Bolt Version
-|1.5.3               | 4.2.3                     | 2.1.2             | 1.1.0
+|2.0.0               | 5.0.0                     | 3.0.0             | 1.4.3
+|1.5.7               | 4.2.7                     | 2.1.3             | 1.2.3
 |1.4.6               | 4.1.7                     | 2.0.5             | 1.0.6
 |======================
 
@@ -45,7 +46,8 @@ These versions can be overridden manually in `pom.xml` or `build.gradle` files.
 For building an application, your build automation tool needs to be configured to include the Neo4j OGM dependencies.
 
 
-The OGM dependencies consist of `neo4j-ogm-core`, together with the relevant dependency declarations on the driver you want to use.  OGM 2.1  provides support for connecting to Neo4j by configuring one of the following Drivers:
+The OGM dependencies consist of `neo4j-ogm-core`, together with the relevant dependency declarations on the driver you want to use.
+OGM provides support for connecting to Neo4j by configuring one of the following Drivers:
 
 - `neo4j-ogm-http-driver` - Uses HTTP to communicate between the OGM and a remote Neo4j instance.
 - `neo4j-ogm-embedded-driver` - Connects directly to the Neo4j database engine.

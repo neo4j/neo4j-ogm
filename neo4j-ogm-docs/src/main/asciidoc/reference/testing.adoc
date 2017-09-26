@@ -1,13 +1,13 @@
 [[reference:testing]]
 = Testing
 
-In 2.0, the `Neo4jIntegrationTestRule` class has been removed from the test-jar.
+Doing integration testing with OGM requires a few basic steps :
 
-In previous versions this class provided access to an underlying `GraphDatabaseService` instance, allowing you to independently verify your code was working correctly.
-However it is incompatible with the Driver interfaces in 2.0, as it always requires you to connect using HTTP.
+* Add the `neo4j-ogm-test` artifact in you maven / gradle configuration
+* Declare the `Neo4jRule` JUnit rule, to setup a Neo4j test server
+* Setup the OGM configuration and `SessionFactory`
 
-The recommended approach is to configure an Embedded Driver for testing as described above, although you can still use an in-process HTTP server if you wish (see below).
-Please note that if you're just using the Embedded Driver for your tests you do not need to include any additional test jars in your pom.
+An example of a full running configuration can be found in the https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template/blob/master/ogm-3.0/src/test/java/org/neo4j/ogm/test/OgmTestCase.java[issue templates]
 
 [[reference:testing:log-levels]]
 == Log levels
@@ -40,66 +40,4 @@ To change the OGM log level, create a file *logback-test.xml* in your test resou
     </root>
 
 </configuration>
-----
-
-[[reference:testing:in-process-server]]
-== Using an in-process server for testing
-
-If you want don't want to use the Embedded Driver to run your tests, it is still possible to create an in-process HTTP server instead.
-Just like the Embedded Driver, a TestServer exposes a GraphDatabaseService instance which you can use in your tests.
-You should always close the server when you're done with it.
-
-You'll first need to add the OGM test dependency to your pom:
-
-[source, xml, subs="attributes, specialcharacters"]
-----
-<dependency>
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-test</artifactId>
-    <version>{version}</version>
-    <scope>test</scope>
-</dependency>
-----
-
-Next, create a TestServer instance:
-
-[source, java]
-----
-testServer = new TestServer.Builder()
-                .enableAuthentication(true)    // defaults to false
-                .transactionTimeoutSeconds(10) // defaults to 30 seconds
-                .port(2222)                    // defaults to a random non-privileged port
-                .build();
-----
-
-A TestServer is backed by an impermanent database store, and configures the OGM to use an HttpDriver.
-The driver authenticates automatically if you have requested an authenticating server so you don't have to do provide additional credentials.
-
-.Example test class using an in-process HTTP server
-[source, java]
-----
-private static TestServer testServer;
-
-@BeforeClass
-public static setupTestServer() {
-    testServer = new TestServer.Builder().build();
-}
-
-@AfterClass
-public static teardownTestServer() {
-    testServer.close();
-}
-
-@Test
-public void shouldCreateUser() {
-
-    session.save(new User("Bilbo Baggins"));
-
-    GraphDatabaseService db = testServer.getGraphDatabaseService();
-    try (Transaction tx = db.beginTx()) {
-        Result r = db.execute("MATCH (u:User {name: 'Bilbo Baggins'}) RETURN u");
-        assertTrue(r.hasNext());
-        tx.success();
-    }
-}
 ----

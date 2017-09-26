@@ -2,7 +2,7 @@
 = High Availability (HA) Support
 
 [NOTE]
-The clustering features are available in Neo4j Enterprise Edition.
+The clustering features are only available in Neo4j Enterprise Edition.
 
 
 Neo4j offers two separate solutions for ensuring redundancy and performance in a high-demand production environment:
@@ -17,23 +17,44 @@ A Neo4j HA cluster is comprised of a single master instance and zero or more sla
 [[reference:ha:causal-clustering]]
 == Causal Clustering
 
-To find out more about Causal Clustering architecture please see: https://neo4j.com/docs/operations-manual/beta/clustering/causal-clustering/.
+To find out more about Causal Clustering architecture please see https://neo4j.com/docs/operations-manual/current/clustering/[the reference].
 
 Causal Clustering only works with the Neo4j Bolt Driver (`1.1.0` onwards). Trying to set this up with the HTTP or Embedded Driver will not work.
-The bolt driver will fully handle any load balancing, which operate in concert with the Causal Cluster to spread the workload. New cluster-aware sessions, managed on the client-side by the Bolt drivers, alleviate complex infrastructure concerns for developers.
+The Bolt driver will fully handle any load balancing, which operate in concert with the Causal Cluster to spread the workload. New cluster-aware sessions, managed on the client-side by the Bolt drivers, alleviate complex infrastructure concerns for developers.
 
 [[reference:ha:causal-clustering:configuration]]
 === Configuring the OGM
 
-To use clustering, simply configure your bolt URI (in `ogm.properties` or through `Components.driver().setURI()`) to use the bolt routing protocol:
+_Not cluster specific side note: you may also want to configure <<reference:configuration:driver:connection-test, connection testing>>_.
+
+To use clustering, simply configure your Bolt URI to use the bolt routing protocol:
 
 [source, configs]
 ----
-URI=bolt+routing://instance0
-
+URI=bolt+routing://instance0 <1>
 ----
+<1> `instance0` must be one of your core cluster group (that accepts reads and writes).
 
-`instance0` must be one of your core cluster group (that accepts reads and writes).
+
+[[reference:ha:causal-clustering:design-considerations]]
+=== Design considerations for clustering
+
+In this section we go through important points to be aware of when using causal clustering.
+
+* Review hardware and cluster configuration
+* Target replica servers when possible
+* Use bookmarks to read your own writes
+* Plan for failure
+
+=== Hardware and cluster configuration
+
+Hardware, and particularly network, can have a great impact on cluster stability.
+The deployment scenario also plays a critical role.
+It has to be carefully chosen, each configuration having it strengths and weaknesses.
+
+Please read carefully the https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/[causal cluster reference] to plan the best topology according to your needs.
+
+// ideally we should link to clustering recommandations on the Neo4j website for network sizing
 
 You can also provide additional core instances in `URIS` property, separated by a comma.
 The `URI` property still needs to be set and will be tried first, followed by entries from `URIS` property.
@@ -48,29 +69,57 @@ URIS=bolt+routing://instance1,bolt+routing://instance2
 
 
 [[reference:ha:causal-clustering:sessions]]
-=== Using OGM Sessions.
+=== Target replica servers when possible
 
-By default all `Session` 's `Transaction` s are set to read/write. This means
-reads and writes will always hit the core cluster. In order to break this up you can call `session.beginTransaction(Transaction.Type)` with
-READ to hit the replica servers.
+By default all `Session` 's `Transaction` s are set to read/write.
+This means reads and writes will always hit the core cluster.
+To offload the core servers and improve performance, it is advised if possible to route traffic to the replica servers.
+This is done in the application code, by declaring sessions / transactions as read-only.
+You can call `session.beginTransaction(Transaction.Type)` with `READ` to do that.
+
+NOTE: This is not always possible. You may only do this if you can afford to read some slightly outdated data.
 
 [[reference:ha:causal-clustering:bookmarks]]
-=== Bookmarks
+=== Use bookmarks to read your own writes
 
-Causal consistency allows you to specify guarantees around query ordering, including the ability to read your own writes, view the last data you read, and later on, committed writes from other users. The Bolt drivers collaborate with the core servers to ensure that all transactions are applied in the same order using a concept of a bookmark.
+Causal consistency allows you to specify guarantees around query ordering, including the
+*ability to read your own writes*, view the last data you read, and later on,
+committed writes from other users.
+The Bolt drivers collaborate with the core servers to ensure that all transactions are applied in the same order using a concept of a bookmark.
 
-The cluster returns a bookmark when it commits an update transaction, so then the driver links a bookmark to the user’s next transaction. The server that received query starts this new bookmarked transaction only when its internal state reached the desired bookmark. This ensures that the view of related data is always consistent, that all servers are eventually updated, and that users reading and re-reading data always see the same — and the latest — data.
+The cluster returns a bookmark when it commits an update transaction, so then the driver links a bookmark to the user’s next transaction.
+The server that received query *starts this new bookmarked transaction only when its internal state reached the desired bookmark*.
+This ensures that the view of related data is always consistent, that all servers are eventually updated, and that users
+reading and re-reading data always see the same — and the latest — data.
 
 If you have multiple application tier JVM instances you will need to manage this state across them.
 The `Session` object allows you to retrieve bookmarks through the use of `Session.getLastBookmark()` and
 start new transactions with given bookmark through `Session.beginTransaction(type, bookmarks)`.
 
+NOTE: Do not generalize the use of bookmarks as they have impact on latency.
+// FIXME : check if up to date + talk about SDN + code sample
+
+=== Retry mechanisms
+
+The driver does its best to ensure a stable communication between the application tier and the database.
+It handles low level failures (like connection loss), but cannot do much about higher level failures (like cluster unavailability).
+However, due to the nature of distributed platforms, failures arise.
+When the cluster is split among several datacenters, network issues can cause cluster instability.
+Cluster members not being able to talk to each other can make the cluster, for example, fall in read only mode, or trigger leader re-election.
+
+For critical applications, these failures have to be anticipated, and also managed at the architecture or application level.
+Even if the driver handles some low level retries, it is not always enough in case of instability,
+as an application may involve complex business logic, and require coarse grained units of work.
+
+Solutions like application retries or message queuing are good candidates to handle this kind of scenario.
+
+// FIXME : code sample
 
 [[reference:ha:ha-cluster]]
 == Highly Available (HA) Cluster
 
 A typical Neo4j HA cluster will consist of a master node and a couple of slave nodes for providing failover capability and optionally for handling reads.
-(Although it is possible to write to slaves, this is uncommon because it requires additional effort to synchronise a slave with the master node)
+(Although it is possible to write to slaves, this is uncommon because it requires additional effort to synchronise a slave with the master node.)
 
 image:neo4j-cluster.png[Typical HA Cluster]
 
@@ -88,7 +137,8 @@ As of Version 2.0.5 read-only transactions are supported by the OGM.
 [[reference:ha:ha-cluster:readwrite:api-changes]]
 ==== API changes
 
-There is new API method `session.beginTransaction(Transaction.Type)` where Transaction.Type is one of:
+There is new API method `session.beginTransaction(Transaction.Type)` where Transaction.
+Type is one of:
 
 - READ_WRITE
 - READ_ONLY
@@ -101,7 +151,7 @@ The previous API semantics have not changed, i.e. `session.beginTransaction()` c
 ==== Drivers
 The Drivers have been updated to transmit additional information about the transaction type of the current transaction to the server.
 
-- The HttpDriver implementation sets a Http Header "X-WRITE" to "1" for READ_WRITE transactions (the default) or to "0" for READ_ONLY ones.
+- The HTTP Driver implementation sets a HTTP Header "X-WRITE" to "1" for READ_WRITE transactions (the default) or to "0" for READ_ONLY ones.
 
 - The Embedded Driver can support both READ_ONLY and READ_WRITE (as of version `2.1.0`).
 
@@ -129,7 +179,7 @@ This configuration will also ensure that requests against a specific transaction
 .OGM Binding via HAProxy
 [source, java]
 ----
-Components.driver().setURI("http://10.0.2.200");
+new Configuration.Builder().uri("http://10.0.2.200");
 ----
 
 .Sample haproxy.cfg

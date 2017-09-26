@@ -1,7 +1,10 @@
 [[reference:events]]
 = Events
 
-As of version 2.0.4, Neo4j OGM supports persistence events.
+Neo4j OGM supports persistence events.
+This section describes how to intercept update and delete events.
+
+You may also check the `@PostLoad` annotation which is described <<reference:annotating-entities:postload, here>>.
 
 [[reference:events:types]]
 == Event types
@@ -161,7 +164,7 @@ Consequently, the OGM is configured to suppress the event collection phase if th
 Using `dispose()` when you're finished with an EventListener is good practice!
 ====
 
-To remove an event listener across multiple sessions use the `degresiter` method on the `SessionFactory`.
+To remove an event listener across multiple sessions use the `deregister` method on the `SessionFactory`.
 
 [[reference:events:connected-objects]]
 == Connected objects
@@ -252,7 +255,7 @@ session.save(Arrays.asList(a, b));
 The previous examples show how events fire when the underlying *node* representing an entity is updated or deleted in the graph.
 Events are also fired when a save or delete request results in the modification, addition or deletion of a *relationship* in the graph.
 
-For example, if you delete a Document object that is a member of a Folder's documents collection, events will be fired for the Document as well as the Folder, to reflect the fact that the relationship between the folder and the document has been removed in the graph
+For example, if you delete a Document object that is a member of a Folder's documents collection, events will be fired for the Document as well as the Folder, to reflect the fact that the relationship between the folder and the document has been removed in the graph.
 
 .Example: Deleting a Document attached to a Folder
 [source, java]

@@ -4,27 +4,61 @@
 [[reference:configuration:method]]
 == Configuration method
 
-There are two ways to supply configuration to the OGM:
+There are several ways to supply configuration to the OGM:
 
-- using an `ogm.properties` file; and
-- programmatically using Java.
+- using a properties file
+- programmatically using Java
+- by providing an already configured Neo4j Java driver instance
+
+These methods are described below. They are also available as code in the <<introduction:additional-resources:help, examples>>.
 
 [[reference:configuration:method:properties]]
-=== Using ogm.properties
-Unless you supply an explicit `Configuration` object to the `SessionFactory` (see below), the OGM will attempt to auto-configure itself using a file called `ogm.properties`, which it expects to find on the root of the classpath.
+=== Using a properties file
 
-If you want to configure the OGM using a properties file, but with a _different_ filename, you must set a System property or Environment variable called 'ogm.properties' pointing to the alternative configuration file you want to use.
+Properties file on classpath:
+
+[source, java]
+----
+ConfigurationSource props = new ClasspathConfigurationSource("my.properties");
+Configuration configuration = new Configuration.Builder(props).build();
+----
+
+Properties file on filesystem:
+
+[source, java]
+----
+ConfigurationSource props = new FileConfigurationSource("my.properties");
+Configuration configuration = new Configuration.Builder(props).build();
+----
+
 
 [[reference:configuration:method:java]]
 === Programmatically using Java
 
-In cases where you are not be able to provide configuration via a properties file you can  configure the OGM programmatically instead.
+In cases where you are not be able to provide configuration via a properties file you can configure the OGM programmatically instead.
 
 The `Configuration` object provides a fluent API to set various configuration options. This object then needs to be supplied to the
 `SessionFactory` constructor in order to be configured.
 
+=== By providing a Neo4j driver instance
+
+Just configure the driver as you would do for direct access to the database, and pass the driver instance to the session factory.
+
+This method allows the greatest flexibility and gives you access to the full range of low level configuration options.
+
+.Example providing a bolt driver instance to OGM
+[source, java]
+----
+org.neo4j.driver.v1.Driver nativeDriver = ...;
+Driver ogmDriver = new BoltDriver(nativeDriver);
+new SessionFactory(ogmDriver, ...);
+----
+
 [[reference:configuration:driver]]
 == Driver Configuration
+
+For configuration through properties file or configuration builder the driver is automatically inferred from given URI.
+Empty URI means embedded driver with impermanent database.
 
 [[reference:configuration:driver:http]]
 === HTTP Driver
@@ -38,16 +72,15 @@ The `Configuration` object provides a fluent API to set various configuration op
 a|
 [source, properties]
 ----
-driver=org.neo4j.ogm.drivers.http.driver.HttpDriver
 URI=http://user:password@localhost:7474
 ----
 
 a|
 [source, java]
 ----
-Configuration configuration = new Configuration()
-        .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-        .setURI("http://user:password@localhost:7474")
+Configuration configuration = new Configuration.Builder()
+        .uri("http://user:password@localhost:7474")
+        .build()
 ----
 |======================
 
@@ -55,10 +88,10 @@ Configuration configuration = new Configuration()
 === Bolt Driver
 
 
-Note that for the `URI`, if no port is specified, the default Bolt port of `7687` is used. Otherwise, a port can be specified with `bolt://neo4j:password@localhost:1234`
+Note that for the `URI`, if no port is specified, the default Bolt port of `7687` is used. Otherwise, a port can be specified with `bolt://neo4j:password@localhost:1234`.
 
 Also, the bolt driver allows you to define a connection pool size, which refers to the maximum number of sessions per URL.
-This property is optional and defaults to `50`
+This property is optional and defaults to `50`.
 
 .Basic Bolt Driver Configuration
 [%autowidth.spread,frame="topbot",options="header"]
@@ -68,7 +101,6 @@ This property is optional and defaults to `50`
 a|
 [source, properties]
 ----
-driver=org.neo4j.ogm.drivers.bolt.driver.BoltDriver
 URI=bolt://neo4j:password@localhost
 connection.pool.size=150
 ----
@@ -76,11 +108,10 @@ connection.pool.size=150
 a|
 [source, java]
 ----
-Configuration configuration = new Configuration();
-        configuration
-        .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
-        .setURI("bolt://neo4j:password@localhost")
+Configuration configuration = new Configuration.Builder()
+        .uri("bolt://neo4j:password@localhost")
         .setConnectionPoolSize(150)
+        .build()
 ----
 |======================
 
@@ -106,16 +137,15 @@ dependency management system. See <<reference:getting-started, Getting Started>>
 a|
 [source, properties]
 ----
-driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
 URI=file:///var/tmp/neo4j.db
 ----
 
 a|
 [source, java]
 ----
-Configuration configuration = new Configuration()
-             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
-             .setURI("file:///var/tmp/neo4j.db");
+Configuration configuration = new Configuration.Builder()
+             .uri("file:///var/tmp/neo4j.db")
+             .build()
 ----
 |======================
 
@@ -130,14 +160,13 @@ To use an impermanent data store which will be deleted on shutdown of the JVM, y
 a|
 [source, properties]
 ----
-driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
+# Leave empty
 ----
 
 a|
 [source, java]
 ----
-Configuration configuration = new Configuration()
-             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+Configuration configuration = new Configuration.Builder().build()
 ----
 |======================
 
@@ -155,7 +184,7 @@ Neo4j provides `PluginLifecycle` SPI that allows to initialize extensions. Exten
 public class MyApplicationPluginInitializer extends OgmPluginInitializer {
 
     public MyApplicationPluginInitializer() {
-        super(MyDomain..class.getPackage().getName());
+        super(MyDomain.class.getPackage().getName());
     }
 }
 ----
@@ -174,7 +203,7 @@ public static class MovieService {
 }
 ----
 [NOTE]
-Don't forget to list your resources in `dbms.unmanaged_extension_classes` property in neo4j configuration file as you
+Don't forget to list your resources in `dbms.unmanaged_extension_classes` property in Neo4j configuration file as you
 would with any other unmanaged extension.
 
 
@@ -202,33 +231,30 @@ a|
 [source, java]
 ----
 // embedded
-Configuration configuration = new Configuration()
-             .setURI("bolt://user:password@localhost");
+Configuration configuration = new Configuration.Builder()
+             .uri("bolt://user:password@localhost")
+             .build()
 
 // separately as plain text
-Configuration configuration = new Configuration()
-             .setCredentials("user", "password);
-
-// using a Credentials object
-Credentials credentials = new UsernameAndPasswordCredentials("user", "password");
-Configuration configuration = new Configuration()
-             .setCredentials(credentials);
+Configuration configuration = new Configuration.Builder()
+             .credentials("user", "password")
+             .build()
 ----
 |======================
 
-_Note: Currently only Basic Authentication is supported by Neo4j, so the only Credentials implementation supplied by the OGM is `UsernameAndPasswordCredentials`_
+_Note: Currently only Basic Authentication is supported by the OGM. If you need to use more advanced authentication scheme, use the native driver configuration method._
 
 [[reference:configuration:driver:tsl]]
 === Transport Layer Security (TLS/SSL)
 
-The Bolt and Http drivers also allow you to connect to Neo4j over a secure channel. These rely on Transport Layer Security (aka SSL) and require the installation of a signed certificate on the server.
+The Bolt and HTTP drivers also allow you to connect to Neo4j over a secure channel. These rely on Transport Layer Security (aka TLS/SSL) and require the installation of a signed certificate on the server.
 
 In certain situations (e.g. some cloud environments) it may not be possible to install a signed certificate even though you still want to use an encrypted connection.
 
 To support this, both drivers have configuration settings allowing you to bypass certificate checking, although they differ in their implementation.
 
 [NOTE]
-Both these strategies leave you vulnerable to a MITM attack. You should probably not use them unless your servers are behind a secure firewall.
+Both of these strategies leave you vulnerable to a MITM attack. You should probably not use them unless your servers are behind a secure firewall.
 
 [[reference:configuration:driver:security:bolt]]
 ==== Bolt
@@ -250,9 +276,6 @@ trust.strategy=TRUST_ON_FIRST_USE
 
 #Trust certificate file, required if trust.strategy is specified
 trust.certificate.file=/tmp/cert
-
-# interval, in milliseconds, to check for stale db connections (test-on-borrow)
-connection.liveness.check.timeout=1000
 ----
 
 a|
@@ -263,7 +286,6 @@ Configuration config = new Configuration.Builder()
     .encryptionLevel("REQUIRED")
     .trustStrategy("TRUST_ON_FIRST_USE")
     .trustCertFile("/tmp/cert")
-    .connectionLivenessCheckTimeout(1000)
     .build();
 ----
 |======================
@@ -287,18 +309,52 @@ trust.strategy = ACCEPT_UNSIGNED
 a|
 [source, java]
 ----
-Configuration configuration = new Configuration();
-        configuration
-        .setTrustStrategy("ACCEPT_UNSIGNED")
+Configuration configuration = new Configuration.Builder()
+        .trustStrategy("ACCEPT_UNSIGNED")
+        .build()
 ----
 |======================
 
 
-The `ACCEPT_UNSIGNED` strategy permits the Http Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
+The `ACCEPT_UNSIGNED` strategy permits the HTTP Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
+
+
+[[reference:configuration:driver:connection-test]]
+=== Bolt connection testing
+
+In order to prevent some network problems while accessing a remote database, you may want to tell the Bolt driver to test
+connections from the connection pool.
+
+This is particularly useful when there are firewalls between the application tier and the database.
+
+You can do that with the connection liveness parameter which indicates the interval at which the connections will be tested.
+A value of 0 indicates that the connection will always be tested.
+A negative value that the connection will never always be tested.
+
+[%autowidth.spread,frame="topbot",options="header"]
+|======================
+|ogm.properties   | Java Configuration
+
+a|
+[source, properties]
+----
+# interval, in milliseconds, to check for stale db connections (test-on-borrow)
+connection.liveness.check.timeout=1000
+----
+
+a|
+[source, java]
+----
+Configuration config = new Configuration.Builder()
+    ...
+    .connectionLivenessCheckTimeout(1000)
+    .build();
+----
+|======================
 
 === Eager connection verification
 
-OGM by default does not connect to Neo4j server when it is configured.
+OGM by default does not connect to Neo4j server on application startup.
 This allows you to start the application and database independently and Neo4j will be accessed on first read/write.
 To change this behaviour set the property `verify.connection` (or `Builder.verifyConnection(boolean)`) to true.
 This settings is valid only for Bolt and HTTP drivers.

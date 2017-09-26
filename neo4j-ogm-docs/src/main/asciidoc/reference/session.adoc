@@ -18,7 +18,7 @@ The lifetime of the `Session` can be managed in code.
 For example, associated with single _fetch-update-save_ cycle or unit of work.
 
 If your application relies on long-running sessions then you may not see changes made from other users and find yourself working with outdated objects.
-On the other hand, if your sessions have too narrow a scope then your save operations can be unnecessarily expensive, as updates will be made to all objects if the session isn't aware of the those that were originally loaded.
+On the other hand, if your sessions have a too narrow scope then your save operations can be unnecessarily expensive, as updates will be made to all objects if the session isn't aware of the those that were originally loaded.
 
 There's therefore a trade off between the two approaches.
 In general, the scope of a `Session` should correspond to a "unit of work" in your application.
@@ -187,7 +187,7 @@ public class Group {
 == Loading Entities
 
 Entities can be loaded from the OGM through the use of the `session.loadXXX()` methods or via `session.query()`/`session.queryForObject()` which will
-accept your own Cypher queries (See section below on cypher queries).
+accept your own Cypher queries (See section below on <<reference:session:loading-entities:cypher-queries, cypher queries>>).
 
 Neo4j OGM includes the concept of persistence horizon (depth).
 On any individual request, the persistence horizon indicates how many relationships should be traversed in the graph when loading or saving data.
@@ -232,7 +232,7 @@ The strategy can be overridden globally by calling `SessionFactory.setLoadStrate
 
 Cypher is Neo4j's powerful query language.
 It is understood by all the different drivers in the OGM which means that your application code should run identically, whichever driver you choose to use.
-This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the Http Driver or the Bolt Driver when deploying your code into a production client-server environment.
+This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the HTTP Driver or the Bolt Driver when deploying your code into a production client-server environment.
 
 
 The `Session` also allows execution of arbitrary Cypher queries via its `query`, `queryForObject` and `queryForObjects` methods.

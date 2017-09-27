@@ -84,23 +84,28 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             }
 
             // do we want to start a HA instance or a community instance?
-            String haPropertiesFileName = config.getNeo4jHaPropertiesFile();
-            if (haPropertiesFileName != null) {
-                setHAGraphDatabase(file, Thread.currentThread().getContextClassLoader().getResource(haPropertiesFileName));
-            } else {
-                setGraphDatabase(file);
+            if(config.getNeo4jHaPropertiesFile() != null) {
+                URL url = Thread.currentThread()
+                    .getContextClassLoader()
+                    .getResource(config.getNeo4jHaPropertiesFile());
+                graphDatabaseService = new HighlyAvailableGraphDatabaseFactory()
+                    .newEmbeddedDatabaseBuilder(file)
+                    .loadPropertiesFromURL(url)
+                    .newGraphDatabase();
+            }
+            else if(config.getNeo4jPropertiesFile() != null) {
+                URL url = new File(config.getNeo4jPropertiesFile()).toURI().toURL();
+                graphDatabaseService = new GraphDatabaseFactory()
+                    .newEmbeddedDatabaseBuilder(file)
+                    .loadPropertiesFromURL(url)
+                    .newGraphDatabase();
+            }
+            else {
+                graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file);
             }
         } catch (Exception e) {
             throw new ConnectionException("Error connecting to embedded graph", e);
         }
-    }
-
-    private void setHAGraphDatabase(File file, URL propertiesFileURL) {
-        graphDatabaseService = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(file).loadPropertiesFromURL(propertiesFileURL).newGraphDatabase();
-    }
-
-    private void setGraphDatabase(File file) {
-        graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file);
     }
 
     @Override

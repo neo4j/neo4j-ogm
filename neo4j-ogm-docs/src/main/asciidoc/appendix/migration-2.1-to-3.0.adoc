@@ -58,9 +58,11 @@ Only calls with explicit `depth = -1` need to be changed.
 
 Here are the things you (may) have to adapt :
 
+* Id handling : `Long` native ids are not mandatory anymore. See <<reference:annotating-entities:graph-id, GraphId field>>
+* Annotations on accessors are no longer valid. See <<reference:annotating-entities, annotating entities>>
 * The `ogm.properties` file and environment variable have been removed. You now have to provide explicitly the configuration file or configure programmatically. See <<configuration.adoc#reference:configuration:driver, the configuration section>>
-* The driver class name in the configuration is now inferred from connection URL
-* TBC
-*
+* The driver class name in the configuration is now inferred from connection URL.
+* Java 8 is now mandatory. OGM won't run on any previous java version.
+* Java 8 dates are now better supported ; the use of `java.util.Date` or converters is not required anymore. You may want to switch to more fine grained date types like `Instant`. See <<../reference/conversion.adoc#reference:type-conversion:built-in, conversions>>
 
 

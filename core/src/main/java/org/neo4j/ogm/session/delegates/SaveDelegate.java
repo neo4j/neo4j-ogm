@@ -46,25 +46,26 @@ public class SaveDelegate {
         SaveEventDelegate eventsDelegate = new SaveEventDelegate(session);
 
         if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
-            Collection<T> objects;
+            Iterable<T> objects;
             if (object.getClass().isArray()) {
                 int length = Array.getLength(object);
-                objects = new ArrayList<>(length);
+                List<T> copy = new ArrayList<>(length);
                 for (int i = 0; i < length; i++) {
                     T arrayElement = (T) Array.get(object, i);
-                    objects.add(arrayElement);
+                    copy.add(arrayElement);
                 }
+                objects = copy;
             } else {
-                objects = (Collection<T>) object;
+                objects = (Iterable<T>) object;
             }
-            List<CompileContext> contexts = new ArrayList<>();
+            EntityGraphMapper mapper = new EntityGraphMapper(session.metaData(), session.context());
             for (Object element : objects) {
                 if (session.eventsEnabled()) {
                     eventsDelegate.preSave(object);
                 }
-                contexts.add(new EntityGraphMapper(session.metaData(), session.context()).map(element, depth));
+                mapper.map(element, depth);
             }
-            requestExecutor.executeSave(contexts);
+            requestExecutor.executeSave(mapper.compileContext());
             if (session.eventsEnabled()) {
                 eventsDelegate.postSave();
             }

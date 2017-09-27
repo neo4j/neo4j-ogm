@@ -93,8 +93,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                     .loadPropertiesFromURL(url)
                     .newGraphDatabase();
             }
-            else if(config.getNeo4jPropertiesFile() != null) {
-                URL url = new File(config.getNeo4jPropertiesFile()).toURI().toURL();
+            else if(config.getNeo4jPropertiesUrl() != null) {
+                URL url = new URL(config.getNeo4jPropertiesUrl());
                 graphDatabaseService = new GraphDatabaseFactory()
                     .newEmbeddedDatabaseBuilder(file)
                     .loadPropertiesFromURL(url)

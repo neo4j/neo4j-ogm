@@ -40,7 +40,7 @@ public class Configuration {
 	private String generatedIndexesOutputDir;
 	private String generatedIndexesOutputFilename;
 	private String neo4jHaPropertiesFile;
-	private String neo4jPropertiesFile;
+	private String neo4jPropertiesUrl;
 	private String driverName;
 	private Credentials credentials;
     private Integer connectionLivenessCheckTimeout;
@@ -63,7 +63,7 @@ public class Configuration {
         this.autoIndex = builder.autoIndex != null ? AutoIndexMode.fromString(builder.autoIndex) : AutoIndexMode.NONE;
 		this.generatedIndexesOutputDir = builder.generatedIndexesOutputDir != null ? builder.generatedIndexesOutputDir : ".";
 		this.generatedIndexesOutputFilename = builder.generatedIndexesOutputFilename != null ? builder.generatedIndexesOutputFilename : "generated_indexes.cql";
-		this.neo4jPropertiesFile = builder.neo4jPropertiesFile;
+		this.neo4jPropertiesUrl = builder.neo4jPropertiesUrl;
 		this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
 
 		if (this.uri != null) {
@@ -143,7 +143,7 @@ public class Configuration {
         return neo4jHaPropertiesFile;
 	}
 
-	public String getNeo4jPropertiesFile() { return neo4jPropertiesFile; }
+	public String getNeo4jPropertiesUrl() { return neo4jPropertiesUrl; }
 
 	public Credentials getCredentials() {
 		return credentials;
@@ -191,7 +191,7 @@ public class Configuration {
 			return false;
 		if (neo4jHaPropertiesFile != null ? !neo4jHaPropertiesFile.equals(that.neo4jHaPropertiesFile) : that.neo4jHaPropertiesFile != null)
 			return false;
-		if(neo4jPropertiesFile != null ? !neo4jPropertiesFile.equals(that.neo4jPropertiesFile) : that.neo4jPropertiesFile != null)
+		if(neo4jPropertiesUrl != null ? !neo4jPropertiesUrl.equals(that.neo4jPropertiesUrl) : that.neo4jPropertiesUrl != null)
 		    return false;
 		if (!driverName.equals(that.driverName)) return false;
 		return credentials != null ? credentials.equals(that.credentials) : that.credentials == null;
@@ -208,7 +208,7 @@ public class Configuration {
 		result = 31 * result + (generatedIndexesOutputDir != null ? generatedIndexesOutputDir.hashCode() : 0);
 		result = 31 * result + (generatedIndexesOutputFilename != null ? generatedIndexesOutputFilename.hashCode() : 0);
 		result = 31 * result + (neo4jHaPropertiesFile != null ? neo4jHaPropertiesFile.hashCode() : 0);
-        result = 31 * result + (neo4jPropertiesFile != null ? neo4jPropertiesFile.hashCode() : 0);
+        result = 31 * result + (neo4jPropertiesUrl != null ? neo4jPropertiesUrl.hashCode() : 0);
 		result = 31 * result + driverName.hashCode();
 		result = 31 * result + (credentials != null ? credentials.hashCode() : 0);
 		return result;
@@ -232,7 +232,7 @@ public class Configuration {
 					.generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
 					.generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
 					.neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
-                    .neo4jPropertiesFile(builder.neo4jPropertiesFile)
+                    .neo4jPropertiesUrl(builder.neo4jPropertiesUrl)
 					.credentials(builder.username, builder.password);
 		}
 
@@ -247,7 +247,7 @@ public class Configuration {
 		private static final String GENERATED_INDEXES_OUTPUT_DIR = "indexes.auto.dump.dir";
 		private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
 		private static final String NEO4J_HA_PROPERTIES_FILE = "neo4j.ha.properties.file";
-		private static final String NEO4J_PROPERTIES_FILE = "neo4j.properties.file";
+		private static final String NEO4J_PROPERTIES_URL = "neo4j.properties.url";
 
 		private String uri;
 		private Integer connectionPoolSize;
@@ -260,7 +260,7 @@ public class Configuration {
 		private String generatedIndexesOutputDir;
 		private String generatedIndexesOutputFilename;
 		private String neo4jHaPropertiesFile;
-		private String neo4jPropertiesFile;
+		private String neo4jPropertiesUrl;
 		private String username;
 		private String password;
 
@@ -313,8 +313,8 @@ public class Configuration {
 					case NEO4J_HA_PROPERTIES_FILE:
 						this.neo4jHaPropertiesFile = (String) entry.getValue();
 						break;
-                    case NEO4J_PROPERTIES_FILE:
-                        this.neo4jPropertiesFile = (String) entry.getValue();
+                    case NEO4J_PROPERTIES_URL:
+                        this.neo4jPropertiesUrl = (String) entry.getValue();
                         break;
 					default:
 						LOGGER.warn("Could not process property with key: {}", entry.getKey());
@@ -418,8 +418,8 @@ public class Configuration {
 			return this;
 		}
 
-		public Builder neo4jPropertiesFile(String neo4jPropertiesFile) {
-		    this.neo4jPropertiesFile = neo4jPropertiesFile;
+		public Builder neo4jPropertiesUrl(String neo4jPropertiesFile) {
+		    this.neo4jPropertiesUrl = neo4jPropertiesFile;
 		    return this;
         }
 

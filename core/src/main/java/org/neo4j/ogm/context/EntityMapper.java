@@ -26,6 +26,9 @@ public interface EntityMapper {
      * Processes the given object and any of its composite persistent objects and produces Cypher queries to persist their state
      * in Neo4j.
      *
+     * NOTE: multiple map calls from same EntityMapper instance return same CompileContext with accumulated results.
+     * You can also use {@link #compileContext()} to get final CompileContext.
+     *
      * @param entity The "root" node of the object graph to persist
      * @return A {@link org.neo4j.ogm.cypher.compiler.CompileContext} object containing the statements required to persist the given object to Neo4j, along
      * with a representation of the changes to be made by the Cypher statements never <code>null</code>
@@ -37,6 +40,9 @@ public interface EntityMapper {
      * Processes the given object and any of its composite persistent objects to the specified depth and produces Cypher queries
      * to persist their state in Neo4j.
      *
+     * NOTE: multiple map calls from same EntityMapper instance return same CompileContext with accumulated results.
+     * You can also use {@link #compileContext()} to get final CompileContext.
+     *
      * @param entity The "root" node of the object graph to persist
      * @param depth The number of objects away from the "root" to traverse when looking for objects to map
      * @return A {@link CompileContext} object containing the statements required to persist the given object to Neo4j, along
@@ -44,4 +50,11 @@ public interface EntityMapper {
      * @throws NullPointerException if invoked with <code>null</code>
      */
     CompileContext map(Object entity, int depth);
+
+    /**
+     * Returns compile context after multiple {@link #map(Object)} operations were called
+     *
+     * @return CompileContext
+     */
+    CompileContext compileContext();
 }

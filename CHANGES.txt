@@ -14,6 +14,7 @@ o Add @Id to relationship entities
 o Remove requirement to have graph id in entities
 o Execute @PostLoad method after fully hydrating all entities, fixes #403
 o Fix execution of @PostLoad method when entities are loaded via session.query()
+o Fix duplicate nodes for Session.save(Iterable<T>)
 
 3.0.0-RC1
 o Add verifyConnection configuration property for bolt and http driver

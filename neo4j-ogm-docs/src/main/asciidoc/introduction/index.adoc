@@ -119,7 +119,7 @@ The connection to Neo4j handled by a driver layer, which can use the binary prot
 Neo4j OGM 3.0.x at minimum, requires:
 
 * JDK Version 8 and above.
-* Neo4j Database 2.3.x / 3.0.x / 3.1.x and above.
+* Neo4j Database 3.0.x / 3.1.x and above.
 
 
 [[introduction:additional-resources]]
@@ -139,6 +139,8 @@ Neo4j OGM 3.0.x at minimum, requires:
 If you encounter issues or you are just looking for advice, feel free to use one of the links below:
 
 To learn more refer to:
+
+FIXME : add other example projects + issue report templates
 
 * the https://github.com/neo4j-examples/neo4j-ogm-university[sample project: OGM Univeristy]. This project is used in the <<tutorial:introduction,Tutorial>>.
 * the Javadocs (Coming Soon).

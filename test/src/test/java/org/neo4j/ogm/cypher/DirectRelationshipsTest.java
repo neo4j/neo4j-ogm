@@ -450,6 +450,7 @@ public class DirectRelationshipsTest {
         assertThat(statements).hasSize(1);
         assertThat(statements.get(0).getStatement()).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
 
+        mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
         //There are no more changes to the graph
         compiler = mapper.map(doc1).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());

@@ -51,6 +51,7 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
     @Before
     public void init() throws IOException {
         session = sessionFactory.openSession();
+        session.purgeDatabase();
     }
 
     @After

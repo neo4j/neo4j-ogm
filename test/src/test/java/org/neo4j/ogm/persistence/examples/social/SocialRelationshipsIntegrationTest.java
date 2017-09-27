@@ -46,6 +46,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
     @Before
     public void init() {
         session = sessionFactory.openSession();
+        session.purgeDatabase();
     }
 
     @After

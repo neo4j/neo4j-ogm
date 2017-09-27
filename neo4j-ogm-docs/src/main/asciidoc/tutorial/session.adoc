@@ -41,9 +41,9 @@ The `Session` keeps track of changes made to entities and relationships and pers
 Once an entity is tracked by the session, reloading this entity within the scope of the same session will result in the session cache returning the previously loaded entity.
 However, the subgraph in the session will expand if the entity or its related entities retrieve additional relationships from the graph.
 
-For the purpose of this demo application, we'll use short lived sessions - a new session per web request - so as not to use stale data.
+For the purpose of this demo application, we'll use short living sessions - a new session per web request - so as not to use stale data.
 
-Our university application will use the following operations
+Our university application will use the following operations:
 
 [source, groovy]
 ----
@@ -103,7 +103,7 @@ This is sufficient for the `find` method, which is used in the application to pr
 
 image::classDetail.png[Class detail, 896, 457]
 
-Loading relationships is not required however when listing all entities of a type.
+Loading relationships is not required when listing all entities of a type.
 We merely require the id and name of the entity, and so a depth of 0 is used by `findAll` to only load simple properties of the entity but skip its relationships.
 
 image::departmentListing.png[Department listing, 896, 457]

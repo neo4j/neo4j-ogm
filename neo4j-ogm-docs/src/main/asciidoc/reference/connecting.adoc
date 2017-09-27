@@ -11,9 +11,9 @@ This also sets up the object-graph mapping metadata when constructed, which is t
 The packages to scan for domain object metadata should be provided to the `SessionFactory` constructor.
 Multiple packages may be provided as well.
 If you would rather just pass in specific classes you can also do that via an overloaded constructor.
-The SessionFactory must also be configured.
+The `SessionFactory` must also be configured.
 There are two ways this can be done.
-Please see the section below on Configuration for further details.
+Please see the section <<reference:configuration, Configuration>> for further details.
 
 .Multiple packages
 [source, java]

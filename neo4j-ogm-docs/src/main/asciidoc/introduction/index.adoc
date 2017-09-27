@@ -25,7 +25,7 @@ There is very little "impedance mismatch" when putting real-life domains into a 
 [[introduction:graph-database:introducing-neo4j]]
 === Introducing Neo4j
 
-http://neo4j.com/[Neo4j] is an open source NOSQL graph database.
+http://neo4j.com/[Neo4j] is an open source NoSQL graph database.
 It is a fully transactional database (ACID) that stores data structured as graphs consisting of nodes, connected by relationships.
 Inspired by the structure of the real world, it allows for high query performance on complex data, while remaining intuitive and simple for the developer.
 
@@ -33,13 +33,13 @@ Neo4j is very well-established.
 It has been in commercial development for 15 years and in production for over 12 years.
 Most importantly, it has an active and contributing community surrounding it, but it also:
 
-* has an intuitive, rich graph-oriented model for data representation. Instead of tables, rows, and columns, you work with a graph consisting of http://neo4j.com/docs/stable/graphdb-neo4j.html[nodes, relationships, and properties].
+* has an intuitive, rich graph-oriented model for data representation. Instead of tables, rows, and columns, you work with a graph consisting of http://neo4j.com/docs/developer-manual/current/introduction/#graphdb-neo4j[nodes, relationships, and properties].
 * has a disk-based, native storage manager optimised for storing graph structures with maximum performance and scalability.
 * is scalable. Neo4j can handle graphs with many billions of nodes/relationships/properties on a single machine, but can also be scaled out across multiple machines for high availability.
 * has a powerful graph query language called Cypher, which allows users to efficiently read/write data by expressing graph patterns.
 * has a powerful traversal framework and query languages for traversing the graph.
-* can be deployed as a standalone server, which is the recommended way of using Neo4j
-* can be deployed as an embedded (in-process) database, giving developers access to its core Java http://api.neo4j.org/[API]
+* can be deployed as a standalone server, which is the recommended way of using Neo4j.
+* can be deployed as an embedded (in-process) database, giving developers access to its core Java https://neo4j.com/docs/#api[API].
 
 In addition, Neo4j provides ACID transactions, durable persistence, concurrency control, transaction recovery, high availability, and more.
 Neo4j is released under a dual free software/commercial licence model.

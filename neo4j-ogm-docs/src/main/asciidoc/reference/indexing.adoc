@@ -11,9 +11,9 @@ The default index is now based on labels and schema indexes and the related old 
 The "legacy" index framework should only be used for fulltext and spatial indexes which are not currently supported via schema-based indexes.
 ====
 
-Previous version of the OGM have restricted developers to only be able to find unique Objects the internal Neo4j ID.
+Previous version of the OGM have restricted developers to only be able to find unique objects by the internal Neo4j id.
 This can be a problem for users when running Neo4j across restarts as this can result in key duplication.
-In order to support querying for unique objects via business or synthetic (e.g. UUID) properties, the OGM can now
+In order to support querying for unique objects via business or synthetic (e.g. UUID) properties, the OGM can
 enforce uniqueness constraints on certain properties to make lookups easier.  On top of this, many users have the
 use case of wanting to save their objects via this same property and in effect have the OGM run the `MERGE`
 operation using the same property to identify the object.
@@ -69,8 +69,8 @@ Below is a table of all options available for configuring Auto-Indexing.
 [[reference:indexing:primary-constraints]]
 == Primary Constraints
 
-The OGM can now be used to look up or merge entities based on a unique constraint. This unique constraint is known as a _primary_ constraint.
-It can be enabled through the index annotation like so: `Index(unique=true, primary=true)`.
+The OGM can be used to look up or merge entities based on a unique constraint. This unique constraint is known as a _primary_ constraint.
+It can be enabled through the index annotation like so: `@Index(unique=true, primary=true)`.
 
 [NOTE]
 Fields marked with `unique=false, primary=true` together will be ignored.

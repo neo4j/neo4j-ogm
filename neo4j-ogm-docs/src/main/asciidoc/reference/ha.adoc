@@ -2,7 +2,7 @@
 = High Availability (HA) Support
 
 [NOTE]
-The clustering features are available in Neo4j Enterprise Edition.
+The clustering features are only available in Neo4j Enterprise Edition.
 
 
 Neo4j offers two separate solutions for ensuring redundancy and performance in a high-demand production environment:
@@ -20,12 +20,12 @@ A Neo4j HA cluster is comprised of a single master instance and zero or more sla
 To find out more about Causal Clustering architecture please see https://neo4j.com/docs/operations-manual/current/clustering/[the reference].
 
 Causal Clustering only works with the Neo4j Bolt Driver (`1.1.0` onwards). Trying to set this up with the HTTP or Embedded Driver will not work.
-The bolt driver will fully handle any load balancing, which operate in concert with the Causal Cluster to spread the workload. New cluster-aware sessions, managed on the client-side by the Bolt drivers, alleviate complex infrastructure concerns for developers.
+The Bolt driver will fully handle any load balancing, which operate in concert with the Causal Cluster to spread the workload. New cluster-aware sessions, managed on the client-side by the Bolt drivers, alleviate complex infrastructure concerns for developers.
 
 [[reference:ha:causal-clustering:configuration]]
 === Configuring the OGM
 
-To use clustering, simply configure your bolt URI to use the bolt routing protocol:
+To use clustering, simply configure your Bolt URI to use the bolt routing protocol:
 
 [source, configs]
 ----
@@ -52,7 +52,7 @@ It has to be carefully chosen, each configuration having it strengths and weakne
 
 Please read carefully the https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/[causal cluster reference] to plan the best topology according to your needs.
 
-??? Any specific link to place with hardware recommendation ?
+//??? Any specific link to place with hardware recommendation ?
 
 [[reference:ha:causal-clustering:sessions]]
 === Target replica servers when possible
@@ -60,8 +60,8 @@ Please read carefully the https://neo4j.com/docs/operations-manual/current/clust
 By default all `Session` 's `Transaction` s are set to read/write.
 This means reads and writes will always hit the core cluster.
 To offload the core servers and improve performance, it is advised if possible to route traffic to the replica servers.
-This is done in the application code, by declaring sessions / transactions as read only :
-you can call `session.beginTransaction(Transaction.Type)` with `READ` to do that.
+This is done in the application code, by declaring sessions / transactions as read-only.
+You can call `session.beginTransaction(Transaction.Type)` with `READ` to do that.
 
 NOTE: This is not always possible. You may only do this if you can afford to read some slightly outdated data.
 
@@ -104,7 +104,7 @@ Solutions like application retries or message queuing are good candidates to han
 == Highly Available (HA) Cluster
 
 A typical Neo4j HA cluster will consist of a master node and a couple of slave nodes for providing failover capability and optionally for handling reads.
-(Although it is possible to write to slaves, this is uncommon because it requires additional effort to synchronise a slave with the master node)
+(Although it is possible to write to slaves, this is uncommon because it requires additional effort to synchronise a slave with the master node.)
 
 image:neo4j-cluster.png[Typical HA Cluster]
 
@@ -122,7 +122,8 @@ As of Version 2.0.5 read-only transactions are supported by the OGM.
 [[reference:ha:ha-cluster:readwrite:api-changes]]
 ==== API changes
 
-There is new API method `session.beginTransaction(Transaction.Type)` where Transaction.Type is one of:
+There is new API method `session.beginTransaction(Transaction.Type)` where Transaction.
+Type is one of:
 
 - READ_WRITE
 - READ_ONLY
@@ -135,7 +136,7 @@ The previous API semantics have not changed, i.e. `session.beginTransaction()` c
 ==== Drivers
 The Drivers have been updated to transmit additional information about the transaction type of the current transaction to the server.
 
-- The HttpDriver implementation sets a Http Header "X-WRITE" to "1" for READ_WRITE transactions (the default) or to "0" for READ_ONLY ones.
+- The HTTP Driver implementation sets a HTTP Header "X-WRITE" to "1" for READ_WRITE transactions (the default) or to "0" for READ_ONLY ones.
 
 - The Embedded Driver can support both READ_ONLY and READ_WRITE (as of version `2.1.0`).
 

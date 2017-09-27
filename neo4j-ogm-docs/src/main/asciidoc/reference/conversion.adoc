@@ -49,7 +49,7 @@ public class MyEntity {
 Collections of primitive or convertible values are also automatically mapped by converting them to arrays of their type or strings respectively.
 
 [NOTE]
-Collections are not supported for `java.time.Instant` and `java.time.LocalDate`
+Collections are not supported for `java.time.Instant` and `java.time.LocalDate`.
 
 [[reference:type-conversion:custom]]
 == Custom Type Conversion

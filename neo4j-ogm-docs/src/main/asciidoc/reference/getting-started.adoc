@@ -45,7 +45,8 @@ These versions can be overridden manually in `pom.xml` or `build.gradle` files.
 For building an application, your build automation tool needs to be configured to include the Neo4j OGM dependencies.
 
 
-The OGM dependencies consist of `neo4j-ogm-core`, together with the relevant dependency declarations on the driver you want to use.  OGM 2.1  provides support for connecting to Neo4j by configuring one of the following Drivers:
+The OGM dependencies consist of `neo4j-ogm-core`, together with the relevant dependency declarations on the driver you want to use.
+OGM provides support for connecting to Neo4j by configuring one of the following Drivers:
 
 - `neo4j-ogm-http-driver` - Uses HTTP to communicate between the OGM and a remote Neo4j instance.
 - `neo4j-ogm-embedded-driver` - Connects directly to the Neo4j database engine.

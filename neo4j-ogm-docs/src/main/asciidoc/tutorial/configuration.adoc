@@ -1,7 +1,7 @@
 [[tutorial:configuration]]
 = Configuring the OGM
 
-Neo4j OGM 2.x supports several drivers:
+Neo4j OGM supports several drivers:
 
 * Bolt - the lightning fast native driver for Neo4j.
 * HTTP - the original transactional HTTP endpoint for remote Neo4j deployments.
@@ -16,7 +16,7 @@ The demo application uses https://gradle.org/[Gradle] as a build system.
 
 Before we can use the library, we need to add a dependency.
 
-.Gradle dependencies for Neo4j OGM 2.x
+.Gradle dependencies for Neo4j OGM
 [source,groovy]
 ----
 compile "org.neo4j:neo4j-ogm-core:{version}"
@@ -30,7 +30,7 @@ Refer to <<reference:getting-started:dependency-management, Dependency Managemen
 
 Since the OGM works against both remote and embedded servers, we'll need to configure it to use the appropriate driver.
 We do this by providing a file called `ogm.properties` at the root of the classpath. In our application this can be
-found at: `src/main/resources/`.
+found at `src/main/resources/`.
 
 [source, properties]
 ----

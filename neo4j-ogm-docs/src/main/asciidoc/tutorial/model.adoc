@@ -3,7 +3,7 @@
 
 Before we get to any code, we want to whiteboard our graph model.
 
-Our College will contain `departments`, each of which offer various `subjects` taught by a `teacher`.
+Our college will contain `departments`, each of which offer various `subjects` taught by a `teacher`.
 `Students` `enroll` for `courses` or `classes` that teach a `subject`.
 
 We're also going to model a `study buddy` which represents a group of `students` that get together to help one another study for a `class`.

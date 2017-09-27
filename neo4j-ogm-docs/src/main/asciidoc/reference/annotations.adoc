@@ -98,7 +98,7 @@ Please read <<reference:annotating-entities:non-annotated-properties>> for more 
 A `@Properties` annotation  tells OGM to map values of a Map field in a node or relationship entity to properties of
 a node or a relationship in the graph.
 
-The property names are derived from field name or `prefix()`, `delimiter` and keys in the Map.
+The property names are derived from field name or `prefix`, `delimiter` and keys in the Map.
 For example Map field with name `address` containing following entries:
 
 [source]
@@ -120,9 +120,9 @@ Supported types for keys in the Map are String and Enum.
 The values in the Map can be of any Java type equivalent to Cypher types. If full type information is provided other
 Java types are also supported.
 
-If {@link #allowCast()} is set to true then types that can be cast to corresponding Cypher types are allowed as well.
+If the annotation's property `allowCast` is set to true then types that can be cast to corresponding Cypher types are allowed as well.
 Note that the original type cannot be deduced and the value will be deserialized to corresponding type - e.g.
-when Integer instance is put to {@code Map<String, Object>} it will be deserialized as Long.
+when Integer instance is put to `Map<String, Object>` it will be deserialized as Long.
 
 [source, java]
 ----
@@ -262,7 +262,7 @@ If you wanted a person to own two cars, for example, then you'd have to use a `C
 In cases where the relationship mappings could be ambiguous, the recommendation is that:
 
 * The objects be navigable in both directions.
-* The @Relationship annotations are explicit.
+* The `@Relationship` annotations are explicit.
 
 Examples of ambiguous relationship mappings are multiple relationship types that resolve to the same types of entities, in a given direction, but whose domain objects are not navigable in both directions.
 
@@ -275,7 +275,7 @@ If you want to impose order on collections of relationships you have several opt
 - sort relationships in <<reference:annotating-entities:postload, `@PostLoad`>> annotated method
 
 You can sort either by a property of a related node or by relationship property.
-To sort by relationship property you need to use relationship entity. See <<reference:annotating-entities:relationship-entity>>.
+To sort by relationship property you need to use a relationship entity. See <<reference:annotating-entities:relationship-entity>>.
 
 [[reference:annotating-entities:relationship-entity]]
 == @RelationshipEntity: Rich relationships
@@ -290,7 +290,7 @@ A field annotated with one of these annotations will provide access to the corre
 
 For controlling the relationship-type a `String` attribute called `type` is available on the `@RelationshipEntity` annotation.
 Like the simple strategy for labelling node entities, if this is not provided then the name of the class is used to derive the relationship type,
-although it's converted into SNAKE_CASE to honour the naming conventions of Neo4j relationships
+although it's converted into SNAKE_CASE to honour the naming conventions of Neo4j relationships.
 As of the current version of the OGM, the `type` *must* be specified on the `@RelationshipEntity` annotation as well as its corresponding `@Relationship` annotations.
 
 
@@ -446,14 +446,14 @@ Property fields to be persisted to the graph must not be declared `final`.
 A method annotated with `@PostLoad` will be called once the entity is loaded from the database.
 
 [[reference:annotating-entities:non-annotated-properties]]
-== Non annotated properties and best practices
+== Non-annotated properties and best practices
 
 Neo4j OGM supports mapping annotated and non-annotated objects models.
 It's possible to save any POJO without annotations to the graph, as the framework applies conventions to decide what to do.
 This is useful in cases when you don't have control over the classes that you want to persist.
 The recommended approach, however, is to use annotations wherever possible, since this gives greater control and means that code can be refactored safely without risking breaking changes to the labels and relationships in your graph.
 
-NOTE: The support for non annotated domain classes might be dropped in the future, to allow startup optimizations.
+NOTE: The support for non-annotated domain classes might be dropped in the future, to allow startup optimizations.
 
 Annotated and non-annotated objects can be used within the same project without issue.
 

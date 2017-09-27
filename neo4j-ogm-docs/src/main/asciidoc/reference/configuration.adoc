@@ -8,13 +8,14 @@ There are several ways to supply configuration to the OGM:
 
 - using a properties file
 - programmatically using Java
-- by providing an already configured neo4j java driver instance
+- by providing an already configured Neo4j Java driver instance
 
 These methods are described below. They are also available as code in the <<introduction:additional-resources:help, examples>>.
 
 [[reference:configuration:method:properties]]
 === Using a properties file
 
+[source, java]
 ----
 ConfigurationSource props = new ClasspathConfigurationSource("my.properties");
 Configuration configuration = new Configuration.Builder(props).build();
@@ -23,12 +24,12 @@ Configuration configuration = new Configuration.Builder(props).build();
 [[reference:configuration:method:java]]
 === Programmatically using Java
 
-In cases where you are not be able to provide configuration via a properties file you can  configure the OGM programmatically instead.
+In cases where you are not be able to provide configuration via a properties file you can configure the OGM programmatically instead.
 
 The `Configuration` object provides a fluent API to set various configuration options. This object then needs to be supplied to the
 `SessionFactory` constructor in order to be configured.
 
-=== By providing a neo4j driver instance
+=== By providing a Neo4j driver instance
 
 Just configure the driver as you would do for direct access to the database, and pass the driver instance to the session factory.
 
@@ -73,10 +74,10 @@ Configuration configuration = new Configuration.Builder()
 === Bolt Driver
 
 
-Note that for the `URI`, if no port is specified, the default Bolt port of `7687` is used. Otherwise, a port can be specified with `bolt://neo4j:password@localhost:1234`
+Note that for the `URI`, if no port is specified, the default Bolt port of `7687` is used. Otherwise, a port can be specified with `bolt://neo4j:password@localhost:1234`.
 
 Also, the bolt driver allows you to define a connection pool size, which refers to the maximum number of sessions per URL.
-This property is optional and defaults to `50`
+This property is optional and defaults to `50`.
 
 .Basic Bolt Driver Configuration
 [%autowidth.spread,frame="topbot",options="header"]
@@ -188,7 +189,7 @@ public static class MovieService {
 }
 ----
 [NOTE]
-Don't forget to list your resources in `dbms.unmanaged_extension_classes` property in neo4j configuration file as you
+Don't forget to list your resources in `dbms.unmanaged_extension_classes` property in Neo4j configuration file as you
 would with any other unmanaged extension.
 
 
@@ -227,19 +228,19 @@ Configuration configuration = new Configuration.Builder()
 ----
 |======================
 
-_Note: Currently only Basic Authentication is supported by the OGM. If you need to use more advanced authentication scheme, use the native driver configuration method_
+_Note: Currently only Basic Authentication is supported by the OGM. If you need to use more advanced authentication scheme, use the native driver configuration method._
 
 [[reference:configuration:driver:tsl]]
 === Transport Layer Security (TLS/SSL)
 
-The Bolt and Http drivers also allow you to connect to Neo4j over a secure channel. These rely on Transport Layer Security (aka SSL) and require the installation of a signed certificate on the server.
+The Bolt and HTTP drivers also allow you to connect to Neo4j over a secure channel. These rely on Transport Layer Security (aka TLS/SSL) and require the installation of a signed certificate on the server.
 
 In certain situations (e.g. some cloud environments) it may not be possible to install a signed certificate even though you still want to use an encrypted connection.
 
 To support this, both drivers have configuration settings allowing you to bypass certificate checking, although they differ in their implementation.
 
 [NOTE]
-Both these strategies leave you vulnerable to a MITM attack. You should probably not use them unless your servers are behind a secure firewall.
+Both of these strategies leave you vulnerable to a MITM attack. You should probably not use them unless your servers are behind a secure firewall.
 
 [[reference:configuration:driver:security:bolt]]
 ==== Bolt
@@ -305,7 +306,7 @@ Configuration configuration = new Configuration.Builder()
 |======================
 
 
-The `ACCEPT_UNSIGNED` strategy permits the Http Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
+The `ACCEPT_UNSIGNED` strategy permits the HTTP Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
 
 === Eager connection verification
 

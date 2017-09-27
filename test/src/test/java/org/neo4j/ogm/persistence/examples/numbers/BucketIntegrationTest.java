@@ -15,6 +15,7 @@ package org.neo4j.ogm.persistence.examples.numbers;
 
 import java.io.IOException;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,6 +45,11 @@ public class BucketIntegrationTest extends MultiDriverTestClass {
     @Before
     public void init() throws IOException {
         session = sessionFactory.openSession();
+        session.purgeDatabase();
+    }
+
+    @After
+    public void tearDown() throws Exception {
         session.purgeDatabase();
     }
 

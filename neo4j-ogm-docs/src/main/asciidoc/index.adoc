@@ -33,6 +33,8 @@ The three parts of the manual are:
 
 // toc::[]
 
+But before starting, let's see the most important new features.
+
 include::introduction/index.adoc[leveloffset=+1]
 
 include::tutorial/index.adoc[leveloffset=+1]
@@ -40,6 +42,9 @@ include::tutorial/index.adoc[leveloffset=+1]
 include::reference/index.adoc[leveloffset=+1]
 
 :numbered!:
+
+[[migrating]]
+include::appendix/migration-2.1-to-3.0.adoc[leveloffset=+1]
 
 [[design-considerations]]
 include::appendix/design-considerations.adoc[leveloffset=+1]

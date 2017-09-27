@@ -5,8 +5,12 @@
 --
 This chapter is an introduction to graph databases, Neo4j, and the Neo4j object-graph mapping library (OGM). It also outlines requirements
 and where to get support.
+
+If you are already familiar with Neo4j and OGM, feel free to jump directly
+to the <<tutorial, tutorial>> or <<reference, reference>> sections.
 --
 
+include::whats-new-ogm3.adoc[]
 
 [[introduction:graph-database]]
 == What is a graph database?

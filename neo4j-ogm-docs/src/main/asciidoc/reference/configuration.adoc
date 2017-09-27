@@ -10,7 +10,7 @@ There are several ways to supply configuration to the OGM:
 - programmatically using Java
 - by providing an already configured neo4j java driver instance
 
-These methods are described below. They are also available as code in the <<index.adoc#introduction:additional-resources:help, examples>>.
+These methods are described below. They are also available as code in the <<introduction:additional-resources:help, examples>>.
 
 [[reference:configuration:method:properties]]
 === Using a properties file

@@ -80,7 +80,6 @@ public class CompilerTest {
     @Before
     public void setUpMapper() {
         mappingContext = new MappingContext(mappingMetadata);
-        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
     }
 
     @After
@@ -892,7 +891,8 @@ public class CompilerTest {
     }
 
     private Compiler mapAndCompile(Object object) {
-        CompileContext context = this.mapper.map(object);
+        EntityMapper mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
+        CompileContext context = mapper.map(object);
         Compiler compiler = context.getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
         return compiler;

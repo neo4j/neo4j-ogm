@@ -12,6 +12,7 @@
  */
 package org.neo4j.ogm.drivers;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -65,6 +67,22 @@ public class BasicDriverTest extends MultiDriverTestClass {
         assertThat(user.getId()).isNotNull();
     }
 
+    @Test
+    public void shouldSaveMultipleObjects() throws Exception {
+        User bilbo = new User("Bilbo Baggins");
+        User frodo = new User("Bilbo Baggins");
+        bilbo.befriend(frodo);
+
+        // Get an Iterable which is not a Collection
+        Iterable<User> iterable = Iterables.concat(newArrayList(bilbo), newArrayList(frodo));
+        assertThat(iterable).isNotInstanceOf(Collection.class);
+
+        session.save(iterable);
+
+        session.clear();
+        Collection<User> users = session.loadAll(User.class);
+        assertThat(users).hasSize(2);
+    }
 
     // load tests
     @Test

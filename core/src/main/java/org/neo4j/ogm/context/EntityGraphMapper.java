@@ -50,6 +50,7 @@ public class EntityGraphMapper implements EntityMapper {
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
+    private final Compiler compiler  = new MultiStatementCypherCompiler();
 
     /**
      * Constructs a new {@link EntityGraphMapper} that uses the given {@link MetaData}.
@@ -73,8 +74,6 @@ public class EntityGraphMapper implements EntityMapper {
         if (entity == null) {
             throw new NullPointerException("Cannot map null object");
         }
-
-        Compiler compiler = new MultiStatementCypherCompiler();
 
         // add all the relationships we know about. This includes the relationships that
         // won't be modified by the mapping request.
@@ -131,6 +130,11 @@ public class EntityGraphMapper implements EntityMapper {
 
         deleteObsoleteRelationships(compiler);
 
+        return compiler.context();
+    }
+
+    @Override
+    public CompileContext compileContext() {
         return compiler.context();
     }
 

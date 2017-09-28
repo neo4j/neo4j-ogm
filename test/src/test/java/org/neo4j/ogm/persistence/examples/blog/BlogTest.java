@@ -13,19 +13,20 @@
 
 package org.neo4j.ogm.persistence.examples.blog;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.HashSet;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.neo4j.ogm.domain.blog.Author;
 import org.neo4j.ogm.domain.blog.Comment;
 import org.neo4j.ogm.domain.blog.Post;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Vince Bickers
@@ -42,6 +43,7 @@ public class BlogTest extends MultiDriverTestClass {
     @Before
     public void init() {
         session = sessionFactory.openSession();
+        session.purgeDatabase();
     }
 
     @Test

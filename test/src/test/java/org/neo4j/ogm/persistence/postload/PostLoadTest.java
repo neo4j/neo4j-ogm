@@ -45,6 +45,7 @@ public class PostLoadTest extends MultiDriverTestClass {
     @Before
     public void setUp() throws Exception {
         session = sessionFactory.openSession();
+        session.purgeDatabase();
         User.resetPostLoadCount();
     }
 

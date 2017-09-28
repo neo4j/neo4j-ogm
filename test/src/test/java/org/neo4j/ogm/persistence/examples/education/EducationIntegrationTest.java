@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.persistence.examples.education;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,6 +21,7 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.education.Course;
@@ -32,6 +31,8 @@ import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luanne Misquitta
@@ -48,6 +49,7 @@ public class EducationIntegrationTest extends MultiDriverTestClass {
     @Before
     public void init() throws IOException {
         session = sessionFactory.openSession();
+        session.purgeDatabase();
     }
 
     @Test

@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.requireNonNull;
@@ -100,17 +102,36 @@ public class BoltDriver extends AbstractConfigurableDriver {
     private void initializeDriver() {
         try {
             if (credentials != null) {
-                UsernamePasswordCredentials userCredentials = (UsernamePasswordCredentials) this.credentials;
-                AuthToken authToken = AuthTokens.basic(userCredentials.getUsername(), userCredentials.getPassword());
-                boltDriver = GraphDatabase.driver(configuration.getURI(), authToken, driverConfig);
+                UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) this.credentials;
+                AuthToken authToken = AuthTokens.basic(credentials.getUsername(), credentials.getPassword());
+                boltDriver = createDriver(configuration, driverConfig, authToken);
             } else {
-                boltDriver = GraphDatabase.driver(configuration.getURI(), driverConfig);
+                try {
+                    boltDriver = createDriver(configuration, driverConfig, AuthTokens.none());
+                } catch (ServiceUnavailableException e) {
+                    throw new ConnectionException("Could not create driver instance.", e);
+                }
                 LOGGER.debug("Bolt Driver credentials not supplied");
             }
         } catch (ServiceUnavailableException e) {
             throw new ConnectionException("Could not create driver instance", e);
         }
     }
+
+	private Driver createDriver(Configuration config, Config driverConfig, AuthToken authToken) {
+		if (config.getURIS() == null) {
+			return GraphDatabase.driver(config.getURI(), authToken, driverConfig);
+		} else {
+			List<URI> uris = new ArrayList<>();
+			uris.add(URI.create(config.getURI()));
+            for (String additionalURI : config.getURIS()) {
+                uris.add(URI.create(additionalURI));
+            }
+
+            return GraphDatabase.routingDriver(uris, authToken, driverConfig);
+		}
+	}
+
 
     @Override
     public synchronized void close() {

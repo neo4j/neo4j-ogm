@@ -32,6 +32,7 @@ public class Configuration {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
 	private String uri;
+	private String[] uris;
 	private int connectionPoolSize;
 	private String encryptionLevel;
 	private String trustStrategy;
@@ -53,6 +54,7 @@ public class Configuration {
 	 */
 	Configuration(Builder builder) {
 		this.uri = builder.uri;
+        this.uris = builder.uris;
 		this.connectionPoolSize = builder.connectionPoolSize != null ? builder.connectionPoolSize : 50;
 		this.encryptionLevel = builder.encryptionLevel;
 		this.trustStrategy = builder.trustStrategy;
@@ -109,7 +111,11 @@ public class Configuration {
 		return uri;
 	}
 
-	public String getDriverClassName() {
+    public String[] getURIS() {
+        return uris;
+    }
+
+    public String getDriverClassName() {
 		return driverName;
 	}
 
@@ -157,6 +163,7 @@ public class Configuration {
 				this.driverName = "org.neo4j.ogm.drivers.http.driver.HttpDriver";
 				break;
 			case "bolt":
+            case "bolt+routing":
 				this.driverName = "org.neo4j.ogm.drivers.bolt.driver.BoltDriver";
 				break;
 			default:
@@ -229,6 +236,7 @@ public class Configuration {
 		}
 
 		private static final String URI = "URI";
+		private static final String URIS = "URIS";
 		private static final String CONNECTION_POOL_SIZE = "connection.pool.size";
 		private static final String ENCRYPTION_LEVEL = "encryption.level";
 		private static final String TRUST_STRATEGY = "trust.strategy";
@@ -241,6 +249,7 @@ public class Configuration {
 		private static final String NEO4J_HA_PROPERTIES_FILE = "neo4j.ha.properties.file";
 
 		private String uri;
+        private String[] uris;
 		private Integer connectionPoolSize;
 		private String encryptionLevel;
 		private String trustStrategy;
@@ -273,7 +282,10 @@ public class Configuration {
 					case URI:
 						this.uri = (String) entry.getValue();
 						break;
-					case CONNECTION_POOL_SIZE:
+                    case URIS:
+                        this.uris = ((String) entry.getValue()).split(",");
+                        break;
+                    case CONNECTION_POOL_SIZE:
 						this.connectionPoolSize = Integer.parseInt((String) entry.getValue());
 						break;
 					case ENCRYPTION_LEVEL:
@@ -322,6 +334,17 @@ public class Configuration {
 			this.uri = uri;
 			return this;
 		}
+
+        /**
+         * Set additional URIS to connect to causal cluster. All URIs must have bolt+routing scheme
+         * (including one specified in uri property)
+         *
+         * @param uris uris
+         */
+        public Builder uris(String[] uris) {
+            this.uris = uris;
+            return this;
+        }
 
 		/**
 		 * Number of connections to the database.

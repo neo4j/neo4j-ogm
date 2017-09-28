@@ -35,6 +35,18 @@ URI=bolt+routing://instance0
 
 `instance0` must be one of your core cluster group (that accepts reads and writes).
 
+You can also provide additional core instances in `URIS` property, separated by a comma.
+The `URI` property still needs to be set and will be tried first, followed by entries from `URIS` property.
+Same credentials are used for all instances.
+All listed instances must be core servers.
+
+[source, configs]
+----
+URI=bolt+routing://instance0
+URIS=bolt+routing://instance1,bolt+routing://instance2
+----
+
+
 [[reference:ha:causal-clustering:sessions]]
 === Using OGM Sessions.
 

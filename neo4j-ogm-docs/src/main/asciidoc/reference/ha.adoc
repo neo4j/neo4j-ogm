@@ -134,19 +134,6 @@ This means we must bind every request within a specific transaction to the same 
 
 As of Version 2.0.5 read-only transactions are supported by the OGM.
 
-[[reference:ha:ha-cluster:readwrite:api-changes]]
-==== API changes
-
-There is new API method `session.beginTransaction(Transaction.Type)` where Transaction.
-Type is one of:
-
-- READ_WRITE
-- READ_ONLY
-
-In the case that your code doesn't declare an explicit transaction, `autocommit` transactions (or their logical equivalent) will be created by the various drivers. These will be READ_WRITE.
-
-The previous API semantics have not changed, i.e. `session.beginTransaction()` creates a READ_WRITE transaction.
-
 [[reference:ha:ha-cluster:readwrite:drivers]]
 ==== Drivers
 The Drivers have been updated to transmit additional information about the transaction type of the current transaction to the server.

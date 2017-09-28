@@ -42,9 +42,6 @@ include::appendix/design-considerations.adoc[leveloffset=+1]
 [[faq]]
 include::appendix/faq.adoc[leveloffset=+1]
 
-[[migration]]
-include::appendix/migration-2.1-to-3.0.adoc[leveloffset=+1]
-
 
 ifdef::backend-pdf[]
 include::{license-dir}/license.adoc[leveloffset=1]

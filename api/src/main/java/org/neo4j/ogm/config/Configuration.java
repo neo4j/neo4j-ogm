@@ -13,12 +13,12 @@
 
 package org.neo4j.ogm.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A generic configuration class that can be set up programmatically
@@ -237,6 +237,8 @@ public class Configuration {
 
 		private static final String URI = "URI";
 		private static final String URIS = "URIS";
+		private static final String USERNAME = "username";
+		private static final String PASSWORD = "password";
 		private static final String CONNECTION_POOL_SIZE = "connection.pool.size";
 		private static final String ENCRYPTION_LEVEL = "encryption.level";
 		private static final String TRUST_STRATEGY = "trust.strategy";
@@ -281,6 +283,12 @@ public class Configuration {
 				switch (entry.getKey().toString()) {
 					case URI:
 						this.uri = (String) entry.getValue();
+						break;
+					case USERNAME:
+						this.username = (String) entry.getValue();
+						break;
+					case PASSWORD:
+						this.password = (String) entry.getValue();
 						break;
                     case URIS:
                         this.uris = ((String) entry.getValue()).split(",");

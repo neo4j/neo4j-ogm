@@ -13,10 +13,14 @@
 
 package org.neo4j.ogm.config;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-
-import java.io.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -143,6 +147,15 @@ public class ConfigurationTest {
 		assertThat(configuration.getEncryptionLevel()).isEqualTo("NONE");
 		assertThat(configuration.getTrustStrategy()).isEqualTo("TRUST_ON_FIRST_USE");
 		assertThat(configuration.getTrustCertFile()).isEqualTo("/tmp/cert");
+	}
+
+	@Test
+	public void shouldConfigureFromUsernamePasswordProperties() {
+
+		Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-password.properties")).build();
+
+		assertThat(((UsernamePasswordCredentials)configuration.getCredentials()).getUsername()).isEqualTo("azerty");
+		assertThat(((UsernamePasswordCredentials)configuration.getCredentials()).getPassword()).isEqualTo("uiop");
 	}
 
 	@Test

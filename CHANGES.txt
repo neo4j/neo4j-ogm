@@ -1,4 +1,4 @@
-3.0.0-SNAPSHOT
+3.0.0
 o Check if node is in MappingContext before firing events, fixes #305
 o Don't consider Object fields with @StartNode and @EndNode as property, fixes #66
 o Update Neo4j to version 3.1.6 in 3.1 profile
@@ -14,7 +14,16 @@ o Add @Id to relationship entities
 o Remove requirement to have graph id in entities
 o Execute @PostLoad method after fully hydrating all entities, fixes #403
 o Fix execution of @PostLoad method when entities are loaded via session.query()
-o Fix duplicate nodes for Session.save(Iterable<T>)
+o Fix duplicate nodes creation when using Session.save(Iterable<T>)
+o Expose new URIS configuration parameter for clustering
+o Username and password are not picked from configuration file
+o Use UNWIND pattern when updating relationships
+o Paging with session.loadAll(User.class, filter, pagination) does not work correctly when filtering on relationship #384
+o Assert indexes for labels with hyphens fails #392
+o Remove dependency on common collections
+o Keep order for loadAll by objects or ids, fixes #196
+o Fix issue with empty (non null) collections, fixes #388
+o Update documentation
 
 3.0.0-RC1
 o Add verifyConnection configuration property for bolt and http driver

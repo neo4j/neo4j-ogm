@@ -354,6 +354,8 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
         pairings = session.loadAll(Pairing.class, new Pagination(0, 2));
         assertThat(pairings).hasSize(2);
 
+        session.clear();
+
         pairings = session.loadAll(Pairing.class, new Pagination(0, 3));
         assertThat(pairings).hasSize(3);
     }

@@ -16,4 +16,3 @@ include::introduction/index.adoc[leveloffset=+1]
 include::tutorial/index.adoc[leveloffset=+1]
 
 include::reference/index.adoc[leveloffset=+1]
-

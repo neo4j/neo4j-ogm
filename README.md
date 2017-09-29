@@ -7,10 +7,12 @@ It aims to simplify development with the Neo4j graph database and like JPA, it u
 
 If you use Spring to build your applications be sure to check out [Spring Data Neo4j](https://github.com/spring-projects/spring-data-neo4j).
 
-***The latest OGM version is:*** `2.1.2`.
-***The latest OGM development version is:*** `2.1.3-SNAPSHOT` and `3.0.0-SNAPSHOT`.
+***The latest OGM version is:*** `3.0.0`.
+***The latest OGM development version is:*** `2.1.6-SNAPSHOT` and `3.0.1-SNAPSHOT`.
 
 ## Quick start
+
+You can start coding with some simple [templates](https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template), or just follow the little guide below!
 
 ### Dependencies for Neo4j OGM
 
@@ -69,7 +71,7 @@ dependencies {
 @NodeEntity
 public class Actor {
 
-	@GraphId
+	@Id @GeneratedValue
 	private Long id;
 	private String name;
 
@@ -93,7 +95,7 @@ public class Actor {
 @NodeEntity
 public class Movie {
 
-	@GraphId
+	@Id @GeneratedValue
 	private Long id;
 	private String title;
 	private int released;
@@ -116,9 +118,9 @@ public class Movie {
 
 ### Configuration
 
-The OGM can be configured in two ways. The easiest is auto configuration, where `ogm.properties` must be on the root of the classpath. The other is via Java configuration.
+The either configure OGM with properties files, or programmatically.
 
-Please see examples [here](http://neo4j.com/docs/ogm-manual/current/)
+Please see examples [here](http://neo4j.com/docs/ogm-manual/current/reference/#reference:configuration).
 
 
 ### Persist/Load entities
@@ -127,7 +129,7 @@ Please see examples [here](http://neo4j.com/docs/ogm-manual/current/)
 
 
 //Set up the Session
-SessionFactory sessionFactory = new SessionFactory("movies.domain");
+SessionFactory sessionFactory = new SessionFactory(configuration, "movies.domain");
 Session session = sessionFactory.openSession();
 
 Movie movie = new Movie("The Matrix", 1999);
@@ -153,8 +155,9 @@ for(Actor actor : matrix.getActors()) {
 
 The [reference guide](http://neo4j.com/docs/ogm-manual/current/) is the best place to get started.
 
-[Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university), the sample application shown in the reference guide is a working example of a Groovy/Ratpack app that uses the Neo4j OGM library (with the Bolt driver).
-A version that uses the Embedded driver is [also available](https://github.com/neo4j-examples/neo4j-ogm-university/tree/embedded) as well as a version that uses the [HTTP driver](https://github.com/neo4j-examples/neo4j-ogm-university/tree/http).
+Feel free to chat with us on the [OGM Slack channel](https://neo4j-users.slack.com), and have a look to some examples like [Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university).
+
+You can also post questions on [StackOverflow](http://stackoverflow.com/questions/tagged/neo4j-ogm).
 
 ## Building locally
 

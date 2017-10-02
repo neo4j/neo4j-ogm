@@ -1,6 +1,5 @@
 [appendix]
 
-[[appendix:migration]]
 = Migration from 2.1 to 3.0
 
 This migration guide should help with migration from OGM 2.1.x version to 3.0.x.

@@ -1,4 +1,5 @@
 [appendix]
+[[design-considerations]]
 = Design considerations
 
 The OGM attempts to minimise the Cypher payload when persisting your objects to the graph.

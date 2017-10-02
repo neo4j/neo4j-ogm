@@ -8,7 +8,7 @@ At a high level, here is what has changed in this third major version of OGM :
 Technical database ids were previously required in the domain model ; this is no more the case.
 Ids can now be of any simple type, and generated using pluggable strategies.
 To avoid confusion about where to place annotations, they are now only valid on class attributes.
-See <<reference:annotating-entities:entity-identifier>> and <<appendix:migration>> for more details.
+See <<reference:annotating-entities:entity-identifier>> and <<migration>> for more details.
 
 * Dynamic properties
 +

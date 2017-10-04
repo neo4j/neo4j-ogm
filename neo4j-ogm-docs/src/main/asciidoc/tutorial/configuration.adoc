@@ -29,18 +29,16 @@ Refer to <<reference:getting-started:dependency-management, Dependency Managemen
 == Specifying the driver to the OGM
 
 Since the OGM works against both remote and embedded servers, we'll need to configure it to use the appropriate driver.
-We do this by providing a file called `ogm.properties` at the root of the classpath. In our application this can be
-found at `src/main/resources/`.
+We do this by using the configuration builder.
 
-[source, properties]
+[source, java]
 ----
-driver=org.neo4j.ogm.drivers.bolt.driver.BoltDriver
-URI=bolt://localhost
-# Set the username and password to your Neo4j 3.0+ database.
-username=
-password=
-----
+Configuration configuration = new Configuration.Builder()
+    .uri("bolt://localhost")
+    .credentials("neo4j", "passwword")
+    .build();
 
-We have now set up the Bolt Driver to connect to our local Neo4j server.
+SessionFactory sessionFactory = new SessionFactory(configuration, "...");
+----
 
 

@@ -393,24 +393,7 @@ public class ClassInfo {
      */
     public Collection<FieldInfo> propertyFields() {
         if (fieldInfos == null) {
-            if (fieldInfos == null) {
-                FieldInfo identityField = identityFieldOrNull();
-                fieldInfos = new HashSet<>();
-                for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                    if (fieldInfo != identityField && !fieldInfo.isLabelField()
-                            && !fieldInfo.hasAnnotation(StartNode.class)
-                            && !fieldInfo.hasAnnotation(EndNode.class)) {
-                        AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.class);
-                        if (annotationInfo == null) {
-                            if (fieldInfo.persistableAsProperty()) {
-                                fieldInfos.add(fieldInfo);
-                            }
-                        } else {
-                            fieldInfos.add(fieldInfo);
-                        }
-                    }
-                }
-            }
+            initPropertyFields();
         }
         return fieldInfos;
     }
@@ -424,19 +407,39 @@ public class ClassInfo {
      */
     public FieldInfo propertyField(String propertyName) {
         if (propertyFields == null) {
-
-            if (propertyFields == null) {
-                Collection<FieldInfo> fieldInfos = propertyFields();
-                propertyFields = new HashMap<>(fieldInfos.size());
-                for (FieldInfo fieldInfo : fieldInfos) {
-
-                    propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
-                }
-            }
+            initPropertyFields();
         }
         return propertyFields.get(propertyName.toLowerCase());
     }
 
+    private synchronized void initPropertyFields() {
+        if (fieldInfos == null) {
+            Collection<FieldInfo> fields = fieldsInfo().fields();
+
+            FieldInfo identityField = identityFieldOrNull();
+            Set<FieldInfo> fieldInfos = new HashSet<>(fields.size());
+            Map<String, FieldInfo> propertyFields = new HashMap<>(fields.size());
+
+            for (FieldInfo fieldInfo : fields) {
+                if (fieldInfo != identityField && !fieldInfo.isLabelField()
+                    && !fieldInfo.hasAnnotation(StartNode.class)
+                    && !fieldInfo.hasAnnotation(EndNode.class)) {
+                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.class);
+                    if (annotationInfo == null) {
+                        if (fieldInfo.persistableAsProperty()) {
+                            fieldInfos.add(fieldInfo);
+                            propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
+                        }
+                    } else {
+                        fieldInfos.add(fieldInfo);
+                        propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
+                    }
+                }
+            }
+            this.fieldInfos = fieldInfos;
+            this.propertyFields = propertyFields;
+        }
+    }
 
     /**
      * Finds the property field with a specific field name from the ClassInfo's property fields

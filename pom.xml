@@ -49,7 +49,7 @@
         <mockito>2.2.29</mockito>
         <!-- default for build, if no profiles invoked -->
         <neo4j>3.2.6</neo4j>
-        <bolt>1.4.3</bolt>
+        <bolt>1.4.4</bolt>
         <fast.classpath.scanner>2.0.18</fast.classpath.scanner>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
     </properties>
@@ -324,14 +324,14 @@
         <profile>
             <id>driver-1.4</id>
             <properties>
-                <bolt>1.4.3</bolt>
+                <bolt>1.4.4</bolt>
             </properties>
         </profile>
 
         <profile>
             <id>driver-1.5</id>
             <properties>
-                <bolt>1.5.0-alpha01</bolt>
+                <bolt>1.5.0-alpha02</bolt>
             </properties>
         </profile>
 

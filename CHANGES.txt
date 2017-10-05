@@ -1,3 +1,8 @@
+3.0.1-SNAPSHOT
+o Update Neo4j to version 3.1.7 in 3.1 profile
+o Update Neo4j to version 3.2.6 in 3.2 profile (default dependency)
+o Update Neo4j to version 3.3.0-rc1 in 3.3 profile
+
 3.0.0
 o Check if node is in MappingContext before firing events, fixes #305
 o Don't consider Object fields with @StartNode and @EndNode as property, fixes #66

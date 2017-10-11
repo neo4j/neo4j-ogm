@@ -1,24 +1,252 @@
-[[reference:connecting]]
-= Connecting to the Graph
+[[tutorial:annotations]]
+= Annotating the domain model
 
-In order to interact with mapped entities and the Neo4j graph, your application will require a `Session`, which is provided by the `SessionFactory`.
+Much like Hibernate or JPA, the OGM allows you to annotate your POJOs in order to map them to nodes, relationships and properties in the graph.
 
-[[reference:connecting:session-factory]]
-== SessionFactory
 
-The `SessionFactory` is needed by OGM to create instances of `Session` as required.
-This also sets up the object-graph mapping metadata when constructed, which is then used across all `Session` objects that it creates.
-The packages to scan for domain object metadata should be provided to the `SessionFactory` constructor.
-Multiple packages may be provided as well.
-If you would rather just pass in specific classes you can also do that via an overloaded constructor.
-The `SessionFactory` must also be configured.
-There are two ways this can be done.
-Please see the section <<reference:configuration, Configuration>> for further details.
+[[tutorial:annotations:nodes]]
+== Node Entities
 
-.Multiple packages
-[source, java]
+POJOs annotated with `@NodeEntity` will be represented as nodes in the graph.
+
+The label assigned to this node can be specified via the `label` property on the annotation; if not specified, it will default to the simple class name of the entity.
+Each parent class in addition also contributes a label to the entity (with the exception of `java.lang.Object`).
+This is useful when we want to retrieve collections of super types.
+
+Let's go ahead and annotate all our node entities in the code we wrote earlier.
+
+Note that we're overriding the default label for a `Course` with `Class`
+
+[source, groovy]
 ----
-SessionFactory sessionFactory = new SessionFactory("first.package.domain", "second.package.domain",...);
+@NodeEntity
+class Department {
+    String name;
+    Set<Subject> subjects;
+}
+
+@NodeEntity
+class Subject {
+    String name;
+    Department department;
+    Set<Teacher> teachers;
+    Set<Course> courses;
+}
+
+@NodeEntity
+class Teacher {
+    String name;
+    Set<Course> courses;
+    Set<Subject> subjects;
+}
+
+@NodeEntity(label="Class")
+class Course {
+    String name;
+    Subject subject;
+    Teacher teacher;
+    Set<Enrollment> enrollments;
+}
+
+@NodeEntity
+class Student {
+    String name;
+    Set<Enrollment> enrollments;
+    Set<StudyBuddy> studyBuddies;
+}
 ----
 
-Note that the `SessionFactory` should typically be set up once during life of your application.
+
+[[tutorial:annotations:relationships]]
+== Relationships
+
+Next up, the relationships between the nodes.
+
+Every field in an entity that references another entity is backed by a relationship in the graph.
+The `@Relationship` annotation allows you to specify both the type of the relationship and the direction.
+By default, the direction is assumed to be `OUTGOING` and the type is the UPPER_SNAKE_CASE field name.
+
+We're going to be specific about the relationship type to avoid using the default and also make it easier to refactor classes later by not being dependent on the field name. Again, we are going to modify the code we saw in the last section:
+
+[source, groovy]
+----
+@NodeEntity
+class Department {
+    String name;
+
+    @Relationship(type = "CURRICULUM")
+    Set<Subject> subjects;
+}
+
+@NodeEntity
+class Subject {
+    String name;
+
+    @Relationship(type="CURRICULUM", direction = Relationship.INCOMING)
+    Department department;
+
+    @Relationship(type = "TAUGHT_BY")
+    Set<Teacher> teachers;
+
+    @Relationship(type = "SUBJECT_TAUGHT", direction = "INCOMING")
+    Set<Course> courses;
+}
+
+@NodeEntity
+class Teacher {
+    String name;
+
+     @Relationship(type="TEACHES_CLASS")
+     Set<Course> courses;
+
+     @Relationship(type="TAUGHT_BY", direction = Relationship.INCOMING)
+     Set<Subject> subjects;
+}
+
+@NodeEntity(label="Class")
+class Course {
+    String name;
+
+     @Relationship(type= "SUBJECT_TAUGHT")
+     Subject subject;
+
+     @Relationship(type= "TEACHES_CLASS", direction=Relationship.INCOMING)
+     Teacher teacher;
+
+     @Relationship(type= "ENROLLED", direction=Relationship.INCOMING)
+     Set<Enrollment> enrollments = new HashSet<>();
+}
+
+@NodeEntity
+class Student {
+    String name;
+
+    @Relationship(type = "ENROLLED")
+    Set<Enrollment> enrollments;
+
+    @Relationship(type = "BUDDY", direction = Relationship.INCOMING)
+    Set<StudyBuddy> studyBuddies;
+}
+----
+
+
+[[tutorial:annotations:relationship-entities]]
+== Relationship Entities
+
+Sometimes something isn't quite a Node entity.
+
+In this demo the only remaining class to annotate is `Enrollment`.
+As discussed earlier, this is a relationship entity since it manages the underlying `ENROLLED` relation between a student and course.
+It isn't a simple relation because it has a relationship property called `enrolledDate`.
+
+A relationship entity must be annotated with `@RelationshipEntity` and also the type of relationship.
+In this case, the type of relationship is `ENROLLED` as specified in both the `Student` and `Course` entities.
+
+
+We are also going to indicate to the OGM the start and end node of this relationship.
+
+[source, groovy]
+----
+@RelationshipEntity(type = "ENROLLED")
+class Enrollment {
+
+    @StartNode
+    Student student;
+
+    @EndNode
+    Course course;
+
+    Date enrolledDate;
+
+}
+----
+
+
+[[tutorial:annotations:graphid]]
+== Identifiers
+
+Every node and relationship persisted to the graph must have an id.
+The OGM uses this to identify and re-connect the entity to the graph in memory.
+Identifier may be either a primary id or a native graph id.
+
+- primary id - any property annotated with `@Id`, set by the user and optionally with `@GeneratedValue` annotation
+- native id - this id corresponds to the id generated by the  Neo4j database when a node or relationship is first saved, must be of type `Long`
+
+[WARNING]
+***Do not*** rely on native id for long running applications. Neo4j will reuse deleted node id's. It is recommended users come up with their own
+unique identifier for their domain objects (or use a UUID).
+
+Since every entity requires an id, we're going to create an `Entity` superclass.
+This is an abstract class, so you'll see that the nodes do not inherit an `Entity` label, which is exactly what we want.
+
+If you plan on implementing `hashCode` and `equals` make sure *it does not* make use of the native id. See <<reference:annotating-entities:graph-id, Node Entities>> for more information.
+
+[source, groovy]
+----
+abstract class Entity {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    public Long getId() {
+        return id;
+    }
+}
+----
+
+Our entities will now extend this class, for example
+
+[source, groovy]
+----
+@NodeEntity
+class Department extends Entity {
+    String name;
+
+    @Relationship(type = "CURRICULUM")
+    Set<Subject> subjects;
+
+    Department() {
+
+    }
+}
+----
+
+[[tutorial:annotations:noarg-constructor]]
+== No Arg Constructor
+
+We are almost there!
+
+The OGM also also requires a public no-args constructor to be able to construct objects from all our annotated entities.
+We'll make sure all our entities have one.
+
+
+[[tutorial:annotations:converters]]
+== Converters
+
+Neo4j supports `Numeric`, `String`, `boolean` and arrays of these as property values.
+
+How do we handle the `enrolledDate` since `Date` is not a valid data type?
+
+Luckily for us, OGM provides many converters out of the box, one of which is a `Date` to `Long` converter.
+We simply annotate the field with `@DateLong` and the conversion of the `Date` to it's `Long` representation and back is handled by the OGM when persisting and loading from the graph.
+
+[source, groovy]
+----
+@RelationshipEntity(type = "ENROLLED")
+class Enrollment {
+
+    Long id;
+
+    @StartNode
+    Student student;
+
+    @EndNode
+    Course course;
+
+    @DateLong
+    Date enrolledDate;
+
+    Enrollment() {
+    }
+}
+----

@@ -179,12 +179,13 @@ unique identifier for their domain objects (or use a UUID).
 Since every entity requires an id, we're going to create an `Entity` superclass.
 This is an abstract class, so you'll see that the nodes do not inherit an `Entity` label, which is exactly what we want.
 
-If you plan on implementing `hashCode` and `equals` make sure *it does not* make use of the id. See <<reference:annotating-entities:graph-id, Node Entities>> for more information.
+If you plan on implementing `hashCode` and `equals` make sure *it does not* make use of the native id. See <<reference:annotating-entities:graph-id, Node Entities>> for more information.
 
 [source, groovy]
 ----
 abstract class Entity {
 
+    @Id @GeneratedValue
     private Long id;
 
     public Long getId() {

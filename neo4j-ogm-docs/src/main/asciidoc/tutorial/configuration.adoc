@@ -38,7 +38,7 @@ Configuration configuration = new Configuration.Builder()
     .credentials("neo4j", "passwword")
     .build();
 
-SessionFactory sessionFactory = new SessionFactory(configuration, "...");
+SessionFactory sessionFactory = new SessionFactory(configuration, "com.mycompany.app.domainclasses");
 ----
 
 

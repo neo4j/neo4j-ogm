@@ -9,16 +9,29 @@ In order to interact with mapped entities and the Neo4j graph, your application 
 The `SessionFactory` is needed by OGM to create instances of `Session` as required.
 This also sets up the object-graph mapping metadata when constructed, which is then used across all `Session` objects that it creates.
 The packages to scan for domain object metadata should be provided to the `SessionFactory` constructor.
+
+As seen in the configuration section, this is done by providing the `SessionFactory` a configuration object:
+[source, java]
+----
+SessionFactory sessionFactory = new SessionFactory(configuration, "com.mycompany.app.domainclasses");
+----
+
+Or directly a Neo4j Java driver instance:
+
+This can be done by providing to the `SessionFactory` a driver instance:
+[source, java]
+----
+SessionFactory sessionFactory = new SessionFactory(driver, "com.mycompany.app.domainclasses");
+----
+
 Multiple packages may be provided as well.
 If you would rather just pass in specific classes you can also do that via an overloaded constructor.
-The `SessionFactory` must also be configured.
-There are two ways this can be done.
-Please see the section <<reference:configuration, Configuration>> for further details.
 
 .Multiple packages
 [source, java]
 ----
-SessionFactory sessionFactory = new SessionFactory("first.package.domain", "second.package.domain",...);
+SessionFactory sessionFactory = new SessionFactory(configuration, "first.package.domain", "second.package.domain",...);
 ----
 
-Note that the `SessionFactory` should typically be set up once during life of your application.
+NOTE: The `SessionFactory` is an expensive object to create because it scans all the requested packages to build up metadata.
+ It should typically be set up once during life of your application.

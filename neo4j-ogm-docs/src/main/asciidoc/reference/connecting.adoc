@@ -18,7 +18,7 @@ SessionFactory sessionFactory = new SessionFactory(configuration, "com.mycompany
 
 Or directly a Neo4j Java driver instance:
 
-This can be done by providing to the `SessionFactory` a configuration object:
+This can be done by providing to the `SessionFactory` a driver instance:
 [source, java]
 ----
 SessionFactory sessionFactory = new SessionFactory(driver, "com.mycompany.app.domainclasses");

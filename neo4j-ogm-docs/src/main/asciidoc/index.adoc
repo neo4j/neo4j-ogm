@@ -1,4 +1,4 @@
-= Neo4j OGM - An Object Graph Mapping Library for Neo4j v{version}
+= Neo4j OGM - An Object Graph Mapping Library for Neo4j v{ogm-doc-version}
 
 
 ifdef::backend-html5[(C) {copyright}]

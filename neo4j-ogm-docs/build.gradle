@@ -34,7 +34,7 @@ plugins {
 
 def traceDocbook = hasProperty('traceDocbook') ? true : false
 
-if (!project.hasProperty("ogmVersion")) { ext.ogmVersion = "3.0.0-M02" }
+if (!project.hasProperty("ogmVersion")) { ext.ogmVersion = "3.1.0-SNAPSHOT" }
 if (!project.hasProperty("neo4jVersion")) { ext.neo4jVersion = "3.3.0-SNAPSHOT" }
 if (!project.hasProperty("kerberosAddonVersion")) { ext.kerberosAddonVersion = "1.0" }
 ext {
@@ -125,7 +125,8 @@ task toDocbook {
     outputs.dir docbookOutputDir
     doLast {
         def attrs = project.ext.commonAsciidoctorAttributes + [
-            'version'             : ogmDocVersion,
+            'ogm-doc-version'     : ogmDocVersion,
+            'ogm-version'         : ogmVersion,
             'docinfo1'            : '',
         ]
         attrs['imagesdir'] = imagesDir
@@ -306,11 +307,12 @@ task pdf {
     doLast {
         def attrs = project.ext.commonAsciidoctorAttributes + project.ext.pdfAsciidoctorAttributes +
                 [
-                        'manual-title'  : "Neo4j OGM - An Object Graph Mapping Library for Neo4j: ${ogmDocVersion}",
-                        'version'       : "${ogmDocVersion}",
-                        'pdf-stylesdir' : pdfStylesDir.toString(),
-                        'imagesdir'     : "${sourceDir}/images".toString(),
-                        'license-dir'   : "${projectDir}/common/asciidoc",
+                        'manual-title'      : "Neo4j OGM - An Object Graph Mapping Library for Neo4j: ${ogmDocVersion}",
+                        'ogm-doc-version'   : "${ogmDocVersion}",
+                        'ogm-version'       : "${ogmVersion}",
+                        'pdf-stylesdir'     : pdfStylesDir.toString(),
+                        'imagesdir'         : "${sourceDir}/images".toString(),
+                        'license-dir'       : "${projectDir}/common/asciidoc",
                 ]
         def opts = OptionsBuilder.options()
                 .backend('pdf')

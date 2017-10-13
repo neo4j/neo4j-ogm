@@ -50,7 +50,7 @@
                             <backend>html5</backend>
                             <sourceHighlighter>coderay</sourceHighlighter>
                             <attributes>
-                                <version>${project.version}</version>
+                                <ogm-version>${project.version}</ogm-version>
                                 <linkcss>true</linkcss>
                             </attributes>
                         </configuration>

@@ -68,7 +68,7 @@ In the `<dependencies>` section of your `pom.xml` add the following:
 <dependency>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-core</artifactId>
-    <version>{version}</version>
+    <version>{ogm-version}</version>
     <scope>compile</scope>
 </dependency>
 
@@ -76,7 +76,7 @@ In the `<dependencies>` section of your `pom.xml` add the following:
 <dependency>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-http-driver</artifactId>
-    <version>{version}</version>
+    <version>{ogm-version}</version>
     <scope>runtime</scope>
 </dependency>
 
@@ -84,7 +84,7 @@ In the `<dependencies>` section of your `pom.xml` add the following:
 <dependency>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-embedded-driver</artifactId>
-    <version>{version}</version>
+    <version>{ogm-version}</version>
     <scope>runtime</scope>
 </dependency>
 
@@ -92,7 +92,7 @@ In the `<dependencies>` section of your `pom.xml` add the following:
 <dependency>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-bolt-driver</artifactId>
-    <version>{version}</version>
+    <version>{ogm-version}</version>
     <scope>runtime</scope>
 </dependency>
 ----
@@ -119,10 +119,10 @@ Ensure the following dependencies are added to you `build.gradle`:
 [source, groovy, subs="attributes"]
 ----
 dependencies {
-    compile 'org.neo4j:neo4j-ogm-core:{version}'
-    runtime 'org.neo4j:neo4j-ogm-http-driver:{version}' // Only add if you're using the HTTP driver
-    runtime 'org.neo4j:neo4j-ogm-embedded-driver:{version}' //  Only add if you're using the Embedded driver
-    runtime 'org.neo4j:neo4j-ogm-bolt-driver:{version}' // Only add if you're using the Bolt driver
+    compile 'org.neo4j:neo4j-ogm-core:{ogm-version}'
+    runtime 'org.neo4j:neo4j-ogm-http-driver:{ogm-version}' // Only add if you're using the HTTP driver
+    runtime 'org.neo4j:neo4j-ogm-embedded-driver:{ogm-version}' //  Only add if you're using the Embedded driver
+    runtime 'org.neo4j:neo4j-ogm-bolt-driver:{ogm-version}' // Only add if you're using the Bolt driver
 }
 ----
 

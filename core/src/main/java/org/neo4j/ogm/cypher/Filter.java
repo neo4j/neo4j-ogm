@@ -13,15 +13,15 @@
 
 package org.neo4j.ogm.cypher;
 
-import java.util.EnumSet;
-import java.util.Map;
-
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
+
+import java.util.EnumSet;
+import java.util.Map;
 
 /**
  * A parameter along with filter information to be added to a query.
@@ -118,6 +118,12 @@ public class Filter {
     public Filter(String propertyName, ComparisonOperator comparisonOperator, Object propertyValue) {
         this(new PropertyComparison(propertyValue));
         this.comparisonOperator = comparisonOperator;
+        this.propertyName = propertyName;
+    }
+
+    //Convenience Constructor
+    public Filter(String propertyName, FilterFunction filterFunction) {
+        this(filterFunction);
         this.propertyName = propertyName;
     }
 
@@ -262,7 +268,15 @@ public class Filter {
             throw new MappingException("Properties with a CompositeAttributeConverter are not supported by " +
                     "Filters in this version of OGM. Consider implementing a custom FilterFunction.");
         }
-        return this.comparisonOperator.getPropertyValueTransformer().transformPropertyValue(value);
+        return transformPropertyValue(value);
+    }
+
+    private Object transformPropertyValue(Object value) {
+        if (this.comparisonOperator != null) {
+            return this.comparisonOperator.getPropertyValueTransformer().transformPropertyValue(value);
+        }
+
+        return new NoOpPropertyValueTransformer().transformPropertyValue(value);
     }
 
     public FilterFunction getFunction() {

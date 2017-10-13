@@ -13,17 +13,24 @@
 
 package org.neo4j.ogm.persistence.examples.restaurant;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.*;
-
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.function.ContainsAnyComparison;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
 import org.neo4j.ogm.domain.restaurant.Branch;
@@ -34,6 +41,10 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
@@ -350,6 +361,31 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         assertThat(results).isNotNull();
         assertThat(results).hasSize(1);
         assertThat(results.iterator().next().getName()).isEqualTo("Kuroda");
+    }
+
+    @Test
+    public void shouldFilterByCollectionContaining() {
+        Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
+        sfo.getSpecialities().add("burger");
+        sfo.getSpecialities().add("pizza");
+        session.save(sfo);
+
+        Restaurant kuroda = new Restaurant("Kuroda", 80.5);
+        kuroda.getSpecialities().add("sushi");
+        session.save(kuroda);
+
+        Filter f1 = new Filter("specialities", new ContainsAnyComparison(Arrays.asList("burger")));
+        Collection<Restaurant> burgers = session.loadAll(Restaurant.class, new Filters(f1));
+        assertThat(burgers).hasSize(1);
+        assertThat(burgers.iterator().next().getName()).isEqualTo("San Francisco International Airport (SFO)");
+
+        Filter f2 = new Filter("specialities", new ContainsAnyComparison(Arrays.asList("burger", "sushi")));
+        Collection<Restaurant> all = session.loadAll(Restaurant.class, new Filters(f2));
+        assertThat(all).hasSize(2);
+
+        Filter f3 = new Filter("specialities", new ContainsAnyComparison(Arrays.asList("sushi", "other")));
+        Collection<Restaurant> sushi = session.loadAll(Restaurant.class, new Filters(f3));
+        assertThat(sushi).hasSize(1);
     }
 
     /**

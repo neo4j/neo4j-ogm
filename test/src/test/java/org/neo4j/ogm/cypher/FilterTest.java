@@ -14,6 +14,8 @@
 package org.neo4j.ogm.cypher;
 
 import org.junit.Test;
+
+import org.neo4j.ogm.cypher.function.ContainsAnyComparison;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
 
@@ -36,5 +38,14 @@ public class FilterTest {
         filter.setBooleanOperator(BooleanOperator.AND);
         filter.setNegated(true);
         assertThat(filter.toCypher("n", true)).isEqualTo("WHERE NOT(distance(point(n),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ");
+    }
+
+    @Test
+    public void inCollectionFilterTest() {
+        ContainsAnyComparison filterFunction = new ContainsAnyComparison("test");
+        Filter filter = new Filter("property", filterFunction);
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE ANY(collectionFields IN {`property_0`} WHERE collectionFields in n.`property`) ");
+        assertThat(filter.parameters().get("property_0")).isEqualTo("test");
+
     }
 }

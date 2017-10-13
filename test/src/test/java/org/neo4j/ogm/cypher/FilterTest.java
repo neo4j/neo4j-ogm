@@ -14,9 +14,10 @@
 package org.neo4j.ogm.cypher;
 
 import org.junit.Test;
+
+import org.neo4j.ogm.cypher.function.ContainsAnyComparison;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
-import org.neo4j.ogm.cypher.function.InCollectionComparison;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,7 +42,7 @@ public class FilterTest {
 
     @Test
     public void inCollectionFilterTest() {
-        InCollectionComparison filterFunction = new InCollectionComparison("test");
+        ContainsAnyComparison filterFunction = new ContainsAnyComparison("test");
         Filter filter = new Filter("property", filterFunction);
         assertThat(filter.toCypher("n", true)).isEqualTo("WHERE ANY(collectionFields IN {`property_0`} WHERE collectionFields in n.`property`) ");
         assertThat(filter.parameters().get("property_0")).isEqualTo("test");

@@ -17,6 +17,7 @@ package org.neo4j.ogm.domain.restaurant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Labels;
@@ -32,6 +33,7 @@ public class Restaurant {
     private double score;
     private String description;
     private boolean halal;
+    private List<String> specialities = new ArrayList<>();
 
     @Convert(LocationConverter.class)
     Location location;
@@ -119,5 +121,13 @@ public class Restaurant {
 
     public void setHalal(boolean halal) {
         this.halal = halal;
+    }
+
+    public List<String> getSpecialities() {
+        return specialities;
+    }
+
+    public void setSpecialities(List<String> specialities) {
+        this.specialities = specialities;
     }
 }

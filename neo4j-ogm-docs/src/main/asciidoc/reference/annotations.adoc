@@ -425,7 +425,7 @@ All fields convertible to a `String` using the conversion services will be store
 Neo4j OGM includes default type converters that deal with the following types:
 
 * `java.util.Date` to a String in the ISO 8601 format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-* `java.time.Instant` to a String in the ISO 8601 with timezone format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXXZ"
+* `java.time.Instant` to a String in the ISO 8601 with timezone format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 * `java.time.LocalDate` to a String in the ISO 8601 with format: "yyyy-MM-dd"
 * `java.math.BigInteger` to a String property
 * `java.math.BigDecimal` to a String property

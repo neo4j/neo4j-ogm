@@ -13,7 +13,8 @@ We're going to set up the `SessionFactory` just once and have it produce as many
 ----
 public class Neo4jSessionFactory {
 
-    private final static SessionFactory sessionFactory = new SessionFactory("school.domain");
+    private final static Configuration = ... // provide configuration as seen before
+    private final static SessionFactory sessionFactory = new SessionFactory(configuration, "school.domain");
     private static Neo4jSessionFactory factory = new Neo4jSessionFactory();
 
     public static Neo4jSessionFactory getInstance() {

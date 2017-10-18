@@ -26,10 +26,9 @@ runtime "org.neo4j:neo4j-ogm-bolt-driver:{ogm-version}"
 Refer to <<reference:getting-started:dependency-management, Dependency Management>> for more information on dependencies.
 
 [[tutorial:configuration:driver]]
-== Specifying the driver to the OGM
+== Connecting to the database
 
-Since the OGM works against both remote and embedded servers, we'll need to configure it to use the appropriate driver.
-We do this by using the configuration builder.
+We configure the database parameters by using the configuration builder.
 
 [source, java]
 ----

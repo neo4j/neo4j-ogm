@@ -27,7 +27,7 @@ Properties file on filesystem:
 
 [source, java]
 ----
-ConfigurationSource props = new FileConfigurationSource("my.properties");
+ConfigurationSource props = new FileConfigurationSource("/etc/my.properties");
 Configuration configuration = new Configuration.Builder(props).build();
 ----
 

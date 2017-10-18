@@ -166,7 +166,7 @@ This configuration will also ensure that requests against a specific transaction
 .OGM Binding via HAProxy
 [source, java]
 ----
-new Configuration.Builder().uri("http://10.0.2.200");
+new Configuration.Builder().uri("http://10.0.2.200").build();
 ----
 
 .Sample haproxy.cfg

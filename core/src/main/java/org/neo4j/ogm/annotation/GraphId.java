@@ -21,8 +21,10 @@ import java.lang.annotation.*;
  * This annotation is not needed if the domain entity has a Long
  * field called id.
  *
+ * @deprecated GraphId is deprecated because it is superseded by {@link Id}
  * @author Vince Bickers
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @Inherited

@@ -385,7 +385,7 @@ If the field of type `Long` is simply named 'id' then it is not necessary to ann
 == @GraphId: Neo4j id field
 
 The `@GraphId` annotation is superseded by `@Id @GeneratedValue` and exists for backwards compatibility.
-It will be eventually deprecated and removed.
+It is deprecated and will eventually be removed.
 
 [WARNING]
 ***Do not*** rely on this ID for long running applications. Neo4j will reuse deleted node ID's. It is recommended users come up with their own

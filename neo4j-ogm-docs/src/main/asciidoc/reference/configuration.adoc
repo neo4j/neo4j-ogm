@@ -329,7 +329,7 @@ This is particularly useful when there are firewalls between the application tie
 
 You can do that with the connection liveness parameter which indicates the interval at which the connections will be tested.
 A value of 0 indicates that the connection will always be tested.
-A negative value that the connection will never always be tested.
+A negative value indicates that the connection will never be tested.
 
 [%autowidth.spread,frame="topbot",options="header"]
 |======================

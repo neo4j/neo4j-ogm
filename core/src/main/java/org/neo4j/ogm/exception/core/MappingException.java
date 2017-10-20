@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.exception;
+package org.neo4j.ogm.exception.core;
 
 /**
  * Specialised {@link RuntimeException} thrown when an unrecoverable issue occurs when mapping between objects and graphs.

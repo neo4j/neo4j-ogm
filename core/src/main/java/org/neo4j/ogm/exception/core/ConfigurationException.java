@@ -11,22 +11,20 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.exception;
+package org.neo4j.ogm.exception.core;
 
 /**
- * Base exception for OGM exceptions
- * <p>
- * Other specific exceptions in OGM should extend this.
+ * Exception thrown when there is a problem with configuration of OGM
  *
  * @author Frantisek Hartman
  */
-public abstract class OgmException extends RuntimeException {
+public class ConfigurationException extends OgmException {
 
-    public OgmException(String message) {
+    public ConfigurationException(String message) {
         super(message);
     }
 
-    public OgmException(String message, Throwable cause) {
+    public ConfigurationException(String message, Throwable cause) {
         super(message, cause);
     }
 }

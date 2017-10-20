@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations;
 import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations.GraphIdAndIdWithInternalStrategy;
-import org.neo4j.ogm.exception.MetadataException;
+import org.neo4j.ogm.exception.core.MetadataException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

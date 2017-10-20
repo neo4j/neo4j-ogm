@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.response.model.NodeModel;

@@ -11,14 +11,14 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.exception;
+package org.neo4j.ogm.exception.core;
 
 /**
  * @author Vince Bickers
  */
-public class AmbiguousBaseClassException extends MappingException {
+public class BaseClassNotFoundException extends MappingException {
 
-    public AmbiguousBaseClassException(String taxa) {
-        super("Multiple classes found in type hierarchy that map to: " + taxa);
+    public BaseClassNotFoundException(String taxa) {
+        super("Could not find a class to map to " + taxa);
     }
 }

@@ -20,7 +20,7 @@ import java.util.*;
 
 import org.junit.*;
 import org.neo4j.ogm.domain.pizza.*;
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;

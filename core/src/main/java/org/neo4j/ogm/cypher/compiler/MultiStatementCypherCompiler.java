@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import org.neo4j.ogm.cypher.compiler.builders.node.DefaultNodeBuilder;
 import org.neo4j.ogm.cypher.compiler.builders.node.DefaultRelationshipBuilder;
 import org.neo4j.ogm.cypher.compiler.builders.statement.*;
-import org.neo4j.ogm.exception.UnknownStatementTypeException;
+import org.neo4j.ogm.exception.core.UnknownStatementTypeException;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.request.Statement;

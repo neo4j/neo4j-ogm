@@ -21,7 +21,7 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
-import org.neo4j.ogm.exception.MissingOperatorException;
+import org.neo4j.ogm.exception.core.MissingOperatorException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
 import java.util.Arrays;

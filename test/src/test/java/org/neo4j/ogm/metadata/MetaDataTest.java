@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.exception.AmbiguousBaseClassException;
+import org.neo4j.ogm.exception.core.AmbiguousBaseClassException;
 
 /**
  * @author Vince Bickers

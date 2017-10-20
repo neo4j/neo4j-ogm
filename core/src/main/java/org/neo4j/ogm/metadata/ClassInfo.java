@@ -22,8 +22,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.exception.MetadataException;
+import org.neo4j.ogm.exception.core.MappingException;
+import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.id.UuidStrategy;

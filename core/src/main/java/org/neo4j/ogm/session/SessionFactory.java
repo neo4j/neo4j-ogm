@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.exception.ConfigurationException;
+import org.neo4j.ogm.exception.core.ConfigurationException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;

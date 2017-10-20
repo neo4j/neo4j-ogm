@@ -16,7 +16,7 @@ package org.neo4j.ogm.context;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.id.UuidStrategy;

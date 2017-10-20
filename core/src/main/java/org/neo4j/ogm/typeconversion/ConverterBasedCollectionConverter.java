@@ -13,12 +13,15 @@
 
 package org.neo4j.ogm.typeconversion;
 
-import com.fasterxml.jackson.databind.util.Converter;
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 
-import java.lang.reflect.Array;
-import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 
 /**
  * @author Frantisek Hartman

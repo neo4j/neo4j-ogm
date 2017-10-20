@@ -18,7 +18,7 @@ import java.util.Collection;
 
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
-import org.neo4j.ogm.exception.InvalidDepthException;
+import org.neo4j.ogm.exception.core.InvalidDepthException;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;

@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Identifies the field in the domain entity which is to be
@@ -21,8 +25,9 @@ import java.lang.annotation.*;
  * This annotation is not needed if the domain entity has a Long
  * field called id.
  *
- * @deprecated GraphId is deprecated because it is superseded by {@link Id}
  * @author Vince Bickers
+ * @deprecated Just replace {@link GraphId} with {@link Id} and {@link GeneratedValue}.
+ * By default the {@link org.neo4j.ogm.id.InternalIdStrategy} will be used.
  */
 @Deprecated
 @Retention(RetentionPolicy.RUNTIME)

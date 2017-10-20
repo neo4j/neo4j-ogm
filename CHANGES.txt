@@ -1,4 +1,4 @@
-3.0.1-SNAPSHOT
+3.0.1
 o Add filter function for in-collection query. #423
 o Update Neo4j to version 3.1.7 in 3.1 profile
 o Update Neo4j to version 3.2.6 in 3.2 profile (default dependency)
@@ -6,6 +6,9 @@ o Update Neo4j to version 3.3.0-rc1 in 3.3 profile
 o Update java driver version to 1.4.4 in 1.4 profile (default dependency)
 o Update java driver version to 1.5.0-alpha02 in 1.5 profile
 o Fix classpath scanning issue on JBoss/Wildfly with jar in ear #420
+o Java 9 compatibility (Rename exception package for core module) #416
+o Deprecate @GraphId annotation #417
+o Minor documentation fixes
 
 3.0.0
 o Check if node is in MappingContext before firing events, fixes #305

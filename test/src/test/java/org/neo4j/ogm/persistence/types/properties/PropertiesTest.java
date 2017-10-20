@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.domain.properties.User;
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;

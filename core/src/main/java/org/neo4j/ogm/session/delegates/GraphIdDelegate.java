@@ -14,7 +14,7 @@
 package org.neo4j.ogm.session.delegates;
 
 
-import org.neo4j.ogm.exception.MetadataException;
+import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.utils.EntityUtils;

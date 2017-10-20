@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 
 import org.junit.*;
-import org.neo4j.ogm.exception.TransactionManagerException;
+import org.neo4j.ogm.exception.core.TransactionManagerException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;

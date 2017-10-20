@@ -11,17 +11,21 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.exception;
+package org.neo4j.ogm.exception.core;
 
 /**
- * @author Luanne Misquitta
+ * Unrecoverable exception thrown when there is a user error in entity metadata (conflicting annotations,
+ * missing id fields etc.)
+ *
+ * @author Frantisek Hartman
  */
-public class InvalidDepthException extends RuntimeException {
+public class MetadataException extends RuntimeException {
 
-    public InvalidDepthException() {
+    public MetadataException(String message) {
+        super(message);
     }
 
-    public InvalidDepthException(String message) {
-        super(message);
+    public MetadataException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

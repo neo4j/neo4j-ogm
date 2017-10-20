@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.typeconversion;
 
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -18,7 +18,7 @@ import java.util.*;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.exception.AmbiguousBaseClassException;
+import org.neo4j.ogm.exception.core.AmbiguousBaseClassException;
 import org.neo4j.ogm.metadata.schema.DomainInfoSchemaBuilder;
 import org.neo4j.ogm.metadata.schema.Schema;
 import org.neo4j.ogm.typeconversion.ConversionCallback;

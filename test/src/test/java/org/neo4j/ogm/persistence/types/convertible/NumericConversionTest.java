@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.social.Immortal;
 import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;

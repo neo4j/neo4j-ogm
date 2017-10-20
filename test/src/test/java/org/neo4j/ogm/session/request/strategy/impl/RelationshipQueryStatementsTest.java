@@ -12,7 +12,6 @@
  */
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import org.neo4j.ogm.cypher.BooleanOperator;
@@ -20,8 +19,8 @@ import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
-import org.neo4j.ogm.exception.InvalidDepthException;
-import org.neo4j.ogm.exception.MissingOperatorException;
+import org.neo4j.ogm.exception.core.InvalidDepthException;
+import org.neo4j.ogm.exception.core.MissingOperatorException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
 import static java.util.Arrays.asList;

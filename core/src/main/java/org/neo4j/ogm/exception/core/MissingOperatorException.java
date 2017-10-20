@@ -11,14 +11,14 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.exception;
+package org.neo4j.ogm.exception.core;
 
 /**
  * @author Luanne Misquitta
  */
-public class UnknownStatementTypeException extends RuntimeException {
+public class MissingOperatorException extends RuntimeException {
 
-    public UnknownStatementTypeException(String message) {
+    public MissingOperatorException(String message) {
         super(message);
     }
 }

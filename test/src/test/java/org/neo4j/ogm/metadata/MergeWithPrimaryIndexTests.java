@@ -24,7 +24,7 @@ import org.neo4j.ogm.cypher.compiler.CompileContext;
 import org.neo4j.ogm.cypher.compiler.Compiler;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.pizza.Pizza;
-import org.neo4j.ogm.exception.MetadataException;
+import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.session.request.RowStatementFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;

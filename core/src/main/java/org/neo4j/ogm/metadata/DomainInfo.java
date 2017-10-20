@@ -16,8 +16,7 @@ package org.neo4j.ogm.metadata;
 
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
-import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.exception.MetadataException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.*;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;

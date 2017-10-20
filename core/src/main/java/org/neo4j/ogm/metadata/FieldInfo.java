@@ -18,7 +18,7 @@ import java.lang.reflect.*;
 import java.util.Map;
 
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;

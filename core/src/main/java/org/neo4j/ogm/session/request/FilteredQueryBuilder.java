@@ -21,7 +21,7 @@ import java.util.Map;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.exception.MissingOperatorException;
+import org.neo4j.ogm.exception.core.MissingOperatorException;
 
 /**
  * All statements that take a {@link org.neo4j.ogm.cypher.Filters} parameter delegate the generation of the appropriate

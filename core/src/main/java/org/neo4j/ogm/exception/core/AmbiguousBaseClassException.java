@@ -11,14 +11,14 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.exception;
+package org.neo4j.ogm.exception.core;
 
 /**
- * @author Luanne Misquitta
+ * @author Vince Bickers
  */
-public class MissingOperatorException extends RuntimeException {
+public class AmbiguousBaseClassException extends MappingException {
 
-    public MissingOperatorException(String message) {
-        super(message);
+    public AmbiguousBaseClassException(String taxa) {
+        super("Multiple classes found in type hierarchy that map to: " + taxa);
     }
 }

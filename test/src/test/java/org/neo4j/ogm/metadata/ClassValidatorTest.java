@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.props.PropertyAndConvertTogether;
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 
 
 public class ClassValidatorTest {

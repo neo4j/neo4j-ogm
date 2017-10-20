@@ -13,25 +13,12 @@
 
 package org.neo4j.ogm.persistence.types.properties;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.domain.properties.User;
 import org.neo4j.ogm.domain.properties.UserWithInvalidPropertiesType;
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.util.Collections.emptyMap;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test for {@link org.neo4j.ogm.annotation.Properties} annotation that tests that invalid cases throw

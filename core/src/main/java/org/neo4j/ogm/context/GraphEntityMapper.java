@@ -23,8 +23,8 @@ import java.util.*;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.exception.BaseClassNotFoundException;
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.BaseClassNotFoundException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;

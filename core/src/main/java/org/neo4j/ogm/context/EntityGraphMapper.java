@@ -17,6 +17,7 @@ package org.neo4j.ogm.context;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.neo4j.ogm.exception.core.MappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,6 @@ import org.neo4j.ogm.cypher.compiler.Compiler;
 import org.neo4j.ogm.cypher.compiler.MultiStatementCypherCompiler;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
-import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;

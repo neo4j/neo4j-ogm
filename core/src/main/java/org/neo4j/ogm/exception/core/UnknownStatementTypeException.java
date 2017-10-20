@@ -11,14 +11,14 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.exception;
+package org.neo4j.ogm.exception.core;
 
 /**
- * @author Vince Bickers
+ * @author Luanne Misquitta
  */
-public class BaseClassNotFoundException extends MappingException {
+public class UnknownStatementTypeException extends RuntimeException {
 
-    public BaseClassNotFoundException(String taxa) {
-        super("Could not find a class to map to " + taxa);
+    public UnknownStatementTypeException(String message) {
+        super(message);
     }
 }

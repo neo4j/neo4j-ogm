@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.exception;
+package org.neo4j.ogm.exception.core;
 
 /**
  * @author vince

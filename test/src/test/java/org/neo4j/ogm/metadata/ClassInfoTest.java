@@ -30,7 +30,7 @@ import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.activity.Activity;
 import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.pizza.Pizza;
-import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.utils.EntityUtils;
 
 import static java.util.Arrays.asList;

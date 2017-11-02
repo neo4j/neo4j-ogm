@@ -12,17 +12,17 @@
 package org.neo4j.ogm.metadata.reflect;
 
 
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.neo4j.ogm.exception.core.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;
+
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A metadata-driven factory class for creating node and relationship entities.
@@ -101,13 +101,9 @@ public class EntityFactory {
 
         String fqn = resolve(taxa);
 
-        try {
-            @SuppressWarnings("unchecked")
-            Class<T> loadedClass = (Class<T>) Class.forName(fqn, false, Thread.currentThread().getContextClassLoader());
-            return instantiate(loadedClass);
-        } catch (ClassNotFoundException e) {
-            throw new MappingException("Unable to load class with FQN: " + fqn, e);
-        }
+        @SuppressWarnings("unchecked")
+        Class<T> loadedClass = (Class<T>) metadata.classInfo(fqn).getUnderlyingClass();
+        return instantiate(loadedClass);
     }
 
     private String resolve(String... taxa) {

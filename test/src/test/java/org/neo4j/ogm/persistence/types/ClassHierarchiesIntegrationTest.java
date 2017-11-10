@@ -13,9 +13,6 @@
 
 package org.neo4j.ogm.persistence.types;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.*;
-
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -24,14 +21,70 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.domain.hierarchy.domain.annotated.*;
-import org.neo4j.ogm.domain.hierarchy.domain.people.*;
-import org.neo4j.ogm.domain.hierarchy.domain.plain.*;
-import org.neo4j.ogm.domain.hierarchy.domain.trans.*;
+
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedAbstractNamedParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedAbstractParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedConcreteNamedParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedNamedInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithMultipleAnnotatedInterfaces;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithPlainAbstractParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithPlainConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithPlainInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedInterface;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedInterfaceWithSingleImpl;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedAbstractNamedParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedAbstractParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedConcreteNamedParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedNamedInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedChildWithPlainAbstractParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedChildWithPlainConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedChildWithPlainInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedNamedSingleClass;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedSingleClass;
+import org.neo4j.ogm.domain.hierarchy.domain.people.Bloke;
+import org.neo4j.ogm.domain.hierarchy.domain.people.Entity;
+import org.neo4j.ogm.domain.hierarchy.domain.people.Female;
+import org.neo4j.ogm.domain.hierarchy.domain.people.Male;
+import org.neo4j.ogm.domain.hierarchy.domain.people.Person;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAbstractParentAndAnnotatedSuperclass;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedAbstractNamedParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedAbstractParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedConcreteNamedParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedConcreteSuperclass;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedNamedInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedSuperInterface;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithPlainAbstractParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithPlainConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithPlainConcreteParentImplementingInterface;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithPlainInterfaceChild;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithPlainInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainSingleClass;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.PlainChildOfTransientInterface;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.PlainChildOfTransientParent;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.PlainClassWithTransientFields;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientChildWithPlainConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientSingleClass;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientSingleClassWithId;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static java.util.Collections.emptyMap;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * Integration test for label-based mapping of class hierarchies.
@@ -574,6 +627,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         Bloke adam = new Bloke("Adam");
 
         session.save(Arrays.asList(daniela, michal, adam));
+        session.query("CREATE (:Test)", emptyMap());
 
         Collection<Entity> entities = session.loadAll(Entity.class);
 
@@ -597,6 +651,40 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertThat(blokes).hasSize(1);
         assertThat(blokes.contains(adam)).isTrue();
+    }
+
+    @Test
+    public void shouldNotCountAbstractNonAnnotatedClass() {
+
+        Female daniela = new Female("Daniela");
+        Male michal = new Male("Michal");
+        Bloke adam = new Bloke("Adam");
+
+        session.save(Arrays.asList(daniela, michal, adam));
+        session.query("CREATE (:Test)", emptyMap());
+
+        assertThat(session.countEntitiesOfType(Entity.class))
+            .as("Shouldn't be able to count by non-annotated, abstract classes").isEqualTo(0);
+
+        assertThat(session.countEntitiesOfType(Person.class)).isEqualTo(3);
+        assertThat(session.countEntitiesOfType(Male.class)).isEqualTo(2);
+        assertThat(session.countEntitiesOfType(Female.class)).isEqualTo(1);
+        assertThat(session.countEntitiesOfType(Bloke.class)).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldNotDeleteAbstractNonAnnotatedClass() {
+
+        Female daniela = new Female("Daniela");
+        Male michal = new Male("Michal");
+        Bloke adam = new Bloke("Adam");
+
+        session.save(Arrays.asList(daniela, michal, adam));
+        session.query("CREATE (:Test)", emptyMap());
+
+        session.deleteAll(Entity.class);
+        assertThat(session.countEntitiesOfType(Person.class)).isEqualTo(3);
+        assertThat(session.query("MATCH (t:Test) RETURN t", emptyMap())).hasSize(1);
     }
 
     @Test

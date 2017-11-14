@@ -13,10 +13,9 @@
 
 package org.neo4j.ogm.persistence.examples.social;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.Individual;
@@ -33,6 +33,8 @@ import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luanne Misquitta
@@ -273,5 +275,43 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
         session.clear();
         vince = session.load(User.class, vince.getId());
         assertThat(vince.getFriends()).hasSize(1);
+    }
+
+    /**
+     * Issue #407
+     *
+     * Should create graph like this
+     *
+     * (a)-[:LIKES]->(b)-[:LIKES]->(c)
+     * (a)-[:LIKES]->(d)-[:LIKES]->(e)
+     * (b)-[:LIKES]->(d)
+     * (d)-[:LIKES]->(c)
+     *
+     * Issue was that the logic reaches either b (or d) with horizon 0 (2 steps from a)
+     * and doesn't continue to save c (or e)
+     */
+    @Test
+    public void shouldSaveObjectsToCorrectDepth() throws Exception {
+
+        Person a = new Person("A");
+        Person b = new Person("B");
+        Person c = new Person("C");
+        Person d = new Person("D");
+        Person e = new Person("E");
+
+        a.addPersonILike(b);
+        b.addPersonILike(c);
+
+        a.addPersonILike(d);
+        d.addPersonILike(e);
+
+        b.addPersonILike(d);
+        d.addPersonILike(b);
+
+        session.save(a, 2);
+
+        session.clear();
+        Collection<Person> people = session.loadAll(Person.class);
+        assertThat(people).hasSize(5);
     }
 }

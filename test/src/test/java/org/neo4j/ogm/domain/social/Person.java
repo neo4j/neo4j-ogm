@@ -57,4 +57,16 @@ public class Person {
     public void setName(String name) {
         this.name = name;
     }
+
+    public void addPersonILike(Person person) {
+        peopleILike.add(person);
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            '}';
+    }
 }

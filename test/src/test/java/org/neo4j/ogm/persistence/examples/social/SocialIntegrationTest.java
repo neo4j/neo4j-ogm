@@ -314,4 +314,33 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
         Collection<Person> people = session.loadAll(Person.class);
         assertThat(people).hasSize(5);
     }
+
+    @Test
+    public void shouldSaveAllDirectedRelationships() throws Exception {
+
+        Person a = new Person("A");
+        Person b = new Person("B");
+        Person c = new Person("C");
+        Person d = new Person("D");
+        Person e = new Person("E");
+
+        a.addPersonILike(b);
+        b.addPersonILike(c);
+
+        a.addPersonILike(d);
+        d.addPersonILike(e);
+
+        b.addPersonILike(d);
+        d.addPersonILike(b);
+
+        session.save(a);
+        session.clear();
+
+        Person loadedB = session.load(Person.class, b.getId());
+        assertThat(loadedB.getPeopleILike()).hasSize(2);
+
+        Person loadedD = session.load(Person.class, d.getId());
+        assertThat(loadedD.getPeopleILike()).hasSize(2);
+    }
+
 }

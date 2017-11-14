@@ -808,7 +808,7 @@ public class EntityGraphMapper implements EntityMapper {
     private boolean hasTransientRelationship(CompileContext ctx, Long src, RelationshipBuilder relationshipBuilder, Long tgt) {
         for (Object object : ctx.getTransientRelationships(new SrcTargetKey(src, tgt))) {
             if (object instanceof TransientRelationship) {
-                if (((TransientRelationship) object).equalsIgnoreDirection(src, relationshipBuilder, tgt)) {
+                if (((TransientRelationship) object).equals(src, relationshipBuilder, tgt)) {
                     return true;
                 }
             }

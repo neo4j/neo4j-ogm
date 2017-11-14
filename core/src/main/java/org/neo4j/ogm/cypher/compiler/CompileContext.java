@@ -30,7 +30,7 @@ public interface CompileContext {
 
     boolean removeRegisteredRelationship(Mappable mappable);
 
-    boolean visited(Object entity);
+    boolean visited(Object entity, int horizon);
 
     NodeBuilder visitedNode(Object entity);
 
@@ -44,7 +44,13 @@ public interface CompileContext {
 
     Collection<Object> registry();
 
-    void visit(Object entity, NodeBuilder nodeBuilder);
+    /**
+     * Stores nodeBuilder for given entity with horizon
+     *
+     * if the nodeBuilder for the entity is already present it will be overwritten (or the horizon will change)
+     * the caller should ensure it doesn't happen
+     */
+    void visit(Object entity, NodeBuilder nodeBuilder, int horizon);
 
     boolean visitedRelationshipEntity(Long relationshipIdentity);
 

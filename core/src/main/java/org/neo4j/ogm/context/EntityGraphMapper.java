@@ -208,14 +208,13 @@ public class EntityGraphMapper implements EntityMapper {
             return null;
         }
 
-        if (context.visited(entity)) {
+        if (context.visited(entity, horizon)) {
             LOGGER.debug("already visited: {}", entity);
             return context.visitedNode(entity);
         }
 
-        NodeBuilder nodeBuilder = getNodeBuilder(compiler, entity);
+        NodeBuilder nodeBuilder = getNodeBuilder(compiler, entity, horizon);
         if (nodeBuilder != null) {
-            updateNode(entity, context, nodeBuilder);
             if (horizon != 0) {
                 mapEntityReferences(entity, nodeBuilder, horizon - 1, compiler);
             } else {
@@ -258,9 +257,16 @@ public class EntityGraphMapper implements EntityMapper {
      *
      * @param compiler the {@link org.neo4j.ogm.cypher.compiler.Compiler}
      * @param entity the object to save
+     * @param horizon current horizon
      * @return a {@link NodeBuilder} object for either a new node or an existing one
      */
-    private NodeBuilder getNodeBuilder(Compiler compiler, Object entity) {
+    private NodeBuilder getNodeBuilder(Compiler compiler, Object entity, int horizon) {
+        CompileContext context = compiler.context();
+
+        NodeBuilder nodeBuilder = context.visitedNode(entity);
+        if (nodeBuilder != null) {
+            return nodeBuilder;
+        }
 
         ClassInfo classInfo = metaData.classInfo(entity);
 
@@ -269,14 +275,11 @@ public class EntityGraphMapper implements EntityMapper {
             return null;
         }
 
-        CompileContext context = compiler.context();
         Long id = mappingContext.nativeId(entity);
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
-        NodeBuilder nodeBuilder;
         final String primaryIndex = classInfo.primaryIndexField() != null ? classInfo.primaryIndexField().property() : null;
         if (id < 0) {
-//            Long entityIdRef = EntityUtils.identity(entity, metaData);
             nodeBuilder = compiler.newNode(id).addLabels(labels).setPrimaryIndex(primaryIndex);
             context.registerNewObject(id, entity);
         } else {
@@ -284,8 +287,11 @@ public class EntityGraphMapper implements EntityMapper {
             nodeBuilder.addLabels(labels).setPrimaryIndex(primaryIndex);
             removePreviousLabelsIfRequired(entity, classInfo, nodeBuilder);
         }
-        context.visit(entity, nodeBuilder);
+        context.visit(entity, nodeBuilder, horizon);
         LOGGER.debug("visiting: {}", entity);
+
+        updateNode(entity, context, nodeBuilder);
+
         return nodeBuilder;
     }
 
@@ -585,7 +591,7 @@ public class EntityGraphMapper implements EntityMapper {
         NodeBuilder tgtNodeBuilder = context.visitedNode(targetEntity);
 
         if (parent == targetEntity) {  // we approached this RE from its END-NODE during object mapping.
-            if (!context.visited(startEntity)) { // skip if we already visited the START_NODE
+            if (!context.visited(startEntity, horizon)) { // skip if we already visited the START_NODE
                 relNodes.source = targetEntity; // set up the nodes to link
                 relNodes.target = startEntity;
                 mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
@@ -593,7 +599,7 @@ public class EntityGraphMapper implements EntityMapper {
                 updateRelationship(context, tgtNodeBuilder, srcNodeBuilder, relationshipBuilder, relNodes);
             }
         } else { // we approached this RE from its START_NODE during object mapping.
-            if (!context.visited(targetEntity)) {  // skip if we already visited the END_NODE
+            if (!context.visited(targetEntity, horizon)) {  // skip if we already visited the END_NODE
                 relNodes.source = startEntity;  // set up the nodes to link
                 relNodes.target = targetEntity;
                 mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
@@ -802,7 +808,7 @@ public class EntityGraphMapper implements EntityMapper {
     private boolean hasTransientRelationship(CompileContext ctx, Long src, RelationshipBuilder relationshipBuilder, Long tgt) {
         for (Object object : ctx.getTransientRelationships(new SrcTargetKey(src, tgt))) {
             if (object instanceof TransientRelationship) {
-                if (((TransientRelationship) object).equalsIgnoreDirection(src, relationshipBuilder, tgt)) {
+                if (((TransientRelationship) object).equals(src, relationshipBuilder, tgt)) {
                     return true;
                 }
             }

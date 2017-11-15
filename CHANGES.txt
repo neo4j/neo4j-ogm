@@ -1,6 +1,8 @@
 3.0.2
 o Entity count returns incorrect result on abstract non-annotated type. #435
 o Fix classpath scanning issue with Play framework. #429
+o Store horizon along with visited nodes to traverse to correct depth. #407
+o Fix mapping of directed transient relationships defined in both directions
 
 3.0.1
 o Add filter function for in-collection query. #423

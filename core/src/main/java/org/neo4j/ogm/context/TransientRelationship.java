@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.context;
 
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 
 /**
@@ -51,15 +52,26 @@ public class TransientRelationship {
         this.tgtClass = tgtClass;
     }
 
-    public boolean equalsIgnoreDirection(Long src, RelationshipBuilder builder, Long tgt) {
+    public boolean equals(Long src, RelationshipBuilder builder, Long tgt) {
         Boolean singleton = builder.isSingleton();
         if (this.rel.equals(builder.type())) {
             if (singleton) {
-                if (this.src.equals(src) && this.tgt.equals(tgt)) {
-                    return true;
-                }
-                if (this.src.equals(tgt) && this.tgt.equals(src)) {
-                    return true;
+                if (builder.hasDirection(Relationship.OUTGOING)) {
+                    if (this.src.equals(src) && this.tgt.equals(tgt)) {
+                        return true;
+                    }
+                } else if (builder.hasDirection(Relationship.INCOMING)) {
+                    if (this.src.equals(tgt) && this.tgt.equals(src)) {
+                        return true;
+                    }
+                } else {
+                    // Implies outgoing so the direction is ignored
+                    if (this.src.equals(src) && this.tgt.equals(tgt)) {
+                        return true;
+                    }
+                    if (this.src.equals(tgt) && this.tgt.equals(src)) {
+                        return true;
+                    }
                 }
             }
         }

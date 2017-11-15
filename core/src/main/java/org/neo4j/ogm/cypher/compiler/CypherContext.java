@@ -37,7 +37,7 @@ import static java.util.Collections.emptySet;
  */
 public class CypherContext implements CompileContext {
 
-    private final Map<Object, NodeBuilder> visitedObjects = new IdentityHashMap<>();
+    private final Map<Object, NodeBuilderHorizonPair> visitedObjects = new IdentityHashMap<>();
     private final Set<Long> visitedRelationshipEntities = new HashSet<>();
 
     private final Map<Long, Object> createdObjectsWithId = new HashMap<>();
@@ -54,13 +54,14 @@ public class CypherContext implements CompileContext {
         this.compiler = compiler;
     }
 
-    public boolean visited(Object entity) {
-        return this.visitedObjects.containsKey(entity);
+    public boolean visited(Object entity, int horizon) {
+        NodeBuilderHorizonPair pair = visitedObjects.get(entity);
+        return pair != null && pair.getHorizon() > horizon;
     }
 
     @Override
-    public void visit(Object entity, NodeBuilder nodeBuilder) {
-        this.visitedObjects.put(entity, nodeBuilder);
+    public void visit(Object entity, NodeBuilder nodeBuilder, int horizon) {
+        this.visitedObjects.put(entity, new NodeBuilderHorizonPair(nodeBuilder, horizon));
     }
 
     public void registerRelationship(Mappable mappedRelationship) {
@@ -73,7 +74,8 @@ public class CypherContext implements CompileContext {
 
     @Override
     public NodeBuilder visitedNode(Object entity) {
-        return this.visitedObjects.get(entity);
+        NodeBuilderHorizonPair pair = this.visitedObjects.get(entity);
+        return pair != null ? pair.getNodeBuilder() : null;
     }
 
     @Override
@@ -264,5 +266,24 @@ public class CypherContext implements CompileContext {
             }
         }
         return false;
+    }
+
+    private static class NodeBuilderHorizonPair {
+
+        private final NodeBuilder nodeBuilder;
+        private final int horizon;
+
+        private NodeBuilderHorizonPair(NodeBuilder nodeBuilder, int horizon) {
+            this.nodeBuilder = nodeBuilder;
+            this.horizon = horizon;
+        }
+
+        public NodeBuilder getNodeBuilder() {
+            return nodeBuilder;
+        }
+
+        public int getHorizon() {
+            return horizon;
+        }
     }
 }

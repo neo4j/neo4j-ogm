@@ -14,6 +14,9 @@ package org.neo4j.ogm.session.delegates;
 
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.GraphRowListModelMapper;
 import org.neo4j.ogm.cypher.Filter;
@@ -36,6 +39,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  */
 public class LoadByTypeDelegate {
 
+    private static final Logger LOG = LoggerFactory.getLogger(LoadByTypeDelegate.class);
     private final Neo4jSession session;
 
     public LoadByTypeDelegate(Neo4jSession session) {
@@ -45,17 +49,22 @@ public class LoadByTypeDelegate {
     public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination, int depth) {
 
         //session.ensureTransaction();
-        String entityType = session.entityType(type.getName());
+        String entityLabel = session.entityType(type.getName());
+        if (entityLabel == null) {
+            LOG.warn("Unable to find database label for entity " + type.getName()
+                + " : no results will be returned. Make sure the class is registered, "
+                + "and not abstract without @NodeEntity annotation");
+        }
         QueryStatements queryStatements = session.queryStatementsFor(type, depth);
 
         session.resolvePropertyAnnotations(type, sortOrder);
 
         PagingAndSortingQuery query;
         if (filters.isEmpty()) {
-            query = queryStatements.findByType(entityType, depth);
+            query = queryStatements.findByType(entityLabel, depth);
         } else {
             session.resolvePropertyAnnotations(type, filters);
-            query = queryStatements.findByType(entityType, filters, depth);
+            query = queryStatements.findByType(entityLabel, filters, depth);
         }
 
         query.setSortOrder(sortOrder)

@@ -12,7 +12,15 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
@@ -35,6 +43,7 @@ import org.neo4j.ogm.session.request.strategy.impl.RelationshipDeleteStatements;
  */
 public class DeleteDelegate {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DeleteDelegate.class);
     private final Neo4jSession session;
 
     public DeleteDelegate(Neo4jSession neo4jSession) {
@@ -134,7 +143,13 @@ public class DeleteDelegate {
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
         if (classInfo != null) {
-            Statement request = getDeleteStatementsBasedOnType(type).delete(session.entityType(classInfo.name()));
+            String entityLabel = session.entityType(classInfo.name());
+            if (entityLabel == null) {
+                LOG.warn("Unable to find database label for entity " + type.getName()
+                    + " : no results will be returned. Make sure the class is registered, "
+                    + "and not abstract without @NodeEntity annotation");
+            }
+            Statement request = getDeleteStatementsBasedOnType(type).delete(entityLabel);
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
             session.notifyListeners(new PersistenceEvent(type, Event.TYPE.PRE_DELETE));
             try (Response<RowModel> response = session.requestHandler().execute(query)) {

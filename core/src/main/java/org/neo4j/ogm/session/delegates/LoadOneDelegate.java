@@ -12,6 +12,11 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import java.io.Serializable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
@@ -23,10 +28,6 @@ import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
 
 /**
  * @author Vince Bickers
@@ -63,7 +64,13 @@ public class LoadOneDelegate {
         }
 
         QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
-        PagingAndSortingQuery qry = queryStatements.findOneByType(session.entityType(type.getName()), id, depth);
+        String entityType = session.entityType(type.getName());
+        if (entityType == null) {
+            logger.warn("Unable to find database label for entity " + type.getName()
+                + " : no results will be returned. Make sure the class is registered, "
+                + "and not abstract without @NodeEntity annotation");
+        }
+        PagingAndSortingQuery qry = queryStatements.findOneByType(entityType, id, depth);
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
         try (Response<GraphModel> response = session.requestHandler().execute(request)) {

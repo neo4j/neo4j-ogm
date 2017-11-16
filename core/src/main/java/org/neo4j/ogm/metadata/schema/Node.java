@@ -15,6 +15,7 @@ package org.neo4j.ogm.metadata.schema;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Node in a {@link Schema}
@@ -28,7 +29,7 @@ public interface Node {
      *
      * @return label
      */
-    String label();
+    Optional<String> label();
 
     /**
      * Labels this node has, usually only 1

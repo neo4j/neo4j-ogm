@@ -120,9 +120,9 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
 
         sb.append("(");
         sb.append(toNodeVar);
-        if (toNode.label() != null) {
+        if (toNode.label().isPresent()) {
             sb.append(":`");
-            sb.append(toNode.label());
+            sb.append(toNode.label().get());
             sb.append("`");
         }
         sb.append(") | [ ");
@@ -146,8 +146,8 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
     }
 
     private String variableName(Node node, int level) {
-        String label = node.label();
-        char name = (label != null) ? label.charAt(0) : 'x';
+        String label = node.label().orElse("x");
+        char name = label.charAt(0);
         return "" + Character.toLowerCase(name) + level;
     }
 

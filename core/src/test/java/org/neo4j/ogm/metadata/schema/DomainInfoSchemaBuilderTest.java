@@ -144,7 +144,7 @@ public class DomainInfoSchemaBuilderTest {
         schema = new DomainInfoSchemaBuilder(domainInfo).build();
 
         Node entity = schema.findNode("Entity");
-        assertThat(entity.label()).isEqualTo("Entity");
+        assertThat(entity.label().get()).isEqualTo("Entity");
         assertThat(entity.labels()).containsExactly("Entity");
 
         schema.findNode("Company");

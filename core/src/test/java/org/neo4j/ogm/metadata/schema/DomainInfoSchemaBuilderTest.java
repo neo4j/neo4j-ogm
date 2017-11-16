@@ -135,12 +135,19 @@ public class DomainInfoSchemaBuilderTest {
         assertThat(organisations.type()).isEqualTo("FOUNDED");
         assertThat(organisations.direction(person)).isEqualTo(OUTGOING);
         assertThat(organisations.other(person)).isEqualTo(schema.findNode("Organisation"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void givenNonAnnotatedAbstractClass_thenThrowException() {
+
+        DomainInfo domainInfo = DomainInfo.create(org.neo4j.ogm.metadata.schema.inheritance.Person.class.getPackage().getName());
+        schema = new DomainInfoSchemaBuilder(domainInfo).build();
 
         Node entity = schema.findNode("Entity");
         assertThat(entity.label()).isEqualTo("Entity");
+        assertThat(entity.labels()).containsExactly("Entity");
 
-        Node company = schema.findNode("Company");
-        assertThat(company).as("Abstract non annotated classes should be ignored").isNull();
+        schema.findNode("Company");
     }
 
     @Test

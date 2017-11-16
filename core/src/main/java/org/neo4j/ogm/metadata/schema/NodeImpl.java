@@ -13,13 +13,12 @@
 
 package org.neo4j.ogm.metadata.schema;
 
-import org.neo4j.ogm.metadata.schema.*;
-import org.neo4j.ogm.metadata.schema.Relationship;
-import org.neo4j.ogm.utils.RelationshipUtils;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+
+import org.neo4j.ogm.utils.RelationshipUtils;
 
 /**
  * Node represents nodes in the schema
@@ -38,8 +37,8 @@ class NodeImpl implements Node {
     }
 
     @Override
-    public String label() {
-        return label;
+    public Optional<String> label() {
+        return Optional.ofNullable(label);
     }
 
     @Override

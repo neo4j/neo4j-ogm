@@ -19,6 +19,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -39,7 +42,7 @@ import org.neo4j.ogm.utils.EntityUtils;
  */
 public class LoadByIdsDelegate {
 
-
+    private static final Logger LOG = LoggerFactory.getLogger(LoadByIdsDelegate.class);
     private final Neo4jSession session;
 
     public LoadByIdsDelegate(Neo4jSession session) {
@@ -48,10 +51,15 @@ public class LoadByIdsDelegate {
 
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination, int depth) {
 
-        String entityType = session.entityType(type.getName());
+        String entityLabel = session.entityType(type.getName());
+        if (entityLabel == null) {
+            LOG.warn("Unable to find database label for entity " + type.getName()
+                + " : no results will be returned. Make sure the class is registered, "
+                + "and not abstract without @NodeEntity annotation");
+        }
         QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
 
-        PagingAndSortingQuery qry = queryStatements.findAllByType(entityType, ids, depth)
+        PagingAndSortingQuery qry = queryStatements.findAllByType(entityLabel, ids, depth)
                 .setSortOrder(sortOrder)
                 .setPagination(pagination);
 

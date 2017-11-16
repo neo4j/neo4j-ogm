@@ -704,8 +704,10 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         Collection<Female> females = session.loadAll(Female.class);
         Collection<Bloke> blokes = session.loadAll(Bloke.class);
 
-        assertThat(entities).hasSize(3);
-        assertThat(entities.containsAll(Arrays.asList(daniela, michal, adam))).isTrue();
+        // to be consistent with the fact that non annotated abstract classes are not managed,
+        // this should not be loaded even if the nodes have the Entity label.
+        // see #404
+        assertThat(entities).isEmpty();
 
         assertThat(people).hasSize(3);
         assertThat(people.containsAll(Arrays.asList(daniela, michal, adam))).isTrue();

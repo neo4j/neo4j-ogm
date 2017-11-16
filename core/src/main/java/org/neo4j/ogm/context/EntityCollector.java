@@ -46,8 +46,8 @@ class EntityCollector {
      * @param targetId id of target element
      * @param target The element to add to the collection that will eventually be set on the owning type
      */
-    public void collectRelationship(Long sourceId, String relationshipType, String relationshipDirection, long relationshipId, long targetId, Object target) {
-        record(sourceId, target, relationshipType, relationshipDirection, new TargetTriple(relationshipId, targetId, target));
+    public void collectRelationship(Long sourceId, Class startPropertyType, String relationshipType, String relationshipDirection, long relationshipId, long targetId, Object target) {
+        record(sourceId, startPropertyType, relationshipType, relationshipDirection, new TargetTriple(relationshipId, targetId, target));
     }
 
     /**
@@ -60,16 +60,16 @@ class EntityCollector {
      * @param targetId id of target element
      * @param target The element to add to the collection that will eventually be set on the owning type
      */
-    public void collectRelationship(Long sourceId, String relationshipType, String relationshipDirection, long targetId, Object target) {
-        record(sourceId, target, relationshipType, relationshipDirection, new TargetTriple(targetId, target));
+    public void collectRelationship(Long sourceId, Class startPropertyType, String relationshipType, String relationshipDirection, long targetId, Object target) {
+        record(sourceId, startPropertyType, relationshipType, relationshipDirection, new TargetTriple(targetId, target));
     }
 
-    private void record(Long owningEntityId, Object collectibleElement, String relationshipType, String relationshipDirection, TargetTriple triple) {
+    private void record(Long owningEntityId, Class startPropertyType, String relationshipType, String relationshipDirection, TargetTriple triple) {
         this.collected.computeIfAbsent(owningEntityId, k -> new HashMap<>());
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
         this.collected.get(owningEntityId).computeIfAbsent(directedRelationship, k -> new HashMap<>());
-        this.collected.get(owningEntityId).get(directedRelationship).computeIfAbsent(collectibleElement.getClass(), k -> new HashSet<>());
-        this.collected.get(owningEntityId).get(directedRelationship).get(collectibleElement.getClass()).add(triple);
+        this.collected.get(owningEntityId).get(directedRelationship).computeIfAbsent(startPropertyType, k -> new HashSet<>());
+        this.collected.get(owningEntityId).get(directedRelationship).get(startPropertyType).add(triple);
     }
 
     public void forCollectedEntities(CollectedHandler handler) {

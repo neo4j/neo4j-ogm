@@ -13,12 +13,12 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import java.util.Map;
+
 import org.neo4j.ogm.metadata.schema.Node;
 import org.neo4j.ogm.metadata.schema.Relationship;
 import org.neo4j.ogm.metadata.schema.Schema;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
-
-import java.util.Map;
 
 import static org.neo4j.ogm.annotation.Relationship.INCOMING;
 import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
@@ -120,9 +120,12 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
 
         sb.append("(");
         sb.append(toNodeVar);
-        sb.append(":`");
-        sb.append(toNode.label());
-        sb.append("`) | [ ");
+        if (toNode.label() != null) {
+            sb.append(":`");
+            sb.append(toNode.label());
+            sb.append("`");
+        }
+        sb.append(") | [ ");
 //        sb.append(") | { rel: ");
         sb.append(relVar);
         sb.append(", ");
@@ -143,7 +146,9 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
     }
 
     private String variableName(Node node, int level) {
-        return "" + Character.toLowerCase(node.label().charAt(0)) + level;
+        String label = node.label();
+        char name = (label != null) ? label.charAt(0) : 'x';
+        return "" + Character.toLowerCase(name) + level;
     }
 
     private void appendRel(StringBuilder sb, String variable, String type, String start, String end) {

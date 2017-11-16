@@ -16,21 +16,40 @@ package org.neo4j.ogm.metadata;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.neo4j.ogm.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.Index;
+import org.neo4j.ogm.annotation.Labels;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.PostLoad;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.annotation.Transient;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.id.UuidStrategy;
-import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.utils.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Maintains object to graph mapping details at the class (type) level
@@ -222,7 +241,9 @@ public class ClassInfo {
                 neo4jName = annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
                 return neo4jName;
             }
-            neo4jName = simpleName();
+            if (!isAbstract) {
+                neo4jName = simpleName();
+            }
         }
         return neo4jName;
     }

@@ -13,16 +13,16 @@
 
 package org.neo4j.ogm.metadata.schema.inheritance;
 
+import java.util.Set;
+
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-
-import java.util.Set;
 
 /**
  * @author Frantisek Hartman
  */
 @NodeEntity
-public class Organisation extends Entity {
+public class Organisation extends Company {
 
     @Relationship(type = "ASSOCIATED_WITH")
     Set<Associated> associations;

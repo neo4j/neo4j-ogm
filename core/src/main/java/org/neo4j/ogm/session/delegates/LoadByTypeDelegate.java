@@ -12,19 +12,23 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import java.util.Collection;
+
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.GraphRowListModelMapper;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.*;
+import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
+import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
+import org.neo4j.ogm.cypher.query.Pagination;
+import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
+import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-
-import java.util.Collection;
 
 /**
  * @author Vince Bickers

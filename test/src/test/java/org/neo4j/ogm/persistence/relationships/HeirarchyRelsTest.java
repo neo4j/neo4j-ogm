@@ -14,11 +14,18 @@
 package org.neo4j.ogm.persistence.relationships;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.stream.StreamSupport;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.neo4j.ogm.domain.forum.Member;
+import org.neo4j.ogm.domain.forum.activity.Activity;
+import org.neo4j.ogm.domain.forum.activity.Comment;
+import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.hierarchy.relations.BaseEntity;
 import org.neo4j.ogm.domain.hierarchy.relations.Type1;
 import org.neo4j.ogm.domain.hierarchy.relations.Type2;
@@ -39,7 +46,7 @@ public class HeirarchyRelsTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.relations").openSession();
+        session = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.relations", "org.neo4j.ogm.domain.forum").openSession();
         session.purgeDatabase();
     }
 
@@ -97,5 +104,37 @@ public class HeirarchyRelsTest extends MultiDriverTestClass {
         Type3 type3_2 = session.load(Type3.class, node2.getGraphId());
         assertThat(type3_2.getType3In()).hasSize(1);
         assertThat(type3_2.getType3Out()).hasSize(1);
+    }
+
+    // See #404
+    @Test
+    public void shouldLoadRelationByAbstractParent() {
+
+        Post post = new Post();
+        post.setPost("sample post");
+
+        Activity comment = new Comment();
+        Date now = new Date();
+        comment.setDate(now);
+
+        Member member = new Member();
+        member.setUserName("sample member");
+        member.setActivityList(Arrays.asList(post, comment));
+
+        session.save(member);
+        session.clear();
+
+        Member reloaded = session.load(Member.class, member.getId());
+        assertThat(reloaded).isNotNull();
+        assertThat(reloaded.getUserName()).isEqualTo("sample member");
+        assertThat(reloaded.getActivityList()).hasSize(2);
+
+        Post p = (Post) StreamSupport.stream(reloaded.getActivityList().spliterator(), false)
+            .filter(elt -> elt.getClass().equals(Post.class)).findFirst().get();
+        assertThat(p.getPost()).isEqualTo("sample post");
+
+        Comment c = (Comment) StreamSupport.stream(reloaded.getActivityList().spliterator(), false)
+            .filter(elt -> elt.getClass().equals(Comment.class)).findFirst().get();
+        assertThat(c.getDate()).isEqualTo(now);
     }
 }

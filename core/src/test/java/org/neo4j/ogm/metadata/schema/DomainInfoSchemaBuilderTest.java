@@ -13,17 +13,18 @@
 
 package org.neo4j.ogm.metadata.schema;
 
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.schema.inheritance.Associated;
 import org.neo4j.ogm.metadata.schema.simple.Mortal;
-import org.neo4j.ogm.metadata.schema.simple.Organisation;
 import org.neo4j.ogm.metadata.schema.simple.Vertex;
 
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.neo4j.ogm.annotation.Relationship.INCOMING;
 import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
 
@@ -134,6 +135,12 @@ public class DomainInfoSchemaBuilderTest {
         assertThat(organisations.type()).isEqualTo("FOUNDED");
         assertThat(organisations.direction(person)).isEqualTo(OUTGOING);
         assertThat(organisations.other(person)).isEqualTo(schema.findNode("Organisation"));
+
+        Node entity = schema.findNode("Entity");
+        assertThat(entity.label()).isEqualTo("Entity");
+
+        Node company = schema.findNode("Company");
+        assertThat(company).as("Abstract non annotated classes should be ignored").isNull();
     }
 
     @Test

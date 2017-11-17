@@ -16,6 +16,7 @@ package org.neo4j.ogm.context;
 import java.lang.reflect.Array;
 import java.util.*;
 
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.Response;
@@ -160,7 +161,9 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
         } else if (entity instanceof RelationshipModel) {
             RelationshipModel relationshipModel = (RelationshipModel) entity;
             relationshipModels.add(relationshipModel);
-            if (relationshipModel.getPropertyList().size() > 0) {
+			ClassInfo classInfo = metaData.classInfo(relationshipModel.getType());
+
+			if (classInfo != null && classInfo.isRelationshipEntity()) {
                 relationshipEntityColumns.put(relationshipModel.getId(), column);
             }
         }

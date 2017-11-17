@@ -14,6 +14,10 @@
 package org.neo4j.ogm.persistence.model;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -23,10 +27,14 @@ import org.neo4j.ogm.domain.canonical.hierarchies.B;
 import org.neo4j.ogm.domain.canonical.hierarchies.CR;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.domain.cineasts.annotated.Role;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static org.junit.Assert.assertSame;
 
 
 /**
@@ -85,5 +93,28 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
                 "CREATE (a:A) " +
                         "CREATE (b:B) " +
                         "CREATE (a)-[:CR]->(b)");
+    }
+
+    @Test
+    public void shouldBeAbleToSaveAndLoadRelationshipEntityWithNullProperties() throws Exception {
+        Actor keanu = new Actor("Keanu Reeves");
+
+        Movie matrix = new Movie("The Matrix", 1999);
+        HashSet<Role> roles = new HashSet<>();
+        Role role = new Role(matrix, keanu, null);
+        roles.add(role);
+        keanu.setRoles(roles);
+
+        session.save(keanu);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("actorId", keanu.getId());
+        Result result = session.query("MATCH (a:Actor)-[r:ACTS_IN]-(m:Movie) WHERE ID(a) = {actorId} RETURN r as rel",
+                params);
+
+        Iterator<Map<String, Object>> iterator = result.iterator();
+
+        Map<String, Object> first = iterator.next();
+        assertSame(role, first.get("rel"));
     }
 }

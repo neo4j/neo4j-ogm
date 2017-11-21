@@ -75,6 +75,7 @@ public abstract class AbstractHttpResponse<T> {
     private void initialise() {
         try {
             responseNode = mapper.readTree(buffer.asParser());
+            LOGGER.debug("Response: {}", responseNode);
             JsonNode errors = responseNode.findValue("errors");
             if (errors.elements().hasNext()) {
                 JsonNode errorNode = errors.elements().next();

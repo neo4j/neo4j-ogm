@@ -311,7 +311,7 @@ It is not possible to use relationship entities in a non-annotated domain model.
 @NodeEntity
 public class Actor {
     Long id;
-    private Role playedIn;
+    @Relationship(type="PLAYED_IN") private Role playedIn;
 }
 
 @RelationshipEntity(type="PLAYED_IN")

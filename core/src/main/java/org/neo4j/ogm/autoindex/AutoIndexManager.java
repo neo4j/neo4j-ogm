@@ -16,9 +16,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
@@ -31,8 +33,8 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.RowDataStatement;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static java.util.Collections.emptyMap;
 
 /**
  * This class controls the deletion and creation of indexes in the OGM.
@@ -43,8 +45,6 @@ import org.slf4j.LoggerFactory;
 public class AutoIndexManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
-
-    private static final Map<String, Object> EMPTY_MAP = Collections.emptyMap();
 
     private final List<AutoIndex> indexes;
 
@@ -71,8 +71,8 @@ public class AutoIndexManager {
 
             if (classInfo.containsIndexes()) {
                 for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
-                    final AutoIndex index = new AutoIndex(classInfo.neo4jName(), fieldInfo.property(),
-                        fieldInfo.isConstraint());
+                    IndexType type = fieldInfo.isConstraint() ? IndexType.UNIQUE_CONSTRAINT : IndexType.SINGLE_INDEX;
+                    final AutoIndex index = new AutoIndex(type, classInfo.neo4jName(), new String[] {fieldInfo.property()});
                     LOGGER.debug("Adding Index [description={}]", index);
                     indexMetadata.add(index);
                 }
@@ -93,9 +93,15 @@ public class AutoIndexManager {
             case ASSERT:
                 assertIndexes();
                 break;
+
+            case UPDATE:
+                updateIndexes();
+                break;
+
             case VALIDATE:
                 validateIndexes();
                 break;
+
             case DUMP:
                 dumpIndexes();
             default:
@@ -121,41 +127,20 @@ public class AutoIndexManager {
         } catch (IOException e) {
             throw new RuntimeException("Could not write file to " + file.getAbsolutePath(), e);
         } finally {
-            if (writer != null)
-                try {
-                    writer.close();
-                } catch (IOException ignore) {
-                }
+            if (writer != null) try {
+                writer.close();
+            } catch (IOException ignore) {
+            }
         }
     }
 
     private void validateIndexes() {
 
-        LOGGER.debug("Validating Indexes");
+        LOGGER.debug("Validating indexes and constraints");
 
-        DefaultRequest indexRequests = buildProcedures();
         List<AutoIndex> copyOfIndexes = new ArrayList<>(indexes);
-
-        try (Response<RowModel> response = driver.request().execute(indexRequests)) {
-            RowModel rowModel;
-            while ((rowModel = response.next()) != null) {
-                if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property")) {
-                    continue;
-                }
-                for (AutoIndex index : indexes) {
-                    String description = index.getDescription();
-
-                    // The rowModel values below, as returned from the request to Neo4j, do not contain escape characters
-                    // Therefore remove escape characters from the description so as to correctly match the rowModel values
-                    description = description.replace("`", "");
-
-                    if (description.replaceAll("\\s+", "")
-                        .equalsIgnoreCase(((String) rowModel.getValues()[0]).replaceAll("\\s+", ""))) {
-                        copyOfIndexes.remove(index);
-                    }
-                }
-            }
-        }
+        List<AutoIndex> dbIndexes = loadIndexesFromDB();
+        copyOfIndexes.removeAll(dbIndexes);
 
         if (!copyOfIndexes.isEmpty()) {
 
@@ -165,39 +150,22 @@ public class AutoIndexManager {
                 missingIndexes += s.getDescription() + ", ";
             }
             missingIndexes += "]";
-            throw new MissingIndexException(
-                "Validation of Constraints and Indexes failed. Could not find the following : " + missingIndexes);
+            throw new MissingIndexException("Validation of Constraints and Indexes failed. Could not find the following : " + missingIndexes);
         }
     }
 
     private void assertIndexes() {
 
-        LOGGER.debug("Asserting Indexes.");
+        LOGGER.debug("Asserting indexes and constraints");
 
-        DefaultRequest indexRequests = buildProcedures();
         List<Statement> dropStatements = new ArrayList<>();
 
-        try (Response<RowModel> response = driver.request().execute(indexRequests)) {
-            RowModel rowModel;
-            while ((rowModel = response.next()) != null) {
-                if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property")) {
-                    continue;
-                }
-                // can replace this with a lookup of the Index by description but attaching DROP here is faster.
-                String statement = (String) rowModel.getValues()[0];
+        List<AutoIndex> dbIndexes = loadIndexesFromDB();
 
-                // The statement is provided by the response from Neo4j and may not be property escaped for execution
-                if (statement.startsWith("CONSTRAINT")) {
-                    statement = escapeConstraintStatement(statement);
-                } else if (statement.startsWith("INDEX")) {
-                    statement = escapeIndexStatement(statement);
-                }
+        for (AutoIndex dbIndex : dbIndexes) {
+            LOGGER.debug("[{}] added to drop statements.", dbIndex.getDescription());
+            dropStatements.add(dbIndex.getDropStatement());
 
-                final String dropStatement = "DROP " + statement;
-
-                LOGGER.debug("[{}] added to drop statements.", dropStatement);
-                dropStatements.add(new RowDataStatement(dropStatement, EMPTY_MAP));
-            }
         }
 
         DefaultRequest dropIndexesRequest = new DefaultRequest();
@@ -210,11 +178,59 @@ public class AutoIndexManager {
         create();
     }
 
+    private List<AutoIndex> loadIndexesFromDB() {
+        DefaultRequest indexRequests = buildProcedures();
+        List<AutoIndex> dbIndexes = new ArrayList<>();
+        try (Response<RowModel> response = driver.request().execute(indexRequests)) {
+            RowModel rowModel;
+            while ((rowModel = response.next()) != null) {
+
+                // Ignore index descriptions for constraints
+                // neo4j up to 3.3 returns 3 columns, type in column number 2
+                // neo4j 3.4 returns 6 columns, type in column number 4
+                if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property") ||
+                    rowModel.getValues().length == 6 && rowModel.getValues()[4].equals("node_unique_property")) {
+
+                    continue;
+                }
+
+                Optional<AutoIndex> dbIndex = AutoIndex.parse((String) rowModel.getValues()[0]);
+                dbIndex.ifPresent(dbIndexes::add);
+            }
+        }
+        return dbIndexes;
+    }
+
+    private void updateIndexes() {
+        LOGGER.info("Updating indexes and constraints");
+
+        List<Statement> statements = new ArrayList<>();
+        List<AutoIndex> dbIndexes = loadIndexesFromDB();
+        for (AutoIndex dbIndex : dbIndexes) {
+            if (dbIndex.hasOpposite() && indexes.contains(dbIndex.createOppositeIndex())) {
+                statements.add(dbIndex.getDropStatement());
+            }
+        }
+
+        for (AutoIndex index : indexes) {
+            if (!dbIndexes.contains(index)) {
+                statements.add(index.getCreateStatement());
+            }
+        }
+
+        DefaultRequest request = new DefaultRequest();
+        request.setStatements(statements);
+
+        try (Response<RowModel> response = driver.request().execute(request)) {
+            // Success
+        }
+    }
+
     private DefaultRequest buildProcedures() {
         List<Statement> procedures = new ArrayList<>();
 
-        procedures.add(new RowDataStatement("CALL db.constraints()", EMPTY_MAP));
-        procedures.add(new RowDataStatement("CALL db.indexes()", EMPTY_MAP));
+        procedures.add(new RowDataStatement("CALL db.constraints()", emptyMap()));
+        procedures.add(new RowDataStatement("CALL db.indexes()", emptyMap()));
 
         DefaultRequest getIndexesRequest = new DefaultRequest();
         getIndexesRequest.setStatements(procedures);
@@ -238,82 +254,5 @@ public class AutoIndexManager {
         }
     }
 
-    /**
-     * Perform String manipulations to transform the incoming constraint statement to be property escaped.
-     *
-     * @param statement A constraint statement, possibly unescaped.
-     * @return A properly escaped constraint statement.
-     */
-    private String escapeConstraintStatement(String statement) {
 
-        int startIndex = statement.indexOf("CONSTRAINT ON (");
-
-        if (startIndex != -1) {
-
-            StringBuilder str = new StringBuilder(statement);
-
-            startIndex = startIndex + 16;
-            str = str.insert(startIndex, "`");
-
-            startIndex = str.indexOf(":", startIndex);
-            str = str.insert(startIndex, "`");
-
-            startIndex = startIndex + 2;
-            str = str.insert(startIndex, "`");
-
-            startIndex = str.indexOf(" ", startIndex);
-            str = str.insert(startIndex, "`");
-
-            startIndex = str.indexOf("ASSERT ", startIndex);
-            startIndex = startIndex + 7;
-            str = str.insert(startIndex, "`");
-
-            startIndex = str.indexOf(".", startIndex);
-            str = str.insert(startIndex, "`");
-
-            startIndex = startIndex + 2;
-            str = str.insert(startIndex, "`");
-
-            startIndex = str.indexOf(" ", startIndex);
-            str = str.insert(startIndex, "`");
-
-            statement = str.toString();
-        }
-
-        return statement;
-
-    }
-
-    /**
-     * Perform String manipulations to transform the incoming index statement to be property escaped.
-     *
-     * @param statement A index statement, possibly unescaped.
-     * @return A properly escaped index statement.
-     */
-    private String escapeIndexStatement(String statement) {
-
-        int startIndex = statement.indexOf("INDEX ON :");
-
-        if (startIndex != -1) {
-
-            StringBuilder str = new StringBuilder(statement);
-
-            startIndex = startIndex + 10;
-            str = str.insert(startIndex, "`");
-
-            startIndex = str.indexOf("(", startIndex);
-            str = str.insert(startIndex, "`");
-
-            startIndex = startIndex + 2;
-            str = str.insert(startIndex, "`");
-
-            startIndex = str.indexOf(")", startIndex);
-            str = str.insert(startIndex, "`");
-
-            statement = str.toString();
-        }
-
-        return statement;
-
-    }
 }

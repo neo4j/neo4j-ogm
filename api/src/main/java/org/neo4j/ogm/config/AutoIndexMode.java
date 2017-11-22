@@ -29,6 +29,19 @@ public enum AutoIndexMode {
     ASSERT("assert"),
 
     /**
+     * Creates all missing indexes and constraints.
+     * <p>
+     * If there is an index in the database and constraint in the metadata the index is dropped and constraint created.
+     * (and vise versa).
+     * <p>
+     * Other indexes and constraints are left untouched.
+     * <p>
+     * NOTE: When a field with index or constraint is renamed new index or constraint will be created.
+     * Existing for the old name will be left untouched.
+     */
+    UPDATE("update"),
+
+    /**
      * Ensures that all constraints and indexes exist on startup or will throw a Runtime exception.
      */
     VALIDATE("validate"),

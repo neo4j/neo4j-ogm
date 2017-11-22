@@ -1,18 +1,25 @@
 package org.neo4j.ogm.autoindex;
 
+import static com.google.common.collect.Lists.*;
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.List;
+import java.util.function.Consumer;
 
-import org.apache.commons.io.IOUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.config.AutoIndexMode;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Make sure this tests works across all drivers supporting Neo4j 3.x and above.
@@ -20,97 +27,34 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author Mark Angrish
  * @author Eric Spiegelberg
  */
+@Ignore
 public class AutoIndexManagerTest extends MultiDriverTestClass {
+
+    private static final Logger logger = LoggerFactory.getLogger(AutoIndexManagerTest.class);
+
+    private GraphDatabaseService service;
 
     private MetaData metaData = new MetaData("org.neo4j.ogm.domain.forum");
 
-    private static final String CREATE_LOGIN_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( `login`:`Login` ) ASSERT `login`.`userName` IS UNIQUE";
-    private static final String CREATE_TAG_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( `t-a-g`:`T-A-G` ) ASSERT `t-a-g`.`short-description` IS UNIQUE";
-    private static final String CREATE_TAG_INDEX_CYPHER = "CREATE INDEX ON :`t-a-g`(`short-description`)";
+    private static final String LOGIN_NICKNAME_INDEX = "INDEX ON :`Login`(`nickName`)";
+    private static final String LOGIN_USERNAME_CONSTRAINT = "CONSTRAINT ON ( `login`:`Login` ) ASSERT `login`.`userName` IS UNIQUE";
+    private static final String TAG_TAG_CONSTRAINT = "CONSTRAINT ON ( `t-a-g`:`T-A-G` ) ASSERT `t-a-g`.`short-description` IS UNIQUE";
+    private static final String TAG_DESC_INDEX = "INDEX ON :`t-a-g`(`short-description`)";
 
-    private static final String DROP_LOGIN_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (`login`:`Login`) ASSERT `login`.`userName` IS UNIQUE";
-    private static final String DROP_TAG_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (`t-a-g`:`T-A-G`) ASSERT `t-a-g`.`short-description` IS UNIQUE";
-
-    @Test
-    public void shouldPreserveNoneConfiguration() {
-        Configuration configuration = getBaseConfiguration().autoIndex("none").build();
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
+    @Before
+    public void setUp() throws Exception {
+        service = getGraphDatabaseService();
     }
 
-    @Test
-    public void shouldPreserveAssertConfiguration() {
-        Configuration configuration = getBaseConfiguration().autoIndex("assert").build();
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.ASSERT);
-    }
-
-    @Test
-    public void shouldPreserveValidateConfiguration() {
-        Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.VALIDATE);
-    }
-
-    @Test
-    public void shouldPreserveDumpConfiguration() {
-        Configuration configuration = getBaseConfiguration().autoIndex("dump").build();
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.DUMP);
-    }
-
-    @Test
-    public void testIndexesAreSuccessfullyValidated() {
-
-        createConstraints();
-
-        Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
-        assertThat(indexManager.getIndexes()).hasSize(2);
-        indexManager.build();
-
-        dropConstraints();
-    }
-
-    @Test(expected = MissingIndexException.class)
-    public void testIndexesAreFailValidation() {
-        Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
-        indexManager.build();
-    }
-
-    @Test
-    public void testIndexDumpMatchesDatabaseIndexes() throws IOException {
-
-        createConstraints();
-
-        File file = new File("./test.cql");
-
-        try {
-            Configuration configuration = getBaseConfiguration()
-                .autoIndex("dump")
-                .generatedIndexesOutputDir(".")
-                .generatedIndexesOutputFilename("test.cql")
-                .build();
-
-            AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
-            assertThat(indexManager.getIndexes()).hasSize(2);
-            indexManager.build();
-
-            assertThat(file.exists()).isTrue();
-            try (InputStream is = new FileInputStream("./test.cql")) {
-                String actual = IOUtils.toString(is);
-                String expected = CREATE_LOGIN_CONSTRAINT_CYPHER + " " + CREATE_TAG_CONSTRAINT_CYPHER;
-                assertThat(actual).isEqualToIgnoringWhitespace(expected);
-            }
-
-        } finally {
-            file.delete();
-        }
-
-        dropConstraints();
+    @After
+    public void tearDown() throws Exception {
+        executeDrop(LOGIN_NICKNAME_INDEX, LOGIN_USERNAME_CONSTRAINT, TAG_TAG_CONSTRAINT, TAG_DESC_INDEX);
     }
 
     @Test
     public void testIndexesAreSuccessfullyAsserted() {
 
-        createConstraints();
+        createAllConstraintsAndIndexes();
 
         Configuration configuration = getBaseConfiguration().autoIndex("assert").build();
         AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
@@ -118,18 +62,86 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
         assertThat(indexManager.getIndexes()).hasSize(2);
         indexManager.build();
 
-        dropConstraints();
+        dropAllConstraintAndIndexes();
     }
 
-    private void createConstraints() {
-        getGraphDatabaseService().execute(CREATE_LOGIN_CONSTRAINT_CYPHER);
-        getGraphDatabaseService().execute(CREATE_TAG_CONSTRAINT_CYPHER);
-        getGraphDatabaseService().execute(CREATE_TAG_INDEX_CYPHER);
+    @Test
+    public void indexIsCreatedForUpdate() throws Exception {
+        Configuration configuration = getBaseConfiguration().autoIndex("update").build();
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
+        indexManager.build();
+
+        assertIndexExists("Login", "nickName");
     }
 
-    private void dropConstraints() {
-        getGraphDatabaseService().execute(DROP_LOGIN_CONSTRAINT_CYPHER);
-        getGraphDatabaseService().execute(DROP_TAG_CONSTRAINT_CYPHER);
+    @Test
+    public void name() throws Exception {
+
     }
 
+    private void assertIndexExists(String label, String property) {
+
+        executeForIndexes(Label.label(label), (indexes) -> {
+            assertThat(indexes)
+                .extracting((IndexDefinition index) -> index.getPropertyKeys())
+                .contains(singletonList(property));
+
+        });
+        try (Transaction tx = service.beginTx()) {
+
+            boolean exists = false;
+            Iterable<IndexDefinition> indexes = service.schema().getIndexes(Label.label(label));
+            for (IndexDefinition index : indexes) {
+                for (String key : index.getPropertyKeys()) {
+                    if (key.equals(property)) {
+                        exists = true;
+                    }
+                }
+            }
+
+            if (!exists) {
+                fail("Could not find index on label " + label + " property " + property);
+            }
+
+            tx.success();
+        }
+    }
+
+    private void executeForIndexes(Label label, Consumer<List<IndexDefinition>> consumer) {
+        try (Transaction tx = service.beginTx()) {
+            Iterable<IndexDefinition> indexes = service.schema().getIndexes(label);
+            consumer.accept(newArrayList(indexes));
+            tx.success();
+        }
+    }
+
+    private void createAllConstraintsAndIndexes() {
+        executeCreate(LOGIN_NICKNAME_INDEX,
+            LOGIN_USERNAME_CONSTRAINT,
+            TAG_TAG_CONSTRAINT,
+            TAG_DESC_INDEX);
+    }
+
+    private void dropAllConstraintAndIndexes() {
+        executeDrop(LOGIN_NICKNAME_INDEX,
+            LOGIN_USERNAME_CONSTRAINT,
+            TAG_TAG_CONSTRAINT,
+            TAG_DESC_INDEX);
+    }
+
+    private void executeCreate(String... statements) {
+        for (String statement : statements) {
+            service.execute("CREATE " + statement);
+        }
+    }
+
+    private void executeDrop(String... statements) {
+        for (String statement : statements) {
+            try {
+                service.execute("DROP " + statement);
+            } catch (Exception e) {
+                logger.debug("Could not execute drop for statement (this might be expected) {}", statement, e);
+            }
+        }
+    }
 }

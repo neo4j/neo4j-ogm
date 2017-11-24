@@ -34,13 +34,13 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.server.plugins.Injectable;
 import org.neo4j.test.server.HTTP;
 
 import org.neo4j.ogm.domain.simple.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.TestServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,7 +64,7 @@ public class OgmPluginInitializerTest {
     @Test
     public void testOgmPluginExtension() throws Exception {
 
-        try (ServerControls controls = TestServerBuilders.newInProcessBuilder()
+        try (ServerControls controls = TestServer.newInProcessBuilder()
                 .withConfig(GraphDatabaseSettings.auth_enabled, "false")
                 .withExtension(TEST_PATH, TestOgmExtension.class)
                 .newServer()) {
@@ -83,7 +83,7 @@ public class OgmPluginInitializerTest {
 
     @Test
     public void ogmExtensionShouldUseProvidedDatabase() throws Exception {
-        try (ServerControls controls = TestServerBuilders.newInProcessBuilder()
+        try (ServerControls controls = TestServer.newInProcessBuilder()
                 .withConfig(GraphDatabaseSettings.auth_enabled, "false")
                 .withExtension(TEST_PATH, TestOgmExtension.class)
                 .newServer()) {

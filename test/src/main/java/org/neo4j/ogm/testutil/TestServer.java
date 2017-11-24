@@ -22,7 +22,9 @@ import java.nio.file.Path;
 
 import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.harness.EnterpriseTestServerBuilders;
 import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.TestServerBuilder;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.server.AbstractNeoServer;
 import org.neo4j.server.database.Database;
@@ -64,17 +66,40 @@ public class TestServer {
 		LOGGER.info("Starting {} server on: {}", enableBolt ? "BOLT": "HTTP", port);
 	}
 
+    /**
+     * Returns TestServerBuilder based on "neo4j.edition" property
+     */
+    public static TestServerBuilder newInProcessBuilder() {
+        String edition = System.getenv("neo4j.edition");
+        if (edition == null) {
+            edition = System.getProperty("neo4j.edition");
+        }
+        if ("enterprise".equals(edition)) {
+            LOGGER.info("Creating new instance of Neo4j Enterprise");
+            return EnterpriseTestServerBuilders.newInProcessBuilder();
+        } else {
+            LOGGER.info("Creating new instance of Neo4j Community");
+            return TestServerBuilders.newInProcessBuilder();
+        }
+    }
+
 	public void startServer() {
 		try {
 
+		    /*
+		      The property "unsupported.dbms.jmx_module.enabled=false" disables JMX monitoring
+		      We may start multiple instances of the server and without disabling this the 2nd instance would not start.
+		     */
 			if (enableBolt) {
-				controls = TestServerBuilders.newInProcessBuilder()
+				controls = newInProcessBuilder()
+                        .withConfig("unsupported.dbms.jmx_module.enabled", "false")
 						.withConfig("dbms.connector.bolt.type", "BOLT")
 						.withConfig("dbms.connector.bolt.enabled", "true")
 						.withConfig("dbms.connector.bolt.listen_address", "localhost:" + String.valueOf(port))
 						.newServer();
 			} else {
-				controls = TestServerBuilders.newInProcessBuilder()
+				controls = newInProcessBuilder()
+                        .withConfig("unsupported.dbms.jmx_module.enabled", "false")
 						.withConfig("dbms.connector.http.type", "HTTP")
 						.withConfig("dbms.connector.http.enabled", "true")
 						.withConfig("dbms.connector.http.listen_address", "localhost:" + String.valueOf(port))
@@ -97,7 +122,7 @@ public class TestServer {
 		}
 	}
 
-	private String createAuthStore() {
+    private String createAuthStore() {
 		// creates a temp auth store, with encrypted credentials "neo4j:password" if the server is authenticating connections
 		try {
 			Path authStore = Files.createTempFile("neo4j", "credentials");

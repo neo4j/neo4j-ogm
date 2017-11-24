@@ -52,6 +52,7 @@
         <bolt>1.4.4</bolt>
         <fast.classpath.scanner>2.7.4</fast.classpath.scanner>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
+        <neo4j.edition>enterprise</neo4j.edition>
     </properties>
 
     <dependencyManagement>
@@ -125,6 +126,13 @@
             <dependency>
                 <groupId>org.neo4j.test</groupId>
                 <artifactId>neo4j-harness</artifactId>
+                <version>${neo4j}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.neo4j.test</groupId>
+                <artifactId>neo4j-harness-enterprise</artifactId>
                 <version>${neo4j}</version>
                 <scope>test</scope>
             </dependency>
@@ -299,6 +307,15 @@
     </build>
 
     <profiles>
+
+<!--
+        <profile>
+            <id>community</id>
+            <properties>
+                <neo4j.edition>community</neo4j.edition>
+            </properties>
+        </profile>
+-->
 
         <profile>
             <id>neo4j-3.1</id>

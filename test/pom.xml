@@ -111,6 +111,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.neo4j.test</groupId>
+            <artifactId>neo4j-harness-enterprise</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
             <groupId>local-test</groupId>
             <artifactId>concert</artifactId>
             <version>0.0.1</version>
@@ -147,6 +153,9 @@
                 <version>2.20</version>
                 <configuration>
                     <runOrder>alphabetical</runOrder>
+                    <systemPropertyVariables>
+                        <neo4j.edition>${neo4j.edition}</neo4j.edition>
+                    </systemPropertyVariables>
                 </configuration>
 
                 <executions>

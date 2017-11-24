@@ -12,6 +12,8 @@
  */
 package org.neo4j.ogm.autoindex;
 
+import static java.util.Collections.*;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,9 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.neo4j.ogm.annotation.CompositeIndex;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -33,8 +33,8 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.RowDataStatement;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
-
-import static java.util.Collections.emptyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class controls the deletion and creation of indexes in the OGM.
@@ -72,9 +72,18 @@ public class AutoIndexManager {
             if (classInfo.containsIndexes()) {
                 for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
                     IndexType type = fieldInfo.isConstraint() ? IndexType.UNIQUE_CONSTRAINT : IndexType.SINGLE_INDEX;
-                    final AutoIndex index = new AutoIndex(type, classInfo.neo4jName(), new String[] {fieldInfo.property()});
-                    LOGGER.debug("Adding Index [description={}]", index);
-                    indexMetadata.add(index);
+                    final AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(),
+                        new String[] { fieldInfo.property() });
+                    LOGGER.debug("Adding Index [description={}]", autoIndex);
+                    indexMetadata.add(autoIndex);
+                }
+
+                for (CompositeIndex index : classInfo.getCompositeIndexes()) {
+                    IndexType type = index.unique() ? IndexType.NODE_KEY_CONSTRAINT : IndexType.COMPOSITE_INDEX;
+                    String[] properties = index.value().length > 0 ? index.value() : index.properties();
+                    AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(), properties);
+                    LOGGER.debug("Adding composite index [description={}]", autoIndex);
+                    indexMetadata.add(autoIndex);
                 }
             }
         }
@@ -127,10 +136,11 @@ public class AutoIndexManager {
         } catch (IOException e) {
             throw new RuntimeException("Could not write file to " + file.getAbsolutePath(), e);
         } finally {
-            if (writer != null) try {
-                writer.close();
-            } catch (IOException ignore) {
-            }
+            if (writer != null)
+                try {
+                    writer.close();
+                } catch (IOException ignore) {
+                }
         }
     }
 
@@ -150,7 +160,8 @@ public class AutoIndexManager {
                 missingIndexes += s.getDescription() + ", ";
             }
             missingIndexes += "]";
-            throw new MissingIndexException("Validation of Constraints and Indexes failed. Could not find the following : " + missingIndexes);
+            throw new MissingIndexException(
+                "Validation of Constraints and Indexes failed. Could not find the following : " + missingIndexes);
         }
     }
 
@@ -253,6 +264,5 @@ public class AutoIndexManager {
             // Success
         }
     }
-
 
 }

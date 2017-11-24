@@ -80,6 +80,7 @@ public class ClassInfo {
     private volatile Set<FieldInfo> fieldInfos;
     private volatile Map<String, FieldInfo> propertyFields;
     private volatile Map<String, FieldInfo> indexFields;
+    private volatile Collection<CompositeIndex> compositeIndexes;
     private volatile LazyInstance<FieldInfo> identityField;
     private volatile FieldInfo primaryIndexField = null;
     private volatile FieldInfo labelField = null;
@@ -794,7 +795,7 @@ public class ClassInfo {
      * @return If this class contains any fields/properties annotated with @Index.
      */
     public boolean containsIndexes() {
-        return !getIndexFields().isEmpty();
+        return !getIndexFields().isEmpty() || !getCompositeIndexes().isEmpty();
     }
 
     /**
@@ -841,6 +842,40 @@ public class ClassInfo {
             }
         }
         return false;
+    }
+
+    public Collection<CompositeIndex> getCompositeIndexes() {
+        if (compositeIndexes == null) {
+            compositeIndexes = compositeIndexes();
+        }
+        return compositeIndexes;
+    }
+
+    private Collection<CompositeIndex> compositeIndexes() {
+        // init property fields to be able to check existence of properties
+        propertyFields();
+
+        CompositeIndex[] annotations = cls.getDeclaredAnnotationsByType(CompositeIndex.class);
+        ArrayList<CompositeIndex> result = new ArrayList<>(annotations.length);
+
+        for (CompositeIndex annotation : annotations) {
+            String[] properties = annotation.value().length > 0 ? annotation.value() : annotation.properties();
+
+            if (properties.length < 2) {
+                throw new MetadataException("Incorrect CompositeIndex definition on " + className +
+                    ". Provide at least 2 properties");
+            }
+
+            for (String property : properties) {
+                FieldInfo fieldInfo = propertyFields.get(property);
+                if (fieldInfo == null) {
+                    throw new MetadataException("Incorrect CompositeIndex definition on " + className + ". Property " +
+                        property + " does not exists.");
+                }
+            }
+            result.add(annotation);
+        }
+        return result;
     }
 
     public FieldInfo primaryIndexField() {

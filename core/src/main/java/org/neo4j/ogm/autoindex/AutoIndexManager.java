@@ -86,6 +86,19 @@ public class AutoIndexManager {
                     indexMetadata.add(autoIndex);
                 }
             }
+
+            if (classInfo.hasRequiredFields()) {
+                for (FieldInfo requiredField : classInfo.requiredFields()) {
+                    IndexType type = classInfo.isRelationshipEntity() ?
+                        IndexType.REL_PROP_EXISTENCE_CONSTRAINT : IndexType.NODE_PROP_EXISTENCE_CONSTRAINT;
+
+                    AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(),
+                        new String[] { requiredField.property() });
+
+                    LOGGER.debug("Adding required constraint [description={}]", autoIndex);
+                    indexMetadata.add(autoIndex);
+                }
+            }
         }
         return indexMetadata;
     }

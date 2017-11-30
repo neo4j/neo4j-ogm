@@ -355,7 +355,7 @@
         <profile>
             <id>driver-1.5</id>
             <properties>
-                <bolt>1.5.0-beta01</bolt>
+                <bolt>1.5.0-beta02</bolt>
             </properties>
         </profile>
 

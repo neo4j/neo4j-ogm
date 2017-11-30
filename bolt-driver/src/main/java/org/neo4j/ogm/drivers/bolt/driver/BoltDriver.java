@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.drivers.bolt.driver;
 
-import org.neo4j.driver.internal.logging.ConsoleLogging;
 import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
@@ -34,7 +33,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import static java.util.Objects.requireNonNull;
 
@@ -219,7 +217,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
         try {
             BoltConfig boltConfig = getBoltConfiguration(driverConfig);
             Config.ConfigBuilder configBuilder = Config.build();
-            configBuilder.withLogging(new ConsoleLogging(Level.FINE));
             configBuilder.withMaxSessions(boltConfig.sessionPoolSize);
             if (boltConfig.encryptionLevel.equals(Config.EncryptionLevel.REQUIRED)) {
                 configBuilder.withEncryption();

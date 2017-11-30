@@ -341,7 +341,7 @@
         <profile>
             <id>neo4j-3.4</id>
             <properties>
-                <neo4j>3.4.0-alpha01</neo4j>
+                <neo4j>3.4.0-alpha02</neo4j>
             </properties>
         </profile>
 

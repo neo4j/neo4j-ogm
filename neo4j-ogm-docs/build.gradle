@@ -34,8 +34,8 @@ plugins {
 
 def traceDocbook = hasProperty('traceDocbook') ? true : false
 
-if (!project.hasProperty("ogmVersion")) { ext.ogmVersion = "3.1.0-SNAPSHOT" }
-if (!project.hasProperty("neo4jVersion")) { ext.neo4jVersion = "3.3.0-SNAPSHOT" }
+if (!project.hasProperty("ogmVersion")) { ext.ogmVersion = "3.0.2" }
+if (!project.hasProperty("neo4jVersion")) { ext.neo4jVersion = "3.3.1" }
 if (!project.hasProperty("kerberosAddonVersion")) { ext.kerberosAddonVersion = "1.0" }
 ext {
     traceDocbook = traceDocbook

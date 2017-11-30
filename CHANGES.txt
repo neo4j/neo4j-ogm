@@ -5,6 +5,7 @@ o Store horizon along with visited nodes to traverse to correct depth. #407
 o Fix mapping of directed transient relationships defined in both directions
 o Fix directory creation for embedded driver. #411
 o Update Neo4j to version 3.4.0-alpha02 in 3.4 profile
+o Update java driver version to 1.4.5 in 1.4 profile (default dependency)
 
 3.0.1
 o Add filter function for in-collection query. #423

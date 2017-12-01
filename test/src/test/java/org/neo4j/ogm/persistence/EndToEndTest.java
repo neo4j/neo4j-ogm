@@ -35,7 +35,6 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class EndToEndTest extends MultiDriverTestClass {
 
-
     private Session session;
 
     @BeforeClass
@@ -64,7 +63,8 @@ public class EndToEndTest extends MultiDriverTestClass {
 
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("material", "Leather");
-        Saddle actual = session.queryForObject(Saddle.class, "MATCH (saddle:Saddle{material: {material}}) RETURN saddle", parameters);
+        Saddle actual = session
+            .queryForObject(Saddle.class, "MATCH (saddle:Saddle{material: {material}}) RETURN saddle", parameters);
 
         assertThat(actual.getId()).isEqualTo(expected.getId());
         assertThat(actual.getMaterial()).isEqualTo(expected.getMaterial());
@@ -77,7 +77,6 @@ public class EndToEndTest extends MultiDriverTestClass {
         assertThat(actual2.getBrand()).isEqualTo(bike.getBrand());
     }
 
-
     @Test
     public void canSimpleScalarQueryDatabase() {
         Saddle expected = new Saddle();
@@ -88,7 +87,8 @@ public class EndToEndTest extends MultiDriverTestClass {
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("material", "Leather");
 
-        long actual = session.queryForObject(Long.class, "MATCH (saddle:Saddle{material: {material}}) RETURN COUNT(saddle)", parameters);
+        long actual = session
+            .queryForObject(Long.class, "MATCH (saddle:Saddle{material: {material}}) RETURN COUNT(saddle)", parameters);
 
         assertThat(actual).isEqualTo(1);
     }
@@ -110,7 +110,8 @@ public class EndToEndTest extends MultiDriverTestClass {
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("brand", "Huffy");
 
-        Bike actual = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand:{brand}})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters);
+        Bike actual = session.queryForObject(Bike.class,
+            "MATCH (bike:Bike{brand:{brand}})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters);
 
         assertThat(actual.getId()).isEqualTo(bike.getId());
         assertThat(actual.getBrand()).isEqualTo(bike.getBrand());
@@ -147,7 +148,8 @@ public class EndToEndTest extends MultiDriverTestClass {
 
         HashMap<String, Object> parameters2 = new HashMap<>();
         parameters2.put("brand", "Huffy");
-        Bike actual = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand:{brand}})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters2);
+        Bike actual = session.queryForObject(Bike.class,
+            "MATCH (bike:Bike{brand:{brand}})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters2);
 
         assertThat(actual.getId()).isEqualTo(bike.getId());
         assertThat(actual.getBrand()).isEqualTo(bike.getBrand());

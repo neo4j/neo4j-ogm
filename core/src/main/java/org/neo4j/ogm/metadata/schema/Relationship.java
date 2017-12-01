@@ -36,7 +36,6 @@ public interface Relationship {
      * Return the other node on this side of the relationship
      *
      * @param node node
-     *
      * @return the other node
      */
     Node other(Node node);

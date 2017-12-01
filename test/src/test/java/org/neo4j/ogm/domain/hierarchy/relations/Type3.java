@@ -29,7 +29,6 @@ public class Type3 extends BaseEntity {
     @Relationship(type = "TYPE_TO", direction = "INCOMING")
     private Set<Type3> type3In = new HashSet<>();
 
-
     public Set<Type3> getType3Out() {
         return type3Out;
     }

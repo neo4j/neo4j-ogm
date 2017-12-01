@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.cypher.compiler.builders.statement;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Edge;
@@ -35,7 +39,6 @@ public class DeletedRelationshipStatementBuilder implements CypherStatementBuild
         this.statementFactory = statementFactory;
     }
 
-
     @Override
     public Statement build() {
         final Map<String, Object> parameters = new HashMap<>();
@@ -45,10 +48,10 @@ public class DeletedRelationshipStatementBuilder implements CypherStatementBuild
             Edge firstEdge = deletedEdges.iterator().next();
 
             queryBuilder.append("UNWIND {rows} as row ")
-                    .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
-                    .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ")
-                    .append("MATCH (startNode)-[rel:`").append(firstEdge.getType()).append("`]->(endNode) ")
-                    .append("DELETE rel");
+                .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
+                .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ")
+                .append("MATCH (startNode)-[rel:`").append(firstEdge.getType()).append("`]->(endNode) ")
+                .append("DELETE rel");
 
             List<Map> rows = new ArrayList<>();
             for (Edge edge : deletedEdges) {

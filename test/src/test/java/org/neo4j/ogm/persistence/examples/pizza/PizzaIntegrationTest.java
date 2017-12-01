@@ -16,9 +16,16 @@ package org.neo4j.ogm.persistence.examples.pizza;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.neo4j.ogm.domain.pizza.*;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
@@ -146,7 +153,8 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         assertThat(loadedPizza).isNotNull();
         assertThat(loadedPizza.getName()).isEqualTo(pizza.getName());
         assertThat(loadedPizza.getSeasonings()).hasSize(1);
-        assertThat(loadedPizza.getSeasonings().iterator().next().getSeasoning().getName()).isEqualTo(seasoning.getName());
+        assertThat(loadedPizza.getSeasonings().iterator().next().getSeasoning().getName())
+            .isEqualTo(seasoning.getName());
         assertThat(loadedPizza.getSeasonings().iterator().next().getQuantity()).isEqualTo(Quantity.DIE_TOMORROW);
     }
 
@@ -168,7 +176,6 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         assertThat(loadedPizza.getCheeses().iterator().next().getCheese().getName()).isEqualTo(cheese.getName());
         assertThat(loadedPizza.getCheeses().iterator().next().getQuantity()).isEqualTo(Quantity.DOUBLE);
     }
-
 
     /**
      * @see issue #36
@@ -207,7 +214,8 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         assertThat(loadedPizza.getToppings().contains(mushroom)).isTrue();
         assertThat(loadedPizza.getToppings().contains(pepperoni)).isTrue();
         assertThat(loadedPizza.getSeasonings()).hasSize(1);
-        assertThat(loadedPizza.getSeasonings().iterator().next().getSeasoning().getName()).isEqualTo(seasoning.getName());
+        assertThat(loadedPizza.getSeasonings().iterator().next().getSeasoning().getName())
+            .isEqualTo(seasoning.getName());
         assertThat(loadedPizza.getSeasonings().iterator().next().getQuantity()).isEqualTo(Quantity.DIE_TOMORROW);
         assertThat(loadedPizza.getCheeses()).hasSize(1);
         assertThat(loadedPizza.getCheeses().iterator().next().getCheese().getName()).isEqualTo(cheese.getName());
@@ -262,7 +270,8 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
         session.save(pizza);
         session.clear();
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:`Pizza`:`Spicy`:`Hot`:`Delicious` {name: 'Mushroom & Pepperoni'})");
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+            "CREATE (n:`Pizza`:`Spicy`:`Hot`:`Delicious` {name: 'Mushroom & Pepperoni'})");
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
         assertThat(loadedPizza.getLabels().contains("Delicious")).isTrue();
@@ -313,7 +322,8 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
         session.save(pizza);
         session.clear();
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:`Pizza`:`Spicy`:`Hot`:`Delicious` {name: 'Mushroom & Pepperoni'})");
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+            "CREATE (n:`Pizza`:`Spicy`:`Hot`:`Delicious` {name: 'Mushroom & Pepperoni'})");
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
         assertThat(loadedPizza.getLabels().contains("Delicious")).isTrue();
@@ -335,14 +345,14 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         assertThat(reloadedPizza.getLabels().contains("Stale")).isTrue();
     }
 
-
     /**
      * @see issue #159
      */
     @Test
     public void shouldRaiseExceptionWhenAmbiguousClassLabelApplied() {
 
-        Session session = new SessionFactory(driver, "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.domain.music").openSession();
+        Session session = new SessionFactory(driver, "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.domain.music")
+            .openSession();
 
         Pizza pizza = new Pizza();
         pizza.setName("Mushroom & Pepperoni");
@@ -357,7 +367,8 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         try {
             session.load(Pizza.class, pizza.getId());
         } catch (MappingException e) {
-            assertThat(e.getCause().getMessage()).isEqualTo("Multiple classes found in type hierarchy that map to: [Pizza, Studio]");
+            assertThat(e.getCause().getMessage())
+                .isEqualTo("Multiple classes found in type hierarchy that map to: [Pizza, Studio]");
         }
     }
 
@@ -390,7 +401,6 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         // pizza should NOT be dirty
         assertThat(((Neo4jSession) session).context().isDirty(pizza)).isFalse(); // this should pass
     }
-
 
     @Test
     public void shouldBeAbleToModifyPropertiesAndRelsWithinSingleSave() {
@@ -480,7 +490,6 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
         assertOneRelationshipInDb();
     }
-
 
     @Test
     public void shouldDeleteChangedIncomingRelationshipWithClearSessionAndLoad() throws Exception {

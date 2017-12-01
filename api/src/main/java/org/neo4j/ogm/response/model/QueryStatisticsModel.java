@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.response.model;
 
-
 import org.neo4j.ogm.model.QueryStatistics;
 
 /**

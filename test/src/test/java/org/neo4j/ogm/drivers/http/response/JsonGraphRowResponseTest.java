@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -70,371 +70,372 @@ public class JsonGraphRowResponseTest {
 
     private InputStream filterQueryGraphRowResponse() {
         final String s = "{\n" +
-                "  \"results\": [\n" +
-                "    {\n" +
-                "      \"columns\": [\n" +
-                "        \"p\",\n" +
-                "        \"ID(n)\"\n" +
-                "      ],\n" +
-                "      \"data\": [\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Customer\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"GraphAware\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": []\n" +
-                "          },\n" +
-                "          \"row\": [\n" +
-                "            [\n" +
-                "              {\n" +
-                "                \"name\": \"GraphAware\"\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            26\n" +
-                "          ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Customer\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"GraphAware\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"344\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"User\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"firstName\": \"vince\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"19\",\n" +
-                "                \"type\": \"EMPLOYED_BY\",\n" +
-                "                \"startNode\": \"344\",\n" +
-                "                \"endNode\": \"26\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          },\n" +
-                "          \"row\": [\n" +
-                "            [\n" +
-                "              {\n" +
-                "                \"name\": \"GraphAware\"\n" +
-                "              },\n" +
-                "              {},\n" +
-                "              {\n" +
-                "                \"firstName\": \"vince\"\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            26\n" +
-                "          ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"343\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"User\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"firstName\": \"adam\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Customer\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"GraphAware\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"18\",\n" +
-                "                \"type\": \"EMPLOYED_BY\",\n" +
-                "                \"startNode\": \"343\",\n" +
-                "                \"endNode\": \"26\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          },\n" +
-                "          \"row\": [\n" +
-                "            [\n" +
-                "              {\n" +
-                "                \"name\": \"GraphAware\"\n" +
-                "              },\n" +
-                "              {},\n" +
-                "              {\n" +
-                "                \"firstName\": \"adam\"\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            26\n" +
-                "          ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Customer\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"GraphAware\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"346\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Issue\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"title\": \"fake 1\",\n" +
-                "                  \"number\": \"1\",\n" +
-                "                  \"title\": \"fake 1\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"20\",\n" +
-                "                \"type\": \"LOGGED_BY\",\n" +
-                "                \"startNode\": \"346\",\n" +
-                "                \"endNode\": \"26\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          },\n" +
-                "          \"row\": [\n" +
-                "            [\n" +
-                "              {\n" +
-                "                \"name\": \"GraphAware\"\n" +
-                "              },\n" +
-                "              {},\n" +
-                "              {\n" +
-                "                \"title\": \"fake 1\",\n" +
-                "                \"number\": \"1\",\n" +
-                "                \"title\": \"fake 1\"\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            26\n" +
-                "          ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Customer\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"GraphAware\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"347\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Issue\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"title\": \"fake 7\",\n" +
-                "                  \"number\": \"7\",\n" +
-                "                  \"title\": \"fake 7\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"501\",\n" +
-                "                \"type\": \"LOGGED_BY\",\n" +
-                "                \"startNode\": \"347\",\n" +
-                "                \"endNode\": \"26\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          },\n" +
-                "          \"row\": [\n" +
-                "            [\n" +
-                "              {\n" +
-                "                \"name\": \"GraphAware\"\n" +
-                "              },\n" +
-                "              {},\n" +
-                "              {\n" +
-                "                \"title\": \"fake 7\",\n" +
-                "                \"number\": \"7\",\n" +
-                "                \"title\": \"fake 7\"\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            26\n" +
-                "          ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"27\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Company\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"Acme\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Customer\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"GraphAware\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"502\",\n" +
-                "                \"type\": \"LOCATED_AT\",\n" +
-                "                \"startNode\": \"26\",\n" +
-                "                \"endNode\": \"27\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          },\n" +
-                "          \"row\": [\n" +
-                "            [\n" +
-                "              {\n" +
-                "                \"name\": \"GraphAware\"\n" +
-                "              },\n" +
-                "              {},\n" +
-                "              {\n" +
-                "                \"name\": \"Acme\"\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            26\n" +
-                "          ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Customer\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"GraphAware\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"28\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Company\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"CodeIsUs\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"503\",\n" +
-                "                \"type\": \"LOCATED_AT\",\n" +
-                "                \"startNode\": \"26\",\n" +
-                "                \"endNode\": \"28\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          },\n" +
-                "          \"row\": [\n" +
-                "            [\n" +
-                "              {\n" +
-                "                \"name\": \"GraphAware\"\n" +
-                "              },\n" +
-                "              {},\n" +
-                "              {\n" +
-                "                \"name\": \"CodeIsUs\"\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            26\n" +
-                "          ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"0\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Issue\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"number\": \"8\",\n" +
-                "                  \"title\": \"fake 8\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Customer\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"GraphAware\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"520\",\n" +
-                "                \"type\": \"LOGGED_BY\",\n" +
-                "                \"startNode\": \"0\",\n" +
-                "                \"endNode\": \"26\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          },\n" +
-                "          \"row\": [\n" +
-                "            [\n" +
-                "              {\n" +
-                "                \"name\": \"GraphAware\"\n" +
-                "              },\n" +
-                "              {},\n" +
-                "              {\n" +
-                "                \"number\": \"8\",\n" +
-                "                \"title\": \"fake 8\"\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            26\n" +
-                "          ]\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"errors\": []\n" +
-                "}";
+            "  \"results\": [\n" +
+            "    {\n" +
+            "      \"columns\": [\n" +
+            "        \"p\",\n" +
+            "        \"ID(n)\"\n" +
+            "      ],\n" +
+            "      \"data\": [\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"26\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Customer\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"GraphAware\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": []\n" +
+            "          },\n" +
+            "          \"row\": [\n" +
+            "            [\n" +
+            "              {\n" +
+            "                \"name\": \"GraphAware\"\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            26\n" +
+            "          ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"26\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Customer\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"GraphAware\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"344\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"User\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"firstName\": \"vince\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"19\",\n" +
+            "                \"type\": \"EMPLOYED_BY\",\n" +
+            "                \"startNode\": \"344\",\n" +
+            "                \"endNode\": \"26\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          },\n" +
+            "          \"row\": [\n" +
+            "            [\n" +
+            "              {\n" +
+            "                \"name\": \"GraphAware\"\n" +
+            "              },\n" +
+            "              {},\n" +
+            "              {\n" +
+            "                \"firstName\": \"vince\"\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            26\n" +
+            "          ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"343\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"User\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"firstName\": \"adam\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"26\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Customer\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"GraphAware\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"18\",\n" +
+            "                \"type\": \"EMPLOYED_BY\",\n" +
+            "                \"startNode\": \"343\",\n" +
+            "                \"endNode\": \"26\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          },\n" +
+            "          \"row\": [\n" +
+            "            [\n" +
+            "              {\n" +
+            "                \"name\": \"GraphAware\"\n" +
+            "              },\n" +
+            "              {},\n" +
+            "              {\n" +
+            "                \"firstName\": \"adam\"\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            26\n" +
+            "          ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"26\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Customer\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"GraphAware\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"346\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Issue\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"title\": \"fake 1\",\n" +
+            "                  \"number\": \"1\",\n" +
+            "                  \"title\": \"fake 1\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"20\",\n" +
+            "                \"type\": \"LOGGED_BY\",\n" +
+            "                \"startNode\": \"346\",\n" +
+            "                \"endNode\": \"26\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          },\n" +
+            "          \"row\": [\n" +
+            "            [\n" +
+            "              {\n" +
+            "                \"name\": \"GraphAware\"\n" +
+            "              },\n" +
+            "              {},\n" +
+            "              {\n" +
+            "                \"title\": \"fake 1\",\n" +
+            "                \"number\": \"1\",\n" +
+            "                \"title\": \"fake 1\"\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            26\n" +
+            "          ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"26\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Customer\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"GraphAware\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"347\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Issue\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"title\": \"fake 7\",\n" +
+            "                  \"number\": \"7\",\n" +
+            "                  \"title\": \"fake 7\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"501\",\n" +
+            "                \"type\": \"LOGGED_BY\",\n" +
+            "                \"startNode\": \"347\",\n" +
+            "                \"endNode\": \"26\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          },\n" +
+            "          \"row\": [\n" +
+            "            [\n" +
+            "              {\n" +
+            "                \"name\": \"GraphAware\"\n" +
+            "              },\n" +
+            "              {},\n" +
+            "              {\n" +
+            "                \"title\": \"fake 7\",\n" +
+            "                \"number\": \"7\",\n" +
+            "                \"title\": \"fake 7\"\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            26\n" +
+            "          ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"27\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Company\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"Acme\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"26\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Customer\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"GraphAware\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"502\",\n" +
+            "                \"type\": \"LOCATED_AT\",\n" +
+            "                \"startNode\": \"26\",\n" +
+            "                \"endNode\": \"27\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          },\n" +
+            "          \"row\": [\n" +
+            "            [\n" +
+            "              {\n" +
+            "                \"name\": \"GraphAware\"\n" +
+            "              },\n" +
+            "              {},\n" +
+            "              {\n" +
+            "                \"name\": \"Acme\"\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            26\n" +
+            "          ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"26\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Customer\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"GraphAware\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"28\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Company\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"CodeIsUs\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"503\",\n" +
+            "                \"type\": \"LOCATED_AT\",\n" +
+            "                \"startNode\": \"26\",\n" +
+            "                \"endNode\": \"28\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          },\n" +
+            "          \"row\": [\n" +
+            "            [\n" +
+            "              {\n" +
+            "                \"name\": \"GraphAware\"\n" +
+            "              },\n" +
+            "              {},\n" +
+            "              {\n" +
+            "                \"name\": \"CodeIsUs\"\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            26\n" +
+            "          ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"0\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Issue\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"number\": \"8\",\n" +
+            "                  \"title\": \"fake 8\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"26\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Customer\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"GraphAware\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"520\",\n" +
+            "                \"type\": \"LOGGED_BY\",\n" +
+            "                \"startNode\": \"0\",\n" +
+            "                \"endNode\": \"26\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          },\n" +
+            "          \"row\": [\n" +
+            "            [\n" +
+            "              {\n" +
+            "                \"name\": \"GraphAware\"\n" +
+            "              },\n" +
+            "              {},\n" +
+            "              {\n" +
+            "                \"number\": \"8\",\n" +
+            "                \"title\": \"fake 8\"\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            26\n" +
+            "          ]\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"errors\": []\n" +
+            "}";
         return new ByteArrayInputStream(s.getBytes());
     }
 
-    static class TestGraphRowHttpResponse extends AbstractHttpResponse<ResultGraphRowListModel> implements Response<GraphRowListModel> {
+    static class TestGraphRowHttpResponse extends AbstractHttpResponse<ResultGraphRowListModel>
+        implements Response<GraphRowListModel> {
 
         public TestGraphRowHttpResponse() {
             super(response, ResultGraphRowListModel.class);

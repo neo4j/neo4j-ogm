@@ -46,7 +46,6 @@ public interface CompileContext {
 
     /**
      * Stores nodeBuilder for given entity with horizon
-     *
      * if the nodeBuilder for the entity is already present it will be overwritten (or the horizon will change)
      * the caller should ensure it doesn't happen
      */

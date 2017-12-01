@@ -37,7 +37,6 @@ public class Filters implements Iterable<Filter> {
         add(filters);
     }
 
-
     public Filters add(Filter... filters) {
         for (Filter filter : filters) {
             this.add(filter);

@@ -14,7 +14,6 @@
 package org.neo4j.ogm.metadata.schema.inheritance;
 
 import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
 

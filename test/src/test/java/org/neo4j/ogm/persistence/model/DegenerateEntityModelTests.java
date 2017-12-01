@@ -53,19 +53,18 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.filesystem");
     }
 
-
     @Before
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
 
         Result executionResult = getGraphDatabaseService().execute(
-                "CREATE (f:Folder { name: 'f' } )" +
-                        "CREATE (a:Document { name: 'a' } ) " +
-                        "CREATE (b:Document { name: 'b' } ) " +
-                        "CREATE (f)-[:CONTAINS]->(a) " +
-                        "CREATE (f)-[:CONTAINS]->(b) " +
-                        "RETURN id(f) AS fid, id(a) AS aid, id(b) AS bid");
+            "CREATE (f:Folder { name: 'f' } )" +
+                "CREATE (a:Document { name: 'a' } ) " +
+                "CREATE (b:Document { name: 'b' } ) " +
+                "CREATE (f)-[:CONTAINS]->(a) " +
+                "CREATE (f)-[:CONTAINS]->(b) " +
+                "RETURN id(f) AS fid, id(a) AS aid, id(b) AS bid");
 
         Map<String, Object> resultSet = executionResult.next();
 
@@ -76,7 +75,6 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         f = session.load(Folder.class, (Long) resultSet.get("fid"));
     }
 
-
     @Test
     public void testSaveDegenerateDocument() {
 
@@ -85,10 +83,10 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         session.save(a);
 
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-                "CREATE (f:Folder {name : 'f' } )" +
-                        "CREATE (a:Document { name: 'a' } ) " +
-                        "CREATE (b:Document { name: 'b' } ) " +
-                        "CREATE (f)-[:CONTAINS]->(b)");
+            "CREATE (f:Folder {name : 'f' } )" +
+                "CREATE (a:Document { name: 'a' } ) " +
+                "CREATE (b:Document { name: 'b' } ) " +
+                "CREATE (f)-[:CONTAINS]->(b)");
     }
 
     @Test
@@ -100,11 +98,10 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         session.save(f);
 
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-                "CREATE (f:Folder { name: 'f' } )" +
-                        "CREATE (a:Document { name: 'a' } ) " +
-                        "CREATE (b:Document { name: 'b' } ) ");
+            "CREATE (f:Folder { name: 'f' } )" +
+                "CREATE (a:Document { name: 'a' } ) " +
+                "CREATE (b:Document { name: 'b' } ) ");
     }
-
 
     @Test
     public void testSaveDegenerateDocumentClone() {
@@ -117,10 +114,10 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         session.save(clone);
 
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-                "CREATE (f:Folder { name: 'f' } )" +
-                        "CREATE (a:Document { name: 'a'} ) " +
-                        "CREATE (b:Document { name: 'b'} ) " +
-                        "CREATE (f)-[:CONTAINS]->(b)");
+            "CREATE (f:Folder { name: 'f' } )" +
+                "CREATE (a:Document { name: 'a'} ) " +
+                "CREATE (b:Document { name: 'b'} ) " +
+                "CREATE (f)-[:CONTAINS]->(b)");
     }
 
     @Test
@@ -134,9 +131,9 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         session.save(clone);
 
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-                "CREATE (f:Folder { name: 'f' } )" +
-                        "CREATE (a:Document { name: 'a' } ) " +
-                        "CREATE (b:Document { name: 'b' } ) ");
+            "CREATE (f:Folder { name: 'f' } )" +
+                "CREATE (a:Document { name: 'a' } ) " +
+                "CREATE (b:Document { name: 'b' } ) ");
     }
 
     @Test
@@ -149,12 +146,12 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         session.save(a);
 
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-                "CREATE (f:Folder { name: 'f' } )" +
-                        "CREATE (g:Folder { name: 'g' } ) " +
-                        "CREATE (a:Document { name: 'a' }) " +
-                        "CREATE (b:Document { name: 'b' }) " +
-                        "CREATE (f)-[:CONTAINS]->(b) " +
-                        "CREATE (g)-[:CONTAINS]->(a) ");
+            "CREATE (f:Folder { name: 'f' } )" +
+                "CREATE (g:Folder { name: 'g' } ) " +
+                "CREATE (a:Document { name: 'a' }) " +
+                "CREATE (b:Document { name: 'b' }) " +
+                "CREATE (f)-[:CONTAINS]->(b) " +
+                "CREATE (g)-[:CONTAINS]->(a) ");
     }
 
     @Test
@@ -169,11 +166,11 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         session.save(f);
 
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-                "CREATE (f:Folder { name: 'f' })" +
-                        "CREATE (a:Document { name: 'a' } ) " +
-                        "CREATE (b:Document { name: 'b' } ) " +
-                        "CREATE (c:Document { name: 'c' } ) " +
-                        "CREATE (f)-[:CONTAINS]->(b) " +
-                        "CREATE (f)-[:CONTAINS]->(c) ");
+            "CREATE (f:Folder { name: 'f' })" +
+                "CREATE (a:Document { name: 'a' } ) " +
+                "CREATE (b:Document { name: 'b' } ) " +
+                "CREATE (c:Document { name: 'c' } ) " +
+                "CREATE (f)-[:CONTAINS]->(b) " +
+                "CREATE (f)-[:CONTAINS]->(c) ");
     }
 }

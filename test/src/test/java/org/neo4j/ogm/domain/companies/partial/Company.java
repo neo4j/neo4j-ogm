@@ -15,7 +15,6 @@ package org.neo4j.ogm.domain.companies.partial;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Frantisek Hartman

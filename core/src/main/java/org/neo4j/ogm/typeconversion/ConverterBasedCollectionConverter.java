@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.typeconversion;
 
-import org.neo4j.ogm.exception.core.MappingException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+
+import org.neo4j.ogm.exception.core.MappingException;
 
 /**
  * @author Frantisek Hartman
@@ -74,7 +74,7 @@ public class ConverterBasedCollectionConverter<T, F> implements AttributeConvert
             }
         } catch (Exception e) {
             throw new MappingException("Could not map array of values " + Arrays.toString(values) +
-                    " to collection of type " + collectionClass,e);
+                " to collection of type " + collectionClass, e);
         }
         return result;
     }

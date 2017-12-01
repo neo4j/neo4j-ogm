@@ -25,7 +25,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.domain.social.*;
+import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.domain.social.Mortal;
+import org.neo4j.ogm.domain.social.Person;
+import org.neo4j.ogm.domain.social.SocialUser;
+import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.event.EventListenerAdapter;
@@ -64,7 +68,8 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         userA.getFriends().add(userB);
         session.save(userA);
 
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'}) CREATE (a)-[:FRIEND]->(b)");
+        assertSameGraph(getGraphDatabaseService(),
+            "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'}) CREATE (a)-[:FRIEND]->(b)");
     }
 
     /**
@@ -79,7 +84,8 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         individualA.setFriends(Collections.singletonList(individualB));
         session.save(individualA);
 
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:Individual {name:'A', age: 0, code:0, bankBalance:0.0}) CREATE (b:Individual {name:'B', age:0, code:0, bankBalance:0.0}) CREATE (a)-[:FRIENDS]->(b)");
+        assertSameGraph(getGraphDatabaseService(),
+            "CREATE (a:Individual {name:'A', age: 0, code:0, bankBalance:0.0}) CREATE (b:Individual {name:'B', age:0, code:0, bankBalance:0.0}) CREATE (a)-[:FRIENDS]->(b)");
     }
 
     /**
@@ -91,7 +97,8 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         Person personB = new Person("B");
         personA.getPeopleILike().add(personB);
         session.save(personA);
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (a)-[:LIKES]->(b)");
+        assertSameGraph(getGraphDatabaseService(),
+            "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (a)-[:LIKES]->(b)");
     }
 
     /**
@@ -103,7 +110,8 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         Mortal mortalB = new Mortal("B");
         mortalA.getKnownBy().add(mortalB);
         session.save(mortalA);
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:Mortal {name:'A'}) CREATE (b:Mortal {name:'B'}) CREATE (a)<-[:KNOWN_BY]-(b)");
+        assertSameGraph(getGraphDatabaseService(),
+            "CREATE (a:Mortal {name:'A'}) CREATE (b:Mortal {name:'B'}) CREATE (a)<-[:KNOWN_BY]-(b)");
     }
 
     /**
@@ -118,7 +126,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         session.save(personA);
 
         assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) " +
-                "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
+            "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
     }
 
     /**
@@ -134,7 +142,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         personB.getPeopleILike().add(personA);
         session.save(personA);
         assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) " +
-                "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
+            "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
     }
 
     /**
@@ -149,13 +157,14 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         personB.getPeopleILike().add(personA);
         session.save(personA);
         assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) " +
-                "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
+            "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
 
         personA.getPeopleILike().clear();
         personA.getPeopleILike().add(personC);
         personC.getPeopleILike().add(personA);
         session.save(personA);
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (c:Person {name:'C'}) " +
+        assertSameGraph(getGraphDatabaseService(),
+            "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (c:Person {name:'C'}) " +
                 " CREATE (a)-[:LIKES]->(c) CREATE (c)-[:LIKES]->(a) CREATE (b)-[:LIKES]->(a)");
     }
 
@@ -177,7 +186,9 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         session.save(personB);
         session.save(personC);
         session.save(personD);
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (c:Person {name:'C'}) CREATE (d:Person {name:'D'})" +
+        assertSameGraph(getGraphDatabaseService(),
+            "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (c:Person {name:'C'}) CREATE (d:Person {name:'D'})"
+                +
                 "CREATE (a)-[:LIKES]->(b) CREATE (a)-[:LIKES]->(c) CREATE (b)-[:LIKES]->(a) CREATE (d)-[:LIKES]->(a)");
     }
 
@@ -268,7 +279,8 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         userA.getFriends().add(userB);
         session.save(userA);
 
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'}) CREATE (a)-[:FRIEND]->(b)");
+        assertSameGraph(getGraphDatabaseService(),
+            "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'}) CREATE (a)-[:FRIEND]->(b)");
 
         userA.unfriend(userB);
         session.save(userA);

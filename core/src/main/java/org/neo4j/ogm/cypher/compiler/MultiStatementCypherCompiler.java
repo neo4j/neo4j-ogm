@@ -13,21 +13,32 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import java.util.*;
+import static java.util.stream.Collectors.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.neo4j.ogm.cypher.compiler.builders.node.DefaultNodeBuilder;
 import org.neo4j.ogm.cypher.compiler.builders.node.DefaultRelationshipBuilder;
-import org.neo4j.ogm.cypher.compiler.builders.statement.*;
+import org.neo4j.ogm.cypher.compiler.builders.statement.DeletedRelationshipEntityStatementBuilder;
+import org.neo4j.ogm.cypher.compiler.builders.statement.DeletedRelationshipStatementBuilder;
+import org.neo4j.ogm.cypher.compiler.builders.statement.ExistingNodeStatementBuilder;
+import org.neo4j.ogm.cypher.compiler.builders.statement.ExistingRelationshipStatementBuilder;
+import org.neo4j.ogm.cypher.compiler.builders.statement.NewNodeStatementBuilder;
+import org.neo4j.ogm.cypher.compiler.builders.statement.NewRelationshipStatementBuilder;
 import org.neo4j.ogm.exception.core.UnknownStatementTypeException;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
 import org.neo4j.ogm.response.model.RelationshipModel;
-
-import static java.util.stream.Collectors.groupingBy;
 
 /**
  * Cypher compiler that produces multiple statements that can be executed together or split over a transaction.
@@ -130,7 +141,7 @@ public class MultiStatementCypherCompiler implements Compiler {
                 continue; //TODO this is a carry forward from the old emitters. We want to prevent this rel builder getting created or remove it
             }
             Map<String, Set<Edge>> relsByProps = relsByTypeAndProps
-                    .computeIfAbsent(relationshipBuilder.type(), (key) -> new HashMap<>());
+                .computeIfAbsent(relationshipBuilder.type(), (key) -> new HashMap<>());
 
             RelationshipModel edge = (RelationshipModel) relationshipBuilder.edge();
 
@@ -147,7 +158,8 @@ public class MultiStatementCypherCompiler implements Compiler {
         for (Map<String, Set<Edge>> edgesByProperties : relsByTypeAndProps.values()) {
             //For each set of unique property keys
             for (Set<Edge> edges : edgesByProperties.values()) {
-                NewRelationshipStatementBuilder newRelationshipBuilder = new NewRelationshipStatementBuilder(edges, statementFactory);
+                NewRelationshipStatementBuilder newRelationshipBuilder = new NewRelationshipStatementBuilder(edges,
+                    statementFactory);
                 statements.add(newRelationshipBuilder.build());
             }
         }
@@ -162,7 +174,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 
         List<Statement> statements = new ArrayList<>(existingNodesByLabels.size());
         for (Set<Node> nodeModels : existingNodesByLabels.values()) {
-            ExistingNodeStatementBuilder existingNodeBuilder = new ExistingNodeStatementBuilder(nodeModels, statementFactory);
+            ExistingNodeStatementBuilder existingNodeBuilder = new ExistingNodeStatementBuilder(nodeModels,
+                statementFactory);
             statements.add(existingNodeBuilder.build());
         }
 
@@ -178,7 +191,8 @@ public class MultiStatementCypherCompiler implements Compiler {
             for (RelationshipBuilder relBuilder : existingRelationshipBuilders) {
                 relationships.add(relBuilder.edge());
             }
-            ExistingRelationshipStatementBuilder existingRelationshipBuilder = new ExistingRelationshipStatementBuilder(relationships, statementFactory);
+            ExistingRelationshipStatementBuilder existingRelationshipBuilder = new ExistingRelationshipStatementBuilder(
+                relationships, statementFactory);
             statements.add(existingRelationshipBuilder.build());
         }
         return statements;
@@ -192,12 +206,12 @@ public class MultiStatementCypherCompiler implements Compiler {
         List<Statement> statements = new ArrayList<>();
 
         for (Set<Edge> edges : deletedRelsByType.values()) {
-            DeletedRelationshipStatementBuilder deletedRelationshipBuilder = new DeletedRelationshipStatementBuilder(edges, statementFactory);
+            DeletedRelationshipStatementBuilder deletedRelationshipBuilder = new DeletedRelationshipStatementBuilder(
+                edges, statementFactory);
             statements.add(deletedRelationshipBuilder.build());
         }
         return statements;
     }
-
 
     @Override
     public List<Statement> deleteRelationshipEntityStatements() {
@@ -208,7 +222,8 @@ public class MultiStatementCypherCompiler implements Compiler {
         List<Statement> statements = new ArrayList<>();
 
         for (Set<Edge> edges : deletedRelsByType.values()) {
-            DeletedRelationshipEntityStatementBuilder deletedRelationshipBuilder = new DeletedRelationshipEntityStatementBuilder(edges, statementFactory);
+            DeletedRelationshipEntityStatementBuilder deletedRelationshipBuilder = new DeletedRelationshipEntityStatementBuilder(
+                edges, statementFactory);
             statements.add(deletedRelationshipBuilder.build());
         }
         return statements;
@@ -238,7 +253,7 @@ public class MultiStatementCypherCompiler implements Compiler {
             Edge edge = builder.edge();
             //TODO the null check is a carry forward from the old cypher builders. We want to prevent this rel builder getting created or remove it
             if ((edge.getStartNode() != null && edge.getStartNode() < 0)
-                    || (edge.getEndNode() != null && edge.getEndNode() < 0)) {
+                || (edge.getEndNode() != null && edge.getEndNode() < 0)) {
                 return true;
             }
         }
@@ -263,8 +278,8 @@ public class MultiStatementCypherCompiler implements Compiler {
                 }
             } else {
                 if (relationshipBuilder.type().equals(newRelBuilder.type())
-                        && relationshipBuilder.edge().getStartNode().equals(newRelBuilder.edge().getStartNode())
-                        && relationshipBuilder.edge().getEndNode().equals(newRelBuilder.edge().getEndNode())) {
+                    && relationshipBuilder.edge().getStartNode().equals(newRelBuilder.edge().getStartNode())
+                    && relationshipBuilder.edge().getEndNode().equals(newRelBuilder.edge().getEndNode())) {
                     relIterator.remove();
                     unmapped = true;
                     break;
@@ -282,8 +297,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 
     private Map<String, Set<Node>> groupNodesByLabel(List<NodeBuilder> nodeBuilders) {
         return nodeBuilders.stream()
-                .map(NodeBuilder::node)
-                .collect(groupingBy(Node::labelSignature, Collectors.mapping(Function.identity(), Collectors.toSet())));
+            .map(NodeBuilder::node)
+            .collect(groupingBy(Node::labelSignature, Collectors.mapping(Function.identity(), Collectors.toSet())));
     }
 
     private Map<String, Set<Edge>> groupRelationshipsByType(List<RelationshipBuilder> relationshipBuilders) {

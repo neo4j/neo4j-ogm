@@ -13,12 +13,12 @@
 
 package org.neo4j.ogm.cypher.compiler.builders.node;
 
+import java.util.Map;
+
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.response.model.PropertyModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
-
-import java.util.Map;
 
 /**
  * @author Luanne Misquitta
@@ -54,7 +54,6 @@ public class DefaultRelationshipBuilder implements RelationshipBuilder {
     public void setType(String type) {
         relationship.setType(type);
     }
-
 
     @Override
     public void addProperty(String key, Object value) {

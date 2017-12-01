@@ -12,9 +12,7 @@
  */
 package org.neo4j.ogm.persistence.types.convertible;
 
-
-import static com.google.common.collect.Lists.newArrayList;
-import static org.hamcrest.CoreMatchers.hasItem;
+import static com.google.common.collect.Lists.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
@@ -22,7 +20,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -71,18 +73,21 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
         Person person = new Person();
         person.setName("luanne");
-        person.setInProgressEducation(new Education[]{Education.MASTERS, Education.PHD});
+        person.setInProgressEducation(new Education[] { Education.MASTERS, Education.PHD });
         person.setCompletedEducation(completed);
         person.setGender(Gender.FEMALE);
         session.save(person);
 
-        Person luanne = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "luanne")).iterator().next();
+        Person luanne = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "luanne"))
+            .iterator().next();
         assertThat(luanne.getGender()).isEqualTo(Gender.FEMALE);
         assertThat(luanne.getCompletedEducation().contains(Education.HIGHSCHOOL)).isTrue();
         assertThat(luanne.getCompletedEducation().contains(Education.BACHELORS)).isTrue();
         assertThat(luanne.getInProgressEducation().length).isEqualTo(2);
-        assertThat(luanne.getInProgressEducation()[0].equals(Education.MASTERS) || luanne.getInProgressEducation()[1].equals(Education.MASTERS)).isTrue();
-        assertThat(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1].equals(Education.PHD)).isTrue();
+        assertThat(luanne.getInProgressEducation()[0].equals(Education.MASTERS) || luanne.getInProgressEducation()[1]
+            .equals(Education.MASTERS)).isTrue();
+        assertThat(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1]
+            .equals(Education.PHD)).isTrue();
     }
 
     @Test
@@ -93,7 +98,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
         Person person = new Person();
         person.setName("luanne");
-        person.setInProgressEducation(new Education[]{Education.MASTERS, Education.PHD});
+        person.setInProgressEducation(new Education[] { Education.MASTERS, Education.PHD });
         person.setCompletedEducation(completed);
         person.setGender(Gender.FEMALE);
         session.save(person);
@@ -105,8 +110,10 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         assertThat(luanne.getCompletedEducation().contains(Education.HIGHSCHOOL)).isTrue();
         assertThat(luanne.getCompletedEducation().contains(Education.BACHELORS)).isTrue();
         assertThat(luanne.getInProgressEducation().length).isEqualTo(2);
-        assertThat(luanne.getInProgressEducation()[0].equals(Education.MASTERS) || luanne.getInProgressEducation()[1].equals(Education.MASTERS)).isTrue();
-        assertThat(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1].equals(Education.PHD)).isTrue();
+        assertThat(luanne.getInProgressEducation()[0].equals(Education.MASTERS) || luanne.getInProgressEducation()[1]
+            .equals(Education.MASTERS)).isTrue();
+        assertThat(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1]
+            .equals(Education.PHD)).isTrue();
     }
 
     /**
@@ -129,7 +136,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         date40000.setTimeInMillis(40000);
         Calendar date100000 = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         date100000.setTimeInMillis(100000);
-        Date[] escalations = new Date[]{date40000.getTime(), date100000.getTime()};
+        Date[] escalations = new Date[] { date40000.getTime(), date100000.getTime() };
 
         Calendar actioned = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         actioned.setTimeInMillis(20000);
@@ -142,7 +149,8 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         memo.setClosed(new Date());
         session.save(memo);
 
-        Memo loadedMemo = session.loadAll(Memo.class, new Filter("memo", ComparisonOperator.EQUALS, "theMemo")).iterator().next();
+        Memo loadedMemo = session.loadAll(Memo.class, new Filter("memo", ComparisonOperator.EQUALS, "theMemo"))
+            .iterator().next();
 
         Calendar loadedCal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         loadedCal.setTime(loadedMemo.getActioned());
@@ -183,7 +191,8 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         session.save(java8DatesMemo);
         session.clear();
 
-        Result result = session.query("MATCH (m:Java8DatesMemo) return m.recorded, m.closed, m.approved", Collections.emptyMap());
+        Result result = session
+            .query("MATCH (m:Java8DatesMemo) return m.recorded, m.closed, m.approved", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
         assertThat(record.get("m.recorded")).isEqualTo("2007-12-03T09:15:30.001Z");
         assertThat(record.get("m.closed")).isEqualTo(1196673330001L);
@@ -211,7 +220,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.dateList", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
         String[] dateArray = (String[]) record.get("m.dateList");
-        assertThat(dateArray).isEqualTo(new String[] {"2017-07-23", "2017-07-24"});
+        assertThat(dateArray).isEqualTo(new String[] { "2017-07-23", "2017-07-24" });
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
         assertThat(loaded.getDateList()).isEqualTo(dateList);
@@ -252,7 +261,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.dateTimeList", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
         String[] dateArray = (String[]) record.get("m.dateTimeList");
-        assertThat(dateArray).isEqualTo(new String[] {"2017-07-23T01:02:03", "2017-07-24T01:02:03"});
+        assertThat(dateArray).isEqualTo(new String[] { "2017-07-23T01:02:03", "2017-07-24T01:02:03" });
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
         assertThat(loaded.getDateTimeList()).isEqualTo(dateTimeList);
@@ -294,22 +303,22 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.offsetDateTimeList", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
         String[] dateArray = (String[]) record.get("m.offsetDateTimeList");
-        assertThat(dateArray).isEqualTo(new String[] {"2017-07-23T01:02:03+01:00", "2017-07-24T01:02:03+01:00"});
+        assertThat(dateArray).isEqualTo(new String[] { "2017-07-23T01:02:03+01:00", "2017-07-24T01:02:03+01:00" });
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
         assertThat(loaded.getOffsetDateTimeList()).isEqualTo(offsetDateTimeList);
     }
 
     /**
-		 * @see DATAGRAPH-550
-		 */
+     * @see DATAGRAPH-550
+     */
     @Test
     public void shouldSaveAndRetrieveNumbers() {
 
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
         account.setCode((short) 1000);
 
-        BigDecimal[] deposits = new BigDecimal[]{new BigDecimal("12345.67"), new BigDecimal("34567.89")};
+        BigDecimal[] deposits = new BigDecimal[] { new BigDecimal("12345.67"), new BigDecimal("34567.89") };
 
         List<BigInteger> loans = new ArrayList<>();
         loans.add(BigInteger.valueOf(123456));
@@ -361,8 +370,10 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
     public void assertSameArray(Object[] as, Object[] bs) {
 
-        if (as == null || bs == null) fail("null arrays not allowed");
-        if (as.length != bs.length) fail("arrays are not same length");
+        if (as == null || bs == null)
+            fail("null arrays not allowed");
+        if (as.length != bs.length)
+            fail("arrays are not same length");
 
         for (Object a : as) {
             boolean found = false;
@@ -372,7 +383,8 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
                     break;
                 }
             }
-            if (!found) fail("array contents are not the same: " + as + ", " + bs);
+            if (!found)
+                fail("array contents are not the same: " + as + ", " + bs);
         }
     }
 }

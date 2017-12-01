@@ -28,7 +28,6 @@ import org.neo4j.ogm.response.model.DefaultRowModel;
  */
 public abstract class RowModelAdapter implements ResultAdapter<Map<String, Object>, RowModel> {
 
-
     private List<String> columns = new ArrayList<>();
 
     /**
@@ -67,7 +66,7 @@ public abstract class RowModelAdapter implements ResultAdapter<Map<String, Objec
             values.add(value);
         }
 
-        return new DefaultRowModel(values.toArray(new Object[]{}), variables.toArray(new String[]{}));
+        return new DefaultRowModel(values.toArray(new Object[] {}), variables.toArray(new String[] {}));
     }
 
     public void setColumns(List<String> columns) {

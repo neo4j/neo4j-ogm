@@ -1,11 +1,20 @@
 package org.neo4j.ogm.persistence.model;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.*;
-import org.neo4j.ogm.annotation.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.persistence.examples.stage.edges.LastDrama;
 import org.neo4j.ogm.persistence.examples.stage.edges.PlayedInDrama;
 import org.neo4j.ogm.persistence.examples.stage.nodes.Drama;
@@ -13,8 +22,6 @@ import org.neo4j.ogm.persistence.examples.stage.nodes.StageActor;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Issue #54, ##66, #186 & #298 (Zendesk ticket XXX)
@@ -30,7 +37,8 @@ public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTest
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.model", "org.neo4j.ogm.persistence.examples.stage");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.model",
+            "org.neo4j.ogm.persistence.examples.stage");
     }
 
     @Before
@@ -106,7 +114,8 @@ public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTest
         anotherRelationshipImplementation.b = someOtherNode;
         session.save(anotherRelationshipImplementation);
 
-        AnotherRelationshipImplementation<String> retrieved = session.load(AnotherRelationshipImplementation.class, anotherRelationshipImplementation.id);
+        AnotherRelationshipImplementation<String> retrieved = session
+            .load(AnotherRelationshipImplementation.class, anotherRelationshipImplementation.id);
         assertThat(someNode.id).isEqualTo(retrieved.a.id);
     }
 
@@ -114,7 +123,6 @@ public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTest
     public class AnotherRelationshipImplementation<T> extends L<T> {
 
     }
-
 
     @RelationshipEntity(type = "relDynamicProperty")
     public class RelationshipImplementation<T> extends L<T> {

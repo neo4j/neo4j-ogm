@@ -12,10 +12,10 @@
  */
 package org.neo4j.ogm.domain.companies.annotated;
 
+import java.util.Set;
+
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Relationship;
-
-import java.util.Set;
 
 /**
  * @author Luanne Misquitta

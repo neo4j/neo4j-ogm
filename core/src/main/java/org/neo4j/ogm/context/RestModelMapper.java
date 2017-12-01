@@ -14,7 +14,14 @@
 package org.neo4j.ogm.context;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
@@ -60,8 +67,10 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
                     List entityList = (List) value;
                     if (isMappable(entityList)) {
                         for (int i = 0; i < entityList.size(); i++) {
-                            Object mapped = mapEntity(entry.getKey(), entityList.get(i), relationshipModels, relationshipEntityColumns, nodeIds, edgeIds);
-                            if (mapped != null) { //if null, it'll be a relationship, which we're mapping after all nodes
+                            Object mapped = mapEntity(entry.getKey(), entityList.get(i), relationshipModels,
+                                relationshipEntityColumns, nodeIds, edgeIds);
+                            if (mapped
+                                != null) { //if null, it'll be a relationship, which we're mapping after all nodes
                                 entityList.set(i, mapped);
                             }
                         }
@@ -70,7 +79,8 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
                     }
                 } else {
                     if (isMappable(Collections.singletonList(value))) {
-                        Object mapped = mapEntity(entry.getKey(), value, relationshipModels, relationshipEntityColumns, nodeIds, edgeIds);
+                        Object mapped = mapEntity(entry.getKey(), value, relationshipModels, relationshipEntityColumns,
+                            nodeIds, edgeIds);
                         if (mapped != null) {
                             entry.setValue(mapped);
                         }
@@ -145,14 +155,14 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
     }
 
     private Object mapEntity(String column, Object entity,
-                             List<RelationshipModel> relationshipModels,
-                             Map<Long, String> relationshipEntityColumns,
-                             Set<Long> nodeIds, Set<Long> edgeIds) {
+        List<RelationshipModel> relationshipModels,
+        Map<Long, String> relationshipEntityColumns,
+        Set<Long> nodeIds, Set<Long> edgeIds) {
 
         if (entity instanceof NodeModel) {
             NodeModel nodeModel = (NodeModel) entity;
             DefaultGraphModel graphModel = new DefaultGraphModel();
-            graphModel.setNodes(new NodeModel[]{nodeModel});
+            graphModel.setNodes(new NodeModel[] { nodeModel });
             if (nodeModel.getLabels() != null && metaData.resolve(nodeModel.getLabels()) != null) {
                 Class<?> underlyingClass = metaData.resolve(nodeModel.getLabels()).getUnderlyingClass();
                 List mapped = graphEntityMapper.map(underlyingClass, graphModel, nodeIds, edgeIds);
@@ -161,9 +171,9 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
         } else if (entity instanceof RelationshipModel) {
             RelationshipModel relationshipModel = (RelationshipModel) entity;
             relationshipModels.add(relationshipModel);
-			ClassInfo classInfo = metaData.classInfo(relationshipModel.getType());
+            ClassInfo classInfo = metaData.classInfo(relationshipModel.getType());
 
-			if (classInfo != null && classInfo.isRelationshipEntity()) {
+            if (classInfo != null && classInfo.isRelationshipEntity()) {
                 relationshipEntityColumns.put(relationshipModel.getId(), column);
             }
         }

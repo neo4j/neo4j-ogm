@@ -82,8 +82,8 @@ public class Artist {
     @Override
     public String toString() {
         return "Artist{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+            "id=" + id +
+            ", name='" + name + '\'' +
+            '}';
     }
 }

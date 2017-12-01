@@ -13,11 +13,15 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -114,31 +118,38 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new Pagination(0, 5), 0);
         assertThat(albums).isEmpty();
 
-        artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5));
+        artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"),
+            new Pagination(0, 5));
         assertThat(artists).hasSize(1);
         assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
 
-        albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5));
+        albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"),
+            new Pagination(0, 5));
         assertThat(albums).isEmpty();
 
-        artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5), 0);
+        artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"),
+            new Pagination(0, 5), 0);
         assertThat(artists).hasSize(1);
         assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
 
         Artist bonJovi = new Artist("Bon Jovi");
         session.save(bonJovi);
 
-        artists = session.loadAll(Artist.class, Arrays.asList(beatlesId, pleaseId, bonJovi.getId()), new SortOrder().add("name"), new Pagination(0, 5), 0);
+        artists = session
+            .loadAll(Artist.class, Arrays.asList(beatlesId, pleaseId, bonJovi.getId()), new SortOrder().add("name"),
+                new Pagination(0, 5), 0);
         assertThat(artists).hasSize(2);
 
-        artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5), 0);
+        artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"),
+            new Pagination(0, 5), 0);
         assertThat(artists).hasSize(1);
-        assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles"); //make sure Bon Jovi isn't returned as well
+        assertThat(artists.iterator().next().getName())
+            .isEqualTo("The Beatles"); //make sure Bon Jovi isn't returned as well
 
-        albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5), 0);
+        albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"),
+            new Pagination(0, 5), 0);
         assertThat(albums).isEmpty();
     }
-
 
     /**
      * @see DATAGRAPH-707
@@ -296,7 +307,8 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(context.isDirty(recording)).isFalse();    // object saved, no longer dirty
 
         //System.out.println("reloading recording as recording1995");
-        Recording recording1995 = session.load(Recording.class, recording.getId(), 2); // load the same identity, but to a copy ref
+        Recording recording1995 = session
+            .load(Recording.class, recording.getId(), 2); // load the same identity, but to a copy ref
         assertThat(context.isDirty(recording1995)).isFalse();  // nothing has changed, so it should not be dirty
 
         assertThat(recording == recording1995).isTrue();       // two refs pointing to the same object

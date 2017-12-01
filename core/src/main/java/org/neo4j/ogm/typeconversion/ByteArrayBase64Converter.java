@@ -25,13 +25,15 @@ public class ByteArrayBase64Converter implements AttributeConverter<byte[], Stri
 
     @Override
     public String toGraphProperty(byte[] value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return Base64.encodeBase64String(value);
     }
 
     @Override
     public byte[] toEntityAttribute(String value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return Base64.decodeBase64(value);
     }
 }

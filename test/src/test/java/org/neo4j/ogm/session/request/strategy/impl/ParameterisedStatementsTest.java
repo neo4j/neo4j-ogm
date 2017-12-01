@@ -13,20 +13,19 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.neo4j.ogm.config.ObjectMapperFactory;
-import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.Statements;
-import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Vince Bickers
@@ -44,6 +43,7 @@ public class ParameterisedStatementsTest {
 
         String cypher = mapper.writeValueAsString(new Statements(statements));
 
-        assertThat(cypher).isEqualTo("{\"statements\":[{\"statement\":\"MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}");
+        assertThat(cypher).isEqualTo(
+            "{\"statements\":[{\"statement\":\"MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}");
     }
 }

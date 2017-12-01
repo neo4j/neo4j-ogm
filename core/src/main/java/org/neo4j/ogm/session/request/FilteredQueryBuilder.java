@@ -35,7 +35,7 @@ public class FilteredQueryBuilder {
     /**
      * Create a {@link FilteredQuery} which matches nodes filtered by one or more property expressions
      *
-     * @param nodeLabel the label of the node to match
+     * @param nodeLabel  the label of the node to match
      * @param filterList a list of {@link Filter} objects defining the property filter expressions
      * @return a {@link FilteredQuery} whose statement() method contains the appropriate Cypher
      */
@@ -47,7 +47,7 @@ public class FilteredQueryBuilder {
      * Create a {@link FilteredQuery} which matches edges filtered by one or more property expressions
      *
      * @param relationshipType the type of the edge to match
-     * @param filterList a list of {@link Filter} objects defining the property filter expressions
+     * @param filterList       a list of {@link Filter} objects defining the property filter expressions
      * @return a {@link FilteredQuery} whose statement() method contains the appropriate Cypher
      */
     public static FilteredQuery buildRelationshipQuery(String relationshipType, Iterable<Filter> filterList) {
@@ -56,8 +56,8 @@ public class FilteredQueryBuilder {
         return new FilteredQuery(sb, properties);
     }
 
-
-    private static StringBuilder constructRelationshipQuery(String type, Iterable<Filter> filters, Map<String, Object> properties) {
+    private static StringBuilder constructRelationshipQuery(String type, Iterable<Filter> filters,
+        Map<String, Object> properties) {
         List<Filter> startNodeFilters = new ArrayList<>(); //All filters that apply to the start node
         List<Filter> endNodeFilters = new ArrayList<>(); //All filters that apply to the end node
         List<Filter> relationshipFilters = new ArrayList<>(); //All filters that apply to the relationship
@@ -69,12 +69,14 @@ public class FilteredQueryBuilder {
         for (Filter filter : filters) {
             if (filter.isNested()) {
                 if (filter.getBooleanOperator().equals(BooleanOperator.OR)) {
-                    throw new UnsupportedOperationException("OR is not supported for nested properties on a relationship entity");
+                    throw new UnsupportedOperationException(
+                        "OR is not supported for nested properties on a relationship entity");
                 }
                 if (filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
                     if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
                         if (noneOperatorEncounteredInStartFilters) {
-                            throw new MissingOperatorException("BooleanOperator missing for filter with property name " + filter.getPropertyName());
+                            throw new MissingOperatorException(
+                                "BooleanOperator missing for filter with property name " + filter.getPropertyName());
                         }
                         noneOperatorEncounteredInStartFilters = true;
                     }
@@ -86,7 +88,8 @@ public class FilteredQueryBuilder {
                 } else {
                     if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
                         if (noneOperatorEncounteredInEndFilters) {
-                            throw new MissingOperatorException("BooleanOperator missing for filter with property name " + filter.getPropertyName());
+                            throw new MissingOperatorException(
+                                "BooleanOperator missing for filter with property name " + filter.getPropertyName());
                         }
                         noneOperatorEncounteredInEndFilters = true;
                     }
@@ -98,10 +101,12 @@ public class FilteredQueryBuilder {
                 }
             } else {
                 if (relationshipFilters.size() == 0) {
-                    filter.setBooleanOperator(BooleanOperator.NONE); //TODO think about the importance of the first filter and stop using this as a condition to test against
+                    filter.setBooleanOperator(
+                        BooleanOperator.NONE); //TODO think about the importance of the first filter and stop using this as a condition to test against
                 } else {
                     if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
-                        throw new MissingOperatorException("BooleanOperator missing for filter with property name " + filter.getPropertyName());
+                        throw new MissingOperatorException(
+                            "BooleanOperator missing for filter with property name " + filter.getPropertyName());
                     }
                 }
                 relationshipFilters.add(filter);
@@ -115,7 +120,8 @@ public class FilteredQueryBuilder {
         return query;
     }
 
-    private static void createRelationSubquery(String type, Map<String, Object> properties, List<Filter> relationshipFilters, StringBuilder query) {
+    private static void createRelationSubquery(String type, Map<String, Object> properties,
+        List<Filter> relationshipFilters, StringBuilder query) {
         query.append(String.format("MATCH (n)-[r0:`%s`]->(m) ", type));
         if (relationshipFilters.size() > 0) {
             query.append("WHERE ");
@@ -123,14 +129,16 @@ public class FilteredQueryBuilder {
         }
     }
 
-    private static void createNodeMatchSubquery(Map<String, Object> properties, List<Filter> nodeFilters, String nodeLabel, StringBuilder query, String nodeIdentifier) {
+    private static void createNodeMatchSubquery(Map<String, Object> properties, List<Filter> nodeFilters,
+        String nodeLabel, StringBuilder query, String nodeIdentifier) {
         if (nodeLabel != null) {
             query.append(String.format("MATCH (%s:`%s`) WHERE ", nodeIdentifier, nodeLabel));
             appendFilters(nodeFilters, nodeIdentifier, query, properties);
         }
     }
 
-    private static void appendFilters(List<Filter> filters, String nodeIdentifier, StringBuilder query, Map<String, Object> properties) {
+    private static void appendFilters(List<Filter> filters, String nodeIdentifier, StringBuilder query,
+        Map<String, Object> properties) {
         for (Filter filter : filters) {
             query.append(filter.toCypher(nodeIdentifier, false));
             properties.putAll(filter.getFunction().parameters());

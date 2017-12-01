@@ -14,9 +14,6 @@ package org.neo4j.ogm.session.delegates;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.GraphRowListModelMapper;
 import org.neo4j.ogm.cypher.Filter;
@@ -32,6 +29,8 @@ import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -46,7 +45,8 @@ public class LoadByTypeDelegate {
         this.session = session;
     }
 
-    public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination, int depth) {
+    public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination,
+        int depth) {
 
         //session.ensureTransaction();
         String entityLabel = session.entityType(type.getName());
@@ -68,12 +68,14 @@ public class LoadByTypeDelegate {
         }
 
         query.setSortOrder(sortOrder)
-                .setPagination(pagination);
+            .setPagination(pagination);
 
         if (query.needsRowResult()) {
-            DefaultGraphRowListModelRequest graphRowListModelRequest = new DefaultGraphRowListModelRequest(query.getStatement(), query.getParameters());
+            DefaultGraphRowListModelRequest graphRowListModelRequest = new DefaultGraphRowListModelRequest(
+                query.getStatement(), query.getParameters());
             try (Response<GraphRowListModel> response = session.requestHandler().execute(graphRowListModelRequest)) {
-                return (Collection<T>) new GraphRowListModelMapper(session.metaData(), session.context()).map(type, response);
+                return (Collection<T>) new GraphRowListModelMapper(session.metaData(), session.context())
+                    .map(type, response);
             }
         } else {
             GraphModelRequest request = new DefaultGraphModelRequest(query.getStatement(), query.getParameters());
@@ -83,7 +85,6 @@ public class LoadByTypeDelegate {
         }
 
     }
-
 
     public <T> Collection<T> loadAll(Class<T> type) {
         return loadAll(type, new Filters(), new SortOrder(), null, 1);
@@ -121,7 +122,8 @@ public class LoadByTypeDelegate {
         return loadAll(type, new Filters().add(filter), sortOrder, pagination, 1);
     }
 
-    public <T> Collection<T> loadAll(Class<T> type, Filter filter, SortOrder sortOrder, Pagination pagination, int depth) {
+    public <T> Collection<T> loadAll(Class<T> type, Filter filter, SortOrder sortOrder, Pagination pagination,
+        int depth) {
         return loadAll(type, new Filters().add(filter), sortOrder, pagination, depth);
     }
 

@@ -30,12 +30,14 @@ public class NodeDeleteStatements implements DeleteStatements {
     @Override
 
     public CypherQuery delete(Long id) {
-        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", Utils.map("id", id));
+        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n",
+            Utils.map("id", id));
     }
 
     @Override
     public CypherQuery delete(Collection<Long> ids) {
-        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", Utils.map("ids", ids));
+        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n",
+            Utils.map("ids", ids));
     }
 
     @Override
@@ -45,7 +47,8 @@ public class NodeDeleteStatements implements DeleteStatements {
 
     @Override
     public CypherQuery delete(String label) {
-        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", label), Utils.map());
+        return new DefaultRowModelRequest(
+            String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", label), Utils.map());
     }
 
     @Override

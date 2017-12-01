@@ -26,7 +26,6 @@ public class InternalIdStrategy implements IdStrategy {
      * The id is assigned after creation of the node in the database.
      */
 
-
     @Override
     public Object generateId(Object entity) {
         return null;

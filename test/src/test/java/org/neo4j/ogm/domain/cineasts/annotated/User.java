@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.domain.cineasts.annotated;
 
-
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
@@ -156,8 +155,10 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         User user = (User) o;
         return !(name == null || user.getName() == null) && name.equals(user.name);
@@ -180,7 +181,7 @@ public class User {
     /**
      * Add given users as friends, also adds the opposite direction
      */
-    public void addFriends(User ... newFriends) {
+    public void addFriends(User... newFriends) {
         if (friends == null) {
             friends = new HashSet<>();
         }

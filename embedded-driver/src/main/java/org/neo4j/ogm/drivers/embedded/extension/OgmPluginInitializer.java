@@ -13,6 +13,9 @@
 
 package org.neo4j.ogm.drivers.embedded.extension;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.commons.configuration.Configuration;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
@@ -20,21 +23,15 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.server.plugins.Injectable;
 import org.neo4j.server.plugins.PluginLifecycle;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 /**
- *  PluginLifecycle helper for use with Neo4j unmanaged extensions
- *
- *  To create an unmanaged extension
- *  - subclass this initializer, provide packages as you would provide to SessionFactory <br>
- *  - create file
- *  {@code META-INF/services/org.neo4j.server.plugins.PluginLifecycle}
- *  in your plugin jar and list the name of the class there <br>
- *  - use {@code @Context} to inject SessionFactory to extension resource <br>
- *
+ * PluginLifecycle helper for use with Neo4j unmanaged extensions
+ * To create an unmanaged extension
+ * - subclass this initializer, provide packages as you would provide to SessionFactory <br>
+ * - create file
+ * {@code META-INF/services/org.neo4j.server.plugins.PluginLifecycle}
+ * in your plugin jar and list the name of the class there <br>
+ * - use {@code @Context} to inject SessionFactory to extension resource <br>
  * NOTE: you also need to list your extension resource in {@code dbms.unmanaged_extension_classes} property
- *
  *
  * @author Frantisek Hartman
  * @since 3.0

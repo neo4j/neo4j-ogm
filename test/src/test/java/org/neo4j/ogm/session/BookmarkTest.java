@@ -13,6 +13,14 @@
 
 package org.neo4j.ogm.session;
 
+import static com.google.common.collect.Sets.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyIterable;
+import static org.mockito.Mockito.*;
+
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,17 +32,6 @@ import org.neo4j.driver.v1.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.transaction.Transaction;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyIterable;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Frantisek Hartman
@@ -62,7 +59,6 @@ public class BookmarkTest {
     @Test
     public void shouldPassBookmarksToDriver() throws Exception {
         Set<String> bookmarks = newHashSet("bookmark1", "bookmark2");
-
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_ONLY, bookmarks);
 

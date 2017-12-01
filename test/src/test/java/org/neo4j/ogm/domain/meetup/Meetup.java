@@ -26,52 +26,52 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity(label = "Meetup")
 public class Meetup {
 
-	@GraphId
-	private Long id;
+    @GraphId
+    private Long id;
 
-	private String name;
+    private String name;
 
-	private Person organiser;
+    private Person organiser;
 
-	@Relationship(type = "ATTENDEE", direction = Relationship.OUTGOING)
-	private Set<Person> attendees = new HashSet<>();
+    @Relationship(type = "ATTENDEE", direction = Relationship.OUTGOING)
+    private Set<Person> attendees = new HashSet<>();
 
-	public Meetup() {
-	}
+    public Meetup() {
+    }
 
-	public Meetup(String name) {
-		this.name = name;
-	}
+    public Meetup(String name) {
+        this.name = name;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Person getOrganiser() {
-		return organiser;
-	}
+    public Person getOrganiser() {
+        return organiser;
+    }
 
-	public void setOrganiser(Person organiser) {
-		this.organiser = organiser;
-	}
+    public void setOrganiser(Person organiser) {
+        this.organiser = organiser;
+    }
 
-	public Set<Person> getAttendees() {
-		return attendees;
-	}
+    public Set<Person> getAttendees() {
+        return attendees;
+    }
 
-	public void setAttendees(Set<Person> attendees) {
-		this.attendees = attendees;
-	}
+    public void setAttendees(Set<Person> attendees) {
+        this.attendees = attendees;
+    }
 }

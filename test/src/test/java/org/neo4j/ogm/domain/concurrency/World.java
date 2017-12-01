@@ -33,7 +33,6 @@ public class World {
         this.updated = updated;
     }
 
-
     public World(String name, int moons) {
         this.name = name;
         this.moons = moons;
@@ -88,13 +87,17 @@ public class World {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         World world = (World) o;
 
-        if (moons != world.moons) return false;
-        if (id != null ? !id.equals(world.id) : world.id != null) return false;
+        if (moons != world.moons)
+            return false;
+        if (id != null ? !id.equals(world.id) : world.id != null)
+            return false;
         return !(name != null ? !name.equals(world.name) : world.name != null);
     }
 

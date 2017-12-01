@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.utils.ClassUtils;
+import static org.assertj.core.api.Assertions.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.neo4j.ogm.utils.ClassUtils;
 
 /**
  * @author vince

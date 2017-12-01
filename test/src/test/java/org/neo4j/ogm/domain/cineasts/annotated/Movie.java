@@ -120,15 +120,17 @@ public class Movie {
         return "Movie:" + title;
     }
 
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         Movie movie = (Movie) o;
 
-        if (title == null || movie.getTitle() == null) return false;
+        if (title == null || movie.getTitle() == null)
+            return false;
 
         return title.equals(movie.title);
     }

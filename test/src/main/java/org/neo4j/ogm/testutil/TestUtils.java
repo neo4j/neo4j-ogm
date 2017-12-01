@@ -44,7 +44,8 @@ public final class TestUtils {
     public static StringBuilder readCQLFile(String cqlFileName) {
 
         StringBuilder cypher = new StringBuilder();
-        try (Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFileName))) {
+        try (Scanner scanner = new Scanner(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFileName))) {
             scanner.useDelimiter(System.getProperty("line.separator"));
             while (scanner.hasNext()) {
                 cypher.append(scanner.next()).append(' ');

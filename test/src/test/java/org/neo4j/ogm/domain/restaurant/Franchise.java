@@ -23,7 +23,6 @@ public class Franchise {
 
     private Long id;
 
-
     Set<Branch> branches;
 
     public Long getId() {

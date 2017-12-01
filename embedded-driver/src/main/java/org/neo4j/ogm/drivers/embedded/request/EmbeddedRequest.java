@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.QueryExecutionException;
 import org.neo4j.graphdb.Result;
@@ -35,12 +33,21 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.request.DefaultRequest;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.request.RestModelRequest;
+import org.neo4j.ogm.request.RowModelRequest;
+import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author vince

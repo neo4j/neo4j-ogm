@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.metadata;
 
-
-
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
@@ -33,7 +31,9 @@ public class TransientObjectsTest {
 
     @Before
     public void setUp() {
-        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.annotated");
+        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata",
+            "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain",
+            "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
     @Test
@@ -56,7 +56,6 @@ public class TransientObjectsTest {
         FieldInfo fieldInfo = classInfo.propertyField("chickenCounting");
         assertThat(fieldInfo).isNull();
     }
-
 
     @Test
     public void testMethodWithTransientReturnTypeIsExcludedFromRelationshipFields() {

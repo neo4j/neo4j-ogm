@@ -15,12 +15,16 @@ package org.neo4j.ogm.context;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.utils.EntityUtils;
 
 /**
  * Maintains entity footprints for dirty checking.
@@ -52,7 +56,7 @@ class IdentityMap {
      * constructs a 64-bit hash of this object's node properties
      * and maps the object to that hash. The object must not be null
      *
-     * @param object the object whose persistable properties we want to hash
+     * @param object   the object whose persistable properties we want to hash
      * @param entityId
      */
     void remember(Object object, Long entityId) {
@@ -71,7 +75,7 @@ class IdentityMap {
      * is regarded as memorised if its hash value in the memo hash
      * is identical to a recalculation of its hash value.
      *
-     * @param object the object whose persistable properties we want to check
+     * @param object   the object whose persistable properties we want to check
      * @param entityId
      * @return true if the object hasn't changed since it was remembered, false otherwise
      */
@@ -85,7 +89,7 @@ class IdentityMap {
             }
 
             if ((!isRelEntity && !nodeHash.containsKey(entityId)) ||
-                    (isRelEntity && !relEntityHash.containsKey(entityId))) {
+                (isRelEntity && !relEntityHash.containsKey(entityId))) {
                 return false;
             }
 
@@ -113,7 +117,6 @@ class IdentityMap {
         nodeHash.clear();
         relEntityHash.clear();
     }
-
 
     private long hash(Object object, ClassInfo classInfo) {
         long hash = SEED;

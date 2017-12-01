@@ -13,14 +13,11 @@
 
 package org.neo4j.ogm.drivers.bolt.request;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.ogm.config.ObjectMapperFactory;
@@ -35,12 +32,21 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.request.DefaultRequest;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.request.RestModelRequest;
+import org.neo4j.ogm.request.RowModelRequest;
+import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author vince
@@ -56,7 +62,6 @@ public class BoltRequest implements Request {
 
     private TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
     };
-
 
     public BoltRequest(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
@@ -127,7 +132,6 @@ public class BoltRequest implements Request {
         }
         return new GraphRowModelResponse(executeRequest(request), transactionManager);
     }
-
 
     @Override
     public Response<RestModel> execute(RestModelRequest request) {

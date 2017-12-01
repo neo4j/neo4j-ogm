@@ -22,7 +22,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -71,7 +75,7 @@ public class ABBTest extends MultiDriverTestClass {
         r2.a = a;
         r2.b = b2;
 
-        a.r = new R[]{r1, r2};
+        a.r = new R[] { r1, r2 };
         b1.r = r1;
         b2.r = r2;
     }
@@ -106,7 +110,7 @@ public class ABBTest extends MultiDriverTestClass {
 
         // local model must be self-consistent
         b1.r = null;
-        a.r = new R[]{r2};
+        a.r = new R[] { r2 };
 
         session.save(b1);
 
@@ -115,7 +119,7 @@ public class ABBTest extends MultiDriverTestClass {
 
         // expect the b1 relationship to have gone.
         assertThat(a.r.length).isEqualTo(1);
-        assertThat(new B[]{a.r[0].b}).isEqualTo(new B[]{b2});
+        assertThat(new B[] { a.r[0].b }).isEqualTo(new B[] { b2 });
     }
 
     @Test
@@ -129,7 +133,7 @@ public class ABBTest extends MultiDriverTestClass {
         r3.a = a;
         r3.b = b3;
         b3.r = r3;
-        a.r = new R[]{r1, r2, r3};
+        a.r = new R[] { r1, r2, r3 };
 
         // fully connected graph, should be able to save any object
         session.save(a);
@@ -138,8 +142,8 @@ public class ABBTest extends MultiDriverTestClass {
 
         b3 = session.load(B.class, b3.id);
 
-        assertThat(new A[]{b3.r.a}).isEqualTo(new A[]{a});
-        assertThat(new A[]{b3.r.a}).isEqualTo(new A[]{a});
+        assertThat(new A[] { b3.r.a }).isEqualTo(new A[] { a });
+        assertThat(new A[] { b3.r.a }).isEqualTo(new A[] { a });
     }
 
     @Test
@@ -153,16 +157,16 @@ public class ABBTest extends MultiDriverTestClass {
         r3.a = a;
         r3.b = b3;
         b3.r = r3;
-        a.r = new R[]{r1, r2, r3};
+        a.r = new R[] { r1, r2, r3 };
 
         // fully connected graph, should be able to save any object
         session.save(r3);
 
         b3 = session.load(B.class, b3.id);
 
-        assertThat(new A[]{b3.r.a}).isEqualTo(new A[]{a});
-        assertThat(a.r).isEqualTo(new R[]{r1, r2, r3});
-        assertThat(new B[]{a.r[0].b, a.r[1].b, a.r[2].b}).isEqualTo(new B[]{b1, b2, b3});
+        assertThat(new A[] { b3.r.a }).isEqualTo(new A[] { a });
+        assertThat(a.r).isEqualTo(new R[] { r1, r2, r3 });
+        assertThat(new B[] { a.r[0].b, a.r[1].b, a.r[2].b }).isEqualTo(new B[] { b1, b2, b3 });
     }
 
     /**
@@ -176,7 +180,7 @@ public class ABBTest extends MultiDriverTestClass {
         r3.a = a1;
         r3.b = b3;
         r3.number = 1;
-        a1.r = new R[]{r3};
+        a1.r = new R[] { r3 };
         b3.r = r3;
 
         session.save(a1);
@@ -199,7 +203,7 @@ public class ABBTest extends MultiDriverTestClass {
         r3.a = a1;
         r3.b = b3;
         r3.number = 1;
-        a1.r = new R[]{r3};
+        a1.r = new R[] { r3 };
         b3.r = r3;
 
         session.save(a1);
@@ -222,7 +226,7 @@ public class ABBTest extends MultiDriverTestClass {
         r3.a = a1;
         r3.b = b3;
         r3.number = 1;
-        a1.r = new R[]{r3};
+        a1.r = new R[] { r3 };
         b3.r = r3;
 
         session.save(a1);
@@ -276,9 +280,11 @@ public class ABBTest extends MultiDriverTestClass {
         @Override
         public boolean equals(Object o) {
 
-            if (this == o) return true;
+            if (this == o)
+                return true;
 
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             return (key.equals(((E) o).key));
         }
@@ -288,7 +294,6 @@ public class ABBTest extends MultiDriverTestClass {
             return key.hashCode();
         }
     }
-
 
     @RelationshipEntity(type = "EDGE")
     public static class R {

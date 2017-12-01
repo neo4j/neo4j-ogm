@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.relationships.direct.aabb;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -25,8 +27,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Vince Bickers
@@ -64,13 +64,13 @@ public class AABBTest extends MultiDriverTestClass {
         b2 = new B();
         b3 = new B();
 
-        a1.b = new B[]{b1, b2};
-        a2.b = new B[]{b1, b3};
-        a3.b = new B[]{b2, b3};
+        a1.b = new B[] { b1, b2 };
+        a2.b = new B[] { b1, b3 };
+        a3.b = new B[] { b2, b3 };
 
-        b1.a = new A[]{a1, a2};
-        b2.a = new A[]{a1, a3};
-        b3.a = new A[]{a2, a3};
+        b1.a = new A[] { a1, a2 };
+        b2.a = new A[] { a1, a3 };
+        b3.a = new A[] { a2, a3 };
     }
 
     @Test
@@ -114,8 +114,8 @@ public class AABBTest extends MultiDriverTestClass {
 
         // it is our responsibility to keep the domain entities synchronized
         b2.a = null;
-        a1.b = new B[]{b1};
-        a3.b = new B[]{b3};
+        a1.b = new B[] { b1 };
+        a3.b = new B[] { b3 };
 
         session.save(b2);
 
@@ -145,8 +145,8 @@ public class AABBTest extends MultiDriverTestClass {
         session.save(a1);
 
         B b3 = new B();
-        b3.a = new A[]{a1};
-        a1.b = new B[]{b1, b2, b3};
+        b3.a = new A[] { a1 };
+        a1.b = new B[] { b1, b2, b3 };
 
         // fully connected graph, should be able to save anu object
         session.save(b3);
@@ -169,7 +169,6 @@ public class AABBTest extends MultiDriverTestClass {
         @Relationship(type = "EDGE", direction = Relationship.INCOMING)
         A[] a;
     }
-
 
     /**
      * Can be used as the basic class at the root of any entity for these tests,
@@ -199,9 +198,11 @@ public class AABBTest extends MultiDriverTestClass {
         @Override
         public boolean equals(Object o) {
 
-            if (this == o) return true;
+            if (this == o)
+                return true;
 
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             return (key.equals(((E) o).key));
         }

@@ -1,6 +1,5 @@
 package org.neo4j.ogm.persistence.examples.stage.nodes;
 
-
 import java.util.HashSet;
 import java.util.Set;
 

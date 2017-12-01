@@ -18,10 +18,23 @@ import static org.neo4j.helpers.collection.Iterables.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.PropertyContainer;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.test.TestGraphDatabaseFactory;
 import org.parboiled.common.StringUtils;
 
@@ -43,7 +56,7 @@ public final class GraphTestUtils {
      * Checks that the graph in the specified {@link GraphDatabaseService} is the same as the graph that the given cypher
      * produces.
      *
-     * @param graphDatabase The {@link GraphDatabaseService} to check
+     * @param graphDatabase   The {@link GraphDatabaseService} to check
      * @param sameGraphCypher The Cypher create statement, which communicates the desired state of the database
      * @throws AssertionError if the cypher doesn't produce a graph that matches the state of the given database
      */
@@ -65,12 +78,14 @@ public final class GraphTestUtils {
         }
     }
 
-    private static void doAssertSubgraph(GraphDatabaseService database, GraphDatabaseService otherDatabase, String firstDatabaseName) {
+    private static void doAssertSubgraph(GraphDatabaseService database, GraphDatabaseService otherDatabase,
+        String firstDatabaseName) {
         Map<Long, Long[]> sameNodesMap = buildSameNodesMap(database, otherDatabase, firstDatabaseName);
         Set<Map<Long, Long>> nodeMappings = buildNodeMappingPermutations(sameNodesMap, otherDatabase);
 
         if (nodeMappings.size() == 1) {
-            assertRelationshipsMappingExistsForSingleNodeMapping(database, otherDatabase, nodeMappings.iterator().next(), firstDatabaseName);
+            assertRelationshipsMappingExistsForSingleNodeMapping(database, otherDatabase,
+                nodeMappings.iterator().next(), firstDatabaseName);
             return;
         }
 
@@ -83,7 +98,8 @@ public final class GraphTestUtils {
         Assert.fail("There is no corresponding relationship mapping for any of the possible node mappings");
     }
 
-    private static Set<Map<Long, Long>> buildNodeMappingPermutations(Map<Long, Long[]> sameNodesMap, GraphDatabaseService otherDatabase) {
+    private static Set<Map<Long, Long>> buildNodeMappingPermutations(Map<Long, Long[]> sameNodesMap,
+        GraphDatabaseService otherDatabase) {
         Set<Map<Long, Long>> result = new HashSet<>();
         result.add(new HashMap<>());
 
@@ -102,7 +118,8 @@ public final class GraphTestUtils {
             }
 
             if (newResult.isEmpty()) {
-                Assert.fail("Could not find a node corresponding to: " + print(otherDatabase.getNodeById(entry.getKey()))
+                Assert
+                    .fail("Could not find a node corresponding to: " + print(otherDatabase.getNodeById(entry.getKey()))
                         + ". There are most likely more nodes with the same characteristics (labels, properties) in your "
                         + "cypher CREATE statement but fewer in the database.");
             }
@@ -161,8 +178,9 @@ public final class GraphTestUtils {
         }
     }
 
-    private static Map<Long, Long[]> buildSameNodesMap(GraphDatabaseService database, GraphDatabaseService otherDatabase,
-                                                       String firstDatabaseName) {
+    private static Map<Long, Long[]> buildSameNodesMap(GraphDatabaseService database,
+        GraphDatabaseService otherDatabase,
+        String firstDatabaseName) {
         Map<Long, Long[]> sameNodesMap = new HashMap<>(); //map of nodeID and IDs of nodes that match
 
         for (Node node : allNodes(otherDatabase)) {
@@ -229,18 +247,19 @@ public final class GraphTestUtils {
     }
 
     private static void assertRelationshipsMappingExistsForSingleNodeMapping(GraphDatabaseService database,
-                                                                             GraphDatabaseService otherDatabase, Map<Long, Long> mapping, String firstDatabaseName) {
+        GraphDatabaseService otherDatabase, Map<Long, Long> mapping, String firstDatabaseName) {
         Set<Long> usedRelationships = new HashSet<>();
 
         for (Relationship relationship : allRelationships(otherDatabase)) {
             if (!relationshipMappingExists(database, relationship, mapping, usedRelationships)) {
-                Assert.fail("No corresponding relationship found to " + print(relationship) + " in " + firstDatabaseName);
+                Assert
+                    .fail("No corresponding relationship found to " + print(relationship) + " in " + firstDatabaseName);
             }
         }
     }
 
     private static boolean relationshipsMappingExists(GraphDatabaseService database, GraphDatabaseService otherDatabase,
-                                                      Map<Long, Long> mapping) {
+        Map<Long, Long> mapping) {
         Set<Long> usedRelationships = new HashSet<>();
         for (Relationship relationship : allRelationships(otherDatabase)) {
             if (!relationshipMappingExists(database, relationship, mapping, usedRelationships)) {
@@ -251,9 +270,11 @@ public final class GraphTestUtils {
         return true;
     }
 
-    private static boolean relationshipMappingExists(GraphDatabaseService database, Relationship relationship, Map<Long, Long> nodeMapping,
-                                                     Set<Long> usedRelationships) {
-        for (Relationship candidate : database.getNodeById(nodeMapping.get(relationship.getStartNode().getId())).getRelationships(OUTGOING)) {
+    private static boolean relationshipMappingExists(GraphDatabaseService database, Relationship relationship,
+        Map<Long, Long> nodeMapping,
+        Set<Long> usedRelationships) {
+        for (Relationship candidate : database.getNodeById(nodeMapping.get(relationship.getStartNode().getId()))
+            .getRelationships(OUTGOING)) {
             if (nodeMapping.get(relationship.getEndNode().getId()).equals(candidate.getEndNode().getId())) {
                 if (areSame(candidate, relationship) && !usedRelationships.contains(candidate.getId())) {
                     usedRelationships.add(candidate.getId());
@@ -360,7 +381,8 @@ public final class GraphTestUtils {
         Collections.sort(propertyKeys);
 
         for (String key : propertyKeys) {
-            string.append(key).append(": ").append(propertyValueToString(propertyContainer.getProperty(key))).append(", ");
+            string.append(key).append(": ").append(propertyValueToString(propertyContainer.getProperty(key)))
+                .append(", ");
         }
         string.setLength(string.length() - 2);
 

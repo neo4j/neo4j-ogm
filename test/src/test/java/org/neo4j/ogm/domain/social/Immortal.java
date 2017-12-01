@@ -32,7 +32,6 @@ public class Immortal {
         return id;
     }
 
-
     public String getFirstName() {
         return firstName;
     }

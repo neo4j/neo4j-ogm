@@ -33,7 +33,8 @@ public class EntityFactoryTest {
 
     @Before
     public void setUp() {
-        this.entityFactory = new EntityFactory(new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"));
+        this.entityFactory = new EntityFactory(
+            new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"));
     }
 
     @Test
@@ -44,7 +45,7 @@ public class EntityFactoryTest {
         assertThat(gary).isNotNull();
 
         NodeModel personNodeModel = new NodeModel();
-        personNodeModel.setLabels(new String[]{"Individual"});
+        personNodeModel.setLabels(new String[] { "Individual" });
         Individual sheila = this.entityFactory.newObject(personNodeModel);
         assertThat(sheila).isNotNull();
     }
@@ -52,7 +53,7 @@ public class EntityFactoryTest {
     @Test
     public void shouldHandleMultipleLabelsSafely() {
         NodeModel personNodeModel = new NodeModel();
-        personNodeModel.setLabels(new String[]{"Female", "Individual", "Lass"});
+        personNodeModel.setLabels(new String[] { "Female", "Individual", "Lass" });
         Individual ourLass = this.entityFactory.newObject(personNodeModel);
         assertThat(ourLass).isNotNull();
     }
@@ -69,7 +70,7 @@ public class EntityFactoryTest {
     public void shouldBeAbleToConstructObjectWithNonPublicZeroArgConstructor() {
         NodeModel vertex = new NodeModel();
         vertex.setId(163L);
-        vertex.setLabels(new String[]{"ClassWithPrivateConstructor"});
+        vertex.setLabels(new String[] { "ClassWithPrivateConstructor" });
         this.entityFactory.newObject(vertex);
     }
 

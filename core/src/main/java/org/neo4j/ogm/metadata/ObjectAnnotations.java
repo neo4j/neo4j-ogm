@@ -17,9 +17,16 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.typeconversion.*;
-import org.neo4j.ogm.typeconversion.*;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.annotation.typeconversion.DateLong;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
+import org.neo4j.ogm.annotation.typeconversion.EnumString;
+import org.neo4j.ogm.annotation.typeconversion.NumberString;
+import org.neo4j.ogm.typeconversion.DateLongConverter;
+import org.neo4j.ogm.typeconversion.DateStringConverter;
+import org.neo4j.ogm.typeconversion.EnumStringConverter;
+import org.neo4j.ogm.typeconversion.InstantLongConverter;
+import org.neo4j.ogm.typeconversion.NumberStringConverter;
 
 /**
  * @author Vince Bickers

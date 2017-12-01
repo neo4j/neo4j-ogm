@@ -42,7 +42,7 @@ public class ByteArrayConversionTest {
         Photo photo = new Photo();
         AttributeConverter converter = photoInfo.propertyField("image").getPropertyConverter();
 
-        photo.setImage(new byte[]{1, 2, 3, 4});
+        photo.setImage(new byte[] { 1, 2, 3, 4 });
 
         assertThat(converter.toGraphProperty(photo.getImage())).isEqualTo("AQIDBA==");
     }
@@ -57,6 +57,6 @@ public class ByteArrayConversionTest {
 
         byte[] image = photo.getImage();
         assertThat(image.length).isEqualTo(4);
-        assertThat(image).isEqualTo(new byte[] {1, 2, 3, 4 });
+        assertThat(image).isEqualTo(new byte[] { 1, 2, 3, 4 });
     }
 }

@@ -13,9 +13,10 @@
 
 package org.neo4j.ogm.response.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowModel;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Represents a single row in a query response which returns both graph and row data.

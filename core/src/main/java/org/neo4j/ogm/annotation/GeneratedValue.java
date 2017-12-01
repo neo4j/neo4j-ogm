@@ -23,9 +23,7 @@ import org.neo4j.ogm.id.InternalIdStrategy;
 
 /**
  * Used to generate an ID. Must be used with the @{@link Id} annotation, otherwise it will be ignored.
- * <p>
  * Two strategies are provided {@link org.neo4j.ogm.id.UuidStrategy} and {@link org.neo4j.ogm.id.InternalIdStrategy}.
- * <p>
  * Custom strategies may be implemented using {@link IdStrategy}
  *
  * @since 3.0
@@ -34,10 +32,10 @@ import org.neo4j.ogm.id.InternalIdStrategy;
 @Target(value = ElementType.FIELD)
 public @interface GeneratedValue {
 
-	/**
-	 * (Optional) The primary key generation strategy
-	 * that the persistence provider must use to
-	 * generate the annotated entity id.
-	 */
-	Class<? extends IdStrategy> strategy() default InternalIdStrategy.class;
+    /**
+     * (Optional) The primary key generation strategy
+     * that the persistence provider must use to
+     * generate the annotated entity id.
+     */
+    Class<? extends IdStrategy> strategy() default InternalIdStrategy.class;
 }

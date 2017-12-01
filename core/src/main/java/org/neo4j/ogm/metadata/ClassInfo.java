@@ -28,28 +28,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.GeneratedValue;
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.Index;
-import org.neo4j.ogm.annotation.Labels;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.PostLoad;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.annotation.Transient;
+import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.id.UuidStrategy;
 import org.neo4j.ogm.utils.ClassUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Maintains object to graph mapping details at the class (type) level
@@ -107,7 +94,7 @@ public class ClassInfo {
     /**
      * This class was referenced as a superclass of the given subclass.
      *
-     * @param name the name of the class
+     * @param name     the name of the class
      * @param subclass {@link ClassInfo} of the subclass
      */
     ClassInfo(String name, ClassInfo subclass) {
@@ -137,13 +124,15 @@ public class ClassInfo {
         this.annotationsInfo = new AnnotationsInfo(cls);
 
         if (isRelationshipEntity() && labelFieldOrNull() != null) {
-            throw new MappingException(String.format("'%s' is a relationship entity. The @Labels annotation can't be applied to " +
+            throw new MappingException(
+                String.format("'%s' is a relationship entity. The @Labels annotation can't be applied to " +
                     "relationship entities.", name()));
         }
 
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (fieldInfo.hasAnnotation(Property.class) && fieldInfo.hasCompositeConverter()) {
-                throw new MappingException(String.format("'%s' has both @Convert and @Property annotations applied to the field '%s'",
+                throw new MappingException(
+                    String.format("'%s' has both @Convert and @Property annotations applied to the field '%s'",
                         name(), fieldInfo.getName()));
             }
         }
@@ -188,7 +177,9 @@ public class ClassInfo {
      */
     void addSubclass(ClassInfo subclass) {
         if (subclass.directSuperclass != null && subclass.directSuperclass != this) {
-            throw new RuntimeException(subclass.className + " has two superclasses: " + subclass.directSuperclass.className + ", " + this.className);
+            throw new RuntimeException(
+                subclass.className + " has two superclasses: " + subclass.directSuperclass.className + ", "
+                    + this.className);
         }
         subclass.directSuperclass = this;
         this.directSubclasses.add(subclass);
@@ -305,7 +296,6 @@ public class ClassInfo {
         return methodsInfo;
     }
 
-
     public FieldInfo identityFieldOrNull() {
         initIdentityField();
         return identityField.get();
@@ -336,7 +326,7 @@ public class ClassInfo {
                 }
                 if (identityFields.size() > 1) {
                     throw new MetadataException("Expected exactly one internal identity field (@GraphId or @Id with " +
-                            "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
+                        "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
                 }
                 FieldInfo fieldInfo = fieldsInfo().get("id");
                 if (fieldInfo != null) {
@@ -357,17 +347,17 @@ public class ClassInfo {
     // Identity field
     private boolean isInternalIdentity(FieldInfo fieldInfo) {
         return fieldInfo.getAnnotations().has(GraphId.class) ||
-                (fieldInfo.getAnnotations().has(Id.class) &&
-                        fieldInfo.getAnnotations().has(GeneratedValue.class) &&
-                        ((GeneratedValue) fieldInfo.getAnnotations().get(GeneratedValue.class).getAnnotation())
-                                .strategy().equals(InternalIdStrategy.class)
-                );
+            (fieldInfo.getAnnotations().has(Id.class) &&
+                fieldInfo.getAnnotations().has(GeneratedValue.class) &&
+                ((GeneratedValue) fieldInfo.getAnnotations().get(GeneratedValue.class).getAnnotation())
+                    .strategy().equals(InternalIdStrategy.class)
+            );
     }
 
     Collection<FieldInfo> getFieldInfos(Predicate<FieldInfo> predicate) {
         return fieldsInfo().fields().stream()
-                .filter(predicate)
-                .collect(Collectors.toSet());
+            .filter(predicate)
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -384,8 +374,8 @@ public class ClassInfo {
                 if (fieldInfo.isLabelField()) {
                     if (!fieldInfo.isIterable()) {
                         throw new MappingException(String.format(
-                                "Field '%s' in class '%s' includes the @Labels annotation, however this field is not a " +
-                                        "type of collection.", fieldInfo.getName(), this.name()));
+                            "Field '%s' in class '%s' includes the @Labels annotation, however this field is not a " +
+                                "type of collection.", fieldInfo.getName(), this.name()));
                     }
                     labelFieldMapped = true;
                     labelField = fieldInfo;
@@ -519,17 +509,20 @@ public class ClassInfo {
     /**
      * Finds the relationship field with a specific name and direction from the ClassInfo's relationship fields
      *
-     * @param relationshipName the relationshipName of the field to find
+     * @param relationshipName      the relationshipName of the field to find
      * @param relationshipDirection the direction of the relationship
-     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
+     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return A FieldInfo object describing the required relationship field, or null if it doesn't exist.
      */
     public FieldInfo relationshipField(String relationshipName, String relationshipDirection, boolean strict) {
         for (FieldInfo fieldInfo : relationshipFields()) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
             if (relationshipName.equalsIgnoreCase(relationship)) {
-                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && (relationshipDirection.equals(Relationship.INCOMING)))
-                        || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
+                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo
+                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED))
+                    && (relationshipDirection.equals(Relationship.INCOMING)))
+                    || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo
+                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     return fieldInfo;
                 }
             }
@@ -540,18 +533,22 @@ public class ClassInfo {
     /**
      * Finds all relationship fields with a specific name and direction from the ClassInfo's relationship fields
      *
-     * @param relationshipName the relationshipName of the field to find
+     * @param relationshipName      the relationshipName of the field to find
      * @param relationshipDirection the direction of the relationship
-     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
+     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return Set of  FieldInfo objects describing the required relationship field, or empty set if it doesn't exist.
      */
-    public Set<FieldInfo> candidateRelationshipFields(String relationshipName, String relationshipDirection, boolean strict) {
+    public Set<FieldInfo> candidateRelationshipFields(String relationshipName, String relationshipDirection,
+        boolean strict) {
         Set<FieldInfo> candidateFields = new HashSet<>();
         for (FieldInfo fieldInfo : relationshipFields()) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
             if (relationshipName.equalsIgnoreCase(relationship)) {
-                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && (relationshipDirection.equals(Relationship.INCOMING)))
-                        || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
+                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo
+                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED))
+                    && (relationshipDirection.equals(Relationship.INCOMING)))
+                    || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo
+                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     candidateFields.add(fieldInfo);
                 }
             }
@@ -589,7 +586,8 @@ public class ClassInfo {
                 fieldInfoFields.put(fieldInfo, field);
                 return field;
             } else {
-                throw new RuntimeException("Field " + fieldInfo.getName() + " not found in class " + name() + " or any of its superclasses");
+                throw new RuntimeException(
+                    "Field " + fieldInfo.getName() + " not found in class " + name() + " or any of its superclasses");
             }
         }
     }
@@ -675,9 +673,11 @@ public class ClassInfo {
         try {
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 String fieldType = fieldInfo.getTypeDescriptor();
-                if (fieldInfo.isArray() && (fieldType.equals(arrayOfTypeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType))) {
+                if (fieldInfo.isArray() && (fieldType.equals(arrayOfTypeSignature) || fieldInfo
+                    .isParameterisedTypeOf(iteratedType))) {
                     fieldInfos.add(fieldInfo);
-                } else if (fieldInfo.isIterable() && (fieldType.equals(typeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType))) {
+                } else if (fieldInfo.isIterable() && (fieldType.equals(typeSignature) || fieldInfo
+                    .isParameterisedTypeOf(iteratedType))) {
                     fieldInfos.add(fieldInfo);
                 }
             }
@@ -688,24 +688,27 @@ public class ClassInfo {
         }
     }
 
-
     /**
      * Finds all fields whose type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable and the relationship type backing this iterable is "relationshipType"
      *
-     * @param iteratedType the type of iterable
-     * @param relationshipType the relationship type
+     * @param iteratedType          the type of iterable
+     * @param relationshipType      the relationship type
      * @param relationshipDirection the relationship direction
-     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
+     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
-    public List<FieldInfo> findIterableFields(Class iteratedType, String relationshipType, String relationshipDirection, boolean strict) {
+    public List<FieldInfo> findIterableFields(Class iteratedType, String relationshipType, String relationshipDirection,
+        boolean strict) {
         List<FieldInfo> fieldInfos = new ArrayList<>();
         for (FieldInfo fieldInfo : findIterableFields(iteratedType)) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
             if (relationshipType.equals(relationship)) {
-                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
-                        || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
+                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo
+                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED))
+                    && relationshipDirection.equals(Relationship.INCOMING))
+                    || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo
+                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     fieldInfos.add(fieldInfo);
                 }
             }
@@ -760,7 +763,7 @@ public class ClassInfo {
      * 2. Look for a field explicitly annotated with @Relationship for a type and implied direction
      * 4. Look for a field with name derived from the relationship type for the given direction
      *
-     * @param relationshipType the relationship type
+     * @param relationshipType      the relationship type
      * @param relationshipDirection the relationship direction
      * @return class of the type parameter descriptor or null if it could not be determined
      */
@@ -781,7 +784,8 @@ public class ClassInfo {
                 }
             }
         } catch (RuntimeException e) {
-            LOGGER.debug("Could not get {} class type for relationshipType {} and relationshipDirection {} ", className, relationshipType, relationshipDirection);
+            LOGGER.debug("Could not get {} class type for relationshipType {} and relationshipDirection {} ", className,
+                relationshipType, relationshipDirection);
         }
         return null;
     }
@@ -809,14 +813,15 @@ public class ClassInfo {
         // No way to get declared fields from current byte code impl. Using reflection instead.
         Field[] declaredFields;
         try {
-            declaredFields = Class.forName(className, false, Thread.currentThread().getContextClassLoader()).getDeclaredFields();
+            declaredFields = Class.forName(className, false, Thread.currentThread().getContextClassLoader())
+                .getDeclaredFields();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Could not reflectively read declared fields", e);
         }
 
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (isDeclaredField(declaredFields, fieldInfo.getName()) &&
-                    (fieldInfo.hasAnnotation(Index.class) || fieldInfo.hasAnnotation(Id.class))) {
+                (fieldInfo.hasAnnotation(Index.class) || fieldInfo.hasAnnotation(Id.class))) {
 
                 String propertyValue = fieldInfo.property();
                 if (fieldInfo.hasAnnotation(Property.class.getName())) {
@@ -838,13 +843,14 @@ public class ClassInfo {
         return false;
     }
 
-
     public FieldInfo primaryIndexField() {
         if (!primaryIndexFieldChecked && primaryIndexField == null) {
 
             Collection<FieldInfo> primaryIndexFields = getFieldInfos(this::isPrimaryIndexField);
             if (primaryIndexFields.size() > 1) {
-                throw new MetadataException("Only one @Id / @Index(primary=true, unique=true) annotation is allowed in a class hierarchy. Please check annotations in the class " + name() + " or its parents");
+                throw new MetadataException(
+                    "Only one @Id / @Index(primary=true, unique=true) annotation is allowed in a class hierarchy. Please check annotations in the class "
+                        + name() + " or its parents");
             } else if (primaryIndexFields.size() == 1) {
                 primaryIndexField = primaryIndexFields.iterator().next();
                 AnnotationInfo generatedValueAnnotation = primaryIndexField.getAnnotations().get(GeneratedValue.class);
@@ -872,13 +878,14 @@ public class ClassInfo {
         // primary index field is either
         // field with @Id or @Id @GeneratedValue(strategy=..) where strategy != InternalIdStrategy
         return (fieldInfo.getAnnotations().has(Id.class) &&
-                !(fieldInfo.getAnnotations().has(GeneratedValue.class) &&
-                        ((GeneratedValue) fieldInfo.getAnnotations().get(GeneratedValue.class).getAnnotation()).strategy().equals(InternalIdStrategy.class)
+            !(fieldInfo.getAnnotations().has(GeneratedValue.class) &&
+                ((GeneratedValue) fieldInfo.getAnnotations().get(GeneratedValue.class).getAnnotation()).strategy()
+                    .equals(InternalIdStrategy.class)
 
-                )) ||
-                // or @Index(primary=true) - backward compatibility
-                fieldInfo.getAnnotations().has(Index.class) &&
-                        ((Index) fieldInfo.getAnnotations().get(Index.class).getAnnotation()).primary();
+            )) ||
+            // or @Index(primary=true) - backward compatibility
+            fieldInfo.getAnnotations().has(Index.class) &&
+                ((Index) fieldInfo.getAnnotations().get(Index.class).getAnnotation()).primary();
     }
 
     private void instantiateIdStrategy() {
@@ -892,13 +899,15 @@ public class ClassInfo {
     private void validateIdGenerationConfig() {
         fieldsInfo().fields().forEach(info -> {
             if (info.hasAnnotation(GeneratedValue.class) && !info.hasAnnotation(Id.class)) {
-                throw new MetadataException("The type of @Generated field in class " + className + " must be also annotated with @Id.");
+                throw new MetadataException(
+                    "The type of @Generated field in class " + className + " must be also annotated with @Id.");
             }
         });
         if (UuidStrategy.class.equals(idStrategyClass)
-                && !primaryIndexField.isTypeOf(UUID.class)
-                && !primaryIndexField.isTypeOf(String.class)) {
-            throw new MetadataException("The type of " + primaryIndexField.getName() + " in class " + className + " must be of type java.lang.UUID or java.lang.String because it has an UUID generation strategy.");
+            && !primaryIndexField.isTypeOf(UUID.class)
+            && !primaryIndexField.isTypeOf(String.class)) {
+            throw new MetadataException("The type of " + primaryIndexField.getName() + " in class " + className
+                + " must be of type java.lang.UUID or java.lang.String because it has an UUID generation strategy.");
         }
     }
 
@@ -918,7 +927,7 @@ public class ClassInfo {
             idStrategy = strategy;
         } else {
             throw new IllegalArgumentException("Strategy " + strategy +
-                    " is not an instance of " + idStrategyClass);
+                " is not an instance of " + idStrategyClass);
         }
     }
 

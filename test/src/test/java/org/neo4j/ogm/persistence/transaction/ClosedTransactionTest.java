@@ -40,7 +40,6 @@ public class ClosedTransactionTest extends MultiDriverTestClass {
 
     private Transaction tx;
 
-
     @BeforeClass
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.tree");

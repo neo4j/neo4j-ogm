@@ -31,9 +31,8 @@ public interface TransactionManager {
      * Opens a new transaction of the specified type against a database instance.
      * Instantiation of the transaction is left to the driver
      *
-     * @param type type of the transaction
+     * @param type      type of the transaction
      * @param bookmarks bookmarks to be passed to driver
-     *
      * @return a new @{link Transaction}
      */
     Transaction openTransaction(Transaction.Type type, Iterable<String> bookmarks);
@@ -48,7 +47,6 @@ public interface TransactionManager {
      */
     void rollback(Transaction transaction);
 
-
     /**
      * Commits the specified transaction.
      * The actual job of committing the transaction is left to the relevant driver. if
@@ -58,7 +56,6 @@ public interface TransactionManager {
      * @param transaction the transaction to commit
      */
     void commit(Transaction transaction);
-
 
     /**
      * Returns the current transaction for this thread, or null if none exists

@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.session.events;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.UUID;
 
 import org.junit.Test;
@@ -22,8 +24,6 @@ import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author vince
@@ -93,7 +93,6 @@ public class LifecycleTest extends EventTestBaseClass {
                 entity.setUuid(UUID.randomUUID().toString());
             }
         }
-
 
         @Override
         public void onPostSave(Event event) {

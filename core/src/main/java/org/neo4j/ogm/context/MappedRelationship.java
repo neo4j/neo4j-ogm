@@ -32,7 +32,8 @@ public class MappedRelationship implements Mappable {
     private Class startNodeType;
     private Class endNodeType;
 
-    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Class startNodeType, Class endNodeType) {
+    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Class startNodeType,
+        Class endNodeType) {
         this.startNodeId = startNodeId;
         this.relationshipType = relationshipType;
         this.endNodeId = endNodeId;
@@ -40,7 +41,8 @@ public class MappedRelationship implements Mappable {
         this.endNodeType = endNodeType;
     }
 
-    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Long relationshipId, Class startNodeType, Class endNodeType) {
+    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Long relationshipId,
+        Class startNodeType, Class endNodeType) {
         this.startNodeId = startNodeId;
         this.relationshipType = relationshipType;
         this.endNodeId = endNodeId;
@@ -87,15 +89,17 @@ public class MappedRelationship implements Mappable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         MappedRelationship that = (MappedRelationship) o;
 
         return startNodeId == that.startNodeId
-                && endNodeId == that.endNodeId
-                && relationshipType.equals(that.relationshipType)
-                && !(relationshipId != null ? !relationshipId.equals(that.relationshipId) : that.relationshipId != null);
+            && endNodeId == that.endNodeId
+            && relationshipType.equals(that.relationshipType)
+            && !(relationshipId != null ? !relationshipId.equals(that.relationshipId) : that.relationshipId != null);
     }
 
     @Override

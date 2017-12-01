@@ -13,16 +13,12 @@
 
 package org.neo4j.ogm.persistence.authentication;
 
-
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
 
 import org.apache.http.client.HttpResponseException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -36,58 +32,59 @@ import org.neo4j.ogm.transaction.Transaction;
 
 public class AuthenticatingDriverTest extends MultiDriverTestClass {
 
-	private Session session;
+    private Session session;
 
-	@Before
-	public void beforeMethod() {
-		assumeTrue(getBaseConfiguration().build().getDriverClassName().equals(HttpDriver.class.getName()));
-	}
+    @Before
+    public void beforeMethod() {
+        assumeTrue(getBaseConfiguration().build().getDriverClassName().equals(HttpDriver.class.getName()));
+    }
 
-	@Test
-	public void testUnauthorizedDriver() {
+    @Test
+    public void testUnauthorizedDriver() {
 
-		session = new SessionFactory( getBaseConfiguration().credentials("", "").build(), "dummy").openSession();
+        session = new SessionFactory(getBaseConfiguration().credentials("", "").build(), "dummy").openSession();
 
-		try (Transaction tx = session.beginTransaction()) {
-			tx.commit();
-			fail("Driver should not have authenticated");
-		} catch (Exception rpe) {
-			Throwable cause = rpe.getCause();
-			while (!(cause instanceof HttpResponseException)) {
-				cause = cause.getCause();
-			}
-			assertThat(cause.getMessage().startsWith("Invalid username or password")).isTrue();
-		}
-	}
+        try (Transaction tx = session.beginTransaction()) {
+            tx.commit();
+            fail("Driver should not have authenticated");
+        } catch (Exception rpe) {
+            Throwable cause = rpe.getCause();
+            while (!(cause instanceof HttpResponseException)) {
+                cause = cause.getCause();
+            }
+            assertThat(cause.getMessage().startsWith("Invalid username or password")).isTrue();
+        }
+    }
 
-	@Test
-	public void testAuthorizedDriver() {
+    @Test
+    public void testAuthorizedDriver() {
 
-		session = new SessionFactory(driver, "dummy").openSession();
+        session = new SessionFactory(driver, "dummy").openSession();
 
-		try (Transaction ignored = session.beginTransaction()) {
-			assertThat(ignored).isNotNull();
-		} catch (Exception rpe) {
-			fail("'" + rpe.getLocalizedMessage() + "' was not expected here");
-		}
-	}
+        try (Transaction ignored = session.beginTransaction()) {
+            assertThat(ignored).isNotNull();
+        } catch (Exception rpe) {
+            fail("'" + rpe.getLocalizedMessage() + "' was not expected here");
+        }
+    }
 
-	/**
-	 * @see issue #35
-	 */
-	@Test
-	public void testInvalidCredentials() {
+    /**
+     * @see issue #35
+     */
+    @Test
+    public void testInvalidCredentials() {
 
-		session = new SessionFactory( getBaseConfiguration().credentials("neo4j", "invalid_password").build(), "dummy").openSession();
+        session = new SessionFactory(getBaseConfiguration().credentials("neo4j", "invalid_password").build(), "dummy")
+            .openSession();
 
-		try (Transaction tx = session.beginTransaction()) {
-			fail("Driver should not have authenticated");
-		} catch (Exception rpe) {
-			Throwable cause = rpe.getCause();
-			while (!(cause instanceof HttpResponseException)) {
-				cause = cause.getCause();
-			}
-			assertThat(cause.getMessage()).isEqualTo("Invalid username or password.");
-		}
-	}
+        try (Transaction tx = session.beginTransaction()) {
+            fail("Driver should not have authenticated");
+        } catch (Exception rpe) {
+            Throwable cause = rpe.getCause();
+            while (!(cause instanceof HttpResponseException)) {
+                cause = cause.getCause();
+            }
+            assertThat(cause.getMessage()).isEqualTo("Invalid username or password.");
+        }
+    }
 }

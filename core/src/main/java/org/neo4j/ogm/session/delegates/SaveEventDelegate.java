@@ -13,7 +13,13 @@
 
 package org.neo4j.ogm.session.delegates;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
@@ -23,7 +29,6 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.PersistenceEvent;
 import org.neo4j.ogm.utils.ClassUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +45,6 @@ final class SaveEventDelegate {
     private Set<MappedRelationship> registeredRelationships = new HashSet<>();
     private Set<MappedRelationship> addedRelationships = new HashSet<>();
     private Set<MappedRelationship> deletedRelationships = new HashSet<>();
-
 
     SaveEventDelegate(Neo4jSession session) {
         this.session = session;
@@ -67,14 +71,14 @@ final class SaveEventDelegate {
 
         // now fire events for any objects whose relationships have been deleted from reachable ones
         // and which therefore have been possibly rendered unreachable from the object graph traversal
-        for(Object other : unreachable()) {
+        for (Object other : unreachable()) {
             if (visit(other) && !preSaveFired(other)) { // only if not yet visited and not yet fired
                 firePreSave(other);
             }
         }
 
         // fire events for existing nodes that are not dirty, but which have had an edge added:
-        for (Object other: touched()) {
+        for (Object other : touched()) {
             if (!preSaveFired(other)) { // only if not yet already fired
                 firePreSave(other);
             }
@@ -142,7 +146,8 @@ final class SaveEventDelegate {
 
         for (MappedRelationship mappedRelationship : deletedRelationships) {
 
-            logger.debug("unreachable start {} end {}", mappedRelationship.getStartNodeId(), mappedRelationship.getEndNodeId());
+            logger.debug("unreachable start {} end {}", mappedRelationship.getStartNodeId(),
+                mappedRelationship.getEndNodeId());
 
             addUnreachable(unreachable, mappedRelationship.getStartNodeId());
             addUnreachable(unreachable, mappedRelationship.getEndNodeId());
@@ -157,7 +162,7 @@ final class SaveEventDelegate {
             unreachable.add(entity);
         } else {
             logger.warn("Relationship to/from entity id={} deleted, but entity is not " +
-                        "in context - no events will be fired.", nodeId);
+                "in context - no events will be fired.", nodeId);
         }
     }
 
@@ -165,7 +170,6 @@ final class SaveEventDelegate {
     private boolean visit(Object object) {
         return this.visited.add(session.context().nativeId(object));
     }
-
 
     // returns true if the object in question is dirty (has changed)
     // an object is dirty if either or both of:
@@ -226,7 +230,6 @@ final class SaveEventDelegate {
         return !this.registeredRelationships.contains(mappedRelationship);
     }
 
-
     // remove the current relationships for this object as loaded from the mapping context
     // we expect to put them back in again later. Any differences afterwards between
     // current relationships and the main mapping context indicate that relationships
@@ -253,7 +256,8 @@ final class SaveEventDelegate {
 
         while (iterator.hasNext()) {
             MappedRelationship mappedRelationship = iterator.next();
-            if (mappedRelationship.getEndNodeId() == id && mappedRelationship.getRelationshipType().equals(relationshipType) && endNodeType.equals(mappedRelationship.getStartNodeType())) {
+            if (mappedRelationship.getEndNodeId() == id && mappedRelationship.getRelationshipType()
+                .equals(relationshipType) && endNodeType.equals(mappedRelationship.getStartNodeType())) {
                 deletedRelationships.add(mappedRelationship);
                 iterator.remove();
             }
@@ -266,7 +270,8 @@ final class SaveEventDelegate {
 
         while (iterator.hasNext()) {
             MappedRelationship mappedRelationship = iterator.next();
-            if (mappedRelationship.getStartNodeId() == id && mappedRelationship.getRelationshipType().equals(relationshipType) && endNodeType.equals(mappedRelationship.getEndNodeType())) {
+            if (mappedRelationship.getStartNodeId() == id && mappedRelationship.getRelationshipType()
+                .equals(relationshipType) && endNodeType.equals(mappedRelationship.getEndNodeType())) {
                 deletedRelationships.add(mappedRelationship);
                 iterator.remove();
             }
@@ -313,11 +318,9 @@ final class SaveEventDelegate {
         children.add(reference);
     }
 
-
     private Collection<FieldInfo> relationalReaders(Object object) {
         return this.session.metaData().classInfo(object).relationshipFields();
     }
-
 
     // given an object and a reader, returns a collection of
     // MappedRelationships from the reference or references read by the reader from
@@ -344,11 +347,11 @@ final class SaveEventDelegate {
         return mappedRelationships;
     }
 
-
     // creates a MappedRelationship between the parent object and the reference. In the case that the reference
     // object is a RE, the relationship is created from the start node and the end node of the RE.
     // a MappedRelationship therefore represents a directed edge between two nodes in the graph.
-    private void mapInstance(Set<MappedRelationship> mappedRelationships, Object parent, FieldInfo reader, Object reference) {
+    private void mapInstance(Set<MappedRelationship> mappedRelationships, Object parent, FieldInfo reader,
+        Object reference) {
 
         String type = reader.relationshipType();
         String direction = reader.relationshipDirection();
@@ -365,10 +368,12 @@ final class SaveEventDelegate {
             if (!referenceInfo.isRelationshipEntity()) {
 
                 if (direction.equals(Relationship.OUTGOING)) {
-                    MappedRelationship edge = new MappedRelationship(parentId, type, referenceId, parentInfo.getUnderlyingClass(), referenceInfo.getUnderlyingClass());
+                    MappedRelationship edge = new MappedRelationship(parentId, type, referenceId,
+                        parentInfo.getUnderlyingClass(), referenceInfo.getUnderlyingClass());
                     mappedRelationships.add(edge);
                 } else {
-                    MappedRelationship edge = new MappedRelationship(referenceId, type, parentId, referenceInfo.getUnderlyingClass(), parentInfo.getUnderlyingClass());
+                    MappedRelationship edge = new MappedRelationship(referenceId, type, parentId,
+                        referenceInfo.getUnderlyingClass(), parentInfo.getUnderlyingClass());
                     mappedRelationships.add(edge);
                 }
             } else {
@@ -381,13 +386,15 @@ final class SaveEventDelegate {
                 ClassInfo endNodeInfo = this.session.metaData().classInfo(endNode);
                 Long endNodeId = session.context().nativeId(endNode);
 
-                MappedRelationship edge = new MappedRelationship(startNodeId, type, endNodeId, referenceId, startNodeInfo.getUnderlyingClass(), endNodeInfo.getUnderlyingClass());
+                MappedRelationship edge = new MappedRelationship(startNodeId, type, endNodeId, referenceId,
+                    startNodeInfo.getUnderlyingClass(), endNodeInfo.getUnderlyingClass());
                 mappedRelationships.add(edge);
             }
         }
     }
 
-    private void mapCollection(Set<MappedRelationship> mappedRelationships, Object parent, FieldInfo reader, Collection references) {
+    private void mapCollection(Set<MappedRelationship> mappedRelationships, Object parent, FieldInfo reader,
+        Collection references) {
 
         for (Object reference : references) {
             mapInstance(mappedRelationships, parent, reader, reference);

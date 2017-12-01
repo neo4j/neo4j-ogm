@@ -42,7 +42,7 @@ public class DualTargetEntityRelationshipTest extends MultiDriverTestClass {
     @Before
     public void init() throws IOException {
         session = new SessionFactory(driver, "org.neo4j.ogm.domain.mappings").openSession();
-		session.purgeDatabase();
+        session.purgeDatabase();
     }
 
     /**
@@ -103,7 +103,8 @@ public class DualTargetEntityRelationshipTest extends MultiDriverTestClass {
         assertThat(tagsFound).hasSize(1);
         event.setTags(new HashSet<>(tagsFound));
 
-        Collection<Category> categoriesFound = session.loadAll(Category.class, new Filter("name", ComparisonOperator.EQUALS, "cat1"));
+        Collection<Category> categoriesFound = session
+            .loadAll(Category.class, new Filter("name", ComparisonOperator.EQUALS, "cat1"));
         assertThat(categoriesFound).hasSize(1);
         event.setCategory(categoriesFound.iterator().next());
 

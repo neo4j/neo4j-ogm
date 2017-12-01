@@ -12,14 +12,12 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.EntityRowModelMapper;
@@ -96,7 +94,8 @@ public class ExecuteQueriesDelegate {
         validateQuery(cypher, parameters, readOnly);
 
         RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
-        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()), session.metaData());
+        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()),
+            session.metaData());
 
         try (Response<RestModel> response = session.requestHandler().execute(request)) {
             Iterable<RestStatisticsModel> mappedModel = mapper.map(null, response);
@@ -110,7 +109,8 @@ public class ExecuteQueriesDelegate {
         }
     }
 
-    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, ResponseMapper mapper) {
+    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters,
+        ResponseMapper mapper) {
 
         if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
             GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
@@ -140,9 +140,11 @@ public class ExecuteQueriesDelegate {
 
             for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
                 if (fieldInfo.hasAnnotation(StartNode.class)) {
-                    startNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
+                    startNodeInfo = session.metaData()
+                        .classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
                 } else if (fieldInfo.hasAnnotation(EndNode.class)) {
-                    endNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
+                    endNodeInfo = session.metaData()
+                        .classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
                 }
                 if (endNodeInfo != null && startNodeInfo != null) {
                     break;
@@ -191,7 +193,7 @@ public class ExecuteQueriesDelegate {
      * Executes a count query in which objects of a specific type will be counted according to some filter criteria,
      * and returns a count of matched objects to the caller.
      *
-     * @param query the CypherQuery that will count objects according to some filter criteria
+     * @param query                the CypherQuery that will count objects according to some filter criteria
      * @param isRelationshipEntity whether the objects being counted are relationship entities
      * @return a count of objects that matched the query
      */

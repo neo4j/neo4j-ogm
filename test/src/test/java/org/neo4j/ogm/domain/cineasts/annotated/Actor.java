@@ -103,12 +103,15 @@ public class Actor {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         Actor actor = (Actor) o;
 
-        if (name == null || ((Actor) o).getName() == null) return false;
+        if (name == null || ((Actor) o).getName() == null)
+            return false;
 
         return name.equals(actor.name);
     }
@@ -133,7 +136,7 @@ public class Actor {
     @Override
     public String toString() {
         return "Actor {" +
-                "name='" + name + '\'' +
-                '}';
+            "name='" + name + '\'' +
+            '}';
     }
 }

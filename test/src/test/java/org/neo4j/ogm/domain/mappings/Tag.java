@@ -44,7 +44,6 @@ public class Tag extends Entity {
         this.name = name;
     }
 
-
     public Set<Entity> getEntities() {
         return entities;
     }
@@ -56,8 +55,8 @@ public class Tag extends Entity {
     @Override
     public String toString() {
         return "Tag{" +
-                "id:" + getNodeId() +
-                ", name:'" + name + "'" +
-                '}';
+            "id:" + getNodeId() +
+            ", name:'" + name + "'" +
+            '}';
     }
 }

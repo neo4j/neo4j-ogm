@@ -13,9 +13,6 @@
 
 package org.neo4j.ogm.session;
 
-import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
-import org.neo4j.ogm.session.request.strategy.impl.PathLoadClauseBuilder;
-
 /**
  * @author Frantisek Hartman
  */
@@ -31,7 +28,6 @@ public enum LoadStrategy {
     /**
      * Load strategy which uses nested list comprehensions to get related nodes based on the schema generated from
      * entity classes
-     * <p>
      * NOTE: Does not support queries with unlimited depth
      */
     SCHEMA_LOAD_STRATEGY;

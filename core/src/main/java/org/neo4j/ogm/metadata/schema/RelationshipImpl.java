@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.metadata.schema;
 
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.*;
 import static org.neo4j.ogm.annotation.Relationship.*;
 
 /**
@@ -45,7 +45,7 @@ class RelationshipImpl implements Relationship {
     public String direction(Node node) {
         if (!(start == node || end == node)) {
             throw new IllegalArgumentException("Given node " + node +
-                    " is neiter start or end node of this relationship");
+                " is neiter start or end node of this relationship");
         } else if (start == end) {
             return direction;
         }
@@ -81,17 +81,17 @@ class RelationshipImpl implements Relationship {
             return start;
         } else {
             throw new IllegalArgumentException("Given node " + node +
-                    " is neiter start or end node of this relationship");
+                " is neiter start or end node of this relationship");
         }
     }
 
     @Override
     public String toString() {
         return "RelationshipImpl{" +
-                "start=" + start +
-                ", end=" + end +
-                ", type='" + type + '\'' +
-                ", direction='" + direction + '\'' +
-                '}';
+            "start=" + start +
+            ", end=" + end +
+            ", type='" + type + '\'' +
+            ", direction='" + direction + '\'' +
+            '}';
     }
 }

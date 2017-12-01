@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.metadata;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,8 +24,6 @@ import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Frantisek Hartman
@@ -66,7 +66,8 @@ public class IdGenerationTest extends MultiDriverTestClass {
         assertThat(entity.identifier).isNotNull();
 
         session.clear();
-        ValidAnnotations.InternalIdWithAnnotation loaded = session.load(ValidAnnotations.InternalIdWithAnnotation.class, entity.identifier);
+        ValidAnnotations.InternalIdWithAnnotation loaded = session
+            .load(ValidAnnotations.InternalIdWithAnnotation.class, entity.identifier);
 
         assertThat(loaded).isNotNull();
         assertThat(loaded.identifier).isEqualTo(entity.identifier);
@@ -82,7 +83,8 @@ public class IdGenerationTest extends MultiDriverTestClass {
 
         final Session session2 = sessionFactory.openSession();
 
-        final ValidAnnotations.IdAndGenerationType retrievedEntity = session2.load(ValidAnnotations.IdAndGenerationType.class, entity.identifier);
+        final ValidAnnotations.IdAndGenerationType retrievedEntity = session2
+            .load(ValidAnnotations.IdAndGenerationType.class, entity.identifier);
         assertThat(retrievedEntity).isNotNull();
         assertThat(retrievedEntity.identifier).isNotNull().isEqualTo(entity.identifier);
     }
@@ -97,7 +99,8 @@ public class IdGenerationTest extends MultiDriverTestClass {
 
         final Session session2 = sessionFactory.openSession();
 
-        final ValidAnnotations.UuidIdAndGenerationType retrievedEntity = session2.load(ValidAnnotations.UuidIdAndGenerationType.class, entity.identifier);
+        final ValidAnnotations.UuidIdAndGenerationType retrievedEntity = session2
+            .load(ValidAnnotations.UuidIdAndGenerationType.class, entity.identifier);
         assertThat(retrievedEntity).isNotNull();
         assertThat(retrievedEntity.identifier).isNotNull().isEqualTo(entity.identifier);
     }
@@ -111,7 +114,8 @@ public class IdGenerationTest extends MultiDriverTestClass {
 
         session.clear();
 
-        ValidAnnotations.WithCustomIdStrategy loaded = session.load(ValidAnnotations.WithCustomIdStrategy.class, entity.idetifier);
+        ValidAnnotations.WithCustomIdStrategy loaded = session
+            .load(ValidAnnotations.WithCustomIdStrategy.class, entity.idetifier);
         assertThat(loaded).isNotNull();
         assertThat(loaded.idetifier).isEqualTo("test-custom-id");
     }
@@ -127,7 +131,8 @@ public class IdGenerationTest extends MultiDriverTestClass {
         assertThat(entity.idetifier).isEqualTo("test-custom-instance-id");
 
         session.clear();
-        ValidAnnotations.WithCustomInstanceIdStrategy loaded = session.load(ValidAnnotations.WithCustomInstanceIdStrategy.class, "test-custom-instance-id");
+        ValidAnnotations.WithCustomInstanceIdStrategy loaded = session
+            .load(ValidAnnotations.WithCustomInstanceIdStrategy.class, "test-custom-instance-id");
         assertThat(loaded).isNotNull();
         assertThat(loaded.idetifier).isEqualTo("test-custom-instance-id");
     }
@@ -151,7 +156,8 @@ public class IdGenerationTest extends MultiDriverTestClass {
         session.save(rel);
         assertThat(rel.uuid).isNotNull();
 
-        ValidAnnotations.RelationshipEntityWithId loaded = session.load(ValidAnnotations.RelationshipEntityWithId.class, rel.uuid);
+        ValidAnnotations.RelationshipEntityWithId loaded = session
+            .load(ValidAnnotations.RelationshipEntityWithId.class, rel.uuid);
         assertThat(loaded).isSameAs(rel);
 
         session.clear();

@@ -13,15 +13,14 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import static org.neo4j.ogm.annotation.Relationship.*;
+
 import java.util.Map;
 
 import org.neo4j.ogm.metadata.schema.Node;
 import org.neo4j.ogm.metadata.schema.Relationship;
 import org.neo4j.ogm.metadata.schema.Schema;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
-
-import static org.neo4j.ogm.annotation.Relationship.INCOMING;
-import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
 
 /**
  * @author Frantisek Hartman
@@ -62,7 +61,6 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
             }
         }
 
-
         return sb.toString();
     }
 
@@ -72,17 +70,16 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
                 sb.append(", ");
             }
 
-//            sb.append(entry.getKey() + " : ");
+            //            sb.append(entry.getKey() + " : ");
 
             listComprehension(sb, fromNodeVar, entry.getValue(), node, level, depth);
-
 
         }
 
     }
 
     private boolean needsSeparator(StringBuilder sb) {
-        for (int i = sb.length() -1; i >= 0; i--) {
+        for (int i = sb.length() - 1; i >= 0; i--) {
             char ch = sb.charAt(i);
             if (!Character.isWhitespace(ch)) {
                 return ch != '[' && ch != ',';
@@ -92,7 +89,7 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
     }
 
     private void listComprehension(StringBuilder sb, String fromNodeVar, Relationship relationship, Node node,
-                                   int level, int depth) {
+        int level, int depth) {
 
         String direction = relationship.direction(node);
         Node toNode = relationship.other(node);
@@ -117,7 +114,6 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
                 break;
         }
 
-
         sb.append("(");
         sb.append(toNodeVar);
         if (toNode.label().isPresent()) {
@@ -126,10 +122,10 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
             sb.append("`");
         }
         sb.append(") | [ ");
-//        sb.append(") | { rel: ");
+        //        sb.append(") | { rel: ");
         sb.append(relVar);
         sb.append(", ");
-//        sb.append(", node: ");
+        //        sb.append(", node: ");
         sb.append(toNodeVar);
 
         if (depth > 0 && !toNode.relationships().isEmpty()) {
@@ -153,11 +149,11 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
 
     private void appendRel(StringBuilder sb, String variable, String type, String start, String end) {
         sb.append(start)
-                .append(variable)
-                .append(":`")
-                .append(type)
-                .append("`")
-                .append(end);
+            .append(variable)
+            .append(":`")
+            .append(type)
+            .append("`")
+            .append(end);
     }
 
     private void newLine(StringBuilder sb) {

@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.session.transaction;
 
+import static java.util.Collections.*;
+
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.core.TransactionManagerException;
 import org.neo4j.ogm.session.Neo4jSession;
@@ -20,10 +22,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
-
-import java.util.Collections;
-
-import static java.util.Collections.emptySet;
 
 /**
  * @author Vince Bickers
@@ -128,7 +126,8 @@ public class DefaultTransactionManager implements TransactionManager {
         AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
 
         if (tx.extensions() == 0) {
-            if (tx.status() == Transaction.Status.COMMIT_PENDING || tx.status() == Transaction.Status.OPEN || tx.status() == Transaction.Status.PENDING) {
+            if (tx.status() == Transaction.Status.COMMIT_PENDING || tx.status() == Transaction.Status.OPEN
+                || tx.status() == Transaction.Status.PENDING) {
                 return true;
             }
         }
@@ -144,7 +143,8 @@ public class DefaultTransactionManager implements TransactionManager {
         AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
 
         if (tx.extensions() == 0) {
-            if (tx.status() == Transaction.Status.ROLLBACK_PENDING || tx.status() == Transaction.Status.COMMIT_PENDING || tx.status() == Transaction.Status.OPEN || tx.status() == Transaction.Status.PENDING) {
+            if (tx.status() == Transaction.Status.ROLLBACK_PENDING || tx.status() == Transaction.Status.COMMIT_PENDING
+                || tx.status() == Transaction.Status.OPEN || tx.status() == Transaction.Status.PENDING) {
                 return true;
             }
         }

@@ -63,7 +63,8 @@ public class AnnotationInfo {
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Could not read value of Annotation " + element.getName(), e);
             }
-            elements.put(element.getName(), value != null ? convert(element, value) : element.getDefaultValue().toString());
+            elements
+                .put(element.getName(), value != null ? convert(element, value) : element.getDefaultValue().toString());
         }
     }
 

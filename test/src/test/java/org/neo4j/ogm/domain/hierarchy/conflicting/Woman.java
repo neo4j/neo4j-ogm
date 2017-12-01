@@ -16,7 +16,6 @@ package org.neo4j.ogm.domain.hierarchy.conflicting;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.domain.hierarchy.domain.people.Person;
 
-
 /**
  * @author Michal Bachman
  */

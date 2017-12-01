@@ -16,7 +16,6 @@ package org.neo4j.ogm.persistence.transaction;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import org.junit.After;
 import org.junit.Before;
@@ -96,7 +95,8 @@ public class TransactionTest extends MultiDriverTestClass {
         assertThat(theBeatles.getName()).isEqualTo("The Beatles");
         assertThat(theBeatles.getAlbums()).hasSize(1);
         assertThat(theBeatles.getAlbums().iterator().next().getName()).isEqualTo("Please Please Me");
-        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName()).isEqualTo("EMI Studios, London");
+        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName())
+            .isEqualTo("EMI Studios, London");
     }
 
     @Test
@@ -119,11 +119,12 @@ public class TransactionTest extends MultiDriverTestClass {
     public void shouldNotBeAbleToExtendAReadTransactionWithAReadWriteInnerTransaction() {
 
         try (
-                Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
-                Transaction tx2 = session.beginTransaction(Transaction.Type.READ_WRITE)) {
+            Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
+            Transaction tx2 = session.beginTransaction(Transaction.Type.READ_WRITE)) {
             fail("Should not have allowed transaction extension of different type");
         } catch (TransactionException tme) {
-            assertThat(tme.getLocalizedMessage()).isEqualTo("Incompatible transaction type specified: must be 'READ_ONLY'");
+            assertThat(tme.getLocalizedMessage())
+                .isEqualTo("Incompatible transaction type specified: must be 'READ_ONLY'");
         }
     }
 
@@ -131,11 +132,12 @@ public class TransactionTest extends MultiDriverTestClass {
     public void shouldNotBeAbleToExtendAReadWriteTransactionWithAReadOnlyInnerTransaction() {
 
         try (
-                Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
-                Transaction tx2 = session.beginTransaction(Transaction.Type.READ_ONLY)) {
+            Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
+            Transaction tx2 = session.beginTransaction(Transaction.Type.READ_ONLY)) {
             fail("Should not have allowed transaction extension of different type");
         } catch (TransactionException tme) {
-            assertThat(tme.getLocalizedMessage()).isEqualTo("Incompatible transaction type specified: must be 'READ_WRITE'");
+            assertThat(tme.getLocalizedMessage())
+                .isEqualTo("Incompatible transaction type specified: must be 'READ_WRITE'");
         }
     }
 
@@ -143,8 +145,8 @@ public class TransactionTest extends MultiDriverTestClass {
     public void shouldAutomaticallyExtendAReadOnlyTransactionWithAReadOnlyExtension() {
 
         try (
-                Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
-                Transaction tx2 = session.beginTransaction()) {
+            Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
+            Transaction tx2 = session.beginTransaction()) {
             assertThat(tx2.isReadOnly()).isTrue();
         }
     }
@@ -153,7 +155,7 @@ public class TransactionTest extends MultiDriverTestClass {
     public void shouldAutomaticallyExtendAReadWriteTransactionWithAReadWriteExtension() {
 
         try (Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
-             Transaction tx2 = session.beginTransaction()) {
+            Transaction tx2 = session.beginTransaction()) {
             assertThat(tx2.isReadOnly()).isFalse();
         }
     }

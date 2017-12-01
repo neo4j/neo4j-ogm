@@ -71,7 +71,7 @@ public class NumberConversionTest {
     @Test
     public void assertAccountDepositConverterWorks() {
         AttributeConverter converter = accountInfo.propertyField("deposits").getPropertyConverter();
-        BigDecimal[] deposits = new BigDecimal[]{new BigDecimal("12345.67"), new BigDecimal("34567.89")};
+        BigDecimal[] deposits = new BigDecimal[] { new BigDecimal("12345.67"), new BigDecimal("34567.89") };
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
         account.setDeposits(deposits);
         String[] convertedDeposits = (String[]) converter.toGraphProperty(account.getDeposits());

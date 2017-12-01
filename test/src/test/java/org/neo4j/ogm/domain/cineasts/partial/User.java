@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.domain.cineasts.partial;
 
-
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +32,6 @@ public class User {
 
     @Relationship(type = "RATED")
     Set<Rating> ratings;
-
 
     Set<User> friends;
 
@@ -129,13 +127,17 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         User user = (User) o;
-        if (name == null || user.getName() == null) return false;
+        if (name == null || user.getName() == null)
+            return false;
 
-        if (!name.equals(user.name)) return false;
+        if (!name.equals(user.name))
+            return false;
 
         return true;
     }

@@ -13,9 +13,7 @@
 
 package org.neo4j.ogm.metadata.schema.inheritance;
 
-import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.StartNode;
 
 /**
  * @author Frantisek Hartman

@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -22,12 +22,10 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.drivers.http.response.AbstractHttpResponse;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.response.Response;
@@ -100,31 +98,31 @@ public class JsonGraphResponseTest {
     private InputStream graphResultsAndNoErrors() {
 
         final String s = "{\n" +
-                "  \"results\": [\n" +
-                "    {\n" +
-                "      \"columns\": [\n" +
-                "        \"_0\"\n" +
-                "      ],\n" +
-                "      \"data\": [\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"381\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"School\"\n" +
-                "                ],\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": []\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"errors\": []\n" +
-                "}";
+            "  \"results\": [\n" +
+            "    {\n" +
+            "      \"columns\": [\n" +
+            "        \"_0\"\n" +
+            "      ],\n" +
+            "      \"data\": [\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"381\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"School\"\n" +
+            "                ],\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": []\n" +
+            "          }\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"errors\": []\n" +
+            "}";
 
         return new ByteArrayInputStream(s.getBytes());
     }
@@ -132,201 +130,201 @@ public class JsonGraphResponseTest {
     private InputStream noGraphResultsAndNoErrors() {
 
         final String s = "{\n" +
-                "  \"results\": [\n" +
-                "    {\n" +
-                "      \"columns\": [\n" +
-                "        \"_0\"\n" +
-                "      ],\n" +
-                "      \"data\": []\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"errors\": []\n" +
-                "}";
+            "  \"results\": [\n" +
+            "    {\n" +
+            "      \"columns\": [\n" +
+            "        \"_0\"\n" +
+            "      ],\n" +
+            "      \"data\": []\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"errors\": []\n" +
+            "}";
 
         return new ByteArrayInputStream(s.getBytes());
     }
 
     private InputStream loadByIdsGraphResults() {
         final String s = "{\n" +
-                "  \"results\": [\n" +
-                "    {\n" +
-                "      \"columns\": [\n" +
-                "        \"p\"\n" +
-                "      ],\n" +
-                "      \"data\": [\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"343\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"User\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"firstName\": \"adam\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": []\n" +
-                "          }\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"343\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"User\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"firstName\": \"adam\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Customer\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"GraphAware\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"18\",\n" +
-                "                \"type\": \"EMPLOYED_BY\",\n" +
-                "                \"startNode\": \"343\",\n" +
-                "                \"endNode\": \"26\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          }\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"343\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"User\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"firstName\": \"adam\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"347\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Issue\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"title\": \"fake 7\",\n" +
-                "                  \"number\": \"7\",\n" +
-                "                  \"title\": \"fake 7\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"506\",\n" +
-                "                \"type\": \"ASSIGNED_TO\",\n" +
-                "                \"startNode\": \"347\",\n" +
-                "                \"endNode\": \"343\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          }\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"344\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"User\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"firstName\": \"vince\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": []\n" +
-                "          }\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Customer\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"name\": \"GraphAware\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"344\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"User\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"firstName\": \"vince\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"19\",\n" +
-                "                \"type\": \"EMPLOYED_BY\",\n" +
-                "                \"startNode\": \"344\",\n" +
-                "                \"endNode\": \"26\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          }\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"graph\": {\n" +
-                "            \"nodes\": [\n" +
-                "              {\n" +
-                "                \"id\": \"346\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"Issue\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"title\": \"fake 1\",\n" +
-                "                  \"number\": \"1\",\n" +
-                "                  \"title\": \"fake 1\"\n" +
-                "                }\n" +
-                "              },\n" +
-                "              {\n" +
-                "                \"id\": \"344\",\n" +
-                "                \"labels\": [\n" +
-                "                  \"User\"\n" +
-                "                ],\n" +
-                "                \"properties\": {\n" +
-                "                  \"firstName\": \"vince\"\n" +
-                "                }\n" +
-                "              }\n" +
-                "            ],\n" +
-                "            \"relationships\": [\n" +
-                "              {\n" +
-                "                \"id\": \"509\",\n" +
-                "                \"type\": \"CREATED\",\n" +
-                "                \"startNode\": \"344\",\n" +
-                "                \"endNode\": \"346\",\n" +
-                "                \"properties\": {}\n" +
-                "              }\n" +
-                "            ]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"errors\": []\n" +
-                "}";
+            "  \"results\": [\n" +
+            "    {\n" +
+            "      \"columns\": [\n" +
+            "        \"p\"\n" +
+            "      ],\n" +
+            "      \"data\": [\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"343\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"User\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"firstName\": \"adam\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": []\n" +
+            "          }\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"343\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"User\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"firstName\": \"adam\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"26\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Customer\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"GraphAware\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"18\",\n" +
+            "                \"type\": \"EMPLOYED_BY\",\n" +
+            "                \"startNode\": \"343\",\n" +
+            "                \"endNode\": \"26\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          }\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"343\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"User\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"firstName\": \"adam\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"347\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Issue\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"title\": \"fake 7\",\n" +
+            "                  \"number\": \"7\",\n" +
+            "                  \"title\": \"fake 7\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"506\",\n" +
+            "                \"type\": \"ASSIGNED_TO\",\n" +
+            "                \"startNode\": \"347\",\n" +
+            "                \"endNode\": \"343\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          }\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"344\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"User\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"firstName\": \"vince\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": []\n" +
+            "          }\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"26\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Customer\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"name\": \"GraphAware\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"344\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"User\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"firstName\": \"vince\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"19\",\n" +
+            "                \"type\": \"EMPLOYED_BY\",\n" +
+            "                \"startNode\": \"344\",\n" +
+            "                \"endNode\": \"26\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          }\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"graph\": {\n" +
+            "            \"nodes\": [\n" +
+            "              {\n" +
+            "                \"id\": \"346\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"Issue\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"title\": \"fake 1\",\n" +
+            "                  \"number\": \"1\",\n" +
+            "                  \"title\": \"fake 1\"\n" +
+            "                }\n" +
+            "              },\n" +
+            "              {\n" +
+            "                \"id\": \"344\",\n" +
+            "                \"labels\": [\n" +
+            "                  \"User\"\n" +
+            "                ],\n" +
+            "                \"properties\": {\n" +
+            "                  \"firstName\": \"vince\"\n" +
+            "                }\n" +
+            "              }\n" +
+            "            ],\n" +
+            "            \"relationships\": [\n" +
+            "              {\n" +
+            "                \"id\": \"509\",\n" +
+            "                \"type\": \"CREATED\",\n" +
+            "                \"startNode\": \"344\",\n" +
+            "                \"endNode\": \"346\",\n" +
+            "                \"properties\": {}\n" +
+            "              }\n" +
+            "            ]\n" +
+            "          }\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"errors\": []\n" +
+            "}";
         return new ByteArrayInputStream(s.getBytes());
     }
 
@@ -351,5 +349,5 @@ public class JsonGraphResponseTest {
             //Nothing to do, the response has been closed already
         }
     }
-//
+    //
 }

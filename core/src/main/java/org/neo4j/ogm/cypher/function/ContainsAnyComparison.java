@@ -23,7 +23,6 @@ import org.neo4j.ogm.cypher.Filter;
  * The difference with the IN filter is that the IN has a single parameter value, whereas
  * ContainsAny value can be a collection and will match against properties
  * containing at least one of these values.
- *
  * For example
  * <pre>
  *  Filter f = new Filter("specialities", new ContainsAnyComparison(Arrays.asList("burger", "sushi")));

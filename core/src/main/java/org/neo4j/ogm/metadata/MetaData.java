@@ -13,8 +13,13 @@
 
 package org.neo4j.ogm.metadata;
 
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -24,7 +29,6 @@ import org.neo4j.ogm.metadata.schema.Schema;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * @author Vince Bickers
@@ -81,7 +85,6 @@ public class MetaData {
         classInfos.put(name, null);
         return null;
     }
-
 
     /**
      * Finds the ClassInfo for the supplied object by looking up its class name
@@ -159,7 +162,8 @@ public class MetaData {
                 // if its a superclass, we discard it.
                 // if its a subclass, we replace the previously found class with this one.
                 if (taxonClassInfo != null) {
-                    LOGGER.debug("concrete class found: {}. comparing with what's already been found previously...", taxonClassInfo);
+                    LOGGER.debug("concrete class found: {}. comparing with what's already been found previously...",
+                        taxonClassInfo);
                     for (ClassInfo found : resolved) {
                         if (taxonClassInfo.isSubclassOf(found)) {
                             LOGGER.debug("{} is a subclass of {} and will replace it.", taxonClassInfo, found);
@@ -225,7 +229,6 @@ public class MetaData {
         return classInfos;
     }
 
-
     private ClassInfo findFirstSingleConcreteClass(ClassInfo root, List<ClassInfo> classInfoList) {
 
         // if the root class is concrete, return it.
@@ -262,7 +265,8 @@ public class MetaData {
 
     private ClassInfo findSingleImplementor(String taxon) {
         ClassInfo interfaceInfo = domainInfo.getClassInfoForInterface(taxon);
-        if (interfaceInfo != null && interfaceInfo.directImplementingClasses() != null && interfaceInfo.directImplementingClasses().size() == 1) {
+        if (interfaceInfo != null && interfaceInfo.directImplementingClasses() != null
+            && interfaceInfo.directImplementingClasses().size() == 1) {
             return interfaceInfo.directImplementingClasses().get(0);
         }
         return null;

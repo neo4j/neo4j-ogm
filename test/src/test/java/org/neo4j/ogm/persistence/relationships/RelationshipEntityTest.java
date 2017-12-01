@@ -22,7 +22,11 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -41,7 +45,6 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
     private U u;
     private M m;
     private R r1;
-
 
     @BeforeClass
     public static void oneTimeSetUp() {
@@ -94,7 +97,6 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         assertThat(m.rset).hasSize(1);
         assertThat(m.rset.iterator().next().stars.intValue()).isEqualTo(3);
     }
-
 
     @Test
     public void shouldDeleteR() {
@@ -199,7 +201,9 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         M qryM = session.queryForObject(M.class, "MATCH (n:M) return n", Utils.map());
         M findM = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } RETURN n", Utils.map("id", m.id));
-        M findM2 = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN nodes(p)", Utils.map("id", m.id));
+        M findM2 = session
+            .queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN nodes(p)",
+                Utils.map("id", m.id));
 
         assertThat(qryM).isNotNull();
         assertThat(findM).isNotNull();
@@ -267,7 +271,6 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         session.save(invalidR);
     }
 
-
     /**
      * @see DATAGRAPH-944
      */
@@ -289,7 +292,8 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         session.clear();
 
         assertThat(link.id).isNotNull();
-        Arc reloaded = session.queryForObject(Arc.class, "MATCH (f:Vertex)-[a:Arc]->(t:Vertex) return f, a, t", Utils.map());
+        Arc reloaded = session
+            .queryForObject(Arc.class, "MATCH (f:Vertex)-[a:Arc]->(t:Vertex) return f, a, t", Utils.map());
 
         assertThat(reloaded).isNotNull();
         assertThat(reloaded.from).isNotNull();

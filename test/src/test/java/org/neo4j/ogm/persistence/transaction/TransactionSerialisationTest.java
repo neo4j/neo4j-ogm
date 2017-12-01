@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.transaction;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,8 +27,6 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author vince
  * @see Issue #130
@@ -34,7 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TransactionSerialisationTest extends MultiDriverTestClass {
 
     @Test
-    public void shouldBeAbleToRunMultiThreadedLongRunningQueriesWithoutLosingConnectionResources() throws InterruptedException {
+    public void shouldBeAbleToRunMultiThreadedLongRunningQueriesWithoutLosingConnectionResources()
+        throws InterruptedException {
 
         int numThreads = Runtime.getRuntime().availableProcessors() * 4;
 
@@ -52,7 +53,8 @@ public class TransactionSerialisationTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldBeAbleToHandleMultiThreadedFailingQueriesWithoutLosingConnectionResources() throws InterruptedException {
+    public void shouldBeAbleToHandleMultiThreadedFailingQueriesWithoutLosingConnectionResources()
+        throws InterruptedException {
 
         int numThreads = Runtime.getRuntime().availableProcessors() * 4;
 
@@ -70,7 +72,6 @@ public class TransactionSerialisationTest extends MultiDriverTestClass {
         latch.await(); // pause until the count reaches 0
         executor.shutdownNow();
     }
-
 
     class QueryRunner implements Runnable {
 

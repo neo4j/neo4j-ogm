@@ -34,7 +34,6 @@ public class BoltTransaction extends AbstractTransaction {
     private final Session nativeSession;
     private final Logger LOGGER = LoggerFactory.getLogger(BoltTransaction.class);
 
-
     public BoltTransaction(TransactionManager transactionManager, Transaction transaction, Session session, Type type) {
         super(transactionManager);
         this.nativeTransaction = transaction;

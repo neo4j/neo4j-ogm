@@ -13,11 +13,18 @@
 
 package org.neo4j.ogm.metadata;
 
-
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.Index;
+import org.neo4j.ogm.annotation.Labels;
+import org.neo4j.ogm.annotation.Properties;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
@@ -35,27 +42,26 @@ public class FieldInfo {
 
     private static final String PRIMITIVES = "char,byte,short,int,long,float,double,boolean,char[],byte[],short[],int[],long[],float[],double[],boolean[]";
     private static final String AUTOBOXERS =
-            "java.lang.Object" +
-                    "java.lang.Character" +
-                    "java.lang.Byte" +
-                    "java.lang.Short" +
-                    "java.lang.Integer" +
-                    "java.lang.Long" +
-                    "java.lang.Float" +
-                    "java.lang.Double" +
-                    "java.lang.Boolean" +
-                    "java.lang.String" +
-                    "java.lang.Object[]" +
-                    "java.lang.Character[]" +
-                    "java.lang.Byte[]" +
-                    "java.lang.Short[]" +
-                    "java.lang.Integer[]" +
-                    "java.lang.Long[]" +
-                    "java.lang.Float[]" +
-                    "java.lang.Double[]" +
-                    "java.lang.Boolean[]" +
-                    "java.lang.String[]";
-
+        "java.lang.Object" +
+            "java.lang.Character" +
+            "java.lang.Byte" +
+            "java.lang.Short" +
+            "java.lang.Integer" +
+            "java.lang.Long" +
+            "java.lang.Float" +
+            "java.lang.Double" +
+            "java.lang.Boolean" +
+            "java.lang.String" +
+            "java.lang.Object[]" +
+            "java.lang.Character[]" +
+            "java.lang.Byte[]" +
+            "java.lang.Short[]" +
+            "java.lang.Integer[]" +
+            "java.lang.Long[]" +
+            "java.lang.Float[]" +
+            "java.lang.Double[]" +
+            "java.lang.Boolean[]" +
+            "java.lang.String[]";
 
     private final String name;
     private final String descriptor;
@@ -75,13 +81,12 @@ public class FieldInfo {
      */
     private CompositeAttributeConverter<?> compositeConverter;
 
-
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
      *
      * @param typeParameterDescriptor The descriptor that expresses the generic type parameter, which may be <code>null</code>
-     * if that's not appropriate
-     * @param annotations The {@link ObjectAnnotations} applied to the field
+     *                                if that's not appropriate
+     * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
     public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations) {
         this.containingClassInfo = classInfo;
@@ -101,21 +106,22 @@ public class FieldInfo {
                 setCompositeConverter((CompositeAttributeConverter<?>) converter);
             } else if (converter != null) {
                 throw new IllegalStateException(String.format(
-                        "The converter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
-                        this.name));
+                    "The converter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
+                    this.name));
             } else {
                 AnnotationInfo properties = getAnnotations().get(Properties.class);
                 if (properties != null) {
                     if (fieldType.equals(Map.class)) {
                         Type fieldGenericType = field.getGenericType();
                         MapCompositeConverter mapCompositeConverter = new MapCompositeConverter(
-                                properties.get("prefix", field.getName()),
-                                properties.get("delimiter"),
-                                Boolean.valueOf(properties.get("allowCast")),
-                                (ParameterizedType) fieldGenericType);
+                            properties.get("prefix", field.getName()),
+                            properties.get("delimiter"),
+                            Boolean.valueOf(properties.get("allowCast")),
+                            (ParameterizedType) fieldGenericType);
                         setCompositeConverter(mapCompositeConverter);
                     } else {
-                        throw new MappingException("@Properties annotation is allowed only on fields of type java.util.Map");
+                        throw new MappingException(
+                            "@Properties annotation is allowed only on fields of type java.util.Map");
                     }
                 }
             }
@@ -125,7 +131,6 @@ public class FieldInfo {
     public String getName() {
         return name;
     }
-
 
     // should these two methods be on PropertyReader, RelationshipReader respectively?
     public String property() {
@@ -146,7 +151,8 @@ public class FieldInfo {
             if (annotations != null) {
                 AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
                 if (relationshipAnnotation != null) {
-                    return relationshipAnnotation.get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
+                    return relationshipAnnotation
+                        .get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
                 }
             }
             return RelationshipUtils.inferRelationshipType(getName());
@@ -175,10 +181,10 @@ public class FieldInfo {
     public boolean persistableAsProperty() {
 
         return PRIMITIVES.contains(descriptor)
-                || (AUTOBOXERS.contains(descriptor) && typeParameterDescriptor == null)
-                || (typeParameterDescriptor != null && AUTOBOXERS.contains(typeParameterDescriptor))
-                || propertyConverter != null
-                || compositeConverter != null;
+            || (AUTOBOXERS.contains(descriptor) && typeParameterDescriptor == null)
+            || (typeParameterDescriptor != null && AUTOBOXERS.contains(typeParameterDescriptor))
+            || propertyConverter != null
+            || compositeConverter != null;
     }
 
     public AttributeConverter getPropertyConverter() {
@@ -324,7 +330,7 @@ public class FieldInfo {
     public Class<?> convertedType() {
         if (hasPropertyConverter() || hasCompositeConverter()) {
             Class converterClass = hasPropertyConverter() ?
-                    getPropertyConverter().getClass() : getCompositeConverter().getClass();
+                getPropertyConverter().getClass() : getCompositeConverter().getClass();
             String methodName = hasPropertyConverter() ? "toGraphProperty" : "toGraphProperties";
 
             try {
@@ -356,7 +362,6 @@ public class FieldInfo {
     // =================================================================================================================
     // From FieldAccessor
     // =================================================================================================================
-
 
     public static void write(Field field, Object instance, Object value) {
         try {
@@ -394,7 +399,7 @@ public class FieldInfo {
      * Write the value of the field directly to the instance, bypassing the converters
      *
      * @param instance class instance
-     * @param value field value to be written
+     * @param value    field value to be written
      */
     public void writeDirect(Object instance, Object value) {
         write(field, instance, value);
@@ -427,7 +432,7 @@ public class FieldInfo {
     public Object readProperty(Object instance) {
         if (hasCompositeConverter()) {
             throw new IllegalStateException(
-                    "The readComposite method should be used for fields with a CompositeAttributeConverter");
+                "The readComposite method should be used for fields with a CompositeAttributeConverter");
         }
         Object value = read(containingClassInfo.getField(this), instance);
         if (hasPropertyConverter()) {
@@ -439,7 +444,7 @@ public class FieldInfo {
     public Map<String, ?> readComposite(Object instance) {
         if (!hasCompositeConverter()) {
             throw new IllegalStateException(
-                    "readComposite should only be used when a field is annotated with a CompositeAttributeConverter");
+                "readComposite should only be used when a field is annotated with a CompositeAttributeConverter");
         }
         Object value = read(containingClassInfo.getField(this), instance);
         return getCompositeConverter().toGraphProperties(value);

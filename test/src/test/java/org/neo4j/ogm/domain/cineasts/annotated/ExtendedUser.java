@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.domain.cineasts.annotated;
 
-
 import org.neo4j.ogm.annotation.NodeEntity;
 
 /**

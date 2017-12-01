@@ -13,13 +13,13 @@
 
 package org.neo4j.ogm.domain.postload;
 
+import static org.neo4j.ogm.annotation.Relationship.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.PostLoad;
 import org.neo4j.ogm.annotation.Relationship;
-
-import static org.neo4j.ogm.annotation.Relationship.UNDIRECTED;
 
 /**
  * @author Frantisek Hartman

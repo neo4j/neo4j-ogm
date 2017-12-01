@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.metadata;
 
-
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
@@ -68,7 +67,6 @@ public class ClassPathScannerTest {
         assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.StringMapEntity")).isTrue();
         assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.StringMapConverter")).isTrue();
     }
-
 
     @Test
     public void zipFileWithDomainClassesShouldBeScanned() throws IOException {

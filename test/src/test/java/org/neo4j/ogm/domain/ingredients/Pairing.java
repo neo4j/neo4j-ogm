@@ -31,7 +31,6 @@ public class Pairing {
     private Ingredient second;
     private String affinity;
 
-
     public Pairing() {
     }
 

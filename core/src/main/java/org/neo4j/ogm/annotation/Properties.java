@@ -13,20 +13,20 @@
 
 package org.neo4j.ogm.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Tells OGM to map values of a Map field in a node or relationship entity to properties of a node or a relationship
  * in the graph.
- * <p>
  * The property names are derived from field name or {@link #prefix()}, delimiter and keys in the Map. If the delimiter,
  * prefix or keys conflict with other field names in the class the behaviour is not defined.
- * <p>
  * Supported types for keys in the Map are String and Enum.
- * <p>
  * The values in the Map can be of any Java type equivalent to Cypher types. If full type information is provided other
  * Java types are also supported.
- * <p>
  * If {@link #allowCast()} is set to true then types that can be cast to corresponding Cypher types are allowed as well.
  * Note that the original type cannot be deduced and the value will be deserialized to corresponding type - e.g.
  * when Integer instance is put to {@code Map<String, Object>} it will be deserialized as Long.
@@ -48,7 +48,6 @@ public @interface Properties {
      * Delimiter to use in the property names
      */
     String delimiter() default ".";
-
 
     /**
      * If values in the Map that do not have supported Cypher type should be allowed to be cast to Cypher types

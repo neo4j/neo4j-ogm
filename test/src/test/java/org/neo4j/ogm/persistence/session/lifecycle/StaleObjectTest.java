@@ -13,18 +13,17 @@
 
 package org.neo4j.ogm.persistence.session.lifecycle;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * These tests define the behaviour of the OGM with regard to
@@ -105,9 +104,11 @@ public class StaleObjectTest extends MultiDriverTestClass {
         assertThat(p.getDocuments().iterator().next() == b).isFalse();
 
         assertThat(a.toString()).isEqualTo("Document{folder=null, name='a'}");
-        assertThat(b.toString()).isEqualTo("Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}");   // b is attached to f, which hasn't been saved or reloaded, so is unchanged
+        assertThat(b.toString()).isEqualTo(
+            "Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}");   // b is attached to f, which hasn't been saved or reloaded, so is unchanged
 
-        assertThat(p.getDocuments().iterator().next().toString()).isEqualTo("Document{folder=Folder{name='f', documents=1, archived=0}, name='b'}");
+        assertThat(p.getDocuments().iterator().next().toString())
+            .isEqualTo("Document{folder=Folder{name='f', documents=1, archived=0}, name='b'}");
     }
 
     @Test

@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.result.adapter;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
@@ -51,7 +55,8 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
         return graphModel;
     }
 
-    private void adaptInternal(Set<Long> nodeIdentities, Set<Long> edgeIdentities, GraphModel graphModel, Object value) {
+    private void adaptInternal(Set<Long> nodeIdentities, Set<Long> edgeIdentities, GraphModel graphModel,
+        Object value) {
         if (isPath(value)) {
             buildPath(value, graphModel, nodeIdentities, edgeIdentities);
         } else if (isNode(value)) {
@@ -88,7 +93,7 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
             nodeModel.setId(nodeId(node));
             List<String> labelNames = labels(node);
 
-            nodeModel.setLabels(labelNames.toArray(new String[]{}));
+            nodeModel.setLabels(labelNames.toArray(new String[] {}));
 
             nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
 

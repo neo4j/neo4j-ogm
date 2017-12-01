@@ -33,8 +33,8 @@ public class InvalidPropertiesTest extends MultiDriverTestClass {
     @Test(expected = MappingException.class)
     public void shouldThrowInvalidMappingException() throws Exception {
         session = new SessionFactory(driver,
-                UserWithInvalidPropertiesType.class.getName())
-                .openSession();
+            UserWithInvalidPropertiesType.class.getName())
+            .openSession();
     }
 
 }

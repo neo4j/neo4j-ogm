@@ -16,8 +16,9 @@ package org.neo4j.ogm.domain.mappings;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.ogm.annotation.Relationship;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Nils Dr\u00F6ge
@@ -67,8 +68,8 @@ public class Event extends Entity {
     @Override
     public String toString() {
         return "Event{" +
-                "id:" + getNodeId() +
-                ", title:'" + title + "'" +
-                '}';
+            "id:" + getNodeId() +
+            ", title:'" + title + "'" +
+            '}';
     }
 }

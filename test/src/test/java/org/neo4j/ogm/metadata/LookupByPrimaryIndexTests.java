@@ -13,12 +13,14 @@
 
 package org.neo4j.ogm.metadata;
 
+import static java.util.Arrays.*;
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations.IdAndGenerationType;
 import org.neo4j.ogm.domain.autoindex.valid.Invoice;
@@ -28,10 +30,6 @@ import org.neo4j.ogm.domain.cineasts.partial.Actor;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static java.util.Arrays.asList;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Mark Angrish
@@ -44,9 +42,9 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @BeforeClass
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(driver,
-                "org.neo4j.ogm.domain.cineasts.annotated",
-                "org.neo4j.ogm.domain.annotations.ids",
-                "org.neo4j.ogm.domain.autoindex.valid"
+            "org.neo4j.ogm.domain.cineasts.annotated",
+            "org.neo4j.ogm.domain.annotations.ids",
+            "org.neo4j.ogm.domain.autoindex.valid"
         );
     }
 
@@ -108,7 +106,8 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
 
         final Session session2 = sessionFactory.openSession();
 
-        final ValidAnnotations.UuidIdAndGenerationType retrievedEntity = session2.load(ValidAnnotations.UuidIdAndGenerationType.class, entity.identifier);
+        final ValidAnnotations.UuidIdAndGenerationType retrievedEntity = session2
+            .load(ValidAnnotations.UuidIdAndGenerationType.class, entity.identifier);
         assertThat(retrievedEntity).isNotNull();
         assertThat(retrievedEntity.identifier).isNotNull().isEqualTo(entity.identifier);
     }

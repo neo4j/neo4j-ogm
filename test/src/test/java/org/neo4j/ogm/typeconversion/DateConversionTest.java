@@ -96,14 +96,16 @@ public class DateConversionTest {
     @Test
     public void assertArrayFieldDateConversionToISO8601FormatByDefault() {//here
         simpleDateISO8601format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date[] dates = new Date[]{new Date(0), new Date(20000)};
+        Date[] dates = new Date[] { new Date(0), new Date(20000) };
         FieldInfo fieldInfo = memoInfo.propertyField("escalations");
         assertThat(fieldInfo.hasPropertyConverter()).isTrue();
         AttributeConverter attributeConverter = fieldInfo.getPropertyConverter();
         assertThat(attributeConverter.getClass().isAssignableFrom(DateArrayStringConverter.class)).isTrue();
         String[] converted = (String[]) attributeConverter.toGraphProperty(dates);
-        assertThat(converted[0].equals("1970-01-01T00:00:00.000Z") || converted[1].equals("1970-01-01T00:00:00.000Z")).isTrue();
-        assertThat(converted[0].equals(simpleDateISO8601format.format(new Date(20000))) || converted[1].equals(simpleDateISO8601format.format(new Date(20000)))).isTrue();
+        assertThat(converted[0].equals("1970-01-01T00:00:00.000Z") || converted[1].equals("1970-01-01T00:00:00.000Z"))
+            .isTrue();
+        assertThat(converted[0].equals(simpleDateISO8601format.format(new Date(20000))) || converted[1]
+            .equals(simpleDateISO8601format.format(new Date(20000)))).isTrue();
     }
 
     /**
@@ -142,10 +144,11 @@ public class DateConversionTest {
         AttributeConverter attributeConverter = fieldInfo.getPropertyConverter();
         assertThat(attributeConverter.getClass().isAssignableFrom(DateCollectionStringConverter.class)).isTrue();
         String[] converted = (String[]) attributeConverter.toGraphProperty(dates);
-        assertThat(converted[0].equals("1970-01-01T00:00:00.000Z") || converted[1].equals("1970-01-01T00:00:00.000Z")).isTrue();
-        assertThat(converted[0].equals(simpleDateISO8601format.format(new Date(20000))) || converted[1].equals(simpleDateISO8601format.format(new Date(20000)))).isTrue();
+        assertThat(converted[0].equals("1970-01-01T00:00:00.000Z") || converted[1].equals("1970-01-01T00:00:00.000Z"))
+            .isTrue();
+        assertThat(converted[0].equals(simpleDateISO8601format.format(new Date(20000))) || converted[1]
+            .equals(simpleDateISO8601format.format(new Date(20000)))).isTrue();
     }
-
 
     /**
      * @see DATAGRAPH-550

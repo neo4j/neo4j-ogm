@@ -13,6 +13,9 @@
 
 package org.neo4j.ogm.persistence.examples.restaurant;
 
+import static com.google.common.collect.Lists.*;
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +28,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -41,10 +43,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
 
 public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
@@ -70,11 +68,11 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
     public void shouldSaveRestaurantWithCompositeLocationConverter() {
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
-                new Location(37.61649, -122.38681), 94128);
+            new Location(37.61649, -122.38681), 94128);
         session.save(restaurant);
 
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-                "CREATE (n:`Restaurant` {name: 'San Francisco International Airport (SFO)', latitude: 37.61649, longitude: -122.38681, zip: 94128, score: 0.0, halal: false, specialities:[]})");
+            "CREATE (n:`Restaurant` {name: 'San Francisco International Airport (SFO)', latitude: 37.61649, longitude: -122.38681, zip: 94128, score: 0.0, halal: false, specialities:[]})");
     }
 
     @Test
@@ -95,15 +93,15 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
     public void shouldQueryByDistance() {
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
-                new Location(37.61649, -122.38681), 94128);
+            new Location(37.61649, -122.38681), 94128);
         session.save(restaurant);
 
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("distance", 1000);
 
         Restaurant found = session.queryForObject(Restaurant.class, "MATCH (r:Restaurant) " +
-                        "WHERE distance(point(r),point({latitude:37.0, longitude:-118.0, crs: 'WGS-84'})) < {distance}*1000 RETURN r;",
-                parameters);
+                "WHERE distance(point(r),point({latitude:37.0, longitude:-118.0, crs: 'WGS-84'})) < {distance}*1000 RETURN r;",
+            parameters);
 
         assertThat(found).isNotNull();
     }
@@ -112,11 +110,12 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
     public void shouldQueryByDistanceUsingFilter() {
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
-                new Location(37.61649, -122.38681), 94128);
+            new Location(37.61649, -122.38681), 94128);
         session.save(restaurant);
         session.clear();
 
-        Filter filter = new Filter(new DistanceComparison(new DistanceFromPoint(37.61649, -122.38681, 1000 * 1000.0)), ComparisonOperator.LESS_THAN);
+        Filter filter = new Filter(new DistanceComparison(new DistanceFromPoint(37.61649, -122.38681, 1000 * 1000.0)),
+            ComparisonOperator.LESS_THAN);
         Collection<Restaurant> found = session.loadAll(Restaurant.class, filter);
         assertThat(found).isNotNull();
         assertThat(found.size() >= 1).isTrue();
@@ -126,13 +125,13 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
     public void saveAndRetrieveRestaurantWithLocation() {
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
-                new Location(37.61649, -122.38681), 94128);
+            new Location(37.61649, -122.38681), 94128);
 
         session.save(restaurant);
         session.clear();
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class,
-                new Filter("name", ComparisonOperator.EQUALS, "San Francisco International Airport (SFO)"));
+            new Filter("name", ComparisonOperator.EQUALS, "San Francisco International Airport (SFO)"));
         assertThat(results).hasSize(1);
         Restaurant result = results.iterator().next();
         assertThat(result.getLocation()).isNotNull();
@@ -355,7 +354,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         kuroda.setLaunchDate(new Date(2000));
         session.save(kuroda);
 
-        Filter filter = new Filter("name", ComparisonOperator.IN, new String[]{"Kuroda", "Foo", "Bar"});
+        Filter filter = new Filter("name", ComparisonOperator.IN, new String[] { "Kuroda", "Foo", "Bar" });
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
         assertThat(results).isNotNull();

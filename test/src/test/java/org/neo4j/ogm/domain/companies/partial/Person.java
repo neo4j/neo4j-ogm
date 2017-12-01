@@ -13,13 +13,7 @@
 
 package org.neo4j.ogm.domain.companies.partial;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.domain.companies.annotated.Company;
-import org.neo4j.ogm.domain.companies.annotated.Device;
 
 /**
  * @author Frantisek Hartman

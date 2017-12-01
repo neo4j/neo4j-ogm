@@ -13,12 +13,12 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.Test;
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.schema.DomainInfoSchemaBuilder;
 import org.neo4j.ogm.metadata.schema.Schema;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Frantisek Hartman
@@ -48,12 +48,12 @@ public class SchemaLoadClauseBuilderTest {
 
         String query = queryBuilder.build("n", "Person", 2);
         assertThat(query).isEqualTo(" RETURN n,[ " +
-                "[ (n)-[r_f1:`FOUNDED`]->(o1:`Organisation`) | [ r_f1, o1 ] ], " +
-                "[ (n)-[r_e1:`EMPLOYED_BY`]->(o1:`Organisation`) | [ r_e1, o1 ] ], " +
-                "[ (n)-[r_l1:`LIVES_AT`]->(l1:`Location`) | [ r_l1, l1, " +
-                "[ [ (l1)<-[r_l2:`LIVES_AT`]-(p2:`Person`) | [ r_l2, p2 ] ] ] " +
-                "] ] " +
-                "]");
+            "[ (n)-[r_f1:`FOUNDED`]->(o1:`Organisation`) | [ r_f1, o1 ] ], " +
+            "[ (n)-[r_e1:`EMPLOYED_BY`]->(o1:`Organisation`) | [ r_e1, o1 ] ], " +
+            "[ (n)-[r_l1:`LIVES_AT`]->(l1:`Location`) | [ r_l1, l1, " +
+            "[ [ (l1)<-[r_l2:`LIVES_AT`]-(p2:`Person`) | [ r_l2, p2 ] ] ] " +
+            "] ] " +
+            "]");
     }
 
     @Test

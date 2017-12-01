@@ -13,8 +13,9 @@
 
 package org.neo4j.ogm.result;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.neo4j.ogm.model.Query;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * @author Vince Bickers

@@ -49,7 +49,6 @@ public class MethodsInfo {
         }
     }
 
-
     public MethodsInfo(Map<String, MethodInfo> methods) {
         this.methods = new HashMap<>(methods);
     }

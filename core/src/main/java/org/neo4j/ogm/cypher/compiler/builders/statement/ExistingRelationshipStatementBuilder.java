@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.cypher.compiler.builders.statement;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Edge;
@@ -35,7 +39,6 @@ public class ExistingRelationshipStatementBuilder implements CypherStatementBuil
         this.edges = edges;
         this.statementFactory = statementFactory;
     }
-
 
     @Override
     public Statement build() {

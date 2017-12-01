@@ -11,7 +11,6 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-
 package org.neo4j.ogm.session.request;
 
 import org.neo4j.ogm.annotation.Relationship;
@@ -38,7 +37,8 @@ public class PathMatchClause implements MatchClause {
         if (filter.getRelationshipDirection().equals(Relationship.INCOMING)) {
             clause.append("<");
         }
-        clause.append(String.format("-[%s:`%s`]-", filter.isNestedRelationshipEntity() ? "r" : "", filter.getRelationshipType()));
+        clause.append(
+            String.format("-[%s:`%s`]-", filter.isNestedRelationshipEntity() ? "r" : "", filter.getRelationshipType()));
         if (filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
             clause.append(">");
         }

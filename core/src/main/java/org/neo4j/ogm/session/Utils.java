@@ -36,8 +36,8 @@ public class Utils {
 
     public static int size(Iterable<?> iterable) {
         return (iterable instanceof Collection)
-                ? ((Collection<?>) iterable).size()
-                : size(iterable.iterator());
+            ? ((Collection<?>) iterable).size()
+            : size(iterable.iterator());
     }
 
     public static int size(Iterator<?> iterator) {
@@ -126,7 +126,8 @@ public class Utils {
                 if (value.getClass().equals(Long.class)) {
                     Long testValue = (Long) value;
                     if (testValue < -(Double.MAX_VALUE) || testValue > Double.MAX_VALUE) {
-                        throw new IllegalArgumentException(testValue + " cannot be cast to double without an overflow.");
+                        throw new IllegalArgumentException(
+                            testValue + " cannot be cast to double without an overflow.");
                     }
                     return testValue.doubleValue();
                 }
@@ -186,7 +187,6 @@ public class Utils {
         }
         return value;
     }
-
 
     private static Object defaultForPrimitive(Class clazz, Object value) {
         String className = clazz.getName();

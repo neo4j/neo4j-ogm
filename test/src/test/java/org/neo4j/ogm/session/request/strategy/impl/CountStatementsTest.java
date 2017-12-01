@@ -13,11 +13,9 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Collections.singleton;
+import static com.google.common.collect.Lists.*;
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
-
-import java.util.Arrays;
 
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -36,7 +34,8 @@ public class CountStatementsTest {
 
     @Test
     public void testCountNodesWithLabel() throws Exception {
-        assertThat(statements.countNodes(singleton("Person")).getStatement()).isEqualTo("MATCH (n:`Person`) RETURN COUNT(n)");
+        assertThat(statements.countNodes(singleton("Person")).getStatement())
+            .isEqualTo("MATCH (n:`Person`) RETURN COUNT(n)");
     }
 
     @Test
@@ -47,15 +46,19 @@ public class CountStatementsTest {
 
     @Test
     public void testCountNodesWithLabelAndFilters() throws Exception {
-        CypherQuery query = statements.countNodes("Person", new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Jim")));
-        assertThat(query.getStatement()).isEqualTo("MATCH (n:`Person`) WHERE n.`name` = { `name_0` } WITH n RETURN COUNT(n)");
+        CypherQuery query = statements
+            .countNodes("Person", new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Jim")));
+        assertThat(query.getStatement())
+            .isEqualTo("MATCH (n:`Person`) WHERE n.`name` = { `name_0` } WITH n RETURN COUNT(n)");
         assertThat(query.getParameters().toString()).isEqualTo("{name_0=Jim}");
     }
 
     @Test
     public void testCountEdgesWithTypeAndFilters() throws Exception {
-        CypherQuery query = statements.countEdges("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
-        assertThat(query.getStatement()).isEqualTo("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  RETURN COUNT(r0)");
+        CypherQuery query = statements
+            .countEdges("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
+        assertThat(query.getStatement())
+            .isEqualTo("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  RETURN COUNT(r0)");
         assertThat(query.getParameters().toString()).isEqualTo("{score_0=-12.2}");
     }
 

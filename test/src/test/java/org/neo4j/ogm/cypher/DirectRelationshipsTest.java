@@ -62,7 +62,6 @@ public class DirectRelationshipsTest {
         mappingContext.clear();
     }
 
-
     @Test
     public void shouldSaveNewFolderDocumentPair() {
 
@@ -77,23 +76,33 @@ public class DirectRelationshipsTest {
 
         List<String> createNodeStatements = cypherStatements(compiler.createNodesStatements());
         assertThat(createNodeStatements).hasSize(2);
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
 
         List<String> createRelStatements = cypherStatements(compiler.createRelationshipsStatements());
         assertThat(createRelStatements).hasSize(1);
-        assertThat(createRelStatements.get(0)).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+        assertThat(createRelStatements.get(0)).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
 
         compiler = mapper.map(document).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
         createNodeStatements = cypherStatements(compiler.createNodesStatements());
         assertThat(createNodeStatements).hasSize(2);
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
 
         createRelStatements = cypherStatements(compiler.createRelationshipsStatements());
         assertThat(createRelStatements).hasSize(1);
-        assertThat(createRelStatements.get(0)).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+        assertThat(createRelStatements.get(0)).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
     }
 
     @Test
@@ -116,8 +125,12 @@ public class DirectRelationshipsTest {
         List<Statement> statements = compiler.createNodesStatements();
         List<String> createNodeStatements = cypherStatements(statements);
         assertThat(createNodeStatements).hasSize(2);
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             if (statement.getStatement().contains("Folder")) {
@@ -131,7 +144,8 @@ public class DirectRelationshipsTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertThat(createRelStatements).hasSize(1);
-        assertThat(createRelStatements.get(0)).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+        assertThat(createRelStatements.get(0)).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
         List rows = (List) statements.get(0).getParameters().get("rows");
         assertThat(rows).hasSize(2);
 
@@ -142,8 +156,12 @@ public class DirectRelationshipsTest {
         statements = compiler.createNodesStatements();
         createNodeStatements = cypherStatements(statements);
         assertThat(createNodeStatements).hasSize(2);
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
         for (Statement statement : statements) {
             rows = (List) statement.getParameters().get("rows");
             if (statement.getStatement().contains("Folder")) {
@@ -158,7 +176,8 @@ public class DirectRelationshipsTest {
         statements = compiler.createRelationshipsStatements();
         createRelStatements = cypherStatements(statements);
         assertThat(createRelStatements).hasSize(1);
-        assertThat(createRelStatements.get(0)).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+        assertThat(createRelStatements.get(0)).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
         rows = (List) statements.get(0).getParameters().get("rows");
         assertThat(rows).hasSize(2);
 
@@ -168,8 +187,12 @@ public class DirectRelationshipsTest {
         statements = compiler.createNodesStatements();
         createNodeStatements = cypherStatements(statements);
         assertThat(createNodeStatements).hasSize(2);
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
         for (Statement statement : statements) {
             rows = (List) statement.getParameters().get("rows");
             if (statement.getStatement().contains("Folder")) {
@@ -183,11 +206,11 @@ public class DirectRelationshipsTest {
         statements = compiler.createRelationshipsStatements();
         createRelStatements = cypherStatements(statements);
         assertThat(createRelStatements).hasSize(1);
-        assertThat(createRelStatements.get(0)).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+        assertThat(createRelStatements.get(0)).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
         rows = (List) statements.get(0).getParameters().get("rows");
         assertThat(rows).hasSize(2);
     }
-
 
     @Test
     public void shouldNotBeAbleToCreateDuplicateRelationship() {
@@ -213,8 +236,12 @@ public class DirectRelationshipsTest {
         List<Statement> statements = compiler.createNodesStatements();
         List<String> createNodeStatements = cypherStatements(statements);
         assertThat(createNodeStatements).hasSize(2);
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertThat(rows).hasSize(1);
@@ -223,7 +250,8 @@ public class DirectRelationshipsTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertThat(createRelStatements).hasSize(1);
-        assertThat(createRelStatements.get(0)).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+        assertThat(createRelStatements.get(0)).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
         List rows = (List) statements.get(0).getParameters().get("rows");
         assertThat(rows).hasSize(1);
 
@@ -234,8 +262,12 @@ public class DirectRelationshipsTest {
         statements = compiler.createNodesStatements();
         createNodeStatements = cypherStatements(statements);
         assertThat(createNodeStatements).hasSize(2);
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
         for (Statement statement : statements) {
             rows = (List) statement.getParameters().get("rows");
             assertThat(rows).hasSize(1);
@@ -244,7 +276,8 @@ public class DirectRelationshipsTest {
         statements = compiler.createRelationshipsStatements();
         createRelStatements = cypherStatements(statements);
         assertThat(createRelStatements).hasSize(1);
-        assertThat(createRelStatements.get(0)).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+        assertThat(createRelStatements.get(0)).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
         rows = (List) statements.get(0).getParameters().get("rows");
         assertThat(rows).hasSize(1);
     }
@@ -267,8 +300,12 @@ public class DirectRelationshipsTest {
         List<Statement> statements = compiler.createNodesStatements();
         List<String> createNodeStatements = cypherStatements(statements);
         assertThat(createNodeStatements).hasSize(2);
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertThat(rows).hasSize(1);
@@ -277,8 +314,12 @@ public class DirectRelationshipsTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertThat(createRelStatements).hasSize(2);
-        assertThat(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type")).isTrue();
-        assertThat(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`ARCHIVED`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type")).isTrue();
+        assertThat(createRelStatements.contains(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"))
+            .isTrue();
+        assertThat(createRelStatements.contains(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`ARCHIVED`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"))
+            .isTrue();
         boolean archivedType = false, containsType = false;
         for (Statement statement : statements) {
             if (statement.getStatement().contains("ARCHIVED")) {
@@ -298,14 +339,22 @@ public class DirectRelationshipsTest {
         statements = compiler.createNodesStatements();
         createNodeStatements = cypherStatements(statements);
         assertThat(createNodeStatements).hasSize(2);
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
-        assertThat(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type")).isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
+        assertThat(createNodeStatements.contains(
+            "UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"))
+            .isTrue();
 
         statements = compiler.createRelationshipsStatements();
         createRelStatements = cypherStatements(statements);
         assertThat(createRelStatements).hasSize(2);
-        assertThat(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type")).isTrue();
-        assertThat(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`ARCHIVED`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type")).isTrue();
+        assertThat(createRelStatements.contains(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"))
+            .isTrue();
+        assertThat(createRelStatements.contains(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`ARCHIVED`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"))
+            .isTrue();
         archivedType = false;
         containsType = false;
         for (Statement statement : statements) {
@@ -319,7 +368,6 @@ public class DirectRelationshipsTest {
         assertThat(archivedType).isTrue();
         assertThat(containsType).isTrue();
     }
-
 
     @Test
     public void shouldBeAbleToRemoveTheOnlyRegisteredRelationship() {
@@ -335,7 +383,8 @@ public class DirectRelationshipsTest {
 
         mappingContext.addNodeEntity(folder);
         mappingContext.addNodeEntity(document);
-        mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
+        mappingContext.addRelationship(
+            new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
 
         document.setFolder(null);
         folder.getDocuments().clear();
@@ -345,18 +394,21 @@ public class DirectRelationshipsTest {
 
         List<Statement> statements = compiler.deleteRelationshipStatements();
         assertThat(statements).hasSize(1);
-        assertThat(statements.get(0).getStatement()).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
+        assertThat(statements.get(0).getStatement()).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
 
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
-        mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
+        mappingContext.addRelationship(
+            new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
 
         compiler = mapper.map(document).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
 
         statements = compiler.deleteRelationshipStatements();
         assertThat(statements).hasSize(1);
-        assertThat(statements.get(0).getStatement()).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
+        assertThat(statements.get(0).getStatement()).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
     }
 
     @Test
@@ -379,8 +431,10 @@ public class DirectRelationshipsTest {
         mappingContext.addNodeEntity(folder);
         mappingContext.addNodeEntity(doc1);
         mappingContext.addNodeEntity(doc2);
-        mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
-        mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
+        mappingContext.addRelationship(
+            new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
+        mappingContext.addRelationship(
+            new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
 
         // when
         doc2.setFolder(null);
@@ -394,27 +448,32 @@ public class DirectRelationshipsTest {
 
         List<Statement> statements = compiler.deleteRelationshipStatements();
         assertThat(statements).hasSize(1);
-        assertThat(statements.get(0).getStatement()).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
+        assertThat(statements.get(0).getStatement()).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
 
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
-        mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
+        mappingContext.addRelationship(
+            new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
         compiler = mapper.map(doc1).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
 
         statements = compiler.deleteRelationshipStatements();
         assertThat(statements).hasSize(1);
-        assertThat(statements.get(0).getStatement()).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
+        assertThat(statements.get(0).getStatement()).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
 
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
-        mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
+        mappingContext.addRelationship(
+            new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
         compiler = mapper.map(doc2).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
 
         statements = compiler.deleteRelationshipStatements();
         assertThat(statements).hasSize(1);
-        assertThat(statements.get(0).getStatement()).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
+        assertThat(statements.get(0).getStatement()).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
     }
 
     @Test
@@ -433,8 +492,10 @@ public class DirectRelationshipsTest {
 
         mappingContext.addNodeEntity(folder);
         mappingContext.addNodeEntity(doc1);
-        mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
-        mappingContext.addRelationship(new MappedRelationship(folder.getId(), "ARCHIVED", doc1.getId(), Folder.class, Document.class));
+        mappingContext.addRelationship(
+            new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
+        mappingContext.addRelationship(
+            new MappedRelationship(folder.getId(), "ARCHIVED", doc1.getId(), Folder.class, Document.class));
 
         // when
         folder.getDocuments().remove(doc1);
@@ -448,7 +509,8 @@ public class DirectRelationshipsTest {
 
         List<Statement> statements = compiler.deleteRelationshipStatements();
         assertThat(statements).hasSize(1);
-        assertThat(statements.get(0).getStatement()).isEqualTo("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
+        assertThat(statements.get(0).getStatement()).isEqualTo(
+            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
 
         mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
         //There are no more changes to the graph

@@ -13,6 +13,13 @@
 
 package org.neo4j.ogm.persistence.types.convertible;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Vector;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,15 +30,6 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Vector;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-
 
 /**
  * @author Luanne Misquitta
@@ -64,10 +62,10 @@ public class NumericConversionTest extends MultiDriverTestClass {
         individual.setNumberOfShoes((byte) 101);
         individual.setDistanceFromZoo(215.50f);
         individual.setFavouriteRadioStations(new Vector<Double>(Arrays.asList(97.4, 105.4, 98.2)));
-        individual.primitiveFloatArray = new float[]{5.5f, 6.6f};
-        individual.setPrimitiveByteArray(new byte[]{1, 2, 3, 4, 5});
-        individual.floatArray = new Float[]{Float.valueOf(1.1f), Float.valueOf(2.2f)};
-        individual.integerArray = new Integer[]{Integer.valueOf(1000), Integer.valueOf(2000), Integer.valueOf(3000)};
+        individual.primitiveFloatArray = new float[] { 5.5f, 6.6f };
+        individual.setPrimitiveByteArray(new byte[] { 1, 2, 3, 4, 5 });
+        individual.floatArray = new Float[] { Float.valueOf(1.1f), Float.valueOf(2.2f) };
+        individual.integerArray = new Integer[] { Integer.valueOf(1000), Integer.valueOf(2000), Integer.valueOf(3000) };
         individual.integerCollection = Arrays.asList(Integer.valueOf(100), Integer.valueOf(200));
         individual.setFloatCollection(Arrays.asList(Float.valueOf(10.5f), Float.valueOf(20.5f), Float.valueOf(30.5f)));
         individual.setByteCollection(Arrays.asList(Byte.valueOf("1"), Byte.valueOf("2")));
@@ -108,7 +106,8 @@ public class NumericConversionTest extends MultiDriverTestClass {
      */
     @Test(expected = MappingException.class)
     public void shouldFailForPrimitiveFloatOverflow() {
-        session.query("CREATE (i:Individual {name: 'Gary', bankBalance:" + Double.MAX_VALUE + "})", Collections.EMPTY_MAP);
+        session
+            .query("CREATE (i:Individual {name: 'Gary', bankBalance:" + Double.MAX_VALUE + "})", Collections.EMPTY_MAP);
         session.loadAll(Individual.class).iterator().next();
     }
 
@@ -126,7 +125,8 @@ public class NumericConversionTest extends MultiDriverTestClass {
      */
     @Test(expected = MappingException.class)
     public void shouldFailForIntegerOverflow() {
-        session.query("CREATE (i:Individual {name: 'Gary', numberOfPets:" + Integer.MAX_VALUE + 1 + "})", Collections.EMPTY_MAP);
+        session.query("CREATE (i:Individual {name: 'Gary', numberOfPets:" + Integer.MAX_VALUE + 1 + "})",
+            Collections.EMPTY_MAP);
         session.loadAll(Individual.class).iterator().next();
     }
 
@@ -135,7 +135,8 @@ public class NumericConversionTest extends MultiDriverTestClass {
      */
     @Test(expected = MappingException.class)
     public void shouldFailForFloatOverflow() {
-        session.query("CREATE (i:Individual {name: 'Gary', distanceFromZoo:" + Double.MAX_VALUE + "})", Collections.EMPTY_MAP);
+        session.query("CREATE (i:Individual {name: 'Gary', distanceFromZoo:" + Double.MAX_VALUE + "})",
+            Collections.EMPTY_MAP);
         session.loadAll(Individual.class).iterator().next();
     }
 
@@ -144,7 +145,8 @@ public class NumericConversionTest extends MultiDriverTestClass {
      */
     @Test(expected = MappingException.class)
     public void shouldFailForByteOverflow() {
-        session.query("CREATE (i:Individual {name: 'Gary', numberOfShoes:" + Byte.MAX_VALUE + 1 + "})", Collections.EMPTY_MAP);
+        session.query("CREATE (i:Individual {name: 'Gary', numberOfShoes:" + Byte.MAX_VALUE + 1 + "})",
+            Collections.EMPTY_MAP);
         session.loadAll(Individual.class).iterator().next();
     }
 
@@ -192,7 +194,7 @@ public class NumericConversionTest extends MultiDriverTestClass {
         session.clear();
 
         Result result = session.query("MATCH (m:Immortal) WHERE ID(m) = {id} RETURN m",
-                                      Collections.singletonMap("id", immortal.getId()));
+            Collections.singletonMap("id", immortal.getId()));
 
         assertThat(result).isNotNull();
     }

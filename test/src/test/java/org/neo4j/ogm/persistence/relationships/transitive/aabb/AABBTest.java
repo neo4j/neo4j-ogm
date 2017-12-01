@@ -18,8 +18,16 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.*;
-import org.neo4j.ogm.annotation.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -72,13 +80,13 @@ public class AABBTest extends MultiDriverTestClass {
         r6 = new R(a3, b3);
 
         // assign relationships to both sides to ensure entity graph is fully connected
-        a1.r = new R[]{r1, r2};
-        a2.r = new R[]{r3, r4};
-        a3.r = new R[]{r5, r6};
+        a1.r = new R[] { r1, r2 };
+        a2.r = new R[] { r3, r4 };
+        a3.r = new R[] { r5, r6 };
 
-        b1.r = new R[]{r1, r3};
-        b2.r = new R[]{r2, r5};
-        b3.r = new R[]{r4, r6};
+        b1.r = new R[] { r1, r3 };
+        b2.r = new R[] { r2, r5 };
+        b3.r = new R[] { r4, r6 };
     }
 
     @Test
@@ -122,8 +130,8 @@ public class AABBTest extends MultiDriverTestClass {
 
         // it is programmer's responsibility to keep the domain entities synchronized
         b2.r = null;
-        a1.r = new R[]{r1};
-        a3.r = new R[]{r6};
+        a1.r = new R[] { r1 };
+        a3.r = new R[] { r6 };
 
         session.save(b2);
 
@@ -144,7 +152,6 @@ public class AABBTest extends MultiDriverTestClass {
         assertThat(a2.r).extracting(x -> x.b).containsExactlyInAnyOrder(b1, b3);
     }
 
-
     @Test
     @Ignore
     public void shouldHandleAddNewRelationshipBetweenASingleABPair() {
@@ -153,8 +160,8 @@ public class AABBTest extends MultiDriverTestClass {
 
         R r7 = new R(a1, b1);
 
-        a1.r = new R[]{r2, r7};
-        b1.r = new R[]{r3, r7};
+        a1.r = new R[] { r2, r7 };
+        b1.r = new R[] { r3, r7 };
 
         session.save(a1);
 
@@ -253,8 +260,8 @@ public class AABBTest extends MultiDriverTestClass {
         r3.a = a1;
         r3.b = b3;
         r3.number = 1;
-        a1.r = new R[]{r3};
-        b3.r = new R[]{r3};
+        a1.r = new R[] { r3 };
+        b3.r = new R[] { r3 };
 
         session.save(a1);
         r3.number = 2;
@@ -276,8 +283,8 @@ public class AABBTest extends MultiDriverTestClass {
         r3.a = a1;
         r3.b = b3;
         r3.number = 1;
-        a1.r = new R[]{r3};
-        b3.r = new R[]{r3};
+        a1.r = new R[] { r3 };
+        b3.r = new R[] { r3 };
 
         session.save(a1);
         r3.number = 2;
@@ -299,8 +306,8 @@ public class AABBTest extends MultiDriverTestClass {
         r3.a = a1;
         r3.b = b3;
         r3.number = 1;
-        a1.r = new R[]{r3};
-        b3.r = new R[]{r3};
+        a1.r = new R[] { r3 };
+        b3.r = new R[] { r3 };
 
         session.save(a1);
         r3.number = 2;
@@ -310,7 +317,6 @@ public class AABBTest extends MultiDriverTestClass {
         b3 = session.load(B.class, b3.id);
         assertThat(b3.r[0].number).isEqualTo(2);
     }
-
 
     @NodeEntity(label = "A")
     public static class A extends E {
@@ -329,7 +335,7 @@ public class AABBTest extends MultiDriverTestClass {
     @RelationshipEntity(type = "EDGE")
     public static class R extends E {
 
-//        Long id;
+        //        Long id;
 
         @StartNode
         A a;
@@ -380,9 +386,11 @@ public class AABBTest extends MultiDriverTestClass {
         @Override
         public boolean equals(Object o) {
 
-            if (this == o) return true;
+            if (this == o)
+                return true;
 
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             return (key.equals(((E) o).key));
         }

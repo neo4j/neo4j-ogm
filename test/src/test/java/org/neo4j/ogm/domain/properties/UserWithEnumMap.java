@@ -13,11 +13,11 @@
 
 package org.neo4j.ogm.domain.properties;
 
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Properties;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Properties;
 
 /**
  * @author Frantisek Hartman
@@ -38,7 +38,6 @@ public class UserWithEnumMap {
     public UserWithEnumMap(String name) {
         this.name = name;
     }
-
 
     public Long getId() {
         return id;
@@ -67,7 +66,6 @@ public class UserWithEnumMap {
 
         CITY,
         ZIP_CODE,
-
 
     }
 }

@@ -65,7 +65,6 @@ public class RequestExecutor {
         executeSave(context, true);
     }
 
-
     /**
      * Execute a save request.
      * Decides how the request is split depending upon characteristics of what is to be saved.
@@ -100,11 +99,12 @@ public class RequestExecutor {
      * will need to be updated in the mapping context
      * Note that the mapping context is not updated at this point.
      *
-     * @param context the compile context
-     * @param response query response
+     * @param context           the compile context
+     * @param response          query response
      * @param entityRefMappings mapping of entity reference used in the compile context and the entity id from the database
      */
-    private void registerEntityIds(CompileContext context, Response<RowModel> response, List<ReferenceMapping> entityRefMappings, List<ReferenceMapping> relEntityRefMappings) {
+    private void registerEntityIds(CompileContext context, Response<RowModel> response,
+        List<ReferenceMapping> entityRefMappings, List<ReferenceMapping> relEntityRefMappings) {
 
         RowModel rowModel;
 
@@ -152,11 +152,12 @@ public class RequestExecutor {
     /**
      * Update the mapping context with entity ids for new/existing nodes created or updated in the request.
      *
-     * @param context the compile context
-     * @param session the Session
+     * @param context           the compile context
+     * @param session           the Session
      * @param entityRefMappings mapping of entity reference used in the compile context and the entity id from the database
      */
-    private void updateNodeEntities(CompileContext context, Neo4jSession session, List<ReferenceMapping> entityRefMappings) {
+    private void updateNodeEntities(CompileContext context, Neo4jSession session,
+        List<ReferenceMapping> entityRefMappings) {
 
         // Ensures the last saved version of existing nodes is current in the cache
         for (Object obj : context.registry()) {
@@ -189,11 +190,12 @@ public class RequestExecutor {
     /**
      * Update the mapping context with entity ids for new/existing relationship entities created in a request.
      *
-     * @param context the compile context
-     * @param session the Session
+     * @param context                       the compile context
+     * @param session                       the Session
      * @param relationshipEntityRefMappings mapping of relationship entity reference used in the compile context and the entity id from the database
      */
-    private void updateRelationshipEntities(CompileContext context, Neo4jSession session, List<ReferenceMapping> relationshipEntityRefMappings) {
+    private void updateRelationshipEntities(CompileContext context, Neo4jSession session,
+        List<ReferenceMapping> relationshipEntityRefMappings) {
         for (ReferenceMapping referenceMapping : relationshipEntityRefMappings) {
             if (referenceMapping.ref.equals(referenceMapping.id)) {
                 Object existingRelationshipEntity = session.context().getRelationshipEntity(referenceMapping.id);
@@ -280,16 +282,22 @@ public class RequestExecutor {
     /**
      * Update the mapping context with new relationships created in a request.
      *
-     * @param context the compile context
-     * @param session the Session
+     * @param context        the compile context
+     * @param session        the Session
      * @param relRefMappings mapping of relationship reference used in the compile context and the relationship id from the database
      */
-    private void updateRelationships(CompileContext context, Neo4jSession session, List<ReferenceMapping> relRefMappings) {
-        final Map<Long, TransientRelationship> registeredTransientRelationshipIndex = buildRegisteredTransientRelationshipIndex(context);
+    private void updateRelationships(CompileContext context, Neo4jSession session,
+        List<ReferenceMapping> relRefMappings) {
+        final Map<Long, TransientRelationship> registeredTransientRelationshipIndex = buildRegisteredTransientRelationshipIndex(
+            context);
         for (ReferenceMapping referenceMapping : relRefMappings) {
             if (registeredTransientRelationshipIndex.containsKey(referenceMapping.ref)) {
-                TransientRelationship transientRelationship = registeredTransientRelationshipIndex.get(referenceMapping.ref);
-                MappedRelationship mappedRelationship = new MappedRelationship(context.getId(transientRelationship.getSrc()), transientRelationship.getRel(), context.getId(transientRelationship.getTgt()), transientRelationship.getSrcClass(), transientRelationship.getTgtClass());
+                TransientRelationship transientRelationship = registeredTransientRelationshipIndex
+                    .get(referenceMapping.ref);
+                MappedRelationship mappedRelationship = new MappedRelationship(
+                    context.getId(transientRelationship.getSrc()), transientRelationship.getRel(),
+                    context.getId(transientRelationship.getTgt()), transientRelationship.getSrcClass(),
+                    transientRelationship.getTgtClass());
                 if (session.context().getRelationshipEntity(referenceMapping.id) != null) {
                     mappedRelationship.setRelationshipId(referenceMapping.id);
                 }
@@ -321,7 +329,7 @@ public class RequestExecutor {
      * Register entities in the {@link MappingContext}
      *
      * @param persisted entity created as part of the request
-     * @param session the {@link Session}
+     * @param session   the {@link Session}
      */
     private void initialiseNewEntity(Long identity, Object persisted, Neo4jSession session) {
         MappingContext mappingContext = session.context();
@@ -344,7 +352,8 @@ public class RequestExecutor {
         if (classInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
             mappingContext.replaceNodeEntity(entity, identity);      // force the node entity object to be overwritten
         } else {
-            mappingContext.replaceRelationshipEntity(entity, identity); // force the relationship entity to be overwritten
+            mappingContext
+                .replaceRelationshipEntity(entity, identity); // force the relationship entity to be overwritten
         }
     }
 

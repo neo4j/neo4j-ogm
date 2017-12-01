@@ -19,8 +19,6 @@ import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations;
 import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations.GraphIdAndIdWithInternalStrategy;
 import org.neo4j.ogm.exception.core.MetadataException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class InvalidIdAnnotationTest {
 
     private MetaData metaData;
@@ -42,13 +40,14 @@ public class InvalidIdAnnotationTest {
 
     @Test(expected = MetadataException.class)
     public void shouldRejectBothIdAndPrimaryIndexOnDifferentProperty() throws Exception {
-        createMetadataAndCheckIdentityField(InvalidAnnotations.BothIdAndPrimaryIndexOnDifferentProperty.class.getName());
+        createMetadataAndCheckIdentityField(
+            InvalidAnnotations.BothIdAndPrimaryIndexOnDifferentProperty.class.getName());
     }
 
     @Test(expected = MetadataException.class)
     public void shouldRejectChildHasPrimaryIndexExtendsAndParentHasId() throws Exception {
         metaData = new MetaData(ValidAnnotations.Basic.class.getName(),
-                InvalidAnnotations.ChildHasPrimaryIndexExtendsAndParentHasId.class.getName());
+            InvalidAnnotations.ChildHasPrimaryIndexExtendsAndParentHasId.class.getName());
     }
 
     @Test(expected = MetadataException.class)

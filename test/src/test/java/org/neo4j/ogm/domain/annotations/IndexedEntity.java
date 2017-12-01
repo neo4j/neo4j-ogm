@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.domain.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author vince
@@ -26,7 +30,7 @@ public class IndexedEntity {
     String ref;
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.FIELD, ElementType.METHOD})
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     @Inherited
     public @interface Indexed {
 

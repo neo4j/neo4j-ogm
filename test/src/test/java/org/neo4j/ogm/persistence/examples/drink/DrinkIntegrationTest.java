@@ -13,12 +13,15 @@
 
 package org.neo4j.ogm.persistence.examples.drink;
 
+import static com.google.common.collect.Lists.*;
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.drink.Beverage;
 import org.neo4j.ogm.domain.drink.Ingredient;
 import org.neo4j.ogm.domain.drink.Manufacturer;
@@ -27,11 +30,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.event.EventListenerAdapter;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static java.util.Collections.emptySet;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Frantisek Hartman
@@ -84,7 +82,7 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
         // after clear -> comparing uuids - no equals on beverage
         Collection<Beverage> loaded = session.loadAll(Beverage.class);
         assertThat(loaded).extracting(Beverage::getUuid)
-                .containsOnly(pilsner.getUuid(), budweiser.getUuid());
+            .containsOnly(pilsner.getUuid(), budweiser.getUuid());
     }
 
     @Test
@@ -304,7 +302,6 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
      * Not sure this is valid use case - the object graph is not consistent
      * RE Owns refers to asahi node, but it does not refere to owns instance
      * Similar as {@link org.neo4j.ogm.persistence.examples.ingredients.IngredientsIntegrationTest#shouldBeAbleToLoadPairingWithCustomDepth}
-     *
      * Executes !compiler.context().visitedRelationshipEntity branch in
      * {@link org.neo4j.ogm.context.EntityGraphMapper#map(java.lang.Object, int)}
      */
@@ -357,8 +354,8 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
         Beverage loaded = session.load(Beverage.class, pilsner.getUuid());
         assertThat(loaded.getName()).isEqualTo("Pilsner Urquell");
         assertThat(loaded.getIngredients())
-                .extracting(Ingredient::getName)
-                .containsOnly(water.getName());
+            .extracting(Ingredient::getName)
+            .containsOnly(water.getName());
     }
 
     private void assertNoBeverage() {

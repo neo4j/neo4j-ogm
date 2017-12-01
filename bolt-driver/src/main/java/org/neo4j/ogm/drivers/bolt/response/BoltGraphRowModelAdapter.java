@@ -13,7 +13,12 @@
 
 package org.neo4j.ogm.drivers.bolt.response;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.model.GraphModel;
@@ -54,12 +59,14 @@ public class BoltGraphRowModelAdapter extends GraphRowModelAdapter {
 
         adapt(iterator, data, graphModel, variables, values, nodeIdentities, edgeIdentities);
 
-        DefaultRowModel rowModel = new DefaultRowModel(values.toArray(new Object[]{}), variables.toArray(new String[]{}));
+        DefaultRowModel rowModel = new DefaultRowModel(values.toArray(new Object[] {}),
+            variables.toArray(new String[] {}));
 
         return new DefaultGraphRowModel(graphModel, rowModel.getValues());
     }
 
-    private void adapt(Iterator<String> iterator, Map<String, Object> data, GraphModel graphModel, List<String> variables, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
+    private void adapt(Iterator<String> iterator, Map<String, Object> data, GraphModel graphModel,
+        List<String> variables, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
 
         while (iterator.hasNext()) {
 

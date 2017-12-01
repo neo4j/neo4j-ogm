@@ -52,15 +52,14 @@ public class PagingAndSortingQuery implements PagingAndSorting {
     }
 
     public PagingAndSortingQuery(String matchClause, String returnClause, Map<String, Object> parameters,
-                                 boolean returnsPath,
-                                 boolean hasPredicate) {
+        boolean returnsPath,
+        boolean hasPredicate) {
         this.matchClause = matchClause;
         this.returnClause = returnClause;
         this.parameters = parameters;
         this.returnsPath = returnsPath;
         this.hasPredicate = hasPredicate;
     }
-
 
     public String getStatement() {
         String sorting = sortOrder().toString();
@@ -84,7 +83,6 @@ public class PagingAndSortingQuery implements PagingAndSorting {
             return sb.toString();
 
         }
-
 
         // only used for relationship entity queries now, remove when relationship entity queries moved to new query building
 

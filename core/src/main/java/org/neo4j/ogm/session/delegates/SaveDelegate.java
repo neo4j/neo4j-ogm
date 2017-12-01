@@ -14,7 +14,6 @@ package org.neo4j.ogm.session.delegates;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.neo4j.ogm.context.EntityGraphMapper;
@@ -77,7 +76,8 @@ public class SaveDelegate {
                     eventsDelegate.preSave(object);
                 }
 
-                CompileContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);
+                CompileContext context = new EntityGraphMapper(session.metaData(), session.context())
+                    .map(object, depth);
 
                 requestExecutor.executeSave(context);
 

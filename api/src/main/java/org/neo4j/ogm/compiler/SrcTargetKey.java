@@ -2,7 +2,6 @@ package org.neo4j.ogm.compiler;
 
 /**
  * Key for lookup of transient relationship by source and target
- *
  * NOTE: source and target are always sorted so the lookup will ignore the direction
  *
  * @author Frantisek Hartman

@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.response.model;
 
+import static java.util.stream.Collectors.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,8 +23,6 @@ import java.util.Map;
 
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
-
-import static java.util.stream.Collectors.joining;
 
 /**
  * @author Michal Bachman
@@ -62,7 +62,6 @@ public class NodeModel implements Node {
         return id;
     }
 
-
     public String[] getLabels() {
         return labels;
     }
@@ -71,7 +70,6 @@ public class NodeModel implements Node {
     public String[] getRemovedLabels() {
         return removedLabels;
     }
-
 
     public void setId(Long id) {
         this.id = id;
@@ -89,7 +87,8 @@ public class NodeModel implements Node {
 
     public Object property(String key) {
         for (Property property : properties) {
-            if (property.getKey().equals(key)) return property.getValue();
+            if (property.getKey().equals(key))
+                return property.getValue();
         }
         return null;
     }
@@ -108,8 +107,10 @@ public class NodeModel implements Node {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         NodeModel nodeModel = (NodeModel) o;
 

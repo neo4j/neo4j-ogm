@@ -54,18 +54,16 @@ public abstract class EventTestBaseClass extends MultiDriverTestClass {
     private Knows knowsLS;
     Knows knowsJL;
 
-
-
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.filesystem", "org.neo4j.ogm.domain.cineasts.annotated");
-        eventListener  = new TestEventListener();
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.filesystem",
+            "org.neo4j.ogm.domain.cineasts.annotated");
+        eventListener = new TestEventListener();
         sessionFactory.register(eventListener);
     }
 
     @Before
     public void init() throws IOException {
-
 
         session = sessionFactory.openSession();
         session.purgeDatabase();

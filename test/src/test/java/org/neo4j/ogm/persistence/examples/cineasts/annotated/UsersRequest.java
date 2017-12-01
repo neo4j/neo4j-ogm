@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
-
 import org.neo4j.ogm.drivers.StubHttpDriver;
 
 /**
@@ -22,10 +21,11 @@ import org.neo4j.ogm.drivers.StubHttpDriver;
 public class UsersRequest extends StubHttpDriver {
 
     private static String[] jsonModel = {
-            "{\"graph\": { " +
-                    "\"nodes\" :[ " +
-                    "{\"id\" : \"15\",\"labels\" : [ \"User\"],    \"properties\" : {\"uuid\" : \"38ebe777-bc85-4810-8217-096f29a361f1\", \"login\" : \"luanne\", \"securityRoles\" : [\"USER\",\"ADMIN\"]}}" +
-                    "]} }"
+        "{\"graph\": { " +
+            "\"nodes\" :[ " +
+            "{\"id\" : \"15\",\"labels\" : [ \"User\"],    \"properties\" : {\"uuid\" : \"38ebe777-bc85-4810-8217-096f29a361f1\", \"login\" : \"luanne\", \"securityRoles\" : [\"USER\",\"ADMIN\"]}}"
+            +
+            "]} }"
     };
 
     public String[] getResponse() {

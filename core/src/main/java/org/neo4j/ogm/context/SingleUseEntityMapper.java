@@ -48,7 +48,7 @@ public class SingleUseEntityMapper {
      * Constructs a new {@link SingleUseEntityMapper} based on the given mapping {@link MetaData}.
      *
      * @param mappingMetaData The {@link MetaData} to use for performing mappings
-     * @param entityFactory The entity factory to use.
+     * @param entityFactory   The entity factory to use.
      */
     public SingleUseEntityMapper(MetaData mappingMetaData, EntityFactory entityFactory) {
         this.metadata = mappingMetaData;
@@ -58,10 +58,10 @@ public class SingleUseEntityMapper {
     /**
      * Maps a row-based result onto a new instance of the specified type.
      *
-     * @param <T> The class of object to return
-     * @param type The {@link Class} denoting the type of object to create
+     * @param <T>         The class of object to return
+     * @param type        The {@link Class} denoting the type of object to create
      * @param columnNames The names of the columns in each row of the result
-     * @param rowModel The {@link org.neo4j.ogm.model.RowModel} containing the data to map
+     * @param rowModel    The {@link org.neo4j.ogm.model.RowModel} containing the data to map
      * @return A new instance of <tt>T</tt> populated with the data in the specified row model
      */
     public <T> T map(Class<T> type, String[] columnNames, RowModel rowModel) {
@@ -94,7 +94,7 @@ public class SingleUseEntityMapper {
             return classInfo;
         }
         throw new MappingException("Error mapping to ad-hoc " + type +
-                ".  At present, only @Result types that are discovered by the domain entity package scanning can be mapped.");
+            ".  At present, only @Result types that are discovered by the domain entity package scanning can be mapped.");
     }
 
     // TODO: the following is all pretty much identical to GraphEntityMapper so should probably be refactored
@@ -109,7 +109,8 @@ public class SingleUseEntityMapper {
             }
         }
 
-        if (writer == null && property.getKey().equals("id")) { //When mapping query results to objects that are not domain entities, there's no concept of a GraphID
+        if (writer == null && property.getKey().equals(
+            "id")) { //When mapping query results to objects that are not domain entities, there's no concept of a GraphID
             FieldInfo idField = classInfo.identityField();
             if (idField != null) {
                 writer = idField;
@@ -124,8 +125,8 @@ public class SingleUseEntityMapper {
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
                 Class elementType = underlyingElementType(classInfo, property.getKey());
                 value = writer.type().isArray()
-                        ? EntityAccessManager.merge(writer.type(), value, new Object[]{}, elementType)
-                        : EntityAccessManager.merge(writer.type(), value, Collections.EMPTY_LIST, elementType);
+                    ? EntityAccessManager.merge(writer.type(), value, new Object[] {}, elementType)
+                    : EntityAccessManager.merge(writer.type(), value, Collections.EMPTY_LIST, elementType);
             }
             writer.write(instance, value);
         } else {

@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.persistence.model;
 
-
 import java.io.IOException;
 import java.util.Map;
 
@@ -30,7 +29,6 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
-
 /**
  * @author Mark Angrish
  * @author Luanne Misquitta
@@ -43,7 +41,6 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
     public static void oneTimeSetup() throws IOException {
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.policy", "org.neo4j.ogm.domain.election");
     }
-
 
     @Before
     public void init() throws IOException {
@@ -63,7 +60,8 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 
         // expect both objects to have a relationship to each other
         session.save(policy);
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:Policy:DomainObject {name:'Health'})-[:INFLUENCERS]->(m:Person:DomainObject {name:'Jim'})-[:INFLUENCED]->(n)");
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+            "CREATE (n:Policy:DomainObject {name:'Health'})-[:INFLUENCERS]->(m:Person:DomainObject {name:'Jim'})-[:INFLUENCED]->(n)");
     }
 
     @Test
@@ -75,7 +73,8 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
         jim.getWritten().add(policy);
 
         session.save(jim);
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+            "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
     }
 
     @Test
@@ -88,7 +87,8 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 
         // we a single relationship, outgoing from person to policy to be established
         session.save(policy);
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+            "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
     }
 
     @Test
@@ -103,7 +103,8 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 
         // verify we create only one directed relationship in the graph
         session.save(policy);
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+            "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
     }
 
     /**
@@ -118,20 +119,20 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
         jim.setAuthorized(policy);
 
         session.save(jim);
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:AUTHORIZED_POLICY]-(m:Person:DomainObject {name:'Jim'})");
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+            "CREATE (n:Policy:DomainObject {name:'Health'})<-[:AUTHORIZED_POLICY]-(m:Person:DomainObject {name:'Jim'})");
     }
-
 
     @Test
     public void shouldAllowVoterToChangeHerMind() {
 
         // create the graph
         Result executionResult = getGraphDatabaseService().execute(
-                "CREATE " +
-                        "(a:Voter:Candidate {name:'A'}), " +
-                        "(b:Voter:Candidate {name:'B'}), " +
-                        "(v:Voter {name:'V'})-[:CANDIDATE_VOTED_FOR]->(b) " +
-                        "RETURN id(a) AS a_id, id(b) AS b_id, id(v) AS v_id");
+            "CREATE " +
+                "(a:Voter:Candidate {name:'A'}), " +
+                "(b:Voter:Candidate {name:'B'}), " +
+                "(v:Voter {name:'V'})-[:CANDIDATE_VOTED_FOR]->(b) " +
+                "RETURN id(a) AS a_id, id(b) AS b_id, id(v) AS v_id");
 
         // build the object map
         Map<String, ?> results = executionResult.next();
@@ -150,8 +151,8 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
         v.candidateVotedFor = a;
         session.save(v);
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-                "CREATE (a:Voter:Candidate {name:'A'}) " +
-                        "CREATE (b:Voter:Candidate {name:'B'}) " +
-                        "CREATE (v:Voter {name:'V'})-[:CANDIDATE_VOTED_FOR]->(a)");
+            "CREATE (a:Voter:Candidate {name:'A'}) " +
+                "CREATE (b:Voter:Candidate {name:'B'}) " +
+                "CREATE (v:Voter {name:'V'})-[:CANDIDATE_VOTED_FOR]->(a)");
     }
 }

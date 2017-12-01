@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -85,7 +84,8 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
         session.query(cypher, Utils.map());
         session.clear();
-        Entity parent = session.loadAll(Entity.class, new Filter("name", ComparisonOperator.EQUALS, "parent")).iterator().next();
+        Entity parent = session.loadAll(Entity.class, new Filter("name", ComparisonOperator.EQUALS, "parent"))
+            .iterator().next();
         assertThat(parent).isNotNull();
         assertThat(parent.getChildren()).hasSize(2);
         assertThat(parent.getParent()).isNull();
@@ -106,7 +106,8 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
         session.query(cypher, Utils.map());
         session.clear();
-        Entity parent = session.loadAll(Entity.class, new Filter("name", ComparisonOperator.EQUALS, "parent")).iterator().next();
+        Entity parent = session.loadAll(Entity.class, new Filter("name", ComparisonOperator.EQUALS, "parent"))
+            .iterator().next();
         assertThat(parent).isNotNull();
         assertThat(parent.getChildren()).hasSize(2);
         assertThat(parent.getParent()).isNull();

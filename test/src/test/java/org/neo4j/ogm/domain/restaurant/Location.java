@@ -11,9 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-
 package org.neo4j.ogm.domain.restaurant;
-
 
 public class Location {
 

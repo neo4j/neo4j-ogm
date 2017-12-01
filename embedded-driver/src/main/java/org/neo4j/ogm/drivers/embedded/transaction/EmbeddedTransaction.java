@@ -39,8 +39,8 @@ public class EmbeddedTransaction extends AbstractTransaction {
      * on the user transaction are delegated to the native transaction.
      *
      * @param transactionManager an instance of {@link TransactionManager}
-     * @param nativeTransaction the {@link org.neo4j.graphdb.Transaction} backing this Transaction object
-     * @param type the {@link org.neo4j.ogm.transaction.Transaction.Type} of this transaction
+     * @param nativeTransaction  the {@link org.neo4j.graphdb.Transaction} backing this Transaction object
+     * @param type               the {@link org.neo4j.ogm.transaction.Transaction.Type} of this transaction
      */
     public EmbeddedTransaction(TransactionManager transactionManager, Transaction nativeTransaction, Type type) {
         super(transactionManager);

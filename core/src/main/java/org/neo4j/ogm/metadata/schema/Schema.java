@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.metadata.schema;
 
-import java.util.Map;
-
 /**
  * @author Frantisek Hartman
  */
@@ -24,7 +22,6 @@ public interface Schema {
      * Return schema {@link Node} for given label
      *
      * @param label label of the node
-     *
      * @return schema {@link Node}
      */
     Node findNode(String label);

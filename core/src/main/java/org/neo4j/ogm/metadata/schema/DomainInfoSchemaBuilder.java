@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.metadata.schema;
 
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Map;
+
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
@@ -21,10 +25,6 @@ import org.neo4j.ogm.metadata.reflect.GenericUtils;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * Builder of {@link Schema} which takes {@link DomainInfo} as input
@@ -89,7 +89,7 @@ public class DomainInfoSchemaBuilder {
 
         if (otherClassInfo == null) {
             logger.debug("Type " + otherType + " not found. Did you specify 'packages' parameter to " +
-                    "SessionFactory correctly?");
+                "SessionFactory correctly?");
             return;
         }
 
@@ -113,8 +113,8 @@ public class DomainInfoSchemaBuilder {
         }
 
         RelationshipImpl relationship = new RelationshipImpl(relFieldInfo.relationshipType(),
-                relFieldInfo.relationshipDirection(),
-                fromNode, toNode);
+            relFieldInfo.relationshipDirection(),
+            fromNode, toNode);
 
         // add relationship only to fromNode, not adding to toNode because
         // - it might not declare the relationship

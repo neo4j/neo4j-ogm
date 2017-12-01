@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.relationships;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
@@ -21,7 +23,6 @@ import java.util.stream.StreamSupport;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.activity.Activity;
 import org.neo4j.ogm.domain.forum.activity.Comment;
@@ -35,8 +36,6 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author Luanne Misquitta
  */
@@ -46,7 +45,8 @@ public class HeirarchyRelsTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.relations", "org.neo4j.ogm.domain.forum").openSession();
+        session = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.relations", "org.neo4j.ogm.domain.forum")
+            .openSession();
         session.purgeDatabase();
     }
 

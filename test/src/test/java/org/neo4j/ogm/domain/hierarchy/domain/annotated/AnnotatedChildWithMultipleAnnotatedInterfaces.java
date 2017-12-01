@@ -19,7 +19,8 @@ import org.neo4j.ogm.annotation.NodeEntity;
  * @author Luanne Misquitta
  */
 @NodeEntity
-public class AnnotatedChildWithMultipleAnnotatedInterfaces implements AnnotatedInterface, AnnotatedNamedInterfaceParent {
+public class AnnotatedChildWithMultipleAnnotatedInterfaces
+    implements AnnotatedInterface, AnnotatedNamedInterfaceParent {
 
     Long id;
 }

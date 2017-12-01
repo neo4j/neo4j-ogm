@@ -29,10 +29,9 @@ public interface Driver extends AutoCloseable {
     /**
      * Begins new transaction
      *
-     * @param type type of the transaction, see {@link org.neo4j.ogm.transaction.Transaction.Type}
+     * @param type      type of the transaction, see {@link org.neo4j.ogm.transaction.Transaction.Type}
      * @param bookmarks bookmarks to pass to the driver when transaction is started, NOTE: currently supported only
-     * by bolt driver
-     *
+     *                  by bolt driver
      * @return new transaction
      */
     Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks);

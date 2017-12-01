@@ -11,7 +11,7 @@
 
 package org.neo4j.ogm.persistence.examples.meetup;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
@@ -29,40 +29,39 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class MeetupIntegrationTest extends MultiDriverTestClass {
 
-	private static Session session;
+    private static Session session;
 
-	@Before
-	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.meetup").openSession();
-	}
+    @Before
+    public void init() throws IOException {
+        session = new SessionFactory("org.neo4j.ogm.domain.meetup").openSession();
+    }
 
-	@After
-	public void clear() {
-		session.purgeDatabase();
-	}
+    @After
+    public void clear() {
+        session.purgeDatabase();
+    }
 
+    /**
+     * @see Issue 276
+     */
+    @Test
+    public void shouldLoadRelatedPersonsCorrectly() {
+        Meetup meetup = new Meetup("Neo4j UAE");
+        Person michal = new Person("Michal");
+        Person luanne = new Person("Luanne");
 
-	/**
-	 * @see Issue 276
-	 */
-	@Test
-	public void shouldLoadRelatedPersonsCorrectly() {
-		Meetup meetup = new Meetup("Neo4j UAE");
-		Person michal = new Person("Michal");
-		Person luanne = new Person("Luanne");
+        meetup.setOrganiser(michal);
+        michal.getMeetupOrganised().add(meetup);
+        meetup.getAttendees().add(luanne);
+        luanne.getMeetupsAttended().add(meetup);
+        session.save(meetup);
 
-		meetup.setOrganiser(michal);
-		michal.getMeetupOrganised().add(meetup);
-		meetup.getAttendees().add(luanne);
-		luanne.getMeetupsAttended().add(meetup);
-		session.save(meetup);
+        session.clear();
 
-		session.clear();
+        Meetup neoUae = session.load(Meetup.class, meetup.getId());
+        assertThat(neoUae).isNotNull();
+        assertThat(neoUae.getOrganiser()).isNotNull();
+        assertThat(neoUae.getAttendees()).hasSize(1);
 
-		Meetup neoUae = session.load(Meetup.class, meetup.getId());
-		assertThat(neoUae).isNotNull();
-		assertThat(neoUae.getOrganiser()).isNotNull();
-		assertThat(neoUae.getAttendees()).hasSize(1);
-
-	}
+    }
 }

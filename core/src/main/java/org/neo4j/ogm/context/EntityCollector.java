@@ -13,14 +13,14 @@
 
 package org.neo4j.ogm.context;
 
+import static java.util.Objects.*;
+import static java.util.stream.Collectors.*;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Utility to help group elements of a common type into a single collection (by relationship type and direction) to be set on an owning object.
@@ -39,36 +39,42 @@ class EntityCollector {
      * Adds the given collectible target into a collection based on relationship type and direction ready to be set on
      * the given owning entity.
      *
-     * @param sourceId The id of the instance on which the collection is to be set
-     * @param relationshipType The relationship type that this collection corresponds to
+     * @param sourceId              The id of the instance on which the collection is to be set
+     * @param relationshipType      The relationship type that this collection corresponds to
      * @param relationshipDirection The relationship direction
-     * @param relationshipId id of collected relationship
-     * @param targetId id of target element
-     * @param target The element to add to the collection that will eventually be set on the owning type
+     * @param relationshipId        id of collected relationship
+     * @param targetId              id of target element
+     * @param target                The element to add to the collection that will eventually be set on the owning type
      */
-    public void collectRelationship(Long sourceId, Class startPropertyType, String relationshipType, String relationshipDirection, long relationshipId, long targetId, Object target) {
-        record(sourceId, startPropertyType, relationshipType, relationshipDirection, new TargetTriple(relationshipId, targetId, target));
+    public void collectRelationship(Long sourceId, Class startPropertyType, String relationshipType,
+        String relationshipDirection, long relationshipId, long targetId, Object target) {
+        record(sourceId, startPropertyType, relationshipType, relationshipDirection,
+            new TargetTriple(relationshipId, targetId, target));
     }
 
     /**
      * Adds the given collectible target into a collection based on relationship type and direction ready to be set on
      * the given owning entity.
      *
-     * @param sourceId The id of the instance on which the collection is to be set
-     * @param relationshipType The relationship type that this collection corresponds to
+     * @param sourceId              The id of the instance on which the collection is to be set
+     * @param relationshipType      The relationship type that this collection corresponds to
      * @param relationshipDirection The relationship direction
-     * @param targetId id of target element
-     * @param target The element to add to the collection that will eventually be set on the owning type
+     * @param targetId              id of target element
+     * @param target                The element to add to the collection that will eventually be set on the owning type
      */
-    public void collectRelationship(Long sourceId, Class startPropertyType, String relationshipType, String relationshipDirection, long targetId, Object target) {
-        record(sourceId, startPropertyType, relationshipType, relationshipDirection, new TargetTriple(targetId, target));
+    public void collectRelationship(Long sourceId, Class startPropertyType, String relationshipType,
+        String relationshipDirection, long targetId, Object target) {
+        record(sourceId, startPropertyType, relationshipType, relationshipDirection,
+            new TargetTriple(targetId, target));
     }
 
-    private void record(Long owningEntityId, Class startPropertyType, String relationshipType, String relationshipDirection, TargetTriple triple) {
+    private void record(Long owningEntityId, Class startPropertyType, String relationshipType,
+        String relationshipDirection, TargetTriple triple) {
         this.collected.computeIfAbsent(owningEntityId, k -> new HashMap<>());
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
         this.collected.get(owningEntityId).computeIfAbsent(directedRelationship, k -> new HashMap<>());
-        this.collected.get(owningEntityId).get(directedRelationship).computeIfAbsent(startPropertyType, k -> new HashSet<>());
+        this.collected.get(owningEntityId).get(directedRelationship)
+            .computeIfAbsent(startPropertyType, k -> new HashSet<>());
         this.collected.get(owningEntityId).get(directedRelationship).get(startPropertyType).add(triple);
     }
 
@@ -98,12 +104,9 @@ class EntityCollector {
         void handle(Long sourceId, String type, String direction, Class targetType, Collection<Object> entities);
     }
 
-
     /**
      * This is (relationshipId, targetGraphId, target) triple that keeps track of relationships.
-     *
      * Relationship id and object id are used for equality - target equality is intentionally ignored.
-     *
      * Relationship id is used when relationship has a corresponding RelationshipEntity.
      * For simple relationships only target object id is used because we don't distinguish between simple relationships
      * to same node.
@@ -140,12 +143,15 @@ class EntityCollector {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             TargetTriple that = (TargetTriple) o;
 
-            if (relationshipId != that.relationshipId) return false;
+            if (relationshipId != that.relationshipId)
+                return false;
             return targetGraphId == that.targetGraphId;
         }
 

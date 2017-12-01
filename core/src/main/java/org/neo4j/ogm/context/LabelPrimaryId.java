@@ -13,16 +13,14 @@
 
 package org.neo4j.ogm.context;
 
-import org.neo4j.ogm.metadata.ClassInfo;
+import static java.util.Objects.*;
 
-import static java.util.Objects.requireNonNull;
+import org.neo4j.ogm.metadata.ClassInfo;
 
 /**
  * Pair of label and primary id to use for lookups by primary key in MappingContext and CypherContext
- *
  * The label is needed because primary id is unique for given label. There might be 1 primary id pointing to
  * two different entities having different label.
- *
  * Label is either Node label or relationship type.
  *
  * @author Frantisek Hartman
@@ -36,7 +34,7 @@ class LabelPrimaryId {
      * Create LabelPrimaryId
      *
      * @param classInfo class info containign the primary id
-     * @param id the value of the id
+     * @param id        the value of the id
      */
     public LabelPrimaryId(ClassInfo classInfo, Object id) {
         this.label = classInfo.primaryIndexField().containingClassInfo().neo4jName();
@@ -53,12 +51,15 @@ class LabelPrimaryId {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         LabelPrimaryId that = (LabelPrimaryId) o;
 
-        if (!label.equals(that.label)) return false;
+        if (!label.equals(that.label))
+            return false;
         return id.equals(that.id);
     }
 
@@ -72,8 +73,8 @@ class LabelPrimaryId {
     @Override
     public String toString() {
         return "LabelPrimaryId{" +
-                "label='" + label + '\'' +
-                ", id=" + id +
-                '}';
+            "label='" + label + '\'' +
+            ", id=" + id +
+            '}';
     }
 }

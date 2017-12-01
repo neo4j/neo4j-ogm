@@ -24,7 +24,6 @@ import org.neo4j.ogm.result.ResultGraphModel;
  */
 public class GraphModelResponse extends AbstractHttpResponse<ResultGraphModel> implements Response<GraphModel> {
 
-
     public GraphModelResponse(CloseableHttpResponse httpResponse) {
         super(httpResponse, ResultGraphModel.class);
     }

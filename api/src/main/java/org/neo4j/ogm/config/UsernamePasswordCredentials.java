@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.config;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.io.UnsupportedEncodingException;
+
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * @author Vince Bickers
@@ -38,7 +38,6 @@ public class UsernamePasswordCredentials implements Credentials<String> {
         this.username = userName;
         this.password = password;
     }
-
 
     @Override
     public String credentials() {

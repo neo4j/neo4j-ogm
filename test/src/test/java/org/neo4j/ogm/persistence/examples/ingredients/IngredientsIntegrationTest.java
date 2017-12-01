@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.examples.ingredients;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,7 +22,6 @@ import java.util.Iterator;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -29,8 +30,6 @@ import org.neo4j.ogm.domain.ingredients.Pairing;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luanne Misquitta
@@ -398,38 +397,47 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
 
-        Collection<Ingredient> ingredients = session.loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(0, 1));
+        Collection<Ingredient> ingredients = session
+            .loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(0, 1));
         assertThat(ingredients).hasSize(1);
 
         session.clear();
 
-        ingredients = session.loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(1, 1));
+        ingredients = session
+            .loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(1, 1));
         assertThat(ingredients).hasSize(1);
 
         session.clear();
 
-        ingredients = session.loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(0, 2));
+        ingredients = session
+            .loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(0, 2));
         assertThat(ingredients).hasSize(2);
 
-        ingredients = session.loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(0, 3));
+        ingredients = session
+            .loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS, "Chicken"), new Pagination(0, 3));
         assertThat(ingredients).hasSize(3);
 
         session.clear();
 
-        Collection<Pairing> pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"), new Pagination(0, 1));
+        Collection<Pairing> pairings = session
+            .loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"),
+                new Pagination(0, 1));
         assertThat(pairings).hasSize(1);
 
         session.clear();
 
-        pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"), new Pagination(1, 1));
+        pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"),
+            new Pagination(1, 1));
         assertThat(pairings).hasSize(1);
 
         session.clear();
 
-        pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"), new Pagination(0, 2));
+        pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"),
+            new Pagination(0, 2));
         assertThat(pairings).hasSize(2);
 
-        pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"), new Pagination(0, 3));
+        pairings = session.loadAll(Pairing.class, new Filter("affinity", ComparisonOperator.EQUALS, "EXCELLENT"),
+            new Pagination(0, 3));
         assertThat(pairings).hasSize(3);
     }
 }

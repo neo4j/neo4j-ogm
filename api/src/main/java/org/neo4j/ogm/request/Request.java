@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.request;
 
-
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;

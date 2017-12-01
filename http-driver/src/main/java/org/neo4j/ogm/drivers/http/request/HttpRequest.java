@@ -17,10 +17,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
@@ -46,12 +42,22 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.request.DefaultRequest;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.request.RestModelRequest;
+import org.neo4j.ogm.request.RowModelRequest;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Vince Bickers
@@ -125,7 +131,6 @@ public class HttpRequest implements Request {
         }
     }
 
-
     // we use the OBJECT_MAPPER to create the request string from the statement.
     // this driver is the only one that needs to do this, because the request format
     // is different for each type of request - GraphModelRequest/RowModelRequest, etc
@@ -163,7 +168,8 @@ public class HttpRequest implements Request {
         return execute(httpClient, request, credentials);
     }
 
-    public static CloseableHttpResponse execute(CloseableHttpClient httpClient, HttpRequestBase request, Credentials credentials) throws HttpRequestException {
+    public static CloseableHttpResponse execute(CloseableHttpClient httpClient, HttpRequestBase request,
+        Credentials credentials) throws HttpRequestException {
 
         LOGGER.debug("Thread: {}, request: {}", Thread.currentThread().getId(), request);
 
@@ -204,7 +210,8 @@ public class HttpRequest implements Request {
 
             // if we didn't get a response at all, try again
             catch (NoHttpResponseException nhre) {
-                LOGGER.warn("Thread: {}, No response from server:  Retrying in {} milliseconds, retries left: {}", Thread.currentThread().getId(), retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
+                LOGGER.warn("Thread: {}, No response from server:  Retrying in {} milliseconds, retries left: {}",
+                    Thread.currentThread().getId(), retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
                 retryStrategy.errorOccured();
             } catch (RetryException re) {
                 throw new HttpRequestException(request, re);
@@ -218,7 +225,8 @@ public class HttpRequest implements Request {
             // log the problem, close any connection held by the request
             // and then rethrow the exception to the caller.
             catch (Exception exception) {
-                LOGGER.warn("Thread: {}, exception: {}", Thread.currentThread().getId(), exception.getCause().getLocalizedMessage());
+                LOGGER.warn("Thread: {}, exception: {}", Thread.currentThread().getId(),
+                    exception.getCause().getLocalizedMessage());
                 request.releaseConnection();
                 throw exception;
             }
@@ -256,8 +264,8 @@ public class HttpRequest implements Request {
             numberOfTriesLeft--;
             if (!shouldRetry()) {
                 throw new RetryException("Retry Failed: Total " + numberOfRetries
-                        + " attempts made at interval " + getTimeToWait()
-                        + "ms");
+                    + " attempts made at interval " + getTimeToWait()
+                    + "ms");
             }
             waitUntilNextTry();
         }

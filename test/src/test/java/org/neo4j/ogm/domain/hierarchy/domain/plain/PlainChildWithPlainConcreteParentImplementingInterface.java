@@ -16,6 +16,7 @@ package org.neo4j.ogm.domain.hierarchy.domain.plain;
 /**
  * @author Luanne Misquitta
  */
-public class PlainChildWithPlainConcreteParentImplementingInterface extends PlainConcreteParent implements PlainInterface {
+public class PlainChildWithPlainConcreteParentImplementingInterface extends PlainConcreteParent
+    implements PlainInterface {
 
 }

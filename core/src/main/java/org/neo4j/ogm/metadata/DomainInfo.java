@@ -13,16 +13,27 @@
 
 package org.neo4j.ogm.metadata;
 
-
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.core.MappingException;
-import org.neo4j.ogm.typeconversion.*;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
+import org.neo4j.ogm.typeconversion.ConversionCallback;
+import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
+import org.neo4j.ogm.typeconversion.ConvertibleTypes;
+import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -76,8 +87,10 @@ public class DomainInfo {
                     ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
                     if (superclassInfo == null) {
 
-                        if (superclassName != null && !superclassName.equals("java.lang.Object") && !superclassName.equals("java.lang.Enum")) {
-                            domainInfo.classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
+                        if (superclassName != null && !superclassName.equals("java.lang.Object") && !superclassName
+                            .equals("java.lang.Enum")) {
+                            domainInfo.classNameToClassInfo
+                                .put(superclassName, new ClassInfo(superclassName, thisClassInfo));
                         }
                     } else {
                         superclassInfo.addSubclass(thisClassInfo);
@@ -113,7 +126,8 @@ public class DomainInfo {
     private void buildInterfaceNameToClassInfoMap() {
         LOGGER.info("Building interface class map for {} classes", classNameToClassInfo.values().size());
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            LOGGER.debug(" - {} implements {} interfaces", classInfo.simpleName(), classInfo.interfacesInfo().list().size());
+            LOGGER.debug(" - {} implements {} interfaces", classInfo.simpleName(),
+                classInfo.interfacesInfo().list().size());
             for (InterfaceInfo iface : classInfo.interfacesInfo().list()) {
                 ArrayList<ClassInfo> classInfoList = interfaceNameToClassInfo.get(iface.name());
                 if (classInfoList == null) {
@@ -140,7 +154,8 @@ public class DomainInfo {
 
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
 
-            if (classInfo.name() == null || classInfo.name().equals("java.lang.Object")) continue;
+            if (classInfo.name() == null || classInfo.name().equals("java.lang.Object"))
+                continue;
 
             LOGGER.debug("Post-processing: {}", classInfo.name());
 
@@ -207,7 +222,8 @@ public class DomainInfo {
                     try {
                         fieldClass = ClassUtils.getType(fieldInfo.getTypeDescriptor());
                     } catch (Exception e) {
-                        LOGGER.debug("Unable to compute class type for " + classInfo.name() + ", field: " + fieldInfo.getName());
+                        LOGGER.debug(
+                            "Unable to compute class type for " + classInfo.name() + ", field: " + fieldInfo.getName());
                     }
                     if (fieldClass != null && transientClassesRemoved.contains(fieldClass)) {
                         fieldInfoIterator.remove();
@@ -220,7 +236,6 @@ public class DomainInfo {
             }
         }
     }
-
 
     private Set<Class> removeTransientClass(ClassInfo transientClass) {
         Set<Class> removed = new HashSet<>();
@@ -238,7 +253,6 @@ public class DomainInfo {
         return removed;
     }
 
-
     private void extend(ClassInfo superclass, List<ClassInfo> subclasses) {
         for (ClassInfo subclass : subclasses) {
             subclass.extend(superclass);
@@ -252,7 +266,8 @@ public class DomainInfo {
 
         if (interfaceClass != null) {
             if (!implementingClass.directInterfaces().contains(interfaceClass)) {
-                LOGGER.debug(" - Setting {} implements {}", implementingClass.simpleName(), interfaceClass.simpleName());
+                LOGGER
+                    .debug(" - Setting {} implements {}", implementingClass.simpleName(), interfaceClass.simpleName());
                 implementingClass.directInterfaces().add(interfaceClass);
             }
 
@@ -276,7 +291,6 @@ public class DomainInfo {
     ClassInfo getClassSimpleName(String fullOrPartialClassName) {
         return getClassInfo(fullOrPartialClassName, classNameToClassInfo);
     }
-
 
     ClassInfo getClassInfoForInterface(String fullOrPartialClassName) {
         ClassInfo classInfo = getClassSimpleName(fullOrPartialClassName);
@@ -333,19 +347,25 @@ public class DomainInfo {
                 if (fieldInfo.getAnnotations().get(Convert.class) != null) {
                     // no converter's been set but this method is annotated with @Convert so we need to proxy it
                     Class<?> entityAttributeType = ClassUtils.getType(typeDescriptor);
-                    String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.class).get(Convert.GRAPH_TYPE, null);
+                    String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.class)
+                        .get(Convert.GRAPH_TYPE, null);
                     if (graphTypeDescriptor == null) {
-                        throw new MappingException("Found annotation to convert a " + (entityAttributeType != null ? entityAttributeType.getName() : " null object ")
-                                + " on " + classInfo.name() + '.' + fieldInfo.getName()
-                                + " but no target graph property type or specific AttributeConverter have been specified.");
+                        throw new MappingException("Found annotation to convert a " + (entityAttributeType != null ?
+                            entityAttributeType.getName() :
+                            " null object ")
+                            + " on " + classInfo.name() + '.' + fieldInfo.getName()
+                            + " but no target graph property type or specific AttributeConverter have been specified.");
                     }
-                    fieldInfo.setPropertyConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
+                    fieldInfo.setPropertyConverter(
+                        new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor),
+                            this.conversionCallbackRegistry));
                 }
 
                 Class fieldType = ClassUtils.getType(typeDescriptor);
 
                 if (fieldType == null) {
-                    throw new RuntimeException("Class " + classInfo.name() + " field " + fieldInfo.getName() + " has null field type.");
+                    throw new RuntimeException(
+                        "Class " + classInfo.name() + " field " + fieldInfo.getName() + " has null field type.");
                 }
 
                 boolean enumConverterSet = false;
@@ -359,7 +379,9 @@ public class DomainInfo {
 
                 if (!enumConverterSet) {
                     if (fieldType.isEnum()) {
-                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
+                        LOGGER.debug(
+                            "Setting default enum converter for unscanned class " + classInfo.name() + ", field: "
+                                + fieldInfo.getName());
                         setEnumFieldConverter(fieldInfo, fieldType);
                     }
                 }
@@ -367,12 +389,12 @@ public class DomainInfo {
         }
     }
 
-
     private void setEnumFieldConverter(FieldInfo fieldInfo, Class enumClass) {
         if (fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         } else if (fieldInfo.isIterable()) {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, fieldInfo.getCollectionClassname()));
+            fieldInfo.setPropertyConverter(
+                ConvertibleTypes.getEnumCollectionConverter(enumClass, fieldInfo.getCollectionClassname()));
         } else {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumConverter(enumClass));
         }
@@ -382,7 +404,8 @@ public class DomainInfo {
         if (fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalArrayConverter());
         } else if (fieldInfo.isIterable()) {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalCollectionConverter(fieldInfo.getCollectionClassname()));
+            fieldInfo.setPropertyConverter(
+                ConvertibleTypes.getBigDecimalCollectionConverter(fieldInfo.getCollectionClassname()));
         } else {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalConverter());
         }
@@ -392,7 +415,8 @@ public class DomainInfo {
         if (fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerArrayConverter());
         } else if (fieldInfo.isIterable()) {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerCollectionConverter(fieldInfo.getCollectionClassname()));
+            fieldInfo.setPropertyConverter(
+                ConvertibleTypes.getBigIntegerCollectionConverter(fieldInfo.getCollectionClassname()));
         } else {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerConverter());
         }
@@ -402,7 +426,8 @@ public class DomainInfo {
         if (fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getDateArrayConverter());
         } else if (fieldInfo.isIterable()) {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getDateCollectionConverter(fieldInfo.getCollectionClassname()));
+            fieldInfo
+                .setPropertyConverter(ConvertibleTypes.getDateCollectionConverter(fieldInfo.getCollectionClassname()));
         } else {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getDateConverter());
         }
@@ -416,8 +441,8 @@ public class DomainInfo {
         AttributeConverter<?, ?> localDateConverter = ConvertibleTypes.getLocalDateConverter();
         if (fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(
-                    ConvertibleTypes.getConverterBasedCollectionConverter(localDateConverter,
-                            fieldInfo.getCollectionClassname())
+                ConvertibleTypes.getConverterBasedCollectionConverter(localDateConverter,
+                    fieldInfo.getCollectionClassname())
             );
         } else {
             fieldInfo.setPropertyConverter(localDateConverter);
@@ -428,8 +453,8 @@ public class DomainInfo {
         AttributeConverter<?, ?> localDateTimeConverter = ConvertibleTypes.getLocalDateTimeConverter();
         if (fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getConverterBasedCollectionConverter(
-                    localDateTimeConverter,
-                    fieldInfo.getCollectionClassname())
+                localDateTimeConverter,
+                fieldInfo.getCollectionClassname())
             );
         } else {
             fieldInfo.setPropertyConverter(localDateTimeConverter);
@@ -440,14 +465,13 @@ public class DomainInfo {
         AttributeConverter<?, ?> offsetDateTimeConverter = ConvertibleTypes.getOffsetDateTimeConverter();
         if (fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getConverterBasedCollectionConverter(
-                    offsetDateTimeConverter,
-                    fieldInfo.getCollectionClassname()
+                offsetDateTimeConverter,
+                fieldInfo.getCollectionClassname()
             ));
         } else {
             fieldInfo.setPropertyConverter(offsetDateTimeConverter);
         }
     }
-
 
     // leaky for spring
     public Map<String, ClassInfo> getClassInfoMap() {

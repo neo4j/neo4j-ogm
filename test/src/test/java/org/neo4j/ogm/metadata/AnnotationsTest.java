@@ -13,16 +13,14 @@
 
 package org.neo4j.ogm.metadata;
 
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author vince
  */
 public class AnnotationsTest {
-
 
     @Test
     public void shouldLoadMetaDataWithComplexAnnotations() {
@@ -40,7 +38,8 @@ public class AnnotationsTest {
         ClassInfo classInfo = metaData.classInfo("IndexedEntity");
 
         FieldInfo fieldInfo = classInfo.propertyField("ref");
-        AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get("org.neo4j.ogm.domain.annotations.IndexedEntity$Indexed");
+        AnnotationInfo annotationInfo = fieldInfo.getAnnotations()
+            .get("org.neo4j.ogm.domain.annotations.IndexedEntity$Indexed");
 
         // string-y types
         assertThat(annotationInfo.get("b", "")).isEqualTo("97");

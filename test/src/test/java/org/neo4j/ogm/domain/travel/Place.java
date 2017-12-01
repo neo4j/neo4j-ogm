@@ -43,8 +43,8 @@ public class Place {
     @Override
     public String toString() {
         return "Location{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+            "id=" + id +
+            ", name='" + name + '\'' +
+            '}';
     }
 }

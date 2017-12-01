@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.drivers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.exception.ResultProcessingException;
@@ -21,7 +20,12 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.request.DefaultRequest;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.request.RestModelRequest;
+import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
@@ -29,6 +33,7 @@ import org.neo4j.ogm.result.ResultGraphModel;
 import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.transaction.Transaction;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Vince Bickers
@@ -65,7 +70,6 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
                 }
                 return null;
             }
-
 
             @Override
             public Response<GraphModel> execute(GraphModelRequest qry) {
@@ -105,7 +109,8 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
                         String r = nextRecord();
                         if (r != null) {
                             try {
-                                return new DefaultRowModel(mapper.readValue(r, ResultRowModel.class).queryResults(), columns());
+                                return new DefaultRowModel(mapper.readValue(r, ResultRowModel.class).queryResults(),
+                                    columns());
                             } catch (Exception e) {
                                 throw new ResultProcessingException("Could not parse response", e);
                             }

@@ -27,11 +27,12 @@ public final class ProxyAttributeConverter implements AttributeConverter<Object,
     /**
      * Constructs a new {@link ProxyAttributeConverter} based on the given arguments.
      *
-     * @param entityAttributeType The type of the attribute in the entity to convert
-     * @param targetGraphType The target type to which the value from the entity should be converted for saving into the graph
+     * @param entityAttributeType       The type of the attribute in the entity to convert
+     * @param targetGraphType           The target type to which the value from the entity should be converted for saving into the graph
      * @param converterCallbackRegistry The {@link ConversionCallbackRegistry} from which to look up the converters
      */
-    public ProxyAttributeConverter(Class<?> entityAttributeType, Class<?> targetGraphType, ConversionCallbackRegistry converterCallbackRegistry) {
+    public ProxyAttributeConverter(Class<?> entityAttributeType, Class<?> targetGraphType,
+        ConversionCallbackRegistry converterCallbackRegistry) {
         this.entityAttributeType = entityAttributeType;
         this.targetGraphType = targetGraphType;
         this.converterCallbackRegistry = converterCallbackRegistry;

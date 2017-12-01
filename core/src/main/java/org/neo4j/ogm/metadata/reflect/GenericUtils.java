@@ -25,15 +25,12 @@ public class GenericUtils {
 
     /**
      * Tries to discover type of given field
-     * <p>
      * If the field ha a concrete type then there is nothing to do and it's type is returned.
-     * <p>
      * If the field has a generic type then it traverses class hierarchy of the concrete class to discover
      * ParameterizedType with type parameter
      *
-     * @param field field
+     * @param field         field
      * @param concreteClass concrete class that either declares the field or is a subclass of such class
-     *
      * @return type of the field
      */
     public static Class findFieldType(Field field, Class concreteClass) {
@@ -61,7 +58,6 @@ public class GenericUtils {
      *
      * @param clazz concrete class
      * @param field field
-     *
      * @return superclass as ParameterizedType
      */
     private static ParameterizedType findMatchingSuperclass(Class clazz, Field field) {

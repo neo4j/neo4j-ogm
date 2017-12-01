@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -109,8 +109,8 @@ public class JsonRestResponseTest {
         return new ByteArrayInputStream(s.getBytes());
     }
 
-
-    static class TestRestHttpResponse extends AbstractHttpResponse<ResultRestModel> implements Response<DefaultRestModel> {
+    static class TestRestHttpResponse extends AbstractHttpResponse<ResultRestModel>
+        implements Response<DefaultRestModel> {
 
         public TestRestHttpResponse() {
             super(response, ResultRestModel.class);
@@ -130,7 +130,6 @@ public class JsonRestResponseTest {
         public void close() {
             //Nothing to do, the response has been closed already
         }
-
 
         private Map<String, Object> buildModel() {
             ResultRestModel result = nextDataRecord("rest");

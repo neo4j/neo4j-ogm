@@ -13,13 +13,14 @@
 
 package org.neo4j.ogm.persistence.relationships;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.entityMapping.Movie;
@@ -28,8 +29,6 @@ import org.neo4j.ogm.domain.entityMapping.Rating;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author vince
@@ -51,31 +50,31 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
         session.clear();
     }
 
-
     /**
      * @see DATAGRAPH-636
      */
     @Test
     public void shouldMapFromGraphToEntitiesCorrectly() {
         session.query("create (_5:`Person` {`name`:\"Jim\"})\n" +
-                "create (_6:`Person` {`name`:\"Mary\"})\n" +
-                "create (_7:`Person` {`name`:\"Bill\"})\n" +
-                "create (_8:`Movie` {`name`:\"Die Hard\"})\n" +
-                "create (_9:`Movie` {`name`:\"The Matrix\"})\n" +
-                "create (_5)-[:`FOLLOWS`]->(_6)\n" +
-                "create (_5)-[:`LIKES`]->(_6)\n" +
-                "create (_5)-[:`RATED` {`value`:4}]->(_9)\n" +
-                "create (_5)-[:`RATED` {`value`:5}]->(_8)\n" +
-                "create (_6)-[:`FOLLOWS`]->(_5)\n" +
-                "create (_6)-[:`FOLLOWS`]->(_7)\n" +
-                "create (_6)-[:`LIKES`]->(_5)\n" +
-                "create (_6)-[:`RATED` {`value`:5}]->(_8)\n" +
-                "create (_7)-[:`FOLLOWS`]->(_5)\n" +
-                "create (_7)-[:`LIKES`]->(_6)\n" +
-                "create (_7)-[:`RATED` {`value`:4}]->(_9)\n" +
-                "create (_7)-[:`RATED` {`value`:5}]->(_9)\n" +
-                ";\n", Collections.EMPTY_MAP);
-        Person jim = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Jim")).iterator().next();
+            "create (_6:`Person` {`name`:\"Mary\"})\n" +
+            "create (_7:`Person` {`name`:\"Bill\"})\n" +
+            "create (_8:`Movie` {`name`:\"Die Hard\"})\n" +
+            "create (_9:`Movie` {`name`:\"The Matrix\"})\n" +
+            "create (_5)-[:`FOLLOWS`]->(_6)\n" +
+            "create (_5)-[:`LIKES`]->(_6)\n" +
+            "create (_5)-[:`RATED` {`value`:4}]->(_9)\n" +
+            "create (_5)-[:`RATED` {`value`:5}]->(_8)\n" +
+            "create (_6)-[:`FOLLOWS`]->(_5)\n" +
+            "create (_6)-[:`FOLLOWS`]->(_7)\n" +
+            "create (_6)-[:`LIKES`]->(_5)\n" +
+            "create (_6)-[:`RATED` {`value`:5}]->(_8)\n" +
+            "create (_7)-[:`FOLLOWS`]->(_5)\n" +
+            "create (_7)-[:`LIKES`]->(_6)\n" +
+            "create (_7)-[:`RATED` {`value`:4}]->(_9)\n" +
+            "create (_7)-[:`RATED` {`value`:5}]->(_9)\n" +
+            ";\n", Collections.EMPTY_MAP);
+        Person jim = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Jim")).iterator()
+            .next();
         assertThat(jim.movieRatings).hasSize(2);
         assertThat(jim.peopleILike).hasSize(1);
         assertThat(jim.peopleWhoLikeMe).hasSize(1);
@@ -83,16 +82,20 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
         assertThat(jim.peopleWhoFollowMe).hasSize(2);
         assertThat(jim.peopleILike.get(0).name).isEqualTo("Mary");
 
-        Person bill = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Bill")).iterator().next();
+        Person bill = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Bill")).iterator()
+            .next();
         assertThat(bill.movieRatings).hasSize(2);
         assertThat(bill.peopleILike).hasSize(1);
         assertThat(bill.peopleWhoLikeMe).isEmpty();
         assertThat(bill.peopleIFollow).hasSize(1);
         assertThat(bill.peopleWhoFollowMe).hasSize(1);
 
-        Person mary = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Mary")).iterator().next();
-        Movie dieHard = session.loadAll(Movie.class, new Filter("name", ComparisonOperator.EQUALS, "Die Hard")).iterator().next();
-        Movie matrix = session.loadAll(Movie.class, new Filter("name", ComparisonOperator.EQUALS, "The Matrix")).iterator().next();
+        Person mary = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Mary")).iterator()
+            .next();
+        Movie dieHard = session.loadAll(Movie.class, new Filter("name", ComparisonOperator.EQUALS, "Die Hard"))
+            .iterator().next();
+        Movie matrix = session.loadAll(Movie.class, new Filter("name", ComparisonOperator.EQUALS, "The Matrix"))
+            .iterator().next();
         assertThat(mary.movieRatings).hasSize(1);
         assertThat(mary.peopleILike).hasSize(1);
         assertThat(mary.peopleWhoLikeMe).hasSize(2);

@@ -28,7 +28,8 @@ public class MetaDataTest {
 
     @Before
     public void setUp() {
-        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain");
+        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata",
+            "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain");
     }
 
     /**
@@ -66,7 +67,6 @@ public class MetaDataTest {
         metaData.resolve("Login", "Topic");
     }
 
-
     @Test
     /**
      * Taxa corresponding to interfaces with multiple implementations can't be resolved
@@ -84,7 +84,8 @@ public class MetaDataTest {
     public void testInterfaceWithSingleImplTaxa() {
         ClassInfo classInfo = metaData.resolve("AnnotatedInterfaceWithSingleImpl");
         assertThat(classInfo).isNotNull();
-        assertThat(classInfo.name()).isEqualTo("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface");
+        assertThat(classInfo.name())
+            .isEqualTo("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface");
     }
 
     @Test
@@ -108,12 +109,18 @@ public class MetaDataTest {
      * The ordering of taxa is unimportant.
      */
     public void testOrderingOfTaxaIsUnimportant() {
-        assertThat(metaData.resolve("Bronze", "Membership", "IMembership").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
-        assertThat(metaData.resolve("Bronze", "IMembership", "Membership").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
-        assertThat(metaData.resolve("Membership", "IMembership", "Bronze").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
-        assertThat(metaData.resolve("Membership", "Bronze", "IMembership").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
-        assertThat(metaData.resolve("IMembership", "Bronze", "Membership").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
-        assertThat(metaData.resolve("IMembership", "Membership", "Bronze").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("Bronze", "Membership", "IMembership").name())
+            .isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("Bronze", "IMembership", "Membership").name())
+            .isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("Membership", "IMembership", "Bronze").name())
+            .isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("Membership", "Bronze", "IMembership").name())
+            .isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("IMembership", "Bronze", "Membership").name())
+            .isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
+        assertThat(metaData.resolve("IMembership", "Membership", "Bronze").name())
+            .isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
     }
 
     /**
@@ -140,6 +147,7 @@ public class MetaDataTest {
      * Mixing domain and non-domain taxa is permitted.
      */
     public void testNonMemberAndMemberTaxa() {
-        assertThat(metaData.resolve("Silver", "Pewter", "Tin").name()).isEqualTo("org.neo4j.ogm.domain.forum.SilverMembership");
+        assertThat(metaData.resolve("Silver", "Pewter", "Tin").name())
+            .isEqualTo("org.neo4j.ogm.domain.forum.SilverMembership");
     }
 }

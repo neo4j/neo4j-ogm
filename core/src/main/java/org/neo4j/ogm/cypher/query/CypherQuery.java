@@ -34,7 +34,7 @@ public class CypherQuery implements Statement {
     /**
      * Constructs a new {@link CypherQuery} based on the given Cypher query string and query parameters.
      *
-     * @param cypher The parameterised Cypher query string
+     * @param cypher     The parameterised Cypher query string
      * @param parameters The name-value pairs that satisfy the parameters in the given query
      */
     public CypherQuery(String cypher, Map<String, ?> parameters) {

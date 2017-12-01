@@ -26,7 +26,7 @@ public class PropertyModel<K, V> implements Property<K, V> {
     /**
      * Constructs a new {@link PropertyModel} inferring the generic type arguments of the key and the value.
      *
-     * @param key The property key or name
+     * @param key   The property key or name
      * @param value The property value
      * @return A new {@link PropertyModel} based on the given arguments
      */
@@ -71,8 +71,10 @@ public class PropertyModel<K, V> implements Property<K, V> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         PropertyModel property = (PropertyModel) o;
 

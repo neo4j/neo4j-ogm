@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.session;
 
+import static java.util.Objects.*;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -26,11 +27,8 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.event.EventListener;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * This is the main initialization point of OGM. Used to create {@link Session} instances for interacting with Neo4j.
- * <p>
  * In a typical scenario one instance of SessionFactory is created, shared across whole application.
  *
  * @author Vince Bickers
@@ -96,10 +94,9 @@ public class SessionFactory {
 
     /**
      * Create a session factory with given driver
-     *
      * Use this constructor when you need to provide fully customized driver.
      *
-     * @param driver driver to be used with this SessionFactory
+     * @param driver   driver to be used with this SessionFactory
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(Driver driver, String... packages) {
@@ -160,7 +157,6 @@ public class SessionFactory {
 
     /**
      * Sets the LoadStrategy
-     * <p>
      * Will be used for all queries on subsequently created sessions. This also can be set on individual Session
      * instances.
      *
@@ -181,7 +177,6 @@ public class SessionFactory {
 
     /**
      * Closes this session factory
-     * <p>
      * Also closes any underlying resources, like driver etc.
      */
     public void close() {
@@ -190,9 +185,7 @@ public class SessionFactory {
 
     /**
      * Register an instance of {@link IdStrategy}
-     * <p>
      * This instance will be used for generation of ids annotated with
-     * <p>
      * {@code @Id @GeneratedValue(strategy=SomeClass.class)}
      *
      * @param strategy {@link org.neo4j.ogm.id.IdStrategy} to use

@@ -32,7 +32,7 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
 
     private static final String MATCH_WITH_ID = "MATCH ()-[r0]-() WHERE ID(r0)={id} ";
     private static final String MATCH_WITH_TYPE_AND_IDS = "MATCH ()-[r0:`%s`]-() WHERE ID(r0) IN {ids} ";
-    private static final String MATCH_PATHS_WITH_REL_ID = " WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
+    private static final String MATCH_PATHS_WITH_REL_ID = " WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
             "MATCH p1 = (n)-[*%d..%d]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
             "MATCH p2 = (m)-[*%d..%d]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
             "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +

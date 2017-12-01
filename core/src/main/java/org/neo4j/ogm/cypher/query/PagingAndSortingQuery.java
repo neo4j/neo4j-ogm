@@ -41,7 +41,11 @@ public class PagingAndSortingQuery implements PagingAndSorting {
         this.parameters = parameters;
         this.withIndex = this.statement.indexOf("WITH n");
         if (this.withIndex == -1) {
-            this.withIndex = this.statement.indexOf("WITH r");
+            int withIndex = this.statement.indexOf("WITH DISTINCT(r");
+            if (withIndex == -1) {
+                withIndex = this.statement.indexOf("WITH r");
+            }
+            this.withIndex = withIndex;
         }
         hasPredicate = statement.contains("WHERE");
         returnsPath = statement.matches(".*RETURN.*p.*");

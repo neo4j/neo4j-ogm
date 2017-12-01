@@ -26,6 +26,9 @@ public class NodeKeyConstraintIndexAutoIndexManagerTest extends BaseAutoIndexMan
     public static void setUpClass() throws Exception {
         assumeTrue("This test uses composite index and node key constraint and can only be run on enterprise edition",
             isEnterpriseEdition());
+
+        assumeTrue("This tests uses composite index and can only be run on Neo4j 3.2.0 and later",
+            isVersionOrGreater("3.2.0"));
     }
 
     @Override

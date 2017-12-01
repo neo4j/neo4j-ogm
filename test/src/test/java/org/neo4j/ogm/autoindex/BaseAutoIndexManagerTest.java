@@ -75,19 +75,19 @@ public abstract class BaseAutoIndexManagerTest extends MultiDriverTestClass {
     private String[] statements;
     private String definition;
 
-    private GraphDatabaseService service;
-    private MetaData metaData;
+    protected GraphDatabaseService service;
+    protected MetaData metaData;
 
     public BaseAutoIndexManagerTest(String definition, String... packages) {
         this.definition = definition;
-        metaData = new MetaData(packages);
+        this.metaData = new MetaData(packages);
     }
 
     @Before
     public void setUp() throws Exception {
         service = getGraphDatabaseService();
 
-        if (isEnterpriseEdition()) {
+        if (isEnterpriseEdition() && isVersionOrGreater("3.2.0")) {
             indexes = ENTERPRISE_INDEXES;
             constraints = ENTERPRISE_CONSTRAINTS;
             statements = ObjectArrays.concat(ENTERPRISE_INDEXES, ENTERPRISE_CONSTRAINTS, String.class);

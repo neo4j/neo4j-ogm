@@ -862,9 +862,9 @@ public class ClassInfo {
         for (CompositeIndex annotation : annotations) {
             String[] properties = annotation.value().length > 0 ? annotation.value() : annotation.properties();
 
-            if (properties.length < 2) {
+            if (properties.length < 1) {
                 throw new MetadataException("Incorrect CompositeIndex definition on " + className +
-                    ". Provide at least 2 properties");
+                    ". Provide at least 1 property");
             }
 
             for (String property : properties) {

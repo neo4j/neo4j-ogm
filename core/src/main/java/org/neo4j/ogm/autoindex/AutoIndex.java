@@ -14,7 +14,7 @@ package org.neo4j.ogm.autoindex;
 
 import static java.util.Collections.*;
 import static java.util.Optional.*;
-import static java.util.regex.Pattern.compile;
+import static java.util.regex.Pattern.*;
 import static org.neo4j.ogm.autoindex.IndexType.*;
 
 import java.util.Arrays;
@@ -54,7 +54,7 @@ class AutoIndex {
      */
     private final String description;
 
-    public AutoIndex(IndexType type, String owningType, String[] properties) {
+    AutoIndex(IndexType type, String owningType, String[] properties) {
         this.properties = properties;
         this.owningType = owningType;
         this.type = type;

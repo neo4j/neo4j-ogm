@@ -8,6 +8,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.autoindex.CompositeIndexChild;
 import org.neo4j.ogm.domain.autoindex.CompositeIndexEntity;
+import org.neo4j.ogm.domain.autoindex.MultipleCompositeIndexEntity;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Frantisek Hartman
@@ -25,6 +27,9 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
     public static void setUpClass() throws Exception {
         assumeTrue("This test uses composite index and node key constraint and can only be run on enterprise edition",
             isEnterpriseEdition());
+
+        assumeTrue("This tests uses composite index and can only be run on Neo4j 3.2.0 and later",
+            isVersionOrGreater("3.2.0"));
     }
 
     @Override
@@ -48,4 +53,20 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
         });
     }
 
+    @Test
+    public void testMultipleCompositeIndexAnnotations() throws Exception {
+        metaData = new MetaData(MultipleCompositeIndexEntity.class.getName());
+
+        try {
+
+            runAutoIndex("update");
+
+            executeForIndexes(indexes -> {
+                assertThat(indexes).hasSize(2);
+            });
+        } finally {
+            executeDrop("INDEX ON :Entity(name, age)");
+            executeDrop("INDEX ON :Entity(name, email)");
+        }
+    }
 }

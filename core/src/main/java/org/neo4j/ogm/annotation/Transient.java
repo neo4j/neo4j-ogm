@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * By default all domain entity types will be persisted unless they are
@@ -25,7 +29,7 @@ import java.lang.annotation.*;
  * @author Mark Angrish
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.FIELD})
+@Target({ ElementType.TYPE, ElementType.FIELD })
 @Inherited
 public @interface Transient {
 

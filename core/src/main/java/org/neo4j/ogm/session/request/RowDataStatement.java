@@ -24,7 +24,7 @@ public class RowDataStatement implements Statement {
 
     private String statement;
     private Map<String, Object> parameters;
-    private String[] resultDataContents = new String[]{"row"};
+    private String[] resultDataContents = new String[] { "row" };
 
     public RowDataStatement() {
     }

@@ -13,12 +13,13 @@
 
 package org.neo4j.ogm.drivers.http.driver;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -109,7 +110,8 @@ public final class HttpDriver extends AbstractConfigurableDriver {
 
     public CloseableHttpResponse executeHttpRequest(HttpRequestBase request) throws HttpRequestException {
 
-        try (CloseableHttpResponse response = HttpRequest.execute(httpClient(), request, configuration.getCredentials())) {
+        try (CloseableHttpResponse response = HttpRequest
+            .execute(httpClient(), request, configuration.getCredentials())) {
             HttpEntity responseEntity = response.getEntity();
             if (responseEntity != null) {
                 String responseText;
@@ -165,13 +167,15 @@ public final class HttpDriver extends AbstractConfigurableDriver {
         if (transactionManager != null) {
             Transaction tx = transactionManager.getCurrentTransaction();
             if (tx != null) {
-                LOGGER.debug("Thread: {}, request url {}", Thread.currentThread().getId(), ((HttpTransaction) tx).url());
+                LOGGER
+                    .debug("Thread: {}, request url {}", Thread.currentThread().getId(), ((HttpTransaction) tx).url());
                 return ((HttpTransaction) tx).url();
             } else {
                 LOGGER.debug("Thread: {}, No current transaction, using auto-commit", Thread.currentThread().getId());
             }
         } else {
-            LOGGER.debug("Thread: {}, No transaction manager available, using auto-commit", Thread.currentThread().getId());
+            LOGGER.debug("Thread: {}, No transaction manager available, using auto-commit",
+                Thread.currentThread().getId());
         }
         LOGGER.debug("Thread: {}, request url {}", Thread.currentThread().getId(), autoCommitUrl());
         return autoCommitUrl();
@@ -189,7 +193,8 @@ public final class HttpDriver extends AbstractConfigurableDriver {
 
     private synchronized CloseableHttpClient httpClient() {
 
-        if (httpClient == null) {   // most of the time this will be false, branch-prediction will be very fast and the lock released immediately
+        if (httpClient
+            == null) {   // most of the time this will be false, branch-prediction will be very fast and the lock released immediately
 
             try {
                 HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
@@ -210,14 +215,16 @@ public final class HttpDriver extends AbstractConfigurableDriver {
 
                 HostnameVerifier hostnameVerifier = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
 
-                SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+                SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext,
+                    hostnameVerifier);
                 Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-                        .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                        .register("https", sslSocketFactory)
-                        .build();
+                    .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                    .register("https", sslSocketFactory)
+                    .build();
 
                 // allows multi-threaded use
-                PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+                PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(
+                    socketFactoryRegistry);
 
                 Integer connectionPoolSize = configuration.getConnectionPoolSize();
 

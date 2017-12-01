@@ -30,7 +30,6 @@ public class DefaultRowModel implements RowModel {
         this.variables = variables;
     }
 
-
     public Object[] getValues() {
         return values;
     }

@@ -22,7 +22,7 @@ import org.neo4j.ogm.request.RestModelRequest;
  */
 public class DefaultRestModelRequest extends CypherQuery implements RestModelRequest {
 
-    private final static String[] resultDataContents = new String[]{"rest"};
+    private final static String[] resultDataContents = new String[] { "rest" };
 
     public DefaultRestModelRequest(String cypher, Map<String, ?> parameters) {
         super(cypher, parameters);

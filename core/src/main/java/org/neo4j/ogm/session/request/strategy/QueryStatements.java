@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.session.request.strategy;
 
-
 import java.io.Serializable;
 import java.util.Collection;
 
@@ -30,7 +29,7 @@ public interface QueryStatements<ID extends Serializable> {
     /**
      * construct a query to fetch a single object with the specified id
      *
-     * @param id the id of the object to find
+     * @param id    the id of the object to find
      * @param depth the depth to traverse for any related objects
      * @return a {@link PagingAndSortingQuery}
      */
@@ -40,7 +39,7 @@ public interface QueryStatements<ID extends Serializable> {
      * construct a query to fetch a single object with the specified id of a specific type
      *
      * @param label the label attached to the object or relationship type
-     * @param id the id of the object to find
+     * @param id    the id of the object to find
      * @param depth the depth to traverse for any related objects
      * @return a {@link PagingAndSortingQuery}
      */
@@ -49,8 +48,8 @@ public interface QueryStatements<ID extends Serializable> {
     /**
      * construct a query to fetch all objects with the specified ids
      *
-     * @param type the label attached to the object, or the relationship type
-     * @param ids the ids of the objects to find
+     * @param type  the label attached to the object, or the relationship type
+     * @param ids   the ids of the objects to find
      * @param depth the depth to traverse for any related objects
      * @return a {@link PagingAndSortingQuery}
      */
@@ -59,7 +58,7 @@ public interface QueryStatements<ID extends Serializable> {
     /**
      * construct queries to fetch all objects with the specified label or relationship type
      *
-     * @param type the label attached to the object, or the relationship type
+     * @param type  the label attached to the object, or the relationship type
      * @param depth the depth to traverse for related objects
      * @return a {@link PagingAndSortingQuery}
      */
@@ -68,9 +67,9 @@ public interface QueryStatements<ID extends Serializable> {
     /**
      * construct queries to fetch all objects with the specified label that match the specified filters
      *
-     * @param type the label value or relationship type to filter on
+     * @param type    the label value or relationship type to filter on
      * @param filters parameters to filter on
-     * @param depth the depth to traverse for related objects
+     * @param depth   the depth to traverse for related objects
      * @return a {@link PagingAndSortingQuery}
      */
 

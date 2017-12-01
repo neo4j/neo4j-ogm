@@ -15,8 +15,8 @@ package org.neo4j.ogm.session.event;
 
 /**
  * @author vince
- *         A no-op implementation of EventListener that applications
- *         can extend and over-ride as required
+ * A no-op implementation of EventListener that applications
+ * can extend and over-ride as required
  */
 public class EventListenerAdapter implements EventListener {
 

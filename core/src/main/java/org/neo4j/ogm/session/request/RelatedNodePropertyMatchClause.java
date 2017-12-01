@@ -11,7 +11,6 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-
 package org.neo4j.ogm.session.request;
 
 import org.neo4j.ogm.cypher.Filter;
@@ -31,7 +30,6 @@ public class RelatedNodePropertyMatchClause implements MatchClause {
     public String getLabel() {
         return label;
     }
-
 
     @Override
     public MatchClause append(Filter filter) {

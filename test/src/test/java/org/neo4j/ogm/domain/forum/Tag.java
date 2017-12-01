@@ -19,34 +19,34 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
 /**
- * A entity class used to demonstrate/test labels and properties that require being escaped. 
- *  
+ * A entity class used to demonstrate/test labels and properties that require being escaped.
+ *
  * @author Eric Spiegelberg
  */
-@NodeEntity(label="T-A-G")
+@NodeEntity(label = "T-A-G")
 public class Tag {
 
     @GraphId
     private Long tagId;
 
     @Index(unique = true)
-    @Property(name="short-description")
+    @Property(name = "short-description")
     private String description;
-    
-	public Long getTagId() {
-		return tagId;
-	}
 
-	public void setTagId(Long tagId) {
-		this.tagId = tagId;
-	}
+    public Long getTagId() {
+        return tagId;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setTagId(Long tagId) {
+        this.tagId = tagId;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-    
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 }

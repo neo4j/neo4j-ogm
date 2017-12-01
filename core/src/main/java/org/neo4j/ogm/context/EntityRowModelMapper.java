@@ -20,7 +20,6 @@ import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Utils;
 
-
 public class EntityRowModelMapper implements ResponseMapper<RowModel> {
 
     /**
@@ -36,7 +35,7 @@ public class EntityRowModelMapper implements ResponseMapper<RowModel> {
 
             if (model.variables().length > 1) {
                 throw new RuntimeException(
-                        "Scalar response queries must only return one column. Make sure your cypher query only returns one item.");
+                    "Scalar response queries must only return one column. Make sure your cypher query only returns one item.");
             }
             for (int i = 0; i < model.variables().length; i++) {
                 Object o = model.getValues()[0];

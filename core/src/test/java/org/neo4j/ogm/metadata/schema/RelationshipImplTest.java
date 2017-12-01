@@ -13,13 +13,13 @@
 
 package org.neo4j.ogm.metadata.schema;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.*;
+import static org.neo4j.ogm.annotation.Relationship.*;
 
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.neo4j.ogm.annotation.Relationship.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Frantisek Hartman

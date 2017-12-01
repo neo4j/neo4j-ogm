@@ -32,18 +32,19 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
 
     private static final String MATCH_WITH_ID = "MATCH ()-[r0]-() WHERE ID(r0)={id} ";
     private static final String MATCH_WITH_TYPE_AND_IDS = "MATCH ()-[r0:`%s`]-() WHERE ID(r0) IN {ids} ";
-    private static final String MATCH_PATHS_WITH_REL_ID = " WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
+    private static final String MATCH_PATHS_WITH_REL_ID =
+        " WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
             "MATCH p1 = (n)-[*%d..%d]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
             "MATCH p2 = (m)-[*%d..%d]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
             "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
             "UNWIND paths AS p " +
             "RETURN DISTINCT p, rId";
     private static final String MATCH_PATHS = " WITH STARTNODE(r0) AS n, ENDNODE(r0) AS m " +
-            "MATCH p1 = (n)-[*%d..%d]-() WITH COLLECT(DISTINCT p1) AS startPaths, m " +
-            "MATCH p2 = (m)-[*%d..%d]-() WITH startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-            "WITH startPaths + endPaths AS paths " +
-            "UNWIND paths AS p " +
-            "RETURN DISTINCT p";
+        "MATCH p1 = (n)-[*%d..%d]-() WITH COLLECT(DISTINCT p1) AS startPaths, m " +
+        "MATCH p2 = (m)-[*%d..%d]-() WITH startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+        "WITH startPaths + endPaths AS paths " +
+        "UNWIND paths AS p " +
+        "RETURN DISTINCT p";
 
     private MatchClauseBuilder idMatchClauseBuilder = new IdMatchRelationshipClauseBuilder();
     private MatchClauseBuilder idCollectionMatchClauseBuilder = new IdCollectionMatchRelationshipClauseBuilder();
@@ -119,7 +120,6 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
         }
     }
-
 
     @Override
     public PagingAndSortingQuery findByType(String type, Filters parameters, int depth) {

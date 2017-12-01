@@ -25,13 +25,15 @@ public class LocalDateStringConverter implements AttributeConverter<LocalDate, S
 
     @Override
     public String toGraphProperty(LocalDate value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return value.toString();
     }
 
     @Override
     public LocalDate toEntityAttribute(String value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return LocalDate.parse(value);
     }
 }

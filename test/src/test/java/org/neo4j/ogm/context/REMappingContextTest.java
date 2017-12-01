@@ -13,17 +13,16 @@
 
 package org.neo4j.ogm.context;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.Before;
 import org.junit.Test;
-
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.metadata.MetaData;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test for relationship entities and mapping context
@@ -34,7 +33,6 @@ public class REMappingContextTest {
     private final MappingContext context = new MappingContext(metaData);
 
     private Likes likes;
-
 
     @Before
     public void setUp() throws Exception {

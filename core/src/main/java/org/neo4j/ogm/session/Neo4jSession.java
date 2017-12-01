@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.session;
 
+import static java.util.Collections.*;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -36,7 +38,14 @@ import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.request.Request;
-import org.neo4j.ogm.session.delegates.*;
+import org.neo4j.ogm.session.delegates.DeleteDelegate;
+import org.neo4j.ogm.session.delegates.ExecuteQueriesDelegate;
+import org.neo4j.ogm.session.delegates.GraphIdDelegate;
+import org.neo4j.ogm.session.delegates.LoadByIdsDelegate;
+import org.neo4j.ogm.session.delegates.LoadByInstancesDelegate;
+import org.neo4j.ogm.session.delegates.LoadByTypeDelegate;
+import org.neo4j.ogm.session.delegates.LoadOneDelegate;
+import org.neo4j.ogm.session.delegates.SaveDelegate;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
@@ -50,8 +59,6 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.utils.RelationshipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.Collections.emptySet;
 
 /**
  * @author Vince Bickers
@@ -93,7 +100,8 @@ public class Neo4jSession implements Session {
         this.loadStrategy = LoadStrategy.PATH_LOAD_STRATEGY;
     }
 
-    public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners, LoadStrategy loadStrategy) {
+    public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners,
+        LoadStrategy loadStrategy) {
         this(metaData, driver);
         registeredEventListeners.addAll(eventListeners);
 
@@ -241,7 +249,8 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Filter filter, SortOrder sortOrder, Pagination pagination, int depth) {
+    public <T> Collection<T> loadAll(Class<T> type, Filter filter, SortOrder sortOrder, Pagination pagination,
+        int depth) {
         return loadByTypeHandler.loadAll(type, filter, sortOrder, pagination, depth);
     }
 
@@ -281,7 +290,8 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination, int depth) {
+    public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination,
+        int depth) {
         return loadByTypeHandler.loadAll(type, filters, sortOrder, pagination, depth);
     }
 
@@ -306,7 +316,8 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,
+        int depth) {
         return loadByIdsHandler.loadAll(type, ids, sortOrder, depth);
     }
 
@@ -316,20 +327,22 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging,
+        int depth) {
         return loadByIdsHandler.loadAll(type, ids, paging, depth);
     }
 
     @Override
-    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,
+        Pagination pagination) {
         return loadByIdsHandler.loadAll(type, ids, sortOrder, pagination);
     }
 
     @Override
-    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,
+        Pagination pagination, int depth) {
         return loadByIdsHandler.loadAll(type, ids, sortOrder, pagination, depth);
     }
-
 
     /*
      *----------------------------------------------------------------------------------------------------------
@@ -455,7 +468,6 @@ public class Neo4jSession implements Session {
     public <T> void save(T object, int depth) {
         saveDelegate.save(object, depth);
     }
-
 
     /*
     *----------------------------------------------------------------------------------------------------------
@@ -588,7 +600,8 @@ public class Neo4jSession implements Session {
         if (sortOrder != null) {
             for (SortClause sortClause : sortOrder.sortClauses()) {
                 for (int i = 0; i < sortClause.getProperties().length; i++) {
-                    sortClause.getProperties()[i] = String.format(escapedProperty, resolvePropertyName(entityType, sortClause.getProperties()[i]));
+                    sortClause.getProperties()[i] = String
+                        .format(escapedProperty, resolvePropertyName(entityType, sortClause.getProperties()[i]));
                 }
             }
         }

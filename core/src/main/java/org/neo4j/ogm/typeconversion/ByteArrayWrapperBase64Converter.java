@@ -30,13 +30,15 @@ public class ByteArrayWrapperBase64Converter implements AttributeConverter<Byte[
 
     @Override
     public String toGraphProperty(Byte[] value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return Base64.encodeBase64String(ArrayUtils.toPrimitive(value));
     }
 
     @Override
     public Byte[] toEntityAttribute(String value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         byte[] bytes = Base64.decodeBase64(value);
         Byte[] wrapper = new Byte[bytes.length];
         for (int i = 0; i < bytes.length; i++) {

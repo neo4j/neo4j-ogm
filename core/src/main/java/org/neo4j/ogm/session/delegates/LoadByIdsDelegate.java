@@ -19,9 +19,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -35,6 +32,8 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.utils.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -49,7 +48,8 @@ public class LoadByIdsDelegate {
         this.session = session;
     }
 
-    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,
+        Pagination pagination, int depth) {
 
         String entityLabel = session.entityType(type.getName());
         if (entityLabel == null) {
@@ -60,8 +60,8 @@ public class LoadByIdsDelegate {
         QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
 
         PagingAndSortingQuery qry = queryStatements.findAllByType(entityLabel, ids, depth)
-                .setSortOrder(sortOrder)
-                .setPagination(pagination);
+            .setSortOrder(sortOrder)
+            .setPagination(pagination);
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
         try (Response<GraphModel> response = session.requestHandler().execute(request)) {
@@ -80,7 +80,8 @@ public class LoadByIdsDelegate {
         }
     }
 
-    private <T, ID extends Serializable> Set<T> sortResultsByIds(Class<T> type, Collection<ID> ids, Iterable<T> mapped) {
+    private <T, ID extends Serializable> Set<T> sortResultsByIds(Class<T> type, Collection<ID> ids,
+        Iterable<T> mapped) {
         Map<ID, T> items = new HashMap<>();
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
 
@@ -118,7 +119,8 @@ public class LoadByIdsDelegate {
         return loadAll(type, ids, sortOrder, null, 1);
     }
 
-    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,
+        int depth) {
         return loadAll(type, ids, sortOrder, null, depth);
     }
 
@@ -126,11 +128,13 @@ public class LoadByIdsDelegate {
         return loadAll(type, ids, new SortOrder(), paging, 1);
     }
 
-    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging,
+        int depth) {
         return loadAll(type, ids, new SortOrder(), paging, depth);
     }
 
-    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,
+        Pagination pagination) {
         return loadAll(type, ids, sortOrder, pagination, 1);
     }
 

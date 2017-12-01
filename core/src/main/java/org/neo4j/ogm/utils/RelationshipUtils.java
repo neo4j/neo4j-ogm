@@ -82,7 +82,7 @@ public class RelationshipUtils {
      * This is intentional and should not be changed, because other parts of
      * the code expect this format in order to operate correctly.
      *
-     * @param sb The StringBuilder object which will hold the converted string
+     * @param sb   The StringBuilder object which will hold the converted string
      * @param name the string Value to convert.
      * @return a {@link StringBuilder}
      */

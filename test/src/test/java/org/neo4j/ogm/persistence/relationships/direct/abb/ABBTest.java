@@ -60,7 +60,7 @@ public class ABBTest extends MultiDriverTestClass {
         b1 = new B();
         b2 = new B();
 
-        a.b = new B[]{b1, b2};
+        a.b = new B[] { b1, b2 };
         b1.a = a;
         b2.a = a;
     }
@@ -95,7 +95,7 @@ public class ABBTest extends MultiDriverTestClass {
 
         // local model must be self-consistent
         b1.a = null;
-        a.b = new B[]{b2};
+        a.b = new B[] { b2 };
 
         session.save(b1);
         session.save(b2);
@@ -104,7 +104,7 @@ public class ABBTest extends MultiDriverTestClass {
         a = session.load(A.class, a.id);
 
         // expect the b1 relationship to have gone.
-        assertThat(a.b).containsExactlyInAnyOrder(new B[]{b2});
+        assertThat(a.b).containsExactlyInAnyOrder(new B[] { b2 });
     }
 
     @Test
@@ -113,7 +113,7 @@ public class ABBTest extends MultiDriverTestClass {
 
         B b3 = new B();
         b3.a = a;
-        a.b = new B[]{b1, b2, b3};
+        a.b = new B[] { b1, b2, b3 };
 
         // fully connected graph, should be able to save any object
         session.save(b3);
@@ -165,9 +165,11 @@ public class ABBTest extends MultiDriverTestClass {
         @Override
         public boolean equals(Object o) {
 
-            if (this == o) return true;
+            if (this == o)
+                return true;
 
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             return (key.equals(((E) o).key));
         }

@@ -70,7 +70,6 @@ public class BoltGraphModelAdapter extends GraphModelAdapter {
         return entityAdapter.endNodeId(relationship);
     }
 
-
     @Override
     public Map<String, Object> properties(Object container) {
         return entityAdapter.properties(container);

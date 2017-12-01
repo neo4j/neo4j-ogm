@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
@@ -37,6 +34,8 @@ import org.neo4j.ogm.session.event.PersistenceEvent;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeDeleteStatements;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipDeleteStatements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -56,7 +55,6 @@ public class DeleteDelegate {
         }
         return new NodeDeleteStatements();
     }
-
 
     private <T> void deleteAll(T object) {
         List<T> list;
@@ -192,7 +190,7 @@ public class DeleteDelegate {
      * Executes a delete query in which objects of a specific type will be deleted according to some filter criteria,
      * invoking post-delete housekeeping after the query completes, and returning a list of deleted objects to the caller.
      *
-     * @param query the CypherQuery that will delete objects according to some filter criteria
+     * @param query                the CypherQuery that will delete objects according to some filter criteria
      * @param isRelationshipEntity whether the objects being deleted are relationship entities
      * @return a {@link List} of object ids that were deleted
      */
@@ -212,7 +210,7 @@ public class DeleteDelegate {
      * Executes a delete query in which objects of a specific type will be deleted according to some filter criteria,
      * invoking post-delete housekeeping after the query completes, and returning a count of deleted objects to the caller.
      *
-     * @param query the CypherQuery that will delete objects according to some filter criteria
+     * @param query                the CypherQuery that will delete objects according to some filter criteria
      * @param isRelationshipEntity whether the objects being deleted are relationship entities
      * @return a count of objects that were deleted
      */
@@ -239,7 +237,7 @@ public class DeleteDelegate {
      * Note that is not possible to raise a PRE_DELETE event because we don't
      * know beforehand which objects will be deleted by the query.
      *
-     * @param identity the id of the object that was deleted
+     * @param identity             the id of the object that was deleted
      * @param isRelationshipEntity true if it was an edge that was deleted
      */
     private void postDelete(Long identity, boolean isRelationshipEntity) {
@@ -268,7 +266,6 @@ public class DeleteDelegate {
         session.requestHandler().execute(query).close();
         session.context().clear();
     }
-
 
     public void clear() {
         session.context().clear();

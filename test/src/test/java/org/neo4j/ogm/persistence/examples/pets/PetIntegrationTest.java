@@ -55,7 +55,6 @@ public class PetIntegrationTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-
     /**
      * @see issue #40
      */

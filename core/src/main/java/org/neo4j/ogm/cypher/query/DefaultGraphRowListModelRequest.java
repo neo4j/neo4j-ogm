@@ -24,7 +24,7 @@ import org.neo4j.ogm.request.GraphRowListModelRequest;
  */
 public class DefaultGraphRowListModelRequest extends CypherQuery implements GraphRowListModelRequest {
 
-    private final static String[] resultDataContents = new String[]{"graph", "row"};
+    private final static String[] resultDataContents = new String[] { "graph", "row" };
 
     public DefaultGraphRowListModelRequest(String cypher, Map<String, ?> parameters) {
         super(cypher, parameters);

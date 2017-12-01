@@ -17,7 +17,11 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.neo4j.ogm.exception.core.TransactionManagerException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -55,10 +59,10 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {
-        DefaultTransactionManager transactionManager = new DefaultTransactionManager(session, sessionFactory.getDriver());
+        DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
+            sessionFactory.getDriver());
         assertThat(session.getLastBookmark()).isNull();
         try (Transaction tx = transactionManager.openTransaction()) {
             assertThat(tx.status()).isEqualTo(Transaction.Status.OPEN);
@@ -85,7 +89,8 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 
     @Test
     public void shouldRollbackManagedTransaction() {
-        DefaultTransactionManager transactionManager = new DefaultTransactionManager(session, sessionFactory.getDriver());
+        DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
+            sessionFactory.getDriver());
         assertThat(session.getLastBookmark()).isNull();
 
         try (Transaction tx = transactionManager.openTransaction()) {

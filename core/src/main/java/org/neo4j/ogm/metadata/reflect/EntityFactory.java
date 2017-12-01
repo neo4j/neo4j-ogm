@@ -11,6 +11,10 @@
 
 package org.neo4j.ogm.metadata.reflect;
 
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.neo4j.ogm.exception.core.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -18,11 +22,6 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;
-
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A metadata-driven factory class for creating node and relationship entities.
@@ -49,7 +48,7 @@ public class EntityFactory {
      * case of multiple labels, only the one that identifies a class in the domain will be used, and if there
      * are any ambiguities in which label to use then an exception will be thrown.
      *
-     * @param <T> The class of object to return
+     * @param <T>       The class of object to return
      * @param nodeModel The {@link Node} from which to determine the type
      * @return A new instance of the class that corresponds to the node label, never <code>null</code>
      * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
@@ -61,7 +60,7 @@ public class EntityFactory {
     /**
      * Constructs a new object based on the class mapped to the type in the given {@link org.neo4j.ogm.model.Edge}.
      *
-     * @param <T> The class of object to return
+     * @param <T>       The class of object to return
      * @param edgeModel The {@link org.neo4j.ogm.model.Edge} from which to determine the type
      * @return A new instance of the class that corresponds to the relationship type, never <code>null</code>
      * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
@@ -73,7 +72,7 @@ public class EntityFactory {
     /**
      * Constructs a new object based on the {@link ClassInfo}.
      *
-     * @param <T> The class of object to return
+     * @param <T>       The class of object to return
      * @param classInfo The {@link ClassInfo} from which to determine the type
      * @return A new instance of the class that corresponds to the classinfo type, never <code>null</code>
      * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
@@ -85,7 +84,7 @@ public class EntityFactory {
     /**
      * Constructs a new instance of the specified class using the same logic as the graph model factory methods.
      *
-     * @param <T> The class of object to return
+     * @param <T>    The class of object to return
      * @param clarse The class to instantiate
      * @return A new instance of the specified {@link Class}
      * @throws MappingException if it's not possible to instantiate the given class for any reason

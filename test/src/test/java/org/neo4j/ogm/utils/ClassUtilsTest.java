@@ -46,6 +46,7 @@ public class ClassUtilsTest {
 
     @Test
     public void shouldReturnNullWhenClassCannotBeLoaded() {
-        assertThat(ClassUtils.getType("org.mozilla.javascript.xml.impl.xmlbeans.XML$XScriptAnnotation")).isEqualTo(null);
+        assertThat(ClassUtils.getType("org.mozilla.javascript.xml.impl.xmlbeans.XML$XScriptAnnotation"))
+            .isEqualTo(null);
     }
 }

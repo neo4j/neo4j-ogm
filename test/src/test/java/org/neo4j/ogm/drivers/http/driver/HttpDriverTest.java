@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.drivers.http.driver;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -35,12 +33,12 @@ public class HttpDriverTest {
         connectionManager.setDefaultMaxPerRoute(1);
 
         CloseableHttpClient httpClient = HttpClients.custom()
-                .setConnectionManager(connectionManager)
-                .build();
+            .setConnectionManager(connectionManager)
+            .build();
 
-//        TODO does this stille have any value?
-//        DriverManager.register(new HttpDriver(httpClient));
+        //        TODO does this stille have any value?
+        //        DriverManager.register(new HttpDriver(httpClient));
 
-//        assertThat(DriverManager.getDriver()).isNotNull();
+        //        assertThat(DriverManager.getDriver()).isNotNull();
     }
 }

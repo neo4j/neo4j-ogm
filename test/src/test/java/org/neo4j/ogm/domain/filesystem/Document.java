@@ -34,8 +34,8 @@ public class Document extends FileSystemEntity {
     @Override
     public String toString() {
         return "Document{" +
-                "folder=" + folder +
-                ", name='" + getName() + '\'' +
-                '}';
+            "folder=" + folder +
+            ", name='" + getName() + '\'' +
+            '}';
     }
 }

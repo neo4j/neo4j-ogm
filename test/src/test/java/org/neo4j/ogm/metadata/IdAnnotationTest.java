@@ -16,7 +16,6 @@ package org.neo4j.ogm.metadata;
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.id.UuidStrategy;
@@ -31,7 +30,7 @@ public class IdAnnotationTest {
     }
 
     @Test
-//    @Ignore("Classes without graph id field not implemented yet")
+    //    @Ignore("Classes without graph id field not implemented yet")
     public void shouldSupportClassWithoutId() throws Exception {
 
         ValidAnnotations.WithoutId entity = new ValidAnnotations.WithoutId();
@@ -75,6 +74,6 @@ public class IdAnnotationTest {
         ClassInfo classInfo = metaData.classInfo(entity);
         assertThat(classInfo.primaryIndexField()).isNotNull();
         assertThat(classInfo.idStrategy()).isNotNull()
-                .isInstanceOf(UuidStrategy.class);
+            .isInstanceOf(UuidStrategy.class);
     }
 }

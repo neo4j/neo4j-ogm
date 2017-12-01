@@ -38,6 +38,6 @@ public class BronzeMembership extends Membership {
 
     @Override
     public IMembership[] getUpgrades() {
-        return new IMembership[]{new SilverMembership(), new GoldMembership()};
+        return new IMembership[] { new SilverMembership(), new GoldMembership() };
     }
 }

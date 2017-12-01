@@ -27,43 +27,48 @@ import org.neo4j.ogm.config.UsernamePasswordCredentials;
 
 public class DriverConfigurationTest {
 
-	@Test
-	public void shouldLoadHttpDriverConfigFromPropertiesFile() {
-		Configuration driverConfig = new Configuration.Builder(new ClasspathConfigurationSource("http.driver.properties")).build();
-		assertThat(driverConfig.getURI()).isEqualTo("http://localhost:7474");
-	}
+    @Test
+    public void shouldLoadHttpDriverConfigFromPropertiesFile() {
+        Configuration driverConfig = new Configuration.Builder(
+            new ClasspathConfigurationSource("http.driver.properties")).build();
+        assertThat(driverConfig.getURI()).isEqualTo("http://localhost:7474");
+    }
 
-	@Test
-	public void shouldLoadEmbeddedDriverConfigFromPropertiesFile() {
-		Configuration driverConfig = new Configuration.Builder(new ClasspathConfigurationSource("embedded.driver.properties")).build();
-		assertThat(driverConfig.getURI()).isEqualTo("file:///var/tmp/neo4j.db");
-	}
+    @Test
+    public void shouldLoadEmbeddedDriverConfigFromPropertiesFile() {
+        Configuration driverConfig = new Configuration.Builder(
+            new ClasspathConfigurationSource("embedded.driver.properties")).build();
+        assertThat(driverConfig.getURI()).isEqualTo("file:///var/tmp/neo4j.db");
+    }
 
-	@Test
-	public void shouldLoadBoltDriverConfigFromPropertiesFile() {
-		Configuration driverConfig = new Configuration.Builder(new ClasspathConfigurationSource("bolt.driver.properties")).build();
-		assertThat(driverConfig.getURI()).isEqualTo("bolt://localhost");
-		assertThat(driverConfig.getConnectionPoolSize()).isEqualTo(150);
-		assertThat(driverConfig.getEncryptionLevel()).isEqualTo("NONE");
-		assertThat(driverConfig.getTrustStrategy()).isEqualTo("TRUST_ON_FIRST_USE");
-		assertThat(driverConfig.getTrustCertFile()).isEqualTo("/tmp/cert");
-	}
+    @Test
+    public void shouldLoadBoltDriverConfigFromPropertiesFile() {
+        Configuration driverConfig = new Configuration.Builder(
+            new ClasspathConfigurationSource("bolt.driver.properties")).build();
+        assertThat(driverConfig.getURI()).isEqualTo("bolt://localhost");
+        assertThat(driverConfig.getConnectionPoolSize()).isEqualTo(150);
+        assertThat(driverConfig.getEncryptionLevel()).isEqualTo("NONE");
+        assertThat(driverConfig.getTrustStrategy()).isEqualTo("TRUST_ON_FIRST_USE");
+        assertThat(driverConfig.getTrustCertFile()).isEqualTo("/tmp/cert");
+    }
 
-	@Test
-	public void shouldSetUsernameAndPasswordCredentialsForBoltProtocol() {
-		String username = "neo4j";
-		String password = "password";
-		Configuration dbConfig = new Configuration.Builder().uri("bolt://" + username + ":" + password + "@localhost").build();
-		Credentials credentials = dbConfig.getCredentials();
-		UsernamePasswordCredentials basic = (UsernamePasswordCredentials) credentials;
-		assertThat(basic).isNotNull();
-		assertThat(basic.getUsername()).isEqualTo(username);
-		assertThat(basic.getPassword()).isEqualTo(password);
-	}
+    @Test
+    public void shouldSetUsernameAndPasswordCredentialsForBoltProtocol() {
+        String username = "neo4j";
+        String password = "password";
+        Configuration dbConfig = new Configuration.Builder().uri("bolt://" + username + ":" + password + "@localhost")
+            .build();
+        Credentials credentials = dbConfig.getCredentials();
+        UsernamePasswordCredentials basic = (UsernamePasswordCredentials) credentials;
+        assertThat(basic).isNotNull();
+        assertThat(basic.getUsername()).isEqualTo(username);
+        assertThat(basic.getPassword()).isEqualTo(password);
+    }
 
-	@Test
-	public void shouldGetNeo4jHaPropertiesFileFromDriverConfiguration() {
-		Configuration config = new Configuration.Builder(new ClasspathConfigurationSource("embedded.ha.driver.properties")).build();
-		assertThat(config.getNeo4jHaPropertiesFile()).isEqualTo("neo4j-ha.properties");
-	}
+    @Test
+    public void shouldGetNeo4jHaPropertiesFileFromDriverConfiguration() {
+        Configuration config = new Configuration.Builder(
+            new ClasspathConfigurationSource("embedded.ha.driver.properties")).build();
+        assertThat(config.getNeo4jHaPropertiesFile()).isEqualTo("neo4j-ha.properties");
+    }
 }

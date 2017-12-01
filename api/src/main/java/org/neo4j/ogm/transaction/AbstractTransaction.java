@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.transaction;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,7 +39,6 @@ public abstract class AbstractTransaction implements Transaction {
      * a transaction will fail.
      */
     private final AtomicLong extendsCount = new AtomicLong();
-
 
     /* Objects which are newly persisted into the graph should be registered on the transaction.
      * In the event that a rollback occurs, these objects will have been assigned an id from the database

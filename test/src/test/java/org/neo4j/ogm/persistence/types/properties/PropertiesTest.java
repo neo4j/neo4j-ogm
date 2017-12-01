@@ -13,6 +13,15 @@
 
 package org.neo4j.ogm.persistence.types.properties;
 
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.*;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,12 +32,6 @@ import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.*;
-
-import static java.util.Collections.emptyMap;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Frantisek Hartman
@@ -61,10 +64,10 @@ public class PropertiesTest extends MultiDriverTestClass {
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
             Node userNode = getGraphDatabaseService().getNodeById(user.getId());
             assertThat(userNode.getAllProperties())
-                    .hasSize(3)
-                    .containsEntry("name", "Frantisek")
-                    .containsEntry("myProperties.city", "London")
-                    .containsEntry("myProperties.zipCode", "SW1A 1AA");
+                .hasSize(3)
+                .containsEntry("name", "Frantisek")
+                .containsEntry("myProperties.city", "London")
+                .containsEntry("myProperties.zipCode", "SW1A 1AA");
 
             tx.success();
         }
@@ -83,10 +86,10 @@ public class PropertiesTest extends MultiDriverTestClass {
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
             Node userNode = getGraphDatabaseService().getNodeById(user.getId());
             assertThat(userNode.getAllProperties())
-                    .hasSize(3)
-                    .containsEntry("name", "Frantisek")
-                    .containsEntry("myProperties.address.city", "London")
-                    .containsEntry("myProperties.address.zipCode", "SW1A 1AA");
+                .hasSize(3)
+                .containsEntry("name", "Frantisek")
+                .containsEntry("myProperties.address.city", "London")
+                .containsEntry("myProperties.address.zipCode", "SW1A 1AA");
 
             tx.success();
         }
@@ -103,10 +106,10 @@ public class PropertiesTest extends MultiDriverTestClass {
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
             Node userNode = getGraphDatabaseService().getNodeById(user.getId());
             assertThat(userNode.getAllProperties())
-                    .hasSize(3)
-                    .containsEntry("name", "Frantisek")
-                    .containsEntry("myPrefix.city", "London")
-                    .containsEntry("myPrefix.zipCode", "SW1A 1AA");
+                .hasSize(3)
+                .containsEntry("name", "Frantisek")
+                .containsEntry("myPrefix.city", "London")
+                .containsEntry("myPrefix.zipCode", "SW1A 1AA");
 
             tx.success();
         }
@@ -123,10 +126,10 @@ public class PropertiesTest extends MultiDriverTestClass {
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
             Node userNode = getGraphDatabaseService().getNodeById(user.getId());
             assertThat(userNode.getAllProperties())
-                    .hasSize(3)
-                    .containsEntry("name", "Frantisek")
-                    .containsEntry("delimiterProperties__city", "London")
-                    .containsEntry("delimiterProperties__zipCode", "SW1A 1AA");
+                .hasSize(3)
+                .containsEntry("name", "Frantisek")
+                .containsEntry("delimiterProperties__city", "London")
+                .containsEntry("delimiterProperties__zipCode", "SW1A 1AA");
 
             tx.success();
         }
@@ -135,73 +138,72 @@ public class PropertiesTest extends MultiDriverTestClass {
     @Test
     public void shouldMapNodePropertiesToPropertiesAttribute() throws Exception {
         session.query("CREATE (u:User {`name`:'Frantisek', `myProperties.city`:'London', " +
-                        "`myProperties.zipCode`:'SW1A 1AA'})",
-                emptyMap());
+                "`myProperties.zipCode`:'SW1A 1AA'})",
+            emptyMap());
 
         User user = session.loadAll(User.class).iterator().next();
         assertThat(user.getMyProperties())
-                .hasSize(2)
-                .doesNotContainKey("name")
-                .containsEntry("city", "London")
-                .containsEntry("zipCode", "SW1A 1AA");
+            .hasSize(2)
+            .doesNotContainKey("name")
+            .containsEntry("city", "London")
+            .containsEntry("zipCode", "SW1A 1AA");
     }
 
     @Test
     public void shouldMapNestedNodePropertiesToPropertiesAttributeAsNestedMap() throws Exception {
         session.query("CREATE (u:User {`name`:'Frantisek', " +
-                        "`myProperties.address.city`:'London', " +
-                        "`myProperties.address.zipCode`:'SW1A 1AA'})",
-                emptyMap());
+                "`myProperties.address.city`:'London', " +
+                "`myProperties.address.zipCode`:'SW1A 1AA'})",
+            emptyMap());
 
         User user = session.loadAll(User.class).iterator().next();
         Map<String, Object> address = (Map<String, Object>) user.getMyProperties().get("address");
         assertThat(address)
-                .hasSize(2)
-                .containsEntry("city", "London")
-                .containsEntry("zipCode", "SW1A 1AA");
+            .hasSize(2)
+            .containsEntry("city", "London")
+            .containsEntry("zipCode", "SW1A 1AA");
     }
 
     @Test
     public void shouldMapNodePropertiesToPropertiesAttributeWithPrefix() throws Exception {
         session.query("CREATE (u:User {`name`:'Frantisek', `myPrefix.city`:'London', `myPrefix.zipCode`:'SW1A 1AA'})",
-                emptyMap());
+            emptyMap());
 
         User user = session.loadAll(User.class).iterator().next();
         assertThat(user.getPrefixedProperties())
-                .hasSize(2)
-                .doesNotContainKey("name")
-                .containsEntry("city", "London")
-                .containsEntry("zipCode", "SW1A 1AA");
+            .hasSize(2)
+            .doesNotContainKey("name")
+            .containsEntry("city", "London")
+            .containsEntry("zipCode", "SW1A 1AA");
     }
 
     @Test
     public void shouldMapNodePropertiesToPropertiesAttributeWithDelimiter() throws Exception {
         session.query("CREATE (u:User {`name`:'Frantisek', " +
-                        "`delimiterProperties__city`:'London', " +
-                        "`delimiterProperties__zipCode`:'SW1A 1AA'})",
-                emptyMap());
+                "`delimiterProperties__city`:'London', " +
+                "`delimiterProperties__zipCode`:'SW1A 1AA'})",
+            emptyMap());
 
         User user = session.loadAll(User.class).iterator().next();
         assertThat(user.getDelimiterProperties())
-                .hasSize(2)
-                .doesNotContainKey("name")
-                .containsEntry("city", "London")
-                .containsEntry("zipCode", "SW1A 1AA");
+            .hasSize(2)
+            .doesNotContainKey("name")
+            .containsEntry("city", "London")
+            .containsEntry("zipCode", "SW1A 1AA");
     }
-
 
     @Test
     public void shouldSaveAndLoadMapOfAllPropertyTypes() throws Exception {
-//        propertyMap.put("Character", 'c');
-//        propertyMap.put("Byte", (byte) 2);
-//        propertyMap.put("Short", (short) 3);
-//        propertyMap.put("Integer", 4);
-//        propertyMap.put("Float", 6.0f);
-//        propertyMap.put("Character[]", new Character[]{'c', 'h', 'a', 'r'});
-//        propertyMap.put("Byte[]", new Byte[]{2, 3, 4});
-//        propertyMap.put("Short[]", new Short[]{3, 4, 5});
-//        propertyMap.put("Integer[]", new Integer[]{4, 5, 6});
-//        propertyMap.put("Float[]", new Float[]{6.0f, 7.0f, 8.0f});
+        //        propertyMap.put("Character", 'c');
+        //        propertyMap.put("Byte", (byte) 2);
+        //        propertyMap.put("Short", (short) 3);
+        //        propertyMap.put("Integer", 4);
+        //        propertyMap.put("Float", 6.0f);
+        //        propertyMap.put("Character[]", new Character[]{'c', 'h', 'a', 'r'});
+        //        propertyMap.put("Byte[]", new Byte[]{2, 3, 4});
+        //        propertyMap.put("Short[]", new Short[]{3, 4, 5});
+        //        propertyMap.put("Integer[]", new Integer[]{4, 5, 6});
+        //        propertyMap.put("Float[]", new Float[]{6.0f, 7.0f, 8.0f});
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("Long", 5L);
         propertyMap.put("Double", 7.0d);
@@ -264,7 +266,6 @@ public class PropertiesTest extends MultiDriverTestClass {
 
         session.save(user);
         session.clear();
-
 
         User loaded = session.load(User.class, user.getId());
         assertThat(loaded.getMyProperties()).isEqualTo(loaded.getMyProperties());

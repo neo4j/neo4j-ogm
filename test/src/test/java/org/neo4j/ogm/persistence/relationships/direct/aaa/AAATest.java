@@ -62,9 +62,9 @@ public class AAATest extends MultiDriverTestClass {
         a3 = new A();
         a4 = new A();
 
-        a1.a = new A[]{a2, a3};
-        a2.a = new A[]{a1, a3};
-        a3.a = new A[]{a2, a4};
+        a1.a = new A[] { a2, a3 };
+        a2.a = new A[] { a1, a3 };
+        a3.a = new A[] { a2, a4 };
     }
 
     /**
@@ -145,7 +145,6 @@ public class AAATest extends MultiDriverTestClass {
         assertThat(loadedA4.a).isNull();
     }
 
-
     @NodeEntity(label = "A")
     public static class A extends E {
 
@@ -181,9 +180,11 @@ public class AAATest extends MultiDriverTestClass {
         @Override
         public boolean equals(Object o) {
 
-            if (this == o) return true;
+            if (this == o)
+                return true;
 
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             return (key.equals(((E) o).key));
         }

@@ -13,20 +13,17 @@
 
 package org.neo4j.ogm.metadata.schema;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.neo4j.ogm.annotation.Relationship.*;
+
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.schema.inheritance.Associated;
 import org.neo4j.ogm.metadata.schema.simple.Mortal;
 import org.neo4j.ogm.metadata.schema.simple.Vertex;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import static org.neo4j.ogm.annotation.Relationship.INCOMING;
-import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
 
 /**
  * @author Frantisek Hartman
@@ -101,7 +98,6 @@ public class DomainInfoSchemaBuilderTest {
         assertThat(locationRel.direction(person)).isEqualTo(OUTGOING);
         assertThat(locationRel.other(person)).isEqualTo(location);
 
-
         Relationship residents = location.relationships().get("residents");
         assertThat(residents).isNotNull();
         assertThat(residents.type()).isEqualTo("LIVES_AT");
@@ -124,7 +120,8 @@ public class DomainInfoSchemaBuilderTest {
 
     @Test
     public void givenSubtypeOfGenericType_thenPamCorrectly() throws Exception {
-        DomainInfo domainInfo = DomainInfo.create(org.neo4j.ogm.metadata.schema.generics.Person.class.getPackage().getName());
+        DomainInfo domainInfo = DomainInfo
+            .create(org.neo4j.ogm.metadata.schema.generics.Person.class.getPackage().getName());
         schema = new DomainInfoSchemaBuilder(domainInfo).build();
 
         Node person = schema.findNode("Person");
@@ -140,7 +137,8 @@ public class DomainInfoSchemaBuilderTest {
     @Test(expected = IllegalArgumentException.class)
     public void givenNonAnnotatedAbstractClass_thenThrowException() {
 
-        DomainInfo domainInfo = DomainInfo.create(org.neo4j.ogm.metadata.schema.inheritance.Person.class.getPackage().getName());
+        DomainInfo domainInfo = DomainInfo
+            .create(org.neo4j.ogm.metadata.schema.inheritance.Person.class.getPackage().getName());
         schema = new DomainInfoSchemaBuilder(domainInfo).build();
 
         Node entity = schema.findNode("Entity");

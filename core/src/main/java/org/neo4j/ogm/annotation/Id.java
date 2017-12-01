@@ -20,16 +20,14 @@ import java.lang.annotation.Target;
 
 /**
  * Represents the primary unique constraint used to reference an EntityNode.
- *
  * <p>When using an @Id on a class attribute, this attribute will be considered as the key of the entity,
  * and saving to the database will trigger a merge on an existing entry with the same key if it exists.
  * The @Id annotated attribute can either be assigned manually by the user (default), or can be generated
  * by OGM (see @{@link GeneratedValue}}.
- *
  * <p>This comes as a more explicit replacement to the old {@link Index}(primary = true, unique = true) annotation.
  *
- * @since 3.0
  * @author Mark Angrish
+ * @since 3.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = ElementType.FIELD)

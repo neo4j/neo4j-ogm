@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.examples.social;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,7 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.Individual;
@@ -33,8 +34,6 @@ import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luanne Misquitta
@@ -67,13 +66,16 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldFetchOnlyPeopleILike() {
         session.query("create (p1:Person {name:'A'}) create (p2:Person {name:'B'}) create (p3:Person {name:'C'})" +
-                " create (p4:Person {name:'D'}) create (p1)-[:LIKES]->(p2) create (p1)-[:LIKES]->(p3) create (p4)-[:LIKES]->(p1)", Collections.EMPTY_MAP);
+                " create (p4:Person {name:'D'}) create (p1)-[:LIKES]->(p2) create (p1)-[:LIKES]->(p3) create (p4)-[:LIKES]->(p1)",
+            Collections.EMPTY_MAP);
 
-        Person personA = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
+        Person personA = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator()
+            .next();
         assertThat(personA).isNotNull();
         assertThat(personA.getPeopleILike()).hasSize(2);
 
-        Person personD = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "D")).iterator().next();
+        Person personD = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "D")).iterator()
+            .next();
         assertThat(personD).isNotNull();
         assertThat(personD.getPeopleILike()).hasSize(1);
         assertThat(personD.getPeopleILike().get(0)).isEqualTo(personA);
@@ -84,10 +86,13 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldFetchFriendsInBothDirections() {
-        session.query("create (p1:Individual {name:'A'}) create (p2:Individual {name:'B'}) create (p3:Individual {name:'C'})" +
-                " create (p4:Individual {name:'D'}) create (p1)-[:FRIENDS]->(p2) create (p1)-[:FRIENDS]->(p3) create (p4)-[:FRIENDS]->(p1)", Collections.EMPTY_MAP);
+        session.query(
+            "create (p1:Individual {name:'A'}) create (p2:Individual {name:'B'}) create (p3:Individual {name:'C'})" +
+                " create (p4:Individual {name:'D'}) create (p1)-[:FRIENDS]->(p2) create (p1)-[:FRIENDS]->(p3) create (p4)-[:FRIENDS]->(p1)",
+            Collections.EMPTY_MAP);
 
-        Individual individualA = session.loadAll(Individual.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
+        Individual individualA = session.loadAll(Individual.class, new Filter("name", ComparisonOperator.EQUALS, "A"))
+            .iterator().next();
         assertThat(individualA).isNotNull();
         assertThat(individualA.getFriends()).hasSize(2);
     }
@@ -98,7 +103,8 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldFetchFriendsForUndirectedRelationship() {
         session.query("create (p1:User {name:'A'}) create (p2:User {name:'B'}) create (p3:User {name:'C'})" +
-                " create (p4:User {name:'D'}) create (p1)-[:FRIEND]->(p2) create (p1)-[:FRIEND]->(p3) create (p4)-[:FRIEND]->(p1)", Collections.EMPTY_MAP);
+                " create (p4:User {name:'D'}) create (p1)-[:FRIEND]->(p2) create (p1)-[:FRIEND]->(p3) create (p4)-[:FRIEND]->(p1)",
+            Collections.EMPTY_MAP);
 
         User userA = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
         assertThat(userA).isNotNull();
@@ -219,26 +225,30 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldFetchIncomingKnownMortals() {
         session.query("create (m1:Mortal {name:'A'}) create (m2:Mortal {name:'B'}) create (m3:Mortal {name:'C'})" +
-                " create (m4:Mortal {name:'D'}) create (m1)<-[:KNOWN_BY]-(m2) create (m1)<-[:KNOWN_BY]-(m3) create (m4)<-[:KNOWN_BY]-(m1)", Collections.EMPTY_MAP);
+                " create (m4:Mortal {name:'D'}) create (m1)<-[:KNOWN_BY]-(m2) create (m1)<-[:KNOWN_BY]-(m3) create (m4)<-[:KNOWN_BY]-(m1)",
+            Collections.EMPTY_MAP);
 
-        Mortal mortalA = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
+        Mortal mortalA = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator()
+            .next();
         assertThat(mortalA).isNotNull();
         assertThat(mortalA.getKnownBy()).hasSize(2);
 
-        Mortal mortalB = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "B")).iterator().next();
+        Mortal mortalB = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "B")).iterator()
+            .next();
         assertThat(mortalB).isNotNull();
         assertThat(mortalB.getKnownBy()).isEmpty();
 
-        Mortal mortalC = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "C")).iterator().next();
+        Mortal mortalC = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "C")).iterator()
+            .next();
         assertThat(mortalC).isNotNull();
         assertThat(mortalC.getKnownBy()).isEmpty();
 
-        Mortal mortalD = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "D")).iterator().next();
+        Mortal mortalD = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "D")).iterator()
+            .next();
         assertThat(mortalD).isNotNull();
         assertThat(mortalD.getKnownBy()).hasSize(1);
         assertThat(mortalD.getKnownBy().iterator().next().getName()).isEqualTo("A");
     }
-
 
     @Test
     public void shouldFetchFriendsUndirected() {
@@ -279,14 +289,11 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
 
     /**
      * Issue #407
-     *
      * Should create graph like this
-     *
      * (a)-[:LIKES]->(b)-[:LIKES]->(c)
      * (a)-[:LIKES]->(d)-[:LIKES]->(e)
      * (b)-[:LIKES]->(d)
      * (d)-[:LIKES]->(c)
-     *
      * Issue was that the logic reaches either b (or d) with horizon 0 (2 steps from a)
      * and doesn't continue to save c (or e)
      */

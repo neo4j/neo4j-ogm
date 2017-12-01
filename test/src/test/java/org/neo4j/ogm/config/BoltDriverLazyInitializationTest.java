@@ -24,6 +24,6 @@ public class BoltDriverLazyInitializationTest extends DriverLazyInitializationTe
     @Before
     public void setUp() throws Exception {
         configBuilder = new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties"))
-                .uri("bolt://localhost:" + TestUtils.getAvailablePort());
+            .uri("bolt://localhost:" + TestUtils.getAvailablePort());
     }
 }

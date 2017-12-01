@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
-
 import java.util.Collection;
 
 import org.neo4j.ogm.cypher.Filter;
@@ -35,7 +34,8 @@ public class RelationshipDeleteStatements implements DeleteStatements {
     }
 
     public CypherQuery delete(Collection<Long> ids) {
-        return new DefaultRowModelRequest("MATCH (n)-[r0]->() WHERE ID(r0) IN { ids } DELETE r0", Utils.map("ids", ids));
+        return new DefaultRowModelRequest("MATCH (n)-[r0]->() WHERE ID(r0) IN { ids } DELETE r0",
+            Utils.map("ids", ids));
     }
 
     public CypherQuery deleteAll() {

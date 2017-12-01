@@ -13,7 +13,13 @@
 
 package org.neo4j.ogm.context;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.neo4j.ogm.exception.core.MappingException;
@@ -55,7 +61,6 @@ public class MappingContext {
 
     private final MetaData metaData;
 
-
     public MappingContext(MetaData metaData) {
         this.metaData = metaData;
         this.identityMap = new IdentityMap(metaData);
@@ -69,7 +74,6 @@ public class MappingContext {
 
     /**
      * Gets a node entity from the MappingContext by its graph id.
-     *
      * NOTE: to get entity by field with @Id use {@link #getNodeEntityById(ClassInfo, Object)} - you also need to check if such id
      * exists and is of correct type
      *
@@ -84,8 +88,7 @@ public class MappingContext {
      * Get a node entity from the MappingContext by its primary id
      *
      * @param classInfo class info of the entity (this must be provided because id itself is not unique)
-     * @param id primary id of the entity
-     *
+     * @param id        primary id of the entity
      * @return the entity or null if not found
      */
     public Object getNodeEntityById(ClassInfo classInfo, Object id) {
@@ -94,13 +97,17 @@ public class MappingContext {
 
     /**
      * Adds an entity to the MappingContext.
+     *
      * @param entity The object to add.
      * @return The object added, never null.
      */
-    public Object addNodeEntity(Object entity) {return addNodeEntity(entity, nativeId(entity));}
+    public Object addNodeEntity(Object entity) {
+        return addNodeEntity(entity, nativeId(entity));
+    }
 
     /**
      * Adds an entity to the MappingContext.
+     *
      * @param entity The object to add.
      * @param id
      * @return The object added, never null.
@@ -111,7 +118,8 @@ public class MappingContext {
 
         if (nodeEntityRegister.putIfAbsent(id, entity) == null) {
             remember(entity);
-            final FieldInfo primaryIndexField = classInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
+            final FieldInfo primaryIndexField = classInfo
+                .primaryIndexField(); // also need to add the class to key to prevent collisions.
             if (primaryIndexField != null) {
                 final Object primaryIndexValue = primaryIndexField.read(entity);
                 if (primaryIndexValue != null) {
@@ -143,7 +151,8 @@ public class MappingContext {
 
         nodeEntityRegister.remove(id);
         final ClassInfo primaryIndexClassInfo = metaData.classInfo(entity);
-        final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
+        final FieldInfo primaryIndexField = primaryIndexClassInfo
+            .primaryIndexField(); // also need to add the class to key to prevent collisions.
         if (primaryIndexField != null) {
             final Object primaryIndexValue = primaryIndexField.read(entity);
             if (primaryIndexValue != null) {
@@ -184,6 +193,7 @@ public class MappingContext {
 
     /**
      * Get a collection of entities or relationships registered in the current context.
+     *
      * @param type The base type to search for.
      * @return The entities found. Note that the collection will contain the concrete type given as a parameter,
      * but also all entities that are assignable to it (sub types)
@@ -192,12 +202,12 @@ public class MappingContext {
         Collection<Object> result;
         if (metaData.isRelationshipEntity(type.getName())) {
             result = relationshipEntityRegister.values().stream()
-                    .filter((c) -> c.getClass().isAssignableFrom(type))
-                    .collect(Collectors.toList());
+                .filter((c) -> c.getClass().isAssignableFrom(type))
+                .collect(Collectors.toList());
         } else {
             result = nodeEntityRegister.values().stream()
-                    .filter((c) -> c.getClass().isAssignableFrom(type))
-                    .collect(Collectors.toList());
+                .filter((c) -> c.getClass().isAssignableFrom(type))
+                .collect(Collectors.toList());
         }
         return result;
     }
@@ -205,6 +215,7 @@ public class MappingContext {
     /**
      * Return dynamic label information about the entity (@Labels). History contains a snapshot of labels the entity had
      * when registered in the context, and the current labels.
+     *
      * @param entity The entity to inspect
      * @return The label information
      */
@@ -215,6 +226,7 @@ public class MappingContext {
     /**
      * Check if the entity has been modified by comparing its current state to the state it had when registered.
      * TBD : describe how the hash is computed. Not sure if it is a real deep hash.
+     *
      * @param entity The entity to check
      * @return true if the entity was changed, false otherwise.
      */
@@ -232,7 +244,8 @@ public class MappingContext {
     }
 
     public void addRelationship(MappedRelationship relationship) {
-        if (relationship.getRelationshipId() != null && relationshipEntityRegister.get(relationship.getRelationshipId()) == null) {
+        if (relationship.getRelationshipId() != null
+            && relationshipEntityRegister.get(relationship.getRelationshipId()) == null) {
             relationship.setRelationshipId(null); //We're only interested in id's of relationship entities
         }
         relationshipRegister.add(relationship);
@@ -255,9 +268,8 @@ public class MappingContext {
      * Get a relationship entity from MappingContext by primary id
      *
      * @param classInfo classInfo of the relationship entity (it is needed to because primary id may not be unique
-     * across all relationship types)
-     * @param id primary id of the entity
-     *
+     *                  across all relationship types)
+     * @param id        primary id of the entity
      * @return relationship entity
      */
     public Object getRelationshipEntityById(ClassInfo classInfo, Object id) {
@@ -303,11 +315,10 @@ public class MappingContext {
             }
         } else {
             for (Object entity : getEntities(type)) {
-				purge(entity, type);
-			}
+                purge(entity, type);
+            }
         }
     }
-
 
     /*
      * purges all information about a node entity with this id
@@ -356,9 +367,9 @@ public class MappingContext {
         EntityUtils.setIdentity(entity, null, metaData);
     }
 
-
     /**
      * Get related objects of an entity / relationship. Used in deletion scenarios.
+     *
      * @param entity The entity to look neighbours for.
      * @return If entity is a relationship, end and start nodes. If entity is a node, the relations pointing to it.
      */
@@ -376,7 +387,9 @@ public class MappingContext {
                     // todo: refactor to create a list of mappedRelationships from a nodeEntity id.
                     for (MappedRelationship mappedRelationship : relationshipRegister) {
                         if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
-                            Object affectedObject = mappedRelationship.getEndNodeId() == id ? getNodeEntity(mappedRelationship.getStartNodeId()) : getNodeEntity(mappedRelationship.getEndNodeId());
+                            Object affectedObject = mappedRelationship.getEndNodeId() == id ?
+                                getNodeEntity(mappedRelationship.getStartNodeId()) :
+                                getNodeEntity(mappedRelationship.getEndNodeId());
                             if (affectedObject != null) {
                                 neighbours.add(affectedObject);
                             }
@@ -408,7 +421,8 @@ public class MappingContext {
             final ClassInfo classInfo = metaData.classInfo(relationshipEntity);
             FieldInfo startNodeReader = classInfo.getStartNodeReader();
             FieldInfo endNodeReader = classInfo.getEndNodeReader();
-            if (startOrEndEntity == startNodeReader.read(relationshipEntity) || startOrEndEntity == endNodeReader.read(relationshipEntity)) {
+            if (startOrEndEntity == startNodeReader.read(relationshipEntity) || startOrEndEntity == endNodeReader
+                .read(relationshipEntity)) {
                 relationshipEntityIdIterator.remove();
             }
         }
@@ -431,7 +445,8 @@ public class MappingContext {
 
                             // first purge any RE mappings (if its a RE)
                             if (mappedRelationship.getRelationshipId() != null) {
-                                Object relEntity = relationshipEntityRegister.get(mappedRelationship.getRelationshipId());
+                                Object relEntity = relationshipEntityRegister
+                                    .get(mappedRelationship.getRelationshipId());
                                 if (relEntity != null) {
                                     // TODO : extract the "remove a RelationshipEntity" block below in a method
                                     // and call it here instead of going recursive ?
@@ -497,8 +512,8 @@ public class MappingContext {
 
         if (classInfo.idStrategy() == null) {
             throw new MappingException("Id strategy " + classInfo.idStrategyClass() + " could not be instantiated " +
-                    "and wasn't registered. Either provide no argument constructor or register instance " +
-                    "with SessionFactory");
+                "and wasn't registered. Either provide no argument constructor or register instance " +
+                "with SessionFactory");
         }
         FieldInfo primaryIndexField = classInfo.primaryIndexField();
         Object existingUuid = primaryIndexField.read(entity);

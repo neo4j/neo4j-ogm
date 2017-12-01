@@ -36,7 +36,9 @@ class AutoIndex {
     AutoIndex(String label, String property, boolean unique) {
 
         if (unique) {
-            this.description = "CONSTRAINT ON ( `" + label.toLowerCase() + "`:`" + label + "` ) ASSERT `" + label.toLowerCase() + "`.`" + property + "` IS UNIQUE";
+            this.description =
+                "CONSTRAINT ON ( `" + label.toLowerCase() + "`:`" + label + "` ) ASSERT `" + label.toLowerCase() + "`.`"
+                    + property + "` IS UNIQUE";
         } else {
             this.description = "INDEX ON :`" + label + "`( `" + property + "` )";
         }
@@ -56,8 +58,10 @@ class AutoIndex {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         AutoIndex autoIndex = (AutoIndex) o;
 

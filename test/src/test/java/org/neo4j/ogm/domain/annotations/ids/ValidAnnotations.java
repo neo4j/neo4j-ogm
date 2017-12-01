@@ -47,7 +47,6 @@ public class ValidAnnotations {
         @Id public String identifier;
     }
 
-
     public static class IdAndGenerationType {
         public Long id;
         @Id @GeneratedValue(strategy = UuidStrategy.class)

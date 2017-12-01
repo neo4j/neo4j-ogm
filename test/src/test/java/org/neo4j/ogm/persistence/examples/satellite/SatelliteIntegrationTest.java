@@ -58,7 +58,8 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
     }
 
     @Test
-    @Ignore("ignored after asymmetric querying, relationshp Program - Satelite is inconsistent, test data satellites.cql" +
+    @Ignore(
+        "ignored after asymmetric querying, relationshp Program - Satelite is inconsistent, test data satellites.cql" +
             "contains something that would not be possible to create with OGM with current model")
     public void shouldLoadPrograms() {
 
@@ -137,7 +138,6 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
             assertThat(updatedSatellite.getName()).isEqualTo("Updated satellite");
         }  // transaction will be rolled back
     }
-
 
     @Test
     public void shouldRollbackLongTransaction() {
@@ -259,7 +259,8 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldReturnProgramsSortedByRefDesc() {
 
-        Collection<Program> objects = session.loadAll(Program.class, new SortOrder().add(SortOrder.Direction.DESC, "ref"));
+        Collection<Program> objects = session
+            .loadAll(Program.class, new SortOrder().add(SortOrder.Direction.DESC, "ref"));
 
         Iterator<Program> iter = objects.iterator();
         Program first = iter.next();
@@ -273,7 +274,8 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldLoadActiveSatellitesByPropertySorted() {
 
-        Collection<Satellite> satellites = session.loadAll(Satellite.class, new Filter("manned", ComparisonOperator.EQUALS, "Y"), new SortOrder().add("ref"));
+        Collection<Satellite> satellites = session
+            .loadAll(Satellite.class, new Filter("manned", ComparisonOperator.EQUALS, "Y"), new SortOrder().add("ref"));
 
         Iterator<Satellite> iter = satellites.iterator();
         Satellite first = iter.next();

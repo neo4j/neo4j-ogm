@@ -13,10 +13,10 @@
 
 package org.neo4j.ogm.domain.properties;
 
+import java.util.List;
+
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Properties;
-
-import java.util.List;
 
 /**
  * @author Frantisek Hartman

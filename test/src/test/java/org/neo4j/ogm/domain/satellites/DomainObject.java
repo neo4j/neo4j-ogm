@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.domain.satellites;
 
-
 import java.util.Date;
 
 import org.neo4j.ogm.annotation.typeconversion.DateLong;

@@ -12,7 +12,7 @@
  */
 package org.neo4j.ogm.drivers;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -37,11 +36,13 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
+import com.google.common.collect.Iterables;
+
 /**
  * This test class is converted from the AbstractDriverTestSuite to use the test harness in use by toher tests
  *
  * @author vince
- *         Do not rename this class to end with *Test, or certain test packages might try to execute it.
+ * Do not rename this class to end with *Test, or certain test packages might try to execute it.
  */
 public class BasicDriverTest extends MultiDriverTestClass {
 
@@ -106,7 +107,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         User user = new User("Bilbo Baggins");
         session.save(user);
         session.clear();
-        User userByProperty = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "Bilbo Baggins")).iterator().next();
+        User userByProperty = session
+            .loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "Bilbo Baggins")).iterator().next();
         assertThat(userByProperty).isNotNull();
     }
 
@@ -150,7 +152,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Bilbo Baggins"));
         session.save(new User("Frodo Baggins"));
         session.clear();
-        Collection<User> users = (Collection) session.query(User.class, "MATCH(u:User) WHERE u.name =~ '.*Baggins' RETURN u", Utils.map());
+        Collection<User> users = (Collection) session
+            .query(User.class, "MATCH(u:User) WHERE u.name =~ '.*Baggins' RETURN u", Utils.map());
         assertThat(users).isNotNull();
         assertThat(users).hasSize(2);
     }
@@ -160,7 +163,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Bilbo Baggins"));
         session.save(new User("Frodo Baggins"));
         session.clear();
-        Collection<String> userNames = (Collection) session.query(String.class, "MATCH(u:User) WHERE u.name =~ '.*Baggins' RETURN u.name", Utils.map());
+        Collection<String> userNames = (Collection) session
+            .query(String.class, "MATCH(u:User) WHERE u.name =~ '.*Baggins' RETURN u.name", Utils.map());
         assertThat(userNames).isNotNull();
         assertThat(userNames).hasSize(2);
     }
@@ -170,7 +174,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Bilbo Baggins"));
         session.save(new User("Frodo Baggins"));
         session.clear();
-        Result result = session.query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit'", Utils.map());
+        Result result = session
+            .query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit'", Utils.map());
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(2);
         assertThat(result.queryResults().iterator().hasNext()).isFalse();
     }
@@ -180,7 +185,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Bilbo Baggins"));
         session.save(new User("Frodo Baggins"));
         session.clear();
-        Result result = session.query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit' RETURN u.name", Utils.map());
+        Result result = session
+            .query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit' RETURN u.name", Utils.map());
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(2);
         assertThat(result.queryResults().iterator().hasNext()).isTrue();
     }
@@ -195,7 +201,6 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.clear();
         assertThat(session.loadAll(User.class)).hasSize(1);
     }
-
 
     @Test
     public void shouldNotFindExplicitlyRolledBackEntity() {
@@ -319,7 +324,6 @@ public class BasicDriverTest extends MultiDriverTestClass {
         }
     }
 
-
     private void doExtendedCommitRollbackRollback() {
         try (Transaction tx = session.beginTransaction()) {
             m2(); // commit_deferred
@@ -351,7 +355,6 @@ public class BasicDriverTest extends MultiDriverTestClass {
             tx.rollback(); // won't commit outer transaction
         }
     }
-
 
     private void m2() { // inner transaction commits (defers commit)
         try (Transaction tx = session.beginTransaction()) {

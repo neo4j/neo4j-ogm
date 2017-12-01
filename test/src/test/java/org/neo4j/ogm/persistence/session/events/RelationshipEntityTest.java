@@ -27,7 +27,6 @@ import org.neo4j.ogm.session.event.Event;
  */
 public class RelationshipEntityTest extends EventTestBaseClass {
 
-
     @Test
     public void shouldNotFireEventsIfObjectHasNotChanged() {
 

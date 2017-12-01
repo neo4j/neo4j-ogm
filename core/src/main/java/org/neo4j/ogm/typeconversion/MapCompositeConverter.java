@@ -13,23 +13,26 @@
 
 package org.neo4j.ogm.typeconversion;
 
+import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.*;
-
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.unmodifiableSet;
-import static java.util.stream.Collectors.toSet;
-
 /**
  * MapCompositeConverter converts Map field into prefixed properties of node or relationship entity.
- * <p>
  * The prefix and delimiter is configurable.
  *
  * @author Frantisek Hartman
@@ -96,13 +99,13 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
                 addMapToProperties((Map<?, ?>) entryValue, graphProperties, prefix + entry.getKey() + delimiter);
             } else {
                 if (isCypherType(entryValue) ||
-                        (allowCast && canCastType(entryValue))) {
+                    (allowCast && canCastType(entryValue))) {
 
                     graphProperties.put(prefix + entry.getKey(), entryValue);
                 } else {
                     throw new MappingException("Could not map key=" + prefix + entry.getKey() + ", " +
-                            "value=" + entryValue + " (type = " + entryValue.getClass() + ") " +
-                            "because it is not a supported type.");
+                        "value=" + entryValue + " (type = " + entryValue.getClass() + ") " +
+                        "because it is not a supported type.");
                 }
             }
         }
@@ -120,9 +123,9 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
     public Map<?, ?> toEntityAttribute(Map<String, ?> value) {
 
         Set<? extends Map.Entry<String, ?>> prefixedProperties = value.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().startsWith(firstPart))
-                .collect(toSet());
+            .stream()
+            .filter(entry -> entry.getKey().startsWith(firstPart))
+            .collect(toSet());
 
         Map<Object, Object> result = new HashMap<>();
         for (Map.Entry<String, ?> entry : prefixedProperties) {

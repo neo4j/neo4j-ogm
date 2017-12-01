@@ -30,7 +30,6 @@ public class DomainInfoTest {
         domainInfo = DomainInfo.create("org.neo4j.ogm.domain.forum");
     }
 
-
     @Test
     public void testInterfaceClassIMembership() {
 

@@ -33,9 +33,7 @@ public abstract class BoltResponse<T> implements Response {
     final StatementResult result;
     private final TransactionManager transactionManager;
 
-
     private final Logger LOGGER = LoggerFactory.getLogger(BoltResponse.class);
-
 
     BoltResponse(StatementResult result, TransactionManager transactionManager) {
         this.result = result;

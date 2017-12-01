@@ -11,7 +11,6 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-
 package org.neo4j.ogm.cypher.function;
 
 import static org.neo4j.ogm.cypher.ComparisonOperator.*;
@@ -58,7 +57,7 @@ public class PropertyComparison implements FilterFunction<Object> {
             return String.format("%s.`%s` = true ", nodeIdentifier, filter.getPropertyName());
         } else {
             return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(),
-                    filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
+                filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
         }
     }
 

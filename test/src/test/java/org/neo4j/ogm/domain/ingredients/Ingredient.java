@@ -46,7 +46,6 @@ public class Ingredient {
         this.name = name;
     }
 
-
     public Set<Pairing> getPairings() {
         return pairings;
     }

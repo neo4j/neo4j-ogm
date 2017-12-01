@@ -13,9 +13,7 @@
 
 package org.neo4j.ogm.metadata;
 
-
 import java.lang.reflect.Method;
-
 
 /**
  * @author Vince Bickers
@@ -30,7 +28,7 @@ public class MethodInfo {
     /**
      * Constructs a new {@link MethodInfo} based on the given arguments.
      *
-     * @param method The method.
+     * @param method      The method.
      * @param annotations The {@link ObjectAnnotations} applied to the field
      */
     MethodInfo(Method method, ObjectAnnotations annotations) {

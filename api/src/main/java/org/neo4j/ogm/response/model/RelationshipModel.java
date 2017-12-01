@@ -74,12 +74,12 @@ public class RelationshipModel implements Edge {
     }
 
     //    public Map<String, Object> getProperties() {
-//        Map<String, Object> map = new HashMap<>();
-//        for (Property<String, Object> property : properties) {
-//            map.put(property.getKey(), property.getValue());
-//        }
-//        return map;
-//    }
+    //        Map<String, Object> map = new HashMap<>();
+    //        for (Property<String, Object> property : properties) {
+    //            map.put(property.getKey(), property.getValue());
+    //        }
+    //        return map;
+    //    }
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = new ArrayList<>();
@@ -99,8 +99,10 @@ public class RelationshipModel implements Edge {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         RelationshipModel that = (RelationshipModel) o;
 

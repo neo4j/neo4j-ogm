@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.context;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.neo4j.ogm.metadata.MetaData;
@@ -28,11 +32,11 @@ public class SingleUseEntityMapperTest {
 
     private MetaData metaData = new MetaData("org.neo4j.ogm.context");
 
-//	@Test
-//	public void shouldMapFromRowModel() throws Exception {
-//
-//
-//	}
+    //	@Test
+    //	public void shouldMapFromRowModel() throws Exception {
+    //
+    //
+    //	}
 
     @Test
     public void shouldMapFromMap() throws Exception {

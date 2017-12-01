@@ -18,7 +18,6 @@ import java.util.Collection;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 
-
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -59,7 +58,7 @@ public interface DeleteStatements {
     /**
      * construct queries to delete all objects with the specified label that match the specified filters
      *
-     * @param type the label value or relationship type to filter on
+     * @param type    the label value or relationship type to filter on
      * @param filters parameters to filter on
      * @return a {@link CypherQuery}
      */
@@ -69,7 +68,7 @@ public interface DeleteStatements {
     /**
      * construct queries to delete all objects with the specified label that match the specified filters and return a list of deleted object ids
      *
-     * @param type the label value or relationship type to filter on
+     * @param type    the label value or relationship type to filter on
      * @param filters parameters to filter on
      * @return a {@link CypherQuery}
      */

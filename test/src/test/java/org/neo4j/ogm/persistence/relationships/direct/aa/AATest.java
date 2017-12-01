@@ -146,7 +146,6 @@ public class AATest extends MultiDriverTestClass {
         assertThat(loadedA4.a).isNull();
     }
 
-
     @NodeEntity(label = "A")
     public static class A extends E {
 
@@ -182,9 +181,11 @@ public class AATest extends MultiDriverTestClass {
         @Override
         public boolean equals(Object o) {
 
-            if (this == o) return true;
+            if (this == o)
+                return true;
 
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             return (key.equals(((E) o).key));
         }

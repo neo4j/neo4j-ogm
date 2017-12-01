@@ -21,9 +21,7 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Wheel;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.persistence.examples.education.TeacherRequest;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.SessionFactory;
 
 /**
  * @author Vince Bickers

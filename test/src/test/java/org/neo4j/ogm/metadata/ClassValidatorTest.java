@@ -11,7 +11,6 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-
 package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
@@ -19,7 +18,6 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
 import org.neo4j.ogm.domain.props.PropertyAndConvertTogether;
 import org.neo4j.ogm.exception.core.MappingException;
-
 
 public class ClassValidatorTest {
 
@@ -30,7 +28,9 @@ public class ClassValidatorTest {
             metaData.classInfo(PropertyAndConvertTogether.class.getSimpleName());
             fail("Should have thrown exception");
         } catch (MappingException e) {
-            assertThat(e.getMessage().startsWith("'org.neo4j.ogm.domain.props.PropertyAndConvertTogether' has both @Convert and @Property annotations applied to the field 'location'")).isTrue();
+            assertThat(e.getMessage().startsWith(
+                "'org.neo4j.ogm.domain.props.PropertyAndConvertTogether' has both @Convert and @Property annotations applied to the field 'location'"))
+                .isTrue();
         }
     }
 }

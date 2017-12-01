@@ -28,7 +28,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.cineasts.annotated.*;
+import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.domain.cineasts.annotated.Rating;
+import org.neo4j.ogm.domain.cineasts.annotated.SecurityRole;
+import org.neo4j.ogm.domain.cineasts.annotated.Title;
+import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -48,7 +53,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver,"org.neo4j.ogm.domain.cineasts.annotated");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
     @Before
@@ -86,7 +91,8 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void loadParticularUserRatingsAndComments() {
-        Collection<User> filmCritics = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "Michal"));
+        Collection<User> filmCritics = session
+            .loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "Michal"));
         assertThat(filmCritics).hasSize(1);
 
         User critic = filmCritics.iterator().next();
@@ -102,7 +108,8 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void loadRatingsForSpecificFilm() {
-        Collection<Movie> films = session.loadAll(Movie.class, new Filter("title", ComparisonOperator.EQUALS, "Top Gear"));
+        Collection<Movie> films = session
+            .loadAll(Movie.class, new Filter("title", ComparisonOperator.EQUALS, "Top Gear"));
         assertThat(films).hasSize(1);
 
         Movie film = films.iterator().next();
@@ -121,7 +128,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         user.setLogin("daniela");
         user.setName("Daniela");
         user.setPassword("daniela");
-        user.setSecurityRoles(new SecurityRole[]{SecurityRole.USER});
+        user.setSecurityRoles(new SecurityRole[] { SecurityRole.USER });
         session.save(user);
 
         User daniela = session.load(User.class, "daniela");
@@ -173,7 +180,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(new Actor("Matt Damon"));
 
         Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE a.name={param} RETURN a",
-                Collections.singletonMap("param", "Alec Baldwin"));
+            Collections.singletonMap("param", "Alec Baldwin"));
         assertThat(loadedActor).as("The entity wasn't loaded").isNotNull();
         assertThat(loadedActor.getName()).isEqualTo("Alec Baldwin");
     }
@@ -185,7 +192,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(new Actor("Colin"));
 
         Iterable<Actor> actors = session.query(Actor.class, "MATCH (a:Actor) WHERE a.name=~'J.*' RETURN a",
-                Collections.<String, Object>emptyMap());
+            Collections.<String, Object>emptyMap());
         assertThat(actors).as("The entities weren't loaded").isNotNull();
         assertThat(actors.iterator().hasNext()).as("The entity wasn't loaded").isTrue();
         assertThat(actors).extracting(Actor::getName).containsOnly("John", "Jeff");
@@ -199,7 +206,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(new Actor("Laurence Fishbourne"));
 
         Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE a.uuid={param} RETURN a",
-                Collections.<String, Object>singletonMap("param", carrie.getUuid()));
+            Collections.<String, Object>singletonMap("param", carrie.getUuid()));
         assertThat(loadedActor).as("The entity wasn't loaded").isNotNull();
         assertThat(loadedActor.getName()).isEqualTo("Carrie-Ann Moss");
     }

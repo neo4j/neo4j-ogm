@@ -16,7 +16,6 @@ package org.neo4j.ogm.persistence.session.capability;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Recording;
 import org.neo4j.ogm.session.Session;

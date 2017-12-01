@@ -62,20 +62,23 @@ public class Knows {
     @Override
     public String toString() {
         return "Knows {" +
-                "since='" + since + '\'' +
-                ", source='" + firstActor + '\'' +
-                ", target='" + secondActor + '\'' +
-                '}';
+            "since='" + since + '\'' +
+            ", source='" + firstActor + '\'' +
+            ", target='" + secondActor + '\'' +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         Knows knows = (Knows) o;
 
-        if (!firstActor.equals(knows.firstActor)) return false;
+        if (!firstActor.equals(knows.firstActor))
+            return false;
         return secondActor.equals(knows.secondActor);
     }
 

@@ -27,7 +27,6 @@ public class EmbeddedRestModelAdapter extends RestModelAdapter {
 
     private EmbeddedEntityAdapter entityAdapter = new EmbeddedEntityAdapter();
 
-
     @Override
     public boolean isNode(Object value) {
         return entityAdapter.isNode(value);

@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.model;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,9 +36,6 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
-import static org.junit.Assert.assertSame;
-
-
 /**
  * @author Vince Bickers
  * @author Mark Angrish
@@ -47,7 +46,8 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.canonical.hierarchies");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated",
+            "org.neo4j.ogm.domain.canonical.hierarchies");
     }
 
     @Before
@@ -63,7 +63,9 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
         Actor daniel = new Actor("Daniel Radcliffe");
         daniel.playedIn(hp, "Harry Potter");
         session.save(daniel);
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "MERGE (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) SET m.title = 'Goblet of Fire', m.year = 2005 MERGE (a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) SET a.name='Daniel Radcliffe' create (a)-[:ACTS_IN {role:'Harry Potter'}]->(m)");
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "MERGE (m:Movie {uuid:\"" + hp.getUuid().toString()
+            + "\"}) SET m.title = 'Goblet of Fire', m.year = 2005 MERGE (a:Actor {uuid:\"" + daniel.getUuid().toString()
+            + "\"}) SET a.name='Daniel Radcliffe' create (a)-[:ACTS_IN {role:'Harry Potter'}]->(m)");
     }
 
     @Test
@@ -73,7 +75,9 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
         Actor daniel = new Actor("Daniel Radcliffe");
         daniel.nominatedFor(hp, "Saturn Award", 2005);
         session.save(daniel);
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "MERGE (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) SET m.title = 'Goblet of Fire', m.year = 2005 MERGE (a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) SET a.name='Daniel Radcliffe' create (a)-[:NOMINATIONS {name:'Saturn Award', year:2005}]->(m)");
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "MERGE (m:Movie {uuid:\"" + hp.getUuid().toString()
+            + "\"}) SET m.title = 'Goblet of Fire', m.year = 2005 MERGE (a:Actor {uuid:\"" + daniel.getUuid().toString()
+            + "\"}) SET a.name='Daniel Radcliffe' create (a)-[:NOMINATIONS {name:'Saturn Award', year:2005}]->(m)");
     }
 
     @Test
@@ -90,9 +94,9 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
 
         session.save(a);
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-                "CREATE (a:A) " +
-                        "CREATE (b:B) " +
-                        "CREATE (a)-[:CR]->(b)");
+            "CREATE (a:A) " +
+                "CREATE (b:B) " +
+                "CREATE (a)-[:CR]->(b)");
     }
 
     @Test
@@ -110,7 +114,7 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
         Map<String, Object> params = new HashMap<>();
         params.put("actorId", keanu.getId());
         Result result = session.query("MATCH (a:Actor)-[r:ACTS_IN]-(m:Movie) WHERE ID(a) = {actorId} RETURN r as rel",
-                params);
+            params);
 
         Iterator<Map<String, Object>> iterator = result.iterator();
 

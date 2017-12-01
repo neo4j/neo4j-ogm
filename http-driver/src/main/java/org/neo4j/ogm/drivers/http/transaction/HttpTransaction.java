@@ -35,7 +35,8 @@ public class HttpTransaction extends AbstractTransaction {
     private final HttpDriver driver;
     private final String url;
 
-    public HttpTransaction(TransactionManager transactionManager, HttpDriver driver, String url, Transaction.Type type) {
+    public HttpTransaction(TransactionManager transactionManager, HttpDriver driver, String url,
+        Transaction.Type type) {
         super(transactionManager);
         this.driver = driver;
         this.url = url;

@@ -26,7 +26,7 @@ public class MappingException extends RuntimeException {
      * Constructs a new {@link MappingException} with the given reason message and cause.
      *
      * @param reasonMessage A message explaining the reason for this exception
-     * @param cause The underlying {@link Exception} that was the root cause of the problem
+     * @param cause         The underlying {@link Exception} that was the root cause of the problem
      */
     public MappingException(String reasonMessage, Exception cause) {
         super(reasonMessage, cause);

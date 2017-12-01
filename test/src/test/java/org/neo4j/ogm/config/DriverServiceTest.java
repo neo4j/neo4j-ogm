@@ -15,16 +15,20 @@ package org.neo4j.ogm.config;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.net.URI;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.SessionFactory;
@@ -55,7 +59,8 @@ public class DriverServiceTest {
     @Test
     public void shouldLoadHttpDriver() {
 
-        Configuration driverConfiguration = new Configuration.Builder().uri("http://neo4j:password@localhost:7474").build();
+        Configuration driverConfiguration = new Configuration.Builder().uri("http://neo4j:password@localhost:7474")
+            .build();
 
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
         Driver driver = sf.getDriver();
@@ -74,7 +79,7 @@ public class DriverServiceTest {
         sf.close();
     }
 
-    private static void deleteDirectory(File dir)  {
+    private static void deleteDirectory(File dir) {
         if (dir.isDirectory()) {
             for (File file : dir.listFiles()) {
                 deleteDirectory(file);
@@ -84,7 +89,6 @@ public class DriverServiceTest {
             throw new RuntimeException("Failed to delete file: " + dir);
         }
     }
-
 
     /**
      * This test is marked @Ignore by default because it requires a locally running
@@ -99,14 +103,15 @@ public class DriverServiceTest {
 
         HttpPost request = new HttpPost("https://neo4j:password@localhost:7473/db/data/transaction/commit");
         request.setEntity(new StringEntity("{\n" +
-                "  \"statements\" : [ {\n" +
-                "    \"statement\" : \"MATCH (n) RETURN id(n)\"\n" +
-                "  } ]\n" +
-                "}", "UTF-8"));
+            "  \"statements\" : [ {\n" +
+            "    \"statement\" : \"MATCH (n) RETURN id(n)\"\n" +
+            "  } ]\n" +
+            "}", "UTF-8"));
 
         // note that the default driver class is set from the URI if a driver class has not yet been configured
         // now set the config to ignore SSL handshaking and try again;
-        Configuration configuration = new Configuration.Builder().uri("https://neo4j:password@localhost:7473").trustStrategy("ACCEPT_UNSIGNED").build();
+        Configuration configuration = new Configuration.Builder().uri("https://neo4j:password@localhost:7473")
+            .trustStrategy("ACCEPT_UNSIGNED").build();
 
         SessionFactory sf = new SessionFactory(configuration, "org.neo4j.ogm.domain.social.User");
         try (HttpDriver driver = (HttpDriver) sf.getDriver()) {
@@ -117,7 +122,6 @@ public class DriverServiceTest {
             // expected
         }
         sf.close();
-
 
         sf = new SessionFactory(configuration, "org.neo4j.ogm.domain.social.User");
         try (HttpDriver driver = (HttpDriver) sf.getDriver()) {

@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.metadata;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -22,12 +24,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
+import org.neo4j.ogm.domain.pizza.Pizza;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.neo4j.ogm.domain.pizza.Pizza;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * @author Frantisek Hartman

@@ -24,14 +24,12 @@ public class A {
 
     private Long id;
 
-
     @Relationship
     private R r;
 
     public R getR() {
         return r;
     }
-
 
     public void setR(R c) {
         this.r = c;

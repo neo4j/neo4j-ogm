@@ -34,12 +34,14 @@ public class RelationshipDeleteStatementsTest {
 
     @Test
     public void testDeleteOne() throws Exception {
-        assertThat(statements.delete(0L).getStatement()).isEqualTo("MATCH (n)-[r0]->() WHERE ID(r0) = { id } DELETE r0");
+        assertThat(statements.delete(0L).getStatement())
+            .isEqualTo("MATCH (n)-[r0]->() WHERE ID(r0) = { id } DELETE r0");
     }
 
     @Test
     public void testDeleteMany() throws Exception {
-        assertThat(statements.delete(Arrays.asList(1L, 2L)).getStatement()).isEqualTo("MATCH (n)-[r0]->() WHERE ID(r0) IN { ids } DELETE r0");
+        assertThat(statements.delete(Arrays.asList(1L, 2L)).getStatement())
+            .isEqualTo("MATCH (n)-[r0]->() WHERE ID(r0) IN { ids } DELETE r0");
     }
 
     @Test
@@ -49,18 +51,23 @@ public class RelationshipDeleteStatementsTest {
 
     @Test
     public void testDeleteWithType() throws Exception {
-        assertThat(statements.delete("TRAFFIC_WARDEN").getStatement()).isEqualTo("MATCH (n)-[r0:`TRAFFIC_WARDEN`]-() DELETE r0");
+        assertThat(statements.delete("TRAFFIC_WARDEN").getStatement())
+            .isEqualTo("MATCH (n)-[r0:`TRAFFIC_WARDEN`]-() DELETE r0");
     }
 
     @Test
     public void testDeleteWithTypeAndFilters() throws Exception {
-        CypherQuery query = statements.delete("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
-        assertThat(query.getStatement()).isEqualTo("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  DELETE r0");
+        CypherQuery query = statements
+            .delete("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
+        assertThat(query.getStatement())
+            .isEqualTo("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  DELETE r0");
     }
 
     @Test
     public void testDeleteWithTypeAndFiltersAndList() throws Exception {
-        CypherQuery query = statements.deleteAndList("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
-        assertThat(query.getStatement()).isEqualTo("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  DELETE r0 RETURN ID(r0)");
+        CypherQuery query = statements
+            .deleteAndList("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
+        assertThat(query.getStatement())
+            .isEqualTo("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  DELETE r0 RETURN ID(r0)");
     }
 }

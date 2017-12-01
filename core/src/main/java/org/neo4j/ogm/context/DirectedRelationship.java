@@ -38,12 +38,15 @@ public class DirectedRelationship {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         DirectedRelationship that = (DirectedRelationship) o;
 
-        return relationshipType.equals(that.relationshipType) && relationshipDirection.equals(that.relationshipDirection);
+        return relationshipType.equals(that.relationshipType) && relationshipDirection
+            .equals(that.relationshipDirection);
     }
 
     @Override

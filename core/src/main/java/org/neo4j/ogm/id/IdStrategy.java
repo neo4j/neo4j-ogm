@@ -15,10 +15,8 @@ package org.neo4j.ogm.id;
 
 /**
  * Id generation strategy that allows custom implementations of id generation.
- * <p>
  * For simple use cases, implementing classes should provide a no-argument constructor and OGM will instantiate the
  * strategy.
- * <p>
  * For cases where OGM can't instantiate the strategy (e.g. because it has other dependencies) it must be registered
  * with the SessionFactory.
  *

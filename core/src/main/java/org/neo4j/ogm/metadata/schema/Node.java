@@ -40,7 +40,6 @@ public interface Node {
 
     /**
      * Relationships declared on this node
-     *
      * The key in the map is the a name of the relationship, not type. E.g. a field name in the class
      *
      * @return relationship

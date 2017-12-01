@@ -39,7 +39,7 @@ public class ByteArrayWrapperConversionTest {
         PhotoWrapper photo = new PhotoWrapper();
         AttributeConverter converter = photoInfo.propertyField("image").getPropertyConverter();
 
-        photo.setImage(new Byte[]{1, 2, 3, 4});
+        photo.setImage(new Byte[] { 1, 2, 3, 4 });
 
         assertThat(converter.toGraphProperty(photo.getImage())).isEqualTo("AQIDBA==");
     }

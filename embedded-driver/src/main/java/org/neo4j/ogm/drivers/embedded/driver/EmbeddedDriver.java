@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.drivers.embedded.driver;
 
+import static java.util.Objects.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -21,7 +23,6 @@ import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -36,8 +37,6 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * @author vince
@@ -86,7 +85,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             // do we want to start a HA instance or a community instance?
             String haPropertiesFileName = config.getNeo4jHaPropertiesFile();
             if (haPropertiesFileName != null) {
-                setHAGraphDatabase(file, Thread.currentThread().getContextClassLoader().getResource(haPropertiesFileName));
+                setHAGraphDatabase(file,
+                    Thread.currentThread().getContextClassLoader().getResource(haPropertiesFileName));
             } else {
                 setGraphDatabase(file);
             }
@@ -96,7 +96,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     private void setHAGraphDatabase(File file, URL propertiesFileURL) {
-        graphDatabaseService = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(file).loadPropertiesFromURL(propertiesFileURL).newGraphDatabase();
+        graphDatabaseService = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(file)
+            .loadPropertiesFromURL(propertiesFileURL).newGraphDatabase();
     }
 
     private void setGraphDatabase(File file) {

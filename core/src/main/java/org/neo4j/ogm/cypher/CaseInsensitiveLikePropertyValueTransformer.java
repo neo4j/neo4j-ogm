@@ -29,8 +29,8 @@ public class CaseInsensitiveLikePropertyValueTransformer implements PropertyValu
     @Override
     public Object transformPropertyValue(Object propertyValue) {
         return propertyValue != null
-                ? "(?i)" + escapeRegexCharacters(propertyValue.toString()).replaceAll("\\*", ".*")
-                : null;
+            ? "(?i)" + escapeRegexCharacters(propertyValue.toString()).replaceAll("\\*", ".*")
+            : null;
     }
 
     private static String escapeRegexCharacters(String propertyValue) {

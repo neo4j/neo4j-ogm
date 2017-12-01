@@ -24,7 +24,8 @@ import org.neo4j.ogm.result.ResultGraphRowListModel;
  * @author vince
  * @author Luanne Misquitta
  */
-public class GraphRowsModelResponse extends AbstractHttpResponse<ResultGraphRowListModel> implements Response<GraphRowListModel> {
+public class GraphRowsModelResponse extends AbstractHttpResponse<ResultGraphRowListModel>
+    implements Response<GraphRowListModel> {
 
     public GraphRowsModelResponse(CloseableHttpResponse httpResponse) {
         super(httpResponse, ResultGraphRowListModel.class);

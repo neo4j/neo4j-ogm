@@ -13,18 +13,17 @@
 
 package org.neo4j.ogm.persistence.postload;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.postload.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test for {@link org.neo4j.ogm.annotation.PostLoad} annotation behaviour

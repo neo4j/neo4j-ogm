@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.drivers.embedded.extension;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,8 +26,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.configuration.Configuration;
 import org.junit.After;
 import org.junit.Before;
@@ -34,15 +34,15 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.harness.ServerControls;
-import org.neo4j.server.plugins.Injectable;
-import org.neo4j.test.server.HTTP;
-
 import org.neo4j.ogm.domain.simple.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestServer;
+import org.neo4j.server.plugins.Injectable;
+import org.neo4j.test.server.HTTP;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Frantisek Hartman
@@ -65,9 +65,9 @@ public class OgmPluginInitializerTest {
     public void testOgmPluginExtension() throws Exception {
 
         try (ServerControls controls = TestServer.newInProcessBuilder()
-                .withConfig(GraphDatabaseSettings.auth_enabled, "false")
-                .withExtension(TEST_PATH, TestOgmExtension.class)
-                .newServer()) {
+            .withConfig(GraphDatabaseSettings.auth_enabled, "false")
+            .withExtension(TEST_PATH, TestOgmExtension.class)
+            .newServer()) {
 
             URI testURI = controls.httpURI().resolve(TEST_PATH);
 
@@ -84,9 +84,9 @@ public class OgmPluginInitializerTest {
     @Test
     public void ogmExtensionShouldUseProvidedDatabase() throws Exception {
         try (ServerControls controls = TestServer.newInProcessBuilder()
-                .withConfig(GraphDatabaseSettings.auth_enabled, "false")
-                .withExtension(TEST_PATH, TestOgmExtension.class)
-                .newServer()) {
+            .withConfig(GraphDatabaseSettings.auth_enabled, "false")
+            .withExtension(TEST_PATH, TestOgmExtension.class)
+            .newServer()) {
 
             URI testURI = controls.httpURI().resolve(TEST_PATH);
 
@@ -123,7 +123,6 @@ public class OgmPluginInitializerTest {
             return Response.ok().build();
         }
 
-
         @GET
         public Response load() throws JsonProcessingException {
             Session session = sessionFactory.openSession();
@@ -131,10 +130,10 @@ public class OgmPluginInitializerTest {
             Collection<User> users = session.loadAll(User.class);
 
             return Response
-                    .ok()
-                    .entity(objectMapper.writeValueAsString(users))
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .build();
+                .ok()
+                .entity(objectMapper.writeValueAsString(users))
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .build();
         }
 
     }

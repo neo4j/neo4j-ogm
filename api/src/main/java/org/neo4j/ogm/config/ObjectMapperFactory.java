@@ -26,7 +26,7 @@ public class ObjectMapperFactory {
 
     private static final JsonFactory jsonFactory = new JsonFactory();
     private static final ObjectMapper mapper = new ObjectMapper(jsonFactory)
-            .configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
+        .configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
 
     private ObjectMapperFactory() {
 

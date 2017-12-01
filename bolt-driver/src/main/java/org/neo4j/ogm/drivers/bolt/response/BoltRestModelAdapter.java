@@ -45,7 +45,6 @@ public class BoltRestModelAdapter extends RestModelAdapter {
         return entityAdapter.labels(value);
     }
 
-
     @Override
     public long relationshipId(Object relationship) {
         return entityAdapter.relationshipId(relationship);

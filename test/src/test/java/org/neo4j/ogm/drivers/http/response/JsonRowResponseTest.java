@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -22,12 +22,10 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.drivers.http.response.AbstractHttpResponse;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultRowModel;
@@ -116,7 +114,6 @@ public class JsonRowResponseTest {
         }
     }
 
-
     private InputStream rowResultsAndNoErrors() {
 
         final String s = "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[[{\"name\": \"My Test\"}]]]}]}],\"errors\": []}";
@@ -131,76 +128,75 @@ public class JsonRowResponseTest {
         return new ByteArrayInputStream(s.getBytes());
     }
 
-
     private InputStream createRowResults() {
         final String s = "{\n" +
-                "  \"results\": [\n" +
-                "    {\n" +
-                "      \"columns\": [\n" +
-                "        \"_0\",\n" +
-                "        \"_1\",\n" +
-                "        \"_2\",\n" +
-                "        \"_3\"\n" +
-                "      ],\n" +
-                "      \"data\": [\n" +
-                "        {\n" +
-                "          \"row\": [\n" +
-                "            388,\n" +
-                "            527,\n" +
-                "            389,\n" +
-                "            528\n" +
-                "          ]\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"errors\": []\n" +
-                "}";
+            "  \"results\": [\n" +
+            "    {\n" +
+            "      \"columns\": [\n" +
+            "        \"_0\",\n" +
+            "        \"_1\",\n" +
+            "        \"_2\",\n" +
+            "        \"_3\"\n" +
+            "      ],\n" +
+            "      \"data\": [\n" +
+            "        {\n" +
+            "          \"row\": [\n" +
+            "            388,\n" +
+            "            527,\n" +
+            "            389,\n" +
+            "            528\n" +
+            "          ]\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"errors\": []\n" +
+            "}";
         return new ByteArrayInputStream(s.getBytes());
     }
 
     private InputStream customQueryRowResults() {
         final String s = "{\n" +
-                "  \"results\": [\n" +
-                "    {\n" +
-                "      \"columns\": [\n" +
-                "        \"n\",\n" +
-                "        \"r\",\n" +
-                "        \"m.name\"\n" +
-                "      ],\n" +
-                "      \"data\": [\n" +
-                "        {\n" +
-                "          \"row\": [\n" +
-                "            {\n" +
-                "              \"name\": \"Betty\"\n" +
-                "            },\n" +
-                "            {},\n" +
-                "            \"Peter\"\n" +
-                "          ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"row\": [\n" +
-                "            {\n" +
-                "              \"name\": \"Betty\"\n" +
-                "            },\n" +
-                "            {},\n" +
-                "            \"Patrick\"\n" +
-                "          ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"row\": [\n" +
-                "            {\n" +
-                "              \"name\": \"Betty\"\n" +
-                "            },\n" +
-                "            {},\n" +
-                "            \"Priscilla\"\n" +
-                "          ]\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"errors\": []\n" +
-                "}";
+            "  \"results\": [\n" +
+            "    {\n" +
+            "      \"columns\": [\n" +
+            "        \"n\",\n" +
+            "        \"r\",\n" +
+            "        \"m.name\"\n" +
+            "      ],\n" +
+            "      \"data\": [\n" +
+            "        {\n" +
+            "          \"row\": [\n" +
+            "            {\n" +
+            "              \"name\": \"Betty\"\n" +
+            "            },\n" +
+            "            {},\n" +
+            "            \"Peter\"\n" +
+            "          ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"row\": [\n" +
+            "            {\n" +
+            "              \"name\": \"Betty\"\n" +
+            "            },\n" +
+            "            {},\n" +
+            "            \"Patrick\"\n" +
+            "          ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"row\": [\n" +
+            "            {\n" +
+            "              \"name\": \"Betty\"\n" +
+            "            },\n" +
+            "            {},\n" +
+            "            \"Priscilla\"\n" +
+            "          ]\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"errors\": []\n" +
+            "}";
         return new ByteArrayInputStream(s.getBytes());
     }
 

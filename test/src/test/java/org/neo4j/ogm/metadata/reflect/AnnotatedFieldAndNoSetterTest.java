@@ -28,7 +28,6 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 
-
 /**
  * @author Luanne Misquitta
  * @author Vince Bickers
@@ -36,7 +35,6 @@ import org.neo4j.ogm.metadata.FieldInfo;
 public class AnnotatedFieldAndNoSetterTest {
 
     private DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.metadata.reflect");
-
 
     @Test
     public void shouldPreferAnnotatedFieldInAbsenceOfSetterForRelationshipEntity() {
@@ -46,7 +44,8 @@ public class AnnotatedFieldAndNoSetterTest {
         Set<RelEntity> parameter = new HashSet();
         parameter.addAll(Arrays.asList(relEntity));
 
-        FieldInfo objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
+        FieldInfo objectAccess = EntityAccessManager
+            .getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
         assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
         assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
         End end = new End();

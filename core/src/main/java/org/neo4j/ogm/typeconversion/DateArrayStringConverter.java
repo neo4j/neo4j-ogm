@@ -36,7 +36,6 @@ public class DateArrayStringConverter implements AttributeConverter<Date[], Stri
         this.format = userDefinedFormat;
     }
 
-
     @Override
     public String[] toGraphProperty(Date[] value) {
         if (value == null) {

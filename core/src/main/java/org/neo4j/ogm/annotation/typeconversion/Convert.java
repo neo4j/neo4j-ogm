@@ -13,10 +13,13 @@
 
 package org.neo4j.ogm.annotation.typeconversion;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import org.neo4j.ogm.typeconversion.AttributeConverter;
-
 
 /**
  * Annotation to be applied to fields and accessor methods of entity properties to specify the AttributeConverter to use for

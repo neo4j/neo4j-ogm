@@ -14,11 +14,11 @@ package org.neo4j.ogm.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-
-import org.neo4j.ogm.metadata.MetaData;import java.util.concurrent.atomic.AtomicLong;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * The utility methods here will all throw a <code>NullPointerException</code> if invoked with <code>null</code>.
@@ -35,16 +35,12 @@ public class EntityUtils {
 
     /**
      * Return native id of given node or relationship entity.
-     *
      * If the id field is null the field is set to unique negative refId, which is then returned.
-     *
      * You most likely want to use {@link org.neo4j.ogm.context.MappingContext#nativeId(Object)}
      *
-     * @param entity entity
+     * @param entity   entity
      * @param metaData metadata
-     *
      * @return native id or refId
-     *
      * @throws org.neo4j.ogm.exception.MetadataException when there is no native id field on the entity class
      */
     public static Long identity(Object entity, MetaData metaData) {
@@ -72,9 +68,8 @@ public class EntityUtils {
     /**
      * Returns the full set of labels, both static and dynamic, if any, to apply to a node.
      *
-     * @param entity entity to get the labels for
+     * @param entity   entity to get the labels for
      * @param metaData metadata
-     *
      * @return collection of labels
      */
     public static Collection<String> labels(Object entity, MetaData metaData) {

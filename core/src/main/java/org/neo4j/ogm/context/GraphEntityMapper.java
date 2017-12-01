@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.context;
 
+import static org.neo4j.ogm.annotation.Relationship.*;
+import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,9 +27,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
@@ -48,10 +47,8 @@ import org.neo4j.ogm.response.model.PropertyModel;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
-
-import static org.neo4j.ogm.annotation.Relationship.INCOMING;
-import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
-import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.getRelationalWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -126,16 +123,14 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
     /**
      * Map graph model and return found entities of given type type
-     *
      * This method doesn't execute @PostLoad, call this method after processing whole request while accumulating
      * nodeIds and edgeIds.
      *
-     * @param type class of entities to return
+     * @param type       class of entities to return
      * @param graphModel graph model to map
-     * @param nodeIds accumulator for mapped nodeIds
-     * @param edgeIds accumulator for mapped edgeIds
-     * @param <T> type
-     *
+     * @param nodeIds    accumulator for mapped nodeIds
+     * @param edgeIds    accumulator for mapped edgeIds
+     * @param <T>        type
      * @return list of entities matching given type
      */
     public <T> List<T> map(Class<T> type, GraphModel graphModel, Set<Long> nodeIds, Set<Long> edgeIds) {
@@ -173,7 +168,6 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
     /**
      * Executes method annotated with @PostLoad on node and relationship entities with given ids
-     *
      * This method must be executed after processing all result rows:
      * - post load must be called after the entity is fully hydrated
      * - to avoid executing post load multiple times on same entity
@@ -194,6 +188,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
             }
         }
     }
+
     private void executePostLoad(Object instance) {
         ClassInfo classInfo = metadata.classInfo(instance);
         MethodInfo postLoadMethod = classInfo.postLoadMethodOrNull();
@@ -287,7 +282,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                     Class<?> paramType = writer.type();
                     Class elementType = underlyingElementType(classInfo, property.getKey().toString());
                     if (paramType.isArray()) {
-                        value = EntityAccessManager.merge(paramType, value, new Object[]{} , elementType);
+                        value = EntityAccessManager.merge(paramType, value, new Object[] {}, elementType);
                     } else {
                         value = EntityAccessManager.merge(paramType, value, Collections.emptyList(), elementType);
                     }
@@ -318,7 +313,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                         oneToMany.add(edge);
                     }
                 } else {
-                    logger.debug("Relationship {} cannot be hydrated because one or more required node types are not mapped to entity classes", edge);
+                    logger.debug(
+                        "Relationship {} cannot be hydrated because one or more required node types are not mapped to entity classes",
+                        edge);
                 }
             }
         }
@@ -327,8 +324,10 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         }
     }
 
-    private void mapRelationshipEntity(List<Edge> oneToMany, Edge edge, Object source, Object target, ClassInfo relationshipEntityClassInfo) {
-        logger.debug("Found relationship type: {} to map to RelationshipEntity: {}", edge.getType(), relationshipEntityClassInfo.name());
+    private void mapRelationshipEntity(List<Edge> oneToMany, Edge edge, Object source, Object target,
+        ClassInfo relationshipEntityClassInfo) {
+        logger.debug("Found relationship type: {} to map to RelationshipEntity: {}", edge.getType(),
+            relationshipEntityClassInfo.name());
 
         // look to see if this relationship already exists in the mapping context.
         Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
@@ -346,7 +345,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         } else {
             if (writer.forScalar()) {
                 writer.write(source, relationshipEntity);
-                mappingContext.addRelationship(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor())));
+                mappingContext.addRelationship(
+                    new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(),
+                        source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor())));
             } else {
                 oneToMany.add(edge);
             }
@@ -386,14 +387,16 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         if (startNodeWriter != null) {
             startNodeWriter.write(relationshipEntity, startEntity);
         } else {
-            throw new RuntimeException("Cannot find a writer for the StartNode of relational entity " + relEntityInfo.name());
+            throw new RuntimeException(
+                "Cannot find a writer for the StartNode of relational entity " + relEntityInfo.name());
         }
 
         FieldInfo endNodeWriter = relEntityInfo.getEndNodeReader();
         if (endNodeWriter != null) {
             endNodeWriter.write(relationshipEntity, endEntity);
         } else {
-            throw new RuntimeException("Cannot find a writer for the EndNode of relational entity " + relEntityInfo.name());
+            throw new RuntimeException(
+                "Cannot find a writer for the EndNode of relational entity " + relEntityInfo.name());
         }
 
         return relationshipEntity;
@@ -416,42 +419,60 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 // establish a relationship between
                 FieldInfo outgoingWriter = findIterableWriter(instance, relationshipEntity, edge.getType(), OUTGOING);
                 if (outgoingWriter != null) {
-                    entityCollector.collectRelationship(edge.getStartNode(), ClassUtils.getType(outgoingWriter.typeParameterDescriptor()), edge.getType(), OUTGOING, edge.getId(), edge.getEndNode(), relationshipEntity);
-                    relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(outgoingWriter.typeParameterDescriptor())));
+                    entityCollector.collectRelationship(edge.getStartNode(),
+                        ClassUtils.getType(outgoingWriter.typeParameterDescriptor()), edge.getType(), OUTGOING,
+                        edge.getId(), edge.getEndNode(), relationshipEntity);
+                    relationshipsToRegister.add(
+                        new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(),
+                            instance.getClass(), ClassUtils.getType(outgoingWriter.typeParameterDescriptor())));
                 }
                 FieldInfo incomingWriter = findIterableWriter(parameter, relationshipEntity, edge.getType(), INCOMING);
                 if (incomingWriter != null) {
-                    entityCollector.collectRelationship(edge.getEndNode(), ClassUtils.getType(incomingWriter.typeParameterDescriptor()), edge.getType(), INCOMING, edge.getId(), edge.getStartNode(), relationshipEntity);
-                    relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
+                    entityCollector.collectRelationship(edge.getEndNode(),
+                        ClassUtils.getType(incomingWriter.typeParameterDescriptor()), edge.getType(), INCOMING,
+                        edge.getId(), edge.getStartNode(), relationshipEntity);
+                    relationshipsToRegister.add(
+                        new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(),
+                            instance.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
                 }
             } else {
 
                 // Use getRelationalWriter instead of findIterableWriter
                 // findIterableWriter will return matching iterable even when there is better matching single field
-                FieldInfo outgoingWriter = getRelationalWriter(metadata.classInfo(instance), edge.getType(), OUTGOING, parameter);
+                FieldInfo outgoingWriter = getRelationalWriter(metadata.classInfo(instance), edge.getType(), OUTGOING,
+                    parameter);
                 if (outgoingWriter != null) {
                     if (!outgoingWriter.forScalar()) {
-                        entityCollector.collectRelationship(edge.getStartNode(), ClassUtils.getType(outgoingWriter.typeParameterDescriptor()), edge.getType(), OUTGOING, edge.getEndNode(), parameter);
+                        entityCollector.collectRelationship(edge.getStartNode(),
+                            ClassUtils.getType(outgoingWriter.typeParameterDescriptor()), edge.getType(), OUTGOING,
+                            edge.getEndNode(), parameter);
                     } else {
                         outgoingWriter.write(instance, parameter);
                     }
-                    MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(outgoingWriter.typeParameterDescriptor()));
+                    MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(),
+                        edge.getEndNode(), edge.getId(), instance.getClass(),
+                        ClassUtils.getType(outgoingWriter.typeParameterDescriptor()));
                     relationshipsToRegister.add(mappedRelationship);
                 }
-                FieldInfo incomingWriter = getRelationalWriter(metadata.classInfo(parameter), edge.getType(), INCOMING, instance);
+                FieldInfo incomingWriter = getRelationalWriter(metadata.classInfo(parameter), edge.getType(), INCOMING,
+                    instance);
                 if (incomingWriter != null) {
                     if (!incomingWriter.forScalar()) {
-                        entityCollector.collectRelationship(edge.getEndNode(), ClassUtils.getType(incomingWriter.typeParameterDescriptor()), edge.getType(), INCOMING, edge.getStartNode(), instance);
+                        entityCollector.collectRelationship(edge.getEndNode(),
+                            ClassUtils.getType(incomingWriter.typeParameterDescriptor()), edge.getType(), INCOMING,
+                            edge.getStartNode(), instance);
                     } else {
                         incomingWriter.write(parameter, instance);
                     }
-                    relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
+                    relationshipsToRegister.add(
+                        new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(),
+                            instance.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
                 }
             }
         }
 
         entityCollector.forCollectedEntities((sourceId, type, direction, targetType, entities) ->
-                mapOneToMany(mappingContext.getNodeEntity(sourceId), targetType, entities, type, direction)
+            mapOneToMany(mappingContext.getNodeEntity(sourceId), targetType, entities, type, direction)
         );
 
         // now register all the relationships we've mapped as iterable types into the mapping context
@@ -463,42 +484,47 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     /**
      * Return an iterable writer to map a relationship onto an entity for the given relationshipType and relationshipDirection
      *
-     * @param instance the instance onto which the relationship is to be mapped
-     * @param parameter the value to be mapped
-     * @param relationshipType the relationship type
+     * @param instance              the instance onto which the relationship is to be mapped
+     * @param parameter             the value to be mapped
+     * @param relationshipType      the relationship type
      * @param relationshipDirection the relationship direction
      * @return FieldWriter or null if none exists
      */
-    private FieldInfo findIterableWriter(Object instance, Object parameter, String relationshipType, String relationshipDirection) {
+    private FieldInfo findIterableWriter(Object instance, Object parameter, String relationshipType,
+        String relationshipDirection) {
         ClassInfo classInfo = metadata.classInfo(instance);
-        return EntityAccessManager.getIterableField(classInfo, parameter.getClass(), relationshipType, relationshipDirection);
+        return EntityAccessManager
+            .getIterableField(classInfo, parameter.getClass(), relationshipType, relationshipDirection);
     }
-
 
     /**
      * Map many values to an instance based on the relationship type.
      * See DATAGRAPH-637
      *
-     * @param instance the instance to map values onto
-     * @param valueType the type of each value
-     * @param values the values to map
+     * @param instance         the instance to map values onto
+     * @param valueType        the type of each value
+     * @param values           the values to map
      * @param relationshipType the relationship type associated with these values
      */
-    private void mapOneToMany(Object instance, Class<?> valueType, Object values, String relationshipType, String relationshipDirection) {
+    private void mapOneToMany(Object instance, Class<?> valueType, Object values, String relationshipType,
+        String relationshipDirection) {
 
         ClassInfo classInfo = metadata.classInfo(instance);
 
-        FieldInfo writer = EntityAccessManager.getIterableField(classInfo, valueType, relationshipType, relationshipDirection);
+        FieldInfo writer = EntityAccessManager
+            .getIterableField(classInfo, valueType, relationshipType, relationshipDirection);
         if (writer != null) {
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-                FieldInfo reader = EntityAccessManager.getIterableField(classInfo, valueType, relationshipType, relationshipDirection);
+                FieldInfo reader = EntityAccessManager
+                    .getIterableField(classInfo, valueType, relationshipType, relationshipDirection);
                 Object currentValues;
                 if (reader != null) {
                     currentValues = reader.read(instance);
                     if (writer.type().isArray()) {
                         values = EntityAccessManager.merge(writer.type(), values, (Object[]) currentValues, valueType);
                     } else {
-                        values = EntityAccessManager.merge(writer.type(), values, (Collection) currentValues, valueType);
+                        values = EntityAccessManager
+                            .merge(writer.type(), values, (Collection) currentValues, valueType);
                     }
                 }
             }
@@ -547,7 +573,8 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         // the right one, otherwise ... give up
         if (classInfos.size() == 1) {
             ClassInfo classInfo = classInfos.iterator().next();
-            if (nodeTypeMatches(classInfo, source, StartNode.class) && nodeTypeMatches(classInfo, target, EndNode.class)) {
+            if (nodeTypeMatches(classInfo, source, StartNode.class) && nodeTypeMatches(classInfo, target,
+                EndNode.class)) {
                 return classInfo;
             }
         } else {
@@ -558,7 +585,8 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 }
             } else {
                 // almost definitely a user bug
-                logger.error("Found more than one matching @RelationshipEntity for {} but cannot tell which one to use", edge.toString());
+                logger.error("Found more than one matching @RelationshipEntity for {} but cannot tell which one to use",
+                    edge.toString());
             }
         }
         return null;
@@ -578,21 +606,22 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
      * <-- true
      * Otherwise: <-- false.
      *
-     * @param to the Class which the named relationship must refer to
-     * @param by a Class the named relationship is declared by
-     * @param relationshipName the name of the relationship
+     * @param to                    the Class which the named relationship must refer to
+     * @param by                    a Class the named relationship is declared by
+     * @param relationshipName      the name of the relationship
      * @param relationshipDirection the direction of the relationship
      * @return true if 'by' declares the specified relationship on 'to', false otherwise
      */
     private boolean declaresRelationshipTo(Class to, Class by, String relationshipName, String relationshipDirection) {
-        return EntityAccessManager.getRelationalWriter(metadata.classInfo(by.getName()), relationshipName, relationshipDirection, to) != null;
+        return EntityAccessManager
+            .getRelationalWriter(metadata.classInfo(by.getName()), relationshipName, relationshipDirection, to) != null;
     }
 
     /**
      * Checks that the class of the node matches the class defined in the class info for a given annotation
      *
-     * @param classInfo the ClassInfo
-     * @param node the node object
+     * @param classInfo       the ClassInfo
+     * @param node            the node object
      * @param annotationClass the annotation to match
      * @return true if the class of the node matches field annotated
      */

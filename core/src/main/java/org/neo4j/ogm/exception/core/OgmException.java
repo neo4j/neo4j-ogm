@@ -15,7 +15,6 @@ package org.neo4j.ogm.exception.core;
 
 /**
  * Base exception for OGM exceptions
- * <p>
  * Other specific exceptions in OGM should extend this.
  *
  * @author Frantisek Hartman

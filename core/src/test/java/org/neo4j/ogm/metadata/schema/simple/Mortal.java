@@ -13,10 +13,9 @@
 
 package org.neo4j.ogm.metadata.schema.simple;
 
-import org.neo4j.ogm.annotation.Relationship;
-
-import java.util.HashSet;
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 public class Mortal {
 

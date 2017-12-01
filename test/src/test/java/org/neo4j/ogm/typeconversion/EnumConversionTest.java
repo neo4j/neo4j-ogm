@@ -19,7 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.neo4j.ogm.domain.convertible.enums.*;
+import org.neo4j.ogm.domain.convertible.enums.Algebra;
+import org.neo4j.ogm.domain.convertible.enums.Education;
+import org.neo4j.ogm.domain.convertible.enums.Gender;
+import org.neo4j.ogm.domain.convertible.enums.NumberSystem;
+import org.neo4j.ogm.domain.convertible.enums.Person;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
@@ -98,7 +102,7 @@ public class EnumConversionTest {
 
         Person bob = new Person();
         bob.setGender(Gender.MALE);
-        Education[] inProgress = new Education[]{Education.MASTERS, Education.PHD};
+        Education[] inProgress = new Education[] { Education.MASTERS, Education.PHD };
         bob.setInProgressEducation(inProgress);
 
         FieldInfo fieldInfo = personInfo.propertyField("inProgressEducation");
@@ -108,7 +112,6 @@ public class EnumConversionTest {
         assertThat("MASTERS".equals(converted[0]) || "MASTERS".equals(converted[1])).isTrue();
         assertThat("PHD".equals(converted[0]) || "PHD".equals(converted[1])).isTrue();
     }
-
 
     /**
      * @see DATAGRAPH-550
@@ -151,7 +154,6 @@ public class EnumConversionTest {
         assertThat("HIGHSCHOOL".equals(converted[0]) || "HIGHSCHOOL".equals(converted[1])).isTrue();
         assertThat("BACHELORS".equals(converted[0]) || "BACHELORS".equals(converted[1])).isTrue();
     }
-
 
     /**
      * @see DATAGRAPH-550

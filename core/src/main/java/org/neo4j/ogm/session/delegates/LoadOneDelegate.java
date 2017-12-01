@@ -14,9 +14,6 @@ package org.neo4j.ogm.session.delegates;
 
 import java.io.Serializable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
@@ -28,6 +25,8 @@ import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -55,12 +54,13 @@ public class LoadOneDelegate {
         }
         final FieldInfo primaryIndexField = classInfo.primaryIndexField();
         if (primaryIndexField != null && !primaryIndexField.isTypeOf(id.getClass())) {
-            throw new IllegalArgumentException("Supplied id does not match primary index type on supplied class " + type.getName());
+            throw new IllegalArgumentException(
+                "Supplied id does not match primary index type on supplied class " + type.getName());
         }
 
         if (primaryIndexField == null && !(id instanceof Long)) {
             throw new IllegalArgumentException("Supplied id must be of type Long (native graph id) when supplied class "
-                    + "does not have primary id" + type.getName());
+                + "does not have primary id" + type.getName());
         }
 
         QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);

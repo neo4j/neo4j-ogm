@@ -28,7 +28,8 @@ public class DriverExceptionTest {
     // TODO: All drivers should consistently throw the same exception on configuration or connection failure.
     @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenHttpDriverCannotConnect() {
-        Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-http-invalid.properties")).build();
+        Configuration configuration = new Configuration.Builder(
+            new ClasspathConfigurationSource("ogm-http-invalid.properties")).build();
         SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
         Session session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -37,8 +38,9 @@ public class DriverExceptionTest {
     // TODO: All drivers should consistently throw the same exception on configuration or connection failure.
     @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenEmbeddedDriverCannotConnect() {
-        Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-embedded-invalid.properties")).build();
-        SessionFactory sessionFactory = new SessionFactory(configuration,"org.neo4j.ogm.domain.social");
+        Configuration configuration = new Configuration.Builder(
+            new ClasspathConfigurationSource("ogm-embedded-invalid.properties")).build();
+        SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
         Session session = sessionFactory.openSession();
         session.purgeDatabase();
     }
@@ -46,7 +48,8 @@ public class DriverExceptionTest {
     // TODO: All drivers should consistently throw the same exception on configuration or connection failure.
     @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenBoltDriverCannotConnect() {
-        Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt-invalid.properties")).build();
+        Configuration configuration = new Configuration.Builder(
+            new ClasspathConfigurationSource("ogm-bolt-invalid.properties")).build();
         SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
         Session session = sessionFactory.openSession();
         session.purgeDatabase();

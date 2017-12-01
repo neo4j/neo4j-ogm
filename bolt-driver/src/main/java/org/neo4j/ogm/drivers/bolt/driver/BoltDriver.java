@@ -13,7 +13,21 @@
 
 package org.neo4j.ogm.drivers.bolt.driver;
 
-import org.neo4j.driver.v1.*;
+import static java.util.Objects.*;
+
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.neo4j.driver.v1.AccessMode;
+import org.neo4j.driver.v1.AuthToken;
+import org.neo4j.driver.v1.AuthTokens;
+import org.neo4j.driver.v1.Config;
+import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
 import org.neo4j.ogm.config.Configuration;
@@ -27,14 +41,6 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * @author Vince Bickers
@@ -83,7 +89,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
     @Override
     public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
         checkDriverInitialized();
-        Session session = newSession(type, bookmarks); //A bolt session can have at most one transaction running at a time
+        Session session = newSession(type,
+            bookmarks); //A bolt session can have at most one transaction running at a time
         return new BoltTransaction(transactionManager, nativeTransaction(session), session, type);
     }
 
@@ -118,20 +125,19 @@ public class BoltDriver extends AbstractConfigurableDriver {
         }
     }
 
-	private Driver createDriver(Configuration config, Config driverConfig, AuthToken authToken) {
-		if (config.getURIS() == null) {
-			return GraphDatabase.driver(config.getURI(), authToken, driverConfig);
-		} else {
-			List<URI> uris = new ArrayList<>();
-			uris.add(URI.create(config.getURI()));
+    private Driver createDriver(Configuration config, Config driverConfig, AuthToken authToken) {
+        if (config.getURIS() == null) {
+            return GraphDatabase.driver(config.getURI(), authToken, driverConfig);
+        } else {
+            List<URI> uris = new ArrayList<>();
+            uris.add(URI.create(config.getURI()));
             for (String additionalURI : config.getURIS()) {
                 uris.add(URI.create(additionalURI));
             }
 
             return GraphDatabase.routingDriver(uris, authToken, driverConfig);
-		}
-	}
-
+        }
+    }
 
     @Override
     public synchronized void close() {
@@ -156,7 +162,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
             AccessMode accessMode = type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ : AccessMode.WRITE;
             boltSession = boltDriver.session(accessMode, bookmarks);
         } catch (ClientException ce) {
-            throw new ConnectionException("Error connecting to graph database using Bolt: " + ce.code() + ", " + ce.getMessage(), ce);
+            throw new ConnectionException(
+                "Error connecting to graph database using Bolt: " + ce.code() + ", " + ce.getMessage(), ce);
         } catch (Exception e) {
             throw new ConnectionException("Error connecting to graph database using Bolt", e);
         }
@@ -184,9 +191,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
         if (configuration.getEncryptionLevel() != null) {
             try {
-                boltConfig.encryptionLevel = Config.EncryptionLevel.valueOf(configuration.getEncryptionLevel().toUpperCase());
+                boltConfig.encryptionLevel = Config.EncryptionLevel
+                    .valueOf(configuration.getEncryptionLevel().toUpperCase());
             } catch (IllegalArgumentException iae) {
-                LOGGER.debug("Invalid configuration for the Bolt Driver Encryption Level: {}", configuration.getEncryptionLevel());
+                LOGGER.debug("Invalid configuration for the Bolt Driver Encryption Level: {}",
+                    configuration.getEncryptionLevel());
                 throw iae;
             }
         }
@@ -197,7 +206,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
             try {
                 boltConfig.trustStrategy = Config.TrustStrategy.Strategy.valueOf(configuration.getTrustStrategy());
             } catch (IllegalArgumentException iae) {
-                LOGGER.debug("Invalid configuration for the Bolt Driver Trust Strategy: {}", configuration.getTrustStrategy());
+                LOGGER.debug("Invalid configuration for the Bolt Driver Trust Strategy: {}",
+                    configuration.getTrustStrategy());
                 throw iae;
             }
         }
@@ -228,14 +238,17 @@ public class BoltDriver extends AbstractConfigurableDriver {
                     throw new IllegalArgumentException("Missing configuration value for trust.certificate.file");
                 }
                 if (boltConfig.trustStrategy.equals(Config.TrustStrategy.Strategy.TRUST_ON_FIRST_USE)) {
-                    configBuilder.withTrustStrategy(Config.TrustStrategy.trustOnFirstUse(new File(new URI(boltConfig.trustCertFile))));
+                    configBuilder.withTrustStrategy(
+                        Config.TrustStrategy.trustOnFirstUse(new File(new URI(boltConfig.trustCertFile))));
                 }
                 if (boltConfig.trustStrategy.equals(Config.TrustStrategy.Strategy.TRUST_SIGNED_CERTIFICATES)) {
-                    configBuilder.withTrustStrategy(Config.TrustStrategy.trustSignedBy(new File(new URI(boltConfig.trustCertFile))));
+                    configBuilder.withTrustStrategy(
+                        Config.TrustStrategy.trustSignedBy(new File(new URI(boltConfig.trustCertFile))));
                 }
             }
             if (boltConfig.connectionLivenessCheckTimeout != null) {
-                configBuilder.withConnectionLivenessCheckTimeout(boltConfig.connectionLivenessCheckTimeout, TimeUnit.MILLISECONDS);
+                configBuilder.withConnectionLivenessCheckTimeout(boltConfig.connectionLivenessCheckTimeout,
+                    TimeUnit.MILLISECONDS);
             }
 
             return configBuilder.toConfig();

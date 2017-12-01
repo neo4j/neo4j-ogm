@@ -13,13 +13,13 @@
 
 package org.neo4j.ogm.domain.drink;
 
+import static org.neo4j.ogm.annotation.Relationship.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-
-import static org.neo4j.ogm.annotation.Relationship.INCOMING;
 
 /**
  * Ingredient is an entity which has only graph id
@@ -52,7 +52,6 @@ public class Ingredient {
     public Set<Beverage> getBeverages() {
         return beverages;
     }
-
 
     /**
      * Only adds ingredient -> beverage, use {@link org.neo4j.ogm.domain.drink.Beverage#addIngredient(Ingredient)}

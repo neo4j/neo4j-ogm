@@ -38,6 +38,6 @@ public class GoldMembership extends Membership {
 
     @Override
     public IMembership[] getUpgrades() {
-        return new IMembership[]{};
+        return new IMembership[] {};
     }
 }

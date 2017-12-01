@@ -13,15 +13,15 @@
 
 package org.neo4j.ogm.cypher;
 
+import java.util.EnumSet;
+import java.util.Map;
+
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
-
-import java.util.EnumSet;
-import java.util.Map;
 
 /**
  * A parameter along with filter information to be added to a query.
@@ -131,7 +131,8 @@ public class Filter {
     public Filter(String propertyName, ComparisonOperator comparisonOperator) {
         this(new PropertyComparison(null));
         this.propertyName = propertyName;
-        if (!EnumSet.of(ComparisonOperator.EXISTS, ComparisonOperator.IS_TRUE, ComparisonOperator.IS_NULL).contains(comparisonOperator)) {
+        if (!EnumSet.of(ComparisonOperator.EXISTS, ComparisonOperator.IS_TRUE, ComparisonOperator.IS_NULL)
+            .contains(comparisonOperator)) {
             throw new RuntimeException("This constructor can only be used with Unary comparison operators");
         }
         this.comparisonOperator = comparisonOperator;
@@ -235,7 +236,7 @@ public class Filter {
 
     public String uniqueParameterName() {
         return isNested() ? getNestedPropertyName() + "_" + getPropertyName() + "_" + index :
-                getPropertyName() + "_" + index;
+            getPropertyName() + "_" + index;
     }
 
     public AttributeConverter getPropertyConverter() {
@@ -266,7 +267,7 @@ public class Filter {
             value = this.getPropertyConverter().toGraphProperty(value);
         } else if (this.getCompositeAttributeConverter() != null) {
             throw new MappingException("Properties with a CompositeAttributeConverter are not supported by " +
-                    "Filters in this version of OGM. Consider implementing a custom FilterFunction.");
+                "Filters in this version of OGM. Consider implementing a custom FilterFunction.");
         }
         return transformPropertyValue(value);
     }
@@ -302,7 +303,6 @@ public class Filter {
     /**
      * @param nodeIdentifier The node identifier
      * @param addWhereClause The add where clause.
-     *
      * @return The filter state as a CYPHER fragment.
      */
     public String toCypher(String nodeIdentifier, boolean addWhereClause) {

@@ -18,17 +18,13 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.persistence.examples.education.TeacherRequest;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.SessionFactory;
-
 
 /**
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
 public class UserTest {
-
 
     @Test
     public void testDeserialiseUserWithArrayOfEnums() {

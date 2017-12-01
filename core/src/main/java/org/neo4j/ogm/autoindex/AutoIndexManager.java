@@ -71,7 +71,8 @@ public class AutoIndexManager {
 
             if (classInfo.containsIndexes()) {
                 for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
-                    final AutoIndex index = new AutoIndex(classInfo.neo4jName(), fieldInfo.property(), fieldInfo.isConstraint());
+                    final AutoIndex index = new AutoIndex(classInfo.neo4jName(), fieldInfo.property(),
+                        fieldInfo.isConstraint());
                     LOGGER.debug("Adding Index [description={}]", index);
                     indexMetadata.add(index);
                 }
@@ -120,10 +121,11 @@ public class AutoIndexManager {
         } catch (IOException e) {
             throw new RuntimeException("Could not write file to " + file.getAbsolutePath(), e);
         } finally {
-            if (writer != null) try {
-                writer.close();
-            } catch (IOException ignore) {
-            }
+            if (writer != null)
+                try {
+                    writer.close();
+                } catch (IOException ignore) {
+                }
         }
     }
 
@@ -141,13 +143,14 @@ public class AutoIndexManager {
                     continue;
                 }
                 for (AutoIndex index : indexes) {
-                	String description = index.getDescription();
-                	
-                	// The rowModel values below, as returned from the request to Neo4j, do not contain escape characters
-                	// Therefore remove escape characters from the description so as to correctly match the rowModel values
-                	description = description.replace("`", "");
+                    String description = index.getDescription();
 
-                    if (description.replaceAll("\\s+", "").equalsIgnoreCase(((String) rowModel.getValues()[0]).replaceAll("\\s+", ""))) {
+                    // The rowModel values below, as returned from the request to Neo4j, do not contain escape characters
+                    // Therefore remove escape characters from the description so as to correctly match the rowModel values
+                    description = description.replace("`", "");
+
+                    if (description.replaceAll("\\s+", "")
+                        .equalsIgnoreCase(((String) rowModel.getValues()[0]).replaceAll("\\s+", ""))) {
                         copyOfIndexes.remove(index);
                     }
                 }
@@ -162,7 +165,8 @@ public class AutoIndexManager {
                 missingIndexes += s.getDescription() + ", ";
             }
             missingIndexes += "]";
-            throw new MissingIndexException("Validation of Constraints and Indexes failed. Could not find the following : " + missingIndexes);
+            throw new MissingIndexException(
+                "Validation of Constraints and Indexes failed. Could not find the following : " + missingIndexes);
         }
     }
 
@@ -184,11 +188,11 @@ public class AutoIndexManager {
 
                 // The statement is provided by the response from Neo4j and may not be property escaped for execution
                 if (statement.startsWith("CONSTRAINT")) {
-                	statement = escapeConstraintStatement(statement);	
+                    statement = escapeConstraintStatement(statement);
                 } else if (statement.startsWith("INDEX")) {
-                	statement = escapeIndexStatement(statement);
+                    statement = escapeIndexStatement(statement);
                 }
-                
+
                 final String dropStatement = "DROP " + statement;
 
                 LOGGER.debug("[{}] added to drop statements.", dropStatement);
@@ -233,81 +237,83 @@ public class AutoIndexManager {
             // Success
         }
     }
-    
+
     /**
      * Perform String manipulations to transform the incoming constraint statement to be property escaped.
+     *
      * @param statement A constraint statement, possibly unescaped.
      * @return A properly escaped constraint statement.
      */
     private String escapeConstraintStatement(String statement) {
-    	
-        int startIndex = statement.indexOf("CONSTRAINT ON (");
-        
-        if (startIndex != -1) {
-        	
-        	StringBuilder str = new StringBuilder(statement);
-        	
-        	startIndex = startIndex + 16;
-        	str = str.insert(startIndex, "`");
-        	
-        	startIndex = str.indexOf(":", startIndex);
-        	str = str.insert(startIndex, "`");
 
-        	startIndex = startIndex + 2;
-        	str = str.insert(startIndex, "`");
-        	
-        	startIndex = str.indexOf(" ", startIndex);
-        	str = str.insert(startIndex, "`");
-        	
-        	startIndex = str.indexOf("ASSERT ", startIndex);
-        	startIndex = startIndex + 7;                	
-        	str = str.insert(startIndex, "`");
-        	
-        	startIndex = str.indexOf(".", startIndex);
-        	str = str.insert(startIndex, "`");
-        	
-        	startIndex = startIndex + 2;
-        	str = str.insert(startIndex, "`");
-        	
-        	startIndex = str.indexOf(" ", startIndex);
-        	str = str.insert(startIndex, "`");
-        	
-        	statement = str.toString();
-        }    	
-        
+        int startIndex = statement.indexOf("CONSTRAINT ON (");
+
+        if (startIndex != -1) {
+
+            StringBuilder str = new StringBuilder(statement);
+
+            startIndex = startIndex + 16;
+            str = str.insert(startIndex, "`");
+
+            startIndex = str.indexOf(":", startIndex);
+            str = str.insert(startIndex, "`");
+
+            startIndex = startIndex + 2;
+            str = str.insert(startIndex, "`");
+
+            startIndex = str.indexOf(" ", startIndex);
+            str = str.insert(startIndex, "`");
+
+            startIndex = str.indexOf("ASSERT ", startIndex);
+            startIndex = startIndex + 7;
+            str = str.insert(startIndex, "`");
+
+            startIndex = str.indexOf(".", startIndex);
+            str = str.insert(startIndex, "`");
+
+            startIndex = startIndex + 2;
+            str = str.insert(startIndex, "`");
+
+            startIndex = str.indexOf(" ", startIndex);
+            str = str.insert(startIndex, "`");
+
+            statement = str.toString();
+        }
+
         return statement;
 
     }
-    
+
     /**
      * Perform String manipulations to transform the incoming index statement to be property escaped.
+     *
      * @param statement A index statement, possibly unescaped.
      * @return A properly escaped index statement.
      */
     private String escapeIndexStatement(String statement) {
-    	
+
         int startIndex = statement.indexOf("INDEX ON :");
 
         if (startIndex != -1) {
-        	
-        	StringBuilder str = new StringBuilder(statement);
-        	
-        	startIndex = startIndex + 10;
-        	str = str.insert(startIndex, "`");
-        
-        	startIndex = str.indexOf("(", startIndex);
-        	str = str.insert(startIndex, "`");
 
-        	startIndex = startIndex + 2;
-        	str = str.insert(startIndex, "`");
-        	
-        	startIndex = str.indexOf(")", startIndex);
-        	str = str.insert(startIndex, "`");
-        	
-        	statement = str.toString();
+            StringBuilder str = new StringBuilder(statement);
+
+            startIndex = startIndex + 10;
+            str = str.insert(startIndex, "`");
+
+            startIndex = str.indexOf("(", startIndex);
+            str = str.insert(startIndex, "`");
+
+            startIndex = startIndex + 2;
+            str = str.insert(startIndex, "`");
+
+            startIndex = str.indexOf(")", startIndex);
+            str = str.insert(startIndex, "`");
+
+            statement = str.toString();
         }
-        
+
         return statement;
-        
+
     }
 }

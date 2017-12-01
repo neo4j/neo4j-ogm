@@ -30,7 +30,6 @@ public class NumberArrayStringConverter implements AttributeConverter<Number[], 
         this.numberClass = numberClass;
     }
 
-
     @Override
     public String[] toGraphProperty(Number[] value) {
         if (value == null) {

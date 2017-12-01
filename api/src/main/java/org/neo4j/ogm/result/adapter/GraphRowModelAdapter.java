@@ -13,7 +13,13 @@
 
 package org.neo4j.ogm.result.adapter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.model.GraphModel;
@@ -36,7 +42,6 @@ public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, 
     public GraphRowModelAdapter(GraphModelAdapter graphModelAdapter) {
         this.graphModelAdapter = graphModelAdapter;
     }
-
 
     /**
      * Reads the next row from the result object and transforms it into a RowModel object
@@ -63,12 +68,14 @@ public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, 
 
         adapt(iterator, data, graphModel, variables, values, nodeIdentities, edgeIdentities);
 
-        DefaultRowModel rowModel = new DefaultRowModel(values.toArray(new Object[]{}), variables.toArray(new String[]{}));
+        DefaultRowModel rowModel = new DefaultRowModel(values.toArray(new Object[] {}),
+            variables.toArray(new String[] {}));
 
         return new DefaultGraphRowModel(graphModel, rowModel.getValues());
     }
 
-    private void adapt(Iterator<String> iterator, Map<String, Object> data, GraphModel graphModel, List<String> variables, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
+    private void adapt(Iterator<String> iterator, Map<String, Object> data, GraphModel graphModel,
+        List<String> variables, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
 
         while (iterator.hasNext()) {
 
@@ -88,7 +95,8 @@ public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, 
         }
     }
 
-    protected void adapt(Object element, GraphModel graphModel, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
+    protected void adapt(Object element, GraphModel graphModel, List<Object> values, Set<Long> nodeIdentities,
+        Set<Long> edgeIdentities) {
         if (graphModelAdapter.isPath(element)) {
             graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities);
         } else if (graphModelAdapter.isNode(element)) {

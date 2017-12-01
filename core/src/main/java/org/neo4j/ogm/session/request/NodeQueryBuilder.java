@@ -11,7 +11,6 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-
 package org.neo4j.ogm.session.request;
 
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public class NodeQueryBuilder {
             for (Filter filter : filters) {
                 if (i != 0 && filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
                     throw new MissingOperatorException("BooleanOperator missing for filter with property name "
-                            + filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
+                        + filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
                 }
                 if (filter.isNested()) {
                     appendNestedFilter(filter);
@@ -109,7 +108,6 @@ public class NodeQueryBuilder {
         return null;
     }
 
-
     private RelationshipPropertyMatchClause relationshipPropertyClauseFor(String relationshipType) {
         for (MatchClause clause : nestedClauses) {
             if (clause instanceof RelationshipPropertyMatchClause) {
@@ -121,7 +119,6 @@ public class NodeQueryBuilder {
         }
         return null;
     }
-
 
     private StringBuilder toCypher() {
         StringBuilder stringBuilder = new StringBuilder(principalClause.toCypher());

@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.cypher.function;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +49,7 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
     public String expression(String nodeIdentifier) {
 
         return String.format("distance(point(%s),point({latitude:{lat}, longitude:{lon}})) " +
-                "%s {distance} ", nodeIdentifier, filter.getComparisonOperator().getValue());
+            "%s {distance} ", nodeIdentifier, filter.getComparisonOperator().getValue());
     }
 
     @Override

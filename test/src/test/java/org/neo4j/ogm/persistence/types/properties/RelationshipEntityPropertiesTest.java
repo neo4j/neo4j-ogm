@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.persistence.types.properties;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,12 +27,7 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
-import java.io.IOException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
- *
  * Test for @{@link org.neo4j.ogm.annotation.Properties} annotation on @RelationshipEntity class
  *
  * @author Frantisek Hartman
@@ -42,7 +41,7 @@ public class RelationshipEntityPropertiesTest extends MultiDriverTestClass {
     @BeforeClass
     public static void init() throws IOException {
         // Listing concrete classes because package also contains invalid mapping (for testing)
-        String[] classes = new String[]{User.class.getName(), Visit.class.getName(), Place.class.getName()};
+        String[] classes = new String[] { User.class.getName(), Visit.class.getName(), Place.class.getName() };
         sessionFactory = new SessionFactory(driver, classes);
     }
 

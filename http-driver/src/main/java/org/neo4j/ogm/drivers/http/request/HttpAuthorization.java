@@ -31,7 +31,7 @@ public class HttpAuthorization {
      * happens, we'll most likely need a proper AuthenticationManager object,
      * but for now, this will do.
      *
-     * @param request The HttpRequest that may need an auth header.
+     * @param request     The HttpRequest that may need an auth header.
      * @param credentials the {@link Credentials} with which to authorise the session
      */
     public static void authorize(HttpRequestBase request, Credentials credentials) {

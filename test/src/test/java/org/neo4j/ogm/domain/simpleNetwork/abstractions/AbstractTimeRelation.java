@@ -33,7 +33,8 @@ import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceTimeRelation;
  * than concrete classes. Prior to the fix for this issue, this OGM would only work correctly if S and T were defined
  * as extending concrete classes.
  */
-public abstract class AbstractTimeRelation<S extends InterfaceIdentityNode, T extends InterfaceStateNode> implements InterfaceTimeRelation<S, T> {
+public abstract class AbstractTimeRelation<S extends InterfaceIdentityNode, T extends InterfaceStateNode>
+    implements InterfaceTimeRelation<S, T> {
 
     @GraphId
     private Long graphId;

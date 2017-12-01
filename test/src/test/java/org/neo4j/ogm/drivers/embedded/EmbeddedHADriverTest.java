@@ -22,17 +22,17 @@ import org.junit.Test;
  */
 public class EmbeddedHADriverTest /*extends EmbeddedDriverTest*/ {
 
-	@Test
-	public void fixme() {
-		assertThat(true).isTrue();
-	}
+    @Test
+    public void fixme() {
+        assertThat(true).isTrue();
+    }
 
-//    @Override
-//    protected Configuration getConfiguration() {
-//        if (configuration == null) {
-//            configuration = new Configuration.Builder(new ClasspathConfigurationSource("embedded.ha.driver.properties")).uri(graphStore.toURI().toString()).build();
-//        }
-//        return configuration;
-//    }
+    //    @Override
+    //    protected Configuration getConfiguration() {
+    //        if (configuration == null) {
+    //            configuration = new Configuration.Builder(new ClasspathConfigurationSource("embedded.ha.driver.properties")).uri(graphStore.toURI().toString()).build();
+    //        }
+    //        return configuration;
+    //    }
 
 }

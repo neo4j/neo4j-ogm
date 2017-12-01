@@ -14,8 +14,18 @@
 package org.neo4j.ogm.metadata;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.neo4j.ogm.annotation.Transient;
 
@@ -54,7 +64,8 @@ public class FieldsInfo {
                                     ParameterizedType parameterizedTypeArgument = (ParameterizedType) typeArgument;
                                     typeParameterDescriptor = parameterizedTypeArgument.getRawType().getTypeName();
                                     break;
-                                } else if (typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType) {
+                                } else if (typeArgument instanceof TypeVariable
+                                    || typeArgument instanceof WildcardType) {
                                     typeParameterDescriptor = Object.class.getName();
                                     break;
                                 } else if (typeArgument instanceof Class) {
@@ -69,7 +80,8 @@ public class FieldsInfo {
                     if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
                         typeParameterDescriptor = field.getType().getTypeName();
                     }
-                    fields.put(field.getName(), new FieldInfo(classInfo, field, typeParameterDescriptor, objectAnnotations));
+                    fields.put(field.getName(),
+                        new FieldInfo(classInfo, field, typeParameterDescriptor, objectAnnotations));
                 }
             }
         }
@@ -88,7 +100,6 @@ public class FieldsInfo {
         }
         return Collections.unmodifiableList(fields);
     }
-
 
     public FieldInfo get(String name) {
         return fields.get(name);

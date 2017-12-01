@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.domain.convertible.date;
 
-
 import java.util.Date;
 import java.util.Set;
 

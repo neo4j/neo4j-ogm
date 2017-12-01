@@ -97,7 +97,6 @@ public class ElectionTest extends MultiDriverTestClass {
         assertThat(voter.candidateVotedFor.getId()).isEqualTo(voter.getId());
     }
 
-
     @Test
     public void shouldAllowVoterToChangeHerMind() {
 
@@ -112,7 +111,9 @@ public class ElectionTest extends MultiDriverTestClass {
 
         MappingContext context = ((Neo4jSession) session).context();
 
-        assertThat(context.containsRelationship(new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class))).isTrue();
+        assertThat(context.containsRelationship(
+            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class)))
+            .isTrue();
         session.clear();
 
         a = session.load(Candidate.class, a.getId());
@@ -120,7 +121,9 @@ public class ElectionTest extends MultiDriverTestClass {
 
         assertThat(v.candidateVotedFor.getId()).isEqualTo(b.getId());
 
-        assertThat(context.containsRelationship(new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class))).isTrue();
+        assertThat(context.containsRelationship(
+            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class)))
+            .isTrue();
 
         v.candidateVotedFor = a;
 
@@ -132,8 +135,12 @@ public class ElectionTest extends MultiDriverTestClass {
 
         assertThat(v.candidateVotedFor.getId()).isEqualTo(a.getId());
 
-        assertThat(context.containsRelationship(new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", a.getId(), Voter.class, Candidate.class))).isTrue();
-        assertThat(context.containsRelationship(new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class))).isFalse();
+        assertThat(context.containsRelationship(
+            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", a.getId(), Voter.class, Candidate.class)))
+            .isTrue();
+        assertThat(context.containsRelationship(
+            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class)))
+            .isFalse();
 
         session.clear();
     }

@@ -46,10 +46,10 @@ public class ParameterizedConversionTest extends MultiDriverTestClass {
         session = sessionFactory.openSession();
     }
 
-	@After
-	public void tearDown() {
-		session.purgeDatabase();
-	}
+    @After
+    public void tearDown() {
+        session.purgeDatabase();
+    }
 
     @Test
     public void shouldConvertParametrizedMap() {

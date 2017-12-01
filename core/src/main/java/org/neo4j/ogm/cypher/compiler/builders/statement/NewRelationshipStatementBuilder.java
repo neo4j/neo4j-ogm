@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.cypher.compiler.builders.statement;
 
+import static java.util.Collections.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,8 +26,6 @@ import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
-
-import static java.util.Collections.emptyMap;
 
 /**
  * @author Luanne Misquitta
@@ -56,8 +56,8 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
             boolean hasPrimaryId = firstEdge.getPrimaryIdName() != null;
 
             queryBuilder.append("UNWIND {rows} as row ")
-                    .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
-                    .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ");
+                .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
+                .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ");
 
             if (hasProperties && !hasPrimaryId) {
                 queryBuilder.append("CREATE ");
@@ -66,16 +66,15 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
             }
 
             queryBuilder.append("(startNode)-[rel:`")
-                    .append(relType)
-                    .append("`");
-
+                .append(relType)
+                .append("`");
 
             if (hasPrimaryId) {
                 queryBuilder.append(" {`")
-                        .append(firstEdge.getPrimaryIdName())
-                        .append("`: row.props.`")
-                        .append(firstEdge.getPrimaryIdName())
-                        .append("`}");
+                    .append(firstEdge.getPrimaryIdName())
+                    .append("`: row.props.`")
+                    .append(firstEdge.getPrimaryIdName())
+                    .append("`}");
             }
             queryBuilder.append("]->(endNode) ");
 

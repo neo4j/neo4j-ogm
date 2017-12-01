@@ -33,13 +33,15 @@ public class InstantStringConverter implements AttributeConverter<Instant, Strin
 
     @Override
     public String toGraphProperty(Instant value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return formatter.format(value);
     }
 
     @Override
     public Instant toEntityAttribute(String value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         return Instant.parse(value);
     }
 }

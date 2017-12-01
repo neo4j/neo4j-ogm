@@ -13,9 +13,10 @@
 
 package org.neo4j.ogm.domain.annotations;
 
+import org.neo4j.ogm.annotation.NodeEntity;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * @author vince
@@ -23,8 +24,8 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = SimpleNode.class, name = "simple"),
-        @JsonSubTypes.Type(value = OtherNode.class, name = "other")
+    @JsonSubTypes.Type(value = SimpleNode.class, name = "simple"),
+    @JsonSubTypes.Type(value = OtherNode.class, name = "other")
 })
 public interface Node {
 

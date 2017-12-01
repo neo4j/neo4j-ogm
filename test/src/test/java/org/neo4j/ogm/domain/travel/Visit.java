@@ -38,7 +38,6 @@ public class Visit {
     @EndNode
     private Place place;
 
-
     private String reasonForVisit;
 
     public Visit() {

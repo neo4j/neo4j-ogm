@@ -11,15 +11,14 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-
 package org.neo4j.ogm.cypher.query;
+
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jasper Blues
@@ -29,8 +28,8 @@ public class PagingAndSortingQueryTest {
     @Test
     public void shouldAppendRelationshipIdentifiersCorrectly() {
         String cypher = "MATCH (n:`User`) WHERE n.`name` = { `name_0` } " +
-                "MATCH (n)-[r0:`RATED`]-(m0) WHERE r0.`stars` = { `ratings_stars_1` } " +
-                "WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)";
+            "MATCH (n)-[r0:`RATED`]-(m0) WHERE r0.`stars` = { `ratings_stars_1` } " +
+            "WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)";
 
         Map<String, Object> params = new HashMap<>();
         params.put("name_0", "Jasper");
@@ -41,9 +40,9 @@ public class PagingAndSortingQueryTest {
 
         String statement = query.getStatement();
         assertThat(statement).isEqualTo(
-                "MATCH (n:`User`) WHERE n.`name` = { `name_0` } " +
-                        "MATCH (n)-[r0:`RATED`]-(m0) WHERE r0.`stars` = { `ratings_stars_1` } " +
-                        "WITH n,r0 SKIP 0 LIMIT 4 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)"
+            "MATCH (n:`User`) WHERE n.`name` = { `name_0` } " +
+                "MATCH (n)-[r0:`RATED`]-(m0) WHERE r0.`stars` = { `ratings_stars_1` } " +
+                "WITH n,r0 SKIP 0 LIMIT 4 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)"
         );
     }
 }

@@ -26,53 +26,53 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity(label = "Person")
 public class Person {
 
-	@GraphId
-	private Long id;
+    @GraphId
+    private Long id;
 
-	private String name;
+    private String name;
 
-	@Relationship(type = "ORGANISER", direction = Relationship.INCOMING)
-	private Set<Meetup> meetupOrganised = new HashSet<>(); //must be a collection
+    @Relationship(type = "ORGANISER", direction = Relationship.INCOMING)
+    private Set<Meetup> meetupOrganised = new HashSet<>(); //must be a collection
 
-	@Relationship(type = "ATTENDEE", direction = Relationship.INCOMING)
-	private Set<Meetup> meetupsAttended = new HashSet<>();
+    @Relationship(type = "ATTENDEE", direction = Relationship.INCOMING)
+    private Set<Meetup> meetupsAttended = new HashSet<>();
 
-	public Person() {
-	}
+    public Person() {
+    }
 
-	public Person(String name) {
-		this.name = name;
-	}
+    public Person(String name) {
+        this.name = name;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Set<Meetup> getMeetupOrganised() {
-		return meetupOrganised;
-	}
+    public Set<Meetup> getMeetupOrganised() {
+        return meetupOrganised;
+    }
 
-	public void setMeetupOrganised(Set<Meetup> meetupOrganised) {
-		this.meetupOrganised = meetupOrganised;
-	}
+    public void setMeetupOrganised(Set<Meetup> meetupOrganised) {
+        this.meetupOrganised = meetupOrganised;
+    }
 
-	public Set<Meetup> getMeetupsAttended() {
-		return meetupsAttended;
-	}
+    public Set<Meetup> getMeetupsAttended() {
+        return meetupsAttended;
+    }
 
-	public void setMeetupsAttended(Set<Meetup> meetupsAttended) {
-		this.meetupsAttended = meetupsAttended;
-	}
+    public void setMeetupsAttended(Set<Meetup> meetupsAttended) {
+        this.meetupsAttended = meetupsAttended;
+    }
 }

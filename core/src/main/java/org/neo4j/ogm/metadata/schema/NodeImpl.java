@@ -62,8 +62,8 @@ class NodeImpl implements Node {
     @Override
     public String toString() {
         return "NodeImpl{" +
-                "label='" + label + '\'' +
-                ", labels=" + labels +
-                '}';
+            "label='" + label + '\'' +
+            ", labels=" + labels +
+            '}';
     }
 }

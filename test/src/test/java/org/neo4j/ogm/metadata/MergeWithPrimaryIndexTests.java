@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.metadata;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -27,8 +29,6 @@ import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.session.request.RowStatementFactory;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author Mark Angrish
  */
@@ -40,7 +40,8 @@ public class MergeWithPrimaryIndexTests {
 
     @BeforeClass
     public static void setUpTestDatabase() {
-        mappingMetadata = new MetaData("org.neo4j.ogm.domain.autoindex.valid", "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.pizza");
+        mappingMetadata = new MetaData("org.neo4j.ogm.domain.autoindex.valid",
+            "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.pizza");
         mappingContext = new MappingContext(mappingMetadata);
     }
 
@@ -61,7 +62,8 @@ public class MergeWithPrimaryIndexTests {
         assertThat(pizza.getId()).isNull();
         Compiler compiler = mapAndCompile(pizza);
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
-        assertThat(compiler.createNodesStatements().get(0).getStatement()).isEqualTo("UNWIND {rows} as row CREATE (n:`Pizza`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
+        assertThat(compiler.createNodesStatements().get(0).getStatement()).isEqualTo(
+            "UNWIND {rows} as row CREATE (n:`Pizza`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
     }
 
     @Test
@@ -70,14 +72,14 @@ public class MergeWithPrimaryIndexTests {
         assertThat(newUser.getId()).isNull();
         Compiler compiler = mapAndCompile(newUser);
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
-        assertThat(compiler.createNodesStatements().get(0).getStatement()).isEqualTo("UNWIND {rows} as row MERGE (n:`User`{login: row.props.login}) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
+        assertThat(compiler.createNodesStatements().get(0).getStatement()).isEqualTo(
+            "UNWIND {rows} as row MERGE (n:`User`{login: row.props.login}) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
     }
 
     @Test(expected = MetadataException.class)
     public void exceptionRaisedWhenMoreThanOnePrimaryIndexDefinedInSameClass() {
         new MetaData("org.neo4j.ogm.domain.autoindex.invalid").classInfo("BadClass").primaryIndexField();
     }
-
 
     private Compiler mapAndCompile(Object object) {
         CompileContext context = this.mapper.map(object);

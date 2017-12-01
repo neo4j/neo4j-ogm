@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Identifies field that is to be represented as a relationship
@@ -40,7 +44,6 @@ public @interface Relationship {
 
     /**
      * Direction of the relationship. Defaults to OUTGOING.
-     *
      * Possible values are {@link #OUTGOING}, {@link #INCOMING}, {@link #UNDIRECTED}.
      */
     String direction() default OUTGOING;

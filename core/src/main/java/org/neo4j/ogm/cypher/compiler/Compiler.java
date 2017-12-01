@@ -36,7 +36,7 @@ public interface Compiler {
     /**
      * Returns a {@link RelationshipBuilder} that represents a new relationship to be created in the database
      *
-     * @param type the relationship type
+     * @param type          the relationship type
      * @param bidirectional true if the relationship must be created in both incoming and outgoing directions, false otherwise
      * @return A {@link RelationshipBuilder} representing a new relationship
      */
@@ -66,14 +66,13 @@ public interface Compiler {
      */
     RelationshipBuilder existingRelationship(Long existingRelationshipId, String type);
 
-
     /**
      * Defines a relationship deletion between the specified start node to end node with the given relationship type and direction.
      *
-     * @param startNode The reference of the relationship start node
+     * @param startNode        The reference of the relationship start node
      * @param relationshipType The type of relationship between the nodes to delete
-     * @param endNode The reference of the relationship end node
-     * @param relId The id of the relationship to unrelate
+     * @param endNode          The reference of the relationship end node
+     * @param relId            The id of the relationship to unrelate
      */
     void unrelate(Long startNode, String relationshipType, Long endNode, Long relId);
 
@@ -137,7 +136,6 @@ public interface Compiler {
      * @return A {@link List} of Cypher queries to be executed or an empty list if there aren't any, never <code>null</code>
      */
     List<Statement> getAllStatements();
-
 
     /**
      * Returns this compiler's context

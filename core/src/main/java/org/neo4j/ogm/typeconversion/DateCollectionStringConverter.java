@@ -14,7 +14,14 @@ package org.neo4j.ogm.typeconversion;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.Vector;
 
 /**
  * By default the OGM will map date collections to UTC-based ISO8601 compliant
@@ -31,7 +38,6 @@ public class DateCollectionStringConverter implements AttributeConverter<Collect
 
     private SimpleDateFormat simpleDateFormat;
     private final Class<? extends Collection> collectionClass;
-
 
     public DateCollectionStringConverter(String userDefinedFormat, Class<? extends Collection> collectionClass) {
         this.collectionClass = collectionClass;

@@ -13,6 +13,12 @@
 
 package org.neo4j.ogm.persistence.types.properties;
 
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.neo4j.ogm.domain.properties.UserWithEnumMap.UserProperties.*;
+
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,14 +28,6 @@ import org.neo4j.ogm.domain.properties.UserWithEnumMap;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-
-import static java.util.Collections.emptyMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.neo4j.ogm.domain.properties.UserWithEnumMap.UserProperties.CITY;
-import static org.neo4j.ogm.domain.properties.UserWithEnumMap.UserProperties.ZIP_CODE;
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * @author Frantisek Hartman
@@ -41,8 +39,8 @@ public class EnumMapPropertiesTest extends MultiDriverTestClass {
     @BeforeClass
     public static void init() throws IOException {
         session = new SessionFactory(driver,
-                UserWithEnumMap.class.getName())
-                .openSession();
+            UserWithEnumMap.class.getName())
+            .openSession();
     }
 
     @Before
@@ -61,10 +59,10 @@ public class EnumMapPropertiesTest extends MultiDriverTestClass {
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
             Node userNode = getGraphDatabaseService().getNodeById(user.getId());
             assertThat(userNode.getAllProperties())
-                    .hasSize(3)
-                    .containsEntry("name", "Frantisek")
-                    .containsEntry("myProperties.CITY", "London")
-                    .containsEntry("myProperties.ZIP_CODE", "SW1A 1AA");
+                .hasSize(3)
+                .containsEntry("name", "Frantisek")
+                .containsEntry("myProperties.CITY", "London")
+                .containsEntry("myProperties.ZIP_CODE", "SW1A 1AA");
 
             tx.success();
         }
@@ -72,14 +70,15 @@ public class EnumMapPropertiesTest extends MultiDriverTestClass {
 
     @Test
     public void shouldMapNodePropertiesToPropertiesAttribute() throws Exception {
-        session.query("CREATE (u:User {`name`:'Frantisek', `myProperties.CITY`:'London', `myProperties.ZIP_CODE`:'SW1A 1AA'})",
-                emptyMap());
+        session.query(
+            "CREATE (u:User {`name`:'Frantisek', `myProperties.CITY`:'London', `myProperties.ZIP_CODE`:'SW1A 1AA'})",
+            emptyMap());
 
         UserWithEnumMap user = session.loadAll(UserWithEnumMap.class).iterator().next();
         assertThat(user.getMyProperties())
-                .hasSize(2)
-                .containsEntry(CITY, "London")
-                .containsEntry(ZIP_CODE, "SW1A 1AA");
+            .hasSize(2)
+            .containsEntry(CITY, "London")
+            .containsEntry(ZIP_CODE, "SW1A 1AA");
     }
 
 }

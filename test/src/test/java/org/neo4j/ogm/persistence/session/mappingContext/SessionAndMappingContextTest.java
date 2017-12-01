@@ -1,5 +1,7 @@
 package org.neo4j.ogm.persistence.session.mappingContext;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -9,14 +11,16 @@ import org.junit.Test;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
-import org.neo4j.ogm.domain.music.*;
+import org.neo4j.ogm.domain.music.Album;
+import org.neo4j.ogm.domain.music.Artist;
+import org.neo4j.ogm.domain.music.Recording;
+import org.neo4j.ogm.domain.music.ReleaseFormat;
+import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Mihai Raulea
@@ -35,10 +39,10 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     private Actor actor2;
     private Knows knows, knows2;
 
-
     @Before
     public void init() throws IOException {
-        session = (Neo4jSession) new SessionFactory(driver, "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.cineasts.annotated").openSession();
+        session = (Neo4jSession) new SessionFactory(driver, "org.neo4j.ogm.domain.music",
+            "org.neo4j.ogm.domain.cineasts.annotated").openSession();
 
         artist1 = new Artist();
         artist1.setName("MainArtist");

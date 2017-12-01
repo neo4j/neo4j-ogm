@@ -16,7 +16,11 @@ package org.neo4j.ogm.persistence.examples.music;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -78,9 +82,11 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         assertThat(theBeatles.getName()).isEqualTo("The Beatles");
         assertThat(theBeatles.getAlbums()).hasSize(1);
         assertThat(theBeatles.getAlbums().iterator().next().getName()).isEqualTo("Please Please Me");
-        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName()).isEqualTo("EMI Studios, London");
+        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName())
+            .isEqualTo("EMI Studios, London");
 
-        please = session.loadAll(Album.class, new Filter("name", ComparisonOperator.EQUALS, "Please Please Me")).iterator().next();
+        please = session.loadAll(Album.class, new Filter("name", ComparisonOperator.EQUALS, "Please Please Me"))
+            .iterator().next();
         assertThat(please.getArtist().getName()).isEqualTo("The Beatles");
 
         Album hard = new Album("A Hard Day's Night");
@@ -107,7 +113,9 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldLoadStudioWithLocationMissingInDomainModel() {
         session.query("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})", Utils.map());
-        Studio studio = session.loadAll(Studio.class, new Filter("name", ComparisonOperator.EQUALS, "Abbey Road Studios")).iterator().next();
+        Studio studio = session
+            .loadAll(Studio.class, new Filter("name", ComparisonOperator.EQUALS, "Abbey Road Studios")).iterator()
+            .next();
         assertThat(studio).isNotNull();
     }
 
@@ -130,11 +138,13 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         assertThat(theBeatles.getName()).isEqualTo("The Beatles");
         assertThat(theBeatles.getAlbums()).hasSize(1);
         assertThat(theBeatles.getAlbums().iterator().next().getName()).isEqualTo("Please Please Me");
-        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName()).isEqualTo("EMI Studios, London");
+        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName())
+            .isEqualTo("EMI Studios, London");
 
         session.clear();
 
-        please = session.loadAll(Album.class, new Filter("name", ComparisonOperator.EQUALS, "Please Please Me"), 0).iterator().next();
+        please = session.loadAll(Album.class, new Filter("name", ComparisonOperator.EQUALS, "Please Please Me"), 0)
+            .iterator().next();
         assertThat(please.getName()).isEqualTo("Please Please Me");
         assertThat(please.getArtist()).isNull();
         assertThat(please.getRecording()).isNull();
@@ -166,16 +176,21 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         theBeatlesAlbum.setGuestArtist(eric);
         session.save(theBeatlesAlbum);
 
-        theBeatles = session.loadAll(Artist.class, new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "The Beatles"))).iterator().next();
+        theBeatles = session
+            .loadAll(Artist.class, new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "The Beatles")))
+            .iterator().next();
         assertThat(theBeatles.getName()).isEqualTo("The Beatles");
         assertThat(theBeatles.getAlbums()).hasSize(1);
         assertThat(theBeatles.getAlbums().iterator().next().getName()).isEqualTo("The Beatles");
-        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName()).isEqualTo("EMI Studios, London");
+        assertThat(theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName())
+            .isEqualTo("EMI Studios, London");
         assertThat(theBeatles.getAlbums().iterator().next().getGuestArtist()).isEqualTo(eric);
 
         //Eric has 2 albums now
         session.clear();
-        Artist loadedEric = session.loadAll(Artist.class, new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Eric Clapton"))).iterator().next();
+        Artist loadedEric = session
+            .loadAll(Artist.class, new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Eric Clapton")))
+            .iterator().next();
         assertThat(loadedEric).isNotNull();
         assertThat(loadedEric.getGuestAlbums().iterator().next().getName()).isEqualTo("The Beatles");
         assertThat(loadedEric.getAlbums().iterator().next().getName()).isEqualTo("Slowhand");
@@ -203,7 +218,9 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         please.setArtist(theBeatles);
         session.save(theBeatles);
 
-        Iterator<Map<String, Object>> resultIterator = session.query("MATCH (n:`l'artiste`)-[:`HAS-ALBUM`]-(a) return {artist: collect(distinct n.name), albums: collect(a.name)} as result", Collections.EMPTY_MAP).queryResults().iterator();
+        Iterator<Map<String, Object>> resultIterator = session.query(
+            "MATCH (n:`l'artiste`)-[:`HAS-ALBUM`]-(a) return {artist: collect(distinct n.name), albums: collect(a.name)} as result",
+            Collections.EMPTY_MAP).queryResults().iterator();
         assertThat(resultIterator.hasNext()).isTrue();
         Map<String, Object> row = resultIterator.next();
         Map data = (Map) row.get("result");
@@ -239,7 +256,9 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         please.setArtist(theBeatles);
         session.save(theBeatles);
 
-        Iterator<Map<String, Object>> resultIterator = session.query("MATCH (n:`l'artiste`)-[:`HAS-ALBUM`]-(a) return {artist: collect(distinct n.name), albums: collect(a.name)}", Collections.EMPTY_MAP).queryResults().iterator();
+        Iterator<Map<String, Object>> resultIterator = session.query(
+            "MATCH (n:`l'artiste`)-[:`HAS-ALBUM`]-(a) return {artist: collect(distinct n.name), albums: collect(a.name)}",
+            Collections.EMPTY_MAP).queryResults().iterator();
         assertThat(resultIterator.hasNext()).isTrue();
         Map<String, Object> row = resultIterator.next();
         Map data = (Map) row.get("{artist: collect(distinct n.name), albums: collect(a.name)}");

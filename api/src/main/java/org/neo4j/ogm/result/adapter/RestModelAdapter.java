@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.result.adapter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
@@ -23,7 +27,8 @@ import org.neo4j.ogm.response.model.RelationshipModel;
  *
  * @author Luanne Misquitta
  */
-public abstract class RestModelAdapter extends BaseAdapter implements ResultAdapter<Map<String, Object>, Map<String, Object>> {
+public abstract class RestModelAdapter extends BaseAdapter
+    implements ResultAdapter<Map<String, Object>, Map<String, Object>> {
 
     @Override
     public Map<String, Object> adapt(Map<String, Object> result) {

@@ -13,11 +13,10 @@
 
 package org.neo4j.ogm.metadata.schema.simple;
 
-import org.neo4j.ogm.annotation.Id;
+import java.util.Set;
+
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-
-import java.util.Set;
 
 /**
  * @author Frantisek Hartman

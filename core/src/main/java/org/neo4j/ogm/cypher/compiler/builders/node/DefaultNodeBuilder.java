@@ -32,7 +32,6 @@ public class DefaultNodeBuilder implements NodeBuilder {
 
     NodeModel node = new NodeModel();
 
-
     public DefaultNodeBuilder(Long reference) {
         node.setId(reference);
     }

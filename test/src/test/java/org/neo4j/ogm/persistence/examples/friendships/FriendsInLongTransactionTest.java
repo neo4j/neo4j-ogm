@@ -35,7 +35,7 @@ public class FriendsInLongTransactionTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver,"org.neo4j.ogm.domain.friendships");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.friendships");
     }
 
     @Before

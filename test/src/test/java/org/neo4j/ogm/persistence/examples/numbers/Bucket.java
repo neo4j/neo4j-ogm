@@ -13,11 +13,11 @@
 
 package org.neo4j.ogm.persistence.examples.numbers;
 
+import static com.google.common.collect.Lists.*;
+
 import java.util.List;
 
 import org.neo4j.ogm.annotation.NodeEntity;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @author Frantisek Hartman

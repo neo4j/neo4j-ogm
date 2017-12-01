@@ -90,13 +90,12 @@ public class SaveCapabilityTest extends MultiDriverTestClass {
         assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(3);
     }
 
-
     /**
      * @see Issue #84
      */
     @Test
     public void saveCollectionShouldSaveArrays() {
-        Artist[] artists = new Artist[]{aerosmith, bonJovi, defLeppard};
+        Artist[] artists = new Artist[] { aerosmith, bonJovi, defLeppard };
         session.save(artists);
         session.clear();
         assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(3);
@@ -127,7 +126,6 @@ public class SaveCapabilityTest extends MultiDriverTestClass {
         assertThat(loadedLost.getGuestArtist()).isEqualTo(loadedLeann);
         assertThat(loadedLost.getArtist().getName()).isEqualTo(loadedBonJovi.getName());
     }
-
 
     @Test
     public void shouldSaveOnlyModifiedNodes() {

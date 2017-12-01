@@ -44,9 +44,9 @@ public class Folder extends FileSystemEntity {
     @Override
     public String toString() {
         return "Folder{" +
-                "name='" + getName() + '\'' +
-                ", documents=" + documents.size() +
-                ", archived=" + archived.size() +
-                '}';
+            "name='" + getName() + '\'' +
+            ", documents=" + documents.size() +
+            ", archived=" + archived.size() +
+            '}';
     }
 }

@@ -13,15 +13,14 @@
 
 package org.neo4j.ogm.drivers.bolt;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
-
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.SessionFactory;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Frantisek Hartman
@@ -33,7 +32,7 @@ public class MultipleURIsBoltDriverTest {
 
         Configuration configuration = new Configuration.Builder()
             .uri("bolt+routing://localhost:1022")
-            .uris(new String[]{"bolt+routing://localhost:1023"})
+            .uris(new String[] { "bolt+routing://localhost:1023" })
             .verifyConnection(true)
             .build();
 
@@ -51,9 +50,9 @@ public class MultipleURIsBoltDriverTest {
     public void connectToCCUsingConfiguration() throws Exception {
         Configuration configuration = new Configuration.Builder()
             .uri("bolt+routing://localhost:1023")
-            .uris(new String[]{"bolt+routing://localhost:7688",
+            .uris(new String[] { "bolt+routing://localhost:7688",
                 "bolt+routing://localhost:7687",
-                "bolt+routing://localhost:7689"})
+                "bolt+routing://localhost:7689" })
             .verifyConnection(true)
             .build();
 
@@ -63,7 +62,8 @@ public class MultipleURIsBoltDriverTest {
     @Test
     @Ignore("this needs local causal cluster running")
     public void connectToCCUsingProperties() throws Exception {
-        Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt-uris.properties"))
+        Configuration configuration = new Configuration.Builder(
+            new ClasspathConfigurationSource("ogm-bolt-uris.properties"))
             .build();
 
         new SessionFactory(configuration, "org.neo4j.ogm.domain.social");

@@ -15,7 +15,13 @@ package org.neo4j.ogm.persistence.examples.education;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.education.Course;
@@ -31,7 +37,6 @@ public class EducationTest {
 
     private static MetaData metadata = new MetaData("org.neo4j.ogm.domain.education");
     private static Neo4jSession session = new Neo4jSession(metadata, new TeacherRequest());
-
 
     @Test
     public void testTeachers() throws Exception {
@@ -108,7 +113,6 @@ public class EducationTest {
         test(hash, students);
     }
 
-
     // all students whose ids modulo 100 are prime study geography. 1 is not considered prime
     private void checkGeography(List<Student> students) {
         long hash = 102 + 103 + 105 + 107 + 111 + 113 + 117 + 119 + 123;
@@ -175,7 +179,7 @@ public class EducationTest {
         return teachers;
     }
 
-    private void hydrateCourses(Collection<Teacher> teachers)  {
+    private void hydrateCourses(Collection<Teacher> teachers) {
 
         session.setDriver(new TeacherRequest());
         session.setDriver(new CoursesRequest());

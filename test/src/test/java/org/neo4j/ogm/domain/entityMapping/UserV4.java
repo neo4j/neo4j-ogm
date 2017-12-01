@@ -15,7 +15,6 @@ package org.neo4j.ogm.domain.entityMapping;
 
 import org.neo4j.ogm.annotation.Relationship;
 
-
 /**
  * Annotated incoming field with annotated getters and setters. Relationship type different from property name
  *

@@ -13,15 +13,15 @@
 
 package org.neo4j.ogm.config;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assume.*;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * @author Frantisek Hartman

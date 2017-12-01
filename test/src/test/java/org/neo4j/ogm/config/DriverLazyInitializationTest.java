@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.config;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.simple.User;
@@ -21,11 +23,8 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestServer;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
 /**
  * Tests for lazy initialization of Bolt and Http drivers
- * <p>
  * Not using {@link org.neo4j.ogm.testutil.MultiDriverTestClass} test class because we actually test behaviour when
  * server is down at SessionFactory creation.
  *
@@ -33,7 +32,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  */
 @Ignore // ignored because of the test runner on team city, child classes should run normally
 public abstract class DriverLazyInitializationTest {
-
 
     protected Configuration.Builder configBuilder;
 
@@ -48,7 +46,7 @@ public abstract class DriverLazyInitializationTest {
     @Test(expected = ConnectionException.class)
     public void shouldThrowServiceUnavailableWhenServerIsOfflineAndVerifyIsTrue() throws Exception {
         Configuration configuration = configBuilder.verifyConnection(true)
-                .build();
+            .build();
 
         new SessionFactory(configuration, User.class.getPackage().getName());
     }
@@ -60,8 +58,8 @@ public abstract class DriverLazyInitializationTest {
         testServer.shutdown();
 
         Configuration configuration = configBuilder
-                .uri(uri)
-                .build();
+            .uri(uri)
+            .build();
 
         SessionFactory sessionFactory = new SessionFactory(configuration, User.class.getPackage().getName());
 

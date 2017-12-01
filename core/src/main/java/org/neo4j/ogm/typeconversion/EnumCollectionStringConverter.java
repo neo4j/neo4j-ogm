@@ -12,7 +12,12 @@
  */
 package org.neo4j.ogm.typeconversion;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 
 /**
  * By default the OGM will map enum collections to and from

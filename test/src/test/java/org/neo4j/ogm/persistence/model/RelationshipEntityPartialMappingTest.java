@@ -41,13 +41,11 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.minimum");
     }
 
-
     @Before
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
-
 
     @Test
     public void testCreateActorRoleAndMovie() {
@@ -60,8 +58,8 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
         session.save(keanu);
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-                "create (a:Actor {name:'Keanu Reeves'}) " +
-                        "create (m:Movie {name:'The Matrix'}) " +
-                        "create (a)-[:ACTS_IN {played:'Neo'}]->(m)");
+            "create (a:Actor {name:'Keanu Reeves'}) " +
+                "create (m:Movie {name:'The Matrix'}) " +
+                "create (a)-[:ACTS_IN {played:'Neo'}]->(m)");
     }
 }

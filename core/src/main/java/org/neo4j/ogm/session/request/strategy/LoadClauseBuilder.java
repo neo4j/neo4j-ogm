@@ -25,7 +25,6 @@ public interface LoadClauseBuilder {
      *
      * @param label label of the start node
      * @param depth max depth to load, note that some implementations may not accept unlimited depth (-1)
-     *
      * @return Cypher query as string
      */
     default String build(String label, int depth) {
@@ -36,9 +35,8 @@ public interface LoadClauseBuilder {
      * Build load clause based on given parameters
      *
      * @param variable node variable (start node) to be expanded
-     * @param label label of the start node
-     * @param depth max depth to load, note that some implementations may not accept unlimited depth (-1)
-     *
+     * @param label    label of the start node
+     * @param depth    max depth to load, note that some implementations may not accept unlimited depth (-1)
      * @return Cypher query as string
      */
     String build(String variable, String label, int depth);

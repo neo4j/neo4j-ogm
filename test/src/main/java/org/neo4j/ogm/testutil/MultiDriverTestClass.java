@@ -16,10 +16,12 @@ package org.neo4j.ogm.testutil;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.kernel.enterprise.EnterpriseGraphDatabase;
+import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
@@ -116,10 +118,30 @@ public class MultiDriverTestClass {
 
     /**
      * Use this to limit if the test should execute only on enterprise edition
+     * <p>
      * In @BeforeClass or @Before method
+     * <p>
      * assumeTrue(isEnterpriseEdition());
      */
     protected static boolean isEnterpriseEdition() {
-        return getGraphDatabaseService() instanceof EnterpriseGraphDatabase;
+        // use simple class name here - package differs across versions
+        // also removes this class's dependency on enterprise jars
+        return getGraphDatabaseService().getClass().getSimpleName().equals("EnterpriseGraphDatabase");
+    }
+
+    /**
+     * Use this to limit if the test should execute on certain version
+     *
+     * @param version version, e.g. 3.2.0
+     * @return true if the version is equal or greater that given parameter
+     */
+    protected static boolean isVersionOrGreater(String version) {
+        Result result = getGraphDatabaseService().execute("CALL dbms.components()");
+        Map<String, Object> kernel = result.stream()
+            .filter(map -> map.get("name").equals("Neo4j Kernel"))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Expected component named 'Neo4j Kernel'"));
+        String kernelVersion = (String) ((List<Object>) kernel.get("versions")).get(0);
+        return version.compareTo(kernelVersion) <= 0;
     }
 }

@@ -228,20 +228,26 @@ public class AutoIndexManager {
     private void updateIndexes() {
         LOGGER.info("Updating indexes and constraints");
 
-        List<Statement> statements = new ArrayList<>();
+        List<Statement> dropStatements = new ArrayList<>();
         List<AutoIndex> dbIndexes = loadIndexesFromDB();
         for (AutoIndex dbIndex : dbIndexes) {
             if (dbIndex.hasOpposite() && indexes.contains(dbIndex.createOppositeIndex())) {
-                statements.add(dbIndex.getDropStatement());
+                dropStatements.add(dbIndex.getDropStatement());
             }
         }
+        executeStatements(dropStatements);
 
+
+        List<Statement> createStatements = new ArrayList<>();
         for (AutoIndex index : indexes) {
             if (!dbIndexes.contains(index)) {
-                statements.add(index.getCreateStatement());
+                createStatements.add(index.getCreateStatement());
             }
         }
+        executeStatements(createStatements);
+    }
 
+    private void executeStatements(List<Statement> statements) {
         DefaultRequest request = new DefaultRequest();
         request.setStatements(statements);
 

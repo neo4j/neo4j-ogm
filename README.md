@@ -11,8 +11,8 @@ It aims to simplify development with the Neo4j graph database and like JPA, it u
 
 If you use Spring to build your applications be sure to check out [Spring Data Neo4j](https://github.com/spring-projects/spring-data-neo4j).
 
-***The latest OGM version is:*** `3.0.1`.
-***The latest OGM development version is:*** `2.1.6-SNAPSHOT` and `3.0.2-SNAPSHOT`.
+***The latest OGM version is:*** `3.0.2`.
+***The latest OGM development versions are:*** `2.1.6-SNAPSHOT`, `3.0.3-SNAPSHOT` and `3.1.0-SNAPSHOT`.
 
 ## Quick start
 

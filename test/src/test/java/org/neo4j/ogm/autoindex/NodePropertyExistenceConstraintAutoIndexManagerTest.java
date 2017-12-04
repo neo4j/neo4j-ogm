@@ -21,7 +21,7 @@ import org.neo4j.ogm.domain.autoindex.NodePropertyExistenceConstraintEntity;
 /**
  * @author Frantisek Hartman
  */
-public class NodePropertyExistenceConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTest {
+public class NodePropertyExistenceConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
     public NodePropertyExistenceConstraintAutoIndexManagerTest() {
         super("CONSTRAINT ON (`entity`:`Entity`) ASSERT exists(`entity`.`login`)",

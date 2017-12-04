@@ -44,11 +44,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ObjectArrays;
 
 /**
+ * Must not end with "Test" so it does not run on TC.
  * @author Frantisek Hartman
  */
-public abstract class BaseAutoIndexManagerTest extends MultiDriverTestClass {
+public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass {
 
-    private static final Logger logger = LoggerFactory.getLogger(BaseAutoIndexManagerTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(BaseAutoIndexManagerTestClass.class);
 
     private static final String[] COMMUNITY_INDEXES = {
         "INDEX ON :User(email)",
@@ -78,7 +79,7 @@ public abstract class BaseAutoIndexManagerTest extends MultiDriverTestClass {
     protected GraphDatabaseService service;
     protected MetaData metaData;
 
-    public BaseAutoIndexManagerTest(String definition, String... packages) {
+    public BaseAutoIndexManagerTestClass(String definition, String... packages) {
         this.definition = definition;
         this.metaData = new MetaData(packages);
     }
@@ -188,20 +189,20 @@ public abstract class BaseAutoIndexManagerTest extends MultiDriverTestClass {
     @Test
     public void testAutoIndexDumpCreatesIndex() throws IOException {
 
-        File file = new File("./target/test.cql");
+        File file = File.createTempFile("test", ".cql");
 
         try {
             Configuration configuration = getBaseConfiguration()
                 .autoIndex("dump")
-                .generatedIndexesOutputDir("./target")
-                .generatedIndexesOutputFilename("test.cql")
+                .generatedIndexesOutputDir(file.getParent())
+                .generatedIndexesOutputFilename(file.getName())
                 .build();
 
             AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
             indexManager.build();
 
             assertThat(file.exists()).isTrue();
-            try (InputStream is = new FileInputStream("./target/test.cql")) {
+            try (InputStream is = new FileInputStream(file)) {
                 String actual = IOUtils.toString(is);
                 assertThat(actual).isEqualToIgnoringWhitespace("CREATE " + definition);
             }

@@ -14,7 +14,7 @@ import org.neo4j.ogm.metadata.MetaData;
 /**
  * @author Frantisek Hartman
  */
-public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest {
+public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
     private static final String INDEX = "INDEX ON :`Entity`(`name`,`age`)";
     private static final String CONSTRAINT = "CONSTRAINT ON (entity:Entity) ASSERT (entity.name, entity.age) IS NODE KEY";

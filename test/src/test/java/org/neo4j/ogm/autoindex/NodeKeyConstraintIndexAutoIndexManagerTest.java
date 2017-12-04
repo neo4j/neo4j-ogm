@@ -11,7 +11,7 @@ import org.neo4j.ogm.domain.autoindex.NodeKeyConstraintEntity;
 /**
  * @author Frantisek Hartman
  */
-public class NodeKeyConstraintIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest {
+public class NodeKeyConstraintIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
     private static final String CONSTRAINT =
         "CONSTRAINT ON (`entity`:`Entity`) ASSERT (`entity`.`name`,`entity`.`age`) IS NODE KEY";

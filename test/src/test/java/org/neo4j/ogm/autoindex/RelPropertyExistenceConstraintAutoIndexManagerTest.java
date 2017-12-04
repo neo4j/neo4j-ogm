@@ -22,7 +22,7 @@ import org.neo4j.ogm.domain.autoindex.RelPropertyExistenceConstraintEntity;
 /**
  * @author Frantisek Hartman
  */
-public class RelPropertyExistenceConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTest {
+public class RelPropertyExistenceConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
     public RelPropertyExistenceConstraintAutoIndexManagerTest() {
         super("CONSTRAINT ON ()-[`rel`:`REL`]-() ASSERT exists(`rel`.`description`)",

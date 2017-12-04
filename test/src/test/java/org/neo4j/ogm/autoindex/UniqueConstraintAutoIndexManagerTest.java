@@ -22,7 +22,7 @@ import org.neo4j.ogm.domain.autoindex.UniqueConstraintEntity;
 /**
  * @author Frantisek Hartman
  */
-public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTest {
+public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
     private static final String INDEX = "INDEX ON :`Entity`(`login`)";
     private static final String CONSTRAINT = "CONSTRAINT ON (`entity`:`Entity`) ASSERT `entity`.`login` IS UNIQUE";

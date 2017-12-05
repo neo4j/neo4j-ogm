@@ -15,6 +15,7 @@ package org.neo4j.ogm.typeconversion;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +31,7 @@ import org.neo4j.ogm.metadata.MetaData;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Gerrit Meier
  */
 public class DateConversionTest {
 
@@ -170,5 +172,53 @@ public class DateConversionTest {
         assertThat(methodInfo.hasPropertyConverter()).isTrue();
         AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertThat(attributeConverter.toGraphProperty(null)).isEqualTo(null);
+    }
+
+    /**
+     * @see issue #424
+     */
+    @Test
+    public void assertFieldDateConversionWithExplicitAnnotation() {
+        FieldInfo fieldInfo = memoInfo.propertyField("modified");
+        assertThat(fieldInfo.hasPropertyConverter()).isTrue();
+        AttributeConverter attributeConverter = fieldInfo.getPropertyConverter();
+        assertThat(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class)).isTrue();
+        assertThat(attributeConverter.toGraphProperty(new Date(0))).isEqualTo("1970-01-01T00:00:00.000Z");
+    }
+
+    /**
+     * @see issue #424
+     */
+    @Test
+    public void assertFieldDateConversionWithExplicitAnnotationWorksForNullGraphValue() {
+        FieldInfo fieldInfo = memoInfo.propertyField("modified");
+        assertThat(fieldInfo.hasPropertyConverter()).isTrue();
+        AttributeConverter attributeConverter = fieldInfo.getPropertyConverter();
+        assertThat(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class)).isTrue();
+        assertThat(attributeConverter.toEntityAttribute(null)).isNull();
+    }
+
+    /**
+     * @see issue #424
+     */
+    @Test(expected = RuntimeException.class)
+    public void assertFieldDateConversionWithExplicitAnnotationFailsForEmptyGraphValue() {
+        FieldInfo fieldInfo = memoInfo.propertyField("modified");
+        assertThat(fieldInfo.hasPropertyConverter()).isTrue();
+        AttributeConverter attributeConverter = fieldInfo.getPropertyConverter();
+        assertThat(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class)).isTrue();
+        assertThat(attributeConverter.toEntityAttribute("")).isNull();
+    }
+
+    /**
+     * @see issue #424
+     */
+    @Test
+    public void assertFieldLenientDateConversionWithExplicitAnnotationWorksForEmptyGraphValue() {
+        FieldInfo fieldInfo = memoInfo.propertyField("legacyDate");
+        assertThat(fieldInfo.hasPropertyConverter()).isTrue();
+        AttributeConverter attributeConverter = fieldInfo.getPropertyConverter();
+        assertThat(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class)).isTrue();
+        assertThat(attributeConverter.toEntityAttribute("")).isNull();
     }
 }

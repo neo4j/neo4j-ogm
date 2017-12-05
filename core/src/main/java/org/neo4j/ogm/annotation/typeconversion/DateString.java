@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
  * Applicable to `java.util.Date` and `java.time.Instant`
  *
  * @author Vince Bickers
+ * @author Gerrit Meier
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -35,5 +36,12 @@ public @interface DateString {
     String ISO_8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
     String value() default ISO_8601;
+
+    /**
+     * Toggle lenient conversion mode by setting this flag to true (defaults to false).
+     * Has to be supported by the corresponding converter.
+     * @return flag that represents the desired conversion mode.
+     */
+    boolean lenient() default false;
 }
 

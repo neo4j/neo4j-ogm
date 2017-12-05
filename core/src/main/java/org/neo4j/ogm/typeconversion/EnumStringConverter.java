@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.typeconversion;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * By default the OGM will map enum objects to and from
  * the string value returned by enum.name()
@@ -23,13 +25,21 @@ package org.neo4j.ogm.typeconversion;
  * simply by changing the declaration order in the enum set.
  *
  * @author Vince Bickers
+ * @author Gerrit Meier
  */
 public class EnumStringConverter implements AttributeConverter<Enum, String> {
 
     private final Class<? extends Enum> enumClass;
+    private final boolean lenient;
 
     public EnumStringConverter(Class<? extends Enum> enumClass) {
         this.enumClass = enumClass;
+        this.lenient = false;
+    }
+
+    public EnumStringConverter(Class<? extends Enum> enumClass, boolean lenient) {
+        this.enumClass = enumClass;
+        this.lenient = lenient;
     }
 
     @Override
@@ -41,8 +51,9 @@ public class EnumStringConverter implements AttributeConverter<Enum, String> {
 
     @Override
     public Enum toEntityAttribute(String value) {
-        if (value == null)
+        if (value == null || (lenient && StringUtils.isBlank(value))) {
             return null;
+        }
         return Enum.valueOf(enumClass, value);
     }
 }

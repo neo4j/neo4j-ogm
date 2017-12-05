@@ -13,8 +13,11 @@
 
 package org.neo4j.ogm.domain.convertible.enums;
 
+import org.neo4j.ogm.annotation.typeconversion.EnumString;
+
 /**
  * @author Vince Bickers
+ * @author Gerrit Meier
  */
 public class Algebra {
 
@@ -22,11 +25,33 @@ public class Algebra {
 
     private NumberSystem numberSystem;
 
+    @EnumString(value = Operation.class)
+    private Operation operation;
+
+    @EnumString(value = Operation.class, lenient = true)
+    private Operation operationLenient;
+
     public NumberSystem getNumberSystem() {
         return numberSystem;
     }
 
     public void setNumberSystem(NumberSystem numberSystem) {
         this.numberSystem = numberSystem;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(Operation operation) {
+        this.operation = operation;
+    }
+
+    public Operation getOperationLenient() {
+        return operationLenient;
+    }
+
+    public void setOperationLenient(Operation operationLenient) {
+        this.operationLenient = operationLenient;
     }
 }

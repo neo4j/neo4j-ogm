@@ -23,6 +23,7 @@ import org.neo4j.ogm.domain.convertible.enums.Algebra;
 import org.neo4j.ogm.domain.convertible.enums.Education;
 import org.neo4j.ogm.domain.convertible.enums.Gender;
 import org.neo4j.ogm.domain.convertible.enums.NumberSystem;
+import org.neo4j.ogm.domain.convertible.enums.Operation;
 import org.neo4j.ogm.domain.convertible.enums.Person;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -31,6 +32,7 @@ import org.neo4j.ogm.metadata.MetaData;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Gerrit Meier
  */
 public class EnumConversionTest {
 
@@ -184,5 +186,29 @@ public class EnumConversionTest {
     public void shouldNotRegisterEnumWhenTypeContainsEnumType() {
         FieldInfo fieldInfo = tagEntityInfo.relationshipFieldByName("tags");
         assertThat(fieldInfo.hasPropertyConverter()).isFalse();
+    }
+
+    /**
+     * @see issue #424
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailOnEmptyGraphProperty() {
+        FieldInfo fieldInfo = algebraInfo.propertyField("operation");
+        assertThat(fieldInfo.hasPropertyConverter()).isTrue();
+
+        AttributeConverter attributeConverter = fieldInfo.getPropertyConverter();
+        assertThat(attributeConverter.toEntityAttribute("")).isNull();
+    }
+
+    /**
+     * @see issue #424
+     */
+    @Test
+    public void shouldWorkOnEmptyGraphPropertyWithLenientConversionEnabled() {
+        FieldInfo fieldInfo = algebraInfo.propertyField("operationLenient");
+        assertThat(fieldInfo.hasPropertyConverter()).isTrue();
+
+        AttributeConverter attributeConverter = fieldInfo.getPropertyConverter();
+        assertThat(attributeConverter.toEntityAttribute("")).isNull();
     }
 }

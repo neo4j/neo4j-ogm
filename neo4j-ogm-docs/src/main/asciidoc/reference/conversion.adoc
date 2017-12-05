@@ -51,6 +51,22 @@ Collections of primitive or convertible values are also automatically mapped by 
 [NOTE]
 Collections are not supported for `java.time.Instant` and `java.time.LocalDate`.
 
+=== Lenient conversion
+It is possible to explicitly assign the build-in converter annotations to the corresponding fields.
+This provides the advantage of being able to use the `lenient` attribute that will get be read by the converters.
+The supported annotations are `@DateString`, `@EnumString` and `@NumberString`.
+.Example of lenient converter usage
+[source, java]
+----
+public class MyEntity {
+
+    @DateString(lenient = true)
+    private Date entityDate;
+}
+----
+
+The lenient feature is currently only supported by string-based converters to allow the conversion of blank strings from the database.
+
 [[reference:type-conversion:custom]]
 == Custom Type Conversion
 

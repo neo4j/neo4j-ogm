@@ -21,6 +21,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Vince Bickers
+ * @author Gerrit Meier
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -30,5 +31,12 @@ public @interface NumberString {
     String TYPE = "value";
 
     Class<? extends Number> value();
+
+    /**
+     * Toggle lenient conversion mode by setting this flag to true (defaults to false).
+     * Has to be supported by the corresponding converter.
+     * @return flag that represents the desired conversion mode.
+     */
+    boolean lenient() default false;
 }
 

@@ -23,6 +23,7 @@ import org.neo4j.ogm.annotation.typeconversion.DateString;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Gerrit Meier
  */
 public class Memo {
 
@@ -38,6 +39,12 @@ public class Memo {
 
     @DateString("yyyy-MM-dd")
     private Date actioned;
+
+    @DateString
+    private Date modified;
+
+    @DateString(lenient = true)
+    private Date legacyDate;
 
     @DateLong
     private Date closed;
@@ -81,6 +88,22 @@ public class Memo {
 
     public void setActioned(Date actioned) {
         this.actioned = actioned;
+    }
+
+    public Date getModified() {
+        return modified;
+    }
+
+    public void setModified(Date modified) {
+        this.modified = modified;
+    }
+
+    public Date getLegacyDate() {
+        return legacyDate;
+    }
+
+    public void setLegacyDate(Date legacyDate) {
+        this.legacyDate = legacyDate;
     }
 
     public Date getClosed() {

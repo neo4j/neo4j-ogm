@@ -17,9 +17,12 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.neo4j.ogm.annotation.typeconversion.NumberString;
+
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Gerrit Meier
  */
 public class Account {
 
@@ -27,6 +30,13 @@ public class Account {
     private BigDecimal balance;
     private BigInteger facility;
     private BigDecimal[] deposits;
+
+    @NumberString(value = Integer.class)
+    private Integer futureBalance;
+
+    @NumberString(value = Integer.class, lenient = true)
+    private Integer futureBalanceLenient;
+
     private List<BigInteger> loans;
     private short code;
     private Float limit;
@@ -61,6 +71,22 @@ public class Account {
 
     public void setDeposits(BigDecimal[] deposits) {
         this.deposits = deposits;
+    }
+
+    public Integer getFutureBalance() {
+        return futureBalance;
+    }
+
+    public void setFutureBalance(Integer futureBalance) {
+        this.futureBalance = futureBalance;
+    }
+
+    public Integer getFutureBalanceLenient() {
+        return futureBalanceLenient;
+    }
+
+    public void setFutureBalanceLenient(Integer futureBalanceLenient) {
+        this.futureBalanceLenient = futureBalanceLenient;
     }
 
     public List<BigInteger> getLoans() {

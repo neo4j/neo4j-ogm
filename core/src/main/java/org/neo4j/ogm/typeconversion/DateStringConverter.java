@@ -18,6 +18,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * By default the OGM will map date objects to UTC-based ISO8601 compliant
  * String values when being stored as a node / relationship property
@@ -28,13 +30,21 @@ import java.util.TimeZone;
  * {@link org.neo4j.ogm.annotation.typeconversion.DateLong} will read and write dates as Long values in the database.
  *
  * @author Vince Bickers
+ * @author Gerrit Meier
  */
 public class DateStringConverter implements AttributeConverter<Date, String> {
 
-    private String format;
+    private final String format;
+    private final boolean lenient;
 
     public DateStringConverter(String userDefinedFormat) {
         this.format = userDefinedFormat;
+        this.lenient = false;
+    }
+
+    public DateStringConverter(String userDefinedFormat, boolean lenient) {
+        this.format = userDefinedFormat;
+        this.lenient = lenient;
     }
 
     @Override
@@ -48,8 +58,9 @@ public class DateStringConverter implements AttributeConverter<Date, String> {
 
     @Override
     public Date toEntityAttribute(String value) {
-        if (value == null)
+        if (value == null || (lenient && StringUtils.isBlank(value))) {
             return null;
+        }
         try {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
             simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));

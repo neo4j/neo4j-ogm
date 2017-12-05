@@ -28,6 +28,7 @@ import org.neo4j.ogm.metadata.MetaData;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Gerrit Meier
  */
 public class NumberConversionTest {
 
@@ -142,5 +143,17 @@ public class NumberConversionTest {
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.restaurant");
         ClassInfo restaurantInfo = metaData.classInfo("Restaurant");
         assertThat(restaurantInfo.propertyField("location").hasCompositeConverter()).isTrue();
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void assertConvertingEmptyGraphPropertyFails() {
+        AttributeConverter converter = accountInfo.propertyField("futureBalance").getPropertyConverter();
+        assertThat(converter.toEntityAttribute("")).isEqualTo(null);
+    }
+
+    @Test
+    public void assertConvertingEmptyGraphPropertyWorksCorrectlyWithLenientConverter() {
+        AttributeConverter converter = accountInfo.propertyField("futureBalanceLenient").getPropertyConverter();
+        assertThat(converter.toEntityAttribute("")).isEqualTo(null);
     }
 }

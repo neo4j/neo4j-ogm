@@ -44,7 +44,7 @@ public class ClassPathScannerTest {
     public void nestedDirectoryShouldBeScanned() {
         final DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.convertible");
 
-        assertThat(domainInfo.getClassInfoMap()).hasSize(20);
+        assertThat(domainInfo.getClassInfoMap()).hasSize(21);
 
         Set<String> classNames = domainInfo.getClassInfoMap().keySet();
         assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.bytes.Photo")).isTrue();
@@ -57,6 +57,7 @@ public class ClassPathScannerTest {
         assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Gender")).isTrue();
         assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.NumberSystem")).isTrue();
         assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.NumberSystemDomainConverter")).isTrue();
+        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Operation")).isTrue();
         assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Person")).isTrue();
         assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Tag")).isTrue();
         assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.TagEntity")).isTrue();

@@ -30,6 +30,7 @@ import org.neo4j.ogm.typeconversion.NumberStringConverter;
 
 /**
  * @author Vince Bickers
+ * @author Gerrit Meier
  */
 public class ObjectAnnotations {
 
@@ -81,7 +82,7 @@ public class ObjectAnnotations {
         AnnotationInfo dateStringConverterInfo = get(DateString.class);
         if (dateStringConverterInfo != null) {
             String format = dateStringConverterInfo.get(DateString.FORMAT, DateString.ISO_8601);
-            return new DateStringConverter(format);
+            return new DateStringConverter(format, isLenientConversion(dateStringConverterInfo));
         }
 
         AnnotationInfo enumStringConverterInfo = get(EnumString.class);
@@ -89,7 +90,7 @@ public class ObjectAnnotations {
             String classDescriptor = enumStringConverterInfo.get(EnumString.TYPE, null);
             try {
                 Class clazz = Class.forName(classDescriptor, false, Thread.currentThread().getContextClassLoader());
-                return new EnumStringConverter(clazz);
+                return new EnumStringConverter(clazz, isLenientConversion(enumStringConverterInfo));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -100,13 +101,18 @@ public class ObjectAnnotations {
             String classDescriptor = numberStringConverterInfo.get(NumberString.TYPE, null);
             try {
                 Class clazz = Class.forName(classDescriptor, false, Thread.currentThread().getContextClassLoader());
-                return new NumberStringConverter(clazz);
+                return new NumberStringConverter(clazz, isLenientConversion(numberStringConverterInfo));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
         return null;
+    }
+
+    private boolean isLenientConversion(AnnotationInfo converterInfo) {
+        String lenientConversionKey = "lenient";
+        return Boolean.parseBoolean(converterInfo.get(lenientConversionKey));
     }
 
     public boolean has(Class<?> clazz) {

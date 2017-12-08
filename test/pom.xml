@@ -56,30 +56,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-enterprise</artifactId>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-nop</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-cluster</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ha</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback}</version>
@@ -107,12 +83,6 @@
         <dependency>
             <groupId>org.neo4j.test</groupId>
             <artifactId>neo4j-harness</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j.test</groupId>
-            <artifactId>neo4j-harness-enterprise</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -145,6 +115,23 @@
 
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>neo4j-enterprise</id>
+            <!--
+            This will add Neo4j Enterprise on the class path.
+            TestServer will detect it and run tests against enterprise edition.
+            -->
+            <dependencies>
+                <dependency>
+                    <groupId>org.neo4j.test</groupId>
+                    <artifactId>neo4j-harness-enterprise</artifactId>
+                    <scope>compile</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -176,7 +163,8 @@
                             -->
                             <argLine>-Dfile.encoding=ISO-8859-1</argLine>
                             <includes>
-                                <include>org.neo4j.ogm.persistence.examples.cineasts.annotated.CineastsIntegrationTest</include>
+                                <include>org.neo4j.ogm.persistence.examples.cineasts.annotated.CineastsIntegrationTest
+                                </include>
                                 <include>org.neo4j.ogm.config.ConfigurationTest</include>
                             </includes>
                         </configuration>

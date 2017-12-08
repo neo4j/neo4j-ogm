@@ -19,7 +19,6 @@ import java.nio.file.Path;
 
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.kernel.enterprise.EnterpriseGraphDatabase;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
@@ -116,10 +115,14 @@ public class MultiDriverTestClass {
 
     /**
      * Use this to limit if the test should execute only on enterprise edition
+     * <p>
      * In @BeforeClass or @Before method
+     * <p>
      * assumeTrue(isEnterpriseEdition());
      */
     protected static boolean isEnterpriseEdition() {
-        return getGraphDatabaseService() instanceof EnterpriseGraphDatabase;
+        // use simple class name here - package differs across versions
+        // also removes this class's dependency on enterprise jars
+        return getGraphDatabaseService().getClass().getSimpleName().equals("EnterpriseGraphDatabase");
     }
 }

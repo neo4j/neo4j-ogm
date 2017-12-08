@@ -125,7 +125,7 @@
 
             <dependency>
                 <groupId>org.neo4j.test</groupId>
-                <artifactId>neo4j-harness-enterprise</artifactId>
+                <artifactId>neo4j-harness</artifactId>
                 <version>${neo4j}</version>
                 <scope>test</scope>
             </dependency>
@@ -135,6 +135,12 @@
                 <artifactId>neo4j-harness-enterprise</artifactId>
                 <version>${neo4j}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-nop</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -307,15 +313,6 @@
     </build>
 
     <profiles>
-
-        <!--
-				<profile>
-					<id>community</id>
-					<properties>
-						<neo4j.edition>community</neo4j.edition>
-					</properties>
-				</profile>
-		-->
 
         <profile>
             <id>neo4j-3.1</id>

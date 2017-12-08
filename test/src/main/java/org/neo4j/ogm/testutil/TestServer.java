@@ -22,10 +22,8 @@ import java.nio.file.Path;
 
 import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.harness.EnterpriseTestServerBuilders;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilder;
-import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.server.AbstractNeoServer;
 import org.neo4j.server.database.Database;
 import org.slf4j.Logger;
@@ -67,39 +65,52 @@ public class TestServer {
     }
 
     /**
-     * Returns TestServerBuilder based on "neo4j.edition" property
+     * Returns TestServerBuilder based on what is present on classpath
      */
     public static TestServerBuilder newInProcessBuilder() {
-        String edition = System.getenv("neo4j.edition");
-        if (edition == null) {
-            edition = System.getProperty("neo4j.edition");
+
+        // Use reflection here so there is no compile time dependency on neo4j-harness-enterprise
+
+        TestServerBuilder builder;
+        builder = instantiate("org.neo4j.harness.internal.EnterpriseInProcessServerBuilder");
+        if (builder == null) {
+            // class name for Neo4j 3.1
+            builder = instantiate("org.neo4j.harness.EnterpriseInProcessServerBuilder");
         }
-        if ("enterprise".equals(edition)) {
-            LOGGER.info("Creating new instance of Neo4j Enterprise");
-            return EnterpriseTestServerBuilders.newInProcessBuilder();
-        } else {
-            LOGGER.info("Creating new instance of Neo4j Community");
-            return TestServerBuilders.newInProcessBuilder();
+        if (builder == null) {
+            builder = instantiate("org.neo4j.harness.internal.InProcessServerBuilder");
         }
+        /*
+         The property "unsupported.dbms.jmx_module.enabled=false" disables JMX monitoring
+         We may start multiple instances of the server and without disabling this the 2nd instance would not start.
+         */
+        builder = builder.withConfig("unsupported.dbms.jmx_module.enabled", "false");
+        LOGGER.info("Creating new instance of {}", builder.getClass());
+        return builder;
+    }
+
+    private static TestServerBuilder instantiate(String className) {
+        TestServerBuilder builder = null;
+        try {
+            builder = ((TestServerBuilder) Class.forName(className)
+                .newInstance());
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            LOGGER.trace("Could not load {}", className, e);
+        }
+        return builder;
     }
 
     public void startServer() {
         try {
 
-		    /*
-              The property "unsupported.dbms.jmx_module.enabled=false" disables JMX monitoring
-		      We may start multiple instances of the server and without disabling this the 2nd instance would not start.
-		     */
             if (enableBolt) {
                 controls = newInProcessBuilder()
-                    .withConfig("unsupported.dbms.jmx_module.enabled", "false")
                     .withConfig("dbms.connector.bolt.type", "BOLT")
                     .withConfig("dbms.connector.bolt.enabled", "true")
                     .withConfig("dbms.connector.bolt.listen_address", "localhost:" + String.valueOf(port))
                     .newServer();
             } else {
                 controls = newInProcessBuilder()
-                    .withConfig("unsupported.dbms.jmx_module.enabled", "false")
                     .withConfig("dbms.connector.http.type", "HTTP")
                     .withConfig("dbms.connector.http.enabled", "true")
                     .withConfig("dbms.connector.http.listen_address", "localhost:" + String.valueOf(port))

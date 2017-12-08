@@ -88,6 +88,8 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
     public void setUp() throws Exception {
         service = getGraphDatabaseService();
 
+        service.execute("MATCH (n) DETACH DELETE n");
+
         if (isEnterpriseEdition() && isVersionOrGreater("3.2.0")) {
             indexes = ENTERPRISE_INDEXES;
             constraints = ENTERPRISE_CONSTRAINTS;

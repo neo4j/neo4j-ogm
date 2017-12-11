@@ -14,7 +14,9 @@
 package org.neo4j.ogm.session.request;
 
 import java.util.Map;
+import java.util.Optional;
 
+import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Statement;
 
 /**
@@ -23,6 +25,7 @@ import org.neo4j.ogm.request.Statement;
 public class RowDataStatement implements Statement {
 
     private String statement;
+    private OptimisticLockingConfig optimisticLockingConfig;
     private Map<String, Object> parameters;
     private String[] resultDataContents = new String[] { "row" };
 
@@ -32,6 +35,14 @@ public class RowDataStatement implements Statement {
     public RowDataStatement(String statement, Map<String, Object> parameters) {
         this.statement = statement;
         this.parameters = parameters;
+    }
+
+    public RowDataStatement(String statement, Map<String, Object> parameters,
+        OptimisticLockingConfig optimisticLockingConfig) {
+
+        this.statement = statement;
+        this.parameters = parameters;
+        this.optimisticLockingConfig = optimisticLockingConfig;
     }
 
     @Override
@@ -52,5 +63,10 @@ public class RowDataStatement implements Statement {
     @Override
     public boolean isIncludeStats() {
         return false;
+    }
+
+    @Override
+    public Optional<OptimisticLockingConfig> optimisticLockingConfig() {
+        return Optional.ofNullable(optimisticLockingConfig);
     }
 }

@@ -22,6 +22,7 @@ import java.util.Set;
 import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
 
@@ -29,7 +30,7 @@ import org.neo4j.ogm.request.StatementFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
+public class ExistingNodeStatementBuilder extends BaseBuilder implements CypherStatementBuilder {
 
     private final StatementFactory statementFactory;
 
@@ -52,6 +53,10 @@ public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
             queryBuilder.append("UNWIND {rows} as row ")
                 .append("MATCH (n) WHERE ID(n)=row.nodeId ");
 
+            if (firstNode.hasVersionProperty()) {
+                appendVersionPropertyCheck(queryBuilder, firstNode, "n");
+            }
+
             String[] removedLabels = firstNode.getRemovedLabels();
             if (removedLabels != null && removedLabels.length > 0) {
                 for (String label : removedLabels) {
@@ -71,13 +76,26 @@ public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
                 rowMap.put("nodeId", node.getId());
                 Map<String, Object> props = new HashMap<>();
                 for (Property property : node.getPropertyList()) {
-                    props.put((String) property.getKey(), property.getValue());
+                    // Don't include version property into props, it will be incremented by the query
+                    if (!property.equals(node.getVersion())) {
+                        props.put((String) property.getKey(), property.getValue());
+                    }
                 }
                 rowMap.put("props", props);
+                if (node.hasVersionProperty()) {
+                    Property version = node.getVersion();
+                    rowMap.put((String) version.getKey(), version.getValue());
+                }
                 rows.add(rowMap);
             }
             parameters.put("type", "node");
             parameters.put("rows", rows);
+
+            if (firstNode.hasVersionProperty()) {
+                OptimisticLockingConfig olConfig = new OptimisticLockingConfig(rows.size(),
+                    firstNode.getLabels(), firstNode.getVersion().getKey());
+                return statementFactory.statement(queryBuilder.toString(), parameters, olConfig);
+            }
         }
 
         return statementFactory.statement(queryBuilder.toString(), parameters);

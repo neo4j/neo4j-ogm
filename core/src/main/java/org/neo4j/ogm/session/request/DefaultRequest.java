@@ -13,7 +13,10 @@
 
 package org.neo4j.ogm.session.request;
 
+import java.util.Collections;
 import java.util.List;
+
+import javax.swing.plaf.nimbus.State;
 
 import org.neo4j.ogm.request.Statement;
 
@@ -23,6 +26,13 @@ import org.neo4j.ogm.request.Statement;
 public class DefaultRequest implements org.neo4j.ogm.request.DefaultRequest {
 
     List<Statement> statements;
+
+    public DefaultRequest() {
+    }
+
+    public DefaultRequest(Statement statement) {
+        this.statements = Collections.singletonList(statement);
+    }
 
     public List<Statement> getStatements() {
         return statements;

@@ -14,6 +14,7 @@
 package org.neo4j.ogm.request;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author vince
@@ -28,4 +29,11 @@ public interface Statement {
     String[] getResultDataContents();
 
     boolean isIncludeStats();
+
+    /**
+     * Number of expected results returned by execution of this statement
+     *
+     * @return number of expected results
+     */
+    Optional<OptimisticLockingConfig> optimisticLockingConfig();
 }

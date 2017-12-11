@@ -57,15 +57,17 @@ public class DefaultRelationshipBuilder implements RelationshipBuilder {
     }
 
     @Override
-    public void addProperty(String key, Object value) {
+    public RelationshipBuilder addProperty(String key, Object value) {
         relationship.getPropertyList().add(new PropertyModel<>(key, value));
+        return this;
     }
 
     @Override
-    public void addProperties(Map<String, ?> properties) {
+    public RelationshipBuilder addProperties(Map<String, ?> properties) {
         for (String key : properties.keySet()) {
             addProperty(key, properties.get(key));
         }
+        return this;
     }
 
     @Override
@@ -133,5 +135,11 @@ public class DefaultRelationshipBuilder implements RelationshipBuilder {
     @Override
     public void setPrimaryIdName(String primaryIdName) {
         relationship.setPrimaryIdName(primaryIdName);
+    }
+
+    @Override
+    public RelationshipBuilder setVersionProperty(String name, Long version) {
+        relationship.setVersion(new PropertyModel<>(name, version));
+        return this;
     }
 }

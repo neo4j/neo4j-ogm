@@ -31,6 +31,7 @@ import org.neo4j.ogm.model.Property;
 public class NodeModel implements Node {
 
     private Long id;
+    private Property<String, Long> version;
     private String[] labels;
     private String[] removedLabels;
     private List<Property<String, Object>> properties = new ArrayList<>();
@@ -62,6 +63,11 @@ public class NodeModel implements Node {
         return id;
     }
 
+    @Override
+    public Property<String, Long> getVersion() {
+        return version;
+    }
+
     public String[] getLabels() {
         return labels;
     }
@@ -73,6 +79,15 @@ public class NodeModel implements Node {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setVersion(Property<String, Long> version) {
+        this.version = version;
+    }
+
+    @Override
+    public boolean hasVersionProperty() {
+        return version != null;
     }
 
     public void setLabels(String[] labels) {

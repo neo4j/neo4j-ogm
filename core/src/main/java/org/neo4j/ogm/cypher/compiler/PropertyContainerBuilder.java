@@ -11,33 +11,22 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.model;
+package org.neo4j.ogm.cypher.compiler;
 
-import java.util.List;
+import java.util.Map;
+
+import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 
 /**
- * @author vince
+ * Interface to abstract setting properties on nodes/relationship entities
+ *
+ * @author Frantisek Hartman
  */
-public interface Edge extends PropertyContainer {
+public interface PropertyContainerBuilder<T> {
 
-    String getType();
+    T addProperty(String key, Object value);
 
-    Long getStartNode();
+    T addProperties(Map<String, ?> properties);
 
-    Long getEndNode();
-
-    Long getId();
-
-    List<Property<String, Object>> getPropertyList();
-
-    /**
-     * Returns name of the primary id property (property annotated with @Id)
-     */
-    String getPrimaryIdName();
-
-    /**
-     * Returns if the relationship entity has version property
-     */
-    boolean hasVersionProperty();
-
+    T setVersionProperty(String name, Long version);
 }

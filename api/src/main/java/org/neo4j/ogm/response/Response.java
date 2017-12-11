@@ -13,12 +13,32 @@
 
 package org.neo4j.ogm.response;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Vince Bickers
  */
 public interface Response<T> extends AutoCloseable {
 
     T next();
+
+    /**
+     * Convert remaining items in this response to list
+     *
+     * This might be used to materialize whole response for checking number of results, allowing to close transaction
+     * etc.
+     *
+     * Doesn't call {@link #close()}.
+     */
+    default List<T> toList() {
+        ArrayList<T> models = new ArrayList<>();
+        T model;
+        while ((model = next()) != null) {
+            models.add(model);
+        }
+        return models;
+    }
 
     void close();
 

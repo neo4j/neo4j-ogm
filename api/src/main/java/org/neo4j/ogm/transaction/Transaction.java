@@ -29,6 +29,13 @@ public interface Transaction extends AutoCloseable {
     void commit();
 
     /**
+     * If this transaction can be committed
+     *
+     * @return true if this transaction can be committed
+     */
+    boolean canCommit();
+
+    /**
      * return the status of the current transaction
      *
      * @return the Status value associated with the current transaction

@@ -101,7 +101,7 @@ public class MultiStatementCypherCompiler implements Compiler {
     }
 
     @Override
-    public void unrelate(Long startNode, String relationshipType, Long endNode, Long relId) {
+    public RelationshipBuilder unrelate(Long startNode, String relationshipType, Long endNode, Long relId) {
         RelationshipBuilder relationshipBuilder = new DefaultRelationshipBuilder(relationshipType, relId);
         relationshipBuilder.relate(startNode, endNode);
         if (!unmap(relationshipBuilder)) {
@@ -111,6 +111,7 @@ public class MultiStatementCypherCompiler implements Compiler {
                 deletedRelationshipBuilders.add(relationshipBuilder);
             }
         }
+        return relationshipBuilder;
     }
 
     @Override

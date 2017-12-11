@@ -50,6 +50,7 @@ import org.neo4j.ogm.session.delegates.LoadOneDelegate;
 import org.neo4j.ogm.session.delegates.SaveDelegate;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
+import org.neo4j.ogm.session.request.OptimisticLockingChecker;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
@@ -443,11 +444,6 @@ public class Neo4jSession implements Session {
         deleteDelegate.purgeDatabase();
     }
 
-    @Override // Why is this here?
-    public void clear() {
-        deleteDelegate.clear();
-    }
-
     @Override
     public <T> void delete(T object) {
         deleteDelegate.delete(object);
@@ -604,8 +600,17 @@ public class Neo4jSession implements Session {
         return mappingContext;
     }
 
+    public OptimisticLockingChecker optimisticLockingChecker() {
+        return new OptimisticLockingChecker(this);
+    }
+
     public MetaData metaData() {
         return metaData;
+    }
+
+    @Override
+    public void clear() {
+        mappingContext.clear();
     }
 
     @Deprecated

@@ -17,6 +17,8 @@ import java.util.Collection;
 
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.request.Statement;
 
 /**
  * @author Vince Bickers
@@ -31,6 +33,17 @@ public interface DeleteStatements {
      * @return a {@link CypherQuery}
      */
     CypherQuery delete(Long id);
+
+    /**
+     * Construct a query to delete a single object with given id, check for object's version
+     *
+     * @param id  the id of the object
+     * @param object object
+     * @param classInfo
+     *
+     * @return a {@link CypherQuery}
+     */
+    CypherQuery delete(Long id, Object object, ClassInfo classInfo);
 
     /**
      * construct a query to delete all objects

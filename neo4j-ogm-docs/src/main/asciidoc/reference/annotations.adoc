@@ -454,6 +454,39 @@ The stragety class can either supply no argument constructor - in which case OGM
 For situations where some external context is needed an externally created instance can be registered with SessionFactory by using
 `SessionFactory.register(IdStrategy)`.
 
+[[reference:annotating-entities:version]]
+== Optimistic locking with @Version annotation
+
+Optimistic locking is supported by OGM to provide concurrency control.
+To use optimistic locking define a field annotated with `@Version` annotation.
+The field is then managed by OGM and used to perform optimistic locking checks when updating entities.
+The type of the field must be `Long` and an entity may contain only one such field.
+
+Typical scenario where optimistic locking is used then looks like follows:
+
+* new object is created, version field contains `null` value
+* when the object is saved the version field is set to 0 by OGM
+* when a modified object is saved the version provided in the object is checked against a version in the database
+during the update, if successful then the version is incremented both in the object and in the database
+* if another transaction modified the object in the meantime (and therefore incremented the version)
+then this is detected and an `OptimisticLockingException` is thrown
+
+Optimistic locking check is performed for
+
+* updating properties of nodes and relationship entities
+* deleting nodes via `Session.delete(T)`
+* deleting relationship entities via `Session.delete(T)`
+* deleting relationship entities detected through `Session.save(T)`
+
+When an optimistic locking failure happens following operations are performed on the Session:
+
+* object which failed the optimistic locking check is removed from the context so it can be reloaded
+* in case a default transaction is used it is rolled back
+* in case a manual transaction is used then it is *not* rolled back, but because the update may contain multiple
+statements which are checked eagerly it is not defined what updates were actually performed in the database and it is
+advised to rollback the transaction. If you know you updates consists of single modification you may however choose to
+reload the object and continue the transaction.
+
 [[reference:annotating-entities:property]]
 == @Property: Optional annotation for property fields
 

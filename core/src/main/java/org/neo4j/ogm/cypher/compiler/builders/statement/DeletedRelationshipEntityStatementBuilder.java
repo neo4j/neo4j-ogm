@@ -21,6 +21,8 @@ import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Edge;
+import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
 
@@ -28,7 +30,7 @@ import org.neo4j.ogm.request.StatementFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class DeletedRelationshipEntityStatementBuilder implements CypherStatementBuilder {
+public class DeletedRelationshipEntityStatementBuilder extends BaseBuilder implements CypherStatementBuilder {
 
     private final StatementFactory statementFactory;
 
@@ -45,21 +47,36 @@ public class DeletedRelationshipEntityStatementBuilder implements CypherStatemen
         final Map<String, Object> parameters = new HashMap<>();
         final StringBuilder queryBuilder = new StringBuilder();
 
+        Edge firstEdge = deletedEdges.iterator().next();
         if (deletedEdges != null && deletedEdges.size() > 0) {
 
-            queryBuilder.append("MATCH ()-[r]-() WHERE ID(r) IN {relIds} DELETE r");
+            queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]-() WHERE ID(r) = row.relId ");
 
-            List<Long> relIds = new ArrayList<>(deletedEdges.size());
+            if (firstEdge.hasVersionProperty()) {
+                appendVersionPropertyCheck(queryBuilder, firstEdge, "r");
+            }
+            queryBuilder.append("DELETE r RETURN ID(r) as ref, ID(r) as id, {type} as type");
+
             List<Map> rows = new ArrayList<>();
             for (Edge edge : deletedEdges) {
                 Map<String, Object> rowMap = new HashMap<>();
                 rowMap.put("relId", edge.getId());
+                if (edge.hasVersionProperty()) {
+                    Property version = edge.getVersion();
+                    rowMap.put((String) version.getKey(), version.getValue());
+                }
                 rows.add(rowMap);
-                relIds.add(edge.getId());
             }
             parameters.put("rows", rows);
-            parameters.put("relIds", relIds);
+            parameters.put("type", "rel");
+
+            if (firstEdge.hasVersionProperty()) {
+                OptimisticLockingConfig olConfig = new OptimisticLockingConfig(rows.size(),
+                    new String[] { firstEdge.getType() }, firstEdge.getVersion().getKey());
+                return statementFactory.statement(queryBuilder.toString(), parameters, olConfig);
+            }
         }
+
         return statementFactory.statement(queryBuilder.toString(), parameters);
     }
 }

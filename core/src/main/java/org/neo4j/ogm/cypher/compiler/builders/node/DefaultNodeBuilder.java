@@ -94,4 +94,11 @@ public class DefaultNodeBuilder implements NodeBuilder {
         node.setPrimaryIndex(primaryIndexField);
         return this;
     }
+
+    @Override
+    public NodeBuilder setVersionProperty(String name, Long version) {
+        node.setVersion(new PropertyModel<>(name, version));
+        return this;
+    }
+
 }

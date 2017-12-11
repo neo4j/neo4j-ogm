@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -44,6 +45,7 @@ import org.neo4j.ogm.drivers.http.request.HttpRequestException;
 import org.neo4j.ogm.drivers.http.transaction.HttpTransaction;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.request.DefaultRequest;
+import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.transaction.Transaction;
@@ -275,6 +277,11 @@ public final class HttpDriver extends AbstractConfigurableDriver {
                 @Override
                 public boolean isIncludeStats() {
                     return false;
+                }
+
+                @Override
+                public Optional<OptimisticLockingConfig> optimisticLockingConfig() {
+                    return Optional.empty();
                 }
             });
         }

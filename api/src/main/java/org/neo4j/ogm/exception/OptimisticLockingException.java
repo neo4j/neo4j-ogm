@@ -11,33 +11,20 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.model;
-
-import java.util.List;
+package org.neo4j.ogm.exception;
 
 /**
- * @author vince
+ * Exception from OGM that signifies an optimistic locking failure
  */
-public interface Edge extends PropertyContainer {
-
-    String getType();
-
-    Long getStartNode();
-
-    Long getEndNode();
-
-    Long getId();
-
-    List<Property<String, Object>> getPropertyList();
+public class OptimisticLockingException extends RuntimeException {
 
     /**
-     * Returns name of the primary id property (property annotated with @Id)
+     * Create exception with given message
+     *
+     * @param message message
      */
-    String getPrimaryIdName();
-
-    /**
-     * Returns if the relationship entity has version property
-     */
-    boolean hasVersionProperty();
+    public OptimisticLockingException(String message) {
+        super(message);
+    }
 
 }

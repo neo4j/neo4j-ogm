@@ -19,13 +19,14 @@ import java.util.List;
  * @author Vince Bickers
  * @author Mark Angrish
  */
-public interface Node {
+public interface Node extends PropertyContainer {
 
     String[] getLabels();
 
     String[] getRemovedLabels();
 
     Long getId();
+
 
     List<Property<String, Object>> getPropertyList();
 
@@ -35,5 +36,17 @@ public interface Node {
      * Returns "label signature" for this node - added and removed labels, sorted alphabetically
      */
     String labelSignature();
+
+    /**
+     * Returns if the node has version property
+     */
+    boolean hasVersionProperty();
+
+    /**
+     * Return current version of the node, null if the node is new
+     *
+     * @return version property with current version
+     */
+    Property<String, Long> getVersion();
 
 }

@@ -14,7 +14,9 @@
 package org.neo4j.ogm.cypher.query;
 
 import java.util.Map;
+import java.util.Optional;
 
+import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.RowModelRequest;
 
 /**
@@ -23,13 +25,26 @@ import org.neo4j.ogm.request.RowModelRequest;
 public class DefaultRowModelRequest extends CypherQuery implements RowModelRequest {
 
     private final static String[] resultDataContents = new String[] { "row" };
+    private OptimisticLockingConfig optimisticLockingConfig;
 
     public DefaultRowModelRequest(String cypher, Map<String, ?> parameters) {
+        this(cypher, parameters, null);
+    }
+
+    public DefaultRowModelRequest(String cypher, Map<String, ?> parameters,
+        OptimisticLockingConfig optimisticLockingConfig) {
+
         super(cypher, parameters);
+        this.optimisticLockingConfig = optimisticLockingConfig;
     }
 
     // used by object mapper
     public String[] getResultDataContents() {
         return resultDataContents;
+    }
+
+    @Override
+    public Optional<OptimisticLockingConfig> optimisticLockingConfig() {
+        return Optional.ofNullable(optimisticLockingConfig);
     }
 }

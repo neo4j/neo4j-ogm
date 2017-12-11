@@ -68,13 +68,12 @@ public interface Compiler {
 
     /**
      * Defines a relationship deletion between the specified start node to end node with the given relationship type and direction.
-     *
-     * @param startNode        The reference of the relationship start node
+     *  @param startNode        The reference of the relationship start node
      * @param relationshipType The type of relationship between the nodes to delete
      * @param endNode          The reference of the relationship end node
      * @param relId            The id of the relationship to unrelate
      */
-    void unrelate(Long startNode, String relationshipType, Long endNode, Long relId);
+    RelationshipBuilder unrelate(Long startNode, String relationshipType, Long endNode, Long relId);
 
     /**
      * Remove a {@link NodeBuilder}

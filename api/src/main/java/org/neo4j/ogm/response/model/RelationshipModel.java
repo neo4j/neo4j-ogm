@@ -26,6 +26,7 @@ import org.neo4j.ogm.model.Property;
 public class RelationshipModel implements Edge {
 
     private Long id;
+    private Property<String, Long> version;
     private String type;
     private Long startNode;
     private Long endNode;
@@ -38,6 +39,19 @@ public class RelationshipModel implements Edge {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Property<String, Long> getVersion() {
+        return version;
+    }
+
+    public void setVersion(Property<String, Long> version) {
+        this.version = version;
+    }
+
+    @Override
+    public boolean hasVersionProperty() {
+        return version != null;
     }
 
     public String getType() {

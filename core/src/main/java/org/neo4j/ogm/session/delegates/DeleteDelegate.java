@@ -104,7 +104,7 @@ public class DeleteDelegate {
 
                 Long identity = session.context().nativeId(object);
                 if (identity >= 0) {
-                    Statement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
+                    Statement request = getDeleteStatement(object, identity, classInfo);
                     if (session.eventsEnabled()) {
                         if (!notified.contains(object)) {
                             session.notifyListeners(new PersistenceEvent(object, Event.TYPE.PRE_DELETE));
@@ -114,6 +114,12 @@ public class DeleteDelegate {
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
                     session.doInTransaction( () -> {
                         try (Response<RowModel> response = session.requestHandler().execute(query)) {
+
+                            if (request.optimisticLockingConfig().isPresent()) {
+                                List<RowModel> rowModels = response.toList();
+                                session.optimisticLockingChecker().checkResultsCount(rowModels, request);
+                            }
+
                             if (session.metaData().isRelationshipEntity(classInfo.name())) {
                                 session.detachRelationshipEntity(identity);
                             } else {
@@ -140,6 +146,18 @@ public class DeleteDelegate {
                 }
             }
         }
+    }
+
+    private Statement getDeleteStatement(Object object, Long identity, ClassInfo classInfo) {
+        DeleteStatements deleteStatements = getDeleteStatementsBasedOnType(object.getClass());
+
+        Statement request;
+        if (classInfo.hasVersionField()) {
+            request = deleteStatements.delete(identity, object, classInfo);
+        } else{
+            request = deleteStatements.delete(identity);
+        }
+        return request;
     }
 
     public <T> void deleteAll(Class<T> type) {

@@ -15,6 +15,7 @@ package org.neo4j.ogm.context;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -23,6 +24,7 @@ import org.neo4j.ogm.cypher.compiler.CompileContext;
 import org.neo4j.ogm.cypher.compiler.Compiler;
 import org.neo4j.ogm.cypher.compiler.MultiStatementCypherCompiler;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
+import org.neo4j.ogm.cypher.compiler.PropertyContainerBuilder;
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
@@ -159,8 +161,20 @@ public class EntityGraphMapper implements EntityMapper {
                 LOGGER.debug("context-del: {}", mappedRelationship);
 
                 // tell the compiler to prepare a statement that will delete the relationship from the graph
-                compiler.unrelate(mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(),
-                    mappedRelationship.getEndNodeId(), mappedRelationship.getRelationshipId());
+                RelationshipBuilder builder = compiler.unrelate(
+                    mappedRelationship.getStartNodeId(),
+                    mappedRelationship.getRelationshipType(),
+                    mappedRelationship.getEndNodeId(),
+                    mappedRelationship.getRelationshipId());
+
+                Object entity = mappingContext.getRelationshipEntity(mappedRelationship.getRelationshipId());
+                if (entity != null) {
+                    ClassInfo classInfo = metaData.classInfo(entity);
+                    if (classInfo.hasVersionField()) {
+                        FieldInfo field = classInfo.getVersionField();
+                        builder.setVersionProperty(field.propertyName(), (Long) field.read(entity));
+                    }
+                }
 
                 // remove all nodes that are referenced by this relationship in the mapping context
                 // this will ensure that stale versions of these objects don't exist
@@ -241,14 +255,7 @@ public class EntityGraphMapper implements EntityMapper {
             LOGGER.debug("{} has changed", entity);
             context.register(entity);
             ClassInfo classInfo = metaData.classInfo(entity);
-            Collection<FieldInfo> propertyReaders = classInfo.propertyFields();
-            for (FieldInfo propertyReader : propertyReaders) {
-                if (propertyReader.isComposite()) {
-                    nodeBuilder.addProperties(propertyReader.readComposite(entity));
-                } else {
-                    nodeBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(entity));
-                }
-            }
+            updateFieldsOnBuilder(entity, nodeBuilder, classInfo);
         } else {
             context.deregister(nodeBuilder);
             LOGGER.debug("{}, has not changed", entity);
@@ -652,14 +659,33 @@ public class EntityGraphMapper implements EntityMapper {
             context.registerNewObject(reIdentity, relationshipEntity);
         }
 
-        for (FieldInfo propertyReader : relEntityClassInfo.propertyFields()) {
-            if (propertyReader.isComposite()) {
-                relationshipBuilder.addProperties(propertyReader.readComposite(relationshipEntity));
+        updateFieldsOnBuilder(relationshipEntity, relationshipBuilder, relEntityClassInfo);
+    }
+
+    private <T> void updateFieldsOnBuilder(Object entity, PropertyContainerBuilder<T> builder, ClassInfo classInfo) {
+        for (FieldInfo fieldInfo : classInfo.propertyFields()) {
+            if (fieldInfo.isComposite()) {
+                Map<String, ?> properties = fieldInfo.readComposite(entity);
+                builder.addProperties(properties);
+            } else if (fieldInfo.isVersionField()) {
+                updateVersionField(entity, builder, fieldInfo);
             } else {
-                relationshipBuilder
-                    .addProperty(propertyReader.propertyName(), propertyReader.readProperty(relationshipEntity));
+                builder.addProperty(fieldInfo.propertyName(), fieldInfo.readProperty(entity));
             }
         }
+    }
+
+    private <T> void updateVersionField(Object entity, PropertyContainerBuilder<T> builder, FieldInfo fieldInfo) {
+        Long version = (Long) fieldInfo.readProperty(entity);
+        builder.setVersionProperty(fieldInfo.propertyName(), version);
+
+        if (version == null) {
+            version = 0L;
+        } else {
+            version = version + 1;
+        }
+        fieldInfo.writeDirect(entity, version);
+        builder.addProperty(fieldInfo.propertyName(), version);
     }
 
     private Object getStartEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {

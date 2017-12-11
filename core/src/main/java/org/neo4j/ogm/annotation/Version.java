@@ -11,33 +11,19 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.model;
+package org.neo4j.ogm.annotation;
 
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author vince
+ * Tells OGM to use a property as a version field to implement optimistic locking on entities
+ *
+ * @author Frantisek Hartman
  */
-public interface Edge extends PropertyContainer {
-
-    String getType();
-
-    Long getStartNode();
-
-    Long getEndNode();
-
-    Long getId();
-
-    List<Property<String, Object>> getPropertyList();
-
-    /**
-     * Returns name of the primary id property (property annotated with @Id)
-     */
-    String getPrimaryIdName();
-
-    /**
-     * Returns if the relationship entity has version property
-     */
-    boolean hasVersionProperty();
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface Version {
 }

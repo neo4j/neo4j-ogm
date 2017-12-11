@@ -210,12 +210,7 @@ public class DomainInfo {
 
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             classInfo.primaryIndexField();
-            /*if (classInfo.primaryIndexField() == null && classInfo.identityField() == null &&
-                    !classInfo.isInterface()) {
-                throw new MetadataException("No id field found for " + classInfo.name() + " , provide either "
-                        + "natural or native id field.");
-            }*/
-
+            classInfo.getVersionField();
         }
         LOGGER.info("Post-processing complete");
     }

@@ -22,6 +22,7 @@ import java.util.Set;
 import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
 
@@ -29,7 +30,7 @@ import org.neo4j.ogm.request.StatementFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class ExistingRelationshipStatementBuilder implements CypherStatementBuilder {
+public class ExistingRelationshipStatementBuilder extends BaseBuilder implements CypherStatementBuilder {
 
     private final StatementFactory statementFactory;
 
@@ -45,8 +46,15 @@ public class ExistingRelationshipStatementBuilder implements CypherStatementBuil
         final Map<String, Object> parameters = new HashMap<>();
         final StringBuilder queryBuilder = new StringBuilder();
 
+        Edge firstEdge = edges.iterator().next();
         if (edges.size() > 0) {
-            queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]-() WHERE ID(r) = row.relId SET r += row.props ");
+            queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]-() WHERE ID(r) = row.relId ");
+
+            if (firstEdge.hasVersionProperty()) {
+                appendVersionPropertyCheck(queryBuilder, firstEdge, "r");
+            }
+
+            queryBuilder.append("SET r += row.props ");
             queryBuilder.append("RETURN ID(r) as ref, ID(r) as id, {type} as type");
             List<Map> rows = new ArrayList<>();
             for (Edge edge : edges) {
@@ -54,13 +62,25 @@ public class ExistingRelationshipStatementBuilder implements CypherStatementBuil
                 rowMap.put("relId", edge.getId());
                 Map<String, Object> props = new HashMap<>();
                 for (Property property : edge.getPropertyList()) {
-                    props.put((String) property.getKey(), property.getValue());
+                    if (!property.equals(edge.getVersion())) {
+                        props.put((String) property.getKey(), property.getValue());
+                    }
                 }
                 rowMap.put("props", props);
+                if (edge.hasVersionProperty()) {
+                    Property version = edge.getVersion();
+                    rowMap.put((String) version.getKey(), version.getValue());
+                }
                 rows.add(rowMap);
             }
             parameters.put("rows", rows);
             parameters.put("type", "rel");
+            if (firstEdge.hasVersionProperty()) {
+                OptimisticLockingConfig olConfig = new OptimisticLockingConfig(rows.size(),
+                    new String[] { firstEdge.getType() }, firstEdge.getVersion().getKey());
+                return statementFactory.statement(queryBuilder.toString(), parameters, olConfig);
+            }
+
         }
 
         return statementFactory.statement(queryBuilder.toString(), parameters);

@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import java.util.Map;
-
 import org.neo4j.ogm.model.Edge;
 
 /**
@@ -22,15 +20,11 @@ import org.neo4j.ogm.model.Edge;
  *
  * @author Luanne Misquitta
  */
-public interface RelationshipBuilder {
+public interface RelationshipBuilder extends PropertyContainerBuilder<RelationshipBuilder> {
 
     Long reference();
 
     void setReference(Long reference);
-
-    void addProperty(String key, Object value);
-
-    void addProperties(Map<String, ?> properties);
 
     String type();
 
@@ -57,4 +51,5 @@ public interface RelationshipBuilder {
     Edge edge();
 
     void setPrimaryIdName(String primaryIdName);
+
 }

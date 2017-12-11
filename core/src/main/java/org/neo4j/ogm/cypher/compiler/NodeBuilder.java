@@ -24,13 +24,9 @@ import org.neo4j.ogm.model.Node;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public interface NodeBuilder {
+public interface NodeBuilder extends PropertyContainerBuilder<NodeBuilder> {
 
     Long reference();
-
-    NodeBuilder addProperty(String key, Object value);
-
-    NodeBuilder addProperties(Map<String, ?> properties);
 
     NodeBuilder addLabels(Collection<String> labels);
 
@@ -41,4 +37,5 @@ public interface NodeBuilder {
     Node node();
 
     NodeBuilder setPrimaryIndex(String primaryIndexField);
+
 }

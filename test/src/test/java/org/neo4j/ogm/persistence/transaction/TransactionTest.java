@@ -159,4 +159,24 @@ public class TransactionTest extends MultiDriverTestClass {
             assertThat(tx2.isReadOnly()).isFalse();
         }
     }
+
+    @Test
+    public void defaultTransactionShouldWorkAfterManagedTransaction() {
+        Transaction tx = session.beginTransaction();
+        Studio emi = new Studio("EMI Studios, London");
+        session.save(emi);
+
+        tx.commit();
+        tx.close();
+
+        session.purgeDatabase();
+    }
+
+    @Test
+    public void defaultTransactionShouldWorkAfterDefaultTransaction() {
+        Studio emi = new Studio("EMI Studios, London");
+        session.save(emi);
+
+        session.purgeDatabase();
+    }
 }

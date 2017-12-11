@@ -11,33 +11,22 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.model;
+package org.neo4j.ogm.domain.lockinginvalid;
 
-import java.util.List;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Version;
 
 /**
- * @author vince
+ * @author Frantisek Hartman
  */
-public interface Edge extends PropertyContainer {
+@NodeEntity
+public class MultipleVersionFields {
 
-    String getType();
+    Long id;
 
-    Long getStartNode();
+    @Version
+    Long version;
 
-    Long getEndNode();
-
-    Long getId();
-
-    List<Property<String, Object>> getPropertyList();
-
-    /**
-     * Returns name of the primary id property (property annotated with @Id)
-     */
-    String getPrimaryIdName();
-
-    /**
-     * Returns if the relationship entity has version property
-     */
-    boolean hasVersionProperty();
-
+    @Version
+    Long anotherVersion;
 }

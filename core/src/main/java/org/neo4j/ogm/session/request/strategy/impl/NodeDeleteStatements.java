@@ -17,6 +17,9 @@ import java.util.Collection;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
@@ -32,6 +35,27 @@ public class NodeDeleteStatements implements DeleteStatements {
     public CypherQuery delete(Long id) {
         return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n",
             Utils.map("id", id));
+    }
+
+    @Override
+    public CypherQuery delete(Long id, Object object, ClassInfo classInfo) {
+        FieldInfo versionField = classInfo.getVersionField();
+        Long version = (Long) versionField.read(object);
+        OptimisticLockingConfig optimisticLockingConfig = new OptimisticLockingConfig(1,
+            classInfo.staticLabels().toArray(new String[] {}), versionField.property());
+
+        return new DefaultRowModelRequest("MATCH (n) "
+            + "  WHERE id(n) = {id} AND n.`" + versionField.property() + "` = {version} "
+            + "SET "
+            + " n.`" + versionField.property() + "` = n.`" + versionField.property() + "` + 1 "
+            + "WITH n "
+            + " WHERE n.`" + versionField.property() + "` = {version} + 1 "
+            + "OPTIONAL MATCH (n)-[r0]-() "
+            + "DELETE r0, n "
+            + "RETURN DISTINCT id(n) AS id", // Use DISTINCT because node may have multiple relationships
+            Utils.map("id", id, "version", version, "type", "node"),
+            optimisticLockingConfig);
+
     }
 
     @Override

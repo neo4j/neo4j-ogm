@@ -15,7 +15,9 @@ package org.neo4j.ogm.cypher.query;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
+import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Statement;
 
 /**
@@ -60,4 +62,10 @@ public class CypherQuery implements Statement {
         return false;
     }
 
+    // ** By default queries/statements are not checked for results, only DefaultRowModelRequest is
+
+    @Override
+    public Optional<OptimisticLockingConfig> optimisticLockingConfig() {
+        return Optional.empty();
+    }
 }

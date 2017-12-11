@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,6 +84,7 @@ public class ClassInfo {
     private volatile Collection<FieldInfo> requiredFields;
     private volatile Collection<CompositeIndex> compositeIndexes;
     private volatile LazyInstance<FieldInfo> identityField;
+    private volatile LazyInstance<FieldInfo> versionField;
     private volatile FieldInfo primaryIndexField = null;
     private volatile FieldInfo labelField = null;
     private volatile boolean labelFieldMapped = false;
@@ -1059,6 +1061,36 @@ public class ClassInfo {
             }
         }
         return requiredFields;
+    }
+
+    public boolean hasVersionField() {
+        initVersionField();
+        return versionField.exists();
+    }
+
+    public FieldInfo getVersionField() {
+        initVersionField();
+        return versionField.get();
+    }
+
+    private void initVersionField() {
+        if (versionField == null) {
+            versionField = new LazyInstance<>(() -> {
+                Collection<FieldInfo> fields = getFieldInfos(FieldInfo::isVersionField);
+
+                if (fields.size() > 1) {
+                    throw new MetadataException("Only one version field is allowed, found " + fields);
+                }
+
+                Iterator<FieldInfo> iterator = fields.iterator();
+                if (iterator.hasNext()) {
+                    return iterator.next();
+                } else {
+                    // cache that there is no version field
+                    return null;
+                }
+            });
+        }
     }
 }
 

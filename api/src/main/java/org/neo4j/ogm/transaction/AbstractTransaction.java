@@ -78,7 +78,7 @@ public abstract class AbstractTransaction implements Transaction {
         logger.debug("Thread {}: Commit transaction extent: {}", Thread.currentThread().getId(), extensions);
 
         if (extensions == 0) {
-            if (status == Status.OPEN || status == Status.PENDING || status == Status.COMMIT_PENDING) {
+            if (canCommit()) {
                 if (transactionManager != null) {
                     transactionManager.commit(this);
                     status = Status.COMMITTED;
@@ -95,6 +95,11 @@ public abstract class AbstractTransaction implements Transaction {
                 status = Status.COMMIT_PENDING;
             }
         }
+    }
+
+    @Override
+    public boolean canCommit() {
+        return status == Status.OPEN || status == Status.PENDING || status == Status.COMMIT_PENDING;
     }
 
     /**

@@ -48,7 +48,7 @@ public class DeletedRelationshipStatementBuilder implements CypherStatementBuild
             Edge firstEdge = deletedEdges.iterator().next();
 
             queryBuilder.append("UNWIND {rows} as row ")
-                .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
+                .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode ")
                 .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ")
                 .append("MATCH (startNode)-[rel:`").append(firstEdge.getType()).append("`]->(endNode) ")
                 .append("DELETE rel");

@@ -56,7 +56,7 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
             boolean hasPrimaryId = firstEdge.getPrimaryIdName() != null;
 
             queryBuilder.append("UNWIND {rows} as row ")
-                .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
+                .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode ")
                 .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ");
 
             if (hasProperties && !hasPrimaryId) {

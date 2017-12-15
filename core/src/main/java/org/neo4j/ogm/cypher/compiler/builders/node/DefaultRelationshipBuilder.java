@@ -19,6 +19,7 @@ import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.response.model.PropertyModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
+import org.neo4j.ogm.utils.EntityUtils;
 
 /**
  * @author Luanne Misquitta
@@ -33,13 +34,13 @@ public class DefaultRelationshipBuilder implements RelationshipBuilder {
 
     public DefaultRelationshipBuilder(String type, boolean bidirectional) {
         relationship.setType(type);
-        relationship.setId((long) -System.identityHashCode(relationship));
+        relationship.setId(EntityUtils.nextRef());
         this.bidirectional = bidirectional;
     }
 
     public DefaultRelationshipBuilder(String type, Long relationshipId) {
         if (relationshipId == null) {
-            relationshipId = (long) -System.identityHashCode(relationship);
+            relationshipId = EntityUtils.nextRef();
         }
         relationship.setId(relationshipId);
         relationship.setType(type);

@@ -10,6 +10,7 @@ import org.neo4j.ogm.domain.autoindex.CompositeIndexChild;
 import org.neo4j.ogm.domain.autoindex.CompositeIndexEntity;
 import org.neo4j.ogm.domain.autoindex.MultipleCompositeIndexEntity;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.session.SessionFactory;
 
 /**
  * @author Frantisek Hartman
@@ -68,5 +69,10 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
             executeDrop("INDEX ON :Entity(name, age)");
             executeDrop("INDEX ON :Entity(name, email)");
         }
+    }
+
+    @Test
+    public void shouldSupportScanningNonEntityPackages() {
+        new SessionFactory(CompositeIndexAutoIndexManagerTest.class.getName());
     }
 }

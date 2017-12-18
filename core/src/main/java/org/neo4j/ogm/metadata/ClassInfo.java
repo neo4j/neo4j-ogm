@@ -856,6 +856,13 @@ public class ClassInfo {
         // init property fields to be able to check existence of properties
         propertyFields();
 
+        if (cls == null) {
+            try {
+                cls = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Could not get annotation info for class " + className, e);
+            }
+        }
         CompositeIndex[] annotations = cls.getDeclaredAnnotationsByType(CompositeIndex.class);
         ArrayList<CompositeIndex> result = new ArrayList<>(annotations.length);
 

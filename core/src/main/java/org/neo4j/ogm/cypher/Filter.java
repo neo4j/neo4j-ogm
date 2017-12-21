@@ -168,6 +168,27 @@ public class Filter {
     }
 
     /**
+     * Convenience method to chain filters using {@link BooleanOperator#AND}.
+     * @param filter to be chained
+     * @return new {@link Filters} object containing both filters.
+     */
+
+    public Filters and(Filter filter) {
+        filter.setBooleanOperator(BooleanOperator.AND);
+        return new Filters(this, filter);
+    }
+
+    /**
+     * Convenience method to chain filters using {@link BooleanOperator#OR}.
+     * @param filter to be chained.
+     * @return new {@link Filters} object containing both filters.
+     */
+    public Filters or(Filter filter) {
+        filter.setBooleanOperator(BooleanOperator.OR);
+        return new Filters(this, filter);
+    }
+
+    /**
      * @return <code>true</code> if this filter expression is to be negated when it's appended to the query, <code>false</code>
      * if not
      */

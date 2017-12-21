@@ -15,6 +15,8 @@ package org.neo4j.ogm.cypher;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Iterator;
+
 import org.junit.Test;
 import org.neo4j.ogm.cypher.function.ContainsAnyComparison;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
@@ -47,5 +49,31 @@ public class FilterTest {
             .isEqualTo("WHERE ANY(collectionFields IN {`property_0`} WHERE collectionFields in n.`property`) ");
         assertThat(filter.parameters().get("property_0")).isEqualTo("test");
 
+    }
+
+    @Test
+    public void joinFiltersWithAndMethod() {
+        Filter filter1 = new Filter("property1", ComparisonOperator.EQUALS, "value1");
+        Filter filter2 = new Filter("property2", ComparisonOperator.EQUALS, "value2");
+
+        Filters andFilter = filter1.and(filter2);
+
+        assertThat(filter2.getBooleanOperator()).isEqualTo(BooleanOperator.AND);
+        Iterator<Filter> iterator = andFilter.iterator();
+        assertThat(iterator.next()).isEqualTo(filter1);
+        assertThat(iterator.next()).isEqualTo(filter2);
+    }
+
+    @Test
+    public void joinFiltersWithOrMethod() {
+        Filter filter1 = new Filter("property1", ComparisonOperator.EQUALS, "value1");
+        Filter filter2 = new Filter("property2", ComparisonOperator.EQUALS, "value2");
+
+        Filters andFilter = filter1.or(filter2);
+
+        assertThat(filter2.getBooleanOperator()).isEqualTo(BooleanOperator.OR);
+        Iterator<Filter> iterator = andFilter.iterator();
+        assertThat(iterator.next()).isEqualTo(filter1);
+        assertThat(iterator.next()).isEqualTo(filter2);
     }
 }

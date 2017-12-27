@@ -77,7 +77,8 @@ public class LoadOneDelegate {
 
         return session.doInTransaction( () -> {
             try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+                new GraphEntityMapper(session.metaData(), session.context(), session.getEntityInstantiator())
+                    .map(type, response);
                 return lookup(type, id);
             }
         }, Transaction.Type.READ_ONLY);

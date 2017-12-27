@@ -11,7 +11,6 @@
 
 package org.neo4j.ogm.metadata.reflect;
 
-import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,27 +19,32 @@ import org.neo4j.ogm.exception.core.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;
+import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.session.EntityInstantiator;
 
 /**
  * A metadata-driven factory class for creating node and relationship entities.
  *
  * @author Adam George
+ * @author Nicolas Mervaillie
  */
 public class EntityFactory {
 
     private final Map<String, String> taxaLeafClass = new HashMap<>();
 
     private final MetaData metadata;
+    private EntityInstantiator entityInstantiator;
 
     /**
      * Constructs a new {@link EntityFactory} driven by the specified {@link MetaData}.
      *
      * @param metadata The mapping {@link MetaData}
+     * @param entityInstantiator The instantiation mechanism to be used.
      */
-    public EntityFactory(MetaData metadata) {
+    public EntityFactory(MetaData metadata, EntityInstantiator entityInstantiator) {
         this.metadata = metadata;
+        this.entityInstantiator = entityInstantiator;
     }
 
     /**
@@ -54,31 +58,12 @@ public class EntityFactory {
      * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
      */
     public <T> T newObject(Node nodeModel) {
-        return instantiateObjectFromTaxa(nodeModel.getLabels());
-    }
+        Map<String, Object> map = new HashMap<>();
 
-    /**
-     * Constructs a new object based on the class mapped to the type in the given {@link org.neo4j.ogm.model.Edge}.
-     *
-     * @param <T>       The class of object to return
-     * @param edgeModel The {@link org.neo4j.ogm.model.Edge} from which to determine the type
-     * @return A new instance of the class that corresponds to the relationship type, never <code>null</code>
-     * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
-     */
-    public <T> T newObject(Edge edgeModel) {
-        return instantiateObjectFromTaxa(edgeModel.getType());
-    }
-
-    /**
-     * Constructs a new object based on the {@link ClassInfo}.
-     *
-     * @param <T>       The class of object to return
-     * @param classInfo The {@link ClassInfo} from which to determine the type
-     * @return A new instance of the class that corresponds to the classinfo type, never <code>null</code>
-     * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
-     */
-    public <T> T newObject(ClassInfo classInfo) {
-        return (T) instantiate(classInfo.getUnderlyingClass());
+        for (Property<String, Object> property : nodeModel.getPropertyList()) {
+            map.put(property.getKey(), property.getValue());
+        }
+        return instantiateObjectFromTaxa(nodeModel.getLabels(), map);
     }
 
     /**
@@ -89,11 +74,11 @@ public class EntityFactory {
      * @return A new instance of the specified {@link Class}
      * @throws MappingException if it's not possible to instantiate the given class for any reason
      */
-    public <T> T newObject(Class<T> clarse) {
-        return instantiate(clarse);
+    public <T> T newObject(Class<T> clarse, Map<String, Object> map) {
+        return instantiate(clarse, map);
     }
 
-    private <T> T instantiateObjectFromTaxa(String... taxa) {
+    private <T> T instantiateObjectFromTaxa(String[] taxa, Map<String, Object> propertyValues) {
         if (taxa == null || taxa.length == 0) {
             throw new BaseClassNotFoundException("<null>");
         }
@@ -102,7 +87,7 @@ public class EntityFactory {
 
         @SuppressWarnings("unchecked")
         Class<T> loadedClass = (Class<T>) metadata.classInfo(fqn).getUnderlyingClass();
-        return instantiate(loadedClass);
+        return instantiate(loadedClass, propertyValues);
     }
 
     private String resolve(String... taxa) {
@@ -120,13 +105,7 @@ public class EntityFactory {
         return fqn;
     }
 
-    private static <T> T instantiate(Class<T> loadedClass) {
-        try {
-            Constructor<T> defaultConstructor = loadedClass.getDeclaredConstructor();
-            defaultConstructor.setAccessible(true);
-            return defaultConstructor.newInstance();
-        } catch (SecurityException | IllegalArgumentException | ReflectiveOperationException e) {
-            throw new MappingException("Unable to instantiate " + loadedClass, e);
-        }
+    private <T> T instantiate(Class<T> loadedClass, Map<String, Object> propertyValues) {
+        return entityInstantiator.createInstance(loadedClass, propertyValues);
     }
 }

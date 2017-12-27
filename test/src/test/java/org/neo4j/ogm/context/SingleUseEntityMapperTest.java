@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.reflect.EntityFactory;
+import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 
 /**
  * TODO: This test doesn't assert anything.
@@ -39,10 +39,10 @@ public class SingleUseEntityMapperTest {
     //	}
 
     @Test
-    public void shouldMapFromMap() throws Exception {
+    public void shouldMapFromMap() {
 
         Collection<Object> toReturn = new ArrayList<>();
-        SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData, new EntityFactory(metaData));
+        SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData, new ReflectionEntityInstantiator(metaData));
 
         Iterable<Map<String, Object>> results = getQueryResults();
 

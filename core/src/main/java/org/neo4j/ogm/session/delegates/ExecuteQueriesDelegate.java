@@ -95,7 +95,8 @@ public class ExecuteQueriesDelegate {
         validateQuery(cypher, parameters, readOnly);
 
         RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
-        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()),
+        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()
+            , session.getEntityInstantiator()),
             session.metaData());
 
         return session.doInTransaction( () -> {
@@ -120,7 +121,7 @@ public class ExecuteQueriesDelegate {
             if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                    return new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+                    return new GraphEntityMapper(session.metaData(), session.context(), session.getEntityInstantiator()).map(type, response);
                 }
             } else {
                 RowModelRequest request = new DefaultRowModelRequest(cypher, parameters);

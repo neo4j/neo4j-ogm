@@ -15,14 +15,14 @@ package org.neo4j.ogm.metadata.reflect;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.HashMap;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.response.model.NodeModel;
-import org.neo4j.ogm.response.model.RelationshipModel;
 
 /**
  * @author Adam George
@@ -33,17 +33,12 @@ public class EntityFactoryTest {
 
     @Before
     public void setUp() {
-        this.entityFactory = new EntityFactory(
-            new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"));
+        MetaData metadata = new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical");
+        this.entityFactory = new EntityFactory(metadata, new ReflectionEntityInstantiator(metadata));
     }
 
     @Test
     public void shouldConstructObjectOfParticularTypeUsingItsDefaultZeroArgConstructor() {
-        RelationshipModel personRelationshipModel = new RelationshipModel();
-        personRelationshipModel.setType("MEMBER_OF");
-        ArbitraryRelationshipEntity gary = this.entityFactory.newObject(personRelationshipModel);
-        assertThat(gary).isNotNull();
-
         NodeModel personNodeModel = new NodeModel();
         personNodeModel.setLabels(new String[] { "Individual" });
         Individual sheila = this.entityFactory.newObject(personNodeModel);
@@ -56,14 +51,6 @@ public class EntityFactoryTest {
         personNodeModel.setLabels(new String[] { "Female", "Individual", "Lass" });
         Individual ourLass = this.entityFactory.newObject(personNodeModel);
         assertThat(ourLass).isNotNull();
-    }
-
-    @Test(expected = MappingException.class)
-    public void shouldFailIfZeroArgConstructorIsNotPresent() {
-        RelationshipModel edge = new RelationshipModel();
-        edge.setId(49L);
-        edge.setType("ClassWithoutZeroArgumentConstructor");
-        this.entityFactory.newObject(edge);
     }
 
     @Test
@@ -84,7 +71,7 @@ public class EntityFactoryTest {
 
     @Test
     public void shouldConstructObjectIfExplicitlyGivenClassToInstantiate() {
-        Individual instance = this.entityFactory.newObject(Individual.class);
+        Individual instance = this.entityFactory.newObject(Individual.class, new HashMap<>());
         assertThat(instance).as("The resultant instance shouldn't be null").isNotNull();
     }
 }

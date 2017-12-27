@@ -18,19 +18,10 @@ import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.exception.core.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -44,6 +35,7 @@ import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.PropertyModel;
+import org.neo4j.ogm.session.EntityInstantiator;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
@@ -73,9 +65,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     private final EntityFactory entityFactory;
     private final MetaData metadata;
 
-    public GraphEntityMapper(MetaData metaData, MappingContext mappingContext) {
+    public GraphEntityMapper(MetaData metaData, MappingContext mappingContext, EntityInstantiator entityInstantiator) {
         this.metadata = metaData;
-        this.entityFactory = new EntityFactory(metadata);
+        this.entityFactory = new EntityFactory(metadata, entityInstantiator);
         this.mappingContext = mappingContext;
     }
 
@@ -207,6 +199,8 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         try {
             mapNodes(graphModel, nodeIds);
             mapRelationships(graphModel, edgeIds);
+        } catch (MappingException e) {
+            throw e;
         } catch (Exception e) {
             throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
         }
@@ -217,35 +211,55 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         for (Node node : graphModel.getNodes()) {
             if (!nodeIds.contains(node.getId())) {
                 Object entity = mappingContext.getNodeEntity(node.getId());
-                try {
-                    if (entity == null) {
-                        entity = entityFactory.newObject(node);
-                        EntityUtils.setIdentity(entity, node.getId(), metadata);
-                        setProperties(node.getPropertyList(), entity);
-                        setLabels(node, entity);
-                        mappingContext.addNodeEntity(entity, node.getId());
+                if (entity == null) {
+                    ClassInfo clsi = metadata.resolve(node.getLabels());
+                    if (clsi == null) {
+                        logger.debug("Could not find a class to map for labels " + Arrays.toString(node.getLabels()));
+                        continue;
                     }
-                    nodeIds.add(node.getId());
-                } catch (BaseClassNotFoundException e) {
-                    logger.debug(e.getMessage());
+                    Map<String, Object> allProps = new HashMap<>(toMap(node.getPropertyList()));
+                    getCompositeProperties(node.getPropertyList(), clsi).forEach( (k, v) -> {
+                        allProps.put(k.getName(), v);
+                    });
+
+                    entity = entityFactory.newObject(clsi.getUnderlyingClass(), allProps);
+                    EntityUtils.setIdentity(entity, node.getId(), metadata);
+                    setProperties(node.getPropertyList(), entity);
+                    setLabels(node, entity);
+                    mappingContext.addNodeEntity(entity, node.getId());
                 }
+                nodeIds.add(node.getId());
             }
         }
     }
 
-    private void setProperties(List<Property<String, Object>> propertyList, Object instance) {
-        ClassInfo classInfo = metadata.classInfo(instance);
+    /**
+     * Finds the composite properties of an entity type and build their values using a property list.
+     *
+     * @param propertyList The properties to convert from.
+     * @param classInfo The class to inspect for composite attributes.
+     * @return a map containing the values of the converted attributes, indexed by field object. Never null.
+     */
+    private Map<FieldInfo, Object> getCompositeProperties(List<Property<String, Object>> propertyList, ClassInfo classInfo) {
+
+        Map<FieldInfo, Object> compositeValues = new HashMap<>();
 
         Collection<FieldInfo> compositeFields = classInfo.fieldsInfo().compositeFields();
         if (compositeFields.size() > 0) {
             Map<String, ?> propertyMap = toMap(propertyList);
             for (FieldInfo field : compositeFields) {
                 CompositeAttributeConverter<?> converter = field.getCompositeConverter();
-                Object value = converter.toEntityAttribute(propertyMap);
-                FieldInfo writer = classInfo.getFieldInfo(field.getName());
-                writer.write(instance, value);
+                compositeValues.put(field, converter.toEntityAttribute(propertyMap));
             }
         }
+
+        return compositeValues;
+    }
+
+    private void setProperties(List<Property<String, Object>> propertyList, Object instance) {
+        ClassInfo classInfo = metadata.classInfo(instance);
+
+        getCompositeProperties(propertyList, classInfo).forEach( (field, v) -> field.write(instance, v));
 
         for (Property<?, ?> property : propertyList) {
             writeProperty(classInfo, instance, property);
@@ -370,8 +384,22 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
     private Object createRelationshipEntity(Edge edge, Object startEntity, Object endEntity) {
 
+        ClassInfo relationClassInfo = getRelationshipEntity(edge);
+        if (relationClassInfo == null) {
+            throw new MappingException("Could not find a class to map for relation " + edge);
+        }
+
+        Map<String, Object> allProps = new HashMap<>(toMap(edge.getPropertyList()));
+        getCompositeProperties(edge.getPropertyList(), relationClassInfo).forEach( (k, v) -> {
+            allProps.put(k.getName(), v);
+        });
+        // also add start and end node as valid constructor values
+        allProps.put(relationClassInfo.getStartNodeReader().getName(), startEntity);
+        allProps.put(relationClassInfo.getEndNodeReader().getName(), endEntity);
+
         // create and hydrate the new RE
-        Object relationshipEntity = entityFactory.newObject(getRelationshipEntity(edge));
+        Object relationshipEntity = entityFactory
+            .newObject(relationClassInfo.getUnderlyingClass(), allProps);
         EntityUtils.setIdentity(relationshipEntity, edge.getId(), metadata);
 
         // REs also have properties

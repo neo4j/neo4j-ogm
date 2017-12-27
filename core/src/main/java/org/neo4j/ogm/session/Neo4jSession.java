@@ -37,6 +37,7 @@ import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.session.delegates.DeleteDelegate;
@@ -87,6 +88,7 @@ public class Neo4jSession implements Session {
     private final GraphIdDelegate graphIdDelegate = new GraphIdDelegate(this);
 
     private LoadStrategy loadStrategy;
+    private EntityInstantiator entityInstantiator;
 
     private Driver driver;
     private String bookmark;
@@ -101,14 +103,16 @@ public class Neo4jSession implements Session {
         this.mappingContext = new MappingContext(metaData);
         this.txManager = new DefaultTransactionManager(this, driver);
         this.loadStrategy = LoadStrategy.PATH_LOAD_STRATEGY;
+        this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
     }
 
     public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners,
-        LoadStrategy loadStrategy) {
+        LoadStrategy loadStrategy, EntityInstantiator entityInstantiator) {
         this(metaData, driver);
         registeredEventListeners.addAll(eventListeners);
 
         this.loadStrategy = loadStrategy;
+        this.entityInstantiator = entityInstantiator;
     }
 
     @Override
@@ -712,6 +716,10 @@ public class Neo4jSession implements Session {
     @Override
     public LoadStrategy getLoadStrategy() {
         return loadStrategy;
+    }
+
+    public EntityInstantiator getEntityInstantiator() {
+        return entityInstantiator;
     }
 
     @Override

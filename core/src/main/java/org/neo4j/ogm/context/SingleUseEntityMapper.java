@@ -26,6 +26,7 @@ import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.EntityFactory;
 import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.session.EntityInstantiator;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +49,11 @@ public class SingleUseEntityMapper {
      * Constructs a new {@link SingleUseEntityMapper} based on the given mapping {@link MetaData}.
      *
      * @param mappingMetaData The {@link MetaData} to use for performing mappings
-     * @param entityFactory   The entity factory to use.
+     * @param entityInstantiator   The entity factory to use.
      */
-    public SingleUseEntityMapper(MetaData mappingMetaData, EntityFactory entityFactory) {
+    public SingleUseEntityMapper(MetaData mappingMetaData, EntityInstantiator entityInstantiator) {
         this.metadata = mappingMetaData;
-        this.entityFactory = new EntityFactory(mappingMetaData);
+        this.entityFactory = new EntityFactory(mappingMetaData, entityInstantiator);
     }
 
     /**
@@ -70,13 +71,13 @@ public class SingleUseEntityMapper {
             properties.put(columnNames[i], rowModel.getValues()[i]);
         }
 
-        T entity = this.entityFactory.newObject(type);
+        T entity = this.entityFactory.newObject(type, properties);
         setPropertiesOnEntity(entity, properties);
         return entity;
     }
 
     public <T> T map(Class<T> type, Map<String, Object> row) {
-        T entity = this.entityFactory.newObject(type);
+        T entity = this.entityFactory.newObject(type, row);
         setPropertiesOnEntity(entity, row);
         return entity;
     }

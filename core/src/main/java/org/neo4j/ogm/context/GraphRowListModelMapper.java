@@ -24,6 +24,7 @@ import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.session.EntityInstantiator;
 
 /**
  * @author vince
@@ -32,10 +33,13 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
+    private EntityInstantiator entityInstantiator;
 
-    public GraphRowListModelMapper(MetaData metaData, MappingContext mappingContext) {
+    public GraphRowListModelMapper(MetaData metaData, MappingContext mappingContext,
+        EntityInstantiator entityInstantiator) {
         this.metaData = metaData;
         this.mappingContext = mappingContext;
+        this.entityInstantiator = entityInstantiator;
     }
 
     public <T> Iterable<T> map(Class<T> type, Response<GraphRowListModel> response) {
@@ -46,7 +50,7 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
 
         Set<Long> nodeIds = new LinkedHashSet<>();
         Set<Long> edgeIds = new LinkedHashSet<>();
-        GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
+        GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext, entityInstantiator);
 
         GraphRowListModel graphRowsModel;
 

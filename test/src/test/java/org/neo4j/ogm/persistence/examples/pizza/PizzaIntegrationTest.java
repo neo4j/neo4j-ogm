@@ -367,7 +367,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         try {
             session.load(Pizza.class, pizza.getId());
         } catch (MappingException e) {
-            assertThat(e.getCause().getMessage())
+            assertThat(e.getMessage())
                 .isEqualTo("Multiple classes found in type hierarchy that map to: [Pizza, Studio]");
         }
     }

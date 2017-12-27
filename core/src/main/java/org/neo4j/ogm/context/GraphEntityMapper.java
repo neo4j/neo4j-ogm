@@ -44,6 +44,7 @@ import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.PropertyModel;
+import org.neo4j.ogm.session.EntityInstantiator;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
@@ -73,9 +74,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     private final EntityFactory entityFactory;
     private final MetaData metadata;
 
-    public GraphEntityMapper(MetaData metaData, MappingContext mappingContext) {
+    public GraphEntityMapper(MetaData metaData, MappingContext mappingContext, EntityInstantiator entityInstantiator) {
         this.metadata = metaData;
-        this.entityFactory = new EntityFactory(metadata);
+        this.entityFactory = new EntityFactory(metadata, entityInstantiator);
         this.mappingContext = mappingContext;
     }
 
@@ -207,6 +208,8 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         try {
             mapNodes(graphModel, nodeIds);
             mapRelationships(graphModel, edgeIds);
+        } catch (MappingException e) {
+            throw e;
         } catch (Exception e) {
             throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
         }
@@ -370,8 +373,14 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
     private Object createRelationshipEntity(Edge edge, Object startEntity, Object endEntity) {
 
+        Map<String, Object> relProperties = new HashMap<>();
+        for (Property<String, Object> property : edge.getPropertyList()) {
+            relProperties.put(property.getKey(), property.getValue());
+        }
+
         // create and hydrate the new RE
-        Object relationshipEntity = entityFactory.newObject(getRelationshipEntity(edge));
+        Object relationshipEntity = entityFactory
+            .newObject(getRelationshipEntity(edge).getUnderlyingClass(), relProperties);
         EntityUtils.setIdentity(relationshipEntity, edge.getId(), metadata);
 
         // REs also have properties

@@ -62,6 +62,26 @@ public class Filters implements Iterable<Filter> {
         return this;
     }
 
+    /**
+     * Convenience method to add a filter using {@link BooleanOperator#AND}.
+     * @param filter to be chained.
+     * @return current {@link Filters} object with chained {@link Filter}.
+     */
+    public Filters and(Filter filter) {
+        filter.setBooleanOperator(BooleanOperator.AND);
+        return add(filter);
+    }
+
+    /**
+     * Convenience method to add a filter using {@link BooleanOperator#OR}.
+     * @param filter to be chained.
+     * @return current {@link Filters} object with chained {@link Filter}.
+     */
+    public Filters or(Filter filter) {
+        filter.setBooleanOperator(BooleanOperator.OR);
+        return add(filter);
+    }
+
     @Override
     public Iterator<Filter> iterator() {
         return filters.iterator();

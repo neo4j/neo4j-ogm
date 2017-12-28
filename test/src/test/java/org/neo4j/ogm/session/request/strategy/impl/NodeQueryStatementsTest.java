@@ -326,6 +326,45 @@ public class NodeQueryStatementsTest {
     }
 
     /**
+     * @see DATAGRAPH-445
+     */
+    @Test
+    public void testFindByChainedAndedProperties() {
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
+        planetParam.setNestedPropertyName("collidesWith");
+        planetParam.setNestedEntityTypeLabel("Planet");
+        planetParam.setRelationshipType("COLLIDES");
+        planetParam.setRelationshipDirection("OUTGOING");
+
+        Filter moonParam = new Filter("name", ComparisonOperator.EQUALS, "Moon");
+        moonParam.setNestedPropertyName("moon");
+        moonParam.setNestedEntityTypeLabel("Moon");
+        moonParam.setRelationshipType("ORBITS");
+        moonParam.setRelationshipDirection("INCOMING");
+
+        assertThat(queryStatements.findByType("Asteroid",
+            new Filters().add(planetParam).and(moonParam), 1).getStatement())
+            .isEqualTo("MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } " +
+                "MATCH (m1:`Moon`) WHERE m1.`name` = { `moon_name_1` } MATCH (n)-[:`COLLIDES`]->(m0) " +
+                "MATCH (n)<-[:`ORBITS`]-(m1) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+    }
+
+    /**
+     * @see DATAGRAPH-445
+     */
+    @Test
+    public void testFindByChainedOredProperties() {
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
+
+        Filter moonParam = new Filter("name", ComparisonOperator.EQUALS, "Moon");
+
+        assertThat(queryStatements.findByType("Asteroid",
+            new Filters().add(planetParam).or(moonParam), 1).getStatement())
+            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`name` = { `name_0` } " +
+                "OR n.`name` = { `name_1` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+    }
+
+    /**
      * @see DATAGRAPH-629
      */
     @Test

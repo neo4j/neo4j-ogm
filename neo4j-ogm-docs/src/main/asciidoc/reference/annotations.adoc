@@ -343,6 +343,45 @@ The `@RelationshipEntity` annotation must appear on all leaf subclasses if they 
 This annotation is optional on superclasses.
 ====
 
+=== A note on JSON serialization
+
+Looking at the example given above the circular dependency on the class level between the node and the rich relationship can easily be spotted.
+It will not have any effect on your application as long as you do not serialize the objects.
+One kind of serialization that is used today is JSON serialization using the Jackson mapper.
+This mapper library will be used if data gets exported in frameworks like SpringBoot or JavaEE.
+Traversing the object tree it will hit the part when it visits a `Role` after visiting an `Actor`.
+Obvious it will then find the `Actor` object and visit this again, and so on.
+This will end up in a `StackOverflowError`.
+To break this parsing cycle it is mandatory to support the mapper by providing annotation to your class(es).
+This can be done by adding either `@JsonIgnore` on the property that causes the loop or `@JsonIgnoreProperties`.
+
+
+.Suppress infinite traversing
+[source,java]
+----
+@NodeEntity
+public class Actor {
+    Long id;
+
+    // needs knowledge about the attribute name in the relationship
+    @JsonIgnoreProperty("actor")
+    @Relationship(type="PLAYED_IN") private Role playedIn;
+}
+
+@RelationshipEntity(type="PLAYED_IN")
+public class Role {
+    @Id @GeneratedValue   private Long relationshipId;
+    @Property  private String title;
+
+    // direct way to suppress the serialization, but only makes sense if this is not the entry object.
+    @JsonIgnore
+    @StartNode private Actor actor;
+
+    @EndNode   private Movie movie;
+}
+
+----
+
 
 [[reference:annotating-entities:entity-identifier]]
 == Entity identifier

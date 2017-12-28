@@ -15,4 +15,13 @@ In the example below, we're return a collection containing any satellites that a
 Collection<Satellite> satellites = session.loadAll(Satellite.class, new Filter("manned", EQUALS, true));
 ----
 
+.Example of chained Filters
+[source,java]
+----
+Filter mannedFilter = new Filter("manned", equals, true);
+Filter landedFilter = new Filter("landed", equals, false);
+
+Filters satelliteFilter = mannedFilter.and(landedFilter);
+----
+
 WARNING: The filters should be considered as immutable. In previous versions, you could change filter values after instantiation, this is not the case anymore.

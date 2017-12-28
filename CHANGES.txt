@@ -1,5 +1,6 @@
 3.1.0-SNAPSHOT
 o Manually assigned conversion annotations should support lenient mode. #424
+o Improve setting of BooleanOperator parameter in Filter. #445
 
 3.0.2
 o Entity count returns incorrect result on abstract non-annotated type. #435

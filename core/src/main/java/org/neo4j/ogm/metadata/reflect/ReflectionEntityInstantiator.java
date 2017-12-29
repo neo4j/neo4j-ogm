@@ -17,12 +17,16 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 
 import org.neo4j.ogm.exception.core.MappingException;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.EntityInstantiator;
 
 /**
  * Simple instantiator that uses the no-arg constructor, without using property values.
  */
 public class ReflectionEntityInstantiator implements EntityInstantiator {
+
+    public ReflectionEntityInstantiator(MetaData metadata) {
+    }
 
     /**
      * {@inheritDoc}

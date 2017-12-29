@@ -100,7 +100,7 @@ public class Neo4jSession implements Session {
         this.mappingContext = new MappingContext(metaData);
         this.txManager = new DefaultTransactionManager(this, driver);
         this.loadStrategy = LoadStrategy.PATH_LOAD_STRATEGY;
-        this.entityInstantiator = new ReflectionEntityInstantiator();
+        this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
     }
 
     public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners,

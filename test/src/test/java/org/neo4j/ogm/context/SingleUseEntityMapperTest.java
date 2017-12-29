@@ -39,10 +39,10 @@ public class SingleUseEntityMapperTest {
     //	}
 
     @Test
-    public void shouldMapFromMap() throws Exception {
+    public void shouldMapFromMap() {
 
         Collection<Object> toReturn = new ArrayList<>();
-        SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData, new ReflectionEntityInstantiator());
+        SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData, new ReflectionEntityInstantiator(metaData));
 
         Iterable<Map<String, Object>> results = getQueryResults();
 

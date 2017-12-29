@@ -33,9 +33,8 @@ public class EntityFactoryTest {
 
     @Before
     public void setUp() {
-        this.entityFactory = new EntityFactory(
-            new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"),
-            new ReflectionEntityInstantiator());
+        MetaData metadata = new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical");
+        this.entityFactory = new EntityFactory(metadata, new ReflectionEntityInstantiator(metadata));
     }
 
     @Test

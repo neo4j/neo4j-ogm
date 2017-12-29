@@ -83,7 +83,7 @@ public class SessionFactory {
         AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, driver, configuration);
         autoIndexManager.build();
         this.eventListeners = new CopyOnWriteArrayList<>();
-        this.entityInstantiator = new ReflectionEntityInstantiator();
+        this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
     }
 
     private Driver newDriverInstance(String driverClassName) {
@@ -106,7 +106,7 @@ public class SessionFactory {
         this.metaData = new MetaData(packages);
         this.driver = driver;
         this.eventListeners = new CopyOnWriteArrayList<>();
-        this.entityInstantiator = new ReflectionEntityInstantiator();
+        this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
     }
 
     /**

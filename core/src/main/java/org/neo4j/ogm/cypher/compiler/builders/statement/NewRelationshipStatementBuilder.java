@@ -82,7 +82,7 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
                 queryBuilder.append("SET rel += row.props ");
 
             }
-            queryBuilder.append("RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+            queryBuilder.append("RETURN row.relRef as ref, ID(rel) as id, {type} as type");
 
             List<Map> rows = new ArrayList<>();
             for (Edge edge : edges) {
@@ -90,7 +90,6 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
                 rowMap.put("startNodeId", edge.getStartNode());
                 rowMap.put("endNodeId", edge.getEndNode());
                 rowMap.put("relRef", edge.getId());
-                rowMap.put("type", "rel");
                 if (hasProperties) {
                     Map<String, Object> props = new HashMap<>();
                     for (Property property : edge.getPropertyList()) {
@@ -104,6 +103,7 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
                 }
                 rows.add(rowMap);
             }
+            parameters.put("type", "rel");
             parameters.put("rows", rows);
         }
 

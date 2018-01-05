@@ -69,12 +69,11 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
                     .append("}");
             }
 
-            queryBuilder.append(") SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
+            queryBuilder.append(") SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type");
             List<Map> rows = new ArrayList<>();
             for (Node node : newNodes) {
                 Map<String, Object> rowMap = new HashMap<>();
                 rowMap.put("nodeRef", node.getId());
-                rowMap.put("type", "node");
                 Map<String, Object> props = new HashMap<>();
                 for (Property property : node.getPropertyList()) {
                     if (property.getValue() != null) {
@@ -84,6 +83,7 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
                 rowMap.put("props", props);
                 rows.add(rowMap);
             }
+            parameters.put("type", "node");
             parameters.put("rows", rows);
         }
 

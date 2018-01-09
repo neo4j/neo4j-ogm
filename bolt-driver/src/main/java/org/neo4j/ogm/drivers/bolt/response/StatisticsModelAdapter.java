@@ -32,7 +32,18 @@ public class StatisticsModelAdapter implements ResultAdapter<StatementResult, Qu
     public QueryStatisticsModel adapt(StatementResult result) {
         QueryStatisticsModel queryStatisticsModel = new QueryStatisticsModel();
         SummaryCounters stats = result.consume().counters();
+        queryStatisticsModel.setContains_updates(stats.containsUpdates());
+        queryStatisticsModel.setNodes_created(stats.nodesCreated());
+        queryStatisticsModel.setNodes_deleted(stats.nodesDeleted());
         queryStatisticsModel.setProperties_set(stats.propertiesSet());
+        queryStatisticsModel.setRelationships_created(stats.relationshipsCreated());
+        queryStatisticsModel.setRelationship_deleted(stats.relationshipsDeleted());
+        queryStatisticsModel.setLabels_added(stats.labelsAdded());
+        queryStatisticsModel.setLabels_removed(stats.labelsRemoved());
+        queryStatisticsModel.setIndexes_added(stats.indexesAdded());
+        queryStatisticsModel.setIndexes_removed(stats.indexesRemoved());
+        queryStatisticsModel.setConstraints_added(stats.constraintsAdded());
+        queryStatisticsModel.setConstraints_removed(stats.constraintsRemoved());
         return queryStatisticsModel;
     }
 }

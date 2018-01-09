@@ -44,6 +44,7 @@ import org.neo4j.ogm.response.model.QueryResultModel;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.strategy.impl.CountStatements;
+import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.utils.ClassUtils;
 
 /**
@@ -97,32 +98,37 @@ public class ExecuteQueriesDelegate {
         ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()),
             session.metaData());
 
-        try (Response<RestModel> response = session.requestHandler().execute(request)) {
-            Iterable<RestStatisticsModel> mappedModel = mapper.map(null, response);
-            RestStatisticsModel restStatisticsModel = mappedModel.iterator().next();
+        return session.doInTransaction((transaction) -> {
 
-            if (readOnly) {
-                return new QueryResultModel(restStatisticsModel.getResult(), null);
-            } else {
-                return new QueryResultModel(restStatisticsModel.getResult(), restStatisticsModel.getStatistics());
+            try (Response<RestModel> response = session.requestHandler().execute(request)) {
+                Iterable<RestStatisticsModel> mappedModel = mapper.map(null, response);
+                RestStatisticsModel restStatisticsModel = mappedModel.iterator().next();
+
+                if (readOnly) {
+                    return new QueryResultModel(restStatisticsModel.getResult(), null);
+                } else {
+                    return new QueryResultModel(restStatisticsModel.getResult(), restStatisticsModel.getStatistics());
+                }
             }
-        }
+        }, Transaction.Type.READ_WRITE);
     }
 
     private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters,
         ResponseMapper mapper) {
 
-        if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
-            GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
-            try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                return new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+        return session.<Iterable<T>>doInTransaction((transaction) -> {
+            if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
+                GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
+                try (Response<GraphModel> response = session.requestHandler().execute(request)) {
+                    return new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+                }
+            } else {
+                RowModelRequest request = new DefaultRowModelRequest(cypher, parameters);
+                try (Response<RowModel> response = session.requestHandler().execute(request)) {
+                    return mapper.map(type, response);
+                }
             }
-        } else {
-            RowModelRequest request = new DefaultRowModelRequest(cypher, parameters);
-            try (Response<RowModel> response = session.requestHandler().execute(request)) {
-                return mapper.map(type, response);
-            }
-        }
+        }, Transaction.Type.READ_WRITE);
     }
 
     public long countEntitiesOfType(Class<?> entity) {
@@ -162,10 +168,12 @@ public class ExecuteQueriesDelegate {
             }
             countStatement = new CountStatements().countNodes(labels);
         }
-        try (Response<RowModel> response = session.requestHandler().execute((RowModelRequest) countStatement)) {
-            RowModel queryResult = response.next();
-            return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
-        }
+        return session.doInTransaction((transaction) -> {
+            try (Response<RowModel> response = session.requestHandler().execute((RowModelRequest) countStatement)) {
+                RowModel queryResult = response.next();
+                return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
+            }
+        }, Transaction.Type.READ_ONLY);
     }
 
     public long count(Class<?> clazz, Iterable<Filter> filters) {

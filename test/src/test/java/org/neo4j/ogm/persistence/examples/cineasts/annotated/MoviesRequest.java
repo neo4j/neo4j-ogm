@@ -51,4 +51,9 @@ public class MoviesRequest extends StubHttpDriver {
     public String[] getResponse() {
         return jsonModel;
     }
+
+    @Override
+    public boolean requiresTransaction() {
+        return false;
+    }
 }

@@ -144,34 +144,15 @@ public class BoltRequest implements Request {
     private StatementResult executeRequest(Statement request) {
         BoltTransaction tx;
         try {
-
             Map<String, Object> parameterMap = mapper.convertValue(request.getParameters(), MAP_TYPE_REF);
             LOGGER.info("Request: {} with params {}", request.getStatement(), parameterMap);
 
-            if (transactionManager.getCurrentTransaction() == null) {
-                org.neo4j.ogm.transaction.Transaction autoCommitTx = transactionManager.openTransaction();
-                tx = (BoltTransaction) autoCommitTx;
-                StatementResult statementResult = tx.nativeBoltTransaction().run(request.getStatement(), parameterMap);
-                tx.commit();
-                tx.close();
-                return statementResult;
-            }
             tx = (BoltTransaction) transactionManager.getCurrentTransaction();
             return tx.nativeBoltTransaction().run(request.getStatement(), parameterMap);
         } catch (CypherException | ConnectionException ce) {
             throw ce;
         } catch (ClientException ce) {
-            tx = (BoltTransaction) transactionManager.getCurrentTransaction();
-            if (tx != null) {
-                tx.rollback();
-            }
             throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
-        } catch (Exception e) {
-            tx = (BoltTransaction) transactionManager.getCurrentTransaction();
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw new RuntimeException(e);
         }
     }
 }

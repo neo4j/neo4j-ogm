@@ -191,6 +191,11 @@ public final class HttpDriver extends AbstractConfigurableDriver {
         return false; // its read-write by default
     }
 
+    @Override
+    public boolean requiresTransaction() {
+        return false;
+    }
+
     private synchronized CloseableHttpClient httpClient() {
 
         if (httpClient

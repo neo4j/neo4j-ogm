@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
@@ -32,6 +33,7 @@ import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortClause;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -493,6 +495,49 @@ public class Neo4jSession implements Session {
     @Deprecated
     public <T> T doInTransaction(GraphCallback<T> graphCallback) {
         return graphCallback.apply(requestHandler(), getTransaction(), metaData);
+    }
+
+    /**
+     * For internal use only. Opens a new transaction if necessary before running statements
+     * in case an explicit transaction does not exist. It is designed to be the central point
+     * for handling exceptions coming from the DB and apply commit / rollback rules.
+     * @param cb The callback to execute.
+     * @param <T> The result type.
+     * @param txType Transaction type, readonly or not.
+     * @return The result of the statement.
+     */
+    public <T> T doInTransaction(Function<Transaction, T> cb, Transaction.Type txType) {
+
+        Transaction transaction = txManager.getCurrentTransaction();
+        if (!driver.requiresTransaction() || transaction != null) {
+            return cb.apply(transaction);
+        }
+
+        transaction = beginTransaction(txType);
+        try {
+            T result = cb.apply(transaction);
+            if (transactionManager().canCommit()) {
+                transaction.commit();
+            }
+            return result;
+        } catch (CypherException e) {
+            logger.warn("Error executing query : {} - {}. Rolling back transaction.", e.getCode(), e.getDescription());
+            if (transactionManager().canRollback()) {
+                transaction.rollback();
+            }
+            throw e;
+        } catch (Exception e) {
+            logger.warn("Error executing query : {}. Rolling back transaction.", e.getMessage());
+            if(transactionManager().canRollback()) {
+                transaction.rollback();
+            }
+            throw e;
+        } finally {
+            if (!transaction.status().equals(Transaction.Status.CLOSED)) {
+                //logger.error("TransactionLeak detected. Closing transaction {}", getTransaction());
+                transaction.close();
+            }
+        }
     }
 
     @Override

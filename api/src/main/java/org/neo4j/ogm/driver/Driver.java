@@ -43,4 +43,13 @@ public interface Driver extends AutoCloseable {
     void setTransactionManager(TransactionManager tx);
 
     Configuration getConfiguration();
+
+    /**
+     * Indicates if the driver requires an explicit transaction to run queries.
+     * Used to know if transactions has to be explicitly triggered by OGM before accessing DB.
+     * @return true if client code has to setup a transaction, false if the driver can auto-commit.
+     */
+    default boolean requiresTransaction() {
+        return true;
+    }
 }

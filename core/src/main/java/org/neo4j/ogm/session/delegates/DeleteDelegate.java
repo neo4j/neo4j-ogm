@@ -34,6 +34,7 @@ import org.neo4j.ogm.session.event.PersistenceEvent;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeDeleteStatements;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipDeleteStatements;
+import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,18 +112,22 @@ public class DeleteDelegate {
                         }
                     }
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
-                    try (Response<RowModel> response = session.requestHandler().execute(query)) {
-                        if (session.metaData().isRelationshipEntity(classInfo.name())) {
-                            session.detachRelationshipEntity(identity);
-                        } else {
-                            session.detachNodeEntity(identity);
-                        }
-                        if (session.eventsEnabled()) {
-                            if (notified.contains(object)) {
-                                session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
+                    session.doInTransaction((transaction) -> {
+                        try (Response<RowModel> response = session.requestHandler().execute(query)) {
+                            if (session.metaData().isRelationshipEntity(classInfo.name())) {
+                                session.detachRelationshipEntity(identity);
+                            } else {
+                                session.detachNodeEntity(identity);
+                            }
+                            if (session.eventsEnabled()) {
+                                if (notified.contains(object)) {
+                                    session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
+                                }
                             }
                         }
-                    }
+                        return null;
+                    }, Transaction.Type.READ_WRITE);
+
                 }
             } else {
                 session.warn(object.getClass().getName() + " is not an instance of a persistable class");
@@ -150,12 +155,15 @@ public class DeleteDelegate {
             Statement request = getDeleteStatementsBasedOnType(type).delete(entityLabel);
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
             session.notifyListeners(new PersistenceEvent(type, Event.TYPE.PRE_DELETE));
-            try (Response<RowModel> response = session.requestHandler().execute(query)) {
-                session.context().removeType(type);
-                if (session.eventsEnabled()) {
-                    session.notifyListeners(new PersistenceEvent(type, Event.TYPE.POST_DELETE));
+            session.doInTransaction((transaction) -> {
+                try (Response<RowModel> response = session.requestHandler().execute(query)) {
+                    session.context().removeType(type);
+                    if (session.eventsEnabled()) {
+                        session.notifyListeners(new PersistenceEvent(type, Event.TYPE.POST_DELETE));
+                    }
                 }
-            }
+                return null;
+            }, Transaction.Type.READ_WRITE);
         } else {
             session.warn(type.getName() + " is not a persistable class");
         }
@@ -263,7 +271,10 @@ public class DeleteDelegate {
     public void purgeDatabase() {
         Statement stmt = new NodeDeleteStatements().deleteAll();
         RowModelRequest query = new DefaultRowModelRequest(stmt.getStatement(), stmt.getParameters());
-        session.requestHandler().execute(query).close();
+        session.doInTransaction((transaction) -> {
+                session.requestHandler().execute(query).close();
+                return null;
+        }, Transaction.Type.READ_WRITE);
         session.context().clear();
     }
 

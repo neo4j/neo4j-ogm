@@ -37,17 +37,21 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.http.request.HttpRequest;
 import org.neo4j.ogm.drivers.http.request.HttpRequestException;
 import org.neo4j.ogm.drivers.http.transaction.HttpTransaction;
-import org.neo4j.ogm.exception.ResultErrorsException;
+import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.request.DefaultRequest;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author vince
@@ -56,6 +60,7 @@ import org.slf4j.LoggerFactory;
 public final class HttpDriver extends AbstractConfigurableDriver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpDriver.class);
+    private final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     private CloseableHttpClient httpClient;
 
@@ -114,12 +119,13 @@ public final class HttpDriver extends AbstractConfigurableDriver {
             .execute(httpClient(), request, configuration.getCredentials())) {
             HttpEntity responseEntity = response.getEntity();
             if (responseEntity != null) {
-                String responseText;
-                responseText = EntityUtils.toString(responseEntity);
-                LOGGER.debug("Thread: {}, text: {}", Thread.currentThread().getId(), responseText);
-                EntityUtils.consume(responseEntity);
-                if (responseText.contains("\"errors\":[{") || responseText.contains("\"errors\": [{")) {
-                    throw new ResultErrorsException(responseText);
+                JsonNode responseNode = mapper.readTree(EntityUtils.toString(responseEntity));
+                LOGGER.debug("Response: {}", responseNode);
+                JsonNode errors = responseNode.findValue("errors");
+                if (errors.elements().hasNext()) {
+                    JsonNode errorNode = errors.elements().next();
+                    throw new CypherException("Error executing Cypher",
+                        errorNode.findValue("code").asText(), errorNode.findValue("message").asText());
                 }
             }
             return response;
@@ -189,6 +195,11 @@ public final class HttpDriver extends AbstractConfigurableDriver {
             }
         }
         return false; // its read-write by default
+    }
+
+    @Override
+    public boolean requiresTransaction() {
+        return false;
     }
 
     private synchronized CloseableHttpClient httpClient() {

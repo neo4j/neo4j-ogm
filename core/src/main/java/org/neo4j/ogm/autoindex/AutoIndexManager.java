@@ -13,6 +13,7 @@
 package org.neo4j.ogm.autoindex;
 
 import static java.util.Collections.*;
+import static org.neo4j.ogm.transaction.Transaction.Type.*;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -32,7 +33,6 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.RowDataStatement;
-import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,10 +192,9 @@ public class AutoIndexManager {
 
         // make sure drop and create happen in separate transactions
         // neo does not support that
-        try (Transaction tx = session.beginTransaction()) {
+        session.doInTransaction( () -> {
             session.requestHandler().execute(dropIndexesRequest);
-            tx.commit();
-        }
+        }, READ_WRITE);
 
         create();
     }
@@ -203,7 +202,7 @@ public class AutoIndexManager {
     private List<AutoIndex> loadIndexesFromDB() {
         DefaultRequest indexRequests = buildProcedures();
         List<AutoIndex> dbIndexes = new ArrayList<>();
-        try (Transaction tx = session.beginTransaction()) {
+        session.doInTransaction( () -> {
             try (Response<RowModel> response = session.requestHandler().execute(indexRequests)) {
                 RowModel rowModel;
                 while ((rowModel = response.next()) != null) {
@@ -221,8 +220,7 @@ public class AutoIndexManager {
                     dbIndex.ifPresent(dbIndexes::add);
                 }
             }
-            tx.commit();
-        }
+        }, READ_WRITE);
         return dbIndexes;
     }
 
@@ -252,12 +250,11 @@ public class AutoIndexManager {
         DefaultRequest request = new DefaultRequest();
         request.setStatements(statements);
 
-        try (Transaction tx = session.beginTransaction()) {
+        session.doInTransaction( () -> {
             try (Response<RowModel> response = session.requestHandler().execute(request)) {
                 // Success
             }
-            tx.commit();
-        }
+        }, READ_WRITE);
     }
 
     private DefaultRequest buildProcedures() {
@@ -283,12 +280,11 @@ public class AutoIndexManager {
         request.setStatements(statements);
         LOGGER.debug("Creating indexes and constraints.");
 
-        try (Transaction tx = session.beginTransaction()) {
+        session.doInTransaction( () -> {
             try (Response<RowModel> response = session.requestHandler().execute(request)) {
                 // Success
             }
-            tx.commit();
-        }
+        }, READ_WRITE);
     }
 
 }

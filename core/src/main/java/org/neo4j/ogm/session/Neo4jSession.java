@@ -32,6 +32,7 @@ import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortClause;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -55,6 +56,8 @@ import org.neo4j.ogm.session.request.strategy.impl.PathLoadClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 import org.neo4j.ogm.session.request.strategy.impl.SchemaLoadClauseBuilder;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWork;
+import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWorkWithoutResult;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.utils.RelationshipUtils;
 import org.slf4j.Logger;
@@ -493,6 +496,60 @@ public class Neo4jSession implements Session {
     @Deprecated
     public <T> T doInTransaction(GraphCallback<T> graphCallback) {
         return graphCallback.apply(requestHandler(), getTransaction(), metaData);
+    }
+
+    /**
+     * @see Neo4jSession#doInTransaction(TransactionalUnitOfWork, org.neo4j.ogm.transaction.Transaction.Type)
+     * @param function The code to execute.
+     * @param txType Transaction type, readonly or not.
+     */
+    public void doInTransaction(TransactionalUnitOfWorkWithoutResult function, Transaction.Type txType) {
+        doInTransaction( () -> {
+            function.doInTransaction();
+            return null;
+        }, txType);
+    }
+
+    /**
+     * For internal use only. Opens a new transaction if necessary before running statements
+     * in case an explicit transaction does not exist. It is designed to be the central point
+     * for handling exceptions coming from the DB and apply commit / rollback rules.
+     * @param function The callback to execute.
+     * @param <T> The result type.
+     * @param txType Transaction type, readonly or not.
+     * @return The result of the transaction function.
+     */
+    public <T> T doInTransaction(TransactionalUnitOfWork<T> function, Transaction.Type txType) {
+
+        Transaction transaction = txManager.getCurrentTransaction();
+        if (!driver.requiresTransaction() || transaction != null) {
+            return function.doInTransaction();
+        }
+
+        transaction = beginTransaction(txType);
+        try {
+            T result = function.doInTransaction();
+            if (transactionManager().canCommit()) {
+                transaction.commit();
+            }
+            return result;
+        } catch (CypherException e) {
+            logger.warn("Error executing query : {} - {}. Rolling back transaction.", e.getCode(), e.getDescription());
+            if (transactionManager().canRollback()) {
+                transaction.rollback();
+            }
+            throw e;
+        } catch (Throwable e) {
+            logger.warn("Error executing query : {}. Rolling back transaction.", e.getMessage());
+            if(transactionManager().canRollback()) {
+                transaction.rollback();
+            }
+            throw e;
+        } finally {
+            if (!transaction.status().equals(Transaction.Status.CLOSED)) {
+                transaction.close();
+            }
+        }
     }
 
     @Override

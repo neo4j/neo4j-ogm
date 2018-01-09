@@ -14,7 +14,6 @@
 package org.neo4j.ogm.drivers.embedded.response;
 
 import org.neo4j.graphdb.Result;
-import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -48,12 +47,6 @@ public abstract class EmbeddedResponse<T> implements Response {
             // release the response resource
             result.close();
             logger.debug("Response closed: {}", this);
-            // if the current transaction is an autocommit one, we should commit and close it now,
-            EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
-            if (tx.isAutoCommit()) {
-                tx.commit();
-                tx.close();
-            }
         }
     }
 

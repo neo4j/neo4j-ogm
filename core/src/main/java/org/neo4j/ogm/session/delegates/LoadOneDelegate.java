@@ -25,6 +25,7 @@ import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
+import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,10 +74,13 @@ public class LoadOneDelegate {
         PagingAndSortingQuery qry = queryStatements.findOneByType(entityType, id, depth);
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
-        try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-            new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
-            return lookup(type, id);
-        }
+
+        return session.doInTransaction( () -> {
+            try (Response<GraphModel> response = session.requestHandler().execute(request)) {
+                new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+                return lookup(type, id);
+            }
+        }, Transaction.Type.READ_ONLY);
     }
 
     private <T, U> T lookup(Class<T> type, U id) {

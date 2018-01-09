@@ -24,6 +24,7 @@ import org.neo4j.ogm.transaction.Transaction;
  * @param <T> The type of object returned from applying this callback
  * @author Adam George
  */
+@Deprecated
 public interface GraphCallback<T> {
 
     /**

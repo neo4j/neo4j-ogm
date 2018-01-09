@@ -26,9 +26,7 @@ import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RestModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RowModelResponse;
-import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.exception.CypherException;
-import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
@@ -119,12 +117,6 @@ public class EmbeddedRequest implements Request {
             public void close() {
                 if (transactionManager.getCurrentTransaction() != null) {
                     logger.debug("Response closed: {}", this);
-                    // if the current transaction is an autocommit one, we should commit and close it now,
-                    EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
-                    if (tx.isAutoCommit()) {
-                        tx.commit();
-                        tx.close();
-                    }
                 }
             }
 
@@ -159,31 +151,11 @@ public class EmbeddedRequest implements Request {
             Map<String, Object> parameterMap = mapper.convertValue(statement.getParameters(), MAP_TYPE_REF);
             logger.info("Request: {} with params {}", cypher, parameterMap);
 
-            // If we don't have a current transactional context for this operation
-            // we must create one, and mark the transaction as autoCommit. This will ensure the
-            // transaction is closed on the database as soon as the response has been consumed.
-            // An EmbeddedTransaction marked as autoCommit will then function the same way
-            // as the generic autoCommit http endpoint from the perspective of user code.
-            // From an implementation perspective in the OGM, the difference is that the server
-            // looks after committing and closing the http endpoint "/commit", whereas in embedded
-            // mode, the OGM has to do this. See {@link EmbeddedResponse} for where this is done.
-            if (transactionManager.getCurrentTransaction() == null) {
-                transactionManager.openTransaction();
-                EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
-                tx.enableAutoCommit();
-            } else {
-                if (!((EmbeddedTransaction) transactionManager.getCurrentTransaction()).transactionIsOpen()) {
-                    throw new TransactionException("Transaction is already closed");
-                }
-            }
             return graphDatabaseService.execute(cypher, parameterMap);
+
         } catch (QueryExecutionException qee) {
-            EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
-            tx.rollback();
             throw new CypherException("Error executing Cypher", qee, qee.getStatusCode(), qee.getMessage());
         } catch (Exception e) {
-            EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
-            tx.rollback();
             throw new RuntimeException(e);
         }
     }

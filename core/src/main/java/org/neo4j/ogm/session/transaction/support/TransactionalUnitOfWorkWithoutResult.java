@@ -11,17 +11,14 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.exception;
+package org.neo4j.ogm.session.transaction.support;
 
 /**
- * To be removed from SDN before being removed here.
- * @author Vice Bickers
- * @author Mark Angrish
+ * Callback to be executed inside an OGM managed transaction.
+ * Private API not intended to be used by end users.
+ * @author Nicolas Mervaillie
  */
-@Deprecated
-public class ServiceNotFoundException extends RuntimeException {
-
-    public ServiceNotFoundException(String message) {
-        super(message);
-    }
+@FunctionalInterface
+public interface TransactionalUnitOfWorkWithoutResult {
+    void doInTransaction();
 }

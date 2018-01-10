@@ -27,6 +27,7 @@ import org.neo4j.ogm.session.EntityInstantiator;
  * A metadata-driven factory class for creating node and relationship entities.
  *
  * @author Adam George
+ * @author Nicolas Mervaillie
  */
 public class EntityFactory {
 

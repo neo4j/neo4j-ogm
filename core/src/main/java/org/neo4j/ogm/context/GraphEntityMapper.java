@@ -18,19 +18,10 @@ import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.exception.core.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -220,35 +211,56 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         for (Node node : graphModel.getNodes()) {
             if (!nodeIds.contains(node.getId())) {
                 Object entity = mappingContext.getNodeEntity(node.getId());
-                try {
-                    if (entity == null) {
-                        entity = entityFactory.newObject(node);
-                        EntityUtils.setIdentity(entity, node.getId(), metadata);
-                        setProperties(node.getPropertyList(), entity);
-                        setLabels(node, entity);
-                        mappingContext.addNodeEntity(entity, node.getId());
+                if (entity == null) {
+                    // TODO make entity factory resolve public ??
+                    ClassInfo clsi = metadata.resolve(node.getLabels());
+                    if (clsi == null) {
+                        logger.debug("Could not find a class to map for labels " + Arrays.toString(node.getLabels()));
+                        continue;
                     }
-                    nodeIds.add(node.getId());
-                } catch (BaseClassNotFoundException e) {
-                    logger.debug(e.getMessage());
+                    Map<String, Object> allProps = new HashMap<>(toMap(node.getPropertyList()));
+                    getCompositeProperties(node.getPropertyList(), clsi).forEach( (k, v) -> {
+                        allProps.put(k.getName(), v);
+                    });
+
+                    entity = entityFactory.newObject(clsi.getUnderlyingClass(), allProps);
+                    EntityUtils.setIdentity(entity, node.getId(), metadata);
+                    setProperties(node.getPropertyList(), entity);
+                    setLabels(node, entity);
+                    mappingContext.addNodeEntity(entity, node.getId());
                 }
+                nodeIds.add(node.getId());
             }
         }
     }
 
-    private void setProperties(List<Property<String, Object>> propertyList, Object instance) {
-        ClassInfo classInfo = metadata.classInfo(instance);
+    /**
+     * Finds the composite properties of an entity type and build their values using a property list.
+     *
+     * @param propertyList The properties to convert from.
+     * @param classInfo The class to inspect for composite attributes.
+     * @return a map containing the values of the converted attributes, indexed by field object. Never null.
+     */
+    private Map<FieldInfo, Object> getCompositeProperties(List<Property<String, Object>> propertyList, ClassInfo classInfo) {
+
+        Map<FieldInfo, Object> compositeValues = new HashMap<>();
 
         Collection<FieldInfo> compositeFields = classInfo.fieldsInfo().compositeFields();
         if (compositeFields.size() > 0) {
             Map<String, ?> propertyMap = toMap(propertyList);
             for (FieldInfo field : compositeFields) {
                 CompositeAttributeConverter<?> converter = field.getCompositeConverter();
-                Object value = converter.toEntityAttribute(propertyMap);
-                FieldInfo writer = classInfo.getFieldInfo(field.getName());
-                writer.write(instance, value);
+                compositeValues.put(field, converter.toEntityAttribute(propertyMap));
             }
         }
+
+        return compositeValues;
+    }
+
+    private void setProperties(List<Property<String, Object>> propertyList, Object instance) {
+        ClassInfo classInfo = metadata.classInfo(instance);
+
+        getCompositeProperties(propertyList, classInfo).forEach( (field, v) -> field.write(instance, v));
 
         for (Property<?, ?> property : propertyList) {
             writeProperty(classInfo, instance, property);
@@ -376,7 +388,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         Map<String, Object> relProperties = new HashMap<>();
         for (Property<String, Object> property : edge.getPropertyList()) {
             relProperties.put(property.getKey(), property.getValue());
-        }
+        } // FIXME: composite
 
         // create and hydrate the new RE
         Object relationshipEntity = entityFactory

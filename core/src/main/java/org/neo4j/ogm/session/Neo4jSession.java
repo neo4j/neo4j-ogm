@@ -534,7 +534,6 @@ public class Neo4jSession implements Session {
             throw e;
         } finally {
             if (!transaction.status().equals(Transaction.Status.CLOSED)) {
-                //logger.error("TransactionLeak detected. Closing transaction {}", getTransaction());
                 transaction.close();
             }
         }

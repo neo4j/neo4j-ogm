@@ -20,13 +20,14 @@ import java.util.Map;
 
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.exceptions.ClientException;
+import org.neo4j.driver.v1.exceptions.DatabaseException;
+import org.neo4j.driver.v1.exceptions.TransientException;
 import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.drivers.bolt.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.RestModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.RowModelResponse;
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
-import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
@@ -149,9 +150,7 @@ public class BoltRequest implements Request {
 
             tx = (BoltTransaction) transactionManager.getCurrentTransaction();
             return tx.nativeBoltTransaction().run(request.getStatement(), parameterMap);
-        } catch (CypherException | ConnectionException ce) {
-            throw ce;
-        } catch (ClientException ce) {
+        } catch (ClientException | DatabaseException | TransientException ce) {
             throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
         }
     }

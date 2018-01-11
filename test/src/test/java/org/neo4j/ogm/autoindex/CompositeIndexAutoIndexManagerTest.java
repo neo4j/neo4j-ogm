@@ -3,7 +3,6 @@ package org.neo4j.ogm.autoindex;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
 
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.autoindex.CompositeIndexChild;
@@ -31,13 +30,6 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
 
         assumeTrue("This tests uses composite index and can only be run on Neo4j 3.2.0 and later",
             isVersionOrGreater("3.2.0"));
-    }
-
-    @Override
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
-        executeDrop(CONSTRAINT);
     }
 
     @Test

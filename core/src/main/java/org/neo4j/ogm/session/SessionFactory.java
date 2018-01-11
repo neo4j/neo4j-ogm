@@ -78,9 +78,9 @@ public class SessionFactory {
         this.metaData = new MetaData(packages);
         this.driver = newDriverInstance(configuration.getDriverClassName());
         this.driver.configure(configuration);
-        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, driver, configuration);
-        autoIndexManager.build();
         this.eventListeners = new CopyOnWriteArrayList<>();
+        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, configuration);
+        autoIndexManager.build((Neo4jSession) openSession());
     }
 
     private Driver newDriverInstance(String driverClassName) {

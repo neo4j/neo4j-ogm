@@ -23,16 +23,16 @@ import java.util.Optional;
 
 import org.neo4j.ogm.annotation.CompositeIndex;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.RowDataStatement;
-import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,18 +50,10 @@ public class AutoIndexManager {
 
     private final Configuration configuration;
 
-    private final Driver driver;
+    public AutoIndexManager(MetaData metaData, Configuration configuration) {
 
-    public AutoIndexManager(MetaData metaData, Driver driver, Configuration configuration) {
-
-        this.driver = initialiseDriver(driver);
         this.configuration = configuration;
         this.indexes = initialiseIndexMetadata(metaData);
-    }
-
-    private Driver initialiseDriver(Driver driver) {
-        driver.setTransactionManager(new DefaultTransactionManager(null, driver));
-        return driver;
     }
 
     private List<AutoIndex> initialiseIndexMetadata(MetaData metaData) {
@@ -110,18 +102,18 @@ public class AutoIndexManager {
     /**
      * Builds indexes according to the configured mode.
      */
-    public void build() {
+    public void build(Neo4jSession session) {
         switch (configuration.getAutoIndex()) {
             case ASSERT:
-                assertIndexes();
+                assertIndexes(session);
                 break;
 
             case UPDATE:
-                updateIndexes();
+                updateIndexes(session);
                 break;
 
             case VALIDATE:
-                validateIndexes();
+                validateIndexes(session);
                 break;
 
             case DUMP:
@@ -157,12 +149,12 @@ public class AutoIndexManager {
         }
     }
 
-    private void validateIndexes() {
+    private void validateIndexes(Neo4jSession session) {
 
         LOGGER.debug("Validating indexes and constraints");
 
         List<AutoIndex> copyOfIndexes = new ArrayList<>(indexes);
-        List<AutoIndex> dbIndexes = loadIndexesFromDB();
+        List<AutoIndex> dbIndexes = loadIndexesFromDB(session);
         copyOfIndexes.removeAll(dbIndexes);
 
         if (!copyOfIndexes.isEmpty()) {
@@ -178,13 +170,13 @@ public class AutoIndexManager {
         }
     }
 
-    private void assertIndexes() {
+    private void assertIndexes(Neo4jSession session) {
 
         LOGGER.debug("Asserting indexes and constraints");
 
         List<Statement> dropStatements = new ArrayList<>();
 
-        List<AutoIndex> dbIndexes = loadIndexesFromDB();
+        List<AutoIndex> dbIndexes = loadIndexesFromDB(session);
 
         for (AutoIndex dbIndex : dbIndexes) {
             LOGGER.debug("[{}] added to drop statements.", dbIndex.getDescription());
@@ -196,46 +188,53 @@ public class AutoIndexManager {
         dropIndexesRequest.setStatements(dropStatements);
         LOGGER.debug("Dropping all indexes and constraints");
 
-        try (Response<RowModel> response = driver.request().execute(dropIndexesRequest)) {
-        }
+        // make sure drop and create happen in separate transactions
+        // neo does not support that
+        session.doInTransaction( (transaction) -> {
+            session.requestHandler().execute(dropIndexesRequest);
+            return null;
+        }, Transaction.Type.READ_WRITE);
 
-        create();
+        create(session);
     }
 
-    private List<AutoIndex> loadIndexesFromDB() {
+    private List<AutoIndex> loadIndexesFromDB(Neo4jSession session) {
         DefaultRequest indexRequests = buildProcedures();
         List<AutoIndex> dbIndexes = new ArrayList<>();
-        try (Response<RowModel> response = driver.request().execute(indexRequests)) {
-            RowModel rowModel;
-            while ((rowModel = response.next()) != null) {
+        session.doInTransaction( (transaction -> {
+            try (Response<RowModel> response = session.requestHandler().execute(indexRequests)) {
+                RowModel rowModel;
+                while ((rowModel = response.next()) != null) {
 
-                // Ignore index descriptions for constraints
-                // neo4j up to 3.3 returns 3 columns, type in column number 2
-                // neo4j 3.4 returns 6 columns, type in column number 4
-                if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property") ||
-                    rowModel.getValues().length == 6 && rowModel.getValues()[4].equals("node_unique_property")) {
+                    // Ignore index descriptions for constraints
+                    // neo4j up to 3.3 returns 3 columns, type in column number 2
+                    // neo4j 3.4 returns 6 columns, type in column number 4
+                    if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property") ||
+                        rowModel.getValues().length == 6 && rowModel.getValues()[4].equals("node_unique_property")) {
 
-                    continue;
+                        continue;
+                    }
+
+                    Optional<AutoIndex> dbIndex = AutoIndex.parse((String) rowModel.getValues()[0]);
+                    dbIndex.ifPresent(dbIndexes::add);
                 }
-
-                Optional<AutoIndex> dbIndex = AutoIndex.parse((String) rowModel.getValues()[0]);
-                dbIndex.ifPresent(dbIndexes::add);
             }
-        }
+            return null;
+        }), Transaction.Type.READ_WRITE);
         return dbIndexes;
     }
 
-    private void updateIndexes() {
+    private void updateIndexes(Neo4jSession session) {
         LOGGER.info("Updating indexes and constraints");
 
         List<Statement> dropStatements = new ArrayList<>();
-        List<AutoIndex> dbIndexes = loadIndexesFromDB();
+        List<AutoIndex> dbIndexes = loadIndexesFromDB(session);
         for (AutoIndex dbIndex : dbIndexes) {
             if (dbIndex.hasOpposite() && indexes.contains(dbIndex.createOppositeIndex())) {
                 dropStatements.add(dbIndex.getDropStatement());
             }
         }
-        executeStatements(dropStatements);
+        executeStatements(session, dropStatements);
 
 
         List<Statement> createStatements = new ArrayList<>();
@@ -244,16 +243,19 @@ public class AutoIndexManager {
                 createStatements.add(index.getCreateStatement());
             }
         }
-        executeStatements(createStatements);
+        executeStatements(session, createStatements);
     }
 
-    private void executeStatements(List<Statement> statements) {
+    private void executeStatements(Neo4jSession session, List<Statement> statements) {
         DefaultRequest request = new DefaultRequest();
         request.setStatements(statements);
 
-        try (Response<RowModel> response = driver.request().execute(request)) {
-            // Success
-        }
+        session.doInTransaction( (transaction -> {
+            try (Response<RowModel> response = session.requestHandler().execute(request)) {
+                // Success
+            }
+            return null;
+        }), Transaction.Type.READ_WRITE);
     }
 
     private DefaultRequest buildProcedures() {
@@ -267,7 +269,7 @@ public class AutoIndexManager {
         return getIndexesRequest;
     }
 
-    private void create() {
+    private void create(Neo4jSession session) {
         // build indexes according to metadata
         List<Statement> statements = new ArrayList<>();
         for (AutoIndex index : indexes) {
@@ -279,9 +281,12 @@ public class AutoIndexManager {
         request.setStatements(statements);
         LOGGER.debug("Creating indexes and constraints.");
 
-        try (Response<RowModel> response = driver.request().execute(request)) {
-            // Success
-        }
+        session.doInTransaction( (transaction -> {
+            try (Response<RowModel> response = session.requestHandler().execute(request)) {
+                // Success
+            }
+            return null;
+        }), Transaction.Type.READ_WRITE);
     }
 
 }

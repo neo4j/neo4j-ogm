@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
@@ -57,6 +56,7 @@ import org.neo4j.ogm.session.request.strategy.impl.PathLoadClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 import org.neo4j.ogm.session.request.strategy.impl.SchemaLoadClauseBuilder;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.session.transaction.support.TransactionFunction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.utils.RelationshipUtils;
 import org.slf4j.Logger;
@@ -504,18 +504,18 @@ public class Neo4jSession implements Session {
      * @param cb The callback to execute.
      * @param <T> The result type.
      * @param txType Transaction type, readonly or not.
-     * @return The result of the statement.
+     * @return The result of the transaction function.
      */
-    public <T> T doInTransaction(Function<Transaction, T> cb, Transaction.Type txType) {
+    public <T> T doInTransaction(TransactionFunction<T> cb, Transaction.Type txType) {
 
         Transaction transaction = txManager.getCurrentTransaction();
         if (!driver.requiresTransaction() || transaction != null) {
-            return cb.apply(transaction);
+            return cb.doInTransaction();
         }
 
         transaction = beginTransaction(txType);
         try {
-            T result = cb.apply(transaction);
+            T result = cb.doInTransaction();
             if (transactionManager().canCommit()) {
                 transaction.commit();
             }

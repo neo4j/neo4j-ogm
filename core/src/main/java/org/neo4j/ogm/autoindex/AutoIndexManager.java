@@ -190,7 +190,7 @@ public class AutoIndexManager {
 
         // make sure drop and create happen in separate transactions
         // neo does not support that
-        session.doInTransaction(transaction -> {
+        session.doInTransaction( () -> {
             session.requestHandler().execute(dropIndexesRequest);
             return null;
         }, Transaction.Type.READ_WRITE);
@@ -201,7 +201,7 @@ public class AutoIndexManager {
     private List<AutoIndex> loadIndexesFromDB(Neo4jSession session) {
         DefaultRequest indexRequests = buildProcedures();
         List<AutoIndex> dbIndexes = new ArrayList<>();
-        session.doInTransaction( (transaction -> {
+        session.doInTransaction( () -> {
             try (Response<RowModel> response = session.requestHandler().execute(indexRequests)) {
                 RowModel rowModel;
                 while ((rowModel = response.next()) != null) {
@@ -220,7 +220,7 @@ public class AutoIndexManager {
                 }
             }
             return null;
-        }), Transaction.Type.READ_WRITE);
+        }, Transaction.Type.READ_WRITE);
         return dbIndexes;
     }
 
@@ -250,7 +250,7 @@ public class AutoIndexManager {
         DefaultRequest request = new DefaultRequest();
         request.setStatements(statements);
 
-        session.doInTransaction( transaction -> {
+        session.doInTransaction( () -> {
             try (Response<RowModel> response = session.requestHandler().execute(request)) {
                 // Success
             }
@@ -281,12 +281,12 @@ public class AutoIndexManager {
         request.setStatements(statements);
         LOGGER.debug("Creating indexes and constraints.");
 
-        session.doInTransaction( (transaction -> {
+        session.doInTransaction( () -> {
             try (Response<RowModel> response = session.requestHandler().execute(request)) {
                 // Success
             }
             return null;
-        }), Transaction.Type.READ_WRITE);
+        }, Transaction.Type.READ_WRITE);
     }
 
 }

@@ -112,7 +112,7 @@ public class DeleteDelegate {
                         }
                     }
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
-                    session.doInTransaction(transaction -> {
+                    session.doInTransaction( () -> {
                         try (Response<RowModel> response = session.requestHandler().execute(query)) {
                             if (session.metaData().isRelationshipEntity(classInfo.name())) {
                                 session.detachRelationshipEntity(identity);
@@ -155,7 +155,7 @@ public class DeleteDelegate {
             Statement request = getDeleteStatementsBasedOnType(type).delete(entityLabel);
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
             session.notifyListeners(new PersistenceEvent(type, Event.TYPE.PRE_DELETE));
-            session.doInTransaction(transaction -> {
+            session.doInTransaction( () -> {
                 try (Response<RowModel> response = session.requestHandler().execute(query)) {
                     session.context().removeType(type);
                     if (session.eventsEnabled()) {
@@ -271,7 +271,7 @@ public class DeleteDelegate {
     public void purgeDatabase() {
         Statement stmt = new NodeDeleteStatements().deleteAll();
         RowModelRequest query = new DefaultRowModelRequest(stmt.getStatement(), stmt.getParameters());
-        session.doInTransaction(transaction -> {
+        session.doInTransaction( () -> {
                 session.requestHandler().execute(query).close();
                 return null;
         }, Transaction.Type.READ_WRITE);

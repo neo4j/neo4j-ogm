@@ -98,7 +98,7 @@ public class ExecuteQueriesDelegate {
         ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()),
             session.metaData());
 
-        return session.doInTransaction(transaction -> {
+        return session.doInTransaction( () -> {
 
             try (Response<RestModel> response = session.requestHandler().execute(request)) {
                 Iterable<RestStatisticsModel> mappedModel = mapper.map(null, response);
@@ -116,7 +116,7 @@ public class ExecuteQueriesDelegate {
     private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters,
         ResponseMapper mapper) {
 
-        return session.<Iterable<T>>doInTransaction(transaction -> {
+        return session.<Iterable<T>>doInTransaction( () -> {
             if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {
@@ -168,7 +168,7 @@ public class ExecuteQueriesDelegate {
             }
             countStatement = new CountStatements().countNodes(labels);
         }
-        return session.doInTransaction(transaction -> {
+        return session.doInTransaction( () -> {
             try (Response<RowModel> response = session.requestHandler().execute((RowModelRequest) countStatement)) {
                 RowModel queryResult = response.next();
                 return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();

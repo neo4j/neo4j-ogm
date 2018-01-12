@@ -211,8 +211,9 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
                 .generatedIndexesOutputFilename(file.getName())
                 .build();
 
-            AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration);
-            indexManager.build(session);
+            Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
+            AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
+            indexManager.build();
 
             assertThat(file.exists()).isTrue();
             try (InputStream is = new FileInputStream(file)) {
@@ -227,8 +228,9 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
 
     void runAutoIndex(String mode) {
         Configuration configuration = getBaseConfiguration().autoIndex(mode).build();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration);
-        indexManager.build(session);
+        Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
+        indexManager.build();
     }
 
     void executeForIndexes(Consumer<List<IndexDefinition>> consumer) {

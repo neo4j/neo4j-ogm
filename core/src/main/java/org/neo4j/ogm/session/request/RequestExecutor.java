@@ -224,7 +224,7 @@ public class RequestExecutor {
         List<ReferenceMapping> entityReferenceMappings = new ArrayList<>();
         List<ReferenceMapping> relReferenceMappings = new ArrayList<>();
 
-        session.doInTransaction( () -> {
+        session.doInTransactionWithoutResult( () -> {
 
             //If there are statements that depend on new nodes i.e. relationships created between new nodes,
             //we must create the new nodes first, and then use their node IDs when creating relationships between them
@@ -263,7 +263,6 @@ public class RequestExecutor {
                 }
             }
 
-            return null;
         }, Transaction.Type.READ_WRITE);
 
         //Update the mapping context now that the request is successful

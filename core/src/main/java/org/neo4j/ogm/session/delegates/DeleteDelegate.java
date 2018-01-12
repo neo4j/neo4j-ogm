@@ -112,7 +112,7 @@ public class DeleteDelegate {
                         }
                     }
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
-                    session.doInTransaction( () -> {
+                    session.doInTransactionWithoutResult( () -> {
                         try (Response<RowModel> response = session.requestHandler().execute(query)) {
                             if (session.metaData().isRelationshipEntity(classInfo.name())) {
                                 session.detachRelationshipEntity(identity);
@@ -125,7 +125,6 @@ public class DeleteDelegate {
                                 }
                             }
                         }
-                        return null;
                     }, Transaction.Type.READ_WRITE);
 
                 }
@@ -155,14 +154,13 @@ public class DeleteDelegate {
             Statement request = getDeleteStatementsBasedOnType(type).delete(entityLabel);
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
             session.notifyListeners(new PersistenceEvent(type, Event.TYPE.PRE_DELETE));
-            session.doInTransaction( () -> {
+            session.doInTransactionWithoutResult( () -> {
                 try (Response<RowModel> response = session.requestHandler().execute(query)) {
                     session.context().removeType(type);
                     if (session.eventsEnabled()) {
                         session.notifyListeners(new PersistenceEvent(type, Event.TYPE.POST_DELETE));
                     }
                 }
-                return null;
             }, Transaction.Type.READ_WRITE);
         } else {
             session.warn(type.getName() + " is not a persistable class");
@@ -271,9 +269,8 @@ public class DeleteDelegate {
     public void purgeDatabase() {
         Statement stmt = new NodeDeleteStatements().deleteAll();
         RowModelRequest query = new DefaultRowModelRequest(stmt.getStatement(), stmt.getParameters());
-        session.doInTransaction( () -> {
-                session.requestHandler().execute(query).close();
-                return null;
+        session.doInTransactionWithoutResult( () -> {
+            session.requestHandler().execute(query).close();
         }, Transaction.Type.READ_WRITE);
         session.context().clear();
     }

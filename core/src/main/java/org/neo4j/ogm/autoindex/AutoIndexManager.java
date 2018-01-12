@@ -47,13 +47,15 @@ public class AutoIndexManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
 
     private final List<AutoIndex> indexes;
+    private Neo4jSession session;
 
     private final Configuration configuration;
 
-    public AutoIndexManager(MetaData metaData, Configuration configuration) {
+    public AutoIndexManager(MetaData metaData, Configuration configuration, Neo4jSession session) {
 
         this.configuration = configuration;
         this.indexes = initialiseIndexMetadata(metaData);
+        this.session = session;
     }
 
     private List<AutoIndex> initialiseIndexMetadata(MetaData metaData) {
@@ -102,18 +104,18 @@ public class AutoIndexManager {
     /**
      * Builds indexes according to the configured mode.
      */
-    public void build(Neo4jSession session) {
+    public void build() {
         switch (configuration.getAutoIndex()) {
             case ASSERT:
-                assertIndexes(session);
+                assertIndexes();
                 break;
 
             case UPDATE:
-                updateIndexes(session);
+                updateIndexes();
                 break;
 
             case VALIDATE:
-                validateIndexes(session);
+                validateIndexes();
                 break;
 
             case DUMP:
@@ -149,12 +151,12 @@ public class AutoIndexManager {
         }
     }
 
-    private void validateIndexes(Neo4jSession session) {
+    private void validateIndexes() {
 
         LOGGER.debug("Validating indexes and constraints");
 
         List<AutoIndex> copyOfIndexes = new ArrayList<>(indexes);
-        List<AutoIndex> dbIndexes = loadIndexesFromDB(session);
+        List<AutoIndex> dbIndexes = loadIndexesFromDB();
         copyOfIndexes.removeAll(dbIndexes);
 
         if (!copyOfIndexes.isEmpty()) {
@@ -170,13 +172,13 @@ public class AutoIndexManager {
         }
     }
 
-    private void assertIndexes(Neo4jSession session) {
+    private void assertIndexes() {
 
         LOGGER.debug("Asserting indexes and constraints");
 
         List<Statement> dropStatements = new ArrayList<>();
 
-        List<AutoIndex> dbIndexes = loadIndexesFromDB(session);
+        List<AutoIndex> dbIndexes = loadIndexesFromDB();
 
         for (AutoIndex dbIndex : dbIndexes) {
             LOGGER.debug("[{}] added to drop statements.", dbIndex.getDescription());
@@ -190,15 +192,14 @@ public class AutoIndexManager {
 
         // make sure drop and create happen in separate transactions
         // neo does not support that
-        session.doInTransaction( () -> {
+        session.doInTransactionWithoutResult( () -> {
             session.requestHandler().execute(dropIndexesRequest);
-            return null;
         }, Transaction.Type.READ_WRITE);
 
-        create(session);
+        create();
     }
 
-    private List<AutoIndex> loadIndexesFromDB(Neo4jSession session) {
+    private List<AutoIndex> loadIndexesFromDB() {
         DefaultRequest indexRequests = buildProcedures();
         List<AutoIndex> dbIndexes = new ArrayList<>();
         session.doInTransaction( () -> {
@@ -224,17 +225,17 @@ public class AutoIndexManager {
         return dbIndexes;
     }
 
-    private void updateIndexes(Neo4jSession session) {
+    private void updateIndexes() {
         LOGGER.info("Updating indexes and constraints");
 
         List<Statement> dropStatements = new ArrayList<>();
-        List<AutoIndex> dbIndexes = loadIndexesFromDB(session);
+        List<AutoIndex> dbIndexes = loadIndexesFromDB();
         for (AutoIndex dbIndex : dbIndexes) {
             if (dbIndex.hasOpposite() && indexes.contains(dbIndex.createOppositeIndex())) {
                 dropStatements.add(dbIndex.getDropStatement());
             }
         }
-        executeStatements(session, dropStatements);
+        executeStatements(dropStatements);
 
 
         List<Statement> createStatements = new ArrayList<>();
@@ -243,10 +244,10 @@ public class AutoIndexManager {
                 createStatements.add(index.getCreateStatement());
             }
         }
-        executeStatements(session, createStatements);
+        executeStatements(createStatements);
     }
 
-    private void executeStatements(Neo4jSession session, List<Statement> statements) {
+    private void executeStatements(List<Statement> statements) {
         DefaultRequest request = new DefaultRequest();
         request.setStatements(statements);
 
@@ -269,7 +270,7 @@ public class AutoIndexManager {
         return getIndexesRequest;
     }
 
-    private void create(Neo4jSession session) {
+    private void create() {
         // build indexes according to metadata
         List<Statement> statements = new ArrayList<>();
         for (AutoIndex index : indexes) {

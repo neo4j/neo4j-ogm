@@ -57,6 +57,7 @@ import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 import org.neo4j.ogm.session.request.strategy.impl.SchemaLoadClauseBuilder;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.session.transaction.support.TransactionFunction;
+import org.neo4j.ogm.session.transaction.support.TransactionFunctionWithoutResult;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.utils.RelationshipUtils;
 import org.slf4j.Logger;
@@ -498,24 +499,36 @@ public class Neo4jSession implements Session {
     }
 
     /**
+     * @see Neo4jSession#doInTransaction(org.neo4j.ogm.session.transaction.support.TransactionFunction, org.neo4j.ogm.transaction.Transaction.Type)
+     * @param function
+     * @param txType
+     */
+    public void doInTransactionWithoutResult(TransactionFunctionWithoutResult function, Transaction.Type txType) {
+        doInTransaction( () -> {
+            function.doInTransaction();
+            return null;
+        }, txType);
+    }
+
+    /**
      * For internal use only. Opens a new transaction if necessary before running statements
      * in case an explicit transaction does not exist. It is designed to be the central point
      * for handling exceptions coming from the DB and apply commit / rollback rules.
-     * @param cb The callback to execute.
+     * @param function The callback to execute.
      * @param <T> The result type.
      * @param txType Transaction type, readonly or not.
      * @return The result of the transaction function.
      */
-    public <T> T doInTransaction(TransactionFunction<T> cb, Transaction.Type txType) {
+    public <T> T doInTransaction(TransactionFunction<T> function, Transaction.Type txType) {
 
         Transaction transaction = txManager.getCurrentTransaction();
         if (!driver.requiresTransaction() || transaction != null) {
-            return cb.doInTransaction();
+            return function.doInTransaction();
         }
 
         transaction = beginTransaction(txType);
         try {
-            T result = cb.doInTransaction();
+            T result = function.doInTransaction();
             if (transactionManager().canCommit()) {
                 transaction.commit();
             }
@@ -526,7 +539,7 @@ public class Neo4jSession implements Session {
                 transaction.rollback();
             }
             throw e;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.warn("Error executing query : {}. Rolling back transaction.", e.getMessage());
             if(transactionManager().canRollback()) {
                 transaction.rollback();

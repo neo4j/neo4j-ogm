@@ -212,7 +212,6 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
             if (!nodeIds.contains(node.getId())) {
                 Object entity = mappingContext.getNodeEntity(node.getId());
                 if (entity == null) {
-                    // TODO make entity factory resolve public ??
                     ClassInfo clsi = metadata.resolve(node.getLabels());
                     if (clsi == null) {
                         logger.debug("Could not find a class to map for labels " + Arrays.toString(node.getLabels()));
@@ -385,14 +384,22 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
     private Object createRelationshipEntity(Edge edge, Object startEntity, Object endEntity) {
 
-        Map<String, Object> relProperties = new HashMap<>();
-        for (Property<String, Object> property : edge.getPropertyList()) {
-            relProperties.put(property.getKey(), property.getValue());
-        } // FIXME: composite
+        ClassInfo relationClassInfo = getRelationshipEntity(edge);
+        if (relationClassInfo == null) {
+            throw new MappingException("Could not find a class to map for relation " + edge);
+        }
+
+        Map<String, Object> allProps = new HashMap<>(toMap(edge.getPropertyList()));
+        getCompositeProperties(edge.getPropertyList(), relationClassInfo).forEach( (k, v) -> {
+            allProps.put(k.getName(), v);
+        });
+        // also add start and end node as valid constructor values
+        allProps.put(relationClassInfo.getStartNodeReader().getName(), startEntity);
+        allProps.put(relationClassInfo.getEndNodeReader().getName(), endEntity);
 
         // create and hydrate the new RE
         Object relationshipEntity = entityFactory
-            .newObject(getRelationshipEntity(edge).getUnderlyingClass(), relProperties);
+            .newObject(relationClassInfo.getUnderlyingClass(), allProps);
         EntityUtils.setIdentity(relationshipEntity, edge.getId(), metadata);
 
         // REs also have properties

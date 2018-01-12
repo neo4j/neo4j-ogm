@@ -15,6 +15,7 @@ package org.neo4j.ogm.autoindex;
 
 import static org.assertj.core.api.Assertions.*;
 
+import org.junit.After;
 import org.junit.Test;
 import org.neo4j.ogm.domain.autoindex.UniqueConstraintEntity;
 
@@ -29,6 +30,14 @@ public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTe
     public UniqueConstraintAutoIndexManagerTest() {
         super(CONSTRAINT,
             UniqueConstraintEntity.class.getName());
+    }
+
+    @After
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        // clean up index created in case this test in case it fails
+        executeDrop(INDEX);
     }
 
     @Test

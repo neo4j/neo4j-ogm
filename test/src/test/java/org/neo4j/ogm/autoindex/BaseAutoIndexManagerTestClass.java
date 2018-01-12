@@ -14,7 +14,6 @@
 package org.neo4j.ogm.autoindex;
 
 import static com.google.common.collect.Lists.*;
-import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -32,6 +31,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.ConstraintDefinition;
 import org.neo4j.graphdb.schema.IndexDefinition;
@@ -81,7 +81,6 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
     private GraphDatabaseService service;
     protected MetaData metaData;
     protected SessionFactory sessionFactory;
-    protected Neo4jSession session;
 
     public BaseAutoIndexManagerTestClass(String definition, String... packages) {
         this.definition = definition;
@@ -92,8 +91,8 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
     @Before
     public void setUp() throws Exception {
         service = getGraphDatabaseService();
-        session = (Neo4jSession) sessionFactory.openSession();
-        session.query("MATCH (n) DETACH DELETE n", emptyMap());
+
+        service.execute("MATCH (n) DETACH DELETE n");
 
         if (isEnterpriseEdition() && isVersionOrGreater("3.2.0")) {
             indexes = ENTERPRISE_INDEXES;
@@ -107,15 +106,9 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
     }
 
     @After
-    public void dropIndexesAndConstraints() throws Exception {
-        org.neo4j.ogm.model.Result result = session.query("call db.constraints()", emptyMap());
-        result.queryResults().forEach( it -> {
-            session.query("DROP " + it.get("description"), emptyMap());
-        });
-        result = session.query("call db.indexes()", emptyMap());
-        result.queryResults().forEach( it -> {
-            session.query("DROP " + it.get("description"), emptyMap());
-        });
+    public void tearDown() throws Exception {
+        executeDrop(definition);
+        executeDrop(statements);
     }
 
     @Test
@@ -255,13 +248,25 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
     void executeCreate(String... statements) {
         for (String statement : statements) {
             logger.info("Execute CREATE " + statement);
-            session.query("CREATE " + statement, emptyMap());
+            Result execute = service.execute("CREATE " + statement);
+            execute.close();
         }
     }
 
     void executeDrop(String... statements) {
         for (String statement : statements) {
-            session.query("DROP " + statement, emptyMap());
+            // need to handle transaction manually because when the service.execute fails with exception
+            // it does not clean up the tx resources, leading to deadlock later
+            Transaction tx = service.beginTx();
+            try {
+                service.execute("DROP " + statement);
+
+                tx.success();
+            } catch (Exception e) {
+                logger.trace("Could not execute drop for statement (this is likely expected) {}", statement, e);
+                tx.failure();
+            }
+            tx.close();
         }
     }
 }

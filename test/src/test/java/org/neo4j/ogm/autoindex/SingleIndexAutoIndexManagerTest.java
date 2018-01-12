@@ -15,6 +15,7 @@ package org.neo4j.ogm.autoindex;
 
 import static org.assertj.core.api.Assertions.*;
 
+import org.junit.After;
 import org.junit.Test;
 import org.neo4j.ogm.domain.autoindex.SingleIndexEntity;
 
@@ -28,6 +29,14 @@ public class SingleIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestCla
 
     public SingleIndexAutoIndexManagerTest() {
         super(INDEX, SingleIndexEntity.class.getName());
+    }
+
+    @After
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        // clean up in case this test fails
+        executeDrop(CONSTRAINT);
     }
 
     @Test

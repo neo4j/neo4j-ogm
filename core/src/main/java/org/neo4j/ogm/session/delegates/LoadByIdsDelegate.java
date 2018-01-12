@@ -65,7 +65,7 @@ public class LoadByIdsDelegate {
             .setPagination(pagination);
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
-        return session.doInTransaction((transaction) -> {
+        return session.doInTransaction(transaction -> {
             try (Response<GraphModel> response = session.requestHandler().execute(request)) {
                 Iterable<T> mapped = new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
 

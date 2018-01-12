@@ -71,7 +71,7 @@ public class LoadByTypeDelegate {
         query.setSortOrder(sortOrder)
             .setPagination(pagination);
 
-        return session.doInTransaction((transaction) -> {
+        return session.doInTransaction(transaction -> {
             if (query.needsRowResult()) {
                 DefaultGraphRowListModelRequest graphRowListModelRequest = new DefaultGraphRowListModelRequest(
                 query.getStatement(), query.getParameters());

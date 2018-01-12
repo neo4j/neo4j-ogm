@@ -75,7 +75,7 @@ public class LoadOneDelegate {
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
 
-        return session.doInTransaction((transaction) -> {
+        return session.doInTransaction(transaction -> {
             try (Response<GraphModel> response = session.requestHandler().execute(request)) {
                 new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
                 return lookup(type, id);

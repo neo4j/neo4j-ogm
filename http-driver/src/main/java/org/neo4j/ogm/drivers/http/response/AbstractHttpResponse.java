@@ -59,12 +59,13 @@ public abstract class AbstractHttpResponse<T> {
         try {
             this.httpResponse = httpResponse;
             this.results = httpResponse.getEntity().getContent();
-            JsonParser parser = ObjectMapperFactory.jsonFactory().createParser(results);
-            buffer = new TokenBuffer(parser);
-            //Copy the contents of the response into the token buffer.
-            //This is so that we do not have to serialize the response to textual json while we get to the end of the stream to check for errors
-            parser.nextToken();
-            buffer.copyCurrentStructure(parser);
+            try (JsonParser parser = ObjectMapperFactory.jsonFactory().createParser(results)) {
+                buffer = new TokenBuffer(parser);
+                //Copy the contents of the response into the token buffer.
+                //This is so that we do not have to serialize the response to textual json while we get to the end of the stream to check for errors
+                parser.nextToken();
+                buffer.copyCurrentStructure(parser);
+            }
             bufferParser = buffer.asParser();
         } catch (IOException ioException) {
             throw new RuntimeException(ioException);

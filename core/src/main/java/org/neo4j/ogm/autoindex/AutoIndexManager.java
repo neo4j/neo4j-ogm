@@ -190,7 +190,7 @@ public class AutoIndexManager {
 
         // make sure drop and create happen in separate transactions
         // neo does not support that
-        session.doInTransaction( (transaction) -> {
+        session.doInTransaction(transaction -> {
             session.requestHandler().execute(dropIndexesRequest);
             return null;
         }, Transaction.Type.READ_WRITE);
@@ -250,12 +250,12 @@ public class AutoIndexManager {
         DefaultRequest request = new DefaultRequest();
         request.setStatements(statements);
 
-        session.doInTransaction( (transaction -> {
+        session.doInTransaction( transaction -> {
             try (Response<RowModel> response = session.requestHandler().execute(request)) {
                 // Success
             }
             return null;
-        }), Transaction.Type.READ_WRITE);
+        }, Transaction.Type.READ_WRITE);
     }
 
     private DefaultRequest buildProcedures() {

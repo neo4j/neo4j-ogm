@@ -95,12 +95,13 @@ public class BoltRequest implements Request {
                 List<String> columnSet = result.keys();
                 columns = columnSet.toArray(new String[columnSet.size()]);
             }
-            RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager);
-            RowModel model;
-            while ((model = rowModelResponse.next()) != null) {
-                rowmodels.add(model);
+            try (RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager)) {
+                RowModel model;
+                while ((model = rowModelResponse.next()) != null) {
+                    rowmodels.add(model);
+                }
+                result.consume();
             }
-            result.consume();
         }
 
         final String[] finalColumns = columns;

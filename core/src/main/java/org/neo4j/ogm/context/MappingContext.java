@@ -484,8 +484,13 @@ public class MappingContext {
 
     public Long nativeId(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
-        generateIdIfNecessary(entity, classInfo);
 
+        if (classInfo == null) {
+            throw new IllegalArgumentException("Class " + entity.getClass() + " is not a valid entity class. "
+                + "Please check the entity mapping.");
+        }
+
+        generateIdIfNecessary(entity, classInfo);
         if (classInfo.hasIdentityField()) {
             return EntityUtils.identity(entity, metaData);
         } else {

@@ -85,7 +85,8 @@ public class SaveDelegate {
                     eventsDelegate.postSave();
                 }
             } else {
-                session.warn(object.getClass().getName() + " is not an instance of a persistable class");
+                throw new IllegalArgumentException("Class " + object.getClass() + " is not a valid entity class. "
+                    + "Please check the entity mapping.");
             }
         }
     }

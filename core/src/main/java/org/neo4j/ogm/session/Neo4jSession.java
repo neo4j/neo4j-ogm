@@ -52,9 +52,9 @@ import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
-import org.neo4j.ogm.session.request.strategy.impl.PathLoadClauseBuilder;
+import org.neo4j.ogm.session.request.strategy.impl.PathNodeLoadClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
-import org.neo4j.ogm.session.request.strategy.impl.SchemaLoadClauseBuilder;
+import org.neo4j.ogm.session.request.strategy.impl.SchemaNodeLoadClauseBuilder;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWork;
 import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWorkWithoutResult;
@@ -721,15 +721,15 @@ public class Neo4jSession implements Session {
 
     private LoadClauseBuilder loadClauseBuilder(int depth) {
         if (depth < 0) {
-            return new PathLoadClauseBuilder();
+            return new PathNodeLoadClauseBuilder();
         }
 
         switch (loadStrategy) {
             case PATH_LOAD_STRATEGY:
-                return new PathLoadClauseBuilder();
+                return new PathNodeLoadClauseBuilder();
 
             case SCHEMA_LOAD_STRATEGY:
-                return new SchemaLoadClauseBuilder(metaData.getSchema());
+                return new SchemaNodeLoadClauseBuilder(metaData.getSchema());
 
             default:
                 throw new IllegalStateException("Unknown loadStrategy " + loadStrategy);

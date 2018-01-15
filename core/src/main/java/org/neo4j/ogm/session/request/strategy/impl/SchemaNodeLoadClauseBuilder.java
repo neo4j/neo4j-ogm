@@ -23,14 +23,16 @@ import org.neo4j.ogm.metadata.schema.Schema;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
 
 /**
+ * Schema based load clause builder for nodes - starts from given node variable
+ *
  * @author Frantisek Hartman
  */
-public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
+public class SchemaNodeLoadClauseBuilder implements LoadClauseBuilder {
 
     private final Schema schema;
     private final boolean pretty;
 
-    public SchemaLoadClauseBuilder(Schema schema) {
+    public SchemaNodeLoadClauseBuilder(Schema schema) {
         this.schema = schema;
         this.pretty = false;
     }

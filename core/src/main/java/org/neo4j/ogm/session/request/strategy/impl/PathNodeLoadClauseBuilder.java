@@ -16,9 +16,11 @@ package org.neo4j.ogm.session.request.strategy.impl;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
 
 /**
+ * Path based load clause for nodes - starts from given node variable
+ *
  * @author Frantisek Hartman
  */
-public class PathLoadClauseBuilder implements LoadClauseBuilder {
+public class PathNodeLoadClauseBuilder implements LoadClauseBuilder {
 
     @Override
     public String build(String variable, String label, int depth) {

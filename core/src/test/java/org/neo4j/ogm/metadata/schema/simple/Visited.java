@@ -11,39 +11,28 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.metadata.schema;
+package org.neo4j.ogm.metadata.schema.simple;
+
+import java.util.Date;
+
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 /**
- * Relationship in a {@link Schema}
- *
+ * Relationship entity which is not referred from node entities
  * @author Frantisek Hartman
  */
-public interface Relationship {
+@RelationshipEntity(type = "VISITED")
+public class Visited {
 
-    /**
-     * Type of this relationship
-     */
-    String type();
+    Long id;
 
-    /**
-     * Direction of the relationship from given node
-     *
-     * @return direction
-     */
-    String direction(Node node);
+    @StartNode
+    Person person;
 
-    /**
-     * Return start node of this relationship
-     *
-     * @return start node
-     */
-    Node start();
+    @EndNode
+    Location location;
 
-    /**
-     * Return the other node on this side of the relationship
-     *
-     * @param node node
-     * @return the other node
-     */
-    Node other(Node node);
+    Date when;
 }

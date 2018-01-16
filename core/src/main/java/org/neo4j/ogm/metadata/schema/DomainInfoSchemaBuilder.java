@@ -78,6 +78,19 @@ public class DomainInfoSchemaBuilder {
                     createRelationship(node, fieldInfo);
                 }
 
+            } else {
+                String type = classInfo.neo4jName();
+                if (schema.getRelationship(type) == null) {
+                    if (classInfo.getStartNodeReader() == null || classInfo.getEndNodeReader() == null) {
+                        logger.warn("Start or end node not found for classInfo={}, is the metadata correct?",
+                            classInfo);
+                        continue;
+                    }
+
+                    NodeImpl start = getNodeByFieldAndContainingClass(classInfo, classInfo.getStartNodeReader());
+                    NodeImpl end = getNodeByFieldAndContainingClass(classInfo, classInfo.getEndNodeReader());
+                    schema.addRelationship(new RelationshipImpl(type, "OUTGOING", start, end));
+                }
             }
         }
     }
@@ -97,15 +110,11 @@ public class DomainInfoSchemaBuilder {
         if (otherClassInfo.isRelationshipEntity()) {
 
             if (relFieldInfo.relationshipDirection().equals(Relationship.OUTGOING)) {
-                Field endField = otherClassInfo.getEndNodeReader().getField();
-                Class endType = GenericUtils.findFieldType(endField, otherClassInfo.getUnderlyingClass());
-                toNode = getNodeByTypeDescriptor(endType.getName());
+                toNode = getNodeByFieldAndContainingClass(otherClassInfo, otherClassInfo.getEndNodeReader());
             } else {
                 // this will cover both incoming and UNDIRECTED
                 // start and end type for UNDIRECTED should be same
-                Field startField = otherClassInfo.getStartNodeReader().getField();
-                Class startType = GenericUtils.findFieldType(startField, otherClassInfo.getUnderlyingClass());
-                toNode = getNodeByTypeDescriptor(startType.getName());
+                toNode = getNodeByFieldAndContainingClass(otherClassInfo, otherClassInfo.getStartNodeReader());
             }
 
         } else {
@@ -121,6 +130,14 @@ public class DomainInfoSchemaBuilder {
         // - if it does it is different direction, may have different type other side (e.g. super type of fromNode)
         // - the relationship will be created when toNode is processed
         fromNode.addRelationship(relFieldInfo.getName(), relationship);
+    }
+
+    private NodeImpl getNodeByFieldAndContainingClass(ClassInfo classInfo, FieldInfo fieldInfo) {
+        NodeImpl toNode;
+        Field endField = fieldInfo.getField();
+        Class endType = GenericUtils.findFieldType(endField, classInfo.getUnderlyingClass());
+        toNode = getNodeByTypeDescriptor(endType.getName());
+        return toNode;
     }
 
     private NodeImpl getNodeByTypeDescriptor(String typeDescriptor) {

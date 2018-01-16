@@ -22,9 +22,14 @@ import java.util.Map;
 class SchemaImpl implements Schema {
 
     private Map<String, NodeImpl> nodes = new HashMap<>();
+    private Map<String, Relationship> relationships = new HashMap<>();
 
     void addNode(String label, NodeImpl node) {
         nodes.put(label, node);
+    }
+
+    void addRelationship(RelationshipImpl relationship) {
+        relationships.put(relationship.type(), relationship);
     }
 
     @Override
@@ -33,4 +38,16 @@ class SchemaImpl implements Schema {
             throw new IllegalArgumentException("Unknown label " + label);
         });
     }
+
+    @Override
+    public Relationship findRelationship(String type) {
+        return relationships.computeIfAbsent(type, s -> {
+            throw new IllegalArgumentException("Unknown type " + type);
+        });
+    }
+
+    Relationship getRelationship(String type) {
+        return relationships.get(type);
+    }
+
 }

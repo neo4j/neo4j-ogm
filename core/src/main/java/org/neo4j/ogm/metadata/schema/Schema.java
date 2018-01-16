@@ -26,4 +26,11 @@ public interface Schema {
      */
     Node findNode(String label);
 
+    /**
+     * Return schema {@link Relationship} for given relationship type
+     *
+     * @param type type of the relationship
+     * @return schema {@link Relationship}
+     */
+    Relationship findRelationship(String type);
 }

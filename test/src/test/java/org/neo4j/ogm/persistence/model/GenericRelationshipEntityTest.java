@@ -87,7 +87,6 @@ public class GenericRelationshipEntityTest extends MultiDriverTestClass {
         }
     }
 
-    @RelationshipEntity(type = "R")
     public static class RelationEntity<O, T> {
         @GraphId
         public Long id;

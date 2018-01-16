@@ -35,11 +35,12 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 public class RelationshipQueryStatementsTest {
 
     private final QueryStatements<Long> query = new RelationshipQueryStatements<>();
-    private final QueryStatements<String> primaryQuery = new RelationshipQueryStatements<>("uuid");
+    private final QueryStatements<String> primaryQuery = new RelationshipQueryStatements<>("uuid",
+        new PathRelationshipLoadClauseBuilder());
 
     @Test
     public void testFindOne() throws Exception {
-        assertThat(query.findOne(0L, 2).getStatement()).isEqualTo("MATCH ()-[r0]-() WHERE ID(r0)={id}  " +
+        assertThat(query.findOne(0L, 2).getStatement()).isEqualTo("MATCH ()-[r0]->() WHERE ID(r0)={id}  " +
             "WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
             "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
             "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
@@ -49,7 +50,7 @@ public class RelationshipQueryStatementsTest {
     @Test
     public void testFindOneByType() throws Exception {
         assertThat(query.findOneByType("ORBITS", 0L, 2).getStatement())
-            .isEqualTo("MATCH ()-[r0:`ORBITS`]-() WHERE ID(r0)={id}  " +
+            .isEqualTo("MATCH ()-[r0:`ORBITS`]->() WHERE ID(r0)={id}  " +
                 "WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
@@ -66,7 +67,7 @@ public class RelationshipQueryStatementsTest {
     public void testFindOneByTypePrimaryIndex() throws Exception {
         PagingAndSortingQuery query = primaryQuery.findOneByType("ORBITS", "test-uuid", 2);
         assertThat(query.getStatement())
-            .isEqualTo("MATCH ()-[r0:`ORBITS`]-() WHERE r0.`uuid`={id}  " +
+            .isEqualTo("MATCH ()-[r0:`ORBITS`]->() WHERE r0.`uuid`={id}  " +
                 "WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +

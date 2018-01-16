@@ -14,23 +14,29 @@
 package org.neo4j.ogm.session.request.strategy.impl;
 
 import org.neo4j.ogm.metadata.schema.Node;
+import org.neo4j.ogm.metadata.schema.Relationship;
 import org.neo4j.ogm.metadata.schema.Schema;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
 
 /**
- * Schema based load clause builder for nodes - starts from given node variable
- *
  * @author Frantisek Hartman
  */
-public class SchemaNodeLoadClauseBuilder extends AbstractSchemaLoadClauseBuilder implements LoadClauseBuilder {
+public class SchemaRelationshipLoadClauseBuilder extends AbstractSchemaLoadClauseBuilder implements LoadClauseBuilder {
 
-    public SchemaNodeLoadClauseBuilder(Schema schema) {
+
+    public SchemaRelationshipLoadClauseBuilder(Schema schema) {
         super(schema);
     }
 
+    @Override
+    public String build(String label, int depth) {
+        return build("r0", label, depth);
+    }
+
+    @Override
     public String build(String variable, String label, int depth) {
-        if (depth < 0) {
-            throw new IllegalArgumentException("Only queries with depth >= 0 can be built, depth=" + depth);
+        if (depth < 1) {
+            throw new IllegalArgumentException("Only positive depth parameter supported, depth = " + depth);
         }
 
         StringBuilder sb = new StringBuilder();
@@ -39,11 +45,18 @@ public class SchemaNodeLoadClauseBuilder extends AbstractSchemaLoadClauseBuilder
 
         sb.append(" RETURN ");
         newLine(sb);
-        sb.append("n");
+        sb.append(variable);
         newLine(sb);
 
-        Node node = schema.findNode(label);
-        expand(sb, variable, node, depth);
+        Relationship relationship = schema.findRelationship(label);
+
+        // one step is going from r to start and end node so pass depth - 1
+        sb.append(",n");
+        Node start = relationship.start();
+        expand(sb, "n", start, depth);
+        sb.append(",m");
+        Node end = relationship.other(start);
+        expand(sb, "m", end, depth);
 
         return sb.toString();
     }

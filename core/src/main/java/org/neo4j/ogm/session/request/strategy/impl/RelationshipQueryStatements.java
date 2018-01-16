@@ -37,14 +37,16 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
     private MatchClauseBuilder idCollectionMatchClauseBuilder = new IdCollectionMatchRelationshipClauseBuilder();
     private MatchClauseBuilder relTypeMatchClauseBuilder = new RelationshipTypeMatchClauseBuilder();
 
-    private LoadClauseBuilder loadClauseBuilder = new PathRelationshipLoadClauseBuilder();
+    private LoadClauseBuilder loadClauseBuilder;
     private String primaryId;
 
     public RelationshipQueryStatements() {
+        loadClauseBuilder = new PathRelationshipLoadClauseBuilder();
     }
 
-    public RelationshipQueryStatements(String primaryId) {
+    public RelationshipQueryStatements(String primaryId, LoadClauseBuilder loadClauseBuilder) {
         this.primaryId = primaryId;
+        this.loadClauseBuilder = loadClauseBuilder;
     }
 
     @Override

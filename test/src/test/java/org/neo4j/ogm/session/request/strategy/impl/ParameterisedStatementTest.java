@@ -64,7 +64,7 @@ public class ParameterisedStatementTest {
     public void testFindByTypeWithIllegalCharacter() throws Exception {
         query = new RelationshipQueryStatements().findByType("HAS-ALBUM", 1);
         assertThat(query.getStatement()).isEqualTo(
-            "MATCH ()-[r0:`HAS-ALBUM`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId");
+            "MATCH ()-[r0:`HAS-ALBUM`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
         assertThat(mapper.writeValueAsString(query.getParameters())).isEqualTo("{}");
     }
 
@@ -193,7 +193,7 @@ public class ParameterisedStatementTest {
             .findByType("HAS-ALBUM", new Filters().add(new Filter("fake-property", ComparisonOperator.EQUALS, "none")),
                 1);
         assertThat(query.getStatement()).isEqualTo(
-            "MATCH (n)-[r0:`HAS-ALBUM`]->(m) WHERE r0.`fake-property` = { `fake-property_0` }  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId");
+            "MATCH (n)-[r0:`HAS-ALBUM`]->(m) WHERE r0.`fake-property` = { `fake-property_0` }  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
         assertThat(mapper.writeValueAsString(query.getParameters())).isEqualTo("{\"fake-property_0\":\"none\"}");
     }
 }

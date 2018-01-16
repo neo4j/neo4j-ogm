@@ -23,18 +23,18 @@ public class IdCollectionMatchRelationshipClauseBuilder implements MatchClauseBu
     @Override
     public String build(String label) {
         if (label == null || label.isEmpty()) {
-            return "MATCH ()-[r0]-() WHERE ID(r0) IN {ids} ";
+            return "MATCH ()-[r0]-() WHERE ID(r0) IN {ids}  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m";
         } else {
-            return "MATCH ()-[r0:`" + label + "`]-() WHERE ID(r0) IN {ids} ";
+            return "MATCH ()-[r0:`" + label + "`]-() WHERE ID(r0) IN {ids}  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m";
         }
     }
 
     @Override
     public String build(String label, String property) {
         if (label == null || label.isEmpty()) {
-            return "MATCH ()-[r0]-() WHERE ID(r0) IN {ids} ";
+            return "MATCH ()-[r0]-() WHERE ID(r0) IN {ids}  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m ";
         } else {
-            return "MATCH ()-[r0:`" + label + "`]-() WHERE r0.`" + property + "` IN {ids} ";
+            return "MATCH ()-[r0:`" + label + "`]-() WHERE r0.`" + property + "` IN {ids}  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m";
         }
     }
 }

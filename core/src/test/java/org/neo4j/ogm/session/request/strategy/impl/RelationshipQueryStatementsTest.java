@@ -57,7 +57,7 @@ public class RelationshipQueryStatementsTest {
         // Also assert that an empty type is the same as the untyped findOne(..)
         assertEquals(query.findOneByType("", 0L, 2).getStatement(),
                 query.findOne(0L, 2).getStatement());
-        assertEquals(query.findOneByType(null, 0L, 2).getStatement(),
+        assertEquals(query.findOneByType((String) null, 0L, 2).getStatement(),
                 query.findOne(0L, 2).getStatement());
     }
 

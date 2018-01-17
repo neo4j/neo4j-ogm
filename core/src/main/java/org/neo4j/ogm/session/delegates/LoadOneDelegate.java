@@ -13,6 +13,7 @@
 package org.neo4j.ogm.session.delegates;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
@@ -57,7 +58,7 @@ public class LoadOneDelegate implements Capability.LoadOne {
         }
 
         QueryStatements queryStatements = session.queryStatementsFor(type);
-        PagingAndSortingQuery qry = queryStatements.findOneByType(session.entityType(type.getName()), id,depth);
+        PagingAndSortingQuery qry = queryStatements.findOneByType(classInfo.types(), id,depth);
 
         try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
             new GraphEntityMapper(session.metaData(), session.context()).map(type, response);

@@ -12,13 +12,11 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.model.RowModel;
@@ -141,7 +139,7 @@ public class DeleteDelegate implements Capability.Delete {
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
         if (classInfo != null) {
-            Statement request = getDeleteStatementsBasedOnType(type).delete(session.entityType(classInfo.name()));
+            Statement request = getDeleteStatementsBasedOnType(type).deleteAllByType(classInfo.types());
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
             session.notifyListeners(new PersistenceEvent(type, Event.TYPE.PRE_DELETE));
             try (Response<RowModel> response = session.requestHandler().execute(query)) {
@@ -169,7 +167,7 @@ public class DeleteDelegate implements Capability.Delete {
             if (classInfo.isRelationshipEntity()) {
                 query = new RelationshipDeleteStatements().deleteAndList(classInfo.neo4jName(), filters);
             } else {
-                query = new NodeDeleteStatements().deleteAndList(classInfo.neo4jName(), filters);
+                query = new NodeDeleteStatements().deleteAndList(classInfo.types(), filters);
             }
 
             if (listResults) {

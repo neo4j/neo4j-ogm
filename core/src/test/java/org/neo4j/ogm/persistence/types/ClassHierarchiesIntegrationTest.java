@@ -16,6 +16,7 @@ package org.neo4j.ogm.persistence.types;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
@@ -27,7 +28,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
+
+import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.hierarchy.domain.annotated.*;
 import org.neo4j.ogm.domain.hierarchy.domain.people.Bloke;
 import org.neo4j.ogm.domain.hierarchy.domain.people.Entity;
@@ -60,6 +64,8 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import static java.util.Collections.singleton;
 
 /**
  * Integration test for label-based mapping of class hierarchies.
@@ -731,5 +737,47 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertNotNull(m1);
         assertEquals("m1", m1.getName());
         assertEquals("c1", m1.getChildren().iterator().next().getName());
+    }
+
+    /**
+     * Issue 367
+     *
+     * This tests that all labels from hierarchy are used.
+     * First it creates node without a parent label.
+     * It should not be found by load* /count queries nor deleted by delete*
+     */
+    @Test
+    public void shouldMatchByAllLabels() {
+        Result result = getDatabase().execute("CREATE (n:PlainChildWithPlainConcreteParent {name:'Frank'}) RETURN ID(n)");
+        Long id = (Long) result.next().get("ID(n)");
+        Filter filter = new Filter("name", "Frank");
+
+        PlainChildWithPlainConcreteParent child = session.load(PlainChildWithPlainConcreteParent.class, id);
+        assertNull("Should not be able to load child without parent label", child);
+
+        Collection<PlainChildWithPlainConcreteParent> nodes = session.loadAll(PlainChildWithPlainConcreteParent.class);
+        assertEquals(0, nodes.size());
+
+        nodes = session.loadAll(PlainChildWithPlainConcreteParent.class, singleton(id));
+        assertEquals(0, nodes.size());
+
+        nodes = session.loadAll(PlainChildWithPlainConcreteParent.class, filter);
+        assertEquals(0, nodes.size());
+
+        long count = session.countEntitiesOfType(PlainChildWithPlainConcreteParent.class);
+        assertEquals(0, count);
+
+        count = session.count(PlainChildWithPlainConcreteParent.class, singleton(filter));
+        assertEquals(0, count);
+
+        session.deleteAll(PlainChildWithPlainConcreteParent.class);
+        assertSameGraph(getDatabase(), "CREATE (n:PlainChildWithPlainConcreteParent {name:'Frank'})");
+
+        session.delete(PlainChildWithPlainConcreteParent.class, singleton(filter), false);
+        assertSameGraph(getDatabase(), "CREATE (n:PlainChildWithPlainConcreteParent {name:'Frank'})");
+
+        getDatabase().execute("CREATE (n:PlainChildWithPlainConcreteParent:PlainConcreteParent {name:'Frank'})");
+        nodes = session.loadAll(PlainChildWithPlainConcreteParent.class, filter);
+        assertEquals(1, nodes.size());
     }
 }

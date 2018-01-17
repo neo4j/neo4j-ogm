@@ -214,6 +214,17 @@ public class ClassInfo {
         return collectLabels(new ArrayList<String>());
     }
 
+    public Collection<String> types() {
+        Collection<String> types = staticLabels();
+        if (types.isEmpty()) {
+
+            // this is a weird corner case where we query by non annotated abstract class / interface
+            types.add(neo4jName());
+        }
+        return types;
+    }
+
+
     public String neo4jName() {
         if (neo4jName == null) {
             try {

@@ -24,6 +24,8 @@ import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 
+import static org.neo4j.ogm.session.request.strategy.impl.TypesUtil.checkSingleType;
+
 /**
  * @author Luanne Misquitta
  * @author Jasper Blues
@@ -57,6 +59,12 @@ public class RelationshipDeleteStatements implements DeleteStatements {
     }
 
     @Override
+    public CypherQuery deleteAllByType(Collection<String> labels) {
+        checkSingleType(labels);
+        return delete(labels.iterator().next());
+    }
+
+    @Override
     public CypherQuery deleteAndCount(String type) {
         return new DefaultRowModelRequest(String.format("MATCH (n)-[r0:`%s`]-() DELETE r0 RETURN COUNT(r0)", type), Utils.map());
     }
@@ -74,6 +82,12 @@ public class RelationshipDeleteStatements implements DeleteStatements {
     }
 
     @Override
+    public CypherQuery delete(Collection<String> labels, Iterable<Filter> filters) {
+        checkSingleType(labels);
+        return delete(labels.iterator().next(), filters);
+    }
+
+    @Override
     public CypherQuery deleteAndCount(String type, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, filters);
         query.setReturnClause(" DELETE r0 RETURN COUNT(r0)");
@@ -81,9 +95,20 @@ public class RelationshipDeleteStatements implements DeleteStatements {
     }
 
     @Override
+    public CypherQuery deleteAndCount(Collection<String> labels, Iterable<Filter> filters) {
+        checkSingleType(labels);
+        return deleteAndCount(labels.iterator().next(), filters);
+    }
+
+    @Override
     public CypherQuery deleteAndList(String type, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, filters);
         query.setReturnClause(" DELETE r0 RETURN ID(r0)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
+    }
+
+    @Override
+    public CypherQuery deleteAndList(Collection<String> labels, Iterable<Filter> filters) {
+        return deleteAndList(labels.iterator().next(), filters);
     }
 }

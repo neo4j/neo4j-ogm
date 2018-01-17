@@ -25,6 +25,11 @@ import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+
+import static org.neo4j.ogm.session.request.strategy.impl.TypesUtil.labelsToType;
+
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -45,15 +50,18 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
 
     @Override
     public PagingAndSortingQuery findOne(ID id, int depth) {
-       return findOneByType("", id, depth);
+        return findOneByType("", id, depth);
     }
+
 
     @Override
     public PagingAndSortingQuery findOneByType(String label, ID id, int depth) {
-        String match = "n";
-        if (label != null && !label.equals("")) {
-            match = String.format("%s:`%s`", match, label);
-        }
+        return findOneByType(singleton(label), id, depth);
+    }
+
+    @Override
+    public PagingAndSortingQuery findOneByType(Collection<String> labels, ID id, int depth) {
+        String type = labelsToType(labels);
 
         int max = max(depth);
         int min = min(max);
@@ -63,9 +71,9 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
         if (max > 0) {
             String qry;
             if (primaryIndex != null) {
-                qry = String.format("MATCH (%s) WHERE n." + primaryIndex + " = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", match, min, max);
+                qry = String.format("MATCH (n%s) WHERE n." + primaryIndex + " = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", type, min, max);
             } else {
-                qry = String.format("MATCH (%s) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", match, min, max);
+                qry = String.format("MATCH (n%s) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", type, min, max);
             }
             return new DefaultGraphModelRequest(qry, Utils.map("id", id));
         } else {
@@ -90,6 +98,12 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
 
     @Override
     public PagingAndSortingQuery findAllByType(String label, Collection<ID> ids, int depth) {
+        return findAllByType(singleton(label), ids, depth);
+    }
+
+    @Override
+    public PagingAndSortingQuery findAllByType(Collection<String> types, Collection<ID> ids, int depth) {
+        String label = labelsToType(types);
         int max = max(depth);
         int min = min(max);
         if (depth < 0) {
@@ -98,9 +112,9 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
         if (max > 0) {
             String qry;
             if (primaryIndex != null) {
-                qry = String.format("MATCH (n:`%s`) WHERE n." + primaryIndex + " IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
+                qry = String.format("MATCH (n%s) WHERE n." + primaryIndex + " IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
             } else {
-                qry = String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
+                qry = String.format("MATCH (n%s) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
             }
             return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
         } else {
@@ -115,13 +129,19 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
 
     @Override
     public PagingAndSortingQuery findByType(String label, int depth) {
+        return findByType(singleton(label), depth);
+    }
+
+    @Override
+    public PagingAndSortingQuery findByType(Collection<String> labels, int depth) {
+        String label = labelsToType(labels);
         int max = max(depth);
         int min = min(max);
         if (depth < 0) {
             return InfiniteDepthReadStrategy.findByLabel(label);
         }
         if (max > 0) {
-            String qry = String.format("MATCH (n:`%s`) WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
+            String qry = String.format("MATCH (n%s) WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
             return new DefaultGraphModelRequest(qry, Utils.map());
         } else {
             return DepthZeroReadStrategy.findByLabel(label);
@@ -130,6 +150,12 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
 
     @Override
     public PagingAndSortingQuery findByType(String label, Filters parameters, int depth) {
+        return findByType(singletonList(label), parameters, depth);
+    }
+
+    @Override
+    public PagingAndSortingQuery findByType(Collection<String> labels, Filters parameters, int depth) {
+        String label = labelsToType(labels);
         int max = max(depth);
         int min = min(max);
         if (depth < 0) {
@@ -168,16 +194,16 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
         public static <ID extends Serializable> DefaultGraphModelRequest findAllByLabel(String label, Collection<ID> ids, String primaryIndex) {
             String queryString;
             if (primaryIndex != null) {
-                queryString = String.format("MATCH (n:`%s`) WHERE n." + primaryIndex + " IN { ids } RETURN n", label);
+                queryString = String.format("MATCH (n%s) WHERE n." + primaryIndex + " IN { ids } RETURN n", label);
             } else {
-                queryString = String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } RETURN n", label);
+                queryString = String.format("MATCH (n%s) WHERE ID(n) IN { ids } RETURN n", label);
             }
             return new DefaultGraphModelRequest(queryString, Utils.map("ids", ids));
         }
 
 
         public static DefaultGraphModelRequest findByLabel(String label) {
-            return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) RETURN n", label), Utils.map());
+            return new DefaultGraphModelRequest(String.format("MATCH (n%s) RETURN n", label), Utils.map());
         }
 
         public static DefaultGraphModelRequest findByProperties(String label, Filters parameters) {
@@ -203,18 +229,18 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
         public static <ID extends Serializable> DefaultGraphModelRequest findAllByLabel(String label, Collection<ID> ids, String primaryIndex) {
             String queryString;
             if (primaryIndex != null) {
-                queryString = String.format("MATCH (n:`%s`) WHERE n." + primaryIndex + " IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label);
+                queryString = String.format("MATCH (n%s) WHERE n." + primaryIndex + " IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label);
             } else {
-                queryString = String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label);
+                queryString = String.format("MATCH (n%s) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label);
             }
             return new DefaultGraphModelRequest(queryString, Utils.map("ids", ids));
         }
 
-        public static  DefaultGraphModelRequest findByLabel(String label) {
-            return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label), Utils.map());
+        public static DefaultGraphModelRequest findByLabel(String label) {
+            return new DefaultGraphModelRequest(String.format("MATCH (n%s) WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label), Utils.map());
         }
 
-        public static  DefaultGraphRowListModelRequest findByProperties(String label, Filters parameters) {
+        public static DefaultGraphRowListModelRequest findByProperties(String label, Filters parameters) {
             FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, parameters);
             query.setReturnClause(" WITH n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
             return new DefaultGraphRowListModelRequest(query.statement(), query.parameters());

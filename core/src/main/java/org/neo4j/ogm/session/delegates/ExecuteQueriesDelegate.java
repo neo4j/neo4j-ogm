@@ -156,8 +156,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             String type = classInfo.neo4jName();
             countStatement = new CountStatements().countEdges(start, type, end);
         } else {
-            Collection<String> labels = classInfo.staticLabels();
-            countStatement = new CountStatements().countNodes(labels);
+            countStatement = new CountStatements().countNodes(classInfo.types());
         }
         try (Response<RowModel> response = session.requestHandler().execute((RowModelRequest) countStatement)) {
             RowModel queryResult = response.next();
@@ -179,7 +178,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             if (classInfo.isRelationshipEntity()) {
                 query = new CountStatements().countEdges(classInfo.neo4jName(), filters);
             } else {
-                query = new CountStatements().countNodes(classInfo.neo4jName(), filters);
+                query = new CountStatements().countNodes(classInfo.types(), filters);
             }
             return count(query, classInfo.isRelationshipEntity());
         }

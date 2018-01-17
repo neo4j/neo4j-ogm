@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
+import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.session.Session;
@@ -35,7 +36,8 @@ public class IdGenerationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids"
+            , "org.neo4j.ogm.domain.annotations.invalid.ids");
     }
 
     @Before
@@ -165,6 +167,20 @@ public class IdGenerationTest extends MultiDriverTestClass {
         loaded = session.load(ValidAnnotations.RelationshipEntityWithId.class, rel.uuid);
         assertThat(loaded.startNode.identifier).isEqualTo(b1.identifier);
         assertThat(loaded.endNode.identifier).isEqualTo(b2.identifier);
+    }
+
+    @Test
+    public void shouldRejectSavingEntityWithoutId() throws Exception {
+        assertThatThrownBy(() -> session.save(new InvalidAnnotations.NeitherGraphIdOrId()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("is not a valid entity class");
+    }
+
+    @Test
+    public void shouldRejectDeletingEntityWithoutId() throws Exception {
+        assertThatThrownBy(() -> session.delete(new InvalidAnnotations.NeitherGraphIdOrId()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("is not a valid entity class");
     }
 
     public static class CustomIdStrategy implements IdStrategy {

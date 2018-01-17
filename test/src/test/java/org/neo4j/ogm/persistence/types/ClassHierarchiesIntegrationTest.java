@@ -504,7 +504,9 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void plainChildOfTransientParent() {
-        session.save(new PlainChildOfTransientParent());
+        assertThatThrownBy(() -> session.save(new PlainChildOfTransientParent()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("is not a valid entity class");
 
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
             assertThat(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext()).isFalse();
@@ -517,7 +519,10 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
      */
     @Test
     public void plainChildOfTransientInterface() {
-        session.save(new PlainChildOfTransientInterface());
+        assertThatThrownBy(() -> session.save(new PlainChildOfTransientInterface()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("is not a valid entity class");
+
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
             assertThat(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext()).isFalse();
             tx.success();
@@ -526,7 +531,10 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void transientChildWithPlainConcreteParent() {
-        session.save(new TransientChildWithPlainConcreteParent());
+        assertThatThrownBy(() -> session.save(new TransientChildWithPlainConcreteParent()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("is not a valid entity class");
+
 
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
             assertThat(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext()).isFalse();
@@ -536,17 +544,16 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void transientSingleClass() {
-        session.save(new TransientSingleClass());
-
-        try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            assertThat(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext()).isFalse();
-            tx.success();
-        }
+        assertThatThrownBy(() -> session.save(new TransientSingleClass()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("is not a valid entity class");
     }
 
     @Test
     public void transientSingleClassWithId() {
-        session.save(new TransientSingleClassWithId());
+        assertThatThrownBy(() -> session.save(new TransientSingleClassWithId()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("is not a valid entity class");
 
         try (Transaction tx = getGraphDatabaseService().beginTx()) {
             assertThat(GraphTestUtils.allNodes(getGraphDatabaseService()).iterator().hasNext()).isFalse();

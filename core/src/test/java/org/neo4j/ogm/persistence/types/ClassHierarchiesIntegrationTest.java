@@ -691,56 +691,6 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldReadHierarchy4() {
-        getDatabase().execute("CREATE (:Female {name:'Daniela'})," +
-                "(:Male {name:'Michal'})," +
-                "(:Bloke:Male {name:'Adam'})");
-
-        Female daniela = new Female("Daniela");
-        Male michal = new Male("Michal");
-        Bloke adam = new Bloke("Adam");
-
-        Collection<Male> males = session.loadAll(Male.class);
-        Collection<Female> females = session.loadAll(Female.class);
-        Collection<Bloke> blokes = session.loadAll(Bloke.class);
-
-        assertEquals(2, males.size());
-        assertTrue(males.containsAll(Arrays.asList(michal, adam)));
-
-        assertEquals(1, females.size());
-        assertTrue(females.contains(daniela));
-
-        assertEquals(1, blokes.size());
-        assertTrue(blokes.contains(adam));
-    }
-
-    @Test
-    // the logic of this test is debatable. the domain model and persisted schema are not the same.
-    public void shouldReadHierarchy5() {
-
-        getDatabase().execute("CREATE (:Female {name:'Daniela'})," +
-                "(:Male {name:'Michal'})," +
-                "(:Bloke {name:'Adam'})");
-
-        Female daniela = new Female("Daniela");
-        Male michal = new Male("Michal");
-        Bloke adam = new Bloke("Adam");
-
-        Collection<Male> males = session.loadAll(Male.class);
-        Collection<Female> females = session.loadAll(Female.class);
-        Collection<Bloke> blokes = session.loadAll(Bloke.class);
-
-        assertEquals(1, males.size());
-        assertTrue(males.containsAll(Arrays.asList(michal)));
-
-        assertEquals(1, females.size());
-        assertTrue(females.contains(daniela));
-
-        assertEquals(1, blokes.size());
-        assertTrue(blokes.contains(adam));
-    }
-
-    @Test
     public void shouldNotReadHierarchy() {
         getDatabase().execute("CREATE (:Person {name:'Daniela'})");
         assertEquals(0, session.loadAll(Person.class).size());

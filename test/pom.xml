@@ -24,6 +24,10 @@
 
     <artifactId>neo4j-ogm-test</artifactId>
 
+    <properties>
+        <java-module-name>org.neo4j.ogm.testutil</java-module-name>
+    </properties>
+
     <dependencies>
 
         <dependency>

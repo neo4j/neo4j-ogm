@@ -24,6 +24,10 @@
 
     <artifactId>neo4j-ogm-core</artifactId>
 
+    <properties>
+        <java-module-name>org.neo4j.ogm.core</java-module-name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>

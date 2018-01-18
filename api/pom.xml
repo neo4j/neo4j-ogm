@@ -24,6 +24,10 @@
 
   <artifactId>neo4j-ogm-api</artifactId>
 
+  <properties>
+    <java-module-name>org.neo4j.ogm.drivers.api</java-module-name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>

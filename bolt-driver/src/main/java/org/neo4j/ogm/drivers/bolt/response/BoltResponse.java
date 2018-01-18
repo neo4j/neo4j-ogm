@@ -18,7 +18,6 @@ import java.util.Set;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.exceptions.ClientException;
-import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -45,10 +44,6 @@ public abstract class BoltResponse<T> implements Response {
         try {
             return fetchNext();
         } catch (ClientException ce) {
-            BoltTransaction tx = (BoltTransaction) transactionManager.getCurrentTransaction();
-            if (tx != null) {
-                tx.rollback();
-            }
             LOGGER.debug("Error executing Cypher: {}, {}", ce.code(), ce.getMessage());
             throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
         }

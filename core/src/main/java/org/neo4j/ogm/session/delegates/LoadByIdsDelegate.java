@@ -31,6 +31,7 @@ import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
+import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,20 +65,22 @@ public class LoadByIdsDelegate {
             .setPagination(pagination);
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
-        try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-            Iterable<T> mapped = new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+        return session.doInTransaction( () -> {
+            try (Response<GraphModel> response = session.requestHandler().execute(request)) {
+                Iterable<T> mapped = new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
 
-            if (sortOrder.sortClauses().isEmpty()) {
-                return sortResultsByIds(type, ids, mapped);
-            }
-            Set<T> results = new LinkedHashSet<>();
-            for (T entity : mapped) {
-                if (includeMappedEntity(ids, entity)) {
-                    results.add(entity);
+                if (sortOrder.sortClauses().isEmpty()) {
+                    return sortResultsByIds(type, ids, mapped);
                 }
+                Set<T> results = new LinkedHashSet<>();
+                for (T entity : mapped) {
+                    if (includeMappedEntity(ids, entity)) {
+                        results.add(entity);
+                    }
+                }
+                return results;
             }
-            return results;
-        }
+        }, Transaction.Type.READ_ONLY);
     }
 
     private <T, ID extends Serializable> Set<T> sortResultsByIds(Class<T> type, Collection<ID> ids,

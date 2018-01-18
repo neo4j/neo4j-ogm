@@ -20,13 +20,14 @@ import java.util.Map;
 
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.exceptions.ClientException;
+import org.neo4j.driver.v1.exceptions.DatabaseException;
+import org.neo4j.driver.v1.exceptions.TransientException;
 import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.drivers.bolt.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.RestModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.RowModelResponse;
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
-import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
@@ -94,12 +95,13 @@ public class BoltRequest implements Request {
                 List<String> columnSet = result.keys();
                 columns = columnSet.toArray(new String[columnSet.size()]);
             }
-            RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager);
-            RowModel model;
-            while ((model = rowModelResponse.next()) != null) {
-                rowmodels.add(model);
+            try (RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager)) {
+                RowModel model;
+                while ((model = rowModelResponse.next()) != null) {
+                    rowmodels.add(model);
+                }
+                result.consume();
             }
-            result.consume();
         }
 
         final String[] finalColumns = columns;
@@ -144,34 +146,13 @@ public class BoltRequest implements Request {
     private StatementResult executeRequest(Statement request) {
         BoltTransaction tx;
         try {
-
             Map<String, Object> parameterMap = mapper.convertValue(request.getParameters(), MAP_TYPE_REF);
             LOGGER.info("Request: {} with params {}", request.getStatement(), parameterMap);
 
-            if (transactionManager.getCurrentTransaction() == null) {
-                org.neo4j.ogm.transaction.Transaction autoCommitTx = transactionManager.openTransaction();
-                tx = (BoltTransaction) autoCommitTx;
-                StatementResult statementResult = tx.nativeBoltTransaction().run(request.getStatement(), parameterMap);
-                tx.commit();
-                tx.close();
-                return statementResult;
-            }
             tx = (BoltTransaction) transactionManager.getCurrentTransaction();
             return tx.nativeBoltTransaction().run(request.getStatement(), parameterMap);
-        } catch (CypherException | ConnectionException ce) {
-            throw ce;
-        } catch (ClientException ce) {
-            tx = (BoltTransaction) transactionManager.getCurrentTransaction();
-            if (tx != null) {
-                tx.rollback();
-            }
+        } catch (ClientException | DatabaseException | TransientException ce) {
             throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
-        } catch (Exception e) {
-            tx = (BoltTransaction) transactionManager.getCurrentTransaction();
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw new RuntimeException(e);
         }
     }
 }

@@ -29,6 +29,7 @@ import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
+import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,20 +71,21 @@ public class LoadByTypeDelegate {
         query.setSortOrder(sortOrder)
             .setPagination(pagination);
 
-        if (query.needsRowResult()) {
-            DefaultGraphRowListModelRequest graphRowListModelRequest = new DefaultGraphRowListModelRequest(
+        return session.doInTransaction( () -> {
+            if (query.needsRowResult()) {
+                DefaultGraphRowListModelRequest graphRowListModelRequest = new DefaultGraphRowListModelRequest(
                 query.getStatement(), query.getParameters());
-            try (Response<GraphRowListModel> response = session.requestHandler().execute(graphRowListModelRequest)) {
-                return (Collection<T>) new GraphRowListModelMapper(session.metaData(), session.context())
+                try (Response<GraphRowListModel> response = session.requestHandler().execute(graphRowListModelRequest)) {
+                    return (Collection<T>) new GraphRowListModelMapper(session.metaData(), session.context())
                     .map(type, response);
+                }
+            } else {
+                GraphModelRequest request = new DefaultGraphModelRequest(query.getStatement(), query.getParameters());
+                try (Response<GraphModel> response = session.requestHandler().execute(request)) {
+                    return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+                }
             }
-        } else {
-            GraphModelRequest request = new DefaultGraphModelRequest(query.getStatement(), query.getParameters());
-            try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
-            }
-        }
-
+        }, Transaction.Type.READ_WRITE);
     }
 
     public <T> Collection<T> loadAll(Class<T> type) {

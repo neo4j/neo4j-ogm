@@ -168,7 +168,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         album = session.load(Album.class, beatlesId, 0);
         assertThat(album).isNull();
 
-        artist = session.load(Artist.class, 10l); //ID does not exist
+        artist = session.load(Artist.class, Long.MAX_VALUE); //ID does not exist
         assertThat(artist).isNull();
     }
 

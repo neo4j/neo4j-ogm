@@ -180,7 +180,12 @@ public class AutoIndexManager {
         try (Response<RowModel> response = driver.request().execute(indexRequests)) {
             RowModel rowModel;
             while ((rowModel = response.next()) != null) {
-                if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property")) {
+                // Ignore index descriptions for constraints
+                // neo4j up to 3.3 returns 3 columns, type in column number 2
+                // neo4j 3.4 returns 6 columns, type in column number 4
+                if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property") ||
+                    rowModel.getValues().length == 6 && rowModel.getValues()[4].equals("node_unique_property")) {
+
                     continue;
                 }
                 // can replace this with a lookup of the Index by description but attaching DROP here is faster.

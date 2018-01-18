@@ -16,6 +16,7 @@ package org.neo4j.ogm.drivers;
 import org.junit.Test;
 import org.neo4j.ogm.drivers.http.request.HttpRequestException;
 import org.neo4j.ogm.exception.ConnectionException;
+import org.neo4j.ogm.service.Component;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -25,6 +26,12 @@ import org.neo4j.ogm.session.SessionFactory;
  * @author Luanne Misquitta
  */
 public class DriverExceptionTest {
+
+	@Test
+	public void cleanUp() {
+		// This should cleanup the configuration after this test messes things up
+		Components.autoConfigure();
+	}
 
 	@Test(expected = ConnectionException.class)
 	public void shouldThrowExceptionWhenHttpDriverCannotConnect() {

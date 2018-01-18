@@ -37,6 +37,8 @@ import org.neo4j.graphdb.schema.ConstraintDefinition;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,12 +78,14 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
     private String[] statements;
     private String definition;
 
-    protected GraphDatabaseService service;
+    private GraphDatabaseService service;
     protected MetaData metaData;
+    protected SessionFactory sessionFactory;
 
     public BaseAutoIndexManagerTestClass(String definition, String... packages) {
         this.definition = definition;
         this.metaData = new MetaData(packages);
+        sessionFactory = new SessionFactory(driver, packages);
     }
 
     @Before
@@ -200,7 +204,8 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
                 .generatedIndexesOutputFilename(file.getName())
                 .build();
 
-            AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
+            Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
+            AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
             indexManager.build();
 
             assertThat(file.exists()).isTrue();
@@ -216,7 +221,8 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
 
     void runAutoIndex(String mode) {
         Configuration configuration = getBaseConfiguration().autoIndex(mode).build();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
+        Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
         indexManager.build();
     }
 

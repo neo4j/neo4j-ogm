@@ -21,16 +21,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.RowDataStatement;
-import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,21 +47,15 @@ public class AutoIndexManager {
     private static final Map<String, Object> EMPTY_MAP = Collections.emptyMap();
 
     private final List<AutoIndex> indexes;
+    private Neo4jSession session;
 
     private final Configuration configuration;
 
-    private final Driver driver;
+    public AutoIndexManager(MetaData metaData, Configuration configuration, Neo4jSession session) {
 
-    public AutoIndexManager(MetaData metaData, Driver driver, Configuration configuration) {
-
-        this.driver = initialiseDriver(driver);
         this.configuration = configuration;
         this.indexes = initialiseIndexMetadata(metaData);
-    }
-
-    private Driver initialiseDriver(Driver driver) {
-        driver.setTransactionManager(new DefaultTransactionManager(null, driver));
-        return driver;
+        this.session = session;
     }
 
     private List<AutoIndex> initialiseIndexMetadata(MetaData metaData) {
@@ -136,25 +130,28 @@ public class AutoIndexManager {
         DefaultRequest indexRequests = buildProcedures();
         List<AutoIndex> copyOfIndexes = new ArrayList<>(indexes);
 
-        try (Response<RowModel> response = driver.request().execute(indexRequests)) {
-            RowModel rowModel;
-            while ((rowModel = response.next()) != null) {
-                if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property")) {
-                    continue;
-                }
-                for (AutoIndex index : indexes) {
-                    String description = index.getDescription();
+        try (Transaction tx = session.beginTransaction()) {
+            try (Response<RowModel> response = session.requestHandler().execute(indexRequests)) {
+                RowModel rowModel;
+                while ((rowModel = response.next()) != null) {
+                    if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property")) {
+                        continue;
+                    }
+                    for (AutoIndex index : indexes) {
+                        String description = index.getDescription();
 
-                    // The rowModel values below, as returned from the request to Neo4j, do not contain escape characters
-                    // Therefore remove escape characters from the description so as to correctly match the rowModel values
-                    description = description.replace("`", "");
+                        // The rowModel values below, as returned from the request to Neo4j, do not contain escape characters
+                        // Therefore remove escape characters from the description so as to correctly match the rowModel values
+                        description = description.replace("`", "");
 
-                    if (description.replaceAll("\\s+", "")
-                        .equalsIgnoreCase(((String) rowModel.getValues()[0]).replaceAll("\\s+", ""))) {
-                        copyOfIndexes.remove(index);
+                        if (description.replaceAll("\\s+", "")
+                            .equalsIgnoreCase(((String) rowModel.getValues()[0]).replaceAll("\\s+", ""))) {
+                            copyOfIndexes.remove(index);
+                        }
                     }
                 }
             }
+            tx.commit();
         }
 
         if (!copyOfIndexes.isEmpty()) {
@@ -177,39 +174,44 @@ public class AutoIndexManager {
         DefaultRequest indexRequests = buildProcedures();
         List<Statement> dropStatements = new ArrayList<>();
 
-        try (Response<RowModel> response = driver.request().execute(indexRequests)) {
+        try (Transaction tx = session.beginTransaction()) {try (Response<RowModel> response = session.requestHandler().execute(indexRequests)) {
             RowModel rowModel;
             while ((rowModel = response.next()) != null) {
                 // Ignore index descriptions for constraints
                 // neo4j up to 3.3 returns 3 columns, type in column number 2
                 // neo4j 3.4 returns 6 columns, type in column number 4
-                if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property") ||
+                if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property")||
                     rowModel.getValues().length == 6 && rowModel.getValues()[4].equals("node_unique_property")) {
-
                     continue;
                 }
                 // can replace this with a lookup of the Index by description but attaching DROP here is faster.
                 String statement = (String) rowModel.getValues()[0];
 
-                // The statement is provided by the response from Neo4j and may not be property escaped for execution
-                if (statement.startsWith("CONSTRAINT")) {
-                    statement = escapeConstraintStatement(statement);
-                } else if (statement.startsWith("INDEX")) {
-                    statement = escapeIndexStatement(statement);
+                    // The statement is provided by the response from Neo4j and may not be property escaped for execution
+                    if (statement.startsWith("CONSTRAINT")) {
+                        statement = escapeConstraintStatement(statement);
+                    } else if (statement.startsWith("INDEX")) {
+                        statement = escapeIndexStatement(statement);
+                    }
+
+                    final String dropStatement = "DROP " + statement;
+
+                    LOGGER.debug("[{}] added to drop statements.", dropStatement);
+                    dropStatements.add(new RowDataStatement(dropStatement, EMPTY_MAP));
                 }
-
-                final String dropStatement = "DROP " + statement;
-
-                LOGGER.debug("[{}] added to drop statements.", dropStatement);
-                dropStatements.add(new RowDataStatement(dropStatement, EMPTY_MAP));
             }
+            tx.commit();
         }
 
         DefaultRequest dropIndexesRequest = new DefaultRequest();
         dropIndexesRequest.setStatements(dropStatements);
         LOGGER.debug("Dropping all indexes and constraints");
 
-        try (Response<RowModel> response = driver.request().execute(dropIndexesRequest)) {
+        // make sure drop and create happen in separate transactions
+        // neo does not support that
+        try (Transaction tx = session.beginTransaction()) {
+            session.requestHandler().execute(dropIndexesRequest);
+            tx.commit();
         }
 
         create();
@@ -238,8 +240,11 @@ public class AutoIndexManager {
         request.setStatements(statements);
         LOGGER.debug("Creating indexes and constraints.");
 
-        try (Response<RowModel> response = driver.request().execute(request)) {
-            // Success
+        try (Transaction tx = session.beginTransaction()) {
+            try (Response<RowModel> response = session.requestHandler().execute(request)) {
+                // Success
+            }
+            tx.commit();
         }
     }
 

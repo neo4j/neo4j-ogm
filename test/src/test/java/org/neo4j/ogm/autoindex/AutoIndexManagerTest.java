@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
@@ -23,6 +25,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 public class AutoIndexManagerTest extends MultiDriverTestClass {
 
     private MetaData metaData = new MetaData("org.neo4j.ogm.domain.forum");
+    private SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.forum");
 
     private static final String CREATE_LOGIN_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( `login`:`Login` ) ASSERT `login`.`userName` IS UNIQUE";
     private static final String CREATE_TAG_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( `t-a-g`:`T-A-G` ) ASSERT `t-a-g`.`short-description` IS UNIQUE";
@@ -61,7 +64,8 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
         createConstraints();
 
         Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
+        Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
         assertThat(indexManager.getIndexes()).hasSize(2);
         indexManager.build();
 
@@ -71,7 +75,8 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
     @Test(expected = MissingIndexException.class)
     public void testIndexesAreFailValidation() {
         Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
+        Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
         indexManager.build();
     }
 
@@ -89,7 +94,8 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
                 .generatedIndexesOutputFilename("test.cql")
                 .build();
 
-            AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
+            Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
+            AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
             assertThat(indexManager.getIndexes()).hasSize(2);
             indexManager.build();
 
@@ -113,7 +119,8 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
         createConstraints();
 
         Configuration configuration = getBaseConfiguration().autoIndex("assert").build();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
+        Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
 
         assertThat(indexManager.getIndexes()).hasSize(2);
         indexManager.build();

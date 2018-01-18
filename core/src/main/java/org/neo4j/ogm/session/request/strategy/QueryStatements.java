@@ -45,6 +45,8 @@ public interface QueryStatements<ID extends Serializable> {
      */
     PagingAndSortingQuery findOneByType(String label, ID id, int depth);
 
+    PagingAndSortingQuery findOneByType(Collection<String> labels, ID id, int depth);
+
     /**
      * construct a query to fetch all objects
      * @return a {@link PagingAndSortingQuery}
@@ -68,6 +70,7 @@ public interface QueryStatements<ID extends Serializable> {
      */
     PagingAndSortingQuery findAllByType(String type, Collection<ID> ids, int depth);
 
+    PagingAndSortingQuery findAllByType(Collection<String> types, Collection<ID> ids, int depth);
     /**
      * construct queries to fetch all objects with the specified label or relationship type
      * @param type the label attached to the object, or the relationship type
@@ -75,6 +78,8 @@ public interface QueryStatements<ID extends Serializable> {
      * @return a {@link PagingAndSortingQuery}
      */
     PagingAndSortingQuery findByType(String type, int depth);
+
+    PagingAndSortingQuery findByType(Collection<String> type, int depth);
 
     /**
      * construct queries to fetch all objects with the specified label that match the specified filters
@@ -85,5 +90,7 @@ public interface QueryStatements<ID extends Serializable> {
      */
 
     PagingAndSortingQuery findByType(String type, Filters filters, int depth);
+
+    PagingAndSortingQuery findByType(Collection<String> type, Filters filters, int depth);
 
 }

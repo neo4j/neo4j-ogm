@@ -26,6 +26,8 @@ import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
+import static org.neo4j.ogm.session.request.strategy.impl.TypesUtil.checkSingleType;
+
 /**
  * @author Luanne Misquitta
  */
@@ -137,4 +139,28 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
     private int max(int depth) {
 		return Math.max(0, depth);
 	}
+
+    @Override
+    public PagingAndSortingQuery findOneByType(Collection<String> types, ID id, int depth) {
+        checkSingleType(types);
+        return findOneByType(types.iterator().next(), id, depth);
+    }
+
+    @Override
+    public PagingAndSortingQuery findAllByType(Collection<String> types, Collection<ID> ids, int depth) {
+        checkSingleType(types);
+        return findAllByType(types.iterator().next(), ids, depth);
+    }
+
+    @Override
+    public PagingAndSortingQuery findByType(Collection<String> types, int depth) {
+        checkSingleType(types);
+        return findByType(types.iterator().next(), depth);
+    }
+
+    @Override
+    public PagingAndSortingQuery findByType(Collection<String> types, Filters filters, int depth) {
+        checkSingleType(types);
+        return findByType(types.iterator().next(), filters, depth);
+    }
 }

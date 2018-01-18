@@ -49,8 +49,11 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination, int depth) {
 
-        //session.ensureTransaction();
-        String entityType = session.entityType(type.getName());
+        ClassInfo classInfo = session.metaData().classInfo(type.getName());
+        if (classInfo == null) {
+            throw new IllegalArgumentException(type + " is not a managed entity.");
+        }
+
         QueryStatements queryStatements = session.queryStatementsFor(type);
 
         session.resolvePropertyAnnotations(type, sortOrder);
@@ -61,7 +64,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
         // though they are at the moment because of the problems with "graph" response format.
         if (filters.isEmpty()) {
 
-            PagingAndSortingQuery qry = queryStatements.findByType(entityType, depth)
+            PagingAndSortingQuery qry = queryStatements.findByType(classInfo.types(), depth)
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 
@@ -80,7 +83,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
 
             session.resolvePropertyAnnotations(type, filters);
 
-            PagingAndSortingQuery query = queryStatements.findByType(entityType, filters, depth)
+            PagingAndSortingQuery query = queryStatements.findByType(classInfo.types(), filters, depth)
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 

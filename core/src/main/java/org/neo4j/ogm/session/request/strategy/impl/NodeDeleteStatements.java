@@ -22,6 +22,10 @@ import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 
+import static java.util.Collections.singleton;
+
+import static org.neo4j.ogm.session.request.strategy.impl.TypesUtil.labelsToType;
+
 /**
  * @author Luanne Misquitta
  */
@@ -55,7 +59,13 @@ public class NodeDeleteStatements implements DeleteStatements {
 
     @Override
     public CypherQuery delete(String label) {
-        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", label), Utils.map());
+        return deleteAllByType(singleton(label));
+    }
+
+    @Override
+    public CypherQuery deleteAllByType(Collection<String> labels) {
+        String type = labelsToType(labels);
+        return new DefaultRowModelRequest(String.format("MATCH (n%s) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", type), Utils.map());
     }
 
     @Override
@@ -70,21 +80,37 @@ public class NodeDeleteStatements implements DeleteStatements {
 
     @Override
     public CypherQuery delete(String label, Iterable<Filter> filters) {
-        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
+        return delete(singleton(label), filters);
+    }
+
+    @Override
+    public CypherQuery delete(Collection<String> label, Iterable<Filter> filters) {
+        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(labelsToType(label), filters);
         query.setReturnClause(" OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
     public CypherQuery deleteAndCount(String label, Iterable<Filter> filters) {
-        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
+        return deleteAndCount(singleton(label), filters);
+    }
+
+    @Override
+    public CypherQuery deleteAndCount(Collection<String> label, Iterable<Filter> filters) {
+        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(labelsToType(label), filters);
         query.setReturnClause(" OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN COUNT(n)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
     public CypherQuery deleteAndList(String label, Iterable<Filter> filters) {
-        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
+        return deleteAndList(singleton(label), filters);
+    }
+
+    @Override
+    public CypherQuery deleteAndList(Collection<String> labels, Iterable<Filter> filters) {
+        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(labelsToType(labels), filters);
         query.setReturnClause(" OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN ID(n)");
-        return new DefaultRowModelRequest(query.statement(), query.parameters());    }
+        return new DefaultRowModelRequest(query.statement(), query.parameters());
+    }
 }

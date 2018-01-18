@@ -48,7 +48,7 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
     @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination, int depth) {
 
-        String entityType = session.entityType(type.getName());
+        Collection<String> entityType = session.metaData().classInfo(type.getName()).types();
         QueryStatements queryStatements = session.queryStatementsFor(type);
 
         PagingAndSortingQuery qry = queryStatements.findAllByType(entityType, ids, depth)

@@ -14,6 +14,7 @@
 package org.neo4j.ogm.session.request.strategy.impl;
 
 
+import java.util.Collection;
 import java.util.Collections;
 
 import org.neo4j.ogm.cypher.Filter;
@@ -23,6 +24,10 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
+
+import static java.util.Collections.singleton;
+
+import static org.neo4j.ogm.session.request.strategy.impl.TypesUtil.labelsToType;
 
 /**
  * Encapsulates Cypher statements used to execute aggregation queries.
@@ -45,17 +50,17 @@ public class CountStatements implements AggregateStatements {
 
     @Override
     public CypherQuery countNodes(Iterable<String> labels) {
-        StringBuilder cypherLabels = new StringBuilder();
-        for (String label : labels) {
-            cypherLabels.append(":`").append(label).append('`');
-        }
-        return new DefaultRowModelRequest(String.format("MATCH (n%s) RETURN COUNT(n)", cypherLabels.toString()),
-                Collections.<String, String> emptyMap());
+        String type = labelsToType(labels);
+        return new DefaultRowModelRequest(String.format("MATCH (n%s) RETURN COUNT(n)", type), Collections.<String, String> emptyMap());
     }
 
     @Override
     public CypherQuery countNodes(String label, Iterable<Filter> filters) {
-        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
+        return countNodes(singleton(label), filters);
+    }
+
+    public CypherQuery countNodes(Collection<String> labels, Iterable<Filter> filters) {
+        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(labelsToType(labels), filters);
         query.setReturnClause(" RETURN COUNT(n)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }

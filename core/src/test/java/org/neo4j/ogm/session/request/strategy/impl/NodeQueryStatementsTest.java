@@ -55,7 +55,7 @@ public class NodeQueryStatementsTest {
 
 		// Also assert that an empty label is the same as using the typeless variant
 		assertEquals(queryStatements.findOneByType("", 0L, 2).getStatement(), queryStatements.findOne(0L, 2).getStatement());
-		assertEquals(queryStatements.findOneByType(null, 0L, 2).getStatement(), queryStatements.findOne(0L, 2).getStatement());
+		assertEquals(queryStatements.findOneByType((String) null, 0L, 2).getStatement(), queryStatements.findOne(0L, 2).getStatement());
 	}
 
 	@Test

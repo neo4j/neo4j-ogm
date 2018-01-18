@@ -1,3 +1,6 @@
+2.1.6-SNAPSHOT
+o Use all static labels from hierarchy for load/query/delete statements,  #461
+
 2.1.5
 --------------
 o Expose connection.liveness.check.timeout driver property to fix connection problems with firewalls. See #358.

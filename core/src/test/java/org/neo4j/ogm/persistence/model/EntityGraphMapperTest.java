@@ -110,7 +110,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     @Test
     public void updateObjectPropertyAndLabel() {
 
-        Result executionResult = getDatabase().execute("CREATE (s:Student {name:'Sheila Smythe'}) RETURN id(s) AS id");
+        Result executionResult = getDatabase().execute("CREATE (s:Student:DomainObject {name:'Sheila Smythe'}) RETURN id(s) AS id");
         Long sid = Long.valueOf(executionResult.next().get("id").toString());
 
         Student sheila = session.load(Student.class, sid);

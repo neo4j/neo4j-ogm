@@ -21,7 +21,9 @@ class TypesUtil {
     static String labelsToType(Iterable<String> labels) {
         StringBuilder cypherLabels = new StringBuilder();
         for (String label : labels) {
-            cypherLabels.append(":`").append(label).append('`');
+            if (label != null && !label.isEmpty()) {
+                cypherLabels.append(":`").append(label).append('`');
+            }
         }
         return cypherLabels.toString();
     }

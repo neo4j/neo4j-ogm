@@ -14,6 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
+import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,14 +62,25 @@ public class DomainInfo {
 
     public static DomainInfo create(String... packages) {
 
-        final Set<Class<?>> allClasses = new HashSet<>();
-        new FastClasspathScanner(packages).matchAllClasses(allClasses::add).strictWhitelist().scan();
+        ScanResult scanResult = new FastClasspathScanner(packages)
+            .strictWhitelist()
+            .scan();
+
+        List<String> allClasses = scanResult.getNamesOfAllClasses();
+
         DomainInfo domainInfo = new DomainInfo();
 
-        for (Class<?> cls : allClasses) {
+        for (String className : allClasses) {
+            Class<?> cls = null;
+            try {
+                cls = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+            } catch (ClassNotFoundException e) {
+                LOGGER.warn("Could not load class {}", className);
+                continue;
+            }
+
             ClassInfo classInfo = new ClassInfo(cls);
 
-            String className = classInfo.name();
             String superclassName = classInfo.superclassName();
 
             LOGGER.debug("Processing: {} -> {}", className, superclassName);

@@ -13,21 +13,39 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import org.neo4j.ogm.metadata.schema.Node;
+import org.neo4j.ogm.metadata.schema.Schema;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
 
 /**
+ * Schema based load clause builder for nodes - starts from given node variable
+ *
  * @author Frantisek Hartman
  */
-public class PathLoadClauseBuilder implements LoadClauseBuilder {
+public class SchemaNodeLoadClauseBuilder extends AbstractSchemaLoadClauseBuilder implements LoadClauseBuilder {
 
-    @Override
+    public SchemaNodeLoadClauseBuilder(Schema schema) {
+        super(schema);
+    }
+
     public String build(String variable, String label, int depth) {
         if (depth < 0) {
-            return " MATCH p=(" + variable + ")-[*0..]-(m) RETURN p";
-        } else if (depth > 0) {
-            return " MATCH p=(" + variable + ")-[*0.." + depth + "]-(m) RETURN p";
-        } else {
-            return " RETURN n";
+            throw new IllegalArgumentException("Only queries with depth >= 0 can be built, depth=" + depth);
         }
+
+        StringBuilder sb = new StringBuilder();
+
+        newLine(sb);
+
+        sb.append(" RETURN ");
+        newLine(sb);
+        sb.append("n");
+        newLine(sb);
+
+        Node node = schema.findNode(label);
+        expand(sb, variable, node, depth);
+
+        return sb.toString();
     }
+
 }

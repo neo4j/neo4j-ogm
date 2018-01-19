@@ -23,11 +23,11 @@ import org.neo4j.ogm.metadata.schema.Schema;
 /**
  * @author Frantisek Hartman
  */
-public class SchemaLoadClauseBuilderTest {
+public class SchemaNodeLoadClauseBuilderTest {
 
     @Test
     public void buildQuery() throws Exception {
-        SchemaLoadClauseBuilder queryBuilder = createQueryBuilder();
+        SchemaNodeLoadClauseBuilder queryBuilder = createQueryBuilder();
 
         String query = queryBuilder.build("n", "Person", 0);
 
@@ -36,7 +36,7 @@ public class SchemaLoadClauseBuilderTest {
 
     @Test
     public void buildQueryFromLocation() throws Exception {
-        SchemaLoadClauseBuilder queryBuilder = createQueryBuilder();
+        SchemaNodeLoadClauseBuilder queryBuilder = createQueryBuilder();
 
         String query = queryBuilder.build("n", "Location", 1);
         assertThat(query).isEqualTo(" RETURN n,[ [ (n)<-[r_l1:`LIVES_AT`]-(p1:`Person`) | [ r_l1, p1 ] ] ]");
@@ -44,7 +44,7 @@ public class SchemaLoadClauseBuilderTest {
 
     @Test
     public void buildQueryFromPerson() throws Exception {
-        SchemaLoadClauseBuilder queryBuilder = createQueryBuilder();
+        SchemaNodeLoadClauseBuilder queryBuilder = createQueryBuilder();
 
         String query = queryBuilder.build("n", "Person", 2);
         assertThat(query).isEqualTo(" RETURN n,[ " +
@@ -58,7 +58,7 @@ public class SchemaLoadClauseBuilderTest {
 
     @Test
     public void givenNodeWithNoRelationships_thenCreateSimpleQuery() throws Exception {
-        SchemaLoadClauseBuilder queryBuilder = createQueryBuilder();
+        SchemaNodeLoadClauseBuilder queryBuilder = createQueryBuilder();
 
         String query = queryBuilder.build("n", "Organisation", 1);
 
@@ -67,17 +67,17 @@ public class SchemaLoadClauseBuilderTest {
 
     @Test
     public void givenLabelStartingWithR_thenNodeNameAndrelationshipNameShouldNotConflict() throws Exception {
-        SchemaLoadClauseBuilder queryBuilder = createQueryBuilder();
+        SchemaNodeLoadClauseBuilder queryBuilder = createQueryBuilder();
 
         String query = queryBuilder.build("n", "Restaurant", 1);
 
         assertThat(query).isEqualTo(" RETURN n,[ [ (n)-[r_s1:`SIMILAR_TO`]->(r1:`Restaurant`) | [ r_s1, r1 ] ] ]");
     }
 
-    private SchemaLoadClauseBuilder createQueryBuilder() {
+    private SchemaNodeLoadClauseBuilder createQueryBuilder() {
         DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.metadata.schema.simple");
         Schema schema = new DomainInfoSchemaBuilder(domainInfo).build();
-        return new SchemaLoadClauseBuilder(schema);
+        return new SchemaNodeLoadClauseBuilder(schema);
     }
 
 }

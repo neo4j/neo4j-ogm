@@ -35,25 +35,26 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 public class RelationshipQueryStatementsTest {
 
     private final QueryStatements<Long> query = new RelationshipQueryStatements<>();
-    private final QueryStatements<String> primaryQuery = new RelationshipQueryStatements<>("uuid");
+    private final QueryStatements<String> primaryQuery = new RelationshipQueryStatements<>("uuid",
+        new PathRelationshipLoadClauseBuilder());
 
     @Test
     public void testFindOne() throws Exception {
-        assertThat(query.findOne(0L, 2).getStatement()).isEqualTo("MATCH ()-[r0]-() WHERE ID(r0)={id}  " +
-            "WITH STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
-            "WITH COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
-            "WITH startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-            "WITH startPaths + endPaths AS paths UNWIND paths AS p RETURN DISTINCT p");
+        assertThat(query.findOne(0L, 2).getStatement()).isEqualTo("MATCH ()-[r0]->() WHERE ID(r0)={id}  " +
+            "WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
+            "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
+            "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+            "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     @Test
     public void testFindOneByType() throws Exception {
         assertThat(query.findOneByType("ORBITS", 0L, 2).getStatement())
-            .isEqualTo("MATCH ()-[r0:`ORBITS`]-() WHERE ID(r0)={id}  " +
-                "WITH STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
-                "WITH COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
-                "WITH startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH startPaths + endPaths AS paths UNWIND paths AS p RETURN DISTINCT p");
+            .isEqualTo("MATCH ()-[r0:`ORBITS`]->() WHERE ID(r0)={id}  " +
+                "WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
 
         // Also assert that an empty type is the same as the untyped findOne(..)
         /*assertEquals(query.findOneByType("", 0L, 2).getStatement(),
@@ -66,11 +67,11 @@ public class RelationshipQueryStatementsTest {
     public void testFindOneByTypePrimaryIndex() throws Exception {
         PagingAndSortingQuery query = primaryQuery.findOneByType("ORBITS", "test-uuid", 2);
         assertThat(query.getStatement())
-            .isEqualTo("MATCH ()-[r0:`ORBITS`]-() WHERE r0.`uuid`={id}  " +
-                "WITH STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
-                "WITH COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
-                "WITH startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH startPaths + endPaths AS paths UNWIND paths AS p RETURN DISTINCT p");
+            .isEqualTo("MATCH ()-[r0:`ORBITS`]->() WHERE r0.`uuid`={id}  " +
+                "WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
 
         assertThat(query.getParameters()).contains(entry("id", "test-uuid"));
     }
@@ -81,8 +82,8 @@ public class RelationshipQueryStatementsTest {
             .isEqualTo("MATCH ()-[r0:`ORBITS`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
                 "MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
                 "MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p " +
-                "RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p " +
+                "RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -96,8 +97,8 @@ public class RelationshipQueryStatementsTest {
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
-                "UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths " +
+                "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     @Test
@@ -110,8 +111,8 @@ public class RelationshipQueryStatementsTest {
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
-                "UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths " +
+                "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
 
         assertThat(query.getParameters()).contains(entry("ids", newArrayList("test-uuid-1", "test-uuid-2")));
     }
@@ -124,8 +125,8 @@ public class RelationshipQueryStatementsTest {
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
-                "UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths " +
+                "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     @Test(expected = InvalidDepthException.class)
@@ -176,8 +177,8 @@ public class RelationshipQueryStatementsTest {
                 "MATCH (n)-[r0:`ORBITS`]->(m)  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
                 "MATCH p1 = (n)-[*0..4]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
                 "MATCH p2 = (m)-[*0..4]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
-                "UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths " +
+                "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -196,7 +197,7 @@ public class RelationshipQueryStatementsTest {
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
                 "MATCH p2 = (m)-[*0..4]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -223,8 +224,8 @@ public class RelationshipQueryStatementsTest {
                 "MATCH (n)-[r0:`ORBITS`]->(m)  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
                 "MATCH p1 = (n)-[*0..4]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
                 "MATCH p2 = (m)-[*0..4]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
-                "UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths " +
+                "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -252,7 +253,7 @@ public class RelationshipQueryStatementsTest {
                 "MATCH (n)-[r0:`ORBITS`]->(m)  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
                 "MATCH p1 = (n)-[*0..4]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
                 "MATCH p2 = (m)-[*0..4]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -269,7 +270,7 @@ public class RelationshipQueryStatementsTest {
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -286,7 +287,7 @@ public class RelationshipQueryStatementsTest {
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -303,7 +304,7 @@ public class RelationshipQueryStatementsTest {
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -320,7 +321,7 @@ public class RelationshipQueryStatementsTest {
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -342,7 +343,7 @@ public class RelationshipQueryStatementsTest {
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -363,7 +364,7 @@ public class RelationshipQueryStatementsTest {
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId");
+                "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**
@@ -394,9 +395,9 @@ public class RelationshipQueryStatementsTest {
                     "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`time` = { `time_2` }  " +
                     "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                     "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
-                    "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths "
+                    "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH r0,startPaths + endPaths  AS paths "
                     +
-                    "UNWIND paths AS p RETURN DISTINCT p, rId");
+                    "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     /**

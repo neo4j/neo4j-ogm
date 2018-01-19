@@ -20,37 +20,25 @@ import java.util.Map;
 import org.neo4j.ogm.metadata.schema.Node;
 import org.neo4j.ogm.metadata.schema.Relationship;
 import org.neo4j.ogm.metadata.schema.Schema;
-import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
 
 /**
+ * Base class for schema based LoadClauseBuilder implementations
+ *
  * @author Frantisek Hartman
  */
-public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
+public abstract class AbstractSchemaLoadClauseBuilder {
 
-    private final Schema schema;
-    private final boolean pretty;
+    protected final Schema schema;
 
-    public SchemaLoadClauseBuilder(Schema schema) {
-        this.schema = schema;
+    protected final boolean pretty;
+
+    public AbstractSchemaLoadClauseBuilder(Schema schema) {
         this.pretty = false;
+        this.schema = schema;
     }
 
-    public String build(String variable, String label, int depth) {
-        if (depth < 0) {
-            throw new IllegalArgumentException("Only queries with depth >= 0 can be built, depth=" + depth);
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        newLine(sb);
-
-        sb.append(" RETURN ");
-        newLine(sb);
-        sb.append("n");
-        newLine(sb);
-
+    protected void expand(StringBuilder sb, String variable, Node node, int depth) {
         if (depth > 0) {
-            Node node = schema.findNode(label);
             if (node.relationships().size() > 0) {
                 sb.append(",[ ");
 
@@ -60,19 +48,15 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
                 sb.append(" ]");
             }
         }
-
-        return sb.toString();
     }
 
-    private void expand(StringBuilder sb, String fromNodeVar, Node node, int level, int depth) {
+    protected void expand(StringBuilder sb, String variable, Node node, int level, int depth) {
         for (Map.Entry<String, Relationship> entry : node.relationships().entrySet()) {
             if (needsSeparator(sb)) {
                 sb.append(", ");
             }
 
-            //            sb.append(entry.getKey() + " : ");
-
-            listComprehension(sb, fromNodeVar, entry.getValue(), node, level, depth);
+            listComprehension(sb, variable, entry.getValue(), node, level, depth);
 
         }
 
@@ -122,10 +106,8 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
             sb.append("`");
         }
         sb.append(") | [ ");
-        //        sb.append(") | { rel: ");
         sb.append(relVar);
         sb.append(", ");
-        //        sb.append(", node: ");
         sb.append(toNodeVar);
 
         if (depth > 0 && !toNode.relationships().isEmpty()) {
@@ -156,7 +138,7 @@ public class SchemaLoadClauseBuilder implements LoadClauseBuilder {
             .append(end);
     }
 
-    private void newLine(StringBuilder sb) {
+    protected void newLine(StringBuilder sb) {
         if (pretty) {
             sb.append("\n");
         }

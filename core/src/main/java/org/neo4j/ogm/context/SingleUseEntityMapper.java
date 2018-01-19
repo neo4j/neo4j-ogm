@@ -46,6 +46,17 @@ public class SingleUseEntityMapper {
     private final MetaData metadata;
 
     /**
+     * Compatibility constrauctor for SDN 5.0
+     *
+     * @param mappingMetaData The {@link MetaData} to use for performing mappings
+     * @param entityFactory   The entity factory to use.
+     */
+    public SingleUseEntityMapper(MetaData mappingMetaData, EntityFactory entityFactory) {
+        this.metadata = mappingMetaData;
+        this.entityFactory = new EntityFactory(mappingMetaData);
+    }
+
+    /**
      * Constructs a new {@link SingleUseEntityMapper} based on the given mapping {@link MetaData}.
      *
      * @param mappingMetaData The {@link MetaData} to use for performing mappings

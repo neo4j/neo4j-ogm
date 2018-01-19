@@ -1,12 +1,14 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2018 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
  *
- * This product may include a number of subcomponents with separate copyright notices and license terms. Your use of the source code for these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
- *
- *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
 package org.neo4j.ogm.metadata.reflect;
@@ -35,6 +37,16 @@ public class EntityFactory {
 
     private final MetaData metadata;
     private EntityInstantiator entityInstantiator;
+
+    /**
+     * Compatibility constructor for SDN 5.0.
+     *
+     * @param metadata The mapping {@link MetaData}
+     */
+    public EntityFactory(MetaData metadata) {
+        this.metadata = metadata;
+        this.entityInstantiator = new ReflectionEntityInstantiator(metadata);
+    }
 
     /**
      * Constructs a new {@link EntityFactory} driven by the specified {@link MetaData}.

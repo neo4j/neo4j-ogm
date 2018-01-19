@@ -812,7 +812,6 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         getGraphDatabaseService().execute("CREATE (f1:Female:Person {name:'f1'})," +
             "(m1:Male:Person {name:'m1'})," +
             "(c1:Female:Person {name:'c1'})," +
-            "(b1:Bloke:Male:Person {name:'b1'})," +
             "(m1)-[:CHILD]->(c1)");
 
         Male m1 = session.loadAll(Male.class).iterator().next();

@@ -47,7 +47,7 @@ public class NodeQueryStatementsTest {
      * QueryStatements with primary index property
      */
     private final QueryStatements<String> primaryQueryStatements = new NodeQueryStatements<>("uuid",
-        new PathLoadClauseBuilder());
+        new PathNodeLoadClauseBuilder());
 
     @Test
     public void testFindOne() throws Exception {

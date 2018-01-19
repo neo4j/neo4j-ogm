@@ -45,7 +45,7 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
 
     // todo remove this constructor?
     public NodeQueryStatements() {
-        loadClauseBuilder = new PathLoadClauseBuilder();
+        loadClauseBuilder = new PathNodeLoadClauseBuilder();
     }
 
     public NodeQueryStatements(String primaryIndex, LoadClauseBuilder loadClauseBuilder) {

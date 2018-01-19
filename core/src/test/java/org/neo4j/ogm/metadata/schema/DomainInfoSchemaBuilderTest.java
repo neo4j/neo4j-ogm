@@ -169,4 +169,20 @@ public class DomainInfoSchemaBuilderTest {
         assertThat(nodes.direction(node)).isEqualTo(OUTGOING);
         assertThat(nodes.other(node)).isEqualTo(node);
     }
+
+    @Test
+    public void givenRelationshipEntity_whenFindRelationship_thenRelationshipIsFound() {
+        Relationship relationship = schema.findRelationship("FOUNDED");
+
+        assertThat(relationship.type()).isEqualTo("FOUNDED");
+    }
+
+    @Test
+    public void givenRelationshipEntityNotReferredFromNodeEntities_whenFindRelationship_thenRelationshipIsFound() {
+        Relationship relationship = schema.findRelationship("VISITED");
+
+        assertThat(relationship).isNotNull();
+        assertThat(relationship.start()).isEqualTo(schema.findNode("Person"));
+        assertThat(relationship.type()).isEqualTo("VISITED");
+    }
 }

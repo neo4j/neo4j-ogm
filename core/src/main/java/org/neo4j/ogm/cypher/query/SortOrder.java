@@ -41,6 +41,10 @@ public class SortOrder {
         return sortClauses;
     }
 
+    public boolean hasSortClauses() {
+        return !sortClauses.isEmpty();
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (!sortClauses.isEmpty()) {

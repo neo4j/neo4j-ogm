@@ -26,117 +26,55 @@ public class PagingAndSortingQuery implements PagingAndSorting {
     private Pagination paging;
     private SortOrder sortOrder = new SortOrder();
 
-    private String statement;
     private String matchClause;
     private String returnClause;
 
     private final Map<String, Object> parameters;
-    protected int withIndex;
 
     private boolean returnsPath = false;
     private boolean hasPredicate;
 
-    public PagingAndSortingQuery(String statement, Map<String, Object> parameters) {
-        this.statement = statement;
-        this.parameters = parameters;
-        this.withIndex = this.statement.indexOf("WITH n");
-        if (this.withIndex == -1) {
-            int withIndex = this.statement.indexOf("WITH DISTINCT(r");
-            if (withIndex == -1) {
-                withIndex = this.statement.indexOf("WITH r");
-            }
-            this.withIndex = withIndex;
-        }
-        hasPredicate = statement.contains("WHERE");
-        returnsPath = statement.matches(".*RETURN.*p.*");
-    }
+    private String variable;
 
     public PagingAndSortingQuery(String matchClause, String returnClause, Map<String, Object> parameters,
         boolean returnsPath,
         boolean hasPredicate) {
+        this(matchClause, returnClause, parameters, returnsPath, hasPredicate, "n");
+    }
+
+    public PagingAndSortingQuery(
+        String matchClause, String returnClause, Map<String, Object> parameters,
+        boolean returnsPath,
+        boolean hasPredicate, String variable) {
         this.matchClause = matchClause;
         this.returnClause = returnClause;
         this.parameters = parameters;
         this.returnsPath = returnsPath;
         this.hasPredicate = hasPredicate;
+        this.variable = variable;
     }
 
     public String getStatement() {
         String sorting = sortOrder().toString();
-        if (statement == null) {
 
-            StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
+        sb.append(matchClause);
 
-            String returnClause = this.returnClause;
-
-            sb.append(matchClause);
-            if (!sorting.isEmpty()) {
-                sb.append(sorting.replace("$", "n"));
-            }
-            if (paging != null) {
-                sb.append(paging.toString());
-            }
-            sb.append(returnClause);
-            if (needsRowResult()) {
-                sb.append(", ID(n)");
-            }
-            return sb.toString();
-
+        if (!sorting.isEmpty()) {
+            sb.append(sorting.replace("$", variable));
         }
-
-        // only used for relationship entity queries now, remove when relationship entity queries moved to new query building
-
-        String stmt = statement.trim();
-        String pagination = paging == null ? "" : page().toString();
-
-        // these transformations are entirely dependent on the form of our base queries and
-        // binding the sorting properties to the default query variables is a terrible hack. All this
-        // needs refactoring ASAP.
-        // Update Feb 2017: It really does need refactoring ASAP!!! //TODO
-        if (sorting.length() > 0 || pagination.length() > 0) {
-
-            if (withIndex > -1) {
-                int nextClauseIndex = stmt.indexOf(" MATCH", withIndex);
-                String withClause = stmt.substring(withIndex, nextClauseIndex);
-                String newWithClause = withClause;
-                if (stmt.contains(")-[r0")) {
-                    sorting = sorting.replace("$", "r0");
-                    if (!withClause.contains(",r0") && (!withClause.contains("r0,"))) {
-                        newWithClause = newWithClause + ",r0";
-                    }
-                } else {
-                    sorting = sorting.replace("$", "n");
-                }
-                stmt = stmt.replace(withClause, newWithClause + sorting + pagination);
-                //If a path is returned, also return the original entities in the page
-                if (stmt.contains("MATCH p=(") && !stmt.contains("RETURN p, ID(n)")) {
-                    stmt = stmt.replace("RETURN p", "RETURN p, ID(n)");
-                }
-            } else {
-                if (stmt.startsWith("MATCH p=(")) {
-                    String withClause = "WITH p";
-                    if (stmt.contains(")-[r")) {
-                        withClause = withClause + ",r0";
-                        sorting = sorting.replace("$", "r0");
-                    } else {
-                        sorting = sorting.replace("$", "n");
-                    }
-                    stmt = stmt.replace("RETURN ", withClause + sorting + pagination + " RETURN ");
-                } else {
-                    sorting = sorting.replace("$", "n");
-                    stmt = stmt.replace("RETURN ", "WITH n" + sorting + pagination + " RETURN ");
-                }
-                if (stmt.contains("MATCH p=(") && stmt.contains("WITH n") && !stmt.contains("RETURN p, ID(n)")) {
-                    stmt = stmt.replace("RETURN p", "RETURN p, ID(n)");
-                }
-            }
+        if (paging != null) {
+            sb.append(paging.toString());
         }
-
-        return stmt;
+        sb.append(this.returnClause);
+        if (needsRowResult()) {
+            sb.append(", ID(").append(variable).append(")");
+        }
+        return sb.toString();
     }
 
     public boolean needsRowResult() {
-        return ((sortOrder.toString().length() > 0) || (paging != null) || hasPredicate) && returnsPath;
+        return (sortOrder.hasSortClauses() || (paging != null) || hasPredicate) && returnsPath;
     }
 
     @Override

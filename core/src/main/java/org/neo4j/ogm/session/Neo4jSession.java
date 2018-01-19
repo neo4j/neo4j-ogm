@@ -53,9 +53,11 @@ import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
-import org.neo4j.ogm.session.request.strategy.impl.PathLoadClauseBuilder;
+import org.neo4j.ogm.session.request.strategy.impl.PathNodeLoadClauseBuilder;
+import org.neo4j.ogm.session.request.strategy.impl.PathRelationshipLoadClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
-import org.neo4j.ogm.session.request.strategy.impl.SchemaLoadClauseBuilder;
+import org.neo4j.ogm.session.request.strategy.impl.SchemaNodeLoadClauseBuilder;
+import org.neo4j.ogm.session.request.strategy.impl.SchemaRelationshipLoadClauseBuilder;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWork;
 import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWorkWithoutResult;
@@ -588,9 +590,9 @@ public class Neo4jSession implements Session {
         final FieldInfo fieldInfo = metaData.classInfo(type.getName()).primaryIndexField();
         String primaryIdName = fieldInfo != null ? fieldInfo.property() : null;
         if (metaData.isRelationshipEntity(type.getName())) {
-            return new RelationshipQueryStatements<>(primaryIdName);
+            return new RelationshipQueryStatements<>(primaryIdName, loadRelationshipClauseBuilder(depth));
         } else {
-            return new NodeQueryStatements<>(primaryIdName, loadClauseBuilder(depth));
+            return new NodeQueryStatements<>(primaryIdName, loadNodeClauseBuilder(depth));
         }
     }
 
@@ -727,17 +729,34 @@ public class Neo4jSession implements Session {
         this.loadStrategy = loadStrategy;
     }
 
-    private LoadClauseBuilder loadClauseBuilder(int depth) {
+    private LoadClauseBuilder loadNodeClauseBuilder(int depth) {
         if (depth < 0) {
-            return new PathLoadClauseBuilder();
+            return new PathNodeLoadClauseBuilder();
         }
 
         switch (loadStrategy) {
             case PATH_LOAD_STRATEGY:
-                return new PathLoadClauseBuilder();
+                return new PathNodeLoadClauseBuilder();
 
             case SCHEMA_LOAD_STRATEGY:
-                return new SchemaLoadClauseBuilder(metaData.getSchema());
+                return new SchemaNodeLoadClauseBuilder(metaData.getSchema());
+
+            default:
+                throw new IllegalStateException("Unknown loadStrategy " + loadStrategy);
+        }
+    }
+
+    private LoadClauseBuilder loadRelationshipClauseBuilder(int depth) {
+        if (depth < 0) {
+            throw new IllegalArgumentException("Can't load unlimited depth for relationships");
+        }
+
+        switch (loadStrategy) {
+            case PATH_LOAD_STRATEGY:
+                return new PathRelationshipLoadClauseBuilder();
+
+            case SCHEMA_LOAD_STRATEGY:
+                return new SchemaRelationshipLoadClauseBuilder(metaData.getSchema());
 
             default:
                 throw new IllegalStateException("Unknown loadStrategy " + loadStrategy);

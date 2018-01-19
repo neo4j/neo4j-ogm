@@ -74,6 +74,11 @@ class RelationshipImpl implements Relationship {
     }
 
     @Override
+    public Node start() {
+        return start;
+    }
+
+    @Override
     public Node other(Node node) {
         if (start == node) {
             return end;

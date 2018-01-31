@@ -512,6 +512,17 @@ public class Neo4jSession implements Session {
         }, txType);
     }
 
+    public void doInTransaction(TransactionalUnitOfWorkWithoutResult function, boolean forceTx, Transaction.Type txType) {
+        doInTransaction( () -> {
+            function.doInTransaction();
+            return null;
+        }, forceTx, txType);
+    }
+
+    public <T> T doInTransaction(TransactionalUnitOfWork<T> function, Transaction.Type txType) {
+        return doInTransaction(function, false, txType);
+    }
+
     /**
      * For internal use only. Opens a new transaction if necessary before running statements
      * in case an explicit transaction does not exist. It is designed to be the central point
@@ -521,10 +532,10 @@ public class Neo4jSession implements Session {
      * @param txType Transaction type, readonly or not.
      * @return The result of the transaction function.
      */
-    public <T> T doInTransaction(TransactionalUnitOfWork<T> function, Transaction.Type txType) {
+    public <T> T doInTransaction(TransactionalUnitOfWork<T> function, boolean forceTx, Transaction.Type txType) {
 
         Transaction transaction = txManager.getCurrentTransaction();
-        if (!driver.requiresTransaction() || transaction != null) {
+        if (!forceTx && (!driver.requiresTransaction() || transaction != null)) {
             return function.doInTransaction();
         }
 

@@ -68,6 +68,9 @@ public class RequestExecutor {
         List<ReferenceMapping> entityReferenceMappings = new ArrayList<>();
         List<ReferenceMapping> relReferenceMappings = new ArrayList<>();
 
+        boolean forceTx = compiler.updateNodesStatements().stream().anyMatch(st -> st.optimisticLockingConfig().isPresent())
+            || compiler.updateRelationshipStatements().stream().anyMatch(st -> st.optimisticLockingConfig().isPresent());
+
         session.doInTransaction( () -> {
 
             //If there are statements that depend on new nodes i.e. relationships created between new nodes,
@@ -91,7 +94,7 @@ public class RequestExecutor {
                 executeStatements(context, entityReferenceMappings, relReferenceMappings, statements);
             }
 
-        }, Transaction.Type.READ_WRITE);
+        }, forceTx, Transaction.Type.READ_WRITE);
 
         //Update the mapping context now that the request is successful
         updateNodeEntities(context, session, entityReferenceMappings);

@@ -1,8 +1,8 @@
 [appendix]
 [[migration]]
-= Migration from 2.1 to 3.0
+= Migration from 2.1 to 3.0/3.1
 
-This migration guide should help with migration from OGM 2.1.x version to 3.0.x.
+This migration guide should help with migration from OGM 2.1.x version to 3.0.x or 3.1.x.
 
 == Field access only
 

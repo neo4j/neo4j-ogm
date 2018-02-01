@@ -6,3 +6,8 @@
 What is the difference between Neo4j OGM and Spring Data Neo4j (SDN)?::
   Spring Data Neo4j (SDN) uses the OGM under the covers. It's like Spring Data JPA, where JPA/Hibernate underly it.  Most
   of the power of SDN actually comes from the OGM.
+
+How are labels generated when using inheritance?::
+  All concrete classes generate a label, abstract classes and interfaces not.
+  If any kind of class or interface gets annotated with @NodeEntity or @NodeEntity(label="customLabel") it will generate a label.
+  Any class annotated with @Transient will not generate a label.

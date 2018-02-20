@@ -39,7 +39,6 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <commonslang>3.4</commonslang>
-        <commonscodec>1.10</commonscodec>
         <commonsio>2.4</commonsio>
         <jackson>2.7.1</jackson>
         <httpclient>4.5.2</httpclient>
@@ -89,12 +88,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commonslang}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${commonscodec}</version>
             </dependency>
 
             <dependency>

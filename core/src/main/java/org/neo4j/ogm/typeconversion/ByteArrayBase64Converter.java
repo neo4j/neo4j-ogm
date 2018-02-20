@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.typeconversion;
 
-import org.apache.commons.codec.binary.Base64;
+import java.util.Base64;
 
 /**
  * By default the OGM will map byte[] objects to Base64
@@ -27,13 +27,13 @@ public class ByteArrayBase64Converter implements AttributeConverter<byte[], Stri
     public String toGraphProperty(byte[] value) {
         if (value == null)
             return null;
-        return Base64.encodeBase64String(value);
+        return Base64.getEncoder().encodeToString(value);
     }
 
     @Override
     public byte[] toEntityAttribute(String value) {
         if (value == null)
             return null;
-        return Base64.decodeBase64(value);
+        return Base64.getDecoder().decode(value);
     }
 }

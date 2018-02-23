@@ -15,6 +15,7 @@ Fields referencing other node entities (or collections thereof) are linked with 
 It is not necessary to annotate your domain objects at every inheritance level.
 
 If the `label` attribute is set then this will replace the default label applied to the node in the database.
+The label can also be set by providing just the value instead of the `label` attribute.
 The default label is just the simple class name of the annotated entity.
 All parent classes (excluding `java.lang.Object`) are also added as labels so that retrieving a collection of nodes via a parent type is supported.
 
@@ -33,6 +34,9 @@ public class Actor extends DomainObject {
 
    @Property(name="name")
    private String fullName;
+
+   @Property("age") // using value attribute to have a shorter definition
+   private int age;
 
    @Relationship(type="ACTED_IN", direction=Relationship.OUTGOING)
    private List<Movie> filmography;
@@ -210,7 +214,7 @@ public class Actor {
     @Relationship(type = "TOP_ACTOR", direction = Relationship.INCOMING)
     private Set<Movie> topActorIn;
 
-    @Relationship(type = "ACTS_IN")
+    @Relationship("ACTS_IN") // same meaning as above but using the value attribute
     private Set<Movie> movies;
 }
 ----
@@ -297,6 +301,7 @@ For controlling the relationship-type a `String` attribute called `type` is avai
 Like the simple strategy for labelling node entities, if this is not provided then the name of the class is used to derive the relationship type,
 although it's converted into SNAKE_CASE to honour the naming conventions of Neo4j relationships.
 As of the current version of the OGM, the `type` *must* be specified on the `@RelationshipEntity` annotation as well as its corresponding `@Relationship` annotations.
+This can also be done without naming the attribute but only providing the value.
 
 
 [NOTE]
@@ -314,7 +319,7 @@ public class Actor {
     @Relationship(type="PLAYED_IN") private Role playedIn;
 }
 
-@RelationshipEntity(type="PLAYED_IN")
+@RelationshipEntity(type = "PLAYED_IN")
 public class Role {
     @Id @GeneratedValue   private Long relationshipId;
     @Property  private String title;

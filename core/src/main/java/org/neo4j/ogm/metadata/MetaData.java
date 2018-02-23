@@ -63,13 +63,13 @@ public class MetaData {
             return classInfos.get(name);
         }
 
-        ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), "label");
+        ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), NodeEntity.LABEL);
         if (classInfo != null) {
             classInfos.put(name, classInfo);
             return classInfo;
         }
 
-        classInfo = _classInfo(name, RelationshipEntity.class.getName(), "type");
+        classInfo = _classInfo(name, RelationshipEntity.class.getName(), RelationshipEntity.TYPE);
         if (classInfo != null) {
             classInfos.put(name, classInfo);
             return classInfo;
@@ -210,7 +210,7 @@ public class MetaData {
 
         Set<ClassInfo> classInfos = new HashSet<>();
 
-        ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), "label");
+        ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), NodeEntity.LABEL);
         if (classInfo != null) {
             classInfos.add(classInfo);
         }

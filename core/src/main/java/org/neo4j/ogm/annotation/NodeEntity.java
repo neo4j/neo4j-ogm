@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
  * matches at least one of the labels of the node in the graph (case sensitive)
  *
  * @author Vince Bickers
+ * @author Gerrit Meier
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -34,4 +35,7 @@ public @interface NodeEntity {
     String LABEL = "label";
 
     String label() default "";
+
+    @ValueFor(LABEL)
+    String value() default "";
 }

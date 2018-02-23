@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
  * an accessor method
  *
  * @author Vince Bickers
+ * @author Gerrit Meier
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -40,4 +41,7 @@ public @interface Property {
      * Name of the property in the graph
      */
     String name() default "";
+
+    @ValueFor(NAME)
+    String value() default "";
 }

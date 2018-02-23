@@ -22,7 +22,7 @@ import org.neo4j.ogm.annotation.Property;
  */
 public class Orbit extends DomainObject {
 
-    @Property(name = "orbit")
+    @Property("orbit")
     private String name;
 
     public String getName() {

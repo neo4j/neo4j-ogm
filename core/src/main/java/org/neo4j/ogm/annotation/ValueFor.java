@@ -11,25 +11,21 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.domain.satellites;
+package org.neo4j.ogm.annotation;
 
-import org.neo4j.ogm.annotation.Property;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * This object is entirely hydrated via its fields
+ * Annotation mainly focused to be used on the value attribute of another annotation.
+ * It defines another attribute as its value that could be also represented by this one.
  *
- * @author Vince Bickers
+ * @author Gerrit Meier
  */
-public class Location extends DomainObject {
-
-    @Property("location")
-    private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+@Target({ ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ValueFor {
+    String value();
 }

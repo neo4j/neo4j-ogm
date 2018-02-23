@@ -31,5 +31,8 @@ public @interface RelationshipEntity {
 
     String TYPE = "type";
 
-    String type();
+    @ValueFor(TYPE)
+    String value() default "";
+
+    String type() default "";
 }

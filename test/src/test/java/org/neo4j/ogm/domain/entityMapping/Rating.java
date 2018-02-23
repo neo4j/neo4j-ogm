@@ -20,7 +20,7 @@ import org.neo4j.ogm.annotation.StartNode;
 /**
  * @author vince
  */
-@RelationshipEntity(type = "RATED")
+@RelationshipEntity("RATED")
 public class Rating {
 
     public Long id;

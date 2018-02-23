@@ -55,9 +55,9 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldMapFromGraphToEntitiesCorrectly() {
-        session.query("create (_5:`Person` {`name`:\"Jim\"})\n" +
-            "create (_6:`Person` {`name`:\"Mary\"})\n" +
-            "create (_7:`Person` {`name`:\"Bill\"})\n" +
+        session.query("create (_5:`PersonX` {`name`:\"Jim\"})\n" +
+            "create (_6:`PersonX` {`name`:\"Mary\"})\n" +
+            "create (_7:`PersonX` {`name`:\"Bill\"})\n" +
             "create (_8:`Movie` {`name`:\"Die Hard\"})\n" +
             "create (_9:`Movie` {`name`:\"The Matrix\"})\n" +
             "create (_5)-[:`FOLLOWS`]->(_6)\n" +

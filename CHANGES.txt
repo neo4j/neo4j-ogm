@@ -1,3 +1,6 @@
+3.1.1
+o NodeEntity label, Relationship and RelationshipEntity type can be set without attribute name in annotation. #377
+
 3.1.0
 o Manually assigned conversion annotations should support lenient mode. #424
 o Improve setting of BooleanOperator parameter in Filter. #445

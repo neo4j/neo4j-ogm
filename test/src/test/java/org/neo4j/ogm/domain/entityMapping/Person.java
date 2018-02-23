@@ -22,19 +22,19 @@ import org.neo4j.ogm.annotation.Relationship;
 /**
  * @author vince
  */
-@NodeEntity(label = "Person")
+@NodeEntity("PersonX")
 public class Person extends Entity {
 
-    @Relationship(type = "RATED", direction = Relationship.OUTGOING)
+    @Relationship(type = "RATED")
     public List<Rating> movieRatings = new ArrayList<>();
 
-    @Relationship(type = "LIKES", direction = Relationship.OUTGOING)
+    @Relationship("LIKES")
     public List<Person> peopleILike = new ArrayList<>();
 
     @Relationship(type = "LIKES", direction = Relationship.INCOMING)
     public List<Person> peopleWhoLikeMe = new ArrayList<>();
 
-    @Relationship(type = "FOLLOWS", direction = Relationship.OUTGOING)
+    @Relationship("FOLLOWS")
     public List<Person> peopleIFollow = new ArrayList<>();
 
     @Relationship(type = "FOLLOWS", direction = Relationship.INCOMING)

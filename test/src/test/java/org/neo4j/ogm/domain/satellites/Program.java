@@ -24,7 +24,7 @@ import org.neo4j.ogm.annotation.Property;
 @NodeEntity(label = "Space_Program")
 public class Program extends DomainObject {
 
-    @Property(name = "program")
+    @Property("program")
     private String name;
     private List<Satellite> satellites;
 

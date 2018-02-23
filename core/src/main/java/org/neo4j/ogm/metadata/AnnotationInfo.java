@@ -19,9 +19,13 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.neo4j.ogm.annotation.ValueFor;
+
 /**
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Gerrit Meier
  */
 public class AnnotationInfo {
 
@@ -58,14 +62,31 @@ public class AnnotationInfo {
         final Method[] declaredElements = annotation.annotationType().getDeclaredMethods();
         for (Method element : declaredElements) {
             Object value;
-            try {
-                value = element.invoke(annotation);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException("Could not read value of Annotation " + element.getName(), e);
-            }
+            value = getAttributeValue(annotation, element);
             elements
                 .put(element.getName(), value != null ? convert(element, value) : element.getDefaultValue().toString());
         }
+
+        for (Method element : declaredElements) {
+            ValueFor valueFor = element.getAnnotation(ValueFor.class);
+            if (valueFor != null) {
+                Object value = getAttributeValue(annotation, element);
+
+                if (value != null && (!(value instanceof String) || StringUtils.isNotBlank((String) value))) {
+                    elements.put(valueFor.value(), convert(element, value));
+                }
+            }
+        }
+    }
+
+    private Object getAttributeValue(Annotation annotation, Method element) {
+        Object value;
+        try {
+            value = element.invoke(annotation);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Could not read value of Annotation " + element.getName(), e);
+        }
+        return value;
     }
 
     public String getName() {

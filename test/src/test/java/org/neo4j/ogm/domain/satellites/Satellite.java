@@ -34,13 +34,13 @@ import org.neo4j.ogm.annotation.Property;
  */
 public class Satellite extends DomainObject {
 
-    @Property(name = "satellite")
+    @Property("satellite")
     private String name;
 
-    @Property(name = "launch_date")
+    @Property("launch_date")
     private String launched;
 
-    @Property(name = "manned")
+    @Property("manned")
     private String manned;
 
     private Location location;

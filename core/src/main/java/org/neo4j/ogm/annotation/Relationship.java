@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
  *
  * @author Vince Bickers
  * @author Frantisek Hartman
+ * @author Gerrit Meier
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -37,6 +38,9 @@ public @interface Relationship {
     String OUTGOING = "OUTGOING";
     String UNDIRECTED = "UNDIRECTED";
 
+    @ValueFor(TYPE)
+    String value() default "";
+
     /**
      * Type of the relationship, defaults to name of the field in SNAKE_CASE
      */
@@ -47,4 +51,5 @@ public @interface Relationship {
      * Possible values are {@link #OUTGOING}, {@link #INCOMING}, {@link #UNDIRECTED}.
      */
     String direction() default OUTGOING;
+
 }

@@ -221,7 +221,7 @@ public class HttpRequest implements Request {
                 throw new HttpRequestException(request, ioe);
             }
 
-            // here we catch any exception we throw above (plus any we didn't throw ouselves),
+            // here we catch any exception we throw above (plus any we didn't throw ourselves),
             // log the problem, close any connection held by the request
             // and then rethrow the exception to the caller.
             catch (Exception exception) {

@@ -608,7 +608,7 @@ public interface Session {
      * default level or a scalar (depending on the parametrized type).
      *
      * @param objectType The type that should be returned from the query.
-     * @param cypher     The parametrizable cypher to execute.
+     * @param cypher     The parameterizable cypher to execute.
      * @param parameters Any scalar parameters to attach to the cypher.
      * @param <T>        A domain object or scalar.
      * @return An instance of the objectType that matches the cypher and parameters. Null if no object
@@ -622,7 +622,7 @@ public interface Session {
      * the default level or a collection of scalars (depending on the parametrized type).
      *
      * @param objectType The type that should be returned from the query.
-     * @param cypher     The parametrizable cypher to execute.
+     * @param cypher     The parameterizable cypher to execute.
      * @param parameters Any parameters to attach to the cypher.
      * @param <T>        A domain object or scalar.
      * @return A collection of domain objects or scalars as prescribed by the parametrized type.

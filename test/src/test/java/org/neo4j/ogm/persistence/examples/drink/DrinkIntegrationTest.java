@@ -238,8 +238,8 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
         Manufacturer loaded = session.load(Manufacturer.class, asahi.getUuid());
         assertThat(loaded.getName()).isEqualTo("Asahi Breweries, Ltd.");
-        Owns acquistion = loaded.getAcquisitions().iterator().next();
-        assertThat(acquistion.getOwnee().getName()).isEqualTo("Plzeňský Prazdroj, a. s.");
+        Owns acquisition = loaded.getAcquisitions().iterator().next();
+        assertThat(acquisition.getOwnee().getName()).isEqualTo("Plzeňský Prazdroj, a. s.");
     }
 
     @Test
@@ -255,8 +255,8 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
         Manufacturer loaded = session.load(Manufacturer.class, asahi.getUuid());
         assertThat(loaded.getName()).isEqualTo("Asahi Breweries, Ltd.");
-        Owns acquistion = loaded.getAcquisitions().iterator().next();
-        assertThat(acquistion.getOwnee().getName()).isEqualTo("Plzeňský Prazdroj, a. s.");
+        Owns acquisition = loaded.getAcquisitions().iterator().next();
+        assertThat(acquisition.getOwnee().getName()).isEqualTo("Plzeňský Prazdroj, a. s.");
     }
 
     @Test
@@ -274,8 +274,8 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         Manufacturer loaded = session.load(Manufacturer.class, asahi.getUuid());
-        Owns acquistion = loaded.getAcquisitions().iterator().next();
-        assertThat(acquistion.getAcquiredYear()).isEqualTo(2017);
+        Owns acquisition = loaded.getAcquisitions().iterator().next();
+        assertThat(acquisition.getAcquiredYear()).isEqualTo(2017);
     }
 
     @Test
@@ -294,8 +294,8 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         Manufacturer loaded = session.load(Manufacturer.class, asahi.getUuid());
-        Owns acquistion = loaded.getAcquisitions().iterator().next();
-        assertThat(acquistion.getAcquiredYear()).isEqualTo(2017);
+        Owns acquisition = loaded.getAcquisitions().iterator().next();
+        assertThat(acquisition.getAcquiredYear()).isEqualTo(2017);
     }
 
     /**
@@ -317,8 +317,8 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         Manufacturer loaded = session.load(Manufacturer.class, asahi.getUuid());
-        Owns acquistion = loaded.getAcquisitions().iterator().next();
-        assertThat(acquistion.getAcquiredYear()).isEqualTo(2017);
+        Owns acquisition = loaded.getAcquisitions().iterator().next();
+        assertThat(acquisition.getAcquiredYear()).isEqualTo(2017);
     }
 
     @Test

@@ -212,7 +212,7 @@ public class HttpRequest implements Request {
             catch (NoHttpResponseException nhre) {
                 LOGGER.warn("Thread: {}, No response from server:  Retrying in {} milliseconds, retries left: {}",
                     Thread.currentThread().getId(), retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
-                retryStrategy.errorOccured();
+                retryStrategy.errorOccurred();
             } catch (RetryException re) {
                 throw new HttpRequestException(request, re);
             } catch (ClientProtocolException uhe) {
@@ -260,7 +260,7 @@ public class HttpRequest implements Request {
             return numberOfTriesLeft > 0;
         }
 
-        public void errorOccured() {
+        public void errorOccurred() {
             numberOfTriesLeft--;
             if (!shouldRetry()) {
                 throw new RetryException("Retry Failed: Total " + numberOfRetries

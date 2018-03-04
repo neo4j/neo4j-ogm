@@ -68,7 +68,7 @@ public class ValidAnnotations {
         public Long id;
 
         @Id @GeneratedValue(strategy = CustomIdStrategy.class)
-        public String idetifier;
+        public String identifier;
     }
 
     public static class WithCustomInstanceIdStrategy {
@@ -76,7 +76,7 @@ public class ValidAnnotations {
         public Long id;
 
         @Id @GeneratedValue(strategy = IdGenerationTest.CustomInstanceIdStrategy.class)
-        public String idetifier;
+        public String identifier;
     }
 
     @RelationshipEntity(type = "REL")

@@ -140,7 +140,7 @@ public class IdGenerationTest extends MultiDriverTestClass {
     }
 
     @Test(expected = MappingException.class)
-    public void saveWithCustomInstaceIdStrategyWhenStrategyNotRegistered() throws Exception {
+    public void saveWithCustomInstanceIdStrategyWhenStrategyNotRegistered() throws Exception {
         // create new session factory without registered instance of the strategy
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids");
         session = sessionFactory.openSession();

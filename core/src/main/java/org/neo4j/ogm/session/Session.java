@@ -635,7 +635,7 @@ public interface Session {
      * Each element of the query result is a map which you can access by the name of the returned field
      * TODO: Are we going to use the neo4jOperations conversion method to cast the value object to its proper class?
      *
-     * @param cypher     The parametrisable cypher to execute.
+     * @param cypher     The parameterisable cypher to execute.
      * @param parameters Any parameters to attach to the cypher.
      * @return A {@link Result} containing an {@link Iterable} map representing query results and {@link QueryStatistics} if applicable.
      */
@@ -647,7 +647,7 @@ public interface Session {
      * Each element of the query result is a map which you can access by the name of the returned field
      * TODO: Are we going to use the neo4jOperations conversion method to cast the value object to its proper class?
      *
-     * @param cypher     The parametrisable cypher to execute.
+     * @param cypher     The parameterisable cypher to execute.
      * @param parameters Any parameters to attach to the cypher.
      * @param readOnly   true if the query is readOnly, false otherwise
      * @return A {@link Result} of {@link Iterable}s with each entry representing a neo4j object's properties.

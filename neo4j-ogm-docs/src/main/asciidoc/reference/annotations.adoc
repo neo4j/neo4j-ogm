@@ -93,7 +93,7 @@ In this case, a graph similar to the following would be persisted.
 While this will map successfully to the database, it's important to understand that the names of the properties and relationship types are tightly coupled to the class's member names.
 Renaming any of these fields will cause parts of the graph to map incorrectly, hence the recommendation to use annotations.
 
-Please read <<reference:annotating-entities:non-annotated-properties>> for more details and best pratices on this.
+Please read <<reference:annotating-entities:non-annotated-properties>> for more details and best practices on this.
 
 [[reference:annotating-entities:node-entity:dynamic-properties]]
 === @Properties: dynamically mapping properties to graph

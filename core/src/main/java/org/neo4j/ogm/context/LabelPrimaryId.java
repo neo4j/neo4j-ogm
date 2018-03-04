@@ -33,7 +33,7 @@ class LabelPrimaryId {
     /**
      * Create LabelPrimaryId
      *
-     * @param classInfo class info containign the primary id
+     * @param classInfo class info containing the primary id
      * @param id        the value of the id
      */
     public LabelPrimaryId(ClassInfo classInfo, Object id) {

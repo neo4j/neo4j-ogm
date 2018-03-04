@@ -193,7 +193,7 @@ public class NodeQueryStatementsTest {
     }
 
     @Test
-    public void testFindOneZeroDepthPrimaryIndes() throws Exception {
+    public void testFindOneZeroDepthPrimaryIndex() throws Exception {
         PagingAndSortingQuery query = primaryQueryStatements.findOne("test-uuid", 0);
 
         assertThat(query.getStatement()).isEqualTo("MATCH (n) WHERE n.`uuid` = { id } WITH n RETURN n");

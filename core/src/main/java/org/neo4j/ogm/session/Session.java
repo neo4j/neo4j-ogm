@@ -707,7 +707,7 @@ public interface Session {
      * Remove an event listener from this session.
      *
      * @param eventListener The listener to deregister
-     * @return <code>true</code> if successfully regisistered.
+     * @return <code>true</code> if successfully registered.
      */
     boolean dispose(EventListener eventListener);
 

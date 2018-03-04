@@ -59,7 +59,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
     @Test
     @Ignore(
-        "ignored after asymmetric querying, relationshp Program - Satelite is inconsistent, test data satellites.cql" +
+        "ignored after asymmetric querying, relationship Program - Satelite is inconsistent, test data satellites.cql" +
             "contains something that would not be possible to create with OGM with current model")
     public void shouldLoadPrograms() {
 

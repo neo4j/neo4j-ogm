@@ -24,7 +24,7 @@ import org.neo4j.ogm.response.model.RelationshipModel;
 import org.neo4j.ogm.result.adapter.ResultAdapter;
 
 /**
- * Adapt HTTP rest response to a NodeModels, RelaitonshipModels, and objects
+ * Adapt HTTP rest response to a NodeModels, RelationshipModels, and objects
  *
  * @author Luanne Misquitta
  */

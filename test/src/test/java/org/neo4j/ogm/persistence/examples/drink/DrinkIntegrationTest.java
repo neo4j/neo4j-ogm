@@ -300,7 +300,7 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
     /**
      * Not sure this is valid use case - the object graph is not consistent
-     * RE Owns refers to asahi node, but it does not refere to owns instance
+     * RE Owns refers to asahi node, but it does not refer to owns instance
      * Similar as {@link org.neo4j.ogm.persistence.examples.ingredients.IngredientsIntegrationTest#shouldBeAbleToLoadPairingWithCustomDepth}
      * Executes !compiler.context().visitedRelationshipEntity branch in
      * {@link org.neo4j.ogm.context.EntityGraphMapper#map(java.lang.Object, int)}

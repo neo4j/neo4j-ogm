@@ -62,7 +62,7 @@ public class ConfigurationTest {
     @Test
     public void shouldConfigureCredentialsFromURI() {
         Configuration configuration = new Configuration.Builder().uri("http://fred:flintstone@localhost:8080").build();
-        // base 64 encoded creadentials, e.g. use echo fred:flintstone | base64
+        // base 64 encoded credentials, e.g. use echo fred:flintstone | base64
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("ZnJlZDpmbGludHN0b25l");
         assertThat(configuration.getURI()).isEqualTo("http://localhost:8080");
     }

@@ -455,7 +455,7 @@ To automatically generate and assign a value of the property the annotation `@Ge
 
 The `@GeneratedValue` annotation has optional parameter `strategy`, which can be used to provide a custom id generation strategy.
 The class must implement `org.neo4j.ogm.id.IdStrategy` interface.
-The stragety class can either supply no argument constructor - in which case OGM will create an instance of the strategy and call it.
+The strategy class can either supply no argument constructor - in which case OGM will create an instance of the strategy and call it.
 For situations where some external context is needed an externally created instance can be registered with SessionFactory by using
 `SessionFactory.register(IdStrategy)`.
 

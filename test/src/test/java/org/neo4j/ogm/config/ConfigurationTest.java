@@ -68,7 +68,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldConfigureCredentialsFromURIWithUTF8Charactes() {
+    public void shouldConfigureCredentialsFromURIWithUTF8Characters() {
         Configuration configuration = new Configuration.Builder()
             .uri("http://franti\u0161ek:Pass123@localhost:8080")
             .build();

@@ -18,7 +18,7 @@ import java.time.Instant;
 /**
  * Converter to convert {@link Instant} to {@link Long}.
  * Since the value as represented in JSON loses type information and is just numeric, the converted type used is {@link Number}
- * Stores values in db as milliseconds from the epoch of 1970-01-01T00:00:00Z, UTC beeing used to preserve from
+ * Stores values in db as milliseconds from the epoch of 1970-01-01T00:00:00Z, UTC being used to preserve from
  * timezones problems.
  *
  * @author Nicolas Mervaillie

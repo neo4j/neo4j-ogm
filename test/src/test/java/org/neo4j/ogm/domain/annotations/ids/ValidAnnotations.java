@@ -60,6 +60,12 @@ public class ValidAnnotations {
         public UUID identifier;
     }
 
+    public static class UuidAndGenerationType {
+        @Id @GeneratedValue(strategy = UuidStrategy.class)
+        @Convert(UuidStringConverter.class)
+        public UUID identifier;
+    }
+
     public static class BasicChild extends Basic {
     }
 

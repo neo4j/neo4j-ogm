@@ -17,9 +17,11 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations.UuidAndGenerationType;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.typeconversion.UuidStringConverter;
 
 /**
  * @author Vince Bickers
@@ -29,10 +31,12 @@ import org.neo4j.ogm.metadata.MetaData;
 public class MappingContextTest {
 
     private MappingContext mappingContext;
+    private MetaData metaData;
 
     @Before
     public void setUp() {
-        mappingContext = new MappingContext(new MetaData("org.neo4j.ogm.domain.policy", "org.neo4j.ogm.context"));
+        metaData = new MetaData("org.neo4j.ogm.domain.policy", "org.neo4j.ogm.context", "org.neo4j.ogm.domain.annotations.ids");
+        mappingContext = new MappingContext(metaData);
     }
 
     @Test
@@ -167,5 +171,37 @@ public class MappingContextTest {
         assertThat(mappingContext.isDirty(rik)).isTrue();
         assertThat(mappingContext.isDirty(healthcare)).isFalse();
         assertThat(mappingContext.isDirty(immigration)).isFalse();
+    }
+
+    /**
+     * @see Issue #467
+     */
+    @Test
+    public void nativeIdsAreMappedWithoutPrimaryIdConversion() {
+        UuidAndGenerationType entity = new UuidAndGenerationType();
+
+        mappingContext.nativeId(entity);
+
+        assertThat(mappingContext.containsNativeId(metaData.classInfo(entity), entity.identifier)).isTrue();
+        assertThat(mappingContext.containsNativeId(metaData.classInfo(entity), new UuidStringConverter().toGraphProperty(entity.identifier))).isFalse();
+    }
+
+    /**
+     * @see Issue #467
+     */
+    @Test
+    public void nodeEntitiesAreReplacedWithoutPrimaryIdConversion() {
+        UuidAndGenerationType entity = new UuidAndGenerationType();
+
+        mappingContext.addNodeEntity(entity);
+        Long initialNativeId = mappingContext.nativeId(entity);
+
+        mappingContext.replaceNodeEntity(entity, 999L);
+
+        assertThat(mappingContext.containsNativeId(metaData.classInfo(entity), entity.identifier)).isTrue();
+        assertThat(mappingContext.containsNativeId(metaData.classInfo(entity), new UuidStringConverter().toGraphProperty(entity.identifier))).isFalse();
+
+        assertThat(mappingContext.getNodeEntity(999L)).isSameAs(entity);
+        assertThat(mappingContext.getNodeEntity(initialNativeId)).isNull();
     }
 }

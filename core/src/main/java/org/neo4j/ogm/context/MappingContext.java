@@ -170,7 +170,7 @@ public class MappingContext {
 
         ClassInfo classInfo = metaData.classInfo(entity);
         if (classInfo.hasPrimaryIndexField()) {
-            LabelPrimaryId key = new LabelPrimaryId(classInfo, classInfo.primaryIndexField().readProperty(entity));
+            LabelPrimaryId key = new LabelPrimaryId(classInfo, classInfo.primaryIndexField().read(entity));
             primaryIdToNativeId.put(key, identity);
         }
 
@@ -262,6 +262,18 @@ public class MappingContext {
 
     public Object getRelationshipEntity(Long relationshipId) {
         return relationshipEntityRegister.get(relationshipId);
+    }
+
+    /**
+     * Check if the context contains the nativeId for an entity
+     *
+     * @param classInfo classInfo of the relationship entity (it is needed to because primary id may not be unique
+     *                  across all relationship types)
+     * @param id        primary id of the entity
+     * @return True if nativeId is already in the context
+     */
+    boolean containsNativeId(ClassInfo classInfo, Object id) {
+        return primaryIdToNativeId.containsKey(new LabelPrimaryId(classInfo, id)) ;
     }
 
     /**
@@ -495,7 +507,7 @@ public class MappingContext {
             return EntityUtils.identity(entity, metaData);
         } else {
             FieldInfo fieldInfo = classInfo.primaryIndexField();
-            Object primaryId = fieldInfo.readProperty(entity);
+            Object primaryId = fieldInfo.read(entity);
 
             if (primaryId == null) {
                 throw new MappingException("Field with primary id is null for entity " + entity);

@@ -60,6 +60,7 @@ ext {
             'ogm-manual-base-uri'        : "${docsBaseUri}/ogm-manual/${ogmDocVersion}",
             'kerberos-add-on-base-uri'   : "${docsBaseUri}/add-on/kerberos/${kerberosAddonVersion}"
     ]
+    docsCrossReferenceBaseUris['neo4j-javadoc-base-uri'] = "${docsCrossReferenceBaseUris['java-reference-base-uri']}/javadocs"
     commonAsciidoctorAttributes = [
             'copyright-year'                   : copyrightYear,
             'copyright'                        : "${copyrightYear} Neo4j, Inc.",

@@ -75,7 +75,7 @@ Most importantly, it has an active and contributing community surrounding it, bu
 * has a powerful graph query language called Cypher, which allows users to efficiently read/write data by expressing graph patterns.
 * has a powerful traversal framework and query languages for traversing the graph.
 * can be deployed as a standalone server, which is the recommended way of using Neo4j.
-* can be deployed as an embedded (in-process) database, giving developers access to its core Java https://neo4j.com/docs/#api[API].
+* can be deployed as an embedded (in-process) database, giving developers access to its core Java {neo4j-javadoc-base-uri}[API].
 
 In addition, Neo4j provides ACID transactions, durable persistence, concurrency control, transaction recovery, high availability, and more.
 Neo4j is released under a dual free software/commercial licence model.

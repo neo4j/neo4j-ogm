@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.neo4j</groupId>
         <artifactId>neo4j-ogm</artifactId>
-        <version>3.1.0-SNAPSHOT</version>
+        <version>3.1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,25 +38,25 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-http-driver</artifactId>
-            <version>3.1.0-SNAPSHOT</version>
+            <version>3.1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-core</artifactId>
-            <version>3.1.0-SNAPSHOT</version>
+            <version>3.1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-embedded-driver</artifactId>
-            <version>3.1.0-SNAPSHOT</version>
+            <version>3.1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-bolt-driver</artifactId>
-            <version>3.1.0-SNAPSHOT</version>
+            <version>3.1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>

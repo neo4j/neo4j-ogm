@@ -1,4 +1,4 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.neo4j/neo4j-ogm/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.neo4j/neo4j-ogm)
+[![Maven Central](https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg)](https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg)
 [![Slack](https://rawgit.com/aleen42/badges/master/src/slack.svg)](https://neo4j-users.slack.com/messages/neo4j-sdn-ogm/)
 [![stackoverflow](https://rawgit.com/aleen42/badges/master/src/stackoverflow.svg)](https://stackoverflow.com/questions/tagged/neo4j-ogm)
 

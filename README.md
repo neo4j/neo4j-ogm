@@ -1,4 +1,4 @@
-[![Maven Central](https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg)](https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg)
+[![Maven Central](https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.neo4j%22%20AND%20a%3A%22neo4j-ogm%22)
 [![Slack](https://rawgit.com/aleen42/badges/master/src/slack.svg)](https://neo4j-users.slack.com/messages/neo4j-sdn-ogm/)
 [![stackoverflow](https://rawgit.com/aleen42/badges/master/src/stackoverflow.svg)](https://stackoverflow.com/questions/tagged/neo4j-ogm)
 

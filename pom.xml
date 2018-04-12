@@ -49,7 +49,7 @@
         <logback>1.1.7</logback>
         <mockito>2.2.29</mockito>
         <!-- default for build, if no profiles invoked -->
-        <neo4j>3.2.9</neo4j>
+        <neo4j>3.3.5</neo4j>
         <bolt>1.5.0</bolt>
         <fast.classpath.scanner>2.18.1</fast.classpath.scanner>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
@@ -324,7 +324,6 @@
         <profile>
             <id>neo4j-3.2</id>
             <properties>
-                <!-- Don't forget to update default value of this property in properties -->
                 <neo4j>3.2.10</neo4j>
             </properties>
         </profile>

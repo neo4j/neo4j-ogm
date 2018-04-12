@@ -332,7 +332,7 @@
         <profile>
             <id>neo4j-3.3</id>
             <properties>
-                <neo4j>3.3.4</neo4j>
+                <neo4j>3.3.5</neo4j>
             </properties>
         </profile>
 

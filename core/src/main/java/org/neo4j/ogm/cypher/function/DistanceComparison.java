@@ -23,6 +23,8 @@ import org.neo4j.ogm.cypher.Filter;
  */
 public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
 
+    private static final String LATITUDE_PROPERTY_SUFFIX = ".latitude";
+    private static final String LONGITUDE_PROPERTY_SUFFIX = ".longitude";
     private DistanceFromPoint value;
     private Filter filter;
 
@@ -48,8 +50,11 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
     @Override
     public String expression(String nodeIdentifier) {
 
-        return String.format("distance(point(%s),point({latitude:{lat}, longitude:{lon}})) " +
-            "%s {distance} ", nodeIdentifier, filter.getComparisonOperator().getValue());
+        String latitude = nodeIdentifier + LATITUDE_PROPERTY_SUFFIX;
+        String longitude = nodeIdentifier + LONGITUDE_PROPERTY_SUFFIX;
+
+        return String.format("distance(point({latitude: %s, longitude: %s}),point({latitude:{lat}, longitude:{lon}})) " +
+            "%s {distance} ", latitude, longitude, filter.getComparisonOperator().getValue());
     }
 
     @Override

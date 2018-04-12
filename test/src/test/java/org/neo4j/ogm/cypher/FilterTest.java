@@ -36,7 +36,7 @@ public class FilterTest {
         filter.setBooleanOperator(BooleanOperator.AND);
         filter.setNegated(true);
         assertThat(filter.toCypher("n", true))
-            .isEqualTo("WHERE NOT(distance(point(n),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ");
+            .isEqualTo("WHERE NOT(distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ");
     }
 
     @Test

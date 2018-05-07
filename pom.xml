@@ -357,6 +357,13 @@
         </profile>
 
         <profile>
+            <id>driver-1.6</id>
+            <properties>
+                <bolt>1.6.0</bolt>
+            </properties>
+        </profile>
+
+        <profile>
             <id>embedded</id>
             <properties>
                 <ogm.properties>ogm-embedded.properties</ogm.properties>

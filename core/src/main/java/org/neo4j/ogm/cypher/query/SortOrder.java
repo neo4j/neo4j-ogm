@@ -15,28 +15,89 @@ package org.neo4j.ogm.cypher.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.neo4j.ogm.cypher.query.SortOrder.Direction.ASC;
+import static org.neo4j.ogm.cypher.query.SortOrder.Direction.DESC;
+
 /**
  * @author Vince Bickers
  */
 public class SortOrder {
 
     public enum Direction {
-
         ASC, DESC
     }
 
-    private List<SortClause> sortClauses = new ArrayList<>();
+    private List<SortClause> sortClauses;
 
+    /**
+     * Creates SortOrder with a empty list of {@link SortClause}.
+     */
+    public SortOrder() {
+        sortClauses = new ArrayList<>();
+    }
+
+    /**
+     * Creates SortOrder with a new {@link SortClause} containing properties ordered by {@link Direction#ASC}.
+     *
+     * @param properties list of properties ordered by {@link Direction#ASC}
+     */
+    public SortOrder(String... properties) {
+        this(ASC, properties);
+    }
+
+    /**
+     * Creates SortOrder with a new {@link SortClause} containing properties ordered by direction.
+     *
+     * @param direction  the specified {@link Direction} can be either ASC or DESC
+     * @param properties list of properties ordered by direction
+     */
+    public SortOrder(Direction direction, String... properties) {
+        this();
+        add(direction, properties);
+    }
+
+
+    /**
+     * Adds a new {@link SortClause} containing properties ordered by {@link Direction#ASC}.
+     *
+     * @param properties list of properties ordered by {@link Direction#ASC}
+     */
+    public SortOrder add(String... properties) {
+        return add(ASC, properties);
+    }
+
+    /**
+     * Adds a new {@link SortClause} containing properties ordered by direction.
+     *
+     * @param direction  the specified {@link Direction} can be either ASC or DESC
+     * @param properties list of properties ordered by direction
+     */
     public SortOrder add(Direction direction, String... properties) {
         sortClauses.add(new SortClause(direction, properties));
         return this;
     }
 
-    public SortOrder add(String... properties) {
-        sortClauses.add(new SortClause(Direction.ASC, properties));
-        return this;
+    /**
+     * Adds a new {@link SortClause} containing properties ordered by {@link Direction#ASC}.
+     *
+     * @param properties list of properties ordered by {@link Direction#ASC}
+     */
+    public SortOrder asc(String... properties) {
+        return add(ASC, properties);
     }
 
+    /**
+     * Adds a new {@link SortClause} containing properties ordered by {@link Direction#DESC}.
+     *
+     * @param properties list of properties ordered by {@link Direction#DESC}
+     */
+    public SortOrder desc(String... properties) {
+        return add(DESC, properties);
+    }
+
+    /**
+     * Return the list of existing {@link SortClause}.
+     */
     public List<SortClause> sortClauses() {
         return sortClauses;
     }
@@ -58,5 +119,3 @@ public class SortOrder {
         return sb.toString();
     }
 }
-
-

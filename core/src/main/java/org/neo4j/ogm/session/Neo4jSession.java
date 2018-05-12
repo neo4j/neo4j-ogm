@@ -16,6 +16,7 @@ package org.neo4j.ogm.session;
 import static java.util.Collections.*;
 
 import java.io.Serializable;
+import java.lang.invoke.SwitchPoint;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -683,6 +684,7 @@ public class Neo4jSession implements Session {
                     for (int i = 0; i < sortClause.getProperties().length; i++) {
                         sortClause.getProperties()[i] = String
                             .format(escapedProperty, resolvePropertyName(entityType, sortClause.getProperties()[i]));
+                        SwitchPoint.invalidateAll(new SwitchPoint[]{sortClause.alreadyEscaped});
                     }
             }
         }

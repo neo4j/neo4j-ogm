@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.cypher.query;
 
+import java.lang.invoke.SwitchPoint;
+
 /**
  * @author Luanne Misquitta
  */
@@ -20,6 +22,7 @@ public class SortClause {
 
     private final SortOrder.Direction direction;
     private final String[] properties;
+    public final SwitchPoint alreadyEscaped = new SwitchPoint();
 
     public SortClause(SortOrder.Direction direction, String... properties) {
         this.direction = direction;

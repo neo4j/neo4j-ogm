@@ -80,7 +80,7 @@ public class EntityAbstractionTest extends MultiDriverTestClass {
         Set<AnotherEntity> children = session.load(ChildA.class, a.getUuid()).getChildren();
         assertThat(children).contains(b1, b2, c1);
 
-//        FIXME - #414 - @PostLoad is not called in child overrided method (see ChildB)
-//        children.stream().filter(c -> c instanceof ChildB).forEach(b -> assertThat(((ChildB) b).getValue()).isNotNull());
+        // #414 - @PostLoad is not called in child's overridden method (see ChildB postLoad method)
+        children.stream().filter(c -> c instanceof ChildB).forEach(b -> assertThat(((ChildB) b).getValue()).isNotNull());
     }
 }

@@ -13,22 +13,6 @@
 
 package org.neo4j.ogm.metadata;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.exception.core.MetadataException;
@@ -38,6 +22,14 @@ import org.neo4j.ogm.id.UuidStrategy;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Maintains object to graph mapping details at the class (type) level
@@ -543,7 +535,7 @@ public class ClassInfo {
      * @return Set of  FieldInfo objects describing the required relationship field, or empty set if it doesn't exist.
      */
     public Set<FieldInfo> candidateRelationshipFields(String relationshipName, String relationshipDirection,
-        boolean strict) {
+                                                      boolean strict) {
         Set<FieldInfo> candidateFields = new HashSet<>();
         for (FieldInfo fieldInfo : relationshipFields()) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
@@ -703,7 +695,7 @@ public class ClassInfo {
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<FieldInfo> findIterableFields(Class iteratedType, String relationshipType, String relationshipDirection,
-        boolean strict) {
+                                              boolean strict) {
         List<FieldInfo> fieldInfos = new ArrayList<>();
         for (FieldInfo fieldInfo : findIterableFields(iteratedType)) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
@@ -980,16 +972,14 @@ public class ClassInfo {
         if (isPostLoadMethodMapped) {
             return postLoadMethod;
         }
-        if (!isPostLoadMethodMapped) {
-            for (MethodInfo methodInfo : methodsInfo().methods()) {
-                if (methodInfo.hasAnnotation(PostLoad.class.getName())) {
-                    isPostLoadMethodMapped = true;
-                    postLoadMethod = methodInfo;
-                    return postLoadMethod;
-                }
+        for (MethodInfo methodInfo : methodsInfo().methods()) {
+            if (methodInfo.hasAnnotation(PostLoad.class.getName())) {
+                isPostLoadMethodMapped = true;
+                postLoadMethod = methodInfo;
+                return postLoadMethod;
             }
-            isPostLoadMethodMapped = true;
         }
+        isPostLoadMethodMapped = true;
         return null;
     }
 

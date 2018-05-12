@@ -35,18 +35,19 @@ public class MethodsInfo {
     public MethodsInfo(Class<?> cls) {
         this.methods = new HashMap<>();
 
-        for (Method method : cls.getDeclaredMethods()) {
-            final int modifiers = method.getModifiers();
-            if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
-                ObjectAnnotations objectAnnotations = new ObjectAnnotations();
-                final Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
-                for (Annotation annotation : declaredAnnotations) {
-                    AnnotationInfo info = new AnnotationInfo(annotation);
-                    objectAnnotations.put(info.getName(), info);
+        do {
+            for (Method method : cls.getDeclaredMethods()) {
+                final int modifiers = method.getModifiers();
+                if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
+                    ObjectAnnotations objectAnnotations = new ObjectAnnotations();
+                    for (Annotation annotation : method.getDeclaredAnnotations()) {
+                        AnnotationInfo info = new AnnotationInfo(annotation);
+                        objectAnnotations.put(info.getName(), info);
+                    }
+                    methods.put(method.getName(), new MethodInfo(method, objectAnnotations));
                 }
-                methods.put(method.getName(), new MethodInfo(method, objectAnnotations));
             }
-        }
+        } while ((cls = cls.getSuperclass()) != null);
     }
 
     public MethodsInfo(Map<String, MethodInfo> methods) {

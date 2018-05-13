@@ -93,7 +93,7 @@ public class LoadOneDelegate {
             if (primaryIndex == null) {
                 ref = session.context().getNodeEntity((Long) id);
             } else {
-                ref = session.context().getNodeEntityById(typeInfo, id);
+                ref = session.context().getEntityById(typeInfo, id);
             }
         } else {
             if (primaryIndex == null) {
@@ -101,7 +101,7 @@ public class LoadOneDelegate {
                 // But we know this will always be Long.
                 ref = session.context().getRelationshipEntity((Long) id);
             } else {
-                ref = session.context().getRelationshipEntityById(typeInfo, id);
+                ref = session.context().getEntityById(typeInfo, id);
             }
         }
         try {

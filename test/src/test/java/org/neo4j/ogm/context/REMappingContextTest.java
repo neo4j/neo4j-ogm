@@ -48,7 +48,7 @@ public class REMappingContextTest {
         Object entity = context.getRelationshipEntity(1L);
         assertThat(entity).isSameAs(likes);
 
-        Object entityById = context.getRelationshipEntityById(metaData.classInfo(likes), "test-uuid");
+        Object entityById = context.getEntityById(metaData.classInfo(likes), "test-uuid");
         assertThat(entityById).isSameAs(likes);
     }
 
@@ -58,7 +58,7 @@ public class REMappingContextTest {
 
         context.clear();
 
-        Object entity = context.getRelationshipEntityById(metaData.classInfo(likes), "test-uuid");
+        Object entity = context.getEntityById(metaData.classInfo(likes), "test-uuid");
         assertThat(entity).isNull();
     }
 

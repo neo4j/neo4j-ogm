@@ -13,15 +13,6 @@
 
 package org.neo4j.ogm.context;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
@@ -30,6 +21,9 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.utils.EntityUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -45,15 +39,13 @@ public class MappingContext {
     // map Neo4j id -> entity
     private final Map<Long, Object> nodeEntityRegister;
 
-    // map primary index value -> entity
-    private final Map<LabelPrimaryId, Object> primaryIndexNodeRegister;
-
-    // LabelPrimaryId - > native id (contains both nodes and relationship entities)
-    private final Map<LabelPrimaryId, Long> primaryIdToNativeId;
-
     private final Map<Long, Object> relationshipEntityRegister;
 
-    private final Map<LabelPrimaryId, Object> primaryIdToRelationship;
+    // LabelPrimaryId -> native id (contains both nodes and relationship entities)
+    private final Map<LabelPrimaryId, Long> primaryIdToNativeId;
+
+    // map primary index value -> entity (contains both nodes and relationship entities)
+    private final Map<LabelPrimaryId, Object> primaryIdToEntity;
 
     private final Set<MappedRelationship> relationshipRegister;
 
@@ -65,16 +57,15 @@ public class MappingContext {
         this.metaData = metaData;
         this.identityMap = new IdentityMap(metaData);
         this.nodeEntityRegister = new HashMap<>();
-        this.primaryIndexNodeRegister = new HashMap<>();
-        this.primaryIdToNativeId = new HashMap<>();
         this.relationshipEntityRegister = new HashMap<>();
-        this.primaryIdToRelationship = new HashMap<>();
+        this.primaryIdToNativeId = new HashMap<>();
+        this.primaryIdToEntity = new HashMap<>();
         this.relationshipRegister = new HashSet<>();
     }
 
     /**
      * Gets a node entity from the MappingContext by its graph id.
-     * NOTE: to get entity by field with @Id use {@link #getNodeEntityById(ClassInfo, Object)} - you also need to check if such id
+     * NOTE: to get entity by field with @Id use {@link #getEntityById(ClassInfo, Object)} - you also need to check if such id
      * exists and is of correct type
      *
      * @param graphId The graph id to look for.
@@ -85,14 +76,14 @@ public class MappingContext {
     }
 
     /**
-     * Get a node entity from the MappingContext by its primary id
+     * Get an entity from the MappingContext by its primary id
      *
      * @param classInfo class info of the entity (this must be provided because id itself is not unique)
      * @param id        primary id of the entity
      * @return the entity or null if not found
      */
-    public Object getNodeEntityById(ClassInfo classInfo, Object id) {
-        return primaryIndexNodeRegister.get(new LabelPrimaryId(classInfo, id));
+    public Object getEntityById(ClassInfo classInfo, Object id) {
+        return primaryIdToEntity.get(new LabelPrimaryId(classInfo, id));
     }
 
     /**
@@ -113,23 +104,24 @@ public class MappingContext {
      * @return The object added, never null.
      */
     public Object addNodeEntity(Object entity, Long id) {
+        return updateIdentity(entity, id, nodeEntityRegister);
+    }
 
-        ClassInfo classInfo = metaData.classInfo(entity);
+    private Object updateIdentity(Object entity, Long id, Map<Long, Object> entityRegister) {
+        if (entityRegister.putIfAbsent(id, entity) == null) {
+            identityMap.remember(entity, id);
+            ClassInfo classInfo = metaData.classInfo(entity);
+            FieldInfo field = classInfo.primaryIndexField();
 
-        if (nodeEntityRegister.putIfAbsent(id, entity) == null) {
-            remember(entity);
-            final FieldInfo primaryIndexField = classInfo
-                .primaryIndexField(); // also need to add the class to key to prevent collisions.
-            if (primaryIndexField != null) {
-                final Object primaryIndexValue = primaryIndexField.read(entity);
-                if (primaryIndexValue != null) {
-                    LabelPrimaryId key = new LabelPrimaryId(classInfo, primaryIndexValue);
-                    primaryIndexNodeRegister.putIfAbsent(key, entity);
+            if (field != null) {
+                Object primaryId = field.read(entity);
+                if (primaryId != null) {
+                    LabelPrimaryId key = new LabelPrimaryId(classInfo, primaryId);
+                    primaryIdToEntity.put(key, entity);
                     primaryIdToNativeId.put(key, id);
                 }
             }
         }
-
         return entity;
     }
 
@@ -156,7 +148,7 @@ public class MappingContext {
         if (primaryIndexField != null) {
             final Object primaryIndexValue = primaryIndexField.read(entity);
             if (primaryIndexValue != null) {
-                primaryIndexNodeRegister.remove(new LabelPrimaryId(primaryIndexClassInfo, primaryIndexValue));
+                primaryIdToEntity.remove(new LabelPrimaryId(primaryIndexClassInfo, primaryIndexValue));
             }
         }
 
@@ -185,7 +177,7 @@ public class MappingContext {
         if (primaryIndexField != null) {
             Object primaryId = primaryIndexField.read(entity);
             LabelPrimaryId labelPrimaryId = new LabelPrimaryId(classInfo, primaryId);
-            primaryIdToRelationship.remove(labelPrimaryId);
+            primaryIdToEntity.remove(labelPrimaryId);
             primaryIdToNativeId.remove(labelPrimaryId);
         }
         addRelationshipEntity(entity, id);
@@ -254,9 +246,8 @@ public class MappingContext {
     public void clear() {
         identityMap.clear();
         relationshipRegister.clear();
-        primaryIdToRelationship.clear();
         nodeEntityRegister.clear();
-        primaryIndexNodeRegister.clear();
+        primaryIdToEntity.clear();
         relationshipEntityRegister.clear();
     }
 
@@ -264,33 +255,8 @@ public class MappingContext {
         return relationshipEntityRegister.get(relationshipId);
     }
 
-    /**
-     * Get a relationship entity from MappingContext by primary id
-     *
-     * @param classInfo classInfo of the relationship entity (it is needed to because primary id may not be unique
-     *                  across all relationship types)
-     * @param id        primary id of the entity
-     * @return relationship entity
-     */
-    public Object getRelationshipEntityById(ClassInfo classInfo, Object id) {
-        return primaryIdToRelationship.get(new LabelPrimaryId(classInfo, id));
-    }
-
-    public Object addRelationshipEntity(Object relationshipEntity, Long id) {
-
-        if (relationshipEntityRegister.putIfAbsent(id, relationshipEntity) == null) {
-            relationshipEntity = relationshipEntityRegister.get(id);
-            remember(relationshipEntity);
-
-            ClassInfo classInfo = metaData.classInfo(relationshipEntity);
-            FieldInfo primaryIdField = classInfo.primaryIndexField();
-            if (primaryIdField != null) {
-                Object primaryId = primaryIdField.read(relationshipEntity);
-                primaryIdToRelationship.put(new LabelPrimaryId(classInfo, primaryId), relationshipEntity);
-                primaryIdToNativeId.put(new LabelPrimaryId(classInfo, primaryId), id);
-            }
-        }
-        return relationshipEntity;
+    public Object addRelationshipEntity(Object entity, Long id) {
+        return updateIdentity(entity, id, relationshipEntityRegister);
     }
 
     /**
@@ -476,10 +442,6 @@ public class MappingContext {
                 purge(relEntity, relClassInfo.getUnderlyingClass());
             }
         }
-    }
-
-    private void remember(Object entity) {
-        identityMap.remember(entity, nativeId(entity));
     }
 
     public Long nativeId(Object entity) {

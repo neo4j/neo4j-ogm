@@ -13,15 +13,6 @@
 
 package org.neo4j.ogm.persistence.examples.pizza;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,6 +25,11 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import java.io.IOException;
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luanne Misquitta
@@ -509,6 +505,46 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.save(pizza);
 
         assertOneRelationshipInDb();
+    }
+
+    @Test
+    public void shouldUpdateLabelWhenLoadingEntityInSameSession() {
+        Pizza pizza = new Pizza();
+        pizza.addLabel("A0");
+        session.save(pizza);
+        session.clear();
+
+        Pizza dbPizza = session.load(Pizza.class, pizza.getId());
+        assertThat(dbPizza.getLabels().size()).isEqualTo(1);
+        assertThat(dbPizza.getLabels()).contains("A0");
+        dbPizza.removeLabel("A0");
+        dbPizza.addLabel("A1");
+        session.save(dbPizza);
+        session.clear();
+
+        dbPizza = session.load(Pizza.class, pizza.getId());
+        assertThat(dbPizza.getLabels().size()).isEqualTo(1);
+        assertThat(dbPizza.getLabels()).contains("A1");
+    }
+
+    @Test
+    public void shouldUpdateLabelWhenLoadingEntityInNewSession() {
+        Pizza pizza = new Pizza();
+        pizza.addLabel("A0");
+        session.save(pizza);
+        Session newSession = sessionFactory.openSession();
+
+        Pizza dbPizza = newSession.load(Pizza.class, pizza.getId());
+        assertThat(dbPizza.getLabels().size()).isEqualTo(1);
+        assertThat(dbPizza.getLabels()).contains("A0");
+        dbPizza.removeLabel("A0");
+        dbPizza.addLabel("A1");
+        newSession.save(dbPizza);
+        newSession.clear();
+
+        dbPizza = newSession.load(Pizza.class, pizza.getId());
+        assertThat(dbPizza.getLabels().size()).isEqualTo(1);
+        assertThat(dbPizza.getLabels()).contains("A1");
     }
 
     private void assertOneRelationshipInDb() {

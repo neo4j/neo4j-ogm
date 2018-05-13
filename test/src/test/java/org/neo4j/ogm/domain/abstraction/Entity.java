@@ -30,6 +30,18 @@ public abstract class Entity {
     public void postLoad() {
     }
 
+    public void addLabel(Object... labels) {
+        for (Object label : labels) {
+            this.labels.add(label.toString());
+        }
+    }
+
+    public void removeLabel(Object... labels) {
+        for (Object label : labels) {
+            this.labels.remove(label.toString());
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -12,20 +12,16 @@
  */
 package org.neo4j.ogm.cypher.query;
 
+import static org.neo4j.ogm.cypher.query.SortOrder.Direction.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.neo4j.ogm.cypher.query.SortOrder.Direction.ASC;
-import static org.neo4j.ogm.cypher.query.SortOrder.Direction.DESC;
-
 /**
  * @author Vince Bickers
+ * @author Jonathan D'Orleans
  */
 public class SortOrder {
-
-    public enum Direction {
-        ASC, DESC
-    }
 
     private List<SortClause> sortClauses;
 
@@ -55,7 +51,6 @@ public class SortOrder {
         this();
         add(direction, properties);
     }
-
 
     /**
      * Adds a new {@link SortClause} containing properties ordered by {@link Direction#ASC}.
@@ -117,5 +112,9 @@ public class SortOrder {
             sb.deleteCharAt(sb.length() - 1);
         }
         return sb.toString();
+    }
+
+    public enum Direction {
+        ASC, DESC
     }
 }

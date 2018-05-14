@@ -12,19 +12,21 @@
  */
 package org.neo4j.ogm.session.request.strategy;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.neo4j.ogm.cypher.ComparisonOperator.*;
+import static org.neo4j.ogm.cypher.query.SortOrder.Direction.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.neo4j.ogm.cypher.ComparisonOperator.EQUALS;
-import static org.neo4j.ogm.cypher.query.SortOrder.Direction.DESC;
-
 /**
  * @author Vince Bickers
+ * @author Jonathan D'Orleans
  */
 public class RelationshipEntityQuerySortingTest {
 
@@ -67,9 +69,11 @@ public class RelationshipEntityQuerySortingTest {
             "MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
             "MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
             "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)";
-        check(cypher, query.findByType("ORBITS", 3).setSortOrder(sortOrder.add(DESC, "distance", "aphelion")).getStatement());
-        check(cypher, query.findByType("ORBITS", 3).setSortOrder(new SortOrder(DESC, "distance", "aphelion")).getStatement());
-        check(cypher, query.findByType("ORBITS", 3).setSortOrder(new SortOrder().desc("distance", "aphelion")).getStatement());
+
+        PagingAndSortingQuery orbitsQuery = query.findByType("ORBITS", 3);
+        check(cypher, orbitsQuery.setSortOrder(sortOrder.add(DESC, "distance", "aphelion")).getStatement());
+        check(cypher, orbitsQuery.setSortOrder(new SortOrder(DESC, "distance", "aphelion")).getStatement());
+        check(cypher, orbitsQuery.setSortOrder(new SortOrder().desc("distance", "aphelion")).getStatement());
     }
 
     @Test
@@ -79,9 +83,11 @@ public class RelationshipEntityQuerySortingTest {
             "MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
             "MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
             "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)";
-        check(cypher, query.findByType("ORBITS", 3).setSortOrder(sortOrder.add("distance", "aphelion")).getStatement());
-        check(cypher, query.findByType("ORBITS", 3).setSortOrder(new SortOrder("distance", "aphelion")).getStatement());
-        check(cypher, query.findByType("ORBITS", 3).setSortOrder(new SortOrder().asc("distance", "aphelion")).getStatement());
+
+        PagingAndSortingQuery orbitsQuery = query.findByType("ORBITS", 3);
+        check(cypher, orbitsQuery.setSortOrder(sortOrder.add("distance", "aphelion")).getStatement());
+        check(cypher, orbitsQuery.setSortOrder(new SortOrder("distance", "aphelion")).getStatement());
+        check(cypher, orbitsQuery.setSortOrder(new SortOrder().asc("distance", "aphelion")).getStatement());
     }
 
     @Test

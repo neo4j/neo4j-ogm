@@ -12,18 +12,19 @@
  */
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.neo4j.ogm.cypher.ComparisonOperator.*;
+import static org.neo4j.ogm.cypher.query.SortOrder.Direction.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.SortOrder;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.neo4j.ogm.cypher.ComparisonOperator.EQUALS;
-import static org.neo4j.ogm.cypher.query.SortOrder.Direction.DESC;
-
 /**
  * @author Vince Bickers
+ * @author Jonathan D'Orleans
  */
 public class NodeEntityQuerySortingTest {
 

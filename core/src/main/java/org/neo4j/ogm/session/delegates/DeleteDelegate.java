@@ -41,13 +41,12 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Vince Bickers
  */
-public class DeleteDelegate {
+public class DeleteDelegate extends SessionDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeleteDelegate.class);
-    private final Neo4jSession session;
 
-    public DeleteDelegate(Neo4jSession neo4jSession) {
-        this.session = neo4jSession;
+    public DeleteDelegate(Neo4jSession session) {
+        super(session);
     }
 
     private DeleteStatements getDeleteStatementsBasedOnType(Class type) {
@@ -191,7 +190,7 @@ public class DeleteDelegate {
 
         if (classInfo != null) {
 
-            session.resolvePropertyAnnotations(clazz, filters);
+            resolvePropertyAnnotations(clazz, filters);
 
             CypherQuery query;
 

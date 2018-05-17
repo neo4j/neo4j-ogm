@@ -40,13 +40,12 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class LoadByIdsDelegate {
+public class LoadByIdsDelegate extends SessionDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoadByIdsDelegate.class);
-    private final Neo4jSession session;
 
     public LoadByIdsDelegate(Neo4jSession session) {
-        this.session = session;
+        super(session);
     }
 
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,

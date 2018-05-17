@@ -52,14 +52,12 @@ import org.neo4j.ogm.utils.ClassUtils;
  * @author Luanne Misquitta
  * @author Jasper Blues
  */
-public class ExecuteQueriesDelegate {
+public class ExecuteQueriesDelegate extends SessionDelegate {
 
     private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP)\\b");
 
-    private final Neo4jSession session;
-
-    public ExecuteQueriesDelegate(Neo4jSession neo4jSession) {
-        this.session = neo4jSession;
+    public ExecuteQueriesDelegate(Neo4jSession session) {
+        super(session);
     }
 
     public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters) {
@@ -183,7 +181,7 @@ public class ExecuteQueriesDelegate {
 
         if (classInfo != null) {
 
-            session.resolvePropertyAnnotations(clazz, filters);
+            resolvePropertyAnnotations(clazz, filters);
 
             CypherQuery query;
 

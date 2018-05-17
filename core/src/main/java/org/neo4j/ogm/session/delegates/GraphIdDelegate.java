@@ -21,12 +21,10 @@ import org.neo4j.ogm.utils.EntityUtils;
 /**
  * @author Luanne Misquitta
  */
-public class GraphIdDelegate {
-
-    private final Neo4jSession session;
+public class GraphIdDelegate extends SessionDelegate {
 
     public GraphIdDelegate(Neo4jSession session) {
-        this.session = session;
+        super(session);
     }
 
     public Long resolveGraphIdFor(Object possibleEntity) {

@@ -285,10 +285,13 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
 
-        Collection<Studio> studios = session.loadAll(Studio.class, new SortOrder().add("name"));
-        assertThat(studios.iterator().next().getName()).isEqualTo("EMI Studios, London");
+        SortOrder name = new SortOrder().add("name");
+        Collection<Studio> studios1 = session.loadAll(Studio.class, name);
+        Collection<Studio> studios2 = session.loadAll(Studio.class, name);
+        assertThat(studios1.iterator().next().getName()).isEqualTo("EMI Studios, London");
+        assertThat(studios2.iterator().next().getName()).isEqualTo("EMI Studios, London");
 
-        studios = session.loadAll(Studio.class, new SortOrder().add(SortOrder.Direction.DESC, "name"));
-        assertThat(studios.iterator().next().getName()).isEqualTo("Olympic Studios, London");
+        studios1 = session.loadAll(Studio.class, new SortOrder().add(SortOrder.Direction.DESC, "name"));
+        assertThat(studios1.iterator().next().getName()).isEqualTo("Olympic Studios, London");
     }
 }

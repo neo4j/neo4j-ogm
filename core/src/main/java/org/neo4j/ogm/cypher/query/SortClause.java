@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.cypher.query;
 
+import java.util.List;
+
 /**
  * @author Luanne Misquitta
  */
@@ -21,7 +23,7 @@ public class SortClause {
     private final SortOrder.Direction direction;
     private final String[] properties;
 
-    public SortClause(SortOrder.Direction direction, String... properties) {
+    SortClause(SortOrder.Direction direction, String... properties) {
         this.direction = direction;
         this.properties = properties;
     }
@@ -30,8 +32,16 @@ public class SortClause {
         return properties;
     }
 
-    public String toString() {
+    public SortClause fromResolvedProperties(String... resolvedProperties) {
+        if (resolvedProperties.length != properties.length) {
+            throw new IllegalArgumentException("Resolved properties count must match existing properties count.");
+        }
 
+        return new SortClause(this.direction, resolvedProperties);
+
+    }
+
+    String asString() {
         StringBuilder sb = new StringBuilder();
 
         if (properties.length > 0) {

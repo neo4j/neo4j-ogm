@@ -26,12 +26,10 @@ import org.neo4j.ogm.session.Neo4jSession;
 /**
  * @author Vince Bickers
  */
-public class LoadByInstancesDelegate {
-
-    private final Neo4jSession session;
+public class LoadByInstancesDelegate extends SessionDelegate {
 
     public LoadByInstancesDelegate(Neo4jSession session) {
-        this.session = session;
+        super(session);
     }
 
     public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, Pagination pagination, int depth) {

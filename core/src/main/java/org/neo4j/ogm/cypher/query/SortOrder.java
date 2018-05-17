@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class SortOrder {
 
-    private List<SortClause> sortClauses;
+    final List<SortClause> sortClauses;
 
     /**
      * Creates SortOrder with a empty list of {@link SortClause}.
@@ -50,6 +50,12 @@ public class SortOrder {
     public SortOrder(Direction direction, String... properties) {
         this();
         add(direction, properties);
+    }
+
+    public static SortOrder fromSortClauses(List<SortClause> sortClauses) {
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.sortClauses.addAll(sortClauses);
+        return sortOrder;
     }
 
     /**
@@ -101,12 +107,12 @@ public class SortOrder {
         return !sortClauses.isEmpty();
     }
 
-    public String toString() {
+    public String asString() {
         StringBuilder sb = new StringBuilder();
         if (!sortClauses.isEmpty()) {
             sb.append(" ORDER BY ");
             for (SortClause ordering : sortClauses) {
-                sb.append(ordering);
+                sb.append(ordering.asString());
                 sb.append(",");
             }
             sb.deleteCharAt(sb.length() - 1);

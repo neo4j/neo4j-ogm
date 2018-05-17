@@ -37,13 +37,12 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class LoadByTypeDelegate {
+public class LoadByTypeDelegate extends SessionDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoadByTypeDelegate.class);
-    private final Neo4jSession session;
 
     public LoadByTypeDelegate(Neo4jSession session) {
-        this.session = session;
+        super(session);
     }
 
     public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination,
@@ -58,17 +57,17 @@ public class LoadByTypeDelegate {
         }
         QueryStatements queryStatements = session.queryStatementsFor(type, depth);
 
-        session.resolvePropertyAnnotations(type, sortOrder);
+        SortOrder sortOrderWithResolvedProperties = sortOrderWithResolvedProperties(type, sortOrder);
 
         PagingAndSortingQuery query;
         if (filters.isEmpty()) {
             query = queryStatements.findByType(entityLabel, depth);
         } else {
-            session.resolvePropertyAnnotations(type, filters);
+            resolvePropertyAnnotations(type, filters);
             query = queryStatements.findByType(entityLabel, filters, depth);
         }
 
-        query.setSortOrder(sortOrder)
+        query.setSortOrder(sortOrderWithResolvedProperties)
             .setPagination(pagination);
 
         return session.doInTransaction( () -> {

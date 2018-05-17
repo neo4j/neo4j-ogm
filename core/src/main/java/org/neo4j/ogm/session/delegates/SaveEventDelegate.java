@@ -35,11 +35,10 @@ import org.slf4j.LoggerFactory;
 /**
  * @author vince
  */
-final class SaveEventDelegate {
+final class SaveEventDelegate extends SessionDelegate {
 
     private static final Logger logger = LoggerFactory.getLogger(SaveEventDelegate.class);
 
-    private Neo4jSession session;
     private Set<Object> visited;
     private Set<Object> preSaved;
     private Set<MappedRelationship> registeredRelationships = new HashSet<>();
@@ -47,7 +46,7 @@ final class SaveEventDelegate {
     private Set<MappedRelationship> deletedRelationships = new HashSet<>();
 
     SaveEventDelegate(Neo4jSession session) {
-        this.session = session;
+        super(session);
         this.preSaved = new HashSet<>();
         this.visited = new HashSet<>();
 

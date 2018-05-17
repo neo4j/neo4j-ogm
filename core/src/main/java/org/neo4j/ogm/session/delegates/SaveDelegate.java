@@ -26,14 +26,13 @@ import org.neo4j.ogm.session.request.RequestExecutor;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class SaveDelegate {
+public class SaveDelegate extends SessionDelegate {
 
-    private final Neo4jSession session;
     private final RequestExecutor requestExecutor;
 
-    public SaveDelegate(Neo4jSession neo4jSession) {
-        this.session = neo4jSession;
-        requestExecutor = new RequestExecutor(neo4jSession);
+    public SaveDelegate(Neo4jSession session) {
+        super(session);
+        requestExecutor = new RequestExecutor(session);
     }
 
     public <T> void save(T object) {

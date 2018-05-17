@@ -55,7 +55,7 @@ public class PagingAndSortingQuery implements PagingAndSorting {
     }
 
     public String getStatement() {
-        String sorting = sortOrder().toString();
+        String sorting = sortOrder().asString();
 
         StringBuilder sb = new StringBuilder();
         sb.append(matchClause);

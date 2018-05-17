@@ -33,14 +33,12 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Mark Angrish
  */
-public class LoadOneDelegate {
+public class LoadOneDelegate extends SessionDelegate {
 
     private static final Logger logger = LoggerFactory.getLogger(LoadOneDelegate.class);
 
-    private Neo4jSession session;
-
     public LoadOneDelegate(Neo4jSession session) {
-        this.session = session;
+        super(session);
     }
 
     public <T, ID extends Serializable> T load(Class<T> type, ID id) {

@@ -16,6 +16,7 @@ package org.neo4j.ogm.session;
 import static java.util.Collections.*;
 
 import java.io.Serializable;
+import java.lang.invoke.SwitchPoint;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -110,7 +111,7 @@ public class Neo4jSession implements Session {
     }
 
     public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners,
-        LoadStrategy loadStrategy, EntityInstantiator entityInstantiator) {
+                        LoadStrategy loadStrategy, EntityInstantiator entityInstantiator) {
         this(metaData, driver);
         registeredEventListeners.addAll(eventListeners);
 
@@ -260,7 +261,7 @@ public class Neo4jSession implements Session {
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Filter filter, SortOrder sortOrder, Pagination pagination,
-        int depth) {
+                                     int depth) {
         return loadByTypeHandler.loadAll(type, filter, sortOrder, pagination, depth);
     }
 
@@ -301,7 +302,7 @@ public class Neo4jSession implements Session {
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination,
-        int depth) {
+                                     int depth) {
         return loadByTypeHandler.loadAll(type, filters, sortOrder, pagination, depth);
     }
 
@@ -327,7 +328,7 @@ public class Neo4jSession implements Session {
 
     @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,
-        int depth) {
+                                                              int depth) {
         return loadByIdsHandler.loadAll(type, ids, sortOrder, depth);
     }
 
@@ -338,19 +339,19 @@ public class Neo4jSession implements Session {
 
     @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging,
-        int depth) {
+                                                              int depth) {
         return loadByIdsHandler.loadAll(type, ids, paging, depth);
     }
 
     @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,
-        Pagination pagination) {
+                                                              Pagination pagination) {
         return loadByIdsHandler.loadAll(type, ids, sortOrder, pagination);
     }
 
     @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,
-        Pagination pagination, int depth) {
+                                                              Pagination pagination, int depth) {
         return loadByIdsHandler.loadAll(type, ids, sortOrder, pagination, depth);
     }
 
@@ -400,10 +401,10 @@ public class Neo4jSession implements Session {
     }
 
     /*
-    *----------------------------------------------------------------------------------------------------------
-    * ExecuteQueriesDelegate
-    *----------------------------------------------------------------------------------------------------------
-    */
+     *----------------------------------------------------------------------------------------------------------
+     * ExecuteQueriesDelegate
+     *----------------------------------------------------------------------------------------------------------
+     */
     @Override
     public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.queryForObject(type, cypher, parameters);
@@ -435,10 +436,10 @@ public class Neo4jSession implements Session {
     }
 
     /*
-    *----------------------------------------------------------------------------------------------------------
-    * DeleteDelegate
-    *----------------------------------------------------------------------------------------------------------
-    */
+     *----------------------------------------------------------------------------------------------------------
+     * DeleteDelegate
+     *----------------------------------------------------------------------------------------------------------
+     */
     @Override
     public void purgeDatabase() {
         deleteDelegate.purgeDatabase();
@@ -460,10 +461,10 @@ public class Neo4jSession implements Session {
     }
 
     /*
-    *----------------------------------------------------------------------------------------------------------
-    * SaveDelegate
-    *----------------------------------------------------------------------------------------------------------
-    */
+     *----------------------------------------------------------------------------------------------------------
+     * SaveDelegate
+     *----------------------------------------------------------------------------------------------------------
+     */
     @Override
     public <T> void save(T object) {
         saveDelegate.save(object);
@@ -475,10 +476,10 @@ public class Neo4jSession implements Session {
     }
 
     /*
-    *----------------------------------------------------------------------------------------------------------
-    * TransactionsDelegate
-    *----------------------------------------------------------------------------------------------------------
-    */
+     *----------------------------------------------------------------------------------------------------------
+     * TransactionsDelegate
+     *----------------------------------------------------------------------------------------------------------
+     */
     @Override
     public Transaction beginTransaction() {
         return txManager.openTransaction();
@@ -501,19 +502,19 @@ public class Neo4jSession implements Session {
     }
 
     /**
-     * @see Neo4jSession#doInTransaction(TransactionalUnitOfWork, org.neo4j.ogm.transaction.Transaction.Type)
      * @param function The code to execute.
-     * @param txType Transaction type, readonly or not.
+     * @param txType   Transaction type, readonly or not.
+     * @see Neo4jSession#doInTransaction(TransactionalUnitOfWork, org.neo4j.ogm.transaction.Transaction.Type)
      */
     public void doInTransaction(TransactionalUnitOfWorkWithoutResult function, Transaction.Type txType) {
-        doInTransaction( () -> {
+        doInTransaction(() -> {
             function.doInTransaction();
             return null;
         }, txType);
     }
 
     public void doInTransaction(TransactionalUnitOfWorkWithoutResult function, boolean forceTx, Transaction.Type txType) {
-        doInTransaction( () -> {
+        doInTransaction(() -> {
             function.doInTransaction();
             return null;
         }, forceTx, txType);
@@ -527,9 +528,10 @@ public class Neo4jSession implements Session {
      * For internal use only. Opens a new transaction if necessary before running statements
      * in case an explicit transaction does not exist. It is designed to be the central point
      * for handling exceptions coming from the DB and apply commit / rollback rules.
+     *
      * @param function The callback to execute.
-     * @param <T> The result type.
-     * @param txType Transaction type, readonly or not.
+     * @param <T>      The result type.
+     * @param txType   Transaction type, readonly or not.
      * @return The result of the transaction function.
      */
     public <T> T doInTransaction(TransactionalUnitOfWork<T> function, boolean forceTx, Transaction.Type txType) {
@@ -554,7 +556,7 @@ public class Neo4jSession implements Session {
             throw e;
         } catch (Throwable e) {
             logger.warn("Error executing query : {}. Rolling back transaction.", e.getMessage());
-            if(transactionManager().canRollback()) {
+            if (transactionManager().canRollback()) {
                 transaction.rollback();
             }
             throw e;
@@ -574,7 +576,7 @@ public class Neo4jSession implements Session {
      *----------------------------------------------------------------------------------------------------------
      * GraphIdDelegate
      *----------------------------------------------------------------------------------------------------------
-    */
+     */
     @Override
     public Long resolveGraphIdFor(Object possibleEntity) {
         return graphIdDelegate.resolveGraphIdFor(possibleEntity);
@@ -678,10 +680,12 @@ public class Neo4jSession implements Session {
 
         if (sortOrder != null) {
             for (SortClause sortClause : sortOrder.sortClauses()) {
-                for (int i = 0; i < sortClause.getProperties().length; i++) {
-                    sortClause.getProperties()[i] = String
-                        .format(escapedProperty, resolvePropertyName(entityType, sortClause.getProperties()[i]));
-                }
+                if (!sortClause.alreadyEscaped.hasBeenInvalidated())
+                    for (int i = 0; i < sortClause.getProperties().length; i++) {
+                        sortClause.getProperties()[i] = String
+                            .format(escapedProperty, resolvePropertyName(entityType, sortClause.getProperties()[i]));
+                        SwitchPoint.invalidateAll(new SwitchPoint[]{sortClause.alreadyEscaped});
+                    }
             }
         }
     }

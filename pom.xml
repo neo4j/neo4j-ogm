@@ -343,6 +343,13 @@
         </profile>
 
         <profile>
+            <id>neo4j-3.5</id>
+            <properties>
+                <neo4j>3.5.0-alpha01</neo4j>
+            </properties>
+        </profile>
+
+        <profile>
             <id>driver-1.4</id>
             <properties>
                 <bolt>1.4.5</bolt>

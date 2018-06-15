@@ -20,6 +20,7 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.FilterWithRelationship;
 import org.neo4j.ogm.cypher.query.SortClause;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.metadata.AnnotationInfo;
@@ -65,28 +66,52 @@ abstract class SessionDelegate {
                 if (session.metaData().isRelationshipEntity(nestedClassInfo.name())) {
                     filter.setNestedRelationshipEntity(true);
                 }
+            } else if (filter.isDeepNested()) {
+                Class parentOwnerType = filter.getOwnerEntityType();
+                for (Filter.NestedPathSegment nestedPathSegment : filter.getNestedPath()) {
+                    resolveRelationshipType(parentOwnerType, nestedPathSegment);
+                    ClassInfo nestedClassInfo = session.metaData().classInfo(nestedPathSegment.getPropertyType().getName());
+                    nestedPathSegment.setNestedEntityTypeLabel(session.metaData().entityType(nestedClassInfo.name()));
+                    if (session.metaData().isRelationshipEntity(nestedClassInfo.name())) {
+                        nestedPathSegment.setNestedRelationshipEntity(true);
+                    }
+                    parentOwnerType = nestedPathSegment.getPropertyType();
+                }
+
             }
         }
     }
 
-    private void resolveRelationshipType(Filter parameter) {
-        ClassInfo classInfo = session.metaData().classInfo(parameter.getOwnerEntityType().getName());
-        FieldInfo fieldInfo = classInfo.relationshipFieldByName(parameter.getNestedPropertyName());
+    private void resolveRelationshipType(Filter filter) {
+        ClassInfo classInfo = session.metaData().classInfo(filter.getOwnerEntityType().getName());
+        FieldInfo fieldInfo = classInfo.relationshipFieldByName(filter.getNestedPropertyName());
 
-        String defaultRelationshipType = RelationshipUtils.inferRelationshipType(parameter.getNestedPropertyName());
-        parameter.setRelationshipType(defaultRelationshipType);
-        parameter.setRelationshipDirection(Relationship.UNDIRECTED);
+        String defaultRelationshipType = RelationshipUtils.inferRelationshipType(filter.getNestedPropertyName());
+        updateRelationship(filter, fieldInfo, defaultRelationshipType);
+    }
+
+    private void resolveRelationshipType(Class parentOwnerType, Filter.NestedPathSegment segment) {
+        ClassInfo classInfo = session.metaData().classInfo(parentOwnerType.getName());
+        FieldInfo fieldInfo = classInfo.relationshipFieldByName(segment.getPropertyName());
+
+        String defaultRelationshipType = RelationshipUtils.inferRelationshipType(segment.getPropertyName());
+        updateRelationship(segment, fieldInfo, defaultRelationshipType);
+    }
+
+    private void updateRelationship(FilterWithRelationship filter, FieldInfo fieldInfo, String relationshipType) {
+        filter.setRelationshipType(relationshipType);
+        filter.setRelationshipDirection(Relationship.UNDIRECTED);
         if (fieldInfo.getAnnotations() != null) {
             AnnotationInfo annotation = fieldInfo.getAnnotations().get(Relationship.class);
             if (annotation != null) {
-                parameter.setRelationshipType(annotation.get(Relationship.TYPE, defaultRelationshipType));
-                parameter.setRelationshipDirection(annotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED));
+                filter.setRelationshipType(annotation.get(Relationship.TYPE, relationshipType));
+                filter.setRelationshipDirection(annotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED));
             }
             if (fieldInfo.getAnnotations().get(StartNode.class) != null) {
-                parameter.setRelationshipDirection(Relationship.OUTGOING);
+                filter.setRelationshipDirection(Relationship.OUTGOING);
             }
             if (fieldInfo.getAnnotations().get(EndNode.class) != null) {
-                parameter.setRelationshipDirection(Relationship.INCOMING);
+                filter.setRelationshipDirection(Relationship.INCOMING);
             }
         }
     }

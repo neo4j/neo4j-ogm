@@ -36,7 +36,7 @@ public class NodeQueryBuilder {
     private boolean built = false;
     private boolean hasRelationshipMatch = false;
 
-    public NodeQueryBuilder(String principalLabel, Iterable<Filter> filters) {
+    NodeQueryBuilder(String principalLabel, Iterable<Filter> filters) {
         this.principalClause = new PrincipalNodeMatchClause(principalLabel);
         this.filters = filters;
         this.nestedClauses = new ArrayList<>();
@@ -56,6 +56,9 @@ public class NodeQueryBuilder {
                 }
                 if (filter.isNested()) {
                     appendNestedFilter(filter);
+                    hasRelationshipMatch = true;
+                } else if (filter.isDeepNested()) {
+                    appendDeepNestedFilter(filter);
                     hasRelationshipMatch = true;
                 } else {
                     //If the filter is not nested, it belongs to the node we're returning
@@ -89,6 +92,20 @@ public class NodeQueryBuilder {
             }
             clause.append(filter);
         }
+        matchClauseId++;
+    }
+
+    private void appendDeepNestedFilter(Filter filter) {
+        if (filter.getBooleanOperator().equals(BooleanOperator.OR)) {
+            throw new UnsupportedOperationException("OR is not supported for nested properties on an entity");
+        }
+        Filter.NestedPathSegment lastPathSegment = filter.getNestedPath().get(filter.getNestedPath().size() - 1);
+        MatchClause clause = new NestedPropertyPathMatchClause(matchClauseId, lastPathSegment.getNestedEntityTypeLabel(), lastPathSegment.isNestedRelationshipEntity());
+
+        pathClauses.add(new NestedPathMatchClause(matchClauseId).append(filter));
+        nestedClauses.add(clause);
+        clause.append(filter);
+
         matchClauseId++;
     }
 

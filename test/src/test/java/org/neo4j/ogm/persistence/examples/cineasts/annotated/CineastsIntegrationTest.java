@@ -28,8 +28,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.domain.cineasts.annotated.Hobby;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.domain.cineasts.annotated.Pet;
+import org.neo4j.ogm.domain.cineasts.annotated.Plays;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.SecurityRole;
 import org.neo4j.ogm.domain.cineasts.annotated.Title;
@@ -120,6 +124,104 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
             assertThat(rating.getUser()).as("The user start node should've been mapped").isNotNull();
             assertThat(rating.getMovie()).as("The wrong film was mapped to the rating").isSameAs(film);
         }
+    }
+
+    @Test
+    public void loadFilmByRatingUsersPet() {
+        // Pulp Fiction and Top Gear rated by Michal who owns Catty
+
+        Filter filter = new Filter("name", ComparisonOperator.EQUALS, "Catty");
+
+        filter.setOwnerEntityType(Movie.class);
+
+        filter.setNestedPath(
+            new Filter.NestedPathSegment("ratings", Rating.class),
+            new Filter.NestedPathSegment("user", User.class),
+            new Filter.NestedPathSegment("pets", Pet.class)
+        );
+        Collection<Movie> films = session.loadAll(Movie.class, filter);
+        assertThat(films).hasSize(2);
+
+    }
+
+    @Test
+    public void loadFilmByRating() {
+        Filter filter = new Filter("stars", ComparisonOperator.EQUALS, 5);
+
+        filter.setOwnerEntityType(Movie.class);
+
+        filter.setNestedPath(
+            new Filter.NestedPathSegment("ratings", Rating.class)
+        );
+        Collection<Movie> films = session.loadAll(Movie.class, filter);
+        assertThat(films).hasSize(1);
+    }
+
+    @Test
+    public void loadFilmByRatingUserPlays() {
+        Filter filter = new Filter("level", ComparisonOperator.EQUALS, "ok");
+        filter.setOwnerEntityType(Movie.class);
+
+        filter.setNestedPath(
+            new Filter.NestedPathSegment("ratings", Rating.class),
+            new Filter.NestedPathSegment("user", User.class),
+            new Filter.NestedPathSegment("plays", Plays.class)
+        );
+        Collection<Movie> films = session.loadAll(Movie.class, filter);
+        assertThat(films).hasSize(2);
+
+    }
+
+    @Test
+    public void loadFilmByUserAndRatingUserPlays() {
+        Filter userFilter = new Filter("name", ComparisonOperator.EQUALS, "Michal");
+
+        userFilter.setNestedPath(
+            new Filter.NestedPathSegment("ratings", Rating.class),
+            new Filter.NestedPathSegment("user", User.class)
+        );
+
+        Filter playsFilter = new Filter("level", ComparisonOperator.EQUALS, "ok");
+
+        playsFilter.setOwnerEntityType(Movie.class);
+
+        playsFilter.setNestedPath(
+            new Filter.NestedPathSegment("ratings", Rating.class),
+            new Filter.NestedPathSegment("user", User.class),
+            new Filter.NestedPathSegment("plays", Plays.class)
+        );
+
+        Filters filters = userFilter.and(playsFilter);
+        Collection<Movie> films = session.loadAll(Movie.class, filters);
+        assertThat(films).hasSize(2);
+
+    }
+
+    @Test
+    public void loadRatingByUserName() {
+        Filter userNameFilter = new Filter("name", ComparisonOperator.EQUALS, "Michal");
+
+        Filter ratingFilter = new Filter("stars", ComparisonOperator.EQUALS, 5);
+
+        userNameFilter.setNestedPath(
+            new Filter.NestedPathSegment("user", User.class)
+        );
+
+        Collection<Rating> ratings = session.loadAll(Rating.class, userNameFilter.and(ratingFilter));
+        assertThat(ratings).hasSize(1);
+
+    }
+    @Test
+    public void loadRatingByUserNameAndStars() {
+        Filter userNameFilter = new Filter("name", ComparisonOperator.EQUALS, "Michal");
+
+        userNameFilter.setNestedPath(
+            new Filter.NestedPathSegment("user", User.class)
+        );
+
+        Collection<Rating> ratings = session.loadAll(Rating.class, userNameFilter);
+        assertThat(ratings).hasSize(2);
+
     }
 
     @Test

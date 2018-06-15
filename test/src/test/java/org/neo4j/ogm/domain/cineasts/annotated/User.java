@@ -63,6 +63,12 @@ public class User {
 
     String[] nicknames;
 
+    @Relationship("OWNS")
+    List<Pet> pets;
+
+    @Relationship("PLAYS")
+    List<Plays> plays;
+
     public User() {
     }
 
@@ -151,6 +157,14 @@ public class User {
 
     public void setNicknames(String[] nicknames) {
         this.nicknames = nicknames;
+    }
+
+    public List<Pet> getPets() {
+        return pets;
+    }
+
+    public void setPets(List<Pet> pets) {
+        this.pets = pets;
     }
 
     @Override

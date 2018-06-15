@@ -26,22 +26,25 @@ public class PathMatchClause implements MatchClause {
     private int index;
     private StringBuilder clause;
 
-    public PathMatchClause(int index) {
+    PathMatchClause(int index) {
         this.index = index;
         this.clause = new StringBuilder("MATCH (n)");
     }
 
     @Override
     public MatchClause append(Filter filter) {
-
         if (filter.getRelationshipDirection().equals(Relationship.INCOMING)) {
             clause.append("<");
         }
+
         clause.append(
-            String.format("-[%s:`%s`]-", filter.isNestedRelationshipEntity() ? "r" : "", filter.getRelationshipType()));
+            String.format("-[%s:`%s`]-", filter.isNestedRelationshipEntity() ? "r" : "", filter.getRelationshipType())
+        );
+
         if (filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
             clause.append(">");
         }
+
         clause.append(String.format("(%s) ", "m" + index));
         return this;
     }

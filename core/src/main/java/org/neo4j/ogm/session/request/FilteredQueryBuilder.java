@@ -67,12 +67,26 @@ public class FilteredQueryBuilder {
         boolean noneOperatorEncounteredInEndFilters = false;
 
         for (Filter filter : filters) {
-            if (filter.isNested()) {
+            if (filter.isNested() || filter.isDeepNested()) {
                 if (filter.getBooleanOperator().equals(BooleanOperator.OR)) {
                     throw new UnsupportedOperationException(
                         "OR is not supported for nested properties on a relationship entity");
                 }
-                if (filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
+                String startNestedEntityTypeLabel = filter.getNestedEntityTypeLabel();
+                String endNestedEntityTypeLabel = filter.getNestedEntityTypeLabel();
+                String relationshipDirection = filter.getRelationshipDirection();
+
+                if (filter.isDeepNested()) {
+                    List<Filter.NestedPathSegment> nestedPath = filter.getNestedPath();
+                    Filter.NestedPathSegment firstNestedPathSegment = nestedPath.get(0);
+                    Filter.NestedPathSegment lastNestedPathSegment = nestedPath.get(nestedPath.size() - 1);
+
+                    startNestedEntityTypeLabel = firstNestedPathSegment.getNestedEntityTypeLabel();
+                    endNestedEntityTypeLabel = lastNestedPathSegment.getNestedEntityTypeLabel();
+                    relationshipDirection = firstNestedPathSegment.getRelationshipDirection();
+                }
+
+                if (relationshipDirection.equals(Relationship.OUTGOING)) {
                     if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
                         if (noneOperatorEncounteredInStartFilters) {
                             throw new MissingOperatorException(
@@ -81,7 +95,7 @@ public class FilteredQueryBuilder {
                         noneOperatorEncounteredInStartFilters = true;
                     }
                     if (startNodeLabel == null) {
-                        startNodeLabel = filter.getNestedEntityTypeLabel();
+                        startNodeLabel = startNestedEntityTypeLabel;
                         filter.setBooleanOperator(BooleanOperator.NONE); //the first filter for the start node
                     }
                     startNodeFilters.add(filter);
@@ -94,7 +108,7 @@ public class FilteredQueryBuilder {
                         noneOperatorEncounteredInEndFilters = true;
                     }
                     if (endNodeLabel == null) {
-                        endNodeLabel = filter.getNestedEntityTypeLabel();
+                        endNodeLabel = endNestedEntityTypeLabel;
                         filter.setBooleanOperator(BooleanOperator.NONE); //the first filter for the end node
                     }
                     endNodeFilters.add(filter);

@@ -13,7 +13,10 @@
 
 package org.neo4j.ogm.cypher;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 
 import org.neo4j.ogm.cypher.function.DistanceComparison;
@@ -29,7 +32,7 @@ import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
  * @author Luanne Misquitta
  * @author Jasper Blues
  */
-public class Filter {
+public class Filter implements FilterWithRelationship {
 
     /**
      * Index is used to to ensure unique parameter names when a collection of filters are used.
@@ -100,6 +103,8 @@ public class Filter {
 
     private FilterFunction function;
 
+    private List<NestedPathSegment> nestedPath;
+
     //Primary Constructor
     public Filter(FilterFunction function) {
         this.index = 0;
@@ -138,6 +143,10 @@ public class Filter {
         this.comparisonOperator = comparisonOperator;
     }
 
+    public static void setNameFromProperty(Filter filter, String propertyName) {
+        filter.propertyName = propertyName;
+    }
+
     public String getRelationshipDirection() {
         return relationshipDirection;
     }
@@ -169,6 +178,7 @@ public class Filter {
 
     /**
      * Convenience method to chain filters using {@link BooleanOperator#AND}.
+     *
      * @param filter to be chained
      * @return new {@link Filters} object containing both filters.
      */
@@ -180,6 +190,7 @@ public class Filter {
 
     /**
      * Convenience method to chain filters using {@link BooleanOperator#OR}.
+     *
      * @param filter to be chained.
      * @return new {@link Filters} object containing both filters.
      */
@@ -245,6 +256,73 @@ public class Filter {
 
     public void setNestedEntityTypeLabel(String nestedEntityTypeLabel) {
         this.nestedEntityTypeLabel = nestedEntityTypeLabel;
+    }
+
+    public void setNestedPath(NestedPathSegment... path) {
+        nestedPath = new ArrayList<>(Arrays.asList(path));
+    }
+
+    public List<NestedPathSegment> getNestedPath() {
+        return nestedPath;
+    }
+
+    public static class NestedPathSegment implements FilterWithRelationship {
+        private final String propertyName;
+        private final Class propertyType;
+
+        private String relationshipType;
+        private String relationshipDirection;
+        private String nestedEntityTypeLabel;
+        private boolean nestedRelationshipEntity;
+
+        public NestedPathSegment(String propertyName, Class propertyType) {
+            this.propertyName = propertyName;
+            this.propertyType = propertyType;
+        }
+
+        public String getPropertyName() {
+            return propertyName;
+        }
+
+        public Class getPropertyType() {
+            return propertyType;
+        }
+
+        public String getRelationshipType() {
+            return relationshipType;
+        }
+
+        public void setRelationshipType(String relationshipType) {
+            this.relationshipType = relationshipType;
+        }
+
+        public void setRelationshipDirection(String relationshipDirection) {
+            this.relationshipDirection = relationshipDirection;
+        }
+
+        public String getRelationshipDirection() {
+            return relationshipDirection;
+        }
+
+        public void setNestedEntityTypeLabel(String nestedEntityTypeLabel) {
+            this.nestedEntityTypeLabel = nestedEntityTypeLabel;
+        }
+
+        public String getNestedEntityTypeLabel() {
+            return nestedEntityTypeLabel;
+        }
+
+        public void setNestedRelationshipEntity(boolean nestedRelationshipEntity) {
+            this.nestedRelationshipEntity = nestedRelationshipEntity;
+        }
+
+        public boolean isNestedRelationshipEntity() {
+            return nestedRelationshipEntity;
+        }
+    }
+
+    public boolean isDeepNested() {
+        return getNestedPath() != null && !getNestedPath().isEmpty();
     }
 
     public boolean isNestedRelationshipEntity() {
@@ -350,9 +428,5 @@ public class Filter {
 
     private String negate(String expression) {
         return String.format("NOT(%s) ", expression);
-    }
-
-    public static void setNameFromProperty(Filter filter, String propertyName) {
-        filter.propertyName = propertyName;
     }
 }

@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
@@ -709,6 +710,23 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(row.get("names").getClass().isArray()).isTrue();
         assertThat(((Object[]) row.get("names")).length).isEqualTo(0);
     }
+
+	/**
+	 * @see Issue 496
+	 */
+	@Test
+	public void testQueryWithProjection() {
+		Iterable<User> results = session
+				.query(User.class,
+						"MATCH (u:User) where u.name={name} return u "
+								+ ",[[(u)-[r:EXTENDED_FRIEND]->(e) | [r, e]]]",
+						Collections.singletonMap("name", "Vince"));
+		assertThat(results).size().isEqualTo(1);
+		User user = results.iterator().next();
+		assertThat(user.getName()).isEqualTo("Vince");
+		assertThat(user.getExtendedFriends()).isNotEmpty();
+		assertThat(user.getExtendedFriends()).contains(new User(null, "extended", null));
+	}
 
     private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {
         if (result.get("n") instanceof User) {

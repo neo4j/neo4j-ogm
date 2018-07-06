@@ -12,14 +12,14 @@ In the example below, we're return a collection containing any satellites that a
 .Example of using a Filter
 [source,java]
 ----
-Collection<Satellite> satellites = session.loadAll(Satellite.class, new Filter("manned", EQUALS, true));
+Collection<Satellite> satellites = session.loadAll(Satellite.class, new Filter("manned", ComparisonOperator.EQUALS, true));
 ----
 
 .Example of chained Filters
 [source,java]
 ----
-Filter mannedFilter = new Filter("manned", equals, true);
-Filter landedFilter = new Filter("landed", equals, false);
+Filter mannedFilter = new Filter("manned", ComparisonOperator.EQUALS, true);
+Filter landedFilter = new Filter("landed", ComparisonOperator.EQUALS, false);
 
 Filters satelliteFilter = mannedFilter.and(landedFilter);
 ----

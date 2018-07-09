@@ -17,12 +17,22 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Iterator;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.neo4j.ogm.cypher.function.ContainsAnyComparison;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
+import org.neo4j.ogm.cypher.function.PropertyComparison;
 
+/**
+ * @author Gerrit Meier
+ * @author Michael J. Simons
+ */
 public class FilterTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void toCypher() {
@@ -38,7 +48,8 @@ public class FilterTest {
         filter.setBooleanOperator(BooleanOperator.AND);
         filter.setNegated(true);
         assertThat(filter.toCypher("n", true))
-            .isEqualTo("WHERE NOT(distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ");
+            .isEqualTo(
+                "WHERE NOT(distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ");
     }
 
     @Test
@@ -75,5 +86,51 @@ public class FilterTest {
         Iterator<Filter> iterator = andFilter.iterator();
         assertThat(iterator.next()).isEqualTo(filter1);
         assertThat(iterator.next()).isEqualTo(filter2);
+    }
+
+    @Test
+    public void isNullComparisionShouldWork() {
+        Filter filter = new Filter("thing", ComparisonOperator.IS_NULL);
+        filter.setBooleanOperator(BooleanOperator.AND);
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` IS NULL ");
+    }
+
+    @Test
+    public void isExistsComparisionShouldWork() {
+        Filter filter = new Filter("thing", ComparisonOperator.EXISTS);
+        filter.setBooleanOperator(BooleanOperator.AND);
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE EXISTS(n.`thing`) ");
+    }
+
+    @Test
+    public void isTrueComparisionShouldWork() {
+        Filter filter = new Filter("thing", ComparisonOperator.IS_TRUE);
+        filter.setBooleanOperator(BooleanOperator.AND);
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` = true ");
+    }
+
+    @Test
+    public void equalComparisionShouldWork() {
+        final String value = "someOtherThing";
+        Filter filter = new Filter("thing", ComparisonOperator.EQUALS, value);
+        filter.setFunction(new PropertyComparison(value));
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` = { `thing_0` } ");
+
+        filter = new Filter("thing", ComparisonOperator.EQUALS, value);
+        filter.ignoreCase();
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE toLower(n.`thing`) = toLower({ `thing_0` }) ");
+    }
+
+    @Test
+    public void ignoreCaseShouldNotBeApplicableToComparisonOtherThanEquals() {
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("ignoreCase is only supported for EQUALS comparison");
+
+        Filter filter = new Filter("thing", ComparisonOperator.IS_NULL);
+        filter.setBooleanOperator(BooleanOperator.AND);
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` IS NULL ");
+        filter.ignoreCase();
+
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` IS NULL ");
     }
 }

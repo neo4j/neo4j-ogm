@@ -22,11 +22,12 @@ import java.lang.annotation.Target;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 /**
- * Annotation to be applied to fields and accessor methods of entity properties to specify the AttributeConverter to use for
+ * Annotation to be applied to fields of entity properties to specify the AttributeConverter to use for
  * writing or reading its value in the graph database.
  *
  * @author Vince Bickers
  * @author Adam George
+ * @author Michael J. Simons
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Michael J. Simons
  */
-public class FilterIntegrationTest  extends MultiDriverTestClass {
+public class FilterIntegrationTest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;
 
@@ -56,7 +56,8 @@ public class FilterIntegrationTest  extends MultiDriverTestClass {
     public void ignoreCaseShouldNotBeApplicableToComparisonOtherThanEquals() {
         final String emi = "EMI Studios, London";
         session.save(new Studio(emi));
-        assertThat(session.loadAll(Studio.class, new Filter("name", ComparisonOperator.EQUALS, "eMi Studios, London").ignoreCase(), 0))
+        final Filter nameFilter = new Filter("name", ComparisonOperator.EQUALS, "eMi Studios, London").ignoreCase();
+        assertThat(session.loadAll(Studio.class, nameFilter, 0))
             .hasSize(1)
             .extracting(Studio::getName)
             .containsExactly(emi);

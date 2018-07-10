@@ -55,6 +55,7 @@ import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,11 +63,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class HttpRequest implements Request {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpRequest.class);
     private static final ObjectMapper OBJECT_MAPPER = ObjectMapperFactory.objectMapper();
+    private static final String JSON_PARSE_ERROR_EXCEPTION_MESSAGE = "Could not parse the servers response as JSON";
 
     private final String url;
     private final CloseableHttpClient httpClient;
@@ -282,17 +285,21 @@ public class HttpRequest implements Request {
         }
     }
 
-    private static String parseError(String results) {
+    private static String parseError(String responseBody) {
         try {
-            ObjectMapper mapper = ObjectMapperFactory.objectMapper();
-            JsonNode responseNode = mapper.readTree(results);
-            JsonNode errors = responseNode.findValue("errors");
+            final JsonNode responseNode = OBJECT_MAPPER.readTree(responseBody);
+            final JsonNode errors = responseNode.findValue("errors");
             if (errors.elements().hasNext()) {
-                JsonNode errorNode = errors.elements().next();
+                final JsonNode errorNode = errors.elements().next();
                 return errorNode.findValue("message").asText();
             } else {
-                return results;
+                return responseBody;
             }
+        } catch (JsonParseException e) {
+            // Don't return the responseBody here as it is logged in #execute
+            // See: https://www.owasp.org/index.php/Log_Injection, returning
+            // it above should be rethought as well.
+            return JSON_PARSE_ERROR_EXCEPTION_MESSAGE;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

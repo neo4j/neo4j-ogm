@@ -15,6 +15,7 @@ package org.neo4j.ogm.drivers.http.request;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.CoreMatchers.isA;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -28,9 +29,7 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -56,9 +55,6 @@ public class HttpRequestTest {
     @Mock
     private HttpEntity mockedEntity;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Test
     public void shouldHandleErrorJsonResponseGracefully() throws IOException {
         final String failWithJsonUrl = "http://localhost/failWithJson";
@@ -76,11 +72,14 @@ public class HttpRequestTest {
         when(mockedResponse.getEntity()).thenReturn(mockedEntity);
         when(mockedHttpClient.execute(httpGet)).thenReturn(mockedResponse);
 
-        expectedException.expect(HttpRequestException.class);
-        expectedException.expectCause(isA(HttpResponseException.class));
-        expectedException.expectMessage(containsString("This is an error"));
-
-        HttpRequest.execute(mockedHttpClient, httpGet, null);
+        try {
+            HttpRequest.execute(mockedHttpClient, httpGet, null);
+            fail();
+        } catch(HttpRequestException e) {
+            assertThat(e, isA(HttpRequestException.class));
+            assertThat(e.getCause(), instanceOf(HttpResponseException.class));
+            assertThat(e.getCause().getMessage(), containsString("This is an error"));
+        }
     }
 
     @Test
@@ -106,10 +105,13 @@ public class HttpRequestTest {
         when(mockedResponse.getEntity()).thenReturn(mockedEntity);
         when(mockedHttpClient.execute(httpGet)).thenReturn(mockedResponse);
 
-        expectedException.expect(HttpRequestException.class);
-        expectedException.expectCause(isA(HttpResponseException.class));
-        expectedException.expectMessage(containsString("Could not parse the servers response as JSON"));
-
-        HttpRequest.execute(mockedHttpClient, httpGet, null);
+        try {
+            HttpRequest.execute(mockedHttpClient, httpGet, null);
+            fail();
+        } catch(HttpRequestException e) {
+            assertThat(e, isA(HttpRequestException.class));
+            assertThat(e.getCause(), instanceOf(HttpResponseException.class));
+            assertThat(e.getCause().getMessage(), containsString("Could not parse the servers response as JSON"));
+        }
     }
 }

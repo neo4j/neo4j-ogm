@@ -13,8 +13,8 @@
 
 package org.neo4j.ogm.drivers.http.request;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.isA;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;

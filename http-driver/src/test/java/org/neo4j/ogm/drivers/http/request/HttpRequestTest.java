@@ -13,18 +13,27 @@
 
 package org.neo4j.ogm.drivers.http.request;
 
-import static org.apache.http.HttpHeaders.*;
-import static org.apache.http.entity.ContentType.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.isA;
+import static org.mockito.Mockito.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import com.github.paweladamski.httpclientmock.HttpClientMock;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * A small set of integration test introduced to ensure existing behaviour in certain error conditions and to test
@@ -32,13 +41,26 @@ import com.github.paweladamski.httpclientmock.HttpClientMock;
  *
  * @author Michael J. Simons
  */
+@RunWith(MockitoJUnitRunner.class)
 public class HttpRequestTest {
+
+    @Mock
+    private CloseableHttpClient mockedHttpClient;
+
+    @Mock
+    private StatusLine mockedStatusLine;
+
+    @Mock
+    private CloseableHttpResponse mockedResponse;
+
+    @Mock
+    private HttpEntity mockedEntity;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void shouldHandleErrorJsonResponseGracefully() {
+    public void shouldHandleErrorJsonResponseGracefully() throws IOException {
         final String failWithJsonUrl = "http://localhost/failWithJson";
         final String validJsonResponse = ""
             + "{\"errors\":["
@@ -46,21 +68,23 @@ public class HttpRequestTest {
             + ",{\"message\":\"This is another error\"}"
             + "]}";
 
-        final HttpClientMock httpClientMock = new HttpClientMock();
-        httpClientMock.onGet(failWithJsonUrl)
-            .doReturn(validJsonResponse)
-            .withStatus(HttpStatus.SC_BAD_GATEWAY)
-            .withHeader(CONTENT_TYPE, APPLICATION_JSON.getMimeType());
+        final HttpGet httpGet = new HttpGet(failWithJsonUrl);
+
+        when(mockedStatusLine.getStatusCode()).thenReturn(HttpStatus.SC_BAD_GATEWAY);
+        when(mockedResponse.getStatusLine()).thenReturn(mockedStatusLine);
+        when(mockedEntity.getContent()).thenReturn(new ByteArrayInputStream(validJsonResponse.getBytes(StandardCharsets.UTF_8)));
+        when(mockedResponse.getEntity()).thenReturn(mockedEntity);
+        when(mockedHttpClient.execute(httpGet)).thenReturn(mockedResponse);
 
         expectedException.expect(HttpRequestException.class);
         expectedException.expectCause(isA(HttpResponseException.class));
         expectedException.expectMessage(containsString("This is an error"));
 
-        HttpRequest.execute(httpClientMock, new HttpGet(failWithJsonUrl), null);
+        HttpRequest.execute(mockedHttpClient, httpGet, null);
     }
 
     @Test
-    public void shouldHandleErrorNonJsonResponseGracefully() {
+    public void shouldHandleErrorNonJsonResponseGracefully() throws IOException {
         final String failWithHtmlUrl = "http://localhost/failWithHtml";
         final String htmlResponse = ""
             + "<!DOCTYPE html>"
@@ -74,16 +98,18 @@ public class HttpRequestTest {
             + "</body>"
             + "</html> ";
 
-        final HttpClientMock httpClientMock = new HttpClientMock();
-        httpClientMock.onGet(failWithHtmlUrl)
-            .doReturn(htmlResponse)
-            .withStatus(HttpStatus.SC_BAD_GATEWAY)
-            .withHeader(CONTENT_TYPE, TEXT_HTML.getMimeType());
+        final HttpGet httpGet = new HttpGet(failWithHtmlUrl);
+
+        when(mockedStatusLine.getStatusCode()).thenReturn(HttpStatus.SC_BAD_GATEWAY);
+        when(mockedResponse.getStatusLine()).thenReturn(mockedStatusLine);
+        when(mockedEntity.getContent()).thenReturn(new ByteArrayInputStream(htmlResponse.getBytes(StandardCharsets.UTF_8)));
+        when(mockedResponse.getEntity()).thenReturn(mockedEntity);
+        when(mockedHttpClient.execute(httpGet)).thenReturn(mockedResponse);
 
         expectedException.expect(HttpRequestException.class);
         expectedException.expectCause(isA(HttpResponseException.class));
         expectedException.expectMessage(containsString("Could not parse the servers response as JSON"));
 
-        HttpRequest.execute(httpClientMock, new HttpGet(failWithHtmlUrl), null);
+        HttpRequest.execute(mockedHttpClient, httpGet, null);
     }
 }

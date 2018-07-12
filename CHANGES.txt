@@ -1,4 +1,4 @@
-3.0.3
+3.0.4
 o HttpDriver: Handle non-json response gracefully.
 o Default Java driver dependency for Bolt is 1.5.
 o Compatibility for 3.4 point types in DistanceComparison.

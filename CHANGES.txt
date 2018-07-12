@@ -1,7 +1,9 @@
-3.0.3-SNAPSHOT
-o Update Neo4j java driver version to 1.5.0 in 1.5 profile
-o Update Neo4j version to 3.3.1 in 3.3 profile
-o Update Neo4j version to 3.4.0-alpha04 in 3.4 profile
+3.0.3
+o HttpDriver: Handle non-json response gracefully.
+o Default Java driver dependency for Bolt is 1.5.
+o Compatibility for 3.4 point types in DistanceComparison.
+o NodeEntity label, Relationship and RelationshipEntity type can be set without attribute name in annotation. #377
+o SortOrder is now re-usable. #486
 o Report QueryStatistics correctly. #449
 
 3.0.2

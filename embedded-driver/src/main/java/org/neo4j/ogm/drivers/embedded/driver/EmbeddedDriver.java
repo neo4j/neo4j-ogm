@@ -25,12 +25,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
+import org.neo4j.ogm.drivers.embedded.request.TenantSupport;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.request.Request;
@@ -44,20 +46,29 @@ import org.slf4j.LoggerFactory;
 public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
+    private final TenantSupport tenantSupport;
     private static final int TIMEOUT = 60_000;
 
     private GraphDatabaseService graphDatabaseService;
 
     // required for service loader mechanism
     public EmbeddedDriver() {
+        tenantSupport = null;
     }
 
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
+        this(graphDatabaseService, null);
+    }
+
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService, String tenant) {
         this.graphDatabaseService = requireNonNull(graphDatabaseService);
         boolean available = this.graphDatabaseService.isAvailable(TIMEOUT);
         if (!available) {
             throw new IllegalArgumentException("Provided GraphDatabaseService is not in usable state");
         }
+
+        this.tenantSupport = TenantSupport.supportFor(tenant);
+
     }
 
     @Override
@@ -128,7 +139,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request request() {
-        return new EmbeddedRequest(graphDatabaseService, transactionManager);
+        return new EmbeddedRequest(graphDatabaseService, transactionManager, tenantSupport);
     }
 
     private org.neo4j.graphdb.Transaction nativeTransaction() {

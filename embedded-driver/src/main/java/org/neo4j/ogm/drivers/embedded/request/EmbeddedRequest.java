@@ -61,10 +61,15 @@ public class EmbeddedRequest implements Request {
 
     private final TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
     };
+    private final TenantSupport tenantSupport;
 
-    public EmbeddedRequest(GraphDatabaseService graphDatabaseService, TransactionManager transactionManager) {
+    public EmbeddedRequest(GraphDatabaseService graphDatabaseService,
+        TransactionManager transactionManager,
+        TenantSupport tenantSupport) {
+
         this.graphDatabaseService = graphDatabaseService;
         this.transactionManager = transactionManager;
+        this.tenantSupport = tenantSupport;
     }
 
     @Override
@@ -147,7 +152,9 @@ public class EmbeddedRequest implements Request {
 
         try {
             String cypher = statement.getStatement();
-
+            if (tenantSupport != null) {
+                cypher = tenantSupport.withTenant(cypher);
+            }
             Map<String, Object> parameterMap = mapper.convertValue(statement.getParameters(), MAP_TYPE_REF);
             logger.info("Request: {} with params {}", cypher, parameterMap);
 

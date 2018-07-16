@@ -16,8 +16,10 @@ package org.neo4j.ogm.typeconversion;
 import java.time.LocalDate;
 
 /**
- * Converter to convert {@link java.time.LocalDate} to {@link Long}.
- * Stores values in db as string in format YYYY-MM-DD.
+ * Converter to convert between {@link java.time.LocalDate} and {@link String}.
+ * Stores values in database as string in format specified by
+ * {@link java.time.format.DateTimeFormatter#ISO_LOCAL_DATE}:
+ * {@code yyyy-MM-dd}.
  *
  * @author Nicolas Mervaillie
  */

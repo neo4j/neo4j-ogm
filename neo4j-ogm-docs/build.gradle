@@ -50,7 +50,7 @@ ext {
         neo4jDocVersion += "-preview"
     }
 
-    copyrightYear = '2017'
+    copyrightYear = "${new Date().format('yyyy')}"
     docsBaseUri = "https://neo4j.com/docs"
     docsCrossReferenceBaseUris = [
             'operations-manual-base-uri' : "${docsBaseUri}/operations-manual/${neo4jDocVersion}",

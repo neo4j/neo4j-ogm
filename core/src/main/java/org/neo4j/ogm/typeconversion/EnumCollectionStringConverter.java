@@ -26,7 +26,7 @@ import java.util.Vector;
  * is (slightly) safer: a persisted enum have to be renamed
  * to break its database mapping, whereas if its ordinal
  * was persisted instead, the mapping would be broken
- * simply by changing the declaration order in the enum set.
+ * simply by changing the declaration order of the enum constants.
  *
  * @author Luanne Misquitta
  */

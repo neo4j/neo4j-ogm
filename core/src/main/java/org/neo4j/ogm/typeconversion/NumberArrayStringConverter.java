@@ -16,9 +16,9 @@ import java.lang.reflect.Array;
 
 /**
  * The NumberStringConverter can be used to convert any java object array containing values that extend
- * java.lang.Number to and from its String array representation.
- * By default, the OGM will automatically convert arrays of BigInteger and BigDecimal
- * entity attributes using this converter.
+ * {@link java.lang.Number} to and from its String array representation.
+ * By default, the OGM will automatically convert arrays of {@link java.math.BigInteger}
+ * and {@link java.math.BigDecimal} entity attributes using this converter.
  *
  * @author Luanne Misquitta
  */

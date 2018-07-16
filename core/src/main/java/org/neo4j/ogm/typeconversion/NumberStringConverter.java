@@ -17,9 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * The NumberStringConverter can be used to convert any java object that extends
- * java.lang.Number to and from its String representation.
- * By default, the OGM will automatically convert BigInteger and BigDecimal
- * entity attributes using this converter.
+ * {@link java.lang.Number} to and from its String representation.
+ * By default, the OGM will automatically convert {@link java.math.BigInteger}
+ * and {@link java.math.BigDecimal} entity attributes using this converter.
  *
  * @author Vince Bickers
  * @author Gerrit Meier

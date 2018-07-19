@@ -1,4 +1,9 @@
-3.1.1
+3.1.1-RC1
+o Upgrade FastClasspathScanner to latest version. #474
+o SortOrder API polishing. #483
+o Make SortOrder reusable. #486
+o (Deeper) Nested properties filter support.
+o Provide a case-insensitive equals comparison.
 o NodeEntity label, Relationship and RelationshipEntity type can be set without attribute name in annotation. #377
 
 3.1.0

@@ -13,19 +13,7 @@
 
 package org.neo4j.ogm.autoindex;
 
-import static com.google.common.collect.Lists.*;
-import static java.util.stream.Collectors.*;
-import static org.assertj.core.api.Assertions.*;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.StreamSupport;
-
+import com.google.common.collect.ObjectArrays;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -37,16 +25,28 @@ import org.neo4j.graphdb.schema.ConstraintDefinition;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ObjectArrays;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Must not end with "Test" so it does not run on TC.
+ *
  * @author Frantisek Hartman
  */
 public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass {
@@ -204,9 +204,7 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
                 .generatedIndexesOutputFilename(file.getName())
                 .build();
 
-            Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
-            AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
-            indexManager.build();
+            new AutoIndexManager(metaData, configuration, sessionFactory);
 
             assertThat(file.exists()).isTrue();
             try (InputStream is = new FileInputStream(file)) {
@@ -221,9 +219,7 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
 
     void runAutoIndex(String mode) {
         Configuration configuration = getBaseConfiguration().autoIndex(mode).build();
-        Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
-        indexManager.build();
+        new AutoIndexManager(metaData, configuration, sessionFactory);
     }
 
     void executeForIndexes(Consumer<List<IndexDefinition>> consumer) {

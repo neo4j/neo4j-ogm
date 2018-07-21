@@ -12,16 +12,6 @@
  */
 package org.neo4j.ogm.autoindex;
 
-import static java.util.Collections.*;
-import static org.neo4j.ogm.transaction.Transaction.Type.*;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.neo4j.ogm.annotation.CompositeIndex;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -31,10 +21,22 @@ import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.RowDataStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Collections.emptyMap;
+import static org.neo4j.ogm.config.AutoIndexMode.NONE;
+import static org.neo4j.ogm.transaction.Transaction.Type.READ_WRITE;
 
 /**
  * This class controls the deletion and creation of indexes in the OGM.
@@ -46,16 +48,17 @@ public class AutoIndexManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
 
-    private final List<AutoIndex> indexes;
+    private List<AutoIndex> indexes;
     private Neo4jSession session;
+    private Configuration configuration;
 
-    private final Configuration configuration;
-
-    public AutoIndexManager(MetaData metaData, Configuration configuration, Neo4jSession session) {
-
-        this.configuration = configuration;
-        this.indexes = initialiseIndexMetadata(metaData);
-        this.session = session;
+    public AutoIndexManager(MetaData metaData, Configuration configuration, SessionFactory sessionFactory) {
+        if (configuration.getAutoIndex() != NONE) {
+            this.configuration = configuration;
+            this.indexes = initialiseIndexMetadata(metaData);
+            this.session = (Neo4jSession) sessionFactory.openSession();
+            build();
+        }
     }
 
     private List<AutoIndex> initialiseIndexMetadata(MetaData metaData) {
@@ -67,7 +70,7 @@ public class AutoIndexManager {
                 for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
                     IndexType type = fieldInfo.isConstraint() ? IndexType.UNIQUE_CONSTRAINT : IndexType.SINGLE_INDEX;
                     final AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(),
-                        new String[] { fieldInfo.property() });
+                        new String[]{fieldInfo.property()});
                     LOGGER.debug("Adding Index [description={}]", autoIndex);
                     indexMetadata.add(autoIndex);
                 }
@@ -87,7 +90,7 @@ public class AutoIndexManager {
                         IndexType.REL_PROP_EXISTENCE_CONSTRAINT : IndexType.NODE_PROP_EXISTENCE_CONSTRAINT;
 
                     AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(),
-                        new String[] { requiredField.property() });
+                        new String[]{requiredField.property()});
 
                     LOGGER.debug("Adding required constraint [description={}]", autoIndex);
                     indexMetadata.add(autoIndex);
@@ -104,7 +107,7 @@ public class AutoIndexManager {
     /**
      * Builds indexes according to the configured mode.
      */
-    public void build() {
+    private void build() {
         switch (configuration.getAutoIndex()) {
             case ASSERT:
                 assertIndexes();
@@ -192,7 +195,7 @@ public class AutoIndexManager {
 
         // make sure drop and create happen in separate transactions
         // neo does not support that
-        session.doInTransaction( () -> {
+        session.doInTransaction(() -> {
             session.requestHandler().execute(dropIndexesRequest);
         }, READ_WRITE);
 
@@ -202,7 +205,7 @@ public class AutoIndexManager {
     private List<AutoIndex> loadIndexesFromDB() {
         DefaultRequest indexRequests = buildProcedures();
         List<AutoIndex> dbIndexes = new ArrayList<>();
-        session.doInTransaction( () -> {
+        session.doInTransaction(() -> {
             try (Response<RowModel> response = session.requestHandler().execute(indexRequests)) {
                 RowModel rowModel;
                 while ((rowModel = response.next()) != null) {
@@ -250,7 +253,7 @@ public class AutoIndexManager {
         DefaultRequest request = new DefaultRequest();
         request.setStatements(statements);
 
-        session.doInTransaction( () -> {
+        session.doInTransaction(() -> {
             try (Response<RowModel> response = session.requestHandler().execute(request)) {
                 // Success
             }
@@ -280,7 +283,7 @@ public class AutoIndexManager {
         request.setStatements(statements);
         LOGGER.debug("Creating indexes and constraints.");
 
-        session.doInTransaction( () -> {
+        session.doInTransaction(() -> {
             try (Response<RowModel> response = session.requestHandler().execute(request)) {
                 // Success
             }

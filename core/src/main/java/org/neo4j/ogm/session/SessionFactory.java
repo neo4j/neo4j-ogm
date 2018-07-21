@@ -13,11 +13,6 @@
 
 package org.neo4j.ogm.session;
 
-import static java.util.Objects.*;
-
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
@@ -27,6 +22,11 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.event.EventListener;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * This is the main initialization point of OGM. Used to create {@link Session} instances for interacting with Neo4j.
@@ -81,9 +81,7 @@ public class SessionFactory {
         this.driver = newDriverInstance(configuration.getDriverClassName());
         this.driver.configure(configuration);
         this.eventListeners = new CopyOnWriteArrayList<>();
-        Neo4jSession session = (Neo4jSession) openSession();
-        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, configuration, session);
-        autoIndexManager.build();
+        new AutoIndexManager(this.metaData, configuration, this);
         this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
     }
 

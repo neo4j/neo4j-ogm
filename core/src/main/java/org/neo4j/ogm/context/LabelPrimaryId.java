@@ -13,9 +13,11 @@
 
 package org.neo4j.ogm.context;
 
-import static java.util.Objects.*;
-
 import org.neo4j.ogm.metadata.ClassInfo;
+
+import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Pair of label and primary id to use for lookups by primary key in MappingContext and CypherContext
@@ -33,11 +35,11 @@ class LabelPrimaryId {
     /**
      * Create LabelPrimaryId
      *
-     * @param classInfo class info containign the primary id
+     * @param classInfo class info containing the primary id
      * @param id        the value of the id
      */
     public LabelPrimaryId(ClassInfo classInfo, Object id) {
-        this.label = classInfo.primaryIndexField().containingClassInfo().neo4jName();
+        this.label = classInfo.neo4jName();
         this.id = requireNonNull(id);
     }
 
@@ -49,32 +51,22 @@ class LabelPrimaryId {
         return id;
     }
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         LabelPrimaryId that = (LabelPrimaryId) o;
-
-        if (!label.equals(that.label))
-            return false;
-        return id.equals(that.id);
+        return Objects.equals(label, that.label) && Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        int result = label.hashCode();
-        result = 31 * result + id.hashCode();
-        return result;
+        return Objects.hash(label, id);
     }
 
     @Override
     public String toString() {
-        return "LabelPrimaryId{" +
-            "label='" + label + '\'' +
-            ", id=" + id +
-            '}';
+        return String.format("LabelPrimaryId{label='%s', id=%s}", label, id);
     }
 }

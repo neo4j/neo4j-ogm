@@ -31,6 +31,7 @@ import org.neo4j.ogm.annotation.Transient;
 
 /**
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class FieldsInfo {
 
@@ -101,6 +102,13 @@ public class FieldsInfo {
         return Collections.unmodifiableList(fields);
     }
 
+    /**
+     * Should not be used directly as it doesn't take property fields into account.
+     * @param name
+     * @return
+     * @deprecated since 3.1.1 use {@link ClassInfo#getFieldInfo(String)} instead.
+     */
+    @Deprecated
     public FieldInfo get(String name) {
         return fields.get(name);
     }

@@ -53,7 +53,7 @@ abstract class SessionDelegate {
             Filter.setNameFromProperty(filter, propertyName);
 
             ClassInfo classInfo = session.metaData().classInfo(entityType.getName());
-            FieldInfo fieldInfo = classInfo.fieldsInfo().get(filter.getPropertyName());
+            FieldInfo fieldInfo = classInfo.getFieldInfo(filter.getPropertyName());
             if (fieldInfo != null) {
                 filter.setPropertyConverter(fieldInfo.getPropertyConverter());
                 filter.setCompositeConverter(fieldInfo.getCompositeConverter());

@@ -13,11 +13,16 @@
 
 package org.neo4j.ogm.domain.music;
 
+import java.util.Date;
+
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.DateLong;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 @NodeEntity(label = "l'album")
 public class Album {
@@ -33,6 +38,18 @@ public class Album {
 
     @Relationship(type = "GUEST_ALBUM", direction = "INCOMING")
     private Artist guestArtist; //we only tolerate one guest artist
+
+    private Date recordedAt;
+
+    @Property("releasedAt")
+    private Date released;
+
+    @DateLong
+    private Date enteredChartAt;
+
+    @Property("leftChartAt")
+    @DateLong
+    private Date leftChart;
 
     public Album() {
     }
@@ -75,5 +92,21 @@ public class Album {
 
     public Long getId() {
         return id;
+    }
+
+    public Date getReleased() {
+        return released;
+    }
+
+    public void setReleased(Date released) {
+        this.released = released;
+    }
+
+    public Date getRecordedAt() {
+        return recordedAt;
+    }
+
+    public void setRecordedAt(Date recordedAt) {
+        this.recordedAt = recordedAt;
     }
 }

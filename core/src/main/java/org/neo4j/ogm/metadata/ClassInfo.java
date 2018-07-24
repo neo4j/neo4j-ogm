@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class ClassInfo {
 
@@ -420,7 +421,7 @@ public class ClassInfo {
         if (propertyFields == null) {
             initPropertyFields();
         }
-        return propertyFields.get(propertyName.toLowerCase());
+        return propertyName == null ? null : propertyFields.get(propertyName.toLowerCase());
     }
 
     private synchronized void initPropertyFields() {

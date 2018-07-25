@@ -13,21 +13,18 @@
 
 package org.neo4j.ogm.metadata;
 
+import static java.util.Comparator.*;
+
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
+import org.neo4j.ogm.typeconversion.AttributeConverters;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;
@@ -40,19 +37,11 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class DomainInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainInfo.class);
-    private static final String DATE_SIGNATURE = "java.util.Date";
-    private static final String BIG_DECIMAL_SIGNATURE = "java.math.BigDecimal";
-    private static final String BIG_INTEGER_SIGNATURE = "java.math.BigInteger";
-    private static final String BYTE_ARRAY_SIGNATURE = "byte[]";
-    private static final String BYTE_ARRAY_WRAPPER_SIGNATURE = "java.lang.Byte[]";
-    private static final String INSTANT_SIGNATURE = "java.time.Instant";
-    private static final String LOCAL_DATE_SIGNATURE = "java.time.LocalDate";
-    private static final String LOCAL_DATE_TIME_SIGNATURE = "java.time.LocalDateTime";
-    private static final String OFFSET_DATE_TIME_SIGNATURE = "java.time.OffsetDateTime";
 
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
@@ -330,27 +319,27 @@ public class DomainInfo {
         if (!fieldInfo.hasPropertyConverter() && !fieldInfo.hasCompositeConverter()) {
 
             final String typeDescriptor = fieldInfo.getTypeDescriptor();
-            if (typeDescriptor.contains(DATE_SIGNATURE)) {
-                setDateFieldConverter(fieldInfo);
-            } else if (typeDescriptor.contains(BIG_INTEGER_SIGNATURE)) {
-                setBigIntegerFieldConverter(fieldInfo);
-            } else if (typeDescriptor.contains(BIG_DECIMAL_SIGNATURE)) {
-                setBigDecimalConverter(fieldInfo);
-            } else if (typeDescriptor.contains(INSTANT_SIGNATURE)) {
-                setInstantConverter(fieldInfo);
-            } else if (typeDescriptor.contains(OFFSET_DATE_TIME_SIGNATURE)) {
-                setOffsetDateTimeConverter(fieldInfo);
-            } else if (typeDescriptor.contains(LOCAL_DATE_TIME_SIGNATURE)) {
-                // order for LOCAL_DATE_TIME and LOCAL_DATE is important here - LOCAL_DATE is a substring so we try to
-                // match LOCAL_DATE_TIME first
-                setLocalDateTimeConverter(fieldInfo);
-            } else if (typeDescriptor.contains(LOCAL_DATE_SIGNATURE)) {
-                setLocalDateConverter(fieldInfo);
-            } else if (typeDescriptor.contains(BYTE_ARRAY_SIGNATURE)) {
-                fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayBase64Converter());
-            } else if (typeDescriptor.contains(BYTE_ARRAY_WRAPPER_SIGNATURE)) {
-                fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
+
+            // Check if there's a registered set of attribute converters for the given field info and if so,
+            // select the correct one based on the features of the field
+            Function<AttributeConverters, Optional<AttributeConverter<?, ?>>> selectAttributeConverter = ac -> DomainInfo
+                .selectAttributeConverterFor(fieldInfo, ac);
+
+            Optional<AttributeConverter<?, ?>> registeredAttributeConverter =
+                ConvertibleTypes.REGISTRY.entrySet().stream()
+                    .filter(e -> typeDescriptor.contains(e.getKey()))
+                    // There are some signatures that are substrings of others, so
+                    // we have to sort by descending length to match the longest
+                    .sorted(comparingInt((Map.Entry<String, ?> e) -> e.getKey().length()).reversed())
+                    .findFirst()
+                    .map(Map.Entry::getValue)
+                    .flatMap(selectAttributeConverter);
+
+            // We can use a registered converter
+            if (registeredAttributeConverter.isPresent()) {
+                fieldInfo.setPropertyConverter(registeredAttributeConverter.get());
             } else {
+                // Check if the user configured one through the convert annotation
                 if (fieldInfo.getAnnotations().get(Convert.class) != null) {
                     // no converter's been set but this method is annotated with @Convert so we need to proxy it
                     Class<?> entityAttributeType = ClassUtils.getType(typeDescriptor);
@@ -396,7 +385,43 @@ public class DomainInfo {
         }
     }
 
-    private void setEnumFieldConverter(FieldInfo fieldInfo, Class enumClass) {
+    // leaky for spring
+    public Map<String, ClassInfo> getClassInfoMap() {
+        return classNameToClassInfo;
+    }
+
+    public List<ClassInfo> getClassInfos(String interfaceName) {
+        return interfaceNameToClassInfo.get(interfaceName);
+    }
+
+    /**
+     * Selects the specialized attribute converter for the given field info, depending wether the field info
+     * describes an array, iterable or scalar value.
+     *
+     * @param source must not be {@literal null}.
+     * @param from   The attribute converters to select from, must not be {@literal null}.
+     * @return
+     */
+    private static Optional<AttributeConverter<?, ?>> selectAttributeConverterFor(FieldInfo source,
+        AttributeConverters from) {
+
+        FieldInfo fieldInfo = Objects.requireNonNull(source, "Need a field info");
+        AttributeConverters attributeConverters = Objects
+            .requireNonNull(from, "Need the set of attribute converters for the given field info.");
+
+        AttributeConverter selectedConverter;
+        if (fieldInfo.isArray()) {
+            selectedConverter = attributeConverters.forArray;
+        } else if (fieldInfo.isIterable()) {
+            selectedConverter = attributeConverters.forIterable.apply(fieldInfo.getCollectionClassname());
+        } else {
+            selectedConverter = attributeConverters.forScalar;
+        }
+
+        return Optional.ofNullable(selectedConverter);
+    }
+
+    private static void setEnumFieldConverter(FieldInfo fieldInfo, Class enumClass) {
         if (fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         } else if (fieldInfo.isIterable()) {
@@ -405,87 +430,5 @@ public class DomainInfo {
         } else {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumConverter(enumClass));
         }
-    }
-
-    private void setBigDecimalConverter(FieldInfo fieldInfo) {
-        if (fieldInfo.isArray()) {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalArrayConverter());
-        } else if (fieldInfo.isIterable()) {
-            fieldInfo.setPropertyConverter(
-                ConvertibleTypes.getBigDecimalCollectionConverter(fieldInfo.getCollectionClassname()));
-        } else {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalConverter());
-        }
-    }
-
-    private void setBigIntegerFieldConverter(FieldInfo fieldInfo) {
-        if (fieldInfo.isArray()) {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerArrayConverter());
-        } else if (fieldInfo.isIterable()) {
-            fieldInfo.setPropertyConverter(
-                ConvertibleTypes.getBigIntegerCollectionConverter(fieldInfo.getCollectionClassname()));
-        } else {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerConverter());
-        }
-    }
-
-    private void setDateFieldConverter(FieldInfo fieldInfo) {
-        if (fieldInfo.isArray()) {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getDateArrayConverter());
-        } else if (fieldInfo.isIterable()) {
-            fieldInfo
-                .setPropertyConverter(ConvertibleTypes.getDateCollectionConverter(fieldInfo.getCollectionClassname()));
-        } else {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getDateConverter());
-        }
-    }
-
-    private void setInstantConverter(FieldInfo fieldInfo) {
-        fieldInfo.setPropertyConverter(ConvertibleTypes.getInstantConverter());
-    }
-
-    private void setLocalDateConverter(FieldInfo fieldInfo) {
-        AttributeConverter<?, ?> localDateConverter = ConvertibleTypes.getLocalDateConverter();
-        if (fieldInfo.isIterable()) {
-            fieldInfo.setPropertyConverter(
-                ConvertibleTypes.getConverterBasedCollectionConverter(localDateConverter,
-                    fieldInfo.getCollectionClassname())
-            );
-        } else {
-            fieldInfo.setPropertyConverter(localDateConverter);
-        }
-    }
-
-    private void setLocalDateTimeConverter(FieldInfo fieldInfo) {
-        AttributeConverter<?, ?> localDateTimeConverter = ConvertibleTypes.getLocalDateTimeConverter();
-        if (fieldInfo.isIterable()) {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getConverterBasedCollectionConverter(
-                localDateTimeConverter,
-                fieldInfo.getCollectionClassname())
-            );
-        } else {
-            fieldInfo.setPropertyConverter(localDateTimeConverter);
-        }
-    }
-
-    private void setOffsetDateTimeConverter(FieldInfo fieldInfo) {
-        AttributeConverter<?, ?> offsetDateTimeConverter = ConvertibleTypes.getOffsetDateTimeConverter();
-        if (fieldInfo.isIterable()) {
-            fieldInfo.setPropertyConverter(ConvertibleTypes.getConverterBasedCollectionConverter(
-                offsetDateTimeConverter,
-                fieldInfo.getCollectionClassname()
-            ));
-        } else {
-            fieldInfo.setPropertyConverter(offsetDateTimeConverter);
-        }
-    }
-
-    // leaky for spring
-    public Map<String, ClassInfo> getClassInfoMap() {
-        return classNameToClassInfo;
-    }
-
-    public List<ClassInfo> getClassInfos(String interfaceName) {
-        return interfaceNameToClassInfo.get(interfaceName);
     }
 }

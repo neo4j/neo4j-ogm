@@ -15,10 +15,12 @@ package org.neo4j.ogm.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public abstract class ClassUtils {
 

@@ -38,6 +38,7 @@ import org.neo4j.ogm.utils.RelationshipUtils;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class FieldInfo {
 
@@ -227,45 +228,16 @@ public class FieldInfo {
         throw new RuntimeException("relationship direction call invalid");
     }
 
-    public boolean isTypeOf(Class<?> type) {
-
-        while (type != null) {
-            String typeSignature = type.getName();
-            if (descriptor != null && descriptor.equals(typeSignature)) {
-                return true;
-            }
-            // #issue 42: check interfaces when types are defined using generics as interface extensions
-            for (Class<?> iface : type.getInterfaces()) {
-                typeSignature = iface.getName();
-                if (descriptor != null && descriptor.equals(typeSignature)) {
-                    return true;
-                }
-            }
-            type = type.getSuperclass();
-        }
-        return false;
-    }
-
     public boolean isIterable() {
         return Iterable.class.isAssignableFrom(fieldType);
     }
 
+    public boolean isTypeOf(Class<?> type) {
+        return doesDescriptorMatchType(descriptor, type);
+    }
+
     public boolean isParameterisedTypeOf(Class<?> type) {
-        while (type != null) {
-            String typeSignature = type.getName();
-            if (typeParameterDescriptor != null && typeParameterDescriptor.equals(typeSignature)) {
-                return true;
-            }
-            // #issue 42: check interfaces when types are defined using generics as interface extensions
-            for (Class<?> iface : type.getInterfaces()) {
-                typeSignature = iface.getName();
-                if (typeParameterDescriptor != null && typeParameterDescriptor.equals(typeSignature)) {
-                    return true;
-                }
-            }
-            type = type.getSuperclass();
-        }
-        return false;
+        return doesDescriptorMatchType(typeParameterDescriptor, type);
     }
 
     public boolean isArrayOf(Class<?> type) {
@@ -493,5 +465,23 @@ public class FieldInfo {
 
     public boolean isVersionField() {
         return field.getAnnotation(Version.class) != null;
+    }
+
+    private static boolean doesDescriptorMatchType(String descriptorToMatch, Class<?> type) {
+        while (type != null) {
+            String typeSignature = type.getName();
+            if (descriptorToMatch != null && descriptorToMatch.equals(typeSignature)) {
+                return true;
+            }
+            // #issue 42: check interfaces when types are defined using generics as interface extensions
+            for (Class<?> iface : type.getInterfaces()) {
+                typeSignature = iface.getName();
+                if (descriptorToMatch != null && descriptorToMatch.equals(typeSignature)) {
+                    return true;
+                }
+            }
+            type = type.getSuperclass();
+        }
+        return false;
     }
 }

@@ -15,11 +15,28 @@ package org.neo4j.ogm.context;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
+import org.neo4j.ogm.typeconversion.ConvertibleTypes;
 
+/**
+ * This class extract values from scalar queries, i.e. queries that only return one column. The name of this class is
+ * currently very misleading and should change in the future.
+ *
+ * @author Vince Bickers
+ * @author Jim Webber
+ * @author Mark Angrish
+ * @author Gerrit Meier
+ * @author Michael J. Simons
+ *
+ * @deprecated since 3.1.1, no replacement yet but expect this mapper to go away.
+ */
+@Deprecated
 public class EntityRowModelMapper implements ResponseMapper<RowModel> {
 
     /**
@@ -29,19 +46,23 @@ public class EntityRowModelMapper implements ResponseMapper<RowModel> {
     public <T> Iterable<T> map(Class<T> type, Response<RowModel> response) {
 
         Collection<T> result = new ArrayList<>();
-
         RowModel model;
         while ((model = response.next()) != null) {
-
-            if (model.variables().length > 1) {
-                throw new RuntimeException(
-                    "Scalar response queries must only return one column. Make sure your cypher query only returns one item.");
-            }
-            for (int i = 0; i < model.variables().length; i++) {
-                Object o = model.getValues()[0];
-                result.add((T) Utils.coerceTypes(type, o));
-            }
+            result.add(extractColumnValue(type, model));
         }
         return result;
+    }
+
+    private static <T> T extractColumnValue(Class<T> type, RowModel model) {
+
+        if (model.variables().length > 1) {
+            throw new RuntimeException(
+                "Scalar response queries must only return one column. Make sure your cypher query only returns one item.");
+        }
+        final Object o = model.getValues()[0];
+        return Optional.ofNullable(ConvertibleTypes.REGISTRY.get(type.getCanonicalName()))
+            .map(ac -> (AttributeConverter<T, Object>)(type.isArray() ? ac.forArray : ac.forScalar))
+            .map(c -> c.toEntityAttribute(o))
+            .orElse((T)Utils.coerceTypes(type, o));
     }
 }

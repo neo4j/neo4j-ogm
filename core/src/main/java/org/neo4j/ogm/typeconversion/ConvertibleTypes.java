@@ -15,14 +15,33 @@ package org.neo4j.ogm.typeconversion;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public abstract class ConvertibleTypes {
+
+    private static final String DATE_SIGNATURE = "java.util.Date";
+    private static final String BIG_DECIMAL_SIGNATURE = "java.math.BigDecimal";
+    private static final String BIG_INTEGER_SIGNATURE = "java.math.BigInteger";
+    private static final String BYTE_ARRAY_SIGNATURE = "byte[]";
+    private static final String BYTE_ARRAY_WRAPPER_SIGNATURE = "java.lang.Byte[]";
+    private static final String INSTANT_SIGNATURE = "java.time.Instant";
+    private static final String LOCAL_DATE_SIGNATURE = "java.time.LocalDate";
+    private static final String LOCAL_DATE_TIME_SIGNATURE = "java.time.LocalDateTime";
+    private static final String OFFSET_DATE_TIME_SIGNATURE = "java.time.OffsetDateTime";
+
+    /**
+     * A unmodifiable map containing known attribute converters.
+     */
+    public static final Map<String, AttributeConverters> REGISTRY = buildRegistry();
 
     public static AttributeConverter<?, ?> getDateConverter() {
         return new DateStringConverter(DateString.ISO_8601);
@@ -129,5 +148,45 @@ public abstract class ConvertibleTypes {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Map<String, AttributeConverters> buildRegistry() {
+        final Map<String, AttributeConverters> registry = new HashMap<>();
+
+        registry.put(DATE_SIGNATURE, AttributeConverters.Builder
+            .forScalar(getDateConverter())
+            .array(getDateArrayConverter())
+            .andIterable(ct -> getDateCollectionConverter(ct)));
+
+        registry.put(BIG_INTEGER_SIGNATURE, AttributeConverters.Builder
+            .forScalar(getBigIntegerConverter()).array(getBigIntegerArrayConverter())
+            .andIterable(ct -> getBigIntegerCollectionConverter(ct)));
+
+        registry.put(BIG_DECIMAL_SIGNATURE, AttributeConverters.Builder
+            .forScalar(getBigDecimalConverter()).array(getBigDecimalArrayConverter())
+            .andIterable(ct -> getBigDecimalCollectionConverter(ct)));
+
+        registry.put(INSTANT_SIGNATURE, AttributeConverters.Builder
+            .onlyScalar(getInstantConverter()));
+
+        registry.put(OFFSET_DATE_TIME_SIGNATURE, AttributeConverters.Builder
+            .forScalar(getOffsetDateTimeConverter())
+            .andIterable(ct -> getConverterBasedCollectionConverter(getOffsetDateTimeConverter(), ct)));
+
+        registry.put(LOCAL_DATE_TIME_SIGNATURE, AttributeConverters.Builder
+            .forScalar(getLocalDateTimeConverter())
+            .andIterable(ct -> getConverterBasedCollectionConverter(getLocalDateTimeConverter(), ct)));
+
+        registry.put(LOCAL_DATE_SIGNATURE, AttributeConverters.Builder
+            .forScalar(getLocalDateConverter())
+            .andIterable(ct -> getConverterBasedCollectionConverter(getLocalDateConverter(), ct)));
+
+        registry.put(BYTE_ARRAY_SIGNATURE, AttributeConverters.Builder
+            .onlyArray(getByteArrayBase64Converter()));
+
+        registry.put(BYTE_ARRAY_WRAPPER_SIGNATURE, AttributeConverters.Builder
+            .onlyArray(getByteArrayWrapperBase64Converter()));
+
+        return Collections.unmodifiableMap(registry);
     }
 }

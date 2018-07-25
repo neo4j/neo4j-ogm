@@ -13,10 +13,10 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
-import static com.google.common.collect.Sets.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.net.MalformedURLException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -46,6 +46,7 @@ import org.neo4j.ogm.testutil.TestUtils;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
@@ -884,14 +885,14 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         pulpRating.setStars(3);
         pulpRating.setMovie(pulpFiction);
         pulpRating.setUser(frantisek);
-        pulpFiction.setRatings(newHashSet(pulpRating));
+        pulpFiction.setRatings(new HashSet<>(Arrays.asList(pulpRating)));
 
         Rating ootfRating = new Rating();
         ootfRating.setStars(3);
         ootfRating.setMovie(ootf);
         ootfRating.setUser(frantisek);
 
-        frantisek.setRatings(newHashSet(ootfRating, pulpRating));
+        frantisek.setRatings(new HashSet<>(Arrays.asList(ootfRating, pulpRating)));
 
         User otto = new User();
         otto.setName("Otto");
@@ -907,9 +908,9 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         ootfRating2.setMovie(ootf);
         ootfRating2.setUser(otto);
 
-        pulpFiction.setRatings(newHashSet(pulpRating, pulpRating2));
-        ootf.setRatings(newHashSet(ootfRating, ootfRating2));
-        otto.setRatings(newHashSet(pulpRating2, ootfRating2));
+        pulpFiction.setRatings(new HashSet<>(Arrays.asList(pulpRating, pulpRating2)));
+        ootf.setRatings(new HashSet<>(Arrays.asList(ootfRating, ootfRating2)));
+        otto.setRatings(new HashSet<>(Arrays.asList(pulpRating2, ootfRating2)));
         session.save(otto);
 
         session.clear();

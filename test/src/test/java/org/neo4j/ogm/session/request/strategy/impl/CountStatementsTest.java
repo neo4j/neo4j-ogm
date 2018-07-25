@@ -13,9 +13,10 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import static com.google.common.collect.Lists.*;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -27,6 +28,7 @@ import org.neo4j.ogm.session.request.strategy.AggregateStatements;
 /**
  * @author Vince Bickers
  * @author Jasper Blues
+ * @author Michael J. Simons
  */
 public class CountStatementsTest {
 
@@ -40,7 +42,7 @@ public class CountStatementsTest {
 
     @Test
     public void testCountNodesWithMultipleLabels() throws Exception {
-        assertThat(statements.countNodes(newArrayList("Person", "Candidate")).getStatement())
+        assertThat(statements.countNodes(Arrays.asList("Person", "Candidate")).getStatement())
             .isEqualTo("MATCH (n:`Person`:`Candidate`) RETURN COUNT(n)");
     }
 

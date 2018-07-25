@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import static com.google.common.collect.Lists.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
@@ -54,6 +53,7 @@ import org.neo4j.ogm.session.request.RowStatementFactory;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class CompilerTest {
 
@@ -108,11 +108,11 @@ public class CompilerTest {
 
         Restaurant r1 = new Restaurant();
         r1.setName("La Strada Tooting");
-        r1.labels = newArrayList("Delicious", "Foreign");
+        r1.labels = Arrays.asList("Delicious", "Foreign");
 
         Restaurant r2 = new Restaurant();
         r2.setName("La Strada Brno");
-        r2.labels = newArrayList("Foreign", "Delicious");
+        r2.labels = Arrays.asList("Foreign", "Delicious");
 
         franchise.addBranch(new Branch(new Location(0.0, 0.0), franchise, r1));
         franchise.addBranch(new Branch(new Location(0.0, 0.0), franchise, r2));
@@ -525,7 +525,7 @@ public class CompilerTest {
         Teacher missJones = new Teacher("Miss Jones");
         missJones.setId(jonesId);
 
-        hillsRoad.setTeachers(newArrayList(missJones, mrWhite));
+        hillsRoad.setTeachers(Arrays.asList(missJones, mrWhite));
         assertThat(hillsRoad.getTeachers()).contains(mrWhite);
         assertThat(hillsRoad.getTeachers()).contains(missJones);
         assertThat(mrWhite.getSchool()).isEqualTo(hillsRoad);

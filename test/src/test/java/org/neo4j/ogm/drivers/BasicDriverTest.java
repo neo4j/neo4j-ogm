@@ -12,13 +12,13 @@
  */
 package org.neo4j.ogm.drivers;
 
-import static com.google.common.collect.Lists.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -36,13 +36,13 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
-import com.google.common.collect.Iterables;
-
 /**
- * This test class is converted from the AbstractDriverTestSuite to use the test harness in use by toher tests
+ * This test class is converted from the AbstractDriverTestSuite to use the test harness in use by other tests.
+ *
+ * <em>Do not rename this class to end with *Test, or certain test packages might try to execute it.</em>
  *
  * @author vince
- * Do not rename this class to end with *Test, or certain test packages might try to execute it.
+ * @author Michael J. Simons
  */
 public class BasicDriverTest extends MultiDriverTestClass {
 
@@ -75,7 +75,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         bilbo.befriend(frodo);
 
         // Get an Iterable which is not a Collection
-        Iterable<User> iterable = Iterables.concat(newArrayList(bilbo), newArrayList(frodo));
+        Iterable<User> iterable = Stream.of(bilbo, frodo)::iterator;
         assertThat(iterable).isNotInstanceOf(Collection.class);
 
         session.save(iterable);

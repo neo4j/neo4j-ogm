@@ -13,12 +13,13 @@
 
 package org.neo4j.ogm.session;
 
-import static com.google.common.collect.Sets.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyIterable;
 import static org.mockito.Mockito.*;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
@@ -35,6 +36,7 @@ import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 @RunWith(MockitoJUnitRunner.class)
 public class BookmarkTest {
@@ -58,7 +60,7 @@ public class BookmarkTest {
 
     @Test
     public void shouldPassBookmarksToDriver() throws Exception {
-        Set<String> bookmarks = newHashSet("bookmark1", "bookmark2");
+        Set<String> bookmarks = new HashSet<>(Arrays.asList("bookmark1", "bookmark2"));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_ONLY, bookmarks);
 

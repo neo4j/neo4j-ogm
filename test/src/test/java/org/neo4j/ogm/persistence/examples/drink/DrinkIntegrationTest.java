@@ -13,10 +13,10 @@
 
 package org.neo4j.ogm.persistence.examples.drink;
 
-import static com.google.common.collect.Lists.*;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.junit.Before;
@@ -33,6 +33,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class DrinkIntegrationTest extends MultiDriverTestClass {
 
@@ -90,7 +91,7 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
         Beverage pilsner = new Beverage("Pilsner Urquell");
         session.save(pilsner);
 
-        Collection<Beverage> beverages = session.loadAll(newArrayList(pilsner));
+        Collection<Beverage> beverages = session.loadAll(Arrays.asList(pilsner));
         assertThat(beverages).containsOnly(pilsner);
     }
 

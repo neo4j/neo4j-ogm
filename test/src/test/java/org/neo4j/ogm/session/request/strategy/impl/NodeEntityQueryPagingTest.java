@@ -12,8 +12,9 @@
  */
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import static com.google.common.collect.Lists.*;
 import static org.assertj.core.api.Assertions.*;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -24,6 +25,7 @@ import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 
 /**
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class NodeEntityQueryPagingTest {
 
@@ -72,7 +74,7 @@ public class NodeEntityQueryPagingTest {
     @Test
     public void testFindAllByType() throws Exception {
         assertThat(
-            queryStatements.findAllByType("Raptor", newArrayList(1L, 2L), 1).setPagination(paging).getStatement())
+            queryStatements.findAllByType("Raptor", Arrays.asList(1L, 2L), 1).setPagination(paging).getStatement())
             .isEqualTo(
                 "MATCH (n:`Raptor`) WHERE ID(n) IN { ids } WITH n SKIP 4 LIMIT 2 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
@@ -80,14 +82,14 @@ public class NodeEntityQueryPagingTest {
     @Test
     public void testFindAllByTypeZeroDepth() throws Exception {
         assertThat(
-            queryStatements.findAllByType("Raptor", newArrayList(1L, 2L), 0).setPagination(paging).getStatement())
+            queryStatements.findAllByType("Raptor", Arrays.asList(1L, 2L), 0).setPagination(paging).getStatement())
             .isEqualTo("MATCH (n:`Raptor`) WHERE ID(n) IN { ids } WITH n SKIP 4 LIMIT 2 RETURN n");
     }
 
     @Test
     public void testFindAllByTypeInfiniteDepth() throws Exception {
         assertThat(
-            queryStatements.findAllByType("Raptor", newArrayList(1L, 2L), -1).setPagination(paging).getStatement())
+            queryStatements.findAllByType("Raptor", Arrays.asList(1L, 2L), -1).setPagination(paging).getStatement())
             .isEqualTo(
                 "MATCH (n:`Raptor`) WHERE ID(n) IN { ids } WITH n SKIP 4 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
     }

@@ -12,10 +12,11 @@
  */
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import static com.google.common.collect.Lists.*;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.cypher.ComparisonOperator.*;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
@@ -31,6 +32,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Jasper Blues
+ * @author Michael J. Simons
  */
 public class RelationshipQueryStatementsTest {
 
@@ -104,7 +106,7 @@ public class RelationshipQueryStatementsTest {
     @Test
     public void testFindAllByTypePrimaryIndex() throws Exception {
         PagingAndSortingQuery query = primaryQuery
-            .findAllByType("ORBITS", newArrayList("test-uuid-1", "test-uuid-2"), 2);
+            .findAllByType("ORBITS", Arrays.asList("test-uuid-1", "test-uuid-2"), 2);
 
         assertThat(query.getStatement())
             .isEqualTo("MATCH ()-[r0:`ORBITS`]-() WHERE r0.`uuid` IN {ids}  " +
@@ -114,7 +116,7 @@ public class RelationshipQueryStatementsTest {
                 "WITH r0,startPaths + endPaths  AS paths " +
                 "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
 
-        assertThat(query.getParameters()).contains(entry("ids", newArrayList("test-uuid-1", "test-uuid-2")));
+        assertThat(query.getParameters()).contains(entry("ids", Arrays.asList("test-uuid-1", "test-uuid-2")));
     }
 
     @Test

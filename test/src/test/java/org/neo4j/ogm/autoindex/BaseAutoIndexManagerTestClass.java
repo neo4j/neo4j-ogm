@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.autoindex;
 
-import static com.google.common.collect.Lists.*;
 import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -24,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.io.IOUtils;
@@ -43,11 +43,10 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ObjectArrays;
-
 /**
  * Must not end with "Test" so it does not run on TC.
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass {
 
@@ -97,11 +96,11 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
         if (isEnterpriseEdition() && isVersionOrGreater("3.2.0")) {
             indexes = ENTERPRISE_INDEXES;
             constraints = ENTERPRISE_CONSTRAINTS;
-            statements = ObjectArrays.concat(ENTERPRISE_INDEXES, ENTERPRISE_CONSTRAINTS, String.class);
+            statements = Stream.of(ENTERPRISE_INDEXES, ENTERPRISE_CONSTRAINTS).flatMap(Stream::of).toArray(String[]::new);
         } else {
             indexes = COMMUNITY_INDEXES;
             constraints = COMMUNITY_CONSTRAINTS;
-            statements = ObjectArrays.concat(COMMUNITY_INDEXES, COMMUNITY_CONSTRAINTS, String.class);
+            statements = Stream.of(COMMUNITY_INDEXES, COMMUNITY_CONSTRAINTS).flatMap(Stream::of).toArray(String[]::new);
         }
     }
 
@@ -239,8 +238,10 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
 
     void executeForConstraints(Consumer<List<ConstraintDefinition>> consumer) {
         try (Transaction tx = service.beginTx()) {
-            Iterable<ConstraintDefinition> constraints = service.schema().getConstraints();
-            consumer.accept(newArrayList(constraints));
+            List<ConstraintDefinition> constraints = StreamSupport
+                .stream(service.schema().getConstraints().spliterator(), false)
+                .collect(toList());
+            consumer.accept(constraints);
             tx.success();
         }
     }

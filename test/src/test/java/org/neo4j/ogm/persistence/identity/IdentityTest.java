@@ -12,10 +12,10 @@
  */
 package org.neo4j.ogm.persistence.identity;
 
-import static com.google.common.collect.Lists.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.annotation.Relationship.*;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * methods on Java objects.
  *
  * @author vince
+ * @author Michael J. Simons
  */
 public class IdentityTest extends MultiDriverTestClass {
 
@@ -151,7 +152,7 @@ public class IdentityTest extends MultiDriverTestClass {
 
         Node nodeC = new Node();
 
-        nodeA.related = newArrayList(nodeB, nodeC);
+        nodeA.related = Arrays.asList(nodeB, nodeC);
 
         session.save(nodeA);
         logger.info("related: {}", nodeA.related);
@@ -181,7 +182,7 @@ public class IdentityTest extends MultiDriverTestClass {
         Node nodeA = new Node();
         Node nodeB = new Node();
 
-        nodeA.related = newArrayList(nodeB, nodeB);
+        nodeA.related = Arrays.asList(nodeB, nodeB);
 
         session.save(nodeA);
 

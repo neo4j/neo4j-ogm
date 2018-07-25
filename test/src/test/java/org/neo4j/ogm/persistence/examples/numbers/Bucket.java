@@ -13,14 +13,14 @@
 
 package org.neo4j.ogm.persistence.examples.numbers;
 
-import static com.google.common.collect.Lists.*;
-
+import java.util.Arrays;
 import java.util.List;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 @NodeEntity
 public class Bucket {
@@ -28,7 +28,7 @@ public class Bucket {
     Long id;
 
     // collection with default value
-    List<Integer> numbers = newArrayList(1, 2, 3);
+    List<Integer> numbers = Arrays.asList(1, 2, 3);
 
     public Long getId() {
         return id;

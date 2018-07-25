@@ -12,7 +12,6 @@
  */
 package org.neo4j.ogm.persistence.types.convertible;
 
-import static com.google.common.collect.Lists.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
@@ -211,7 +210,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
         LocalDate now = LocalDate.of(2017, 7, 23);
         LocalDate tomorrow = now.plusDays(1);
-        List<LocalDate> dateList = newArrayList(now, tomorrow);
+        List<LocalDate> dateList = Arrays.asList(now, tomorrow);
         memo.setDateList(dateList);
 
         session.save(memo);
@@ -252,7 +251,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
         LocalDateTime dateTime = LocalDateTime.of(2017, 7, 23, 1, 2, 3);
         LocalDateTime dateTime1 = dateTime.plusDays(1);
-        List<LocalDateTime> dateTimeList = newArrayList(dateTime, dateTime1);
+        List<LocalDateTime> dateTimeList = Arrays.asList(dateTime, dateTime1);
         memo.setDateTimeList(dateTimeList);
 
         session.save(memo);
@@ -294,7 +293,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         LocalDateTime dateTime = LocalDateTime.of(2017, 7, 23, 1, 2, 3);
         OffsetDateTime offsetDateTime = OffsetDateTime.of(dateTime, ZoneOffset.ofHours(1));
         OffsetDateTime offsetDateTime1 = OffsetDateTime.of(dateTime.plusDays(1), ZoneOffset.ofHours(1));
-        ArrayList<OffsetDateTime> offsetDateTimeList = newArrayList(offsetDateTime, offsetDateTime1);
+        List<OffsetDateTime> offsetDateTimeList = Arrays.asList(offsetDateTime, offsetDateTime1);
         memo.setOffsetDateTimeList(offsetDateTimeList);
 
         session.save(memo);

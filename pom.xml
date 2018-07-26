@@ -330,14 +330,14 @@
         <profile>
             <id>neo4j-3.4</id>
             <properties>
-                <neo4j>3.4.3</neo4j>
+                <neo4j>3.4.4</neo4j>
             </properties>
         </profile>
 
         <profile>
             <id>neo4j-3.5</id>
             <properties>
-                <neo4j>3.5.0-alpha2</neo4j>
+                <neo4j>3.5.0-alpha05</neo4j>
             </properties>
         </profile>
 

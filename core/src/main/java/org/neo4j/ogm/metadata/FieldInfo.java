@@ -92,7 +92,6 @@ public class FieldInfo {
         this.containingClassInfo = classInfo;
         this.field = field;
         this.fieldType = field.getType();
-        field.getModifiers();
         this.isArray = field.getType().isArray();
         this.name = field.getName();
         this.descriptor = field.getType().getTypeName();

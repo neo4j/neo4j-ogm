@@ -6,7 +6,7 @@ Indexing is used in Neo4j to quickly find nodes and relationships from which to 
 [[reference:indexing:indexes-and-constraints]]
 == Indexes and Constraints
 Indexes based on labels and properties are supported with the `@Index` annotation.
-Any property field annotated with `@Index` will use have an appropriate schema index created.
+Any property field annotated with `@Index` will have an appropriate schema index created.
 For `@Index(unique=true)` a constraint is created.
 
 You may add as many indexes or constraints as you like to your class.

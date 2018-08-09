@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.exception.core.InvalidPropertyFieldException;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.id.IdStrategy;
@@ -406,6 +407,8 @@ public class ClassInfo {
      * node property. The identity field is not a property field.
      *
      * @return A Collection of FieldInfo objects describing the classInfo's property fields
+     * @throws InvalidPropertyFieldException if the recognized property fields contain a field that is not
+     *                                       actually persistable as property.
      */
     public Collection<FieldInfo> propertyFields() {
         if (fieldInfos == null) {
@@ -420,6 +423,8 @@ public class ClassInfo {
      *
      * @param propertyName the propertyName of the field to find
      * @return A FieldInfo object describing the required property field, or null if it doesn't exist.
+     * @throws InvalidPropertyFieldException if the recognized property fields contain a field that is not
+     *                                       actually persistable as property.
      */
     public FieldInfo propertyField(String propertyName) {
         if (propertyFields == null) {
@@ -429,32 +434,42 @@ public class ClassInfo {
     }
 
     private synchronized void initPropertyFields() {
-        if (fieldInfos == null) {
-            Collection<FieldInfo> fields = fieldsInfo().fields();
+        if (fieldInfos != null) {
+            return;
+        }
 
-            FieldInfo identityField = identityFieldOrNull();
-            Set<FieldInfo> fieldInfos = new HashSet<>(fields.size());
-            Map<String, FieldInfo> propertyFields = new HashMap<>(fields.size());
+        Collection<FieldInfo> fields = fieldsInfo().fields();
 
-            for (FieldInfo fieldInfo : fields) {
-                if (fieldInfo != identityField && !fieldInfo.isLabelField()
-                    && !fieldInfo.hasAnnotation(StartNode.class)
-                    && !fieldInfo.hasAnnotation(EndNode.class)) {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.class);
-                    if (annotationInfo == null) {
-                        if (fieldInfo.persistableAsProperty()) {
-                            fieldInfos.add(fieldInfo);
-                            propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
-                        }
-                    } else {
+        FieldInfo identityField = identityFieldOrNull();
+        Set<FieldInfo> fieldInfos = new HashSet<>(fields.size());
+        Map<String, FieldInfo> propertyFields = new HashMap<>(fields.size());
+
+        for (FieldInfo fieldInfo : fields) {
+            if (fieldInfo != identityField && !fieldInfo.isLabelField()
+                && !fieldInfo.hasAnnotation(StartNode.class)
+                && !fieldInfo.hasAnnotation(EndNode.class)) {
+
+                // If a field is not marked explicitly as a property but is persistable as such, add it.
+                if (!fieldInfo.getAnnotations().has(Property.class)) {
+                    if (fieldInfo.persistableAsProperty()) {
                         fieldInfos.add(fieldInfo);
                         propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
                     }
                 }
+                // If it is marked as a property, than it should be persistable as such
+                else if (fieldInfo.persistableAsProperty()) {
+                    fieldInfos.add(fieldInfo);
+                    propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
+                }
+                // Otherwise throw a fitting exception
+                else {
+                    throw new InvalidPropertyFieldException(fieldInfo);
+                }
             }
-            this.fieldInfos = fieldInfos;
-            this.propertyFields = propertyFields;
         }
+
+        this.fieldInfos = fieldInfos;
+        this.propertyFields = propertyFields;
     }
 
     /**
@@ -483,8 +498,7 @@ public class ClassInfo {
         Set<FieldInfo> fieldInfos = new HashSet<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (fieldInfo != identityField) {
-                AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Relationship.class);
-                if (annotationInfo == null) {
+                if (!fieldInfo.getAnnotations().has(Relationship.class)) {
                     if (!fieldInfo.persistableAsProperty()) {
                         fieldInfos.add(fieldInfo);
                     }

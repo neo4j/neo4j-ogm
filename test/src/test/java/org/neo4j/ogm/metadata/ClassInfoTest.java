@@ -15,6 +15,7 @@ package org.neo4j.ogm.metadata;
 
 import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.rules.ExpectedException.none;
 import static org.neo4j.ogm.annotation.Relationship.*;
 
 import java.util.Collection;
@@ -22,7 +23,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.neo4j.ogm.domain.cineasts.partial.Knows;
 import org.neo4j.ogm.domain.cineasts.partial.Rating;
 import org.neo4j.ogm.domain.cineasts.partial.Role;
@@ -31,10 +34,15 @@ import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.activity.Activity;
 import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.pizza.Pizza;
+import org.neo4j.ogm.exception.core.InvalidPropertyFieldException;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.utils.EntityUtils;
 
 public class ClassInfoTest {
+
+    @Rule
+    public final ExpectedException expectedException = none();
+
 
     private MetaData metaData;
 
@@ -87,6 +95,15 @@ public class ClassInfoTest {
                 count--;
         }
         assertThat(count).isEqualTo(0);
+    }
+
+    @Test // see GH-506
+    public void invalidPropertyFieldsShouldGiveBetterError() {
+
+        this.expectedException.expect(InvalidPropertyFieldException.class);
+        this.expectedException.expectMessage("'org.neo4j.ogm.domain.forum.LeadMembership#yearOfRegistration' is not persistable as property but has not been marked as transient.");
+
+        metaData.classInfo("Lead").propertyFields();
     }
 
     @Test

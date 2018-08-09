@@ -18,8 +18,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
+ * see DATAGRAPH-590 - Metadata resolves to an abstract class for an interface
+ *
  * @author Vince Bickers
- * @see DATAGRAPH-590 - Metadata resolves to an abstract class for an interface
+ * @author Michael J. Simons
  */
 public class DomainInfoTest {
 
@@ -36,7 +38,7 @@ public class DomainInfoTest {
         ClassInfo classInfo = domainInfo.getClassSimpleName("IMembership");
 
         assertThat(classInfo).isNotNull();
-        assertThat(classInfo.directImplementingClasses()).hasSize(4);
+        assertThat(classInfo.directImplementingClasses()).hasSize(5);
     }
 
     @Test

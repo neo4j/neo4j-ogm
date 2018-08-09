@@ -107,6 +107,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     private void initializeDriver() {
+
+        final String serviceUnavailableMessage = "Could not create driver instance";
         try {
             if (credentials != null) {
                 UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) this.credentials;
@@ -116,12 +118,12 @@ public class BoltDriver extends AbstractConfigurableDriver {
                 try {
                     boltDriver = createDriver(configuration, driverConfig, AuthTokens.none());
                 } catch (ServiceUnavailableException e) {
-                    throw new ConnectionException("Could not create driver instance.", e);
+                    throw new ConnectionException(serviceUnavailableMessage, e);
                 }
                 LOGGER.debug("Bolt Driver credentials not supplied");
             }
         } catch (ServiceUnavailableException e) {
-            throw new ConnectionException("Could not create driver instance", e);
+            throw new ConnectionException(serviceUnavailableMessage, e);
         }
     }
 

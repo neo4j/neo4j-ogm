@@ -13,14 +13,8 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +25,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.session.Session;
@@ -38,6 +33,8 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.testutil.TestUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luanne Misquitta
@@ -48,14 +45,19 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated").openSession();
+        session = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.linkedlist").openSession();
         session.purgeDatabase();
         session.clear();
         importCineasts();
+        importFriendships();
     }
 
     private void importCineasts() {
         session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Utils.map());
+    }
+
+    private void importFriendships() {
+        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/items.cql").toString(), Utils.map());
     }
 
     @After
@@ -727,6 +729,24 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 		assertThat(user.getExtendedFriends()).isNotEmpty();
 		assertThat(user.getExtendedFriends()).contains(new User(null, "extended", null));
 	}
+
+    /**
+     * @see Issue 496
+     */
+    @Test
+    public void shouldMaintainTheTraversalOrderFromMatchClause() {
+        Iterable<Item> result = session
+            .query(Item.class, "MATCH (i:Item)-[:NEXT*0..]->(n:Item) WHERE i.name={name} return n ,"
+                    + "[ [ (n)-[r:BELONGS_TO]->(c:Item) | [r, c] ] ]",
+                Collections.singletonMap("name", "A"));
+        assertThat(result).isNotNull();
+        List<Item> items = new ArrayList<>();
+        result.forEach(items::add);
+        assertThat(items.get(0).getName()).isEqualTo("A");
+        assertThat(items.get(1).getName()).isEqualTo("B");
+        assertThat(items.get(2).getName()).isEqualTo("C");
+        assertThat(items.get(3).getName()).isEqualTo("D");
+    }
 
     private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {
         if (result.get("n") instanceof User) {

@@ -1,3 +1,8 @@
+3.1.1
+o Fix determination of FieldInfo.
+o Use type converters for scalar queries. #71
+o Remove deprecated and unused ServiceNotFoundException.
+
 3.1.1-RC1
 o Upgrade FastClasspathScanner to latest version. #474
 o SortOrder API polishing. #483

@@ -50,3 +50,90 @@ function setNavIconColor() {
         $(this).children('span.fa').css('border-color', "");
     });
 }
+
+// Highlight the current chapter/section in the TOC
+function highlightToc() {
+    var toc = document.querySelector('nav.toc > ul.toc');
+    var allAnchors = toc.getElementsByTagName('a');
+    var thisAnchor;
+    var urlDissimilarity = 1000;
+    for (i=0; i < allAnchors.length; i++) {
+        var candidate = allAnchors.item(i).href;
+        var test = document.URL.replace(candidate);
+        // console.log('candidate:', candidate, 'test:', test, 'urlDissimilarity:', test.length);
+        if (test.length < urlDissimilarity && test !== document.URL) {
+            urlDissimilarity = test.length;
+            thisAnchor = allAnchors.item(i);
+        }
+    };
+
+    // console.log("[XXX] RESULT:", thisAnchor, "dissimilarity:", urlDissimilarity);
+
+    if (thisAnchor !== undefined) {
+        thisAnchor.parentElement.classList.add('active-nested-section');
+        var topLevel = thisAnchor;
+        while (topLevel.parentElement !== toc) {
+            // console.log("traversing up:", topLevel);
+            topLevel = topLevel.parentElement;
+        }
+        if (thisAnchor !== topLevel) {
+            // console.log("highlighting:", topLevel);
+            topLevel.classList.add('active-toplevel-section');
+        }
+    }
+}
+
+// Highlight the active publication in the docs library header
+function highlightLibraryHeader() {
+    var thisName = window.docMeta.name
+    var thisEntry;
+    $('header > ul.documentation-library').children('li').children('a').each(
+        function (key, value) {
+            var href = $(this).attr('href');
+            if (href.includes(thisName)) {
+                $(this).css({
+                    color: '#428bca',
+                    backgroundColor: 'rgb(66, 139, 202, 0.05)',
+                    borderBottom: '2px solid #428bca',
+                    padding: '4px',
+                    marginBottom: '-6px'
+                });
+            }
+            // console.log('href:', href, 'thisUrl:', thisUrl, 'thisName:', thisName);
+        }
+    );
+    enableTocToggle();
+}
+
+function enableTocToggle() {
+    var state = {
+        expanded: {
+            cssClass: 'fa-minus-square-o',
+            title: 'Collapse table of contents'
+        },
+        collapsed: {
+            cssClass: 'fa-plus-square-o',
+            title: 'Expand table of contents'
+        },
+    };
+    var toc = $('nav.toc');
+    var tocTitle = document.querySelector('div.toc-title');
+    var tocToggler = document.createElement('i');
+    tocToggler.classList.add('fa', state.collapsed.cssClass);
+    tocToggler.setAttribute('title', state.collapsed.title);
+    tocToggler.setAttribute('aria-hidden', 'true');
+    tocTitle.appendChild(tocToggler);
+    var isExpanded = toc.offsetParent !== null;
+    tocToggler.addEventListener("click", function() {
+        isExpanded = !isExpanded;
+        if (isExpanded) {
+            toc.slideUp();
+            tocToggler.classList.replace(state.expanded.cssClass, state.collapsed.cssClass);
+            tocToggler.setAttribute('title', state.collapsed.title);
+        } else {
+            toc.slideDown();
+            tocToggler.classList.replace(state.collapsed.cssClass, state.expanded.cssClass);
+            tocToggler.setAttribute('title', state.expanded.title);
+        }
+    });
+}

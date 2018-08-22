@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,5 +55,55 @@ public class DeleteCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldNotFailIfDeleteRelationshipEntityAgainstEmptyDatabase() {
         session.deleteAll(Recording.class);
+    }
+
+    @Test
+    public void canDeleteSingleEntry() {
+        Album album = new Album();
+        session.save(album);
+        assertEntityCount(1);
+
+        session.delete(album);
+        assertEntityCount(0);
+    }
+
+    @Test
+    public void canDeleteEntityCollection() {
+        Album album1 = new Album();
+        Album album2 = new Album();
+        session.save(album1);
+        session.save(album2);
+        assertEntityCount(2);
+
+        List<Object> albumList = new ArrayList<>();
+        albumList.add(album1);
+        albumList.add(album2);
+
+        session.delete(albumList);
+        assertEntityCount(0);
+    }
+
+    // gh-#509
+    @Test
+    public void canDeleteEntityArray() {
+        Album album1 = new Album();
+        Album album2 = new Album();
+        session.save(album1);
+        session.save(album2);
+        assertEntityCount(2);
+
+        List<Object> albumList = new ArrayList<>();
+        albumList.add(album1);
+        albumList.add(album2);
+
+        session.delete(albumList.toArray());
+        assertEntityCount(0);
+    }
+
+    private void assertEntityCount(int count) {
+        session.clear(); // Ensure that no data is cached...
+        long entityCount = session.countEntitiesOfType(Album.class);
+        assertThat(entityCount).isEqualTo(count);
+        session.clear(); // ...also for the subsequent calls in the test methods
     }
 }

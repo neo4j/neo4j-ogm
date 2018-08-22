@@ -34,8 +34,8 @@ plugins {
 
 def traceDocbook = hasProperty('traceDocbook') ? true : false
 
-if (!project.hasProperty("ogmVersion")) { ext.ogmVersion = "3.0.2" }
-if (!project.hasProperty("neo4jVersion")) { ext.neo4jVersion = "3.3.1" }
+if (!project.hasProperty("ogmVersion")) { ext.ogmVersion = "3.0.4" }
+if (!project.hasProperty("neo4jVersion")) { ext.neo4jVersion = "3.4.6" }
 if (!project.hasProperty("kerberosAddonVersion")) { ext.kerberosAddonVersion = "1.0" }
 ext {
     traceDocbook = traceDocbook
@@ -49,6 +49,7 @@ ext {
     if (1 < neo4jVersionParts.size()) {
         neo4jDocVersion += "-preview"
     }
+    graphAlgoDocVersion = neo4jDocVersion
 
     copyrightYear = "${new Date().format('yyyy')}"
     docsBaseUri = "https://neo4j.com/docs"
@@ -58,8 +59,18 @@ ext {
             'java-reference-base-uri'    : "${docsBaseUri}/java-reference/${neo4jDocVersion}",
             'rest-docs-base-uri'         : "${docsBaseUri}/rest-docs/${neo4jDocVersion}",
             'ogm-manual-base-uri'        : "${docsBaseUri}/ogm-manual/${ogmDocVersion}",
+            'graph-algorithms-base-uri'  : "${docsBaseUri}/graph-algorithms/${graphAlgoDocVersion}",
             'kerberos-add-on-base-uri'   : "${docsBaseUri}/add-on/kerberos/${kerberosAddonVersion}"
     ]
+    docsCrossReferenceBaseUris['neo4j-javadoc-base-uri'] = "${docsCrossReferenceBaseUris['java-reference-base-uri']}/javadocs"
+    docsLibraryHeaderConfig =
+            """
+            Operations_Manual=${docsCrossReferenceBaseUris['operations-manual-base-uri']}/
+            Developer_Manual=${docsCrossReferenceBaseUris['developer-manual-base-uri']}/
+            OGM_Manual=${docsCrossReferenceBaseUris['ogm-manual-base-uri']}/
+            Graph_Algorithms=${docsCrossReferenceBaseUris['graph-algorithms-base-uri']}/
+            Java_Reference=${docsCrossReferenceBaseUris['java-reference-base-uri']}/
+            """
     commonAsciidoctorAttributes = [
             'copyright-year'                   : copyrightYear,
             'copyright'                        : "${copyrightYear} Neo4j, Inc.",
@@ -238,14 +249,7 @@ html {
             "neo.newsearch": "1",
             "generate.toc": "''",
             "header.rule": "0",
-            "neo.documentation.library.links":
-            """
-            Operations_Manual=${docsCrossReferenceBaseUris['operations-manual-base-uri']}/
-            Developer_Manual=${docsCrossReferenceBaseUris['developer-manual-base-uri']}/
-            OGM_Manual=${docsCrossReferenceBaseUris['ogm-manual-base-uri']}/
-            Java_Reference=${docsCrossReferenceBaseUris['java-reference-base-uri']}/
-            REST_Docs=${docsCrossReferenceBaseUris['rest-docs-base-uri']}/
-            """,
+            "neo.documentation.library.links": docsLibraryHeaderConfig,
             "target.database.document": "file://${olinkdb}",
             "current.docid": "$docId"
     ])

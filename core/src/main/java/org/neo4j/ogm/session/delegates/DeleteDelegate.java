@@ -13,6 +13,7 @@
 package org.neo4j.ogm.session.delegates;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -49,120 +50,15 @@ public class DeleteDelegate extends SessionDelegate {
         super(session);
     }
 
-    private DeleteStatements getDeleteStatementsBasedOnType(Class type) {
-        if (session.metaData().isRelationshipEntity(type.getName())) {
-            return new RelationshipDeleteStatements();
-        }
-        return new NodeDeleteStatements();
-    }
-
-    private <T> void deleteAll(T object) {
-        List<T> list;
-        if (object.getClass().isArray()) {
-            list = Collections.singletonList(object);
-        } else {
-            list = (List<T>) object;
-        }
-
-        if (!list.isEmpty()) {
-            Set<Object> allNeighbours = new HashSet<>();
-            for (T element : list) {
-                allNeighbours.addAll(session.context().neighbours(element));
-            }
-            deleteOneOrMoreObjects(allNeighbours, list);
-        }
-    }
-
     public <T> void delete(T object) {
-        if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
-            deleteAll(object);
-        } else {
-            deleteOneOrMoreObjects(session.context().neighbours(object), Collections.singletonList(object));
-        }
-    }
-
-    // TODO : this is being done in multiple requests at the moment, one per object. Why not put them in a single request?
-    private void deleteOneOrMoreObjects(Set<Object> neighbours, List<?> objects) {
-
-        Set<Object> notified = new HashSet<>();
-
-        if (session.eventsEnabled()) {
-            for (Object affectedObject : neighbours) {
-                if (!notified.contains(affectedObject)) {
-                    session.notifyListeners(new PersistenceEvent(affectedObject, Event.TYPE.PRE_SAVE));
-                    notified.add(affectedObject);
-                }
-            }
-        }
-
-        for (Object object : objects) {
-
-            ClassInfo classInfo = session.metaData().classInfo(object);
-
-            if (classInfo != null) {
-
-                Long identity = session.context().nativeId(object);
-                if (identity >= 0) {
-                    Statement request = getDeleteStatement(object, identity, classInfo);
-                    if (session.eventsEnabled()) {
-                        if (!notified.contains(object)) {
-                            session.notifyListeners(new PersistenceEvent(object, Event.TYPE.PRE_DELETE));
-                            notified.add(object);
-                        }
-                    }
-                    RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
-                    session.doInTransaction( () -> {
-                        try (Response<RowModel> response = session.requestHandler().execute(query)) {
-
-                            if (request.optimisticLockingConfig().isPresent()) {
-                                List<RowModel> rowModels = response.toList();
-                                session.optimisticLockingChecker().checkResultsCount(rowModels, request);
-                            }
-
-                            if (session.metaData().isRelationshipEntity(classInfo.name())) {
-                                session.detachRelationshipEntity(identity);
-                            } else {
-                                session.detachNodeEntity(identity);
-                            }
-                            if (session.eventsEnabled()) {
-                                if (notified.contains(object)) {
-                                    session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
-                                }
-                            }
-                        }
-                    }, Transaction.Type.READ_WRITE);
-
-                }
-            } else {
-                session.warn(object.getClass().getName() + " is not an instance of a persistable class");
-            }
-        }
-
-        if (session.eventsEnabled()) {
-            for (Object affectedObject : neighbours) {
-                if (notified.contains(affectedObject)) {
-                    session.notifyListeners(new PersistenceEvent(affectedObject, Event.TYPE.POST_SAVE));
-                }
-            }
-        }
-    }
-
-    private Statement getDeleteStatement(Object object, Long identity, ClassInfo classInfo) {
-        DeleteStatements deleteStatements = getDeleteStatementsBasedOnType(object.getClass());
-
-        Statement request;
-        if (classInfo.hasVersionField()) {
-            request = deleteStatements.delete(identity, object, classInfo);
-        } else{
-            request = deleteStatements.delete(identity);
-        }
-        return request;
+        List<T> objectsForDeletion = createObjectsCollectionFromObject(object);
+        delete(objectsForDeletion);
     }
 
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
         if (classInfo != null) {
-            String entityLabel = session.entityType(classInfo.name());
+            String entityLabel = classInfo.neo4jName();
             if (entityLabel == null) {
                 LOG.warn("Unable to find database label for entity " + type.getName()
                     + " : no results will be returned. Make sure the class is registered, "
@@ -171,7 +67,7 @@ public class DeleteDelegate extends SessionDelegate {
             Statement request = getDeleteStatementsBasedOnType(type).delete(entityLabel);
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
             session.notifyListeners(new PersistenceEvent(type, Event.TYPE.PRE_DELETE));
-            session.doInTransaction( () -> {
+            session.doInTransaction(() -> {
                 try (Response<RowModel> response = session.requestHandler().execute(query)) {
                     session.context().removeType(type);
                     if (session.eventsEnabled()) {
@@ -207,6 +103,130 @@ public class DeleteDelegate extends SessionDelegate {
         }
 
         throw new RuntimeException(clazz.getName() + " is not a persistable class");
+    }
+
+    public void purgeDatabase() {
+        Statement stmt = new NodeDeleteStatements().deleteAll();
+        RowModelRequest query = new DefaultRowModelRequest(stmt.getStatement(), stmt.getParameters());
+        session.doInTransaction(() -> {
+            session.requestHandler().execute(query).close();
+        }, Transaction.Type.READ_WRITE);
+        session.context().clear();
+    }
+
+    public void clear() {
+        session.context().clear();
+    }
+
+    private <T> List<T> createObjectsCollectionFromObject(T object) {
+        List<T> objectCollection;
+        if (object.getClass().isArray()) {
+            T[] objectsAsArray = (T[]) object;
+            objectCollection = Arrays.asList(objectsAsArray);
+        } else if (Iterable.class.isAssignableFrom(object.getClass())) {
+            objectCollection = new ArrayList<>();
+            ((Iterable<T>)object).forEach(objectCollection::add);
+        } else {
+            objectCollection = Collections.singletonList(object);
+        }
+        return objectCollection;
+    }
+
+    private <T> void delete(List<T> objectsForDeletion) {
+        if (objectsForDeletion.isEmpty()) {
+            return;
+        }
+
+        Set<Object> allNeighbours = new HashSet<>();
+        for (T element : objectsForDeletion) {
+            allNeighbours.addAll(session.context().neighbours(element));
+        }
+        deleteOneOrMoreObjects(allNeighbours, objectsForDeletion);
+    }
+
+    // TODO : this is being done in multiple requests at the moment, one per object. Why not put them in a single request?
+    private void deleteOneOrMoreObjects(Set<Object> neighbours, List<?> objects) {
+
+        Set<Object> notified = new HashSet<>();
+
+        if (session.eventsEnabled()) {
+            for (Object affectedObject : neighbours) {
+                if (!notified.contains(affectedObject)) {
+                    session.notifyListeners(new PersistenceEvent(affectedObject, Event.TYPE.PRE_SAVE));
+                    notified.add(affectedObject);
+                }
+            }
+        }
+
+        for (Object object : objects) {
+
+            ClassInfo classInfo = session.metaData().classInfo(object);
+
+            if (classInfo != null) {
+
+                Long identity = session.context().nativeId(object);
+                if (identity >= 0) {
+                    Statement request = getDeleteStatement(object, identity, classInfo);
+                    if (session.eventsEnabled()) {
+                        if (!notified.contains(object)) {
+                            session.notifyListeners(new PersistenceEvent(object, Event.TYPE.PRE_DELETE));
+                            notified.add(object);
+                        }
+                    }
+                    RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
+                    session.doInTransaction(() -> {
+                        try (Response<RowModel> response = session.requestHandler().execute(query)) {
+
+                            if (request.optimisticLockingConfig().isPresent()) {
+                                List<RowModel> rowModels = response.toList();
+                                session.optimisticLockingChecker().checkResultsCount(rowModels, request);
+                            }
+
+                            if (session.metaData().isRelationshipEntity(classInfo.name())) {
+                                session.detachRelationshipEntity(identity);
+                            } else {
+                                session.detachNodeEntity(identity);
+                            }
+                            if (session.eventsEnabled()) {
+                                if (notified.contains(object)) {
+                                    session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
+                                }
+                            }
+                        }
+                    }, Transaction.Type.READ_WRITE);
+
+                }
+            } else {
+                session.warn(object.getClass().getName() + " is not an instance of a persistable class");
+            }
+        }
+
+        if (session.eventsEnabled()) {
+            for (Object affectedObject : neighbours) {
+                if (notified.contains(affectedObject)) {
+                    session.notifyListeners(new PersistenceEvent(affectedObject, Event.TYPE.POST_SAVE));
+                }
+            }
+        }
+    }
+
+    private DeleteStatements getDeleteStatementsBasedOnType(Class type) {
+        if (session.metaData().isRelationshipEntity(type.getName())) {
+            return new RelationshipDeleteStatements();
+        }
+        return new NodeDeleteStatements();
+    }
+
+    private Statement getDeleteStatement(Object object, Long identity, ClassInfo classInfo) {
+        DeleteStatements deleteStatements = getDeleteStatementsBasedOnType(object.getClass());
+
+        Statement request;
+        if (classInfo.hasVersionField()) {
+            request = deleteStatements.delete(identity, object, classInfo);
+        } else {
+            request = deleteStatements.delete(identity);
+        }
+        return request;
     }
 
     /**
@@ -281,18 +301,5 @@ public class DeleteDelegate extends SessionDelegate {
         if (session.eventsEnabled() && object != null) {
             session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
         }
-    }
-
-    public void purgeDatabase() {
-        Statement stmt = new NodeDeleteStatements().deleteAll();
-        RowModelRequest query = new DefaultRowModelRequest(stmt.getStatement(), stmt.getParameters());
-        session.doInTransaction( () -> {
-            session.requestHandler().execute(query).close();
-        }, Transaction.Type.READ_WRITE);
-        session.context().clear();
-    }
-
-    public void clear() {
-        session.context().clear();
     }
 }

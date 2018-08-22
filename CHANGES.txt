@@ -4,6 +4,7 @@ o Improve determination of labels in class hierarchy scenarios. Labels are now c
   situation where multiple different labels can be applied, the topmost one is used. #437
 o Don't run the auto index manager if auto index mode is NONE (prevents eagerly opening a session). #437
 o Deprecated #getIndexes and #build in AutoIndexManager. #437
+o Convert array correct in delete operations. #509
 
 3.1.2
 o Improve documentation.

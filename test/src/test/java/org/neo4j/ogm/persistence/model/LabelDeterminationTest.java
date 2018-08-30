@@ -46,7 +46,6 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        // #437 - Disabled AutoIndex must not break initialization because of Entity containing annotation @Id
         sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.generic_hierarchy");
     }
 

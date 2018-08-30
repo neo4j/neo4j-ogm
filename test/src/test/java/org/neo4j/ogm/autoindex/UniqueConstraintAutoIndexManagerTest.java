@@ -21,6 +21,7 @@ import org.neo4j.ogm.domain.autoindex.UniqueConstraintEntity;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
@@ -28,8 +29,7 @@ public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTe
     private static final String CONSTRAINT = "CONSTRAINT ON (`entity`:`Entity`) ASSERT `entity`.`login` IS UNIQUE";
 
     public UniqueConstraintAutoIndexManagerTest() {
-        super(CONSTRAINT,
-            UniqueConstraintEntity.class.getName());
+        super(new String[] { CONSTRAINT }, UniqueConstraintEntity.class);
     }
 
     @After

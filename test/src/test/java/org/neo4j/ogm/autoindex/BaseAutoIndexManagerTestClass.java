@@ -17,16 +17,15 @@ import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +35,6 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.ConstraintDefinition;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.slf4j.Logger;
@@ -45,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Must not end with "Test" so it does not run on TC.
+ *
  * @author Frantisek Hartman
  * @author Michael J. Simons
  */
@@ -75,20 +73,19 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
     private String[] indexes;
     private String[] constraints;
     private String[] statements;
-    private String definition;
+    private String[] expectedIndexDefinitions;
 
     private GraphDatabaseService service;
-    protected MetaData metaData;
     protected SessionFactory sessionFactory;
 
-    public BaseAutoIndexManagerTestClass(String definition, String... packages) {
-        this.definition = definition;
-        this.metaData = new MetaData(packages);
-        sessionFactory = new SessionFactory(driver, packages);
+    public BaseAutoIndexManagerTestClass(String[] expectedIndexDefinitions, Class<?>... packages) {
+        sessionFactory = new SessionFactory(driver, Arrays.stream(packages).map(Class::getName).toArray(String[]::new));
+
+        this.expectedIndexDefinitions = expectedIndexDefinitions;
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         service = getGraphDatabaseService();
 
         service.execute("MATCH (n) DETACH DELETE n");
@@ -96,7 +93,8 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
         if (isEnterpriseEdition() && isVersionOrGreater("3.2.0")) {
             indexes = ENTERPRISE_INDEXES;
             constraints = ENTERPRISE_CONSTRAINTS;
-            statements = Stream.of(ENTERPRISE_INDEXES, ENTERPRISE_CONSTRAINTS).flatMap(Stream::of).toArray(String[]::new);
+            statements = Stream.of(ENTERPRISE_INDEXES, ENTERPRISE_CONSTRAINTS).flatMap(Stream::of)
+                .toArray(String[]::new);
         } else {
             indexes = COMMUNITY_INDEXES;
             constraints = COMMUNITY_CONSTRAINTS;
@@ -106,12 +104,12 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
 
     @After
     public void tearDown() throws Exception {
-        executeDrop(definition);
+        executeDrop(expectedIndexDefinitions);
         executeDrop(statements);
     }
 
     @Test
-    public void testAutoIndexNoneNoIndexIsCreated() throws Exception {
+    public void testAutoIndexNoneNoIndexIsCreated() {
         runAutoIndex("none");
 
         executeForIndexes(indexes -> {
@@ -123,7 +121,7 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
     }
 
     @Test
-    public void testAutoIndexNoneNoIndexIsDropped() throws Exception {
+    public void testAutoIndexNoneNoIndexIsDropped() {
         executeCreate(statements);
 
         runAutoIndex("none");
@@ -138,21 +136,25 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
 
     @Test
     public void testIndexesAreSuccessfullyValidated() {
-        executeCreate(definition);
+        executeCreate(expectedIndexDefinitions);
 
         runAutoIndex("validate");
     }
 
     @Test
-    public void testIndexValidationFailsOnMissingIndex() throws Exception {
-        assertThatThrownBy(() -> runAutoIndex("validate"))
+    public void testIndexValidationFailsOnMissingIndex() {
+
+        final AbstractThrowableAssert<?, ? extends Throwable> assertThatException = assertThatThrownBy(
+            () -> runAutoIndex("validate"))
             .isInstanceOf(MissingIndexException.class)
-            .hasMessageContaining("Validation of Constraints and Indexes failed. Could not find the following :")
-            .hasMessageContaining(definition);
+            .hasMessageContaining("Validation of Constraints and Indexes failed. Could not find the following :");
+        for (String definition : this.expectedIndexDefinitions) {
+            assertThatException.hasMessageContaining(definition);
+        }
     }
 
     @Test
-    public void testAutoIndexAssertDropsAllIndexesAndCreatesExisting() throws Exception {
+    public void testAutoIndexAssertDropsAllIndexesAndCreatesExisting() {
         executeCreate(statements);
 
         runAutoIndex("assert");
@@ -161,11 +163,12 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
         executeForIndexes(all::addAll);
         executeForConstraints(all::addAll);
 
-        assertThat(all).hasSize(1);
+        assertThat(all).hasSize(this.expectedIndexDefinitions.length);
     }
 
     @Test
-    public void testAutoIndexUpdateKeepIndexesAndCreateNew() throws Exception {
+    public void testAutoIndexUpdateKeepIndexesAndCreateNew() {
+
         executeCreate(statements);
 
         runAutoIndex("update");
@@ -174,13 +177,14 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
         executeForIndexes(all::addAll);
         executeForConstraints(all::addAll);
 
-        int expectedNumberOfIndexes = this.indexes.length + this.constraints.length + 1;
+        int expectedNumberOfIndexes = this.indexes.length + this.constraints.length + this.expectedIndexDefinitions.length;
         assertThat(all).hasSize(expectedNumberOfIndexes);
     }
 
     @Test
-    public void testAutoIndexUpdateIndexExistsDoNothing() throws Exception {
-        executeCreate(definition);
+    public void testAutoIndexUpdateIndexExistsDoNothing() {
+
+        executeCreate(expectedIndexDefinitions);
 
         runAutoIndex("update");
 
@@ -188,41 +192,31 @@ public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass
         executeForIndexes(all::addAll);
         executeForConstraints(all::addAll);
 
-        assertThat(all).hasSize(1);
+        assertThat(all).hasSize(this.expectedIndexDefinitions.length);
     }
 
     @Test
     public void testAutoIndexDumpCreatesIndex() throws IOException {
 
         File file = File.createTempFile("test", ".cql");
+        file.deleteOnExit();
 
-        try {
-            Configuration configuration = getBaseConfiguration()
-                .autoIndex("dump")
-                .generatedIndexesOutputDir(file.getParent())
-                .generatedIndexesOutputFilename(file.getName())
-                .build();
+        Configuration configuration = getBaseConfiguration()
+            .autoIndex("dump")
+            .generatedIndexesOutputDir(file.getParent())
+            .generatedIndexesOutputFilename(file.getName())
+            .build();
 
-            Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
-            AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
-            indexManager.build();
+        sessionFactory.runAutoIndexManager(configuration);
 
-            assertThat(file.exists()).isTrue();
-            try (InputStream is = new FileInputStream(file)) {
-                String actual = IOUtils.toString(is);
-                assertThat(actual).isEqualToIgnoringWhitespace("CREATE " + definition);
-            }
-
-        } finally {
-            file.delete();
-        }
+        assertThat(file).exists().canRead();
+        assertThat(contentOf(file))
+            .contains(Arrays.stream(expectedIndexDefinitions).map(d -> "CREATE " + d).toArray(String[]::new));
     }
 
     void runAutoIndex(String mode) {
         Configuration configuration = getBaseConfiguration().autoIndex(mode).build();
-        Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, configuration, session);
-        indexManager.build();
+        sessionFactory.runAutoIndexManager(configuration);
     }
 
     void executeForIndexes(Consumer<List<IndexDefinition>> consumer) {

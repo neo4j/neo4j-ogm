@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.neo4j.ogm.annotation.CompositeIndex;
+import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -41,62 +42,35 @@ import org.slf4j.LoggerFactory;
  *
  * @author Mark Angrish
  * @author Eric Spiegelberg
+ * @author Michael J. Simons
  */
 public class AutoIndexManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
 
-    private final List<AutoIndex> indexes;
-    private Neo4jSession session;
+    private final AutoIndexMode mode;
+    private final String dumpDir;
+    private final String dumpFilename;
 
-    private final Configuration configuration;
+    private final List<AutoIndex> indexes;
+
+    private final Neo4jSession session;
 
     public AutoIndexManager(MetaData metaData, Configuration configuration, Neo4jSession session) {
 
-        this.configuration = configuration;
-        this.indexes = initialiseIndexMetadata(metaData);
+        this.mode = configuration.getAutoIndex();
+        this.dumpDir = configuration.getDumpDir();
+        this.dumpFilename = configuration.getDumpFilename();
         this.session = session;
+
+        this.indexes = initialiseAutoIndex(metaData);
     }
 
-    private List<AutoIndex> initialiseIndexMetadata(MetaData metaData) {
-        LOGGER.debug("Building Index Metadata.");
-        List<AutoIndex> indexMetadata = new ArrayList<>();
-        for (ClassInfo classInfo : metaData.persistentEntities()) {
-
-            if (classInfo.containsIndexes()) {
-                for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
-                    IndexType type = fieldInfo.isConstraint() ? IndexType.UNIQUE_CONSTRAINT : IndexType.SINGLE_INDEX;
-                    final AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(),
-                        new String[] { fieldInfo.property() });
-                    LOGGER.debug("Adding Index [description={}]", autoIndex);
-                    indexMetadata.add(autoIndex);
-                }
-
-                for (CompositeIndex index : classInfo.getCompositeIndexes()) {
-                    IndexType type = index.unique() ? IndexType.NODE_KEY_CONSTRAINT : IndexType.COMPOSITE_INDEX;
-                    String[] properties = index.value().length > 0 ? index.value() : index.properties();
-                    AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(), properties);
-                    LOGGER.debug("Adding composite index [description={}]", autoIndex);
-                    indexMetadata.add(autoIndex);
-                }
-            }
-
-            if (classInfo.hasRequiredFields()) {
-                for (FieldInfo requiredField : classInfo.requiredFields()) {
-                    IndexType type = classInfo.isRelationshipEntity() ?
-                        IndexType.REL_PROP_EXISTENCE_CONSTRAINT : IndexType.NODE_PROP_EXISTENCE_CONSTRAINT;
-
-                    AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(),
-                        new String[] { requiredField.property() });
-
-                    LOGGER.debug("Adding required constraint [description={}]", autoIndex);
-                    indexMetadata.add(autoIndex);
-                }
-            }
-        }
-        return indexMetadata;
-    }
-
+    /**
+     * @deprecated since 3.1.2, will be removed in 3.1.3 as the list of automatic indixes is not meant to be mutated.
+     * @return The list of automatic indexes.
+     */
+    @Deprecated
     List<AutoIndex> getIndexes() {
         return indexes;
     }
@@ -105,7 +79,7 @@ public class AutoIndexManager {
      * Builds indexes according to the configured mode.
      */
     public void build() {
-        switch (configuration.getAutoIndex()) {
+        switch (this.mode) {
             case ASSERT:
                 assertIndexes();
                 break;
@@ -125,6 +99,7 @@ public class AutoIndexManager {
     }
 
     private void dumpIndexes() {
+
         final String newLine = System.lineSeparator();
 
         StringBuilder sb = new StringBuilder();
@@ -132,7 +107,7 @@ public class AutoIndexManager {
             sb.append(index.getCreateStatement().getStatement()).append(newLine);
         }
 
-        File file = new File(configuration.getDumpDir(), configuration.getDumpFilename());
+        File file = new File(this.dumpDir, this.dumpFilename);
         FileWriter writer = null;
 
         LOGGER.debug("Dumping Indexes to: [{}]", file.toString());
@@ -192,7 +167,7 @@ public class AutoIndexManager {
 
         // make sure drop and create happen in separate transactions
         // neo does not support that
-        session.doInTransaction( () -> {
+        session.doInTransaction(() -> {
             session.requestHandler().execute(dropIndexesRequest);
         }, READ_WRITE);
 
@@ -202,7 +177,7 @@ public class AutoIndexManager {
     private List<AutoIndex> loadIndexesFromDB() {
         DefaultRequest indexRequests = buildProcedures();
         List<AutoIndex> dbIndexes = new ArrayList<>();
-        session.doInTransaction( () -> {
+        session.doInTransaction(() -> {
             try (Response<RowModel> response = session.requestHandler().execute(indexRequests)) {
                 RowModel rowModel;
                 while ((rowModel = response.next()) != null) {
@@ -236,7 +211,6 @@ public class AutoIndexManager {
         }
         executeStatements(dropStatements);
 
-
         List<Statement> createStatements = new ArrayList<>();
         for (AutoIndex index : indexes) {
             if (!dbIndexes.contains(index)) {
@@ -250,7 +224,7 @@ public class AutoIndexManager {
         DefaultRequest request = new DefaultRequest();
         request.setStatements(statements);
 
-        session.doInTransaction( () -> {
+        session.doInTransaction(() -> {
             try (Response<RowModel> response = session.requestHandler().execute(request)) {
                 // Success
             }
@@ -280,11 +254,50 @@ public class AutoIndexManager {
         request.setStatements(statements);
         LOGGER.debug("Creating indexes and constraints.");
 
-        session.doInTransaction( () -> {
+        session.doInTransaction(() -> {
             try (Response<RowModel> response = session.requestHandler().execute(request)) {
                 // Success
             }
         }, READ_WRITE);
     }
 
+    private static List<AutoIndex> initialiseAutoIndex(MetaData metaData) {
+
+        LOGGER.debug("Building Index Metadata.");
+        List<AutoIndex> indexMetadata = new ArrayList<>();
+        for (ClassInfo classInfo : metaData.persistentEntities()) {
+
+            if (classInfo.containsIndexes()) {
+                for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
+                    IndexType type = fieldInfo.isConstraint() ? IndexType.UNIQUE_CONSTRAINT : IndexType.SINGLE_INDEX;
+                    final AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(),
+                        new String[] { fieldInfo.property() });
+                    LOGGER.debug("Adding Index [description={}]", autoIndex);
+                    indexMetadata.add(autoIndex);
+                }
+
+                for (CompositeIndex index : classInfo.getCompositeIndexes()) {
+                    IndexType type = index.unique() ? IndexType.NODE_KEY_CONSTRAINT : IndexType.COMPOSITE_INDEX;
+                    String[] properties = index.value().length > 0 ? index.value() : index.properties();
+                    AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(), properties);
+                    LOGGER.debug("Adding composite index [description={}]", autoIndex);
+                    indexMetadata.add(autoIndex);
+                }
+            }
+
+            if (classInfo.hasRequiredFields()) {
+                for (FieldInfo requiredField : classInfo.requiredFields()) {
+                    IndexType type = classInfo.isRelationshipEntity() ?
+                        IndexType.REL_PROP_EXISTENCE_CONSTRAINT : IndexType.NODE_PROP_EXISTENCE_CONSTRAINT;
+
+                    AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(),
+                        new String[] { requiredField.property() });
+
+                    LOGGER.debug("Adding required constraint [description={}]", autoIndex);
+                    indexMetadata.add(autoIndex);
+                }
+            }
+        }
+        return indexMetadata;
+    }
 }

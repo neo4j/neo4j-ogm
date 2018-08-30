@@ -82,10 +82,16 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
         session.save(a);
         session.clear();
 
+        // Asserts that classes without a label (abstract, without @NodeEntity) are not loaded.
+        // Those two return an empty, immutable list and log a warning.
         assertThat(session.loadAll(Entity.class)).isEmpty();
         assertThat(session.loadAll(AnotherEntity.class)).isEmpty();
+
+        // Asking for a node without label but with id can be ok. Nothing is found in these cases because
+        // we never wrote a node without a label (see name "shouldNotSaveEntityLabelAndMustRetrieveChildAChildren").
         a.getChildren().forEach(c -> assertThat(session.load(AnotherEntity.class, c.getUuid())).isNull());
 
+        // Concrete classes that have their simple class name as label must be loaded.
         Set<AnotherEntity> children = session.load(ChildA.class, a.getUuid()).getChildren();
         assertThat(children).contains(b1, b2, c1);
 

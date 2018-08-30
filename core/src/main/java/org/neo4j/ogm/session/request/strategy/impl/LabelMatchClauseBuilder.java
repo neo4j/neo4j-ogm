@@ -13,15 +13,21 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import java.util.Objects;
+
 import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class LabelMatchClauseBuilder implements MatchClauseBuilder {
 
     @Override
     public String build(String label) {
+        if(label == null || label.isEmpty()) {
+            throw new IllegalArgumentException("Label to match is required.");
+        }
         return "MATCH (n:`" + label + "`) WITH n";
     }
 

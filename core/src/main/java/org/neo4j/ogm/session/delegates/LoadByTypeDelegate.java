@@ -13,6 +13,7 @@
 package org.neo4j.ogm.session.delegates;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.GraphRowListModelMapper;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class LoadByTypeDelegate extends SessionDelegate {
 
@@ -48,12 +50,12 @@ public class LoadByTypeDelegate extends SessionDelegate {
     public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination,
         int depth) {
 
-        //session.ensureTransaction();
         String entityLabel = session.entityType(type.getName());
         if (entityLabel == null) {
             LOG.warn("Unable to find database label for entity " + type.getName()
                 + " : no results will be returned. Make sure the class is registered, "
                 + "and not abstract without @NodeEntity annotation");
+            return Collections.emptyList();
         }
         QueryStatements queryStatements = session.queryStatementsFor(type, depth);
 

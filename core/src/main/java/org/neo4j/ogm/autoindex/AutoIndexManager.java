@@ -312,7 +312,7 @@ public class AutoIndexManager {
      * @return True, if the the class in question contributes to an index.
      */
     private static boolean needsToBeIndexed(ClassInfo classInfo) {
-        return !classInfo.isAbstract() && containsIndexesInHierarchy(classInfo);
+        return (!classInfo.isAbstract() || classInfo.neo4jName() != null) && containsIndexesInHierarchy(classInfo);
     }
 
     /**
@@ -327,7 +327,7 @@ public class AutoIndexManager {
 
         boolean containsIndexes = false;
         ClassInfo currentClassInfo = classInfo;
-        while(!containsIndexes && currentClassInfo != null) {
+        while (!containsIndexes && currentClassInfo != null) {
             containsIndexes = currentClassInfo.containsIndexes();
             currentClassInfo = currentClassInfo.directSuperclass();
         }
@@ -335,18 +335,25 @@ public class AutoIndexManager {
     }
 
     /**
+     * Computes all fields that needs to be indexed. Includes all the fields of the classes in the hierarchy if the
+     * class in question is not to be indexed anyway.
+     *
      * @param classInfo {@link ClassInfo} representing the end point of a hierarchy for which indexes have to be
-     *                                   collected
+     *                  collected
      * @return All fields contributing to indexes in the hierarchy of the class described by <code>classInfo</code>
      */
     private static List<FieldInfo> getIndexFields(ClassInfo classInfo) {
 
         List<FieldInfo> indexFields = new ArrayList<>();
-        ClassInfo currentClassInfo = classInfo;
-        while(currentClassInfo != null) {
-            indexFields.addAll(currentClassInfo.getIndexFields());
+        ClassInfo currentClassInfo = classInfo.directSuperclass();
+        while (currentClassInfo != null) {
+            if (!needsToBeIndexed(currentClassInfo)) {
+                indexFields.addAll(currentClassInfo.getIndexFields());
+            }
             currentClassInfo = currentClassInfo.directSuperclass();
         }
+
+        indexFields.addAll(classInfo.getIndexFields());
         return indexFields;
     }
 }

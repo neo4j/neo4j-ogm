@@ -114,7 +114,7 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
             new IndexDescription("ChildA", "uuid"),
             new IndexDescription("ChildB", "uuid"),
             new IndexDescription("ChildC", "uuid"),
-            new IndexDescription("ConcreteChild", "uuid")
+            new IndexDescription("LabeledEntity", "uuid")
         };
 
         sessionFactory.runAutoIndexManager(getBaseConfiguration().autoIndex(AutoIndexMode.UPDATE.name()).build());

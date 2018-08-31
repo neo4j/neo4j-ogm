@@ -67,8 +67,8 @@ public class AutoIndexManager {
     }
 
     /**
-     * @deprecated since 3.1.2, will be removed in 3.1.3 as the list of automatic indixes is not meant to be mutated.
      * @return The list of automatic indexes.
+     * @deprecated since 3.1.2, will be removed in 3.1.3 as the list of automatic indixes is not meant to be mutated.
      */
     @Deprecated
     List<AutoIndex> getIndexes() {
@@ -267,10 +267,12 @@ public class AutoIndexManager {
         List<AutoIndex> indexMetadata = new ArrayList<>();
         for (ClassInfo classInfo : metaData.persistentEntities()) {
 
-            if (classInfo.containsIndexes()) {
-                for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
+            final String owningType = classInfo.neo4jName();
+
+            if (needsToBeIndexed(classInfo)) {
+                for (FieldInfo fieldInfo : getIndexFields(classInfo)) {
                     IndexType type = fieldInfo.isConstraint() ? IndexType.UNIQUE_CONSTRAINT : IndexType.SINGLE_INDEX;
-                    final AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(),
+                    final AutoIndex autoIndex = new AutoIndex(type, owningType,
                         new String[] { fieldInfo.property() });
                     LOGGER.debug("Adding Index [description={}]", autoIndex);
                     indexMetadata.add(autoIndex);
@@ -279,7 +281,7 @@ public class AutoIndexManager {
                 for (CompositeIndex index : classInfo.getCompositeIndexes()) {
                     IndexType type = index.unique() ? IndexType.NODE_KEY_CONSTRAINT : IndexType.COMPOSITE_INDEX;
                     String[] properties = index.value().length > 0 ? index.value() : index.properties();
-                    AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(), properties);
+                    AutoIndex autoIndex = new AutoIndex(type, owningType, properties);
                     LOGGER.debug("Adding composite index [description={}]", autoIndex);
                     indexMetadata.add(autoIndex);
                 }
@@ -290,7 +292,7 @@ public class AutoIndexManager {
                     IndexType type = classInfo.isRelationshipEntity() ?
                         IndexType.REL_PROP_EXISTENCE_CONSTRAINT : IndexType.NODE_PROP_EXISTENCE_CONSTRAINT;
 
-                    AutoIndex autoIndex = new AutoIndex(type, classInfo.neo4jName(),
+                    AutoIndex autoIndex = new AutoIndex(type, owningType,
                         new String[] { requiredField.property() });
 
                     LOGGER.debug("Adding required constraint [description={}]", autoIndex);
@@ -299,5 +301,52 @@ public class AutoIndexManager {
             }
         }
         return indexMetadata;
+    }
+
+    /**
+     * This methods checks whether a class described by <code>classInfo</code> needs be taken into consideration for
+     * indexes, either directly or in an inheritance hierarchy.<br>
+     * A class needs to be indexed when its not abstract and  itself or one of its superclasses contains indexes.
+     *
+     * @param classInfo {@link ClassInfo} describing the class possible contributing to an index.
+     * @return True, if the the class in question contributes to an index.
+     */
+    private static boolean needsToBeIndexed(ClassInfo classInfo) {
+        return !classInfo.isAbstract() && containsIndexesInHierarchy(classInfo);
+    }
+
+    /**
+     * Checks <code>classInfo</code> if there's any direct superclass that contains indexes. Stops at the end
+     * of the hierarchy or at the first occurrence of indexes.
+     *
+     * @param classInfo The {@link ClassInfo} providing the hierarchy to check, also checked for indexes itself. A null
+     *                  parameter ends recursion.
+     * @return True, if any direct superclass contains indexes.
+     */
+    private static boolean containsIndexesInHierarchy(ClassInfo classInfo) {
+
+        boolean containsIndexes = false;
+        ClassInfo currentClassInfo = classInfo;
+        while(!containsIndexes && currentClassInfo != null) {
+            containsIndexes = currentClassInfo.containsIndexes();
+            currentClassInfo = currentClassInfo.directSuperclass();
+        }
+        return containsIndexes;
+    }
+
+    /**
+     * @param classInfo {@link ClassInfo} representing the end point of a hierarchy for which indexes have to be
+     *                                   collected
+     * @return All fields contributing to indexes in the hierarchy of the class described by <code>classInfo</code>
+     */
+    private static List<FieldInfo> getIndexFields(ClassInfo classInfo) {
+
+        List<FieldInfo> indexFields = new ArrayList<>();
+        ClassInfo currentClassInfo = classInfo;
+        while(currentClassInfo != null) {
+            indexFields.addAll(currentClassInfo.getIndexFields());
+            currentClassInfo = currentClassInfo.directSuperclass();
+        }
+        return indexFields;
     }
 }

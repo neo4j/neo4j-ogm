@@ -15,11 +15,18 @@ package org.neo4j.ogm.persistence.model;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.schema.IndexDefinition;
+import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.domain.generic_hierarchy.AnotherEntity;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildA;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildB;
@@ -45,7 +52,7 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
     private Session session;
 
     @BeforeClass
-    public static void oneTimeSetUp() {
+    public static void setupSessionFactory() {
         sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.generic_hierarchy");
     }
 
@@ -97,5 +104,72 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
 
         //        FIXME - #414 - @PostLoad is not called in child overrided method (see ChildB)
         //        children.stream().filter(c -> c instanceof ChildB).forEach(b -> assertThat(((ChildB) b).getValue()).isNotNull());
+    }
+
+    @Test
+    public void indexesShouldBeCreatedForLoadableClassesInHierarchy() {
+        final IndexDescription[] expectedIndexes = new IndexDescription[] {
+            new IndexDescription("User", "id"),
+            new IndexDescription("Admin", "id"),
+            new IndexDescription("ChildA", "uuid"),
+            new IndexDescription("ChildB", "uuid"),
+            new IndexDescription("ChildC", "uuid"),
+            new IndexDescription("ConcreteChild", "uuid")
+        };
+
+        sessionFactory.runAutoIndexManager(getBaseConfiguration().autoIndex(AutoIndexMode.UPDATE.name()).build());
+        GraphDatabaseService service = getGraphDatabaseService();
+
+        try (Transaction tx = service.beginTx()) {
+            IndexDescription[] indexes = StreamSupport.stream(service.schema().getIndexes().spliterator(), false)
+                .map(IndexDescription::new).toArray(IndexDescription[]::new);
+
+            assertThat(indexes).containsExactlyInAnyOrder(expectedIndexes);
+
+            tx.success();
+        }
+    }
+
+    static class IndexDescription {
+        final String label;
+
+        final String[] propertyKeys;
+
+        public IndexDescription(String label, String... propertyKeys) {
+            this.label = label;
+            this.propertyKeys = propertyKeys;
+        }
+
+        public IndexDescription(IndexDefinition indexDefinition) {
+            this.label = indexDefinition.getLabel().name();
+            this.propertyKeys = StreamSupport.stream(indexDefinition.getPropertyKeys().spliterator(), false)
+                .toArray(String[]::new);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (!(o instanceof IndexDescription))
+                return false;
+            IndexDescription that = (IndexDescription) o;
+            return Objects.equals(label, that.label) &&
+                Arrays.equals(propertyKeys, that.propertyKeys);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(label);
+            result = 31 * result + Arrays.hashCode(propertyKeys);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "IndexDescription{" +
+                "label='" + label + '\'' +
+                ", propertyKeys=" + Arrays.toString(propertyKeys) +
+                '}';
+        }
     }
 }

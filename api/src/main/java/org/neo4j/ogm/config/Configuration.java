@@ -380,7 +380,7 @@ public class Configuration {
          * Required encryption level for the connection to the database.
          * See org.neo4j.driver.v1.Config.EncryptionLevel for possible values.
          *
-         * @param encryptionLevel required enryption level
+         * @param encryptionLevel required encryption level
          */
         public Builder encryptionLevel(String encryptionLevel) {
             this.encryptionLevel = encryptionLevel;

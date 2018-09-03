@@ -21,7 +21,7 @@ import java.time.OffsetDateTime;
  *
  * @author Frantisek Hartman
  */
-public class OffsettDateTimeStringConverter implements AttributeConverter<OffsetDateTime, String> {
+public class OffsetDateTimeStringConverter implements AttributeConverter<OffsetDateTime, String> {
 
     @Override
     public String toGraphProperty(OffsetDateTime value) {

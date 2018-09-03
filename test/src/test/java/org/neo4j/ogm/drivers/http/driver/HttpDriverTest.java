@@ -36,7 +36,7 @@ public class HttpDriverTest {
             .setConnectionManager(connectionManager)
             .build();
 
-        //        TODO does this stille have any value?
+        //        TODO does this still have any value?
         //        DriverManager.register(new HttpDriver(httpClient));
 
         //        assertThat(DriverManager.getDriver()).isNotNull();

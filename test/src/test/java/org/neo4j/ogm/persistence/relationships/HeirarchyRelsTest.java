@@ -39,7 +39,7 @@ import org.neo4j.ogm.transaction.Transaction;
 /**
  * @author Luanne Misquitta
  */
-public class HeirarchyRelsTest extends MultiDriverTestClass {
+public class HierarchyRelsTest extends MultiDriverTestClass {
 
     private Session session;
 

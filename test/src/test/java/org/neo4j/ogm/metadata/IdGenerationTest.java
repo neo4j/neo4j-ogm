@@ -112,14 +112,14 @@ public class IdGenerationTest extends MultiDriverTestClass {
         ValidAnnotations.WithCustomIdStrategy entity = new ValidAnnotations.WithCustomIdStrategy();
         session.save(entity);
 
-        assertThat(entity.idetifier).isEqualTo("test-custom-id");
+        assertThat(entity.identifier).isEqualTo("test-custom-id");
 
         session.clear();
 
         ValidAnnotations.WithCustomIdStrategy loaded = session
-            .load(ValidAnnotations.WithCustomIdStrategy.class, entity.idetifier);
+            .load(ValidAnnotations.WithCustomIdStrategy.class, entity.identifier);
         assertThat(loaded).isNotNull();
-        assertThat(loaded.idetifier).isEqualTo("test-custom-id");
+        assertThat(loaded.identifier).isEqualTo("test-custom-id");
     }
 
     @Test
@@ -130,17 +130,17 @@ public class IdGenerationTest extends MultiDriverTestClass {
         ValidAnnotations.WithCustomInstanceIdStrategy entity = new ValidAnnotations.WithCustomInstanceIdStrategy();
         session.save(entity);
 
-        assertThat(entity.idetifier).isEqualTo("test-custom-instance-id");
+        assertThat(entity.identifier).isEqualTo("test-custom-instance-id");
 
         session.clear();
         ValidAnnotations.WithCustomInstanceIdStrategy loaded = session
             .load(ValidAnnotations.WithCustomInstanceIdStrategy.class, "test-custom-instance-id");
         assertThat(loaded).isNotNull();
-        assertThat(loaded.idetifier).isEqualTo("test-custom-instance-id");
+        assertThat(loaded.identifier).isEqualTo("test-custom-instance-id");
     }
 
     @Test(expected = MappingException.class)
-    public void saveWithCustomInstaceIdStrategyWhenStrategyNotRegistered() throws Exception {
+    public void saveWithCustomInstanceIdStrategyWhenStrategyNotRegistered() throws Exception {
         // create new session factory without registered instance of the strategy
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids");
         session = sessionFactory.openSession();

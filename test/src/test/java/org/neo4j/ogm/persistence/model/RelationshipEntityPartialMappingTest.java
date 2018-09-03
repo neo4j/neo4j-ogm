@@ -53,7 +53,7 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
         Actor keanu = new Actor("Keanu Reeves");
         Movie matrix = new Movie("The Matrix");
 
-        // note: this does not establish a role relationsip on the matrix
+        // note: this does not establish a role relationship on the matrix
         keanu.addRole("Neo", matrix);
 
         session.save(keanu);

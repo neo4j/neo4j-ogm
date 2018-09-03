@@ -608,7 +608,7 @@ public interface Session {
      * default level or a scalar (depending on the parametrized type).
      *
      * @param objectType The type that should be returned from the query.
-     * @param cypher     The parametrizable cypher to execute.
+     * @param cypher     The parameterizable cypher to execute.
      * @param parameters Any scalar parameters to attach to the cypher.
      * @param <T>        A domain object or scalar.
      * @return An instance of the objectType that matches the cypher and parameters. Null if no object
@@ -622,7 +622,7 @@ public interface Session {
      * the default level or a collection of scalars (depending on the parametrized type).
      *
      * @param objectType The type that should be returned from the query.
-     * @param cypher     The parametrizable cypher to execute.
+     * @param cypher     The parameterizable cypher to execute.
      * @param parameters Any parameters to attach to the cypher.
      * @param <T>        A domain object or scalar.
      * @return A collection of domain objects or scalars as prescribed by the parametrized type.
@@ -635,7 +635,7 @@ public interface Session {
      * Each element of the query result is a map which you can access by the name of the returned field
      * TODO: Are we going to use the neo4jOperations conversion method to cast the value object to its proper class?
      *
-     * @param cypher     The parametrisable cypher to execute.
+     * @param cypher     The parameterisable cypher to execute.
      * @param parameters Any parameters to attach to the cypher.
      * @return A {@link Result} containing an {@link Iterable} map representing query results and {@link QueryStatistics} if applicable.
      */
@@ -647,7 +647,7 @@ public interface Session {
      * Each element of the query result is a map which you can access by the name of the returned field
      * TODO: Are we going to use the neo4jOperations conversion method to cast the value object to its proper class?
      *
-     * @param cypher     The parametrisable cypher to execute.
+     * @param cypher     The parameterisable cypher to execute.
      * @param parameters Any parameters to attach to the cypher.
      * @param readOnly   true if the query is readOnly, false otherwise
      * @return A {@link Result} of {@link Iterable}s with each entry representing a neo4j object's properties.
@@ -707,7 +707,7 @@ public interface Session {
      * Remove an event listener from this session.
      *
      * @param eventListener The listener to deregister
-     * @return <code>true</code> if successfully regisistered.
+     * @return <code>true</code> if successfully registered.
      */
     boolean dispose(EventListener eventListener);
 

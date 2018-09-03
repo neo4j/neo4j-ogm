@@ -214,7 +214,7 @@ public class ClassInfo {
      * </p>
      * <p>
      * Note that this method returns only the static labels. A node entity instance may declare additional labels
-     * manged at runtime by using the @Labels annotation on a collection field, therefore the full set of labels to be
+     * managed at runtime by using the @Labels annotation on a collection field, therefore the full set of labels to be
      * mapped to a node will be the static labels, in addition to any labels declared by the backing field of an
      * {@link Labels} annotation.
      * </p>

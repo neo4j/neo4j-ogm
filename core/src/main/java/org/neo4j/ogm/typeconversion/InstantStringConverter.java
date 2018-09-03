@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Converter to convert {@link Instant} to {@link String}.
- * Stores values in db as milliseconds from the epoch of 1970-01-01T00:00:00Z, UTC beeing used to preserve from
+ * Stores values in db as milliseconds from the epoch of 1970-01-01T00:00:00Z, UTC being used to preserve from
  * timezones problems.
  *
  * @author Nicolas Mervaillie

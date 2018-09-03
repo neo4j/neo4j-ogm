@@ -28,6 +28,9 @@ import org.junit.Test;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.domain.education.DomainObject;
+import org.neo4j.ogm.domain.education.School;
+import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.Recording;
@@ -738,5 +741,19 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         artists = session.loadAll(Arrays.asList(led, bonJovi, beatles));
         assertThat(artists).containsExactly(led, bonJovi, beatles);
+    }
+
+    @Test
+    public void loadAllByInstancesShouldLoadAllClasses() {
+        SessionFactory sf = new SessionFactory(driver, "org.neo4j.ogm.domain.education");
+        Session session = sf.openSession();
+
+        School school = new School();
+        Student student = new Student();
+        session.save(school);
+        session.save(student);
+
+        Collection<DomainObject> loaded = session.loadAll(Arrays.asList(school, student));
+        assertThat(loaded).contains(school, student);
     }
 }

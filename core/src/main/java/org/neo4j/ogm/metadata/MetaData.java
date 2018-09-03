@@ -87,9 +87,19 @@ public class MetaData {
     }
 
     /**
+     * Finds the ClassInfo for the supplied Class throgh the class' name.
+     *
+     * @param clazz the class whose classInfo we want to find
+     * @return A ClassInfo matching the supplied object's class, or null if it doesn't exist
+     */
+    public ClassInfo classInfo(Class<?> clazz) {
+        return classInfo(clazz.getName());
+    }
+
+    /**
      * Finds the ClassInfo for the supplied object by looking up its class name
      *
-     * @param object the class name whose classInfo we want to find
+     * @param object the object whose classInfo we want to find
      * @return A ClassInfo matching the supplied object's class, or null if it doesn't exist
      */
     public ClassInfo classInfo(Object object) {

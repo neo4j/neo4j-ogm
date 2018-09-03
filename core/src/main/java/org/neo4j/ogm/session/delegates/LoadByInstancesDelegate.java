@@ -12,6 +12,8 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import static java.util.stream.Collectors.*;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -19,8 +21,10 @@ import java.util.Set;
 
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.Neo4jSession;
 
 /**
@@ -38,19 +42,19 @@ public class LoadByInstancesDelegate extends SessionDelegate {
             return objects;
         }
 
+        ClassInfo commonClassInfo = findCommonClassInfo(objects);
+
         Set<Serializable> ids = new LinkedHashSet<>();
-        Class type = objects.iterator().next().getClass();
-        ClassInfo classInfo = session.metaData().classInfo(type.getName());
         for (Object o : objects) {
             FieldInfo idField;
-            if (classInfo.hasPrimaryIndexField()) {
-                idField = classInfo.primaryIndexField();
+            if (commonClassInfo.hasPrimaryIndexField()) {
+                idField = commonClassInfo.primaryIndexField();
             } else {
-                idField = classInfo.identityField();
+                idField = commonClassInfo.identityField();
             }
             ids.add((Serializable) idField.readProperty(o));
         }
-        return session.loadAll(type, ids, sortOrder, pagination, depth);
+        return session.loadAll((Class<T>) commonClassInfo.getUnderlyingClass(), ids, sortOrder, pagination, depth);
     }
 
     public <T> Collection<T> loadAll(Collection<T> objects) {
@@ -79,5 +83,39 @@ public class LoadByInstancesDelegate extends SessionDelegate {
 
     public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, Pagination pagination) {
         return loadAll(objects, sortOrder, pagination, 1);
+    }
+
+    /**
+     * @param objects
+     * @param <T>
+     * @return A class info that is part of the hierarchy of the distinct object types contained in {@code objects}.
+     */
+    private <T> ClassInfo findCommonClassInfo(Collection<T> objects) {
+        MetaData metaData = session.metaData();
+        Set<ClassInfo> infos = objects.stream()
+            .map(Object::getClass) //
+            .distinct() //
+            .map(metaData::classInfo) //
+            .map(LoadByInstancesDelegate::getRootClassInfo) //
+            .collect(toSet());
+
+        if (infos.size() != 1) {
+            throw new MappingException("Can't find single supertype for " + infos);
+        }
+
+        return infos.iterator().next();
+    }
+
+    /**
+     * @param classInfo
+     * @return The topmost element of a mapped class hierarchy.
+     */
+    private static ClassInfo getRootClassInfo(ClassInfo classInfo) {
+
+        ClassInfo current = classInfo;
+        while (current.directSuperclass() != null) {
+            current = current.directSuperclass();
+        }
+        return current;
     }
 }

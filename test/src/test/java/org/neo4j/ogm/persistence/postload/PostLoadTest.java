@@ -16,12 +16,19 @@ package org.neo4j.ogm.persistence.postload;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collections;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.domain.generic_hierarchy.AnotherEntity;
+import org.neo4j.ogm.domain.generic_hierarchy.ChildA;
+import org.neo4j.ogm.domain.generic_hierarchy.ChildB;
+import org.neo4j.ogm.domain.generic_hierarchy.ChildC;
 import org.neo4j.ogm.domain.postload.User;
 import org.neo4j.ogm.domain.postload.UserWithBetterPostLoadMethod;
+import org.neo4j.ogm.domain.postload.UserWithBrokenMethodDeclaration;
+import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -30,6 +37,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * Test for {@link org.neo4j.ogm.annotation.PostLoad} annotation behaviour
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class PostLoadTest extends MultiDriverTestClass {
 
@@ -39,7 +47,8 @@ public class PostLoadTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.postload");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.postload",
+            "org.neo4j.ogm.domain.generic_hierarchy");
     }
 
     @Before
@@ -102,5 +111,32 @@ public class PostLoadTest extends MultiDriverTestClass {
         UserWithBetterPostLoadMethod loaded = session.load(UserWithBetterPostLoadMethod.class, user.getId());
         assertThat(loaded).isNotNull();
         assertThat(loaded.getRandomName()).isNotEqualTo(user.getRandomName());
+    }
+
+    @Test // #516
+    public void shouldPreventAmbiguousPostLoadScenario() {
+
+        UserWithBrokenMethodDeclaration user = new UserWithBrokenMethodDeclaration();
+        session.save(user);
+
+        assertThatExceptionOfType(MetadataException.class)
+            .isThrownBy(() -> session.loadAll(UserWithBrokenMethodDeclaration.class))
+            .withMessage("Cannot have more than one post load method annotated with @PostLoad for class '%s'",
+                UserWithBrokenMethodDeclaration.class.getName());
+    }
+
+    @Test // #414
+    public void shouldRecognizeOverwrittenPostLoadFromSuperClass() {
+        ChildA parent = new ChildA();
+        parent.add(new ChildB());
+        parent.add(new ChildB());
+        parent.add(new ChildC());
+        session.save(parent);
+        session.clear();
+
+        Set<AnotherEntity> children = session.load(ChildA.class, parent.getUuid()).getChildren();
+        assertThat(children).isNotEmpty()
+            .filteredOn(ChildB.class::isInstance)
+            .allSatisfy(child -> assertThat(((ChildB) child).getValue()).isNotNull());
     }
 }

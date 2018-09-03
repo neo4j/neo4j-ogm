@@ -458,7 +458,7 @@ public class ClassInfoTest {
     public void shouldExcludeStaticInitialisersFromPersistenceMethods() {
 
         ClassInfo classInfo = metaData.classInfo("SecurityRole");
-        Collection<MethodInfo> methodInfos = classInfo.methodsInfo().methods();
+        Collection<MethodInfo> methodInfos = classInfo.methodsInfo().findMethodInfoBy(m -> true);
 
         for (MethodInfo methodInfo : methodInfos) {
             assertThat(methodInfo.getName().equals("<clinit>")).isFalse();

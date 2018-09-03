@@ -13,53 +13,75 @@
 
 package org.neo4j.ogm.metadata;
 
-import java.lang.annotation.Annotation;
+import static java.util.stream.Collectors.*;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class MethodsInfo {
 
-    private final Map<String, MethodInfo> methods;
+    private final Set<MethodInfo> methods;
 
     MethodsInfo() {
-        this.methods = new HashMap<>();
+        this.methods = new HashSet<>();
     }
 
     public MethodsInfo(Class<?> cls) {
-        this.methods = new HashMap<>();
+        this.methods = new HashSet<>();
 
-        for (Method method : cls.getDeclaredMethods()) {
-            final int modifiers = method.getModifiers();
-            if (!Modifier.isTransient(modifiers) && !Modifier.isStatic(modifiers)) {
-                ObjectAnnotations objectAnnotations = new ObjectAnnotations();
-                final Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
-                for (Annotation annotation : declaredAnnotations) {
-                    AnnotationInfo info = new AnnotationInfo(annotation);
-                    objectAnnotations.put(info.getName(), info);
-                }
-                methods.put(method.getName(), new MethodInfo(method, objectAnnotations));
-            }
-        }
+        Class<?> currentClass = cls;
+        do {
+            Set<MethodInfo> methodInfoOfCurrentClass = Arrays.stream(currentClass.getDeclaredMethods()) //
+                .filter(MethodsInfo::includeMethod) //
+                .map(MethodInfo::of) //
+                .collect(toSet());
+
+            // Prioritize annotated methods from concrete classes respectively classes lower in the hierarchy.
+            methods.addAll(methodInfoOfCurrentClass);
+        } while ((currentClass = currentClass.getSuperclass()) != null);
     }
 
+    /**
+     * @param methods
+     * @deprecated since 3.1.3, will be removed in 3.1.4 to reduce the public OGM surface
+     */
+    @Deprecated
     public MethodsInfo(Map<String, MethodInfo> methods) {
-        this.methods = new HashMap<>(methods);
+        this.methods = new HashSet<>(methods.values());
     }
 
+    /**
+     * @deprecated since 3.1.3, will be removed in 3.1.4. Use {@link #findMethodInfoBy(Predicate)} if you need access to
+     * this internal API.
+     */
+    @Deprecated
     public Collection<MethodInfo> methods() {
-        return methods.values();
+        return Collections.unmodifiableCollection(methods);
+    }
+
+    Collection<MethodInfo> findMethodInfoBy(Predicate<MethodInfo> predicate) {
+        return this.methods.stream().filter(predicate).collect(toList());
     }
 
     public void append(MethodsInfo methodsInfo) {
-        for (MethodInfo methodInfo : methodsInfo.methods()) {
-            methods.putIfAbsent(methodInfo.getName(), methodInfo);
-        }
+        this.methods.addAll(methodsInfo.methods);
+    }
+
+    private static boolean includeMethod(Method method) {
+
+        final int modifiers = method.getModifiers();
+        return !(Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers));
     }
 }

@@ -14,10 +14,12 @@
 package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class MethodInfo {
 
@@ -26,12 +28,22 @@ public class MethodInfo {
     private final Method method;
 
     /**
+     * Creates an info object for the given method and its declared annotation.
+     *
+     * @param method
+     * @return A new method info object.
+     */
+    static MethodInfo of(Method method) {
+        ObjectAnnotations objectAnnotations = ObjectAnnotations.of(method.getDeclaredAnnotations());
+        return new MethodInfo(method, objectAnnotations);
+    }
+
+    /**
      * Constructs a new {@link MethodInfo} based on the given arguments.
      *
-     * @param method      The method.
-     * @param annotations The {@link ObjectAnnotations} applied to the field
+     * @param method The method.
      */
-    MethodInfo(Method method, ObjectAnnotations annotations) {
+    private MethodInfo(Method method, ObjectAnnotations annotations) {
         this.method = method;
         this.name = method.getName();
         this.annotations = annotations;
@@ -41,8 +53,8 @@ public class MethodInfo {
         return name;
     }
 
-    boolean hasAnnotation(String annotationName) {
-        return annotations.get(annotationName) != null;
+    boolean hasAnnotation(Class<?> annotationClass) {
+        return annotations.has(annotationClass);
     }
 
     /**
@@ -53,5 +65,20 @@ public class MethodInfo {
      */
     public Method getMethod() {
         return method;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof MethodInfo))
+            return false;
+        MethodInfo that = (MethodInfo) o;
+        return Objects.equals(method, that.method);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(method);
     }
 }

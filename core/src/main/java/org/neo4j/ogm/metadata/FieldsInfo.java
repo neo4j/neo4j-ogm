@@ -47,13 +47,8 @@ public class FieldsInfo {
         for (Field field : cls.getDeclaredFields()) {
             final int modifiers = field.getModifiers();
             if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
-                ObjectAnnotations objectAnnotations = new ObjectAnnotations();
-                final Annotation[] declaredAnnotations = field.getDeclaredAnnotations();
-                for (Annotation annotation : declaredAnnotations) {
-                    AnnotationInfo info = new AnnotationInfo(annotation);
-                    objectAnnotations.put(info.getName(), info);
-                }
-                if (objectAnnotations.get(Transient.class) == null) {
+                ObjectAnnotations objectAnnotations = ObjectAnnotations.of(field.getDeclaredAnnotations());
+                if (!objectAnnotations.has(Transient.class)) {
                     String typeParameterDescriptor = null;
                     final Type genericType = field.getGenericType();
                     if (genericType instanceof ParameterizedType) {

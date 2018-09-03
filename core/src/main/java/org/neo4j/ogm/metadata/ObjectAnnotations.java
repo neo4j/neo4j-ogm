@@ -13,9 +13,14 @@
 
 package org.neo4j.ogm.metadata;
 
+import static java.util.stream.Collectors.*;
+
+import java.lang.annotation.Annotation;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
@@ -31,11 +36,38 @@ import org.neo4j.ogm.typeconversion.NumberStringConverter;
 /**
  * @author Vince Bickers
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 public class ObjectAnnotations {
 
-    private final Map<String, AnnotationInfo> annotations = new HashMap<>();
+    private final Map<String, AnnotationInfo> annotations;
 
+    static ObjectAnnotations of(Annotation... annotations) {
+
+        Map<String, AnnotationInfo> annotationInfo = Arrays.stream(annotations) //
+            .map(AnnotationInfo::new) //
+            .collect(toMap(AnnotationInfo::getName, Function.identity()));
+        return new ObjectAnnotations(annotationInfo);
+    }
+
+    private ObjectAnnotations(Map<String, AnnotationInfo> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * @deprecated since 3.1.3, will be removed in 3.1.4 to reduce the public OGM surface
+     */
+    @Deprecated
+    public ObjectAnnotations() {
+        this(new HashMap<>());
+    }
+
+    /**
+     * @param key
+     * @param value
+     * @deprecated since 3.1.3, will be removed in 3.1.4 to reduce the public OGM surface
+     */
+    @Deprecated
     public void put(String key, AnnotationInfo value) {
         annotations.put(key, value);
     }

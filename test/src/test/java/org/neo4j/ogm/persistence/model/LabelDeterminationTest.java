@@ -101,15 +101,12 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
         // Concrete classes that have their simple class name as label must be loaded.
         Set<AnotherEntity> children = session.load(ChildA.class, a.getUuid()).getChildren();
         assertThat(children).contains(b1, b2, c1);
-
-        //        FIXME - #414 - @PostLoad is not called in child overrided method (see ChildB)
-        //        children.stream().filter(c -> c instanceof ChildB).forEach(b -> assertThat(((ChildB) b).getValue()).isNotNull());
     }
 
     @Test
     public void indexesShouldBeCreatedForLoadableClassesInHierarchy() {
         final IndexDescription[] expectedIndexes = new IndexDescription[] {
-            new IndexDescription("User", "id"),
+            new IndexDescription("DefaultUser", "id"),
             new IndexDescription("Admin", "id"),
             new IndexDescription("ChildA", "uuid"),
             new IndexDescription("ChildB", "uuid"),

@@ -10,10 +10,27 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.domain.generic_hierarchy;
+
+package org.neo4j.ogm.domain.postload;
+
+import org.neo4j.ogm.annotation.PostLoad;
 
 /**
  * @author Michael J. Simons
  */
-public class Admin extends DefaultUser {
+public class UserWithBrokenMethodDeclaration {
+
+    private Long id;
+
+    public Long getId() {
+        return id;
+    }
+
+    @PostLoad
+    public void postLoad1() {
+    }
+
+    @PostLoad
+    public void postLoad2() {
+    }
 }

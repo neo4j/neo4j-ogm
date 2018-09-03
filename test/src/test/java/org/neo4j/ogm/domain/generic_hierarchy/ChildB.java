@@ -30,7 +30,6 @@ public class ChildB extends AnotherEntity {
 
     @Override
     public void postLoad() {
-        // FIXME - #414 - @PostLoad is not called in child overrided method (this method does not execute)
         value = uuid.hashCode();
     }
 

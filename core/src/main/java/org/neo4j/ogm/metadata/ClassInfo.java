@@ -33,6 +33,7 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.core.InvalidPropertyFieldException;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.exception.core.MetadataException;
+import org.neo4j.ogm.exception.core.OgmException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.id.UuidStrategy;
@@ -159,8 +160,6 @@ public class ClassInfo {
             this.isEnum = classInfoDetails.isEnum;
             this.directSuperclassName = classInfoDetails.directSuperclassName;
             this.cls = classInfoDetails.cls;
-
-            //this.interfaces.addAll(classInfoDetails.interfaces());
 
             this.interfacesInfo.append(classInfoDetails.interfacesInfo());
 
@@ -991,21 +990,23 @@ public class ClassInfo {
         }
     }
 
-    public MethodInfo postLoadMethodOrNull() {
-        if (isPostLoadMethodMapped) {
-            return postLoadMethod;
+    public synchronized MethodInfo postLoadMethodOrNull() {
+        initPostLoadMethod();
+        return postLoadMethod;
+    }
+
+    private synchronized void initPostLoadMethod() {
+        if(isPostLoadMethodMapped) {
+            return;
         }
-        if (!isPostLoadMethodMapped) {
-            for (MethodInfo methodInfo : methodsInfo().methods()) {
-                if (methodInfo.hasAnnotation(PostLoad.class.getName())) {
-                    isPostLoadMethodMapped = true;
-                    postLoadMethod = methodInfo;
-                    return postLoadMethod;
-                }
-            }
-            isPostLoadMethodMapped = true;
+
+        Collection<MethodInfo> possiblePostLoadMethods = methodsInfo.findMethodInfoBy(methodInfo -> methodInfo.hasAnnotation(PostLoad.class));
+        if(possiblePostLoadMethods.size() > 1) {
+            throw new MetadataException(String.format("Cannot have more than one post load method annotated with @PostLoad for class '%s'", this.className));
         }
-        return null;
+
+        postLoadMethod = possiblePostLoadMethods.stream().findFirst().orElse(null);
+        isPostLoadMethodMapped = true;
     }
 
     public FieldInfo getFieldInfo(String propertyName) {

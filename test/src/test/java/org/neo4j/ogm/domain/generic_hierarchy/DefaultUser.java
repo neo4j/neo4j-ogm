@@ -15,5 +15,5 @@ package org.neo4j.ogm.domain.generic_hierarchy;
 /**
  * @author Michael J. Simons
  */
-public class Admin extends DefaultUser {
+public class DefaultUser extends AbstractBaseUser {
 }

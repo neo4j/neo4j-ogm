@@ -10,10 +10,33 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.domain.generic_hierarchy;
+package org.neo4j.ogm.domain.postload;
+
+import java.util.UUID;
+
+import org.neo4j.ogm.annotation.PostLoad;
 
 /**
  * @author Michael J. Simons
  */
-public class User extends AbstractBaseUser {
+public class UserWithBetterPostLoadMethod {
+    private Long id;
+
+    private transient String randomName;
+
+    public UserWithBetterPostLoadMethod() {
+        this.randomName = "n/a";
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getRandomName() {
+        return randomName;
+    }
+
+    @PostLoad final void postLoad() {
+        this.randomName = UUID.randomUUID().toString();
+    }
 }

@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.postload.User;
+import org.neo4j.ogm.domain.postload.UserWithBetterPostLoadMethod;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -89,5 +90,17 @@ public class PostLoadTest extends MultiDriverTestClass {
         session.query("MATCH (u:User)-[rel]-(friend:User) RETURN u,rel,friend", Collections.emptyMap());
 
         assertThat(User.getPostLoadCount()).isEqualTo(3);
+    }
+
+    @Test // #516
+    public void shouldCallNonPublicFinalPostLoad() throws Exception {
+        UserWithBetterPostLoadMethod user = new UserWithBetterPostLoadMethod();
+        session.save(user);
+
+        session.clear();
+
+        UserWithBetterPostLoadMethod loaded = session.load(UserWithBetterPostLoadMethod.class, user.getId());
+        assertThat(loaded).isNotNull();
+        assertThat(loaded.getRandomName()).isNotEqualTo(user.getRandomName());
     }
 }

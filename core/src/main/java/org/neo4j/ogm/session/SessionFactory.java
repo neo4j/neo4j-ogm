@@ -14,6 +14,7 @@
 package org.neo4j.ogm.session;
 
 import static java.util.Objects.*;
+import static org.neo4j.ogm.config.AutoIndexMode.*;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -36,6 +37,7 @@ import org.neo4j.ogm.session.event.EventListener;
  * @author Luanne Misquitta
  * @author Mark Angrish
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class SessionFactory {
 
@@ -71,34 +73,23 @@ public class SessionFactory {
      * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
      * and you can also specify fully-qualified class names if you want to cherry pick particular classes.
      * </p>
-     * Indexes will also be checked or built if configured.
+     * Indexes will also be checked or built unless auto index mode is set to <code>NONE</code>.
      *
      * @param configuration The baseConfiguration to use
      * @param packages      The packages to scan for domain objects
      */
     public SessionFactory(Configuration configuration, String... packages) {
-        this.metaData = new MetaData(packages);
-        this.driver = newDriverInstance(configuration.getDriverClassName());
-        this.driver.configure(configuration);
-        this.eventListeners = new CopyOnWriteArrayList<>();
-        Neo4jSession session = (Neo4jSession) openSession();
-        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, configuration, session);
-        autoIndexManager.build();
-        this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
-    }
+        this(newConfiguredDriverInstance(configuration), packages);
 
-    private Driver newDriverInstance(String driverClassName) {
-        try {
-            final Class<?> driverClass = Class.forName(driverClassName);
-            return (Driver) driverClass.newInstance();
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            throw new ConfigurationException("Could not load driver class " + driverClassName, e);
+        if (configuration.getAutoIndex() != NONE) {
+            runAutoIndexManager(configuration);
         }
     }
 
     /**
      * Create a session factory with given driver
      * Use this constructor when you need to provide fully customized driver.
+     * Indexes will not be automatically created.
      *
      * @param driver   driver to be used with this SessionFactory
      * @param packages The packages to scan for domain objects
@@ -108,6 +99,20 @@ public class SessionFactory {
         this.driver = driver;
         this.eventListeners = new CopyOnWriteArrayList<>();
         this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
+    }
+
+    /**
+     * Opens a session and runs the auto-index manager with the given configuration and the metadata configured in this
+     * factory. This method can be run multiple times.
+     *
+     * @param configuration only used to configure aspects of the auto-index manager, not for the session factory at this point.
+     */
+    public final void runAutoIndexManager(Configuration configuration) {
+
+        Neo4jSession neo4jSession = (Neo4jSession) openSession();
+
+        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, configuration, neo4jSession);
+        autoIndexManager.build();
     }
 
     /**
@@ -207,4 +212,18 @@ public class SessionFactory {
             }
         }
     }
+
+    private static Driver newConfiguredDriverInstance(Configuration configuration) {
+
+        String driverClassName = configuration.getDriverClassName();
+        try {
+            final Class<?> driverClass = Class.forName(driverClassName);
+            final Driver driver = (Driver) driverClass.newInstance();
+            driver.configure(configuration);
+            return driver;
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            throw new ConfigurationException("Could not load driver class " + driverClassName, e);
+        }
+    }
+
 }

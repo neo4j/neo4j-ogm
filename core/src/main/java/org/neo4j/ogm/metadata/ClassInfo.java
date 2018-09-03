@@ -821,12 +821,12 @@ public class ClassInfo {
      */
     public Collection<FieldInfo> getIndexFields() {
         if (indexFields == null) {
-            indexFields = addIndexes();
+            indexFields = initIndexFields();
         }
         return indexFields.values();
     }
 
-    private Map<String, FieldInfo> addIndexes() {
+    private synchronized Map<String, FieldInfo> initIndexFields() {
         Map<String, FieldInfo> indexes = new HashMap<>();
 
         // No way to get declared fields from current byte code impl. Using reflection instead.
@@ -864,12 +864,12 @@ public class ClassInfo {
 
     public Collection<CompositeIndex> getCompositeIndexes() {
         if (compositeIndexes == null) {
-            compositeIndexes = compositeIndexes();
+            compositeIndexes = initCompositeIndexFields();
         }
         return compositeIndexes;
     }
 
-    private Collection<CompositeIndex> compositeIndexes() {
+    private synchronized Collection<CompositeIndex> initCompositeIndexFields() {
         // init property fields to be able to check existence of properties
         propertyFields();
 

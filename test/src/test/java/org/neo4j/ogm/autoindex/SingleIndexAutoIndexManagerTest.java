@@ -21,6 +21,7 @@ import org.neo4j.ogm.domain.autoindex.SingleIndexEntity;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class SingleIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
@@ -28,7 +29,7 @@ public class SingleIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestCla
     private static final String CONSTRAINT = "CONSTRAINT ON (entity:Entity) ASSERT entity.login IS UNIQUE";
 
     public SingleIndexAutoIndexManagerTest() {
-        super(INDEX, SingleIndexEntity.class.getName());
+        super(new String[] { INDEX }, SingleIndexEntity.class);
     }
 
     @After

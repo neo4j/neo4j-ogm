@@ -11,26 +11,35 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.session.request.strategy.impl;
-
-import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
+package org.neo4j.ogm.domain.generic_hierarchy;
 
 /**
- * @author Frantisek Hartman
+ * @author Jonathan D'Orleans
  * @author Michael J. Simons
  */
-public class LabelMatchClauseBuilder implements MatchClauseBuilder {
+public class ChildB extends AnotherEntity {
 
-    @Override
-    public String build(String label) {
-        if (label == null || label.isEmpty()) {
-            throw new IllegalArgumentException("Label to match is required.");
-        }
-        return "MATCH (n:`" + label + "`) WITH n";
+    private Integer value;
+
+    public ChildB() {
+    }
+
+    public ChildB(String uuid) {
+        super(uuid);
     }
 
     @Override
-    public String build(String label, String property) {
-        throw new UnsupportedOperationException("MATCH by Label not supported with property parameter");
+    public void postLoad() {
+        // FIXME - #414 - @PostLoad is not called in child overrided method (this method does not execute)
+        value = uuid.hashCode();
     }
+
+    public Integer getValue() {
+        return value;
+    }
+
+    public void setValue(Integer value) {
+        this.value = value;
+    }
+
 }

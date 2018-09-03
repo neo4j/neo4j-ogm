@@ -13,6 +13,7 @@
 package org.neo4j.ogm.session.delegates;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.GraphRowListModelMapper;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class LoadByTypeDelegate extends SessionDelegate {
 
@@ -45,22 +47,35 @@ public class LoadByTypeDelegate extends SessionDelegate {
         super(session);
     }
 
+    /**
+     * Loads all objects of a given {@code type}. The {@code type} is used to determine the Neo4j label. If no such label
+     * can be determined, a warning is logged and an immutable, empty list is returned to prevent queries without label
+     * that potentially can retrieve all objects in the database if no {@link Filters filters} are given.
+     *
+     * @param type       The type of objects to load.
+     * @param filters    Additional filters to reduce the number of objects loaded, may be null or empty.
+     * @param sortOrder  Sort order to be passed on to the database
+     * @param pagination Pagination if required
+     * @param depth      Depth of relationships to load
+     * @param <T>        Returned type
+     * @return A list of objects with the requested type
+     */
     public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination,
         int depth) {
 
-        //session.ensureTransaction();
         String entityLabel = session.entityType(type.getName());
         if (entityLabel == null) {
             LOG.warn("Unable to find database label for entity " + type.getName()
                 + " : no results will be returned. Make sure the class is registered, "
                 + "and not abstract without @NodeEntity annotation");
+            return Collections.emptyList();
         }
         QueryStatements queryStatements = session.queryStatementsFor(type, depth);
 
         SortOrder sortOrderWithResolvedProperties = sortOrderWithResolvedProperties(type, sortOrder);
 
         PagingAndSortingQuery query;
-        if (filters.isEmpty()) {
+        if (filters == null || filters.isEmpty()) {
             query = queryStatements.findByType(entityLabel, depth);
         } else {
             resolvePropertyAnnotations(type, filters);

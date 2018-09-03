@@ -6,7 +6,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 /**
  * @author Frantisek Hartman
  */
-@NodeEntity(label = "Entity")
+@NodeEntity(label = "EntityWithMultipleCompositeIndexes")
 @CompositeIndex({ "name", "age" })
 @CompositeIndex({ "name", "email" })
 public class MultipleCompositeIndexEntity {

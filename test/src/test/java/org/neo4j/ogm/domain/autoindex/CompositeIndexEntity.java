@@ -6,7 +6,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 /**
  * @author Frantisek Hartman
  */
-@NodeEntity(label = "Entity")
+@NodeEntity(label = "EntityWithCompositeIndex")
 @CompositeIndex({ "name", "age" })
 public class CompositeIndexEntity {
 

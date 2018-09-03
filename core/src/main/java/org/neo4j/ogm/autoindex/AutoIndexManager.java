@@ -68,7 +68,7 @@ public class AutoIndexManager {
 
     /**
      * @return The list of automatic indexes.
-     * @deprecated since 3.1.2, will be removed in 3.1.3 as the list of automatic indixes is not meant to be mutated.
+     * @deprecated since 3.1.3, will be removed in 3.1.4 as the list of automatic indixes is not meant to be mutated.
      */
     @Deprecated
     List<AutoIndex> getIndexes() {
@@ -77,7 +77,9 @@ public class AutoIndexManager {
 
     /**
      * Builds indexes according to the configured mode.
+     * @deprecated since 3.1.3, use {@link #run()}  instead.
      */
+    @Deprecated
     public void build() {
         switch (this.mode) {
             case ASSERT:
@@ -96,6 +98,14 @@ public class AutoIndexManager {
                 dumpIndexes();
             default:
         }
+    }
+
+    /**
+     * Runs the auto index manager. Depending on the configured mode it either asserts, updates, validates or dumps
+     * indexes. Does nothing in all other cases.
+     */
+    public void run() {
+        this.build();
     }
 
     private void dumpIndexes() {

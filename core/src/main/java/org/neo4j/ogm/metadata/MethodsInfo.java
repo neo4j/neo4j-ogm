@@ -37,7 +37,7 @@ public class MethodsInfo {
 
         for (Method method : cls.getDeclaredMethods()) {
             final int modifiers = method.getModifiers();
-            if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
+            if (!Modifier.isTransient(modifiers) && !Modifier.isStatic(modifiers)) {
                 ObjectAnnotations objectAnnotations = new ObjectAnnotations();
                 final Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
                 for (Annotation annotation : declaredAnnotations) {

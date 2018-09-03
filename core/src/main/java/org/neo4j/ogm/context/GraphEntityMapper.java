@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
@@ -187,7 +188,13 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         if (postLoadMethod != null) {
             final Method method = classInfo.getMethod(postLoadMethod);
             try {
+                if(!method.isAccessible()) {
+                    method.setAccessible(true);
+                }
                 method.invoke(instance);
+            } catch(SecurityException e) {
+                logger.warn("Cannot call PostLoad annotated method {} on class {}, "
+                    + "security manager denied access.", method.getName(), classInfo.name(), e);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 logger.warn("Cannot call PostLoad annotated method {} on class {}. "
                     + "Make sure it is public and has no arguments", method.getName(), classInfo.name(), e);

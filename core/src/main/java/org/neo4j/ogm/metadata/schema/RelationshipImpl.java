@@ -45,7 +45,7 @@ class RelationshipImpl implements Relationship {
     public String direction(Node node) {
         if (!(start == node || end == node)) {
             throw new IllegalArgumentException("Given node " + node +
-                " is neiter start or end node of this relationship");
+                " is neither start or end node of this relationship");
         } else if (start == end) {
             return direction;
         }
@@ -86,7 +86,7 @@ class RelationshipImpl implements Relationship {
             return start;
         } else {
             throw new IllegalArgumentException("Given node " + node +
-                " is neiter start or end node of this relationship");
+                " is neither start or end node of this relationship");
         }
     }
 

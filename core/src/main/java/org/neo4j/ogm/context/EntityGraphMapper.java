@@ -938,7 +938,7 @@ public class EntityGraphMapper implements EntityMapper {
 
         ClassInfo tgtInfo = metaData.classInfo(tgtObject);
         if (tgtInfo == null) {
-            LOGGER.warn("Unable to process {} on {}. Checck the mapping.", relationshipType, srcObject.getClass());
+            LOGGER.warn("Unable to process {} on {}. Check the mapping.", relationshipType, srcObject.getClass());
             // #347. attribute is not a rel ? maybe would be better to change FieldInfo.persistableAsProperty ?
             return false;
         }

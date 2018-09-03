@@ -54,7 +54,7 @@ The graph data model is explained in the chapter about in the introduction chapt
 
 Type Conversion::
 The OGM provides support for default and bespoke type conversions, which allow you to configure how certain data types are mapped to nodes or relationships in Neo4j.
-See <<reference:type-conversion,Type Converstion>> for more details.
+See <<reference:type-conversion,Type Conversion>> for more details.
 
 
 Filtering your domain objects::

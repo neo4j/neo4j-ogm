@@ -19,7 +19,7 @@ import java.util.Map;
 import org.neo4j.ogm.result.adapter.RestModelAdapter;
 
 /**
- * Adapt embedded response to a NodeModels, RelaitonshipModels, and objects
+ * Adapt embedded response to a NodeModels, RelationshipModels, and objects
  *
  * @author Luanne Misquitta
  */

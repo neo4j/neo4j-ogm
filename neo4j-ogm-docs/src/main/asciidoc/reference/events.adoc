@@ -138,7 +138,7 @@ For example:
 
 [source, java]
 ----
-class PreSaveEventListener extends EventListenerAdaper {
+class PreSaveEventListener extends EventListenerAdapter {
     @Override
     void onPreSave(Event event) {
         DomainEntity entity = (DomainEntity) event.getObject();

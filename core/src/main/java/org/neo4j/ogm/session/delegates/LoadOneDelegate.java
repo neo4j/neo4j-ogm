@@ -95,7 +95,7 @@ public class LoadOneDelegate extends SessionDelegate {
             }
         } else {
             if (primaryIndex == null) {
-                // Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
+                // Coercing to Long. identityField.convertedType() yields no parameterised type to call cast() with.
                 // But we know this will always be Long.
                 ref = session.context().getRelationshipEntity((Long) id);
             } else {

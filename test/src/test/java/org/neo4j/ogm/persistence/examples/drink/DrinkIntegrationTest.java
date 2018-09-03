@@ -239,8 +239,8 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
         Manufacturer loaded = session.load(Manufacturer.class, asahi.getUuid());
         assertThat(loaded.getName()).isEqualTo("Asahi Breweries, Ltd.");
-        Owns acquistion = loaded.getAcquisitions().iterator().next();
-        assertThat(acquistion.getOwnee().getName()).isEqualTo("Plzeňský Prazdroj, a. s.");
+        Owns acquisition = loaded.getAcquisitions().iterator().next();
+        assertThat(acquisition.getOwnee().getName()).isEqualTo("Plzeňský Prazdroj, a. s.");
     }
 
     @Test
@@ -256,8 +256,8 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
         Manufacturer loaded = session.load(Manufacturer.class, asahi.getUuid());
         assertThat(loaded.getName()).isEqualTo("Asahi Breweries, Ltd.");
-        Owns acquistion = loaded.getAcquisitions().iterator().next();
-        assertThat(acquistion.getOwnee().getName()).isEqualTo("Plzeňský Prazdroj, a. s.");
+        Owns acquisition = loaded.getAcquisitions().iterator().next();
+        assertThat(acquisition.getOwnee().getName()).isEqualTo("Plzeňský Prazdroj, a. s.");
     }
 
     @Test
@@ -275,8 +275,8 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         Manufacturer loaded = session.load(Manufacturer.class, asahi.getUuid());
-        Owns acquistion = loaded.getAcquisitions().iterator().next();
-        assertThat(acquistion.getAcquiredYear()).isEqualTo(2017);
+        Owns acquisition = loaded.getAcquisitions().iterator().next();
+        assertThat(acquisition.getAcquiredYear()).isEqualTo(2017);
     }
 
     @Test
@@ -295,13 +295,13 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         Manufacturer loaded = session.load(Manufacturer.class, asahi.getUuid());
-        Owns acquistion = loaded.getAcquisitions().iterator().next();
-        assertThat(acquistion.getAcquiredYear()).isEqualTo(2017);
+        Owns acquisition = loaded.getAcquisitions().iterator().next();
+        assertThat(acquisition.getAcquiredYear()).isEqualTo(2017);
     }
 
     /**
      * Not sure this is valid use case - the object graph is not consistent
-     * RE Owns refers to asahi node, but it does not refere to owns instance
+     * RE Owns refers to asahi node, but it does not refer to owns instance
      * Similar as {@link org.neo4j.ogm.persistence.examples.ingredients.IngredientsIntegrationTest#shouldBeAbleToLoadPairingWithCustomDepth}
      * Executes !compiler.context().visitedRelationshipEntity branch in
      * {@link org.neo4j.ogm.context.EntityGraphMapper#map(java.lang.Object, int)}
@@ -318,8 +318,8 @@ public class DrinkIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         Manufacturer loaded = session.load(Manufacturer.class, asahi.getUuid());
-        Owns acquistion = loaded.getAcquisitions().iterator().next();
-        assertThat(acquistion.getAcquiredYear()).isEqualTo(2017);
+        Owns acquisition = loaded.getAcquisitions().iterator().next();
+        assertThat(acquisition.getAcquiredYear()).isEqualTo(2017);
     }
 
     @Test

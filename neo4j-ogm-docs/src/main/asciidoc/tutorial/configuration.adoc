@@ -34,7 +34,7 @@ We configure the database parameters by using the configuration builder.
 ----
 Configuration configuration = new Configuration.Builder()
     .uri("bolt://localhost")
-    .credentials("neo4j", "passwword")
+    .credentials("neo4j", "password")
     .build();
 
 SessionFactory sessionFactory = new SessionFactory(configuration, "com.mycompany.app.domainclasses");

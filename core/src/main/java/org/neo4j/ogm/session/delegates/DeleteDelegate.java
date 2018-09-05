@@ -55,6 +55,14 @@ public class DeleteDelegate extends SessionDelegate {
         delete(objectsForDeletion);
     }
 
+    /**
+     * Deletes all nodes of a given type. They will get discovered by using the matching label for that type.
+     * To avoid a delete of every node in the database the method will abort the delete operation if no label
+     * can be determined.
+     *
+     * @param type  The type of the nodes/objects to be deleted.
+     * @param <T>   The type to work with
+     */
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
         if (classInfo != null) {
@@ -63,6 +71,7 @@ public class DeleteDelegate extends SessionDelegate {
                 LOG.warn("Unable to find database label for entity " + type.getName()
                     + " : no results will be returned. Make sure the class is registered, "
                     + "and not abstract without @NodeEntity annotation");
+                return;
             }
             Statement request = getDeleteStatementsBasedOnType(type).delete(entityLabel);
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
@@ -141,11 +150,11 @@ public class DeleteDelegate extends SessionDelegate {
         for (T element : objectsForDeletion) {
             allNeighbours.addAll(session.context().neighbours(element));
         }
-        deleteOneOrMoreObjects(allNeighbours, objectsForDeletion);
+        deleteOneOrMoreObjects(objectsForDeletion, allNeighbours);
     }
 
     // TODO : this is being done in multiple requests at the moment, one per object. Why not put them in a single request?
-    private void deleteOneOrMoreObjects(Set<Object> neighbours, List<?> objects) {
+    private void deleteOneOrMoreObjects(List<?> objects, Set<Object> neighbours) {
 
         Set<Object> notified = new HashSet<>();
 
@@ -164,9 +173,9 @@ public class DeleteDelegate extends SessionDelegate {
 
             if (classInfo != null) {
 
-                Long identity = session.context().nativeId(object);
-                if (identity >= 0) {
-                    Statement request = getDeleteStatement(object, identity, classInfo);
+                Long id = session.context().nativeId(object);
+                if (id >= 0) {
+                    Statement request = getDeleteStatement(object, id, classInfo);
                     if (session.eventsEnabled()) {
                         if (!notified.contains(object)) {
                             session.notifyListeners(new PersistenceEvent(object, Event.TYPE.PRE_DELETE));
@@ -183,9 +192,9 @@ public class DeleteDelegate extends SessionDelegate {
                             }
 
                             if (session.metaData().isRelationshipEntity(classInfo.name())) {
-                                session.detachRelationshipEntity(identity);
+                                session.detachRelationshipEntity(id);
                             } else {
-                                session.detachNodeEntity(identity);
+                                session.detachNodeEntity(id);
                             }
                             if (session.eventsEnabled()) {
                                 if (notified.contains(object)) {

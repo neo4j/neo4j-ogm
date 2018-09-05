@@ -417,4 +417,17 @@
         <url>http://github.com/neo4j/neo4j-ogm/</url>
     </scm>
 
+    <distributionManagement>
+        <repository>
+            <id>jfrog-release</id>
+            <name>neo-releases</name>
+            <url>https://neo.jfrog.io/neo/ogm-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>jfrog-snapshots</id>
+            <name>neo-snapshots</name>
+            <url>https://neo.jfrog.io/neo/ogm-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>

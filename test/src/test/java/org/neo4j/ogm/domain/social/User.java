@@ -63,4 +63,10 @@ public class User {
         friends.remove(user);
         user.friends.remove(this);
     }
+
+    @Override public String toString() {
+        return "User{" +
+            "name='" + name + '\'' +
+            '}';
+    }
 }

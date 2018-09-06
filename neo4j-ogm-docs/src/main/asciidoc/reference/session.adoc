@@ -235,7 +235,7 @@ It is understood by all the different drivers in the OGM which means that your a
 This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the HTTP Driver or the Bolt Driver when deploying your code into a production client-server environment.
 
 
-The `Session` also allows execution of arbitrary Cypher queries via its `query`, `queryForObject` and `queryForObjects` methods.
+The `Session` also allows execution of arbitrary Cypher queries via its `query` and `queryForObject` methods.
 Cypher queries that return tabular results should be passed into the `query` method which returns an `Result`.
 This consists of `QueryStatistics` representing statistics of modifying cypher statements if applicable, and an `Iterable<Map<String,Object>>` containing the raw data, which can be either used as-is or converted into a richer type if needed.
 The keys in each `Map` correspond to the names listed in the return clause of the executed Cypher query.

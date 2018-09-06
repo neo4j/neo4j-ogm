@@ -38,7 +38,6 @@ import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * This test class is converted from the AbstractDriverTestSuite to use the test harness in use by other tests.
- *
  * <em>Do not rename this class to end with *Test, or certain test packages might try to execute it.</em>
  *
  * @author vince
@@ -71,7 +70,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
     @Test
     public void shouldSaveMultipleObjects() throws Exception {
         User bilbo = new User("Bilbo Baggins");
-        User frodo = new User("Bilbo Baggins");
+        User frodo = new User("Frodo Beutlin");
         bilbo.befriend(frodo);
 
         // Get an Iterable which is not a Collection
@@ -82,7 +81,10 @@ public class BasicDriverTest extends MultiDriverTestClass {
 
         session.clear();
         Collection<User> users = session.loadAll(User.class);
-        assertThat(users).hasSize(2);
+        assertThat(users)
+            .hasSize(2)
+            .extracting(User::getName)
+            .containsExactlyInAnyOrder("Bilbo Baggins", "Frodo Beutlin");
     }
 
     // load tests

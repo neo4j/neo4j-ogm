@@ -57,7 +57,7 @@ public class EntityGraphMapper implements EntityMapper {
     /**
      * Default supplier for write protection: Always write all the stuff.
      */
-    private Optional<BiFunction<WriteProtectionMode, Object, Predicate<Object>>> optionalWriteProtectionSupplier = Optional.empty();
+    private Optional<BiFunction<WriteProtectionMode, Class<?>, Predicate<Object>>> optionalWriteProtectionSupplier = Optional.empty();
 
     /**
      * Constructs a new {@link EntityGraphMapper} that uses the given {@link MetaData}.
@@ -70,7 +70,7 @@ public class EntityGraphMapper implements EntityMapper {
         this.mappingContext = mappingContext;
     }
 
-    public void addWriteProtection(BiFunction<WriteProtectionMode, Object, Predicate<Object>> writeProtectionSupplier) {
+    public void addWriteProtection(BiFunction<WriteProtectionMode, Class<?>, Predicate<Object>> writeProtectionSupplier) {
 
         this.optionalWriteProtectionSupplier = Optional.ofNullable(writeProtectionSupplier);
     }
@@ -266,7 +266,7 @@ public class EntityGraphMapper implements EntityMapper {
     }
 
     private boolean isWriteProtected(WriteProtectionMode mode, Object target) {
-        return this.optionalWriteProtectionSupplier.map(supplier -> supplier.apply(mode, target)) //
+        return this.optionalWriteProtectionSupplier.map(supplier -> supplier.apply(mode, target.getClass())) //
             .map(p -> p.test(target)) //
             .orElse(false);
     }

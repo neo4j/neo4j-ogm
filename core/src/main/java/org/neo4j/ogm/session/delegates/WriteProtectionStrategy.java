@@ -21,8 +21,15 @@ import org.neo4j.ogm.context.WriteProtectionMode;
 
 /**
  * A strategy that provides write protection for nodes in certain modes.
+ * <br>
+ * The strategy has to supply a function from mode and class to a predicate for objects of the given class. Thus predicates
+ * can be distinguished by mode and a set of certain object types and in the end, for instances itself.
+ * <br>
+ * The default implementation does not take the classes for objects into accounts but supplies to same predicate for all objects
+ * for a given mode.
  *
  * @author Michael J. Simons
  */
-public interface WriteProtectionStrategy extends Supplier<BiFunction<WriteProtectionMode, Object, Predicate<Object>>> {
+public interface WriteProtectionStrategy
+    extends Supplier<BiFunction<WriteProtectionMode, Class<?>, Predicate<Object>>> {
 }

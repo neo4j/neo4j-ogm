@@ -29,7 +29,7 @@ class DefaultWriteProtectionStrategyImpl implements WriteProtectionStrategy {
     private final Map<WriteProtectionMode, Predicate<Object>> writeProtectionPredicates = new HashMap<>();
 
     @Override
-    public BiFunction<WriteProtectionMode, Object, Predicate<Object>> get() {
+    public BiFunction<WriteProtectionMode, Class<?>, Predicate<Object>> get() {
         return (mode, targetEntity) -> this.writeProtectionPredicates.getOrDefault(mode, t -> false);
     }
 

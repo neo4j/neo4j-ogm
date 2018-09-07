@@ -24,12 +24,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.ogm.context.WriteProtectionMode;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -85,6 +87,35 @@ public class BasicDriverTest extends MultiDriverTestClass {
             .hasSize(2)
             .extracting(User::getName)
             .containsExactlyInAnyOrder("Bilbo Baggins", "Frodo Beutlin");
+    }
+
+    @Test
+    public void shouldSaveMultipleObjectsWithWriteProtection() throws Exception {
+        User bilbo = new User("Bilbo Baggins");
+        session.save(bilbo);
+        session.clear();
+
+        try {
+            ((Neo4jSession) session).addWriteProtection(WriteProtectionMode.PROTECTED_PROPERTIES, object -> (object instanceof User) && bilbo.getId().equals(((User) object).getId()));
+            User frodo = new User("Frodo Beutlin");
+            bilbo.befriend(frodo);
+            bilbo.setName("The wrong name");
+
+            // Get an Iterable which is not a Collection
+            Iterable<User> iterable = Stream.of(bilbo, frodo)::iterator;
+            assertThat(iterable).isNotInstanceOf(Collection.class);
+
+            session.save(iterable);
+
+            session.clear();
+            Collection<User> users = session.loadAll(User.class);
+            assertThat(users)
+                .hasSize(2)
+                .extracting(User::getName)
+                .containsExactlyInAnyOrder("Bilbo Baggins", "Frodo Beutlin");
+        } finally {
+            ((Neo4jSession) session).removeWriteProtection(WriteProtectionMode.PROTECTED_PROPERTIES);
+        }
     }
 
     // load tests

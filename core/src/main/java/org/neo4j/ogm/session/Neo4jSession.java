@@ -20,12 +20,14 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.MappingContext;
+import org.neo4j.ogm.context.WriteProtectionMode;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -48,6 +50,7 @@ import org.neo4j.ogm.session.delegates.LoadByInstancesDelegate;
 import org.neo4j.ogm.session.delegates.LoadByTypeDelegate;
 import org.neo4j.ogm.session.delegates.LoadOneDelegate;
 import org.neo4j.ogm.session.delegates.SaveDelegate;
+import org.neo4j.ogm.session.delegates.WriteProtectionStrategy;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.session.request.OptimisticLockingChecker;
@@ -472,6 +475,19 @@ public class Neo4jSession implements Session {
     @Override
     public <T> void save(T object, int depth) {
         saveDelegate.save(object, depth);
+    }
+
+    // Not part of {@link Session} interface on purpose for the time being
+    public void addWriteProtection(WriteProtectionMode mode, Predicate<Object> protection) {
+        saveDelegate.addWriteProtection(mode, protection);
+    }
+
+    public void removeWriteProtection(WriteProtectionMode mode) {
+        saveDelegate.removeWriteProtection(mode);
+    }
+
+    public void setWriteProtectionStrategy(WriteProtectionStrategy writeProtectionStrategy) {
+        saveDelegate.setWriteProtectionStrategy(writeProtectionStrategy);
     }
 
     /*

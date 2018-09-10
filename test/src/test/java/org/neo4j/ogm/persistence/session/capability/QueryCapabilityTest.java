@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,8 +40,6 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.testutil.TestUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author Luanne Misquitta
  */
@@ -49,7 +49,8 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.linkedlist").openSession();
+        session = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated",
+            "org.neo4j.ogm.domain.linkedlist").openSession();
         session.purgeDatabase();
         session.clear();
         importCineasts();

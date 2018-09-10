@@ -13,18 +13,12 @@
 
 package org.neo4j.ogm.context;
 
+import static org.neo4j.ogm.annotation.Relationship.*;
+import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
@@ -47,10 +41,6 @@ import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.neo4j.ogm.annotation.Relationship.INCOMING;
-import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
-import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.getRelationalWriter;
 
 /**
  * @author Vince Bickers
@@ -256,7 +246,8 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
      * @param classInfo    The class to inspect for composite attributes.
      * @return a map containing the values of the converted attributes, indexed by field object. Never null.
      */
-    private Map<FieldInfo, Object> getCompositeProperties(List<Property<String, Object>> propertyList, ClassInfo classInfo) {
+    private Map<FieldInfo, Object> getCompositeProperties(List<Property<String, Object>> propertyList,
+        ClassInfo classInfo) {
 
         Map<FieldInfo, Object> compositeValues = new HashMap<>();
 

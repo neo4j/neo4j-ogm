@@ -73,7 +73,8 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
         }
     }
 
-    public void buildPath(Object path, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities, boolean projection) {
+    public void buildPath(Object path, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities,
+        boolean projection) {
         Iterator<Object> relIterator = relsInPath(path).iterator();
         Iterator<Object> nodeIterator = nodesInPath(path).iterator();
 

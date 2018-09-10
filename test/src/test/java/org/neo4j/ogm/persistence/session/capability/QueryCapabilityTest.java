@@ -14,14 +14,18 @@
 package org.neo4j.ogm.persistence.session.capability;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
@@ -713,22 +717,22 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(((Object[]) row.get("names")).length).isEqualTo(0);
     }
 
-	/**
-	 * @see Issue 496
-	 */
-	@Test
-	public void testQueryWithProjection() {
-		Iterable<User> results = session
-				.query(User.class,
-						"MATCH (u:User) where u.name={name} return u "
-								+ ",[[(u)-[r:EXTENDED_FRIEND]->(e) | [r, e]]]",
-						Collections.singletonMap("name", "Vince"));
-		assertThat(results).size().isEqualTo(1);
-		User user = results.iterator().next();
-		assertThat(user.getName()).isEqualTo("Vince");
-		assertThat(user.getExtendedFriends()).isNotEmpty();
-		assertThat(user.getExtendedFriends()).contains(new User(null, "extended", null));
-	}
+    /**
+     * @see Issue 496
+     */
+    @Test
+    public void testQueryWithProjection() {
+        Iterable<User> results = session
+            .query(User.class,
+                "MATCH (u:User) where u.name={name} return u "
+                    + ",[[(u)-[r:EXTENDED_FRIEND]->(e) | [r, e]]]",
+                Collections.singletonMap("name", "Vince"));
+        assertThat(results).size().isEqualTo(1);
+        User user = results.iterator().next();
+        assertThat(user.getName()).isEqualTo("Vince");
+        assertThat(user.getExtendedFriends()).isNotEmpty();
+        assertThat(user.getExtendedFriends()).contains(new ExtendedUser(null, "extended", null));
+    }
 
     /**
      * @see Issue 496

@@ -79,34 +79,35 @@ public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, 
 
         while (iterator.hasNext()) {
 
-            String key = iterator.next();
-            variables.add(key);
+            String resultStatement = iterator.next();
+            variables.add(resultStatement);
 
-            Object value = data.get(key);
+            Object value = data.get(resultStatement);
 
+            boolean projection = AdapterUtils.isProjection(resultStatement);
             if (value != null && value.getClass().isArray()) {
                 Iterable<Object> collection = AdapterUtils.convertToIterable(value);
                 for (Object element : collection) {
-                    adapt(element, graphModel, values, nodeIdentities, edgeIdentities);
+                    adapt(element, graphModel, values, nodeIdentities, edgeIdentities, projection);
                 }
             } else {
-                adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
+                adapt(value, graphModel, values, nodeIdentities, edgeIdentities, projection);
             }
         }
     }
 
     protected void adapt(Object element, GraphModel graphModel, List<Object> values, Set<Long> nodeIdentities,
-        Set<Long> edgeIdentities) {
+        Set<Long> edgeIdentities, boolean projection) {
         if (graphModelAdapter.isPath(element)) {
-            graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities);
+            graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities, projection);
         } else if (graphModelAdapter.isNode(element)) {
-            graphModelAdapter.buildNode(element, graphModel, nodeIdentities);
+            graphModelAdapter.buildNode(element, graphModel, nodeIdentities, projection);
         } else if (graphModelAdapter.isRelationship(element)) {
             graphModelAdapter.buildRelationship(element, graphModel, edgeIdentities);
         } else if (Collection.class.isAssignableFrom(element.getClass())) {
             Collection collection = (Collection) element;
             for (Object value : collection) {
-                adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
+                adapt(value, graphModel, values, nodeIdentities, edgeIdentities, projection);
             }
         } else {
             values.add(element);

@@ -22,5 +22,7 @@ public interface GraphModel {
 
     Set<Node> getNodes();
 
+    Set<Node> getProjectedNodes();
+
     Set<Edge> getRelationships();
 }

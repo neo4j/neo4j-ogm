@@ -49,29 +49,31 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
 
         for (Map.Entry<String, Object> mapEntry : data.entrySet()) {
             final Object value = mapEntry.getValue();
-            adaptInternal(nodeIdentities, edgeIdentities, graphModel, value);
+            String returnStatement = mapEntry.getKey();
+            boolean projection = AdapterUtils.isProjection(returnStatement);
+            adaptInternal(nodeIdentities, edgeIdentities, graphModel, value, projection);
         }
 
         return graphModel;
     }
 
     private void adaptInternal(Set<Long> nodeIdentities, Set<Long> edgeIdentities, GraphModel graphModel,
-        Object value) {
+        Object value, boolean projection) {
         if (isPath(value)) {
-            buildPath(value, graphModel, nodeIdentities, edgeIdentities);
+            buildPath(value, graphModel, nodeIdentities, edgeIdentities, projection);
         } else if (isNode(value)) {
-            buildNode(value, graphModel, nodeIdentities);
+            buildNode(value, graphModel, nodeIdentities, projection);
         } else if (isRelationship(value)) {
             buildRelationship(value, graphModel, edgeIdentities);
         } else if (value instanceof Iterable) {
             Iterable collection = (Iterable) value;
             for (Object element : collection) {
-                adaptInternal(nodeIdentities, edgeIdentities, graphModel, element);
+                adaptInternal(nodeIdentities, edgeIdentities, graphModel, element, projection);
             }
         }
     }
 
-    public void buildPath(Object path, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities) {
+    public void buildPath(Object path, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities, boolean projection) {
         Iterator<Object> relIterator = relsInPath(path).iterator();
         Iterator<Object> nodeIterator = nodesInPath(path).iterator();
 
@@ -80,11 +82,11 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
         }
 
         while (nodeIterator.hasNext()) {
-            buildNode(nodeIterator.next(), graphModel, nodeIdentities);
+            buildNode(nodeIterator.next(), graphModel, nodeIdentities, projection);
         }
     }
 
-    public void buildNode(Object node, GraphModel graphModel, Set<Long> nodeIdentities) {
+    public void buildNode(Object node, GraphModel graphModel, Set<Long> nodeIdentities, boolean projection) {
         if (!nodeIdentities.contains(nodeId(node))) {
 
             nodeIdentities.add(nodeId(node));
@@ -97,7 +99,11 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
 
             nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
 
-            graphModel.getNodes().add(nodeModel);
+            if (projection) {
+                graphModel.getProjectedNodes().add(nodeModel);
+            } else {
+                graphModel.getNodes().add(nodeModel);
+            }
         }
     }
 

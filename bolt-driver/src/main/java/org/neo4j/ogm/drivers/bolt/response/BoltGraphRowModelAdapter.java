@@ -70,18 +70,19 @@ public class BoltGraphRowModelAdapter extends GraphRowModelAdapter {
 
         while (iterator.hasNext()) {
 
-            String key = iterator.next();
-            variables.add(key);
+            String resultStatement = iterator.next();
+            variables.add(resultStatement);
 
-            Object value = data.get(key);
+            Object value = data.get(resultStatement);
 
+            boolean projection = AdapterUtils.isProjection(resultStatement);
             if (value.getClass().isArray()) {
                 Iterable<Object> collection = AdapterUtils.convertToIterable(value);
                 for (Object element : collection) {
-                    adapt(element, graphModel, values, nodeIdentities, edgeIdentities);
+                    adapt(element, graphModel, values, nodeIdentities, edgeIdentities, projection);
                 }
             } else {
-                adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
+                adapt(value, graphModel, values, nodeIdentities, edgeIdentities, projection);
             }
         }
     }

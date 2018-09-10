@@ -29,4 +29,9 @@ public class AdapterUtils {
         }
         return list;
     }
+
+    public static boolean isProjection(String returnStatement) {
+        return returnStatement.startsWith("[") && returnStatement.endsWith("]");
+    }
+
 }

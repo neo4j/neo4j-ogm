@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.response.model;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.neo4j.ogm.model.Edge;
@@ -29,31 +29,30 @@ import org.neo4j.ogm.model.Node;
  */
 public class DefaultGraphModel implements GraphModel {
 
-    private final Map<Long, NodeModel> nodeMap = new HashMap<>();
-    private final Map<Long, RelationshipModel> relationshipMap = new HashMap<>();
-
     private final Set<Node> nodes = new LinkedHashSet<>();
+    private final Set<Node> projectedNodes = new HashSet<>();
     private final Set<Edge> relationships = new LinkedHashSet<>();
 
+    @Override
     public Set<Node> getNodes() {
         return nodes;
     }
 
     public void setNodes(NodeModel[] nodes) {
-        for (NodeModel node : nodes) {
-            this.nodes.add(node);
-            nodeMap.put(node.getId(), node);
-        }
+        Collections.addAll(this.nodes, nodes);
     }
 
+    @Override
+    public Set<Node> getProjectedNodes() {
+        return projectedNodes;
+    }
+
+    @Override
     public Set<Edge> getRelationships() {
         return relationships;
     }
 
     public void setRelationships(RelationshipModel[] relationships) {
-        for (RelationshipModel relationship : relationships) {
-            this.relationships.add(relationship);
-            relationshipMap.put(relationship.getId(), relationship);
-        }
+        Collections.addAll(this.relationships, relationships);
     }
 }

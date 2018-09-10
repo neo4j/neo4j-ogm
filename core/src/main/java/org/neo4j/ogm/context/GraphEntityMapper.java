@@ -13,12 +13,18 @@
 
 package org.neo4j.ogm.context;
 
-import static org.neo4j.ogm.annotation.Relationship.*;
-import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
@@ -41,6 +47,10 @@ import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.neo4j.ogm.annotation.Relationship.INCOMING;
+import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
+import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.getRelationalWriter;
 
 /**
  * @author Vince Bickers
@@ -77,7 +87,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
         List<T> objects = new ArrayList<>();
         Set<Long> objectIds = new HashSet<>();
-          /*
+        /*
          * these two lists will contain the node ids and edge ids from the response, in the order
          * they were presented to us.
          */
@@ -217,34 +227,44 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
         for (Node node : graphModel.getNodes()) {
             if (!nodeIds.contains(node.getId())) {
-                Object entity = mappingContext.getNodeEntity(node.getId());
-                if (entity == null) {
-                    ClassInfo clsi = metadata.resolve(node.getLabels());
-                    if (clsi == null) {
-                        logger.debug("Could not find a class to map for labels " + Arrays.toString(node.getLabels()));
-                        continue;
-                    }
-                    Map<String, Object> allProps = new HashMap<>(toMap(node.getPropertyList()));
-                    getCompositeProperties(node.getPropertyList(), clsi).forEach( (k, v) -> {
-                        allProps.put(k.getName(), v);
-                    });
-
-                    entity = entityFactory.newObject(clsi.getUnderlyingClass(), allProps);
-                    EntityUtils.setIdentity(entity, node.getId(), metadata);
-                    setProperties(node.getPropertyList(), entity);
-                    setLabels(node, entity);
-                    mappingContext.addNodeEntity(entity, node.getId());
+                if (mapNode(node)) {
+                    continue;
                 }
                 nodeIds.add(node.getId());
             }
         }
+        for (Node node : graphModel.getProjectedNodes()) {
+            mapNode(node);
+        }
+    }
+
+    private boolean mapNode(Node node) {
+        Object entity = mappingContext.getNodeEntity(node.getId());
+        if (entity == null) {
+            ClassInfo clsi = metadata.resolve(node.getLabels());
+            if (clsi == null) {
+                logger.debug("Could not find a class to map for labels " + Arrays.toString(node.getLabels()));
+                return true;
+            }
+            Map<String, Object> allProps = new HashMap<>(toMap(node.getPropertyList()));
+            getCompositeProperties(node.getPropertyList(), clsi).forEach((k, v) -> {
+                allProps.put(k.getName(), v);
+            });
+
+            entity = entityFactory.newObject(clsi.getUnderlyingClass(), allProps);
+            EntityUtils.setIdentity(entity, node.getId(), metadata);
+            setProperties(node.getPropertyList(), entity);
+            setLabels(node, entity);
+            mappingContext.addNodeEntity(entity, node.getId());
+        }
+        return false;
     }
 
     /**
      * Finds the composite properties of an entity type and build their values using a property list.
      *
      * @param propertyList The properties to convert from.
-     * @param classInfo The class to inspect for composite attributes.
+     * @param classInfo    The class to inspect for composite attributes.
      * @return a map containing the values of the converted attributes, indexed by field object. Never null.
      */
     private Map<FieldInfo, Object> getCompositeProperties(List<Property<String, Object>> propertyList, ClassInfo classInfo) {
@@ -266,7 +286,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     private void setProperties(List<Property<String, Object>> propertyList, Object instance) {
         ClassInfo classInfo = metadata.classInfo(instance);
 
-        getCompositeProperties(propertyList, classInfo).forEach( (field, v) -> field.write(instance, v));
+        getCompositeProperties(propertyList, classInfo).forEach((field, v) -> field.write(instance, v));
 
         for (Property<?, ?> property : propertyList) {
             writeProperty(classInfo, instance, property);

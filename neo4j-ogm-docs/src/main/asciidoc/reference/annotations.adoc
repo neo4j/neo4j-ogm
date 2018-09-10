@@ -127,7 +127,7 @@ If full type information is provided other Java types are also supported.
 If annotation parameter `allowCast` is set to true then types that can be cast to corresponding Cypher types are allowed as well.
 [NOTE]
 The original type cannot be deduced and the value will be deserialized to corresponding type - e.g.
-when Integer instance is put to ``Map<String, Object>` it will be deserialized as Long.
+when Integer instance is put to `Map<String, Object>` it will be deserialized as Long.
 
 [source, java]
 ----

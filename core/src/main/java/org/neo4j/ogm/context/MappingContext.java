@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.IdStrategy;
@@ -210,6 +211,15 @@ public class MappingContext {
                 .collect(Collectors.toList());
         }
         return result;
+    }
+
+    Collection<Object> getEntities() {
+        return Stream
+            .concat(
+                relationshipEntityRegister.values().stream(),
+                nodeEntityRegister.values().stream()
+            )
+            .collect(Collectors.toList());
     }
 
     /**

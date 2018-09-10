@@ -686,7 +686,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(unmappedCount).isEqualTo(1);
         assertThat(noLabelCount).isEqualTo(1);
         assertThat(movieCount).isEqualTo(4);
-        assertThat(userCount).isEqualTo(4);
+        assertThat(userCount).isEqualTo(5);
     }
 
     /**

@@ -105,7 +105,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 }
             }
         }
-        executePostLoad(nodeIds, edgeIds);
+        executePostLoad();
 
         model.close();
         return objects;
@@ -174,22 +174,11 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
      * This method must be executed after processing all result rows:
      * - post load must be called after the entity is fully hydrated
      * - to avoid executing post load multiple times on same entity
-     *
-     * @param nodeIds nodeIds
-     * @param edgeIds edgeIds
      */
-    public void executePostLoad(Set<Long> nodeIds, Set<Long> edgeIds) {
-        for (Long id : nodeIds) {
-            Object o = mappingContext.getNodeEntity(id);
-            executePostLoad(o);
-        }
-
-        for (Long id : edgeIds) {
-            Object o = mappingContext.getRelationshipEntity(id);
-            if (o != null) {
-                executePostLoad(o);
-            }
-        }
+    public void executePostLoad() {
+        mappingContext
+            .getEntities()
+            .forEach(this::executePostLoad);
     }
 
     private void executePostLoad(Object instance) {
@@ -198,11 +187,11 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         if (postLoadMethod != null) {
             final Method method = classInfo.getMethod(postLoadMethod);
             try {
-                if(!method.isAccessible()) {
+                if (!method.isAccessible()) {
                     method.setAccessible(true);
                 }
                 method.invoke(instance);
-            } catch(SecurityException e) {
+            } catch (SecurityException e) {
                 logger.warn("Cannot call PostLoad annotated method {} on class {}, "
                     + "security manager denied access.", method.getName(), classInfo.name(), e);
             } catch (IllegalAccessException | InvocationTargetException e) {
@@ -417,7 +406,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         }
 
         Map<String, Object> allProps = new HashMap<>(toMap(edge.getPropertyList()));
-        getCompositeProperties(edge.getPropertyList(), relationClassInfo).forEach( (k, v) -> {
+        getCompositeProperties(edge.getPropertyList(), relationClassInfo).forEach((k, v) -> {
             allProps.put(k.getName(), v);
         });
         // also add start and end node as valid constructor values

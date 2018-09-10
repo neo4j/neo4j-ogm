@@ -111,7 +111,7 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
             model = response.next();
         }
 
-        graphEntityMapper.executePostLoad(nodeIds, edgeIds);
+        graphEntityMapper.executePostLoad();
 
         restStatisticsModel.setResult(result);
         return (Iterable<T>) Collections.singletonList(restStatisticsModel);

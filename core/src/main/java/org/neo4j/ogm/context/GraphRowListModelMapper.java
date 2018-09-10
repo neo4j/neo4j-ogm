@@ -67,7 +67,7 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
                 }
             }
         }
-        ogm.executePostLoad(nodeIds, edgeIds);
+        ogm.executePostLoad();
 
         if (classInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
             for (Long resultEntityId : resultEntityIds) {

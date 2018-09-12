@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.context.WriteProtectionMode;
+import org.neo4j.ogm.context.WriteProtectionTarget;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.User;
@@ -96,7 +96,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.clear();
 
         try {
-            ((Neo4jSession) session).addWriteProtection(WriteProtectionMode.PROTECTED_PROPERTIES, object -> (object instanceof User) && bilbo.getId().equals(((User) object).getId()));
+            ((Neo4jSession) session).addWriteProtection(
+                WriteProtectionTarget.PROPERTIES, object -> (object instanceof User) && bilbo.getId().equals(((User) object).getId()));
             User frodo = new User("Frodo Beutlin");
             bilbo.befriend(frodo);
             bilbo.setName("The wrong name");
@@ -114,7 +115,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
                 .extracting(User::getName)
                 .containsExactlyInAnyOrder("Bilbo Baggins", "Frodo Beutlin");
         } finally {
-            ((Neo4jSession) session).removeWriteProtection(WriteProtectionMode.PROTECTED_PROPERTIES);
+            ((Neo4jSession) session).removeWriteProtection(WriteProtectionTarget.PROPERTIES);
         }
     }
 

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.context.EntityGraphMapper;
-import org.neo4j.ogm.context.WriteProtectionMode;
+import org.neo4j.ogm.context.WriteProtectionTarget;
 import org.neo4j.ogm.cypher.compiler.CompileContext;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
@@ -98,23 +98,23 @@ public class SaveDelegate extends SessionDelegate {
         }
     }
 
-    public void addWriteProtection(WriteProtectionMode mode, Predicate<Object> protection) {
+    public void addWriteProtection(WriteProtectionTarget target, Predicate<Object> protection) {
         if(this.writeProtectionStrategy == null) {
             this.writeProtectionStrategy = new DefaultWriteProtectionStrategyImpl();
         } else if(!(this.writeProtectionStrategy instanceof DefaultWriteProtectionStrategyImpl)) {
             throw new IllegalStateException("Cannot register simple write protection for a mode on a custom strategy. Use #setWriteProtectionStrategy(null) to remove any custom strategy.");
         }
 
-        ((DefaultWriteProtectionStrategyImpl)this.writeProtectionStrategy).addProtection(mode, protection);
+        ((DefaultWriteProtectionStrategyImpl)this.writeProtectionStrategy).addProtection(target, protection);
     }
 
-    public void removeWriteProtection(WriteProtectionMode mode) {
+    public void removeWriteProtection(WriteProtectionTarget target) {
         if(this.writeProtectionStrategy == null || !(this.writeProtectionStrategy instanceof DefaultWriteProtectionStrategyImpl)) {
             return;
         }
 
         final DefaultWriteProtectionStrategyImpl writeProtectionStrategy = (DefaultWriteProtectionStrategyImpl) this.writeProtectionStrategy;
-        writeProtectionStrategy.removeProtection(mode);
+        writeProtectionStrategy.removeProtection(target);
         if(writeProtectionStrategy.isEmpty()) {
             this.writeProtectionStrategy = null;
         }

@@ -18,6 +18,6 @@ package org.neo4j.ogm.context;
  *
  * @author Michael J. Simons
  */
-public enum WriteProtectionMode {
-    PROTECTED_PROPERTIES
+public enum WriteProtectionTarget {
+    PROPERTIES
 }

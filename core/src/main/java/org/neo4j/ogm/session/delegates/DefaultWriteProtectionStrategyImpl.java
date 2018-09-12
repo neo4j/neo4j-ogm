@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-import org.neo4j.ogm.context.WriteProtectionMode;
+import org.neo4j.ogm.context.WriteProtectionTarget;
 
 /**
  * Map based write protection strategy. Does only consider the mode for retrieving predicates to protect entities.
@@ -26,18 +26,18 @@ import org.neo4j.ogm.context.WriteProtectionMode;
  * @author Michael J. Simons
  */
 class DefaultWriteProtectionStrategyImpl implements WriteProtectionStrategy {
-    private final Map<WriteProtectionMode, Predicate<Object>> writeProtectionPredicates = new HashMap<>();
+    private final Map<WriteProtectionTarget, Predicate<Object>> writeProtectionPredicates = new HashMap<>();
 
     @Override
-    public BiFunction<WriteProtectionMode, Class<?>, Predicate<Object>> get() {
+    public BiFunction<WriteProtectionTarget, Class<?>, Predicate<Object>> get() {
         return (mode, targetEntity) -> this.writeProtectionPredicates.getOrDefault(mode, t -> false);
     }
 
-    void addProtection(WriteProtectionMode key, Predicate<Object> value) {
+    void addProtection(WriteProtectionTarget key, Predicate<Object> value) {
         writeProtectionPredicates.put(key, value);
     }
 
-    void removeProtection(WriteProtectionMode key) {
+    void removeProtection(WriteProtectionTarget key) {
         writeProtectionPredicates.remove(key);
     }
 

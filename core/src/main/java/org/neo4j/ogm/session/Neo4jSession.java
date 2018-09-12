@@ -22,21 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.MappingContext;
-import org.neo4j.ogm.context.WriteProtectionMode;
+import org.neo4j.ogm.context.WriteProtectionTarget;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
-import org.neo4j.ogm.cypher.query.SortClause;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.CypherException;
-import org.neo4j.ogm.metadata.AnnotationInfo;
-import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
@@ -66,7 +59,6 @@ import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWork;
 import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWorkWithoutResult;
 import org.neo4j.ogm.transaction.Transaction;
-import org.neo4j.ogm.utils.RelationshipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -480,7 +472,7 @@ public class Neo4jSession implements Session {
     // Not part of {@link Session} interface on purpose for the time being
 
     /**
-     * Adds a {@link Predicate} as possible write protection for the specified {@link WriteProtectionMode mode}. OGM will
+     * Adds a {@link Predicate} as possible write protection for the specified {@link WriteProtectionTarget target}. OGM will
      * pass the entity that currently is persisted to the predicate and will skip writing or updating it (depending on
      * the mode) when the predicate returns true.
      * <br>
@@ -488,20 +480,20 @@ public class Neo4jSession implements Session {
      * to be used with {@literal null} again to remove the custom write protection strategy before applying the simple
      * one here.
      *
-     * @param mode The mode to which  the write protection should be applied
+     * @param target The target to which  the write protection should be applied
      * @param protection A predicate determines per entity if write protection has to be applied or node.
      */
-    public void addWriteProtection(WriteProtectionMode mode, Predicate<Object> protection) {
-        saveDelegate.addWriteProtection(mode, protection);
+    public void addWriteProtection(WriteProtectionTarget target, Predicate<Object> protection) {
+        saveDelegate.addWriteProtection(target, protection);
     }
 
     /**
      * Removes write protection for the specified mode.
      *
-     * @param mode The mode to remove all write protections for.
+     * @param target The target to remove all write protections for.
      */
-    public void removeWriteProtection(WriteProtectionMode mode) {
-        saveDelegate.removeWriteProtection(mode);
+    public void removeWriteProtection(WriteProtectionTarget target) {
+        saveDelegate.removeWriteProtection(target);
     }
 
     /**

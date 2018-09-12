@@ -478,14 +478,37 @@ public class Neo4jSession implements Session {
     }
 
     // Not part of {@link Session} interface on purpose for the time being
+
+    /**
+     * Adds a {@link Predicate} as possible write protection for the specified {@link WriteProtectionMode mode}. OGM will
+     * pass the entity that currently is persisted to the predicate and will skip writing or updating it (depending on
+     * the mode) when the predicate returns true.
+     * <br>
+     * If {@link #setWriteProtectionStrategy(WriteProtectionStrategy)} has been used to apply a custom strategy, is has
+     * to be used with {@literal null} again to remove the custom write protection strategy before applying the simple
+     * one here.
+     *
+     * @param mode The mode to which  the write protection should be applied
+     * @param protection A predicate determines per entity if write protection has to be applied or node.
+     */
     public void addWriteProtection(WriteProtectionMode mode, Predicate<Object> protection) {
         saveDelegate.addWriteProtection(mode, protection);
     }
 
+    /**
+     * Removes write protection for the specified mode.
+     *
+     * @param mode The mode to remove all write protections for.
+     */
     public void removeWriteProtection(WriteProtectionMode mode) {
         saveDelegate.removeWriteProtection(mode);
     }
 
+    /**
+     * Can be used to apply a completely custom write protection strategy.
+     *
+     * @param writeProtectionStrategy
+     */
     public void setWriteProtectionStrategy(WriteProtectionStrategy writeProtectionStrategy) {
         saveDelegate.setWriteProtectionStrategy(writeProtectionStrategy);
     }

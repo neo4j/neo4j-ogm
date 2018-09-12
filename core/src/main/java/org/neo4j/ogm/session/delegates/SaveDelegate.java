@@ -113,7 +113,11 @@ public class SaveDelegate extends SessionDelegate {
             return;
         }
 
-        ((DefaultWriteProtectionStrategyImpl)this.writeProtectionStrategy).removeProtection(mode);
+        final DefaultWriteProtectionStrategyImpl writeProtectionStrategy = (DefaultWriteProtectionStrategyImpl) this.writeProtectionStrategy;
+        writeProtectionStrategy.removeProtection(mode);
+        if(writeProtectionStrategy.isEmpty()) {
+            this.writeProtectionStrategy = null;
+        }
     }
 
     public void setWriteProtectionStrategy(WriteProtectionStrategy writeProtectionStrategy) {

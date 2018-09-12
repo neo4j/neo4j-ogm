@@ -40,4 +40,8 @@ class DefaultWriteProtectionStrategyImpl implements WriteProtectionStrategy {
     void removeProtection(WriteProtectionMode key) {
         writeProtectionPredicates.remove(key);
     }
+
+    boolean isEmpty() {
+        return writeProtectionPredicates.isEmpty();
+    }
 }

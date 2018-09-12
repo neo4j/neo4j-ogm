@@ -22,6 +22,7 @@ import org.neo4j.ogm.context.WriteProtectionTarget;
 import org.neo4j.ogm.cypher.compiler.CompileContext;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.WriteProtectionStrategy;
 import org.neo4j.ogm.session.request.RequestExecutor;
 
 /**

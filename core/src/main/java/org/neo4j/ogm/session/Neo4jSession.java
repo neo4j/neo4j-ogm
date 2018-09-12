@@ -43,7 +43,6 @@ import org.neo4j.ogm.session.delegates.LoadByInstancesDelegate;
 import org.neo4j.ogm.session.delegates.LoadByTypeDelegate;
 import org.neo4j.ogm.session.delegates.LoadOneDelegate;
 import org.neo4j.ogm.session.delegates.SaveDelegate;
-import org.neo4j.ogm.session.delegates.WriteProtectionStrategy;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.session.request.OptimisticLockingChecker;

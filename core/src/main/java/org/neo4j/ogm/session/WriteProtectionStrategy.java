@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.session.delegates;
+package org.neo4j.ogm.session;
 
 import java.util.function.BiFunction;
 import java.util.function.Predicate;

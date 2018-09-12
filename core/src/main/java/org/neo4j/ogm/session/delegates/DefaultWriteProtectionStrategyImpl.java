@@ -19,6 +19,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.context.WriteProtectionTarget;
+import org.neo4j.ogm.session.WriteProtectionStrategy;
 
 /**
  * Map based write protection strategy. Does only consider the mode for retrieving predicates to protect entities.

@@ -119,6 +119,35 @@ public class BasicDriverTest extends MultiDriverTestClass {
         }
     }
 
+    @Test
+    public void shouldSaveMultipleObjectsWithWriteProtectionFromRoot() throws Exception {
+        User avon = new User("Avon Barksdale");
+        session.save(avon);
+        session.clear();
+
+        User stringer = new User("Stringer Bell");
+        session.save(stringer);
+        session.clear();
+
+        try {
+            // save only Avon's properties, protect neighboring nodes from writes
+            ((Neo4jSession) session).addWriteProtection(
+                WriteProtectionTarget.PROPERTIES, object -> (object instanceof User) && !avon.getId().equals(((User) object).getId()));
+            stringer.setName("Marlo");
+            avon.befriend(stringer);
+
+            session.save(avon);
+            session.clear();
+            Collection<User> users = session.loadAll(User.class);
+            assertThat(users)
+                .hasSize(2)
+                .extracting(User::getName)
+                .containsExactlyInAnyOrder("Avon Barksdale", "Stringer Bell");
+        } finally {
+            ((Neo4jSession) session).removeWriteProtection(WriteProtectionTarget.PROPERTIES);
+        }
+    }
+
     // load tests
     @Test
     public void shouldLoadByType() {

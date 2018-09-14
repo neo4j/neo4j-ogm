@@ -12,14 +12,6 @@
  */
 package org.neo4j.ogm.drivers;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Stream;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -38,6 +30,15 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
 /**
  * This test class is converted from the AbstractDriverTestSuite to use the test harness in use by other tests.
  * <em>Do not rename this class to end with *Test, or certain test packages might try to execute it.</em>
@@ -51,7 +52,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.social");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.social",
+            "org.neo4j.ogm.domain.simpleNetwork.cisco");
     }
 
     @Before
@@ -114,6 +116,35 @@ public class BasicDriverTest extends MultiDriverTestClass {
                 .hasSize(2)
                 .extracting(User::getName)
                 .containsExactlyInAnyOrder("Bilbo Baggins", "Frodo Beutlin");
+        } finally {
+            ((Neo4jSession) session).removeWriteProtection(WriteProtectionTarget.PROPERTIES);
+        }
+    }
+
+    @Test
+    public void shouldSaveMultipleObjectsWithWriteProtectionFromRoot() throws Exception {
+        User avon = new User("Avon Barksdale");
+        session.save(avon);
+        session.clear();
+
+        User stringer = new User("Stringer Bell");
+        session.save(stringer);
+        session.clear();
+
+        try {
+            // save only Avon's properties, protect neighboring nodes from writes
+            ((Neo4jSession) session).addWriteProtection(
+                WriteProtectionTarget.PROPERTIES, object -> (object instanceof User) && !avon.getId().equals(((User) object).getId()));
+            stringer.setName("Marlo");
+            avon.befriend(stringer);
+
+            session.save(avon);
+            session.clear();
+            Collection<User> users = session.loadAll(User.class);
+            assertThat(users)
+                .hasSize(2)
+                .extracting(User::getName)
+                .containsExactlyInAnyOrder("Avon Barksdale", "Stringer Bell");
         } finally {
             ((Neo4jSession) session).removeWriteProtection(WriteProtectionTarget.PROPERTIES);
         }
@@ -312,7 +343,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
     }
 
     /**
-     * @see issue 119
+//     * @see issue 119
      */
     @Test
     public void shouldWrapUnderlyingException() {

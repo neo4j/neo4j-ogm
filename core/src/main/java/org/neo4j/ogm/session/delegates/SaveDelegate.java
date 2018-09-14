@@ -12,18 +12,17 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.WriteProtectionTarget;
-import org.neo4j.ogm.cypher.compiler.CompileContext;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.WriteProtectionStrategy;
 import org.neo4j.ogm.session.request.RequestExecutor;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author Vince Bickers
@@ -63,7 +62,7 @@ public class SaveDelegate extends SessionDelegate {
             }
 
             EntityGraphMapper mapper = new EntityGraphMapper(session.metaData(), session.context());
-            if(this.writeProtectionStrategy != null) {
+            if (this.writeProtectionStrategy != null) {
                 mapper.addWriteProtection(this.writeProtectionStrategy.get());
             }
             for (Object element : objects) {
@@ -84,11 +83,12 @@ public class SaveDelegate extends SessionDelegate {
                     eventsDelegate.preSave(object);
                 }
 
-                CompileContext context = new EntityGraphMapper(session.metaData(), session.context())
-                    .map(object, depth);
-
-                requestExecutor.executeSave(context);
-
+                EntityGraphMapper mapper = new EntityGraphMapper(session.metaData(), session.context());
+                if (this.writeProtectionStrategy != null) {
+                    mapper.addWriteProtection(this.writeProtectionStrategy.get());
+                }
+                mapper.map(object, depth);
+                requestExecutor.executeSave(mapper.compileContext());
                 if (session.eventsEnabled()) {
                     eventsDelegate.postSave();
                 }

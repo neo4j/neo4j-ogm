@@ -343,7 +343,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
     }
 
     /**
-//     * @see issue 119
+     * @see issue 119
      */
     @Test
     public void shouldWrapUnderlyingException() {

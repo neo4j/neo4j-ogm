@@ -18,21 +18,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.ogm.context.WriteProtectionTarget;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.domain.social.Immortal;
+import org.neo4j.ogm.domain.social.Person;
 import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.session.WriteProtectionStrategy;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
@@ -42,6 +49,7 @@ import org.neo4j.ogm.transaction.Transaction;
  *
  * @author vince
  * @author Michael J. Simons
+ * @author Jared Hancock
  */
 public class BasicDriverTest extends MultiDriverTestClass {
 
@@ -85,6 +93,136 @@ public class BasicDriverTest extends MultiDriverTestClass {
             .hasSize(2)
             .extracting(User::getName)
             .containsExactlyInAnyOrder("Bilbo Baggins", "Frodo Beutlin");
+    }
+
+    @Test
+    public void shouldSaveMultipleObjectsWithWriteProtection() throws Exception {
+        User bilbo = new User("Bilbo Baggins");
+        session.save(bilbo);
+        session.clear();
+
+        try {
+            ((Neo4jSession) session).addWriteProtection(
+                WriteProtectionTarget.PROPERTIES, object -> (object instanceof User) && bilbo.getId().equals(((User) object).getId()));
+            User frodo = new User("Frodo Beutlin");
+            bilbo.befriend(frodo);
+            bilbo.setName("The wrong name");
+
+            // Get an Iterable which is not a Collection
+            Iterable<User> iterable = Stream.of(bilbo, frodo)::iterator;
+            assertThat(iterable).isNotInstanceOf(Collection.class);
+
+            session.save(iterable);
+
+            session.clear();
+            Collection<User> users = session.loadAll(User.class);
+            assertThat(users)
+                .hasSize(2)
+                .extracting(User::getName)
+                .containsExactlyInAnyOrder("Bilbo Baggins", "Frodo Beutlin");
+        } finally {
+            ((Neo4jSession) session).removeWriteProtection(WriteProtectionTarget.PROPERTIES);
+        }
+    }
+
+    @Test
+    public void shouldSaveMultipleObjectsWithWriteProtectionFromRoot() throws Exception {
+        User avon = new User("Avon Barksdale");
+        session.save(avon);
+
+        User stringer = new User("Stringer Bell");
+        session.save(stringer);
+
+        session.clear();
+
+        try {
+            // save only Avon's properties, protect neighboring nodes from writes
+            ((Neo4jSession) session).addWriteProtection(
+                WriteProtectionTarget.PROPERTIES, object -> (object instanceof User) && !avon.getId().equals(((User) object).getId()));
+            stringer.setName("Marlo");
+            avon.befriend(stringer);
+
+            session.save(avon);
+            session.clear();
+            Collection<User> users = session.loadAll(User.class);
+            assertThat(users)
+                .hasSize(2)
+                .extracting(User::getName)
+                .containsExactlyInAnyOrder("Avon Barksdale", "Stringer Bell");
+        } finally {
+            ((Neo4jSession) session).removeWriteProtection(WriteProtectionTarget.PROPERTIES);
+        }
+    }
+
+    @Test
+    public void customWriteProtectionStrategyShouldBeApplied() {
+        Predicate<Object> alwaysWriteProtect = o -> true;
+        Predicate<Object> protectAvon = o -> ((User)o).getName().startsWith("Avon");
+
+        WriteProtectionStrategy customStrategy = () -> (target, clazz) -> {
+            // Mode ignored
+
+            // If you need only protection for some Classes, this is the way to go.
+            // You than can omit the class check  in the predicate
+            if(clazz == Immortal.class) {
+                return alwaysWriteProtect;
+            } else if(clazz  == User.class) {
+                return protectAvon;
+            } else { // if no predicate is return, we assume no write protection
+                // Person.class in the example
+                return null;
+            }
+        };
+
+        User avon = new User("Avon Barksdale");
+        session.save(avon);
+
+        User stringer = new User("Stringer Bell");
+        session.save(stringer);
+
+        Immortal connor = new Immortal("Connor", "MacLeod");
+        session.save(connor);
+
+        Person person = new Person("A person");
+        session.save(person);
+
+        session.clear();
+
+        try {
+            ((Neo4jSession) session).setWriteProtectionStrategy(customStrategy);
+
+            stringer.setName("Avon Something");
+            avon.befriend(stringer);
+            session.save(avon);
+
+            connor.setFirstName("Duncan");
+            session.save(connor);
+
+            person.setName("John Reese");
+            session.save(person);
+
+            session.clear();
+
+            Collection<User> users = session.loadAll(User.class);
+            assertThat(users)
+                .hasSize(2)
+                .extracting(User::getName)
+                .containsExactlyInAnyOrder("Avon Barksdale", "Stringer Bell");
+
+            Collection<Immortal> immortals = session.loadAll(Immortal.class);
+            assertThat(immortals)
+                .hasSize(1)
+                .extracting(Immortal::getFirstName)
+                .containsExactlyInAnyOrder("Connor");
+
+            Collection<Person> personsOfInterest = session.loadAll(Person.class);
+            assertThat(personsOfInterest)
+                .hasSize(1)
+                .extracting(Person::getName)
+                .containsExactlyInAnyOrder("John Reese");
+        } finally {
+            ((Neo4jSession) session).setWriteProtectionStrategy(null);
+        }
     }
 
     // load tests
@@ -193,7 +331,6 @@ public class BasicDriverTest extends MultiDriverTestClass {
         assertThat(result.queryResults().iterator().hasNext()).isTrue();
     }
 
-    //
     @Test
     public void shouldFindExplicitlyCommittedEntity() {
 
@@ -279,10 +416,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         assertThat(session.loadAll(User.class)).isEmpty();
     }
 
-    /**
-     * @see issue 119
-     */
-    @Test
+    @Test // GH-119
     public void shouldWrapUnderlyingException() {
         session.save(new User("Bilbo Baggins"));
         try {

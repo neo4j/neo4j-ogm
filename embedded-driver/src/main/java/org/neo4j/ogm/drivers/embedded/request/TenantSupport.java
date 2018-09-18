@@ -20,7 +20,7 @@ import org.neo4j.cypher.internal.v3_4.expressions.NodePattern;
 
 public class TenantSupport {
 
-    private static final String ILLEGAL_TENANT_MESSAGE = "Only tenants with alpha-numeric characters are allowed, starting with an alphabetic charater. This tenant does not match the rule: ";
+    private static final String ILLEGAL_TENANT_MESSAGE = "Only tenants with alpha-numeric characters are allowed, starting with an alphabetic character. This tenant does not match the rule: ";
     private final String tenant;
 
     public TenantSupport(String tenant) {
@@ -55,7 +55,9 @@ public class TenantSupport {
 
         Prettifier prettifier = new Prettifier(new ExpressionStringifier(null));
 
-        return prettifier.asString((Statement) rewriter.apply(statement));
+        Statement apply = (Statement) rewriter.apply(statement);
+        System.out.println(apply);
+        return prettifier.asString(apply);
     }
 
     private static class SimpleStopper extends scala.runtime.AbstractFunction1<Object, Object> {
@@ -81,11 +83,17 @@ public class TenantSupport {
 
             if (patternElement instanceof NodePattern) {
 
+                System.out.println("Pattern (before): " + patternElement);
+
                 NodePattern nodePattern = (NodePattern) patternElement;
                 Seq<LabelName> newLabels = addTenantLabel(nodePattern);
 
-                return nodePattern
+                NodePattern copy = nodePattern
                     .copy(nodePattern.variable(), newLabels, nodePattern.properties(), nodePattern.position());
+
+                System.out.println("Pattern (before): " + copy);
+
+                return copy;
             } else {
                 return patternElement;
             }
@@ -94,7 +102,9 @@ public class TenantSupport {
         private Seq<LabelName> addTenantLabel(NodePattern nodePattern) {
             Collection<LabelName> existingLabels = new ArrayList<LabelName>(
                 asJavaCollectionConverter(nodePattern.labels()).asJavaCollection());
+            System.out.println("Existing labels before:" + existingLabels);
             existingLabels.add(new LabelName(tenant, nodePattern.position()));
+            System.out.println("Existing labels after:" + existingLabels);
 
             return collectionAsScalaIterableConverter(existingLabels).asScala().toSeq();
         }

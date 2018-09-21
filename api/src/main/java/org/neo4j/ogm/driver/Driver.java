@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.driver;
 
+import java.util.function.Function;
+
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
@@ -43,6 +45,10 @@ public interface Driver extends AutoCloseable {
     void setTransactionManager(TransactionManager tx);
 
     Configuration getConfiguration();
+
+    default Function<String, String> getCypherModification() {
+        return Function.identity();
+    }
 
     /**
      * Indicates if the driver requires an explicit transaction to run queries.

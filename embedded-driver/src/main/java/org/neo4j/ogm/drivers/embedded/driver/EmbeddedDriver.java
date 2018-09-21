@@ -139,7 +139,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request request() {
-        return new EmbeddedRequest(graphDatabaseService, transactionManager, tenantSupport);
+        return new EmbeddedRequest(graphDatabaseService, transactionManager, getCypherModification());
     }
 
     private org.neo4j.graphdb.Transaction nativeTransaction() {

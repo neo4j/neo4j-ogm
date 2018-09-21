@@ -13,7 +13,13 @@
 
 package org.neo4j.ogm.driver;
 
+import java.util.Comparator;
+import java.util.ServiceLoader;
+import java.util.function.Function;
+import java.util.stream.StreamSupport;
+
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.spi.CypherModificationProvider;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
@@ -32,15 +38,24 @@ import org.neo4j.ogm.transaction.TransactionManager;
  *
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public abstract class AbstractConfigurableDriver implements Driver {
+
+    private final ServiceLoader<CypherModificationProvider> cypherModificationProviderLoader =
+        ServiceLoader.load(CypherModificationProvider.class);
 
     protected Configuration configuration;
     protected TransactionManager transactionManager;
 
+    private Function<String, String> cypherModification = Function.identity();
+
     @Override
     public void configure(Configuration config) {
         this.configuration = config;
+
+        // TODO This is not so nice, as derived classes do not need to call that method here.
+        this.cypherModification = loadCypherModifications();
     }
 
     @Override
@@ -52,5 +67,19 @@ public abstract class AbstractConfigurableDriver implements Driver {
     @Override
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    @Override
+    public Function<String, String> getCypherModification() {
+        return cypherModification;
+    }
+
+    private Function<String, String> loadCypherModifications() {
+        this.cypherModificationProviderLoader.reload();
+
+        return StreamSupport.stream(cypherModificationProviderLoader.spliterator(), false)
+            .sorted(Comparator.comparing(CypherModificationProvider::getOrder))
+            .map(provider -> provider.getCypherModifcation(configuration))
+            .reduce(Function.identity(), Function::andThen, Function::andThen);
     }
 }

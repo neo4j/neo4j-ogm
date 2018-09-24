@@ -31,5 +31,5 @@ public interface CypherModificationProvider {
         return Integer.MAX_VALUE;
     }
 
-    Function<String, String> getCypherModifcation(Configuration configuration);
+    Function<String, String> getCypherModification(Configuration configuration);
 }

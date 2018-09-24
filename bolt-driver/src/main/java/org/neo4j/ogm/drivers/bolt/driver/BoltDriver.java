@@ -155,7 +155,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request request() {
-        return new BoltRequest(transactionManager);
+        return new BoltRequest(transactionManager, getCypherModification());
     }
 
     private Session newSession(Transaction.Type type, Iterable<String> bookmarks) {

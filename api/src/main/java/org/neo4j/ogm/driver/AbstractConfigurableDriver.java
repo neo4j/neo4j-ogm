@@ -79,7 +79,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
 
         return StreamSupport.stream(cypherModificationProviderLoader.spliterator(), false)
             .sorted(Comparator.comparing(CypherModificationProvider::getOrder))
-            .map(provider -> provider.getCypherModification(configuration))
+            .map(provider -> provider.getCypherModification(configuration.getConfigProperties()))
             .reduce(Function.identity(), Function::andThen, Function::andThen);
     }
 }

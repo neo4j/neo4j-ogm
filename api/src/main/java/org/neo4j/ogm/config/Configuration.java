@@ -15,6 +15,7 @@ package org.neo4j.ogm.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -45,6 +46,7 @@ public class Configuration {
     private Credentials credentials;
     private Integer connectionLivenessCheckTimeout;
     private Boolean verifyConnection;
+    private Map<String, Object> configProperties;
 
     /**
      * Protected constructor of the Configuration class.
@@ -66,6 +68,7 @@ public class Configuration {
             builder.generatedIndexesOutputFilename :
             "generated_indexes.cql";
         this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
+        this.configProperties = builder.configProperties;
 
         if (this.uri != null) {
             java.net.URI uri = null;
@@ -150,6 +153,10 @@ public class Configuration {
 
     public Credentials getCredentials() {
         return credentials;
+    }
+
+    public Map<String, Object> getConfigProperties() {
+        return configProperties;
     }
 
     private void determineDefaultDriverName(String scheme) {
@@ -245,7 +252,8 @@ public class Configuration {
                 .generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
                 .neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
-                .credentials(builder.username, builder.password);
+                .credentials(builder.username, builder.password)
+                .configProperties(builder.configProperties);
         }
 
         private static final String URI = "URI";
@@ -277,6 +285,7 @@ public class Configuration {
         private String neo4jHaPropertiesFile;
         private String username;
         private String password;
+        private Map<String, Object> configProperties = new HashMap<>();
 
         /**
          * Creates new Configuration builder
@@ -439,6 +448,16 @@ public class Configuration {
 
         public Builder neo4jHaPropertiesFile(String neo4jHaPropertiesFile) {
             this.neo4jHaPropertiesFile = neo4jHaPropertiesFile;
+            return this;
+        }
+
+        private Builder configProperties(Map<String, Object> configProperties) {
+            this.configProperties = configProperties;
+            return this;
+        }
+
+        public Builder withConfigProperty(String key, Object value) {
+            this.configProperties.put(key, value);
             return this;
         }
 

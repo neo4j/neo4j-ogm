@@ -12,6 +12,7 @@
  */
 package org.neo4j.ogm.spi;
 
+import java.util.Map;
 import java.util.function.Function;
 
 import org.neo4j.ogm.config.Configuration;
@@ -31,5 +32,5 @@ public interface CypherModificationProvider {
         return Integer.MAX_VALUE;
     }
 
-    Function<String, String> getCypherModification(Configuration configuration);
+    Function<String, String> getCypherModification(Map<String, Object> configProperties);
 }

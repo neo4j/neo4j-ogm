@@ -14,8 +14,10 @@
 package org.neo4j.ogm.driver;
 
 import java.util.Comparator;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
 import org.neo4j.ogm.config.Configuration;
@@ -48,7 +50,23 @@ public abstract class AbstractConfigurableDriver implements Driver {
     protected Configuration configuration;
     protected TransactionManager transactionManager;
 
+    private final Supplier<Map<String, Object>> configurationPropertiesSupplier;
     private volatile Function<String, String> cypherModification;
+
+
+    public AbstractConfigurableDriver() {
+        this.configurationPropertiesSupplier = this::getConfigurationProperties;
+    }
+
+    /**
+     * This is only provided for the embedded driver that can take a preconfigured, embedded database
+     * without any way to add configuration properties.
+     *
+     * @param configurationPropertiesSupplier
+     */
+    protected AbstractConfigurableDriver(Supplier<Map<String, Object>> configurationPropertiesSupplier) {
+        this.configurationPropertiesSupplier = configurationPropertiesSupplier;
+    }
 
     @Override
     public void configure(Configuration config) {
@@ -80,17 +98,22 @@ public abstract class AbstractConfigurableDriver implements Driver {
         return loadedCypherModification;
     }
 
-    private Function<String, String> loadCypherModifications() {
-
+    private Map<String, Object> getConfigurationProperties() {
         if(this.configuration == null) {
             throw new IllegalStateException("Driver is not configured and cannot load Cypher modifications.");
         }
 
+        return this.configuration.getConfigProperties();
+    }
+
+    private Function<String, String> loadCypherModifications() {
+
+        Map<String, Object> configurationProperties = this.configurationPropertiesSupplier.get();
         this.cypherModificationProviderLoader.reload();
 
         return StreamSupport.stream(this.cypherModificationProviderLoader.spliterator(), false)
             .sorted(Comparator.comparing(CypherModificationProvider::getOrder))
-            .map(provider -> provider.getCypherModification(this.configuration.getConfigProperties()))
+            .map(provider -> provider.getCypherModification(configurationProperties))
             .reduce(Function.identity(), Function::andThen, Function::andThen);
     }
 }

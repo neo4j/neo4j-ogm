@@ -23,6 +23,9 @@ import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -53,6 +56,12 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     public EmbeddedDriver() {}
 
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
+        this(graphDatabaseService, HashMap::new);
+    }
+
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService, Supplier<Map<String, Object>> configurationPropertiesSupplier) {
+        super(configurationPropertiesSupplier);
+
         this.graphDatabaseService = requireNonNull(graphDatabaseService);
         boolean available = this.graphDatabaseService.isAvailable(TIMEOUT);
         if (!available) {

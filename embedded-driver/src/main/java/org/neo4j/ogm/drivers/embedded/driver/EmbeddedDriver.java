@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author vince
+ * @author Michael J. Simons
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {
 
@@ -52,10 +53,6 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     public EmbeddedDriver() {}
 
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
-        this(graphDatabaseService, null);
-    }
-
-    public EmbeddedDriver(GraphDatabaseService graphDatabaseService, String tenant) {
         this.graphDatabaseService = requireNonNull(graphDatabaseService);
         boolean available = this.graphDatabaseService.isAvailable(TIMEOUT);
         if (!available) {

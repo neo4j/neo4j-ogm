@@ -15,6 +15,7 @@ package org.neo4j.ogm.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -156,7 +157,7 @@ public class Configuration {
     }
 
     public Map<String, Object> getConfigProperties() {
-        return configProperties;
+        return Collections.unmodifiableMap(configProperties);
     }
 
     private void determineDefaultDriverName(String scheme) {

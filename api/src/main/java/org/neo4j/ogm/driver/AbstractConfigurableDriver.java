@@ -48,14 +48,11 @@ public abstract class AbstractConfigurableDriver implements Driver {
     protected Configuration configuration;
     protected TransactionManager transactionManager;
 
-    private Function<String, String> cypherModification = Function.identity();
+    private volatile Function<String, String> cypherModification;
 
     @Override
     public void configure(Configuration config) {
         this.configuration = config;
-
-        // TODO This is not so nice, as derived classes do not need to call that method here.
-        this.cypherModification = loadCypherModifications();
     }
 
     @Override
@@ -70,16 +67,30 @@ public abstract class AbstractConfigurableDriver implements Driver {
     }
 
     @Override
-    public Function<String, String> getCypherModification() {
-        return cypherModification;
+    public final Function<String, String> getCypherModification() {
+
+        Function<String, String> loadedCypherModification = this.cypherModification;
+        if(loadedCypherModification == null) {
+            synchronized (this) {
+                if(this.cypherModification == null) {
+                    loadedCypherModification = this.cypherModification = loadCypherModifications();
+                }
+            }
+        }
+        return loadedCypherModification;
     }
 
     private Function<String, String> loadCypherModifications() {
+
+        if(this.configuration == null) {
+            throw new IllegalStateException("Driver is not configured and cannot load Cypher modifications.");
+        }
+
         this.cypherModificationProviderLoader.reload();
 
-        return StreamSupport.stream(cypherModificationProviderLoader.spliterator(), false)
+        return StreamSupport.stream(this.cypherModificationProviderLoader.spliterator(), false)
             .sorted(Comparator.comparing(CypherModificationProvider::getOrder))
-            .map(provider -> provider.getCypherModification(configuration.getConfigProperties()))
+            .map(provider -> provider.getCypherModification(this.configuration.getConfigProperties()))
             .reduce(Function.identity(), Function::andThen, Function::andThen);
     }
 }

@@ -254,7 +254,7 @@ public class Configuration {
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
                 .neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
                 .credentials(builder.username, builder.password)
-                .configProperties(builder.configProperties);
+                .configProperties(new HashMap<>(builder.configProperties));
         }
 
         private static final String URI = "URI";

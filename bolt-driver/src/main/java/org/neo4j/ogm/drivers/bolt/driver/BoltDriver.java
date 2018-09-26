@@ -18,8 +18,11 @@ import static java.util.Objects.*;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.neo4j.driver.v1.AccessMode;
 import org.neo4j.driver.v1.AuthToken;
@@ -61,12 +64,20 @@ public class BoltDriver extends AbstractConfigurableDriver {
     public BoltDriver() {
     }
 
+    public BoltDriver(Driver boltDriver) {
+        this(boltDriver, Collections::emptyMap);
+    }
+
     /**
      * Create OGM BoltDriver with provided java neo4j driver
      *
-     * @param boltDriver instance of java neo4j driver
+     * @param boltDriver                      instance of java neo4j driver
+     * @param configurationPropertiesSupplier Hook to provide configuration properties, i.e. for Cypher modification providers
      */
-    public BoltDriver(Driver boltDriver) {
+    public BoltDriver(Driver boltDriver, Supplier<Map<String, Object>> configurationPropertiesSupplier) {
+
+        super(configurationPropertiesSupplier);
+
         this.boltDriver = requireNonNull(boltDriver);
     }
 

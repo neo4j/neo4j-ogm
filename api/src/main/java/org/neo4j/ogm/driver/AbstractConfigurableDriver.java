@@ -99,6 +99,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
     }
 
     private Map<String, Object> getConfigurationProperties() {
+
         if(this.configuration == null) {
             throw new IllegalStateException("Driver is not configured and cannot load Cypher modifications.");
         }

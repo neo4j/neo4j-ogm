@@ -23,7 +23,7 @@ import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -56,10 +56,18 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     public EmbeddedDriver() {}
 
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
-        this(graphDatabaseService, HashMap::new);
+        this(graphDatabaseService, Collections::emptyMap);
     }
 
-    public EmbeddedDriver(GraphDatabaseService graphDatabaseService, Supplier<Map<String, Object>> configurationPropertiesSupplier) {
+    /**
+     * Create OGM EmbeddedDriver with provided embedded instance.
+     *
+     * @param graphDatabaseService            Preconfigured, embedded instance.
+     * @param configurationPropertiesSupplier Hook to provide configuration properties, i.e. for Cypher modification providers
+     */
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService,
+        Supplier<Map<String, Object>> configurationPropertiesSupplier) {
+
         super(configurationPropertiesSupplier);
 
         this.graphDatabaseService = requireNonNull(graphDatabaseService);

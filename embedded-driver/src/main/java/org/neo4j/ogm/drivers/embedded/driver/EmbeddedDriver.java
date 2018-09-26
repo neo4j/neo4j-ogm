@@ -63,12 +63,12 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * Create OGM EmbeddedDriver with provided embedded instance.
      *
      * @param graphDatabaseService            Preconfigured, embedded instance.
-     * @param configurationPropertiesSupplier Hook to provide configuration properties, i.e. for Cypher modification providers
+     * @param customPropertiesSupplier Hook to provide custom configuration properties, i.e. for Cypher modification providers
      */
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService,
-        Supplier<Map<String, Object>> configurationPropertiesSupplier) {
+        Supplier<Map<String, Object>> customPropertiesSupplier) {
 
-        super(configurationPropertiesSupplier);
+        super(customPropertiesSupplier);
 
         this.graphDatabaseService = requireNonNull(graphDatabaseService);
         boolean available = this.graphDatabaseService.isAvailable(TIMEOUT);

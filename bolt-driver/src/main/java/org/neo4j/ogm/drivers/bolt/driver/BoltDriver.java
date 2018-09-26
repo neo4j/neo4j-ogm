@@ -71,12 +71,12 @@ public class BoltDriver extends AbstractConfigurableDriver {
     /**
      * Create OGM BoltDriver with provided java neo4j driver
      *
-     * @param boltDriver                      instance of java neo4j driver
-     * @param configurationPropertiesSupplier Hook to provide configuration properties, i.e. for Cypher modification providers
+     * @param boltDriver               instance of java neo4j driver
+     * @param customPropertiesSupplier Hook to provide custom configuration properties, i.e. for Cypher modification providers
      */
-    public BoltDriver(Driver boltDriver, Supplier<Map<String, Object>> configurationPropertiesSupplier) {
+    public BoltDriver(Driver boltDriver, Supplier<Map<String, Object>> customPropertiesSupplier) {
 
-        super(configurationPropertiesSupplier);
+        super(customPropertiesSupplier);
 
         this.boltDriver = requireNonNull(boltDriver);
     }

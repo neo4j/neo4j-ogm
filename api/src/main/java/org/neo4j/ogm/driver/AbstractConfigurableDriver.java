@@ -50,22 +50,28 @@ public abstract class AbstractConfigurableDriver implements Driver {
     protected Configuration configuration;
     protected TransactionManager transactionManager;
 
-    private final Supplier<Map<String, Object>> configurationPropertiesSupplier;
+    /**
+     * Used for configuring the cypher modification providers. Defaults to {@link #getConfiguration()} and reads the
+     * custom properties from the common {@link Configuration}.
+     */
+    private final Supplier<Map<String, Object>> customPropertiesSupplier;
+    /**
+     * Final Cypher modififcation loaded from all present providers.
+     */
     private volatile Function<String, String> cypherModification;
 
-
     public AbstractConfigurableDriver() {
-        this.configurationPropertiesSupplier = this::getConfigurationProperties;
+        this.customPropertiesSupplier = this::getConfigurationProperties;
     }
 
     /**
      * This is only provided for the embedded driver that can take a preconfigured, embedded database
      * without any way to add configuration properties.
      *
-     * @param configurationPropertiesSupplier
+     * @param customPropertiesSupplier
      */
-    protected AbstractConfigurableDriver(Supplier<Map<String, Object>> configurationPropertiesSupplier) {
-        this.configurationPropertiesSupplier = configurationPropertiesSupplier;
+    protected AbstractConfigurableDriver(Supplier<Map<String, Object>> customPropertiesSupplier) {
+        this.customPropertiesSupplier = customPropertiesSupplier;
     }
 
     @Override
@@ -104,12 +110,12 @@ public abstract class AbstractConfigurableDriver implements Driver {
             throw new IllegalStateException("Driver is not configured and cannot load Cypher modifications.");
         }
 
-        return this.configuration.getConfigProperties();
+        return this.configuration.getCustomProperties();
     }
 
     private Function<String, String> loadCypherModifications() {
 
-        Map<String, Object> configurationProperties = this.configurationPropertiesSupplier.get();
+        Map<String, Object> configurationProperties = this.customPropertiesSupplier.get();
         this.cypherModificationProviderLoader.reload();
 
         return StreamSupport.stream(this.cypherModificationProviderLoader.spliterator(), false)

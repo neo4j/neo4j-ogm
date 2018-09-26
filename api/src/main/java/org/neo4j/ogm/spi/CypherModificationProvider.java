@@ -60,8 +60,8 @@ public interface CypherModificationProvider {
     /**
      * Called by OGM to retrieve the actual Cypher modification.
      *
-     * @param configurationProperties Properties
-     * @return
+     * @param configuration Map containing all custom properties from {@link org.neo4j.ogm.config.Configuration}
+     * @return The actual cypher modification
      */
-    Function<String, String> getCypherModification(Map<String, Object> configurationProperties);
+    Function<String, String> getCypherModification(Map<String, Object> configuration);
 }

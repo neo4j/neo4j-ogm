@@ -44,8 +44,8 @@ public class CypherModificationSPITest {
         currentThread.setContextClassLoader(new TestServiceLoaderClassLoader(originalClassLoader));
 
         Configuration driverConfiguration = new Configuration.Builder()
-            .withConfigProperty("config1", 6)
-            .withConfigProperty("config2", 9)
+            .withCustomProperty("config1", 6)
+            .withCustomProperty("config2", 9)
             .build();
 
         Driver driver = new TestDriver();
@@ -91,9 +91,9 @@ public class CypherModificationSPITest {
         }
 
         @Override
-        public Function<String, String> getCypherModification(Map<String, Object> configurationProperties) {
-            Integer value1 = (Integer) configurationProperties.get("config1");
-            Integer value2 = (Integer) configurationProperties.get("config2");
+        public Function<String, String> getCypherModification(Map<String, Object> configuration) {
+            Integer value1 = (Integer) configuration.get("config1");
+            Integer value2 = (Integer) configuration.get("config2");
             return modifiedCypher -> modifiedCypher.replaceAll("theAnswer", Integer.toString(value1 * value2, 13));
         }
     }
@@ -106,7 +106,7 @@ public class CypherModificationSPITest {
         }
 
         @Override
-        public Function<String, String> getCypherModification(Map<String, Object> configurationProperties) {
+        public Function<String, String> getCypherModification(Map<String, Object> configuration) {
             return originalCypher -> "theAnswer";
         }
     }

@@ -47,7 +47,7 @@ public class Configuration {
     private Credentials credentials;
     private Integer connectionLivenessCheckTimeout;
     private Boolean verifyConnection;
-    private Map<String, Object> configProperties;
+    private Map<String, Object> customProperties;
 
     /**
      * Protected constructor of the Configuration class.
@@ -69,7 +69,7 @@ public class Configuration {
             builder.generatedIndexesOutputFilename :
             "generated_indexes.cql";
         this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
-        this.configProperties = builder.configProperties;
+        this.customProperties = builder.customProperties;
 
         if (this.uri != null) {
             java.net.URI uri = null;
@@ -156,8 +156,8 @@ public class Configuration {
         return credentials;
     }
 
-    public Map<String, Object> getConfigProperties() {
-        return Collections.unmodifiableMap(configProperties);
+    public Map<String, Object> getCustomProperties() {
+        return Collections.unmodifiableMap(customProperties);
     }
 
     private void determineDefaultDriverName(String scheme) {
@@ -254,7 +254,7 @@ public class Configuration {
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
                 .neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
                 .credentials(builder.username, builder.password)
-                .configProperties(new HashMap<>(builder.configProperties));
+                .customProperties(new HashMap<>(builder.customProperties));
         }
 
         private static final String URI = "URI";
@@ -286,7 +286,7 @@ public class Configuration {
         private String neo4jHaPropertiesFile;
         private String username;
         private String password;
-        private Map<String, Object> configProperties = new HashMap<>();
+        private Map<String, Object> customProperties = new HashMap<>();
 
         /**
          * Creates new Configuration builder
@@ -452,13 +452,13 @@ public class Configuration {
             return this;
         }
 
-        private Builder configProperties(Map<String, Object> configProperties) {
-            this.configProperties = configProperties;
+        private Builder customProperties(Map<String, Object> customProperties) {
+            this.customProperties = customProperties;
             return this;
         }
 
-        public Builder withConfigProperty(String key, Object value) {
-            this.configProperties.put(key, value);
+        public Builder withCustomProperty(String name, Object value) {
+            this.customProperties.put(name, value);
             return this;
         }
 

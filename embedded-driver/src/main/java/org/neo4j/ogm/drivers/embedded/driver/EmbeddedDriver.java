@@ -23,6 +23,9 @@ import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Map;
+import java.util.function.Supplier;
 
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -40,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author vince
+ * @author Michael J. Simons
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {
 
@@ -49,10 +53,23 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     private GraphDatabaseService graphDatabaseService;
 
     // required for service loader mechanism
-    public EmbeddedDriver() {
-    }
+    public EmbeddedDriver() {}
 
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
+        this(graphDatabaseService, Collections::emptyMap);
+    }
+
+    /**
+     * Create OGM EmbeddedDriver with provided embedded instance.
+     *
+     * @param graphDatabaseService            Preconfigured, embedded instance.
+     * @param customPropertiesSupplier Hook to provide custom configuration properties, i.e. for Cypher modification providers
+     */
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService,
+        Supplier<Map<String, Object>> customPropertiesSupplier) {
+
+        super(customPropertiesSupplier);
+
         this.graphDatabaseService = requireNonNull(graphDatabaseService);
         boolean available = this.graphDatabaseService.isAvailable(TIMEOUT);
         if (!available) {
@@ -128,7 +145,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request request() {
-        return new EmbeddedRequest(graphDatabaseService, transactionManager);
+        return new EmbeddedRequest(graphDatabaseService, transactionManager, getCypherModification());
     }
 
     private org.neo4j.graphdb.Transaction nativeTransaction() {

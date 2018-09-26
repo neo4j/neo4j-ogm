@@ -15,6 +15,8 @@ package org.neo4j.ogm.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -45,6 +47,7 @@ public class Configuration {
     private Credentials credentials;
     private Integer connectionLivenessCheckTimeout;
     private Boolean verifyConnection;
+    private Map<String, Object> customProperties;
 
     /**
      * Protected constructor of the Configuration class.
@@ -66,6 +69,7 @@ public class Configuration {
             builder.generatedIndexesOutputFilename :
             "generated_indexes.cql";
         this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
+        this.customProperties = builder.customProperties;
 
         if (this.uri != null) {
             java.net.URI uri = null;
@@ -150,6 +154,10 @@ public class Configuration {
 
     public Credentials getCredentials() {
         return credentials;
+    }
+
+    public Map<String, Object> getCustomProperties() {
+        return Collections.unmodifiableMap(customProperties);
     }
 
     private void determineDefaultDriverName(String scheme) {
@@ -245,7 +253,8 @@ public class Configuration {
                 .generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
                 .neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
-                .credentials(builder.username, builder.password);
+                .credentials(builder.username, builder.password)
+                .customProperties(new HashMap<>(builder.customProperties));
         }
 
         private static final String URI = "URI";
@@ -277,6 +286,7 @@ public class Configuration {
         private String neo4jHaPropertiesFile;
         private String username;
         private String password;
+        private Map<String, Object> customProperties = new HashMap<>();
 
         /**
          * Creates new Configuration builder
@@ -439,6 +449,16 @@ public class Configuration {
 
         public Builder neo4jHaPropertiesFile(String neo4jHaPropertiesFile) {
             this.neo4jHaPropertiesFile = neo4jHaPropertiesFile;
+            return this;
+        }
+
+        private Builder customProperties(Map<String, Object> customProperties) {
+            this.customProperties = customProperties;
+            return this;
+        }
+
+        public Builder withCustomProperty(String name, Object value) {
+            this.customProperties.put(name, value);
             return this;
         }
 

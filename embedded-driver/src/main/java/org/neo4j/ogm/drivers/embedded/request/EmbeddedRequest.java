@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.QueryExecutionException;
@@ -61,10 +62,15 @@ public class EmbeddedRequest implements Request {
 
     private final TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
     };
+    private final Function<String, String> cypherModification;
 
-    public EmbeddedRequest(GraphDatabaseService graphDatabaseService, TransactionManager transactionManager) {
+    public EmbeddedRequest(GraphDatabaseService graphDatabaseService,
+        TransactionManager transactionManager,
+        Function<String, String> cypherModification) {
+
         this.graphDatabaseService = graphDatabaseService;
         this.transactionManager = transactionManager;
+        this.cypherModification = cypherModification;
     }
 
     @Override
@@ -146,7 +152,7 @@ public class EmbeddedRequest implements Request {
     private Result executeRequest(Statement statement) {
 
         try {
-            String cypher = statement.getStatement();
+            String cypher = cypherModification.apply(statement.getStatement());
 
             Map<String, Object> parameterMap = mapper.convertValue(statement.getParameters(), MAP_TYPE_REF);
             logger.info("Request: {} with params {}", cypher, parameterMap);

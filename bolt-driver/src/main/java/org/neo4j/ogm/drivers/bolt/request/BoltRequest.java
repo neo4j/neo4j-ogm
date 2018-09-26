@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.exceptions.ClientException;
@@ -64,8 +65,11 @@ public class BoltRequest implements Request {
     private TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
     };
 
-    public BoltRequest(TransactionManager transactionManager) {
+    private final Function<String, String> cypherModification;
+
+    public BoltRequest(TransactionManager transactionManager, Function<String, String> cypherModification) {
         this.transactionManager = transactionManager;
+        this.cypherModification = cypherModification;
     }
 
     @Override
@@ -147,10 +151,11 @@ public class BoltRequest implements Request {
         BoltTransaction tx;
         try {
             Map<String, Object> parameterMap = mapper.convertValue(request.getParameters(), MAP_TYPE_REF);
-            LOGGER.info("Request: {} with params {}", request.getStatement(), parameterMap);
+            String statement = cypherModification.apply(request.getStatement());
+            LOGGER.info("Request: {} with params {}", statement, parameterMap);
 
             tx = (BoltTransaction) transactionManager.getCurrentTransaction();
-            return tx.nativeBoltTransaction().run(request.getStatement(), parameterMap);
+            return tx.nativeBoltTransaction().run(statement, parameterMap);
         } catch (ClientException | DatabaseException | TransientException ce) {
             throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
         }

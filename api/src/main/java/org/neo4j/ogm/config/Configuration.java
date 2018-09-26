@@ -85,12 +85,11 @@ public class Configuration {
                 this.uri = uri.toString().replace(uri.getUserInfo() + "@", "");
             }
             if (getDriverClassName() == null) {
-                determineDefaultDriverName(uri.getScheme());
+                this.driverName = Drivers.getDriverFor(uri.getScheme()).driverClassName();
             }
         } else {
-            determineDefaultDriverName("file");
+            this.driverName = Drivers.EMBEDDED.driverClassName();
         }
-        assert this.driverName != null;
 
         if (builder.username != null && builder.password != null) {
             if (this.credentials != null) {
@@ -158,27 +157,6 @@ public class Configuration {
 
     public Map<String, Object> getCustomProperties() {
         return Collections.unmodifiableMap(customProperties);
-    }
-
-    private void determineDefaultDriverName(String scheme) {
-
-        if (scheme == null) {
-            throw new RuntimeException("A URI Scheme must be one of http/https, bolt or file.");
-        }
-
-        switch (scheme) {
-            case "http":
-            case "https":
-                this.driverName = "org.neo4j.ogm.drivers.http.driver.HttpDriver";
-                break;
-            case "bolt":
-            case "bolt+routing":
-                this.driverName = "org.neo4j.ogm.drivers.bolt.driver.BoltDriver";
-                break;
-            default:
-                this.driverName = "org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver";
-                break;
-        }
     }
 
     @Override

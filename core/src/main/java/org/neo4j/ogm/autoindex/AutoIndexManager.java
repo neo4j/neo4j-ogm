@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AutoIndexManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutoIndexManager.class);
 
     private final AutoIndexMode mode;
     private final String dumpDir;
@@ -68,7 +68,7 @@ public class AutoIndexManager {
 
     /**
      * @return The list of automatic indexes.
-     * @deprecated since 3.1.3, will be removed in 3.1.4 as the list of automatic indixes is not meant to be mutated.
+     * @deprecated since 3.1.3, will be removed in 3.1.4 as the list of automatic indexes is not meant to be mutated.
      */
     @Deprecated
     List<AutoIndex> getIndexes() {
@@ -191,16 +191,6 @@ public class AutoIndexManager {
             try (Response<RowModel> response = session.requestHandler().execute(indexRequests)) {
                 RowModel rowModel;
                 while ((rowModel = response.next()) != null) {
-
-                    // Ignore index descriptions for constraints
-                    // neo4j up to 3.3 returns 3 columns, type in column number 2
-                    // neo4j 3.4 returns 6 columns, type in column number 4
-                    if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property") ||
-                        rowModel.getValues().length == 6 && rowModel.getValues()[4].equals("node_unique_property")) {
-
-                        continue;
-                    }
-
                     Optional<AutoIndex> dbIndex = AutoIndex.parse((String) rowModel.getValues()[0]);
                     dbIndex.ifPresent(dbIndexes::add);
                 }
@@ -245,7 +235,7 @@ public class AutoIndexManager {
         List<Statement> procedures = new ArrayList<>();
 
         procedures.add(new RowDataStatement("CALL db.constraints()", emptyMap()));
-        procedures.add(new RowDataStatement("CALL db.indexes()", emptyMap()));
+        procedures.add(new RowDataStatement("call db.indexes() yield description, type with description, type where type <> 'node_unique_property' return description" , emptyMap()));
 
         DefaultRequest getIndexesRequest = new DefaultRequest();
         getIndexesRequest.setStatements(procedures);

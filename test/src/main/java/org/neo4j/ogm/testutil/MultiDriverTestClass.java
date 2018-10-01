@@ -14,11 +14,14 @@
 package org.neo4j.ogm.testutil;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
@@ -109,7 +112,16 @@ public class MultiDriverTestClass {
         try {
             Path path = Files.createTempDirectory("graph.db");
             File f = path.toFile();
-            f.deleteOnExit();
+            Path databaseDirectory = Paths.get(path.toFile().getAbsolutePath() + "/database");
+            Files.createDirectories(databaseDirectory);
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    FileUtils.deleteDirectory(f);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to delete temporary files in " + f, e);
+                }
+            }));
             return f;
         } catch (Exception e) {
             throw new RuntimeException(e);

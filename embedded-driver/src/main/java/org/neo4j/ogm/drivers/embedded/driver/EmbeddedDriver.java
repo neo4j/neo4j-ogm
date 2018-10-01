@@ -23,6 +23,7 @@ import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -168,23 +169,25 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
         try {
 
-            Path path = Files.createTempDirectory("neo4j.db");
-            final File f = path.toFile();
+            Path path = Files.createTempDirectory("neo4jTmpEmbedded.db");
+            Path databasePath = Paths.get(path.toFile().getAbsolutePath() + "/database");
+            Files.createDirectories(databasePath);
+            final File f = databasePath.toFile();
             URI uri = f.toURI();
-            final String fileStoreUri = uri.toString();
-            logger.warn("Creating temporary file store: " + fileStoreUri);
+            final String databaseUriValue = uri.toString();
+            logger.warn("Creating temporary file store: " + databaseUriValue);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 close();
                 try {
-                    logger.warn("Deleting temporary file store: " + fileStoreUri);
-                    FileUtils.deleteDirectory(f);
+                    logger.warn("Deleting temporary file store: " + databaseUriValue);
+                    FileUtils.deleteDirectory(path.toFile());
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri, e);
+                    throw new RuntimeException("Failed to delete temporary files in " + databaseUriValue, e);
                 }
             }));
 
-            return fileStoreUri;
+            return databaseUriValue;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

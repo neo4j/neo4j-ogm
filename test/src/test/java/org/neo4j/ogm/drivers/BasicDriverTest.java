@@ -424,7 +424,6 @@ public class BasicDriverTest extends MultiDriverTestClass {
             fail("Expected a CypherException but got none");
         } catch (CypherException ce) {
             assertThat(ce.getCode().contains("Neo.ClientError.Statement")).isTrue();
-            assertThat(ce.getDescription().contains("Invalid input")).isTrue();
         }
     }
 

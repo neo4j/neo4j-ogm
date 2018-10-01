@@ -119,6 +119,7 @@ public class ConfigurationTest {
             try (InputStream in = ConfigurationTest.class.getResourceAsStream("/ogm-simple.properties");
                 OutputStream out = new FileOutputStream(tempFile)) {
                 IOUtils.copy(in, out);
+                tempFile.deleteOnExit();
             }
             return tempFile.getPath();
         } catch (IOException e) {

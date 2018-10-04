@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
 
 /**
@@ -60,8 +61,10 @@ public class FieldsInfo {
                                     ParameterizedType parameterizedTypeArgument = (ParameterizedType) typeArgument;
                                     typeParameterDescriptor = parameterizedTypeArgument.getRawType().getTypeName();
                                     break;
-                                } else if (typeArgument instanceof TypeVariable
-                                    || typeArgument instanceof WildcardType) {
+                                } else if ((typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType)
+                                    // The type parameter descriptor doesn't matter if we're dealing with an explicit relationship
+                                    // We must not try to persist it as a property if the user explicitly asked for storing it as a node.
+                                    && !objectAnnotations.has(Relationship.class))  {
                                     typeParameterDescriptor = Object.class.getName();
                                     break;
                                 } else if (typeArgument instanceof Class) {

@@ -14,6 +14,7 @@
 package org.neo4j.ogm.drivers.embedded.driver;
 
 import static java.util.Objects.*;
+import static org.neo4j.ogm.driver.ParameterConversionMode.CONVERT_ALL;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +35,8 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
+import org.neo4j.ogm.driver.ParameterConversion;
+import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
@@ -146,7 +149,22 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request request() {
-        return new EmbeddedRequest(graphDatabaseService, transactionManager, getCypherModification());
+        return new EmbeddedRequest(graphDatabaseService, transactionManager,
+            getParameterConversion(), getCypherModification());
+    }
+
+    private ParameterConversion getParameterConversion() {
+
+        ParameterConversionMode mode = (ParameterConversionMode) customPropertiesSupplier.get()
+            .getOrDefault(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE, CONVERT_ALL);
+        switch (mode) {
+            case CONVERT_ALL:
+                return AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
+            case CONVERT_NON_NATIVE_ONLY:
+                return EmbeddedBasedParameterConversion.INSTANCE;
+            default:
+                throw new IllegalStateException("Unsupported conversion mode: " + mode.name() + " for Bolt-Transport.");
+        }
     }
 
     private org.neo4j.graphdb.Transaction nativeTransaction() {

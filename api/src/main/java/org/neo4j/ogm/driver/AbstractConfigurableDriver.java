@@ -44,6 +44,8 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public abstract class AbstractConfigurableDriver implements Driver {
 
+    public static final ParameterConversion CONVERT_ALL_PARAMETERS_CONVERSION = ObjectMapperBasedParameterConversion.INSTANCE;
+
     private final ServiceLoader<CypherModificationProvider> cypherModificationProviderLoader =
         ServiceLoader.load(CypherModificationProvider.class);
 
@@ -54,7 +56,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
      * Used for configuring the cypher modification providers. Defaults to {@link #getConfiguration()} and reads the
      * custom properties from the common {@link Configuration}.
      */
-    private final Supplier<Map<String, Object>> customPropertiesSupplier;
+    protected final Supplier<Map<String, Object>> customPropertiesSupplier;
     /**
      * Final Cypher modififcation loaded from all present providers.
      */

@@ -53,14 +53,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author vince
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class BoltRequest implements Request {
 
-    private final TransactionManager transactionManager;
-
     private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoltRequest.class);
 
-    private final Logger LOGGER = LoggerFactory.getLogger(BoltRequest.class);
+    private final TransactionManager transactionManager;
 
     private TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
     };
@@ -151,11 +151,13 @@ public class BoltRequest implements Request {
         BoltTransaction tx;
         try {
             Map<String, Object> parameterMap = mapper.convertValue(request.getParameters(), MAP_TYPE_REF);
-            String statement = cypherModification.apply(request.getStatement());
-            LOGGER.info("Request: {} with params {}", statement, parameterMap);
+            String cypher = cypherModification.apply(request.getStatement());
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Request: {} with params {}", cypher, parameterMap);
+            }
 
             tx = (BoltTransaction) transactionManager.getCurrentTransaction();
-            return tx.nativeBoltTransaction().run(statement, parameterMap);
+            return tx.nativeBoltTransaction().run(cypher, parameterMap);
         } catch (ClientException | DatabaseException | TransientException ce) {
             throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
         }

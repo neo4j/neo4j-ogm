@@ -51,13 +51,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author vince
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class EmbeddedRequest implements Request {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedRequest.class);
     private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     private final GraphDatabaseService graphDatabaseService;
-    private final Logger logger = LoggerFactory.getLogger(EmbeddedRequest.class);
     private final TransactionManager transactionManager;
 
     private final TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
@@ -122,7 +123,7 @@ public class EmbeddedRequest implements Request {
             @Override
             public void close() {
                 if (transactionManager.getCurrentTransaction() != null) {
-                    logger.debug("Response closed: {}", this);
+                    LOGGER.debug("Response closed: {}", this);
                 }
             }
 
@@ -149,13 +150,14 @@ public class EmbeddedRequest implements Request {
         return new RestModelResponse(executeRequest(request), transactionManager);
     }
 
-    private Result executeRequest(Statement statement) {
+    private Result executeRequest(Statement request) {
 
         try {
-            String cypher = cypherModification.apply(statement.getStatement());
-
-            Map<String, Object> parameterMap = mapper.convertValue(statement.getParameters(), MAP_TYPE_REF);
-            logger.info("Request: {} with params {}", cypher, parameterMap);
+            Map<String, Object> parameterMap = mapper.convertValue(request.getParameters(), MAP_TYPE_REF);
+            String cypher = cypherModification.apply(request.getStatement());
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Request: {} with params {}", cypher, parameterMap);
+            }
 
             return graphDatabaseService.execute(cypher, parameterMap);
 

@@ -166,7 +166,9 @@ public class HttpRequest implements Request {
         request.setEntity(new StringEntity(cypher, "UTF-8"));
         request.setHeader("X-WRITE", readOnly ? "0" : "1");
 
-        LOGGER.info("Thread: {}, url: {}, request: {}", Thread.currentThread().getId(), url, cypher);
+        if(LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Thread: {}, url: {}, request: {}", Thread.currentThread().getId(), url, cypher);
+        }
 
         return execute(httpClient, request, credentials);
     }

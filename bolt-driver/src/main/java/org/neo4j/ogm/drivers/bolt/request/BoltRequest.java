@@ -14,7 +14,6 @@
 package org.neo4j.ogm.drivers.bolt.request;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -23,7 +22,7 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.driver.v1.exceptions.DatabaseException;
 import org.neo4j.driver.v1.exceptions.TransientException;
-import org.neo4j.ogm.config.ObjectMapperFactory;
+import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.drivers.bolt.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.RestModelResponse;
@@ -47,9 +46,6 @@ import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 /**
  * @author vince
  * @author Luanne Misquitta
@@ -57,18 +53,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class BoltRequest implements Request {
 
-    private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(BoltRequest.class);
 
     private final TransactionManager transactionManager;
 
-    private TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
-    };
+    private final ParameterConversion parameterConversion;
 
     private final Function<String, String> cypherModification;
 
-    public BoltRequest(TransactionManager transactionManager, Function<String, String> cypherModification) {
+    public BoltRequest(TransactionManager transactionManager, ParameterConversion parameterConversion,
+        Function<String, String> cypherModification) {
         this.transactionManager = transactionManager;
+        this.parameterConversion = parameterConversion;
         this.cypherModification = cypherModification;
     }
 
@@ -148,15 +144,14 @@ public class BoltRequest implements Request {
     }
 
     private StatementResult executeRequest(Statement request) {
-        BoltTransaction tx;
         try {
-            Map<String, Object> parameterMap = mapper.convertValue(request.getParameters(), MAP_TYPE_REF);
+            Map<String, Object> parameterMap = parameterConversion.convertParameters(request.getParameters());
             String cypher = cypherModification.apply(request.getStatement());
             if(LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Request: {} with params {}", cypher, parameterMap);
             }
 
-            tx = (BoltTransaction) transactionManager.getCurrentTransaction();
+            BoltTransaction tx = (BoltTransaction) transactionManager.getCurrentTransaction();
             return tx.nativeBoltTransaction().run(cypher, parameterMap);
         } catch (ClientException | DatabaseException | TransientException ce) {
             throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());

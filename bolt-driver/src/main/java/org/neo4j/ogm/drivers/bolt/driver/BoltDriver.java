@@ -14,6 +14,7 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static java.util.Objects.*;
+import static org.neo4j.ogm.driver.ParameterConversionMode.*;
 
 import java.io.File;
 import java.net.URI;
@@ -40,6 +41,8 @@ import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.bolt.request.BoltRequest;
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
+import org.neo4j.ogm.driver.ParameterConversion;
+import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
@@ -49,6 +52,7 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class BoltDriver extends AbstractConfigurableDriver {
 
@@ -166,7 +170,21 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request request() {
-        return new BoltRequest(transactionManager, getCypherModification());
+        return new BoltRequest(transactionManager, getParameterConversion(), getCypherModification());
+    }
+
+    private ParameterConversion getParameterConversion() {
+
+        ParameterConversionMode mode = (ParameterConversionMode) customPropertiesSupplier.get()
+            .getOrDefault(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE, CONVERT_ALL);
+        switch (mode) {
+            case CONVERT_ALL:
+                return AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
+            case CONVERT_NON_NATIVE_ONLY:
+                return JavaDriverBasedParameterConversion.INSTANCE;
+            default:
+                throw new IllegalStateException("Unsupported conversion mode: " + mode.name() + " for Bolt-Transport.");
+        }
     }
 
     private Session newSession(Transaction.Type type, Iterable<String> bookmarks) {

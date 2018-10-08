@@ -14,7 +14,6 @@
 package org.neo4j.ogm.drivers.embedded.request;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -22,7 +21,7 @@ import java.util.function.Function;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.QueryExecutionException;
 import org.neo4j.graphdb.Result;
-import org.neo4j.ogm.config.ObjectMapperFactory;
+import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RestModelResponse;
@@ -45,9 +44,6 @@ import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 /**
  * @author vince
  * @author Luanne Misquitta
@@ -56,21 +52,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class EmbeddedRequest implements Request {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedRequest.class);
-    private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     private final GraphDatabaseService graphDatabaseService;
     private final TransactionManager transactionManager;
+    private final ParameterConversion parameterConversion;
 
-    private final TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
-    };
     private final Function<String, String> cypherModification;
 
     public EmbeddedRequest(GraphDatabaseService graphDatabaseService,
         TransactionManager transactionManager,
-        Function<String, String> cypherModification) {
-
+        ParameterConversion parameterConversion,
+        Function<String, String> cypherModification
+    ) {
         this.graphDatabaseService = graphDatabaseService;
         this.transactionManager = transactionManager;
+        this.parameterConversion = parameterConversion;
         this.cypherModification = cypherModification;
     }
 
@@ -153,14 +149,13 @@ public class EmbeddedRequest implements Request {
     private Result executeRequest(Statement request) {
 
         try {
-            Map<String, Object> parameterMap = mapper.convertValue(request.getParameters(), MAP_TYPE_REF);
+            Map<String, Object> parameterMap = parameterConversion.convertParameters(request.getParameters());
             String cypher = cypherModification.apply(request.getStatement());
             if(LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Request: {} with params {}", cypher, parameterMap);
             }
 
             return graphDatabaseService.execute(cypher, parameterMap);
-
         } catch (QueryExecutionException qee) {
             throw new CypherException("Error executing Cypher", qee, qee.getStatusCode(), qee.getMessage());
         } catch (Exception e) {

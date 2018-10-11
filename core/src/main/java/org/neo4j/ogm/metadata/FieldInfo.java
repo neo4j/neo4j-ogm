@@ -466,21 +466,41 @@ public class FieldInfo {
         return field.getAnnotation(Version.class) != null;
     }
 
-    private static boolean doesDescriptorMatchType(String descriptorToMatch, Class<?> type) {
+    private static boolean doesDescriptorMatchType(String descriptor, Class<?> type) {
+
         while (type != null) {
-            String typeSignature = type.getName();
-            if (descriptorToMatch != null && descriptorToMatch.equals(typeSignature)) {
+
+            if (doesDescriptorMatchTypeOrInterface(descriptor, type)) {
                 return true;
-            }
-            // #issue 42: check interfaces when types are defined using generics as interface extensions
-            for (Class<?> iface : type.getInterfaces()) {
-                typeSignature = iface.getName();
-                if (descriptorToMatch != null && descriptorToMatch.equals(typeSignature)) {
-                    return true;
-                }
             }
             type = type.getSuperclass();
         }
+
+        return false;
+    }
+
+    private static boolean doesDescriptorMatchTypeOrInterface(String descriptorToMatch, Class<?> type) {
+
+        String typeSignature = type.getName();
+        if (descriptorToMatch != null && descriptorToMatch.equals(typeSignature)) {
+            return true;
+        }
+
+        if (doesAnyInterfaceMatch(descriptorToMatch, type)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean doesAnyInterfaceMatch(String descriptor, Class<?> type) {
+
+        for (Class<?> interfaceClass : type.getInterfaces()) {
+            if (doesDescriptorMatchTypeOrInterface(descriptor, interfaceClass)) {
+                return true;
+            }
+        }
+
         return false;
     }
 }

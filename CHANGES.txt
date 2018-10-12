@@ -1,5 +1,5 @@
 3.1.4
-o Don't treed Void and void as scalar result types and thus allowing Neo4j-OGM session to handle queries mapped to these
+o Don't treat Void and void as scalar result types and thus allowing Neo4j-OGM session to handle queries mapped to these
   types even if the query itself does return nodes or properties. #479
 o Fix a bug during detection of interface-hierarchies that prohibited the use of generics as target attributes for start
   and end nodes of a relationship. #491

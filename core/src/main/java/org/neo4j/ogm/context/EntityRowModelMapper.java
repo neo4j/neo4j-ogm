@@ -14,7 +14,11 @@
 package org.neo4j.ogm.context;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
@@ -22,11 +26,17 @@ import org.neo4j.ogm.session.Utils;
 
 public class EntityRowModelMapper implements ResponseMapper<RowModel> {
 
+    private static final Set<Class<?>> VOID_TYPES = new HashSet<>(Arrays.asList(Void.class, void.class));
+
     /**
      * @param <T> The type of entity to which the row is to be mapped
      */
     @Override
     public <T> Iterable<T> map(Class<T> type, Response<RowModel> response) {
+
+        if (VOID_TYPES.contains(type)) {
+            return Collections.emptyList();
+        }
 
         Collection<T> result = new ArrayList<>();
 

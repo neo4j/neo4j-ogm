@@ -54,6 +54,20 @@ o Refactor transaction handling
 o Add optimistic locking #450
 o Add entity instantiation callback mechanism. #448
 
+3.0.5
+o Don't treat Void and void as scalar result types and thus allowing Neo4j-OGM session to handle queries mapped to these
+  types even if the query itself does return nodes or properties. #479
+o Fix determination of FieldInfo.
+o Handle property fields that cannot be persisted as property fields
+
+3.0.4
+o HttpDriver: Handle non-json response gracefully.
+o Default Java driver dependency for Bolt is 1.5.
+o Compatibility for 3.4 point types in DistanceComparison.
+o NodeEntity label, Relationship and RelationshipEntity type can be set without attribute name in annotation. #377
+o SortOrder is now re-usable. #486
+o Report QueryStatistics correctly. #449
+
 3.0.2
 o Entity count returns incorrect result on abstract non-annotated type. #435
 o Fix classpath scanning issue with Play framework. #429

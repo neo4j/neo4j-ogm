@@ -21,7 +21,7 @@
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
     <packaging>pom</packaging>
-    <version>3.1.3-SNAPSHOT</version>
+    <version>3.1.4-SNAPSHOT</version>
 
     <modules>
         <module>api</module>
@@ -48,8 +48,8 @@
         <logback>1.1.7</logback>
         <mockito>2.2.29</mockito>
         <!-- default for build, if no profiles invoked -->
-        <neo4j>3.3.5</neo4j>
-        <bolt>1.5.0</bolt>
+        <neo4j>3.4.8</neo4j>
+        <bolt>1.6.3</bolt>
         <fast.classpath.scanner>2.18.1</fast.classpath.scanner>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
         <neo4j.edition>enterprise</neo4j.edition>
@@ -190,21 +190,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- for bolt -->
-    <repositories>
-        <repository>
-            <id>neo4j-snapshot-repository</id>
-            <name>Neo4j Maven 2 snapshot repository</name>
-            <url>http://m2.neo4j.org/content/repositories/snapshots</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
     <build>
         <plugins>
             <plugin>
@@ -258,11 +243,11 @@
                 <configuration>
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
-						<manifestEntries>
-							<Implementation-Title>${project.name}</Implementation-Title>
-							<Implementation-Version>${project.version}</Implementation-Version>
-							<Automatic-Module-Name>${java-module-name}</Automatic-Module-Name>
-						</manifestEntries>
+                        <manifestEntries>
+                            <Implementation-Title>${project.name}</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Automatic-Module-Name>${java-module-name}</Automatic-Module-Name>
+                        </manifestEntries>
                     </archive>
                     <skipIfEmpty>true</skipIfEmpty>
                 </configuration>
@@ -323,42 +308,56 @@
         <profile>
             <id>neo4j-3.3</id>
             <properties>
-                <neo4j>3.3.5</neo4j>
+                <neo4j>3.3.7</neo4j>
             </properties>
         </profile>
 
         <profile>
             <id>neo4j-3.4</id>
             <properties>
-                <neo4j>3.4.6</neo4j>
+                <neo4j>3.4.8</neo4j>
             </properties>
         </profile>
 
         <profile>
             <id>neo4j-3.5</id>
             <properties>
-                <neo4j>3.5.0-alpha07</neo4j>
+                <neo4j>3.5.0-beta01</neo4j>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.neo4j.community</groupId>
+                    <artifactId>it-test-support</artifactId>
+                    <version>3.5.0-beta01</version>
+                </dependency>
+            </dependencies>
         </profile>
 
         <profile>
             <id>driver-1.4</id>
             <properties>
-                <bolt>1.4.5</bolt>
+                <bolt>1.4.6</bolt>
             </properties>
         </profile>
 
         <profile>
             <id>driver-1.5</id>
             <properties>
-                <bolt>1.5.0</bolt>
+                <bolt>1.5.2</bolt>
             </properties>
         </profile>
 
         <profile>
             <id>driver-1.6</id>
             <properties>
-                <bolt>1.6.0</bolt>
+                <bolt>1.6.3</bolt>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>driver-1.7</id>
+            <properties>
+                <bolt>1.7.0-beta02</bolt>
             </properties>
         </profile>
 

@@ -14,14 +14,14 @@
 package org.neo4j.ogm.drivers.embedded.request;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.QueryExecutionException;
 import org.neo4j.graphdb.Result;
-import org.neo4j.ogm.config.ObjectMapperFactory;
+import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RestModelResponse;
@@ -44,27 +44,30 @@ import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 /**
  * @author vince
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class EmbeddedRequest implements Request {
 
-    private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedRequest.class);
 
     private final GraphDatabaseService graphDatabaseService;
-    private final Logger logger = LoggerFactory.getLogger(EmbeddedRequest.class);
     private final TransactionManager transactionManager;
+    private final ParameterConversion parameterConversion;
 
-    private final TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
-    };
+    private final Function<String, String> cypherModification;
 
-    public EmbeddedRequest(GraphDatabaseService graphDatabaseService, TransactionManager transactionManager) {
+    public EmbeddedRequest(GraphDatabaseService graphDatabaseService,
+        TransactionManager transactionManager,
+        ParameterConversion parameterConversion,
+        Function<String, String> cypherModification
+    ) {
         this.graphDatabaseService = graphDatabaseService;
         this.transactionManager = transactionManager;
+        this.parameterConversion = parameterConversion;
+        this.cypherModification = cypherModification;
     }
 
     @Override
@@ -116,7 +119,7 @@ public class EmbeddedRequest implements Request {
             @Override
             public void close() {
                 if (transactionManager.getCurrentTransaction() != null) {
-                    logger.debug("Response closed: {}", this);
+                    LOGGER.debug("Response closed: {}", this);
                 }
             }
 
@@ -143,16 +146,16 @@ public class EmbeddedRequest implements Request {
         return new RestModelResponse(executeRequest(request), transactionManager);
     }
 
-    private Result executeRequest(Statement statement) {
+    private Result executeRequest(Statement request) {
 
         try {
-            String cypher = statement.getStatement();
-
-            Map<String, Object> parameterMap = mapper.convertValue(statement.getParameters(), MAP_TYPE_REF);
-            logger.info("Request: {} with params {}", cypher, parameterMap);
+            Map<String, Object> parameterMap = parameterConversion.convertParameters(request.getParameters());
+            String cypher = cypherModification.apply(request.getStatement());
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Request: {} with params {}", cypher, parameterMap);
+            }
 
             return graphDatabaseService.execute(cypher, parameterMap);
-
         } catch (QueryExecutionException qee) {
             throw new CypherException("Error executing Cypher", qee, qee.getStatusCode(), qee.getMessage());
         } catch (Exception e) {

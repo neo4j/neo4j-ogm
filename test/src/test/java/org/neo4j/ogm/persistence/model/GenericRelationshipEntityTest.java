@@ -1,115 +1,131 @@
-/*
- * Copyright (c) 2002-2018 "Neo Technology,"
- * Network Engine for Objects in Lund AB [http://neotechnology.com]
- *
- * This product is licensed to you under the Apache License, Version 2.0 (the "License").
- * You may not use this product except in compliance with the License.
- *
- * This product may include a number of subcomponents with
- * separate copyright notices and license terms. Your use of the source
- * code for these subcomponents is subject to the terms and
- *  conditions of the subcomponent's license, as noted in the LICENSE file.
- */
-
 package org.neo4j.ogm.persistence.model;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.domain.generic_hierarchy.relationship.GenericRelationship;
+import org.neo4j.ogm.domain.generic_hierarchy.relationship.SourceEntityWithEntityInterface;
+import org.neo4j.ogm.domain.generic_hierarchy.relationship.SourceEntityWithEntitySuperInterface;
+import org.neo4j.ogm.domain.generic_hierarchy.relationship.TargetEntityWithEntityInterface;
+import org.neo4j.ogm.domain.generic_hierarchy.relationship.TargetEntityWithEntitySuperInterface;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
-/**
- * @author Frantisek Hartman
- */
 public class GenericRelationshipEntityTest extends MultiDriverTestClass {
-
     private Session session;
 
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.model");
+    @Before
+    public void init() throws IOException {
+        session = new SessionFactory(driver, "org.neo4j.ogm.domain.generic_hierarchy.relationship").openSession();
+        session.purgeDatabase();
+
     }
 
-    @Before
-    public void setUp() throws Exception {
-        session = sessionFactory.openSession();
+    @After
+    public void cleanup() {
         session.purgeDatabase();
+        session.clear();
     }
+
+    // Test relationship loading with the base interface of all entity/domain classes
 
     @Test
-    public void shouldBeAbleToSaveAndLoadRelationshipEntityWithBaseGenericStartAndEnd() throws Exception {
-        User michal = new User("Michal");
-        User frantisek = new User("Frantisek");
+    public void loadEntitySuperInterfaceToEntitySuperInterfaceRelationship() {
+        createSuperInterfaceToSuperInterfaceRelationship();
 
-        michal.addSlave(frantisek);
+        SourceEntityWithEntitySuperInterface source = session.loadAll(SourceEntityWithEntitySuperInterface.class)
+            .iterator().next();
 
-        session.save(michal);
+        assertThat(source.relationship).isNotNull();
+        assertThat(source.relationship.target).isNotNull();
+    }
+
+    // Test relationship loading with the base interface in source and extending one in target class.
+    @Test
+    public void loadEntitySuperInterfaceToEntityInterfaceRelationship() {
+        createSuperInterfaceToInterfaceRelationship();
+
+        SourceEntityWithEntitySuperInterface source = session.loadAll(SourceEntityWithEntitySuperInterface.class)
+            .iterator().next();
+
+        assertThat(source.relationship).isNotNull();
+        assertThat(source.relationship.target).isNotNull();
+    }
+
+    // Test relationship loading with the extending interface in source and base in target class.
+    @Test
+    public void loadEntityInterfaceToEntitySuperInterfaceRelationship() {
+        createInterfaceToSuperInterfaceRelationship();
+
+        SourceEntityWithEntityInterface source = session.loadAll(SourceEntityWithEntityInterface.class)
+            .iterator().next();
+
+        assertThat(source.relationship).isNotNull();
+        assertThat(source.relationship.target).isNotNull();
+    }
+
+    // Test relationship loading with the extending interface in source and base in target class.
+    @Test
+    public void loadEntityInterfaceToEntityInterfaceRelationship() {
+        createInterfaceToInterfaceRelationship();
+
+        SourceEntityWithEntityInterface source = session.loadAll(SourceEntityWithEntityInterface.class)
+            .iterator().next();
+
+        assertThat(source.relationship).isNotNull();
+        assertThat(source.relationship.target).isNotNull();
+    }
+
+    private void createSuperInterfaceToSuperInterfaceRelationship() {
+        SourceEntityWithEntitySuperInterface source = new SourceEntityWithEntitySuperInterface();
+
+        GenericRelationship<SourceEntityWithEntitySuperInterface, TargetEntityWithEntitySuperInterface> relationship = new GenericRelationship<>();
+        relationship.source = source;
+        relationship.target = new TargetEntityWithEntitySuperInterface();
+
+        source.relationship = relationship;
+        session.save(source);
         session.clear();
-
-        User loaded = session.load(User.class, michal.id);
-        assertThat(loaded.name).isEqualTo("Michal");
-        assertThat(michal.slaves.get(0).target.name).isEqualTo("Frantisek");
     }
 
-    public static class User {
-        public Long id;
+    private void createSuperInterfaceToInterfaceRelationship() {
+        SourceEntityWithEntitySuperInterface source = new SourceEntityWithEntitySuperInterface();
 
-        public String name;
+        GenericRelationship<SourceEntityWithEntitySuperInterface, TargetEntityWithEntityInterface> relationship = new GenericRelationship<>();
+        relationship.source = source;
+        relationship.target = new TargetEntityWithEntityInterface();
 
-        @Relationship(type = "OWNS", direction = "OUTGOING")
-        List<Owns> slaves;
-
-        public User() {
-        }
-
-        public User(String name) {
-
-            this.name = name;
-        }
-
-        public void addSlave(User user) {
-            if (slaves == null) {
-                slaves = new ArrayList<>();
-            }
-            slaves.add(new Owns(this, user));
-        }
+        source.relationship = relationship;
+        session.save(source);
+        session.clear();
     }
 
-    public static class RelationEntity<O, T> {
-        @GraphId
-        public Long id;
+    private void createInterfaceToSuperInterfaceRelationship() {
+        SourceEntityWithEntityInterface source = new SourceEntityWithEntityInterface();
 
-        @StartNode
-        public O origin;
+        GenericRelationship<SourceEntityWithEntityInterface, TargetEntityWithEntitySuperInterface> relationship = new GenericRelationship<>();
+        relationship.source = source;
+        relationship.target = new TargetEntityWithEntitySuperInterface();
 
-        @EndNode
-        public T target;
-
+        source.relationship = relationship;
+        session.save(source);
+        session.clear();
     }
 
-    @RelationshipEntity(type = "OWNS")
-    public static class Owns extends RelationEntity<User, User> {
-        public Boolean isProfile;
+    private void createInterfaceToInterfaceRelationship() {
+        SourceEntityWithEntityInterface source = new SourceEntityWithEntityInterface();
 
-        public Owns() {
-        }
+        GenericRelationship<SourceEntityWithEntityInterface, TargetEntityWithEntityInterface> relationship = new GenericRelationship<>();
+        relationship.source = source;
+        relationship.target = new TargetEntityWithEntityInterface();
 
-        public Owns(User owner, User target) {
-            origin = owner;
-            this.target = target;
-        }
+        source.relationship = relationship;
+        session.save(source);
+        session.clear();
     }
-
 }

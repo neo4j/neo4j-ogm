@@ -14,6 +14,7 @@
 package org.neo4j.ogm.drivers.embedded.driver;
 
 import static java.util.Objects.*;
+import static org.neo4j.ogm.driver.ParameterConversionMode.CONVERT_ALL;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +24,10 @@ import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
+import java.util.function.Supplier;
 
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -30,6 +35,8 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
+import org.neo4j.ogm.driver.ParameterConversion;
+import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
@@ -40,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author vince
+ * @author Michael J. Simons
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {
 
@@ -49,10 +57,23 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     private GraphDatabaseService graphDatabaseService;
 
     // required for service loader mechanism
-    public EmbeddedDriver() {
-    }
+    public EmbeddedDriver() {}
 
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
+        this(graphDatabaseService, Collections::emptyMap);
+    }
+
+    /**
+     * Create OGM EmbeddedDriver with provided embedded instance.
+     *
+     * @param graphDatabaseService            Preconfigured, embedded instance.
+     * @param customPropertiesSupplier Hook to provide custom configuration properties, i.e. for Cypher modification providers
+     */
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService,
+        Supplier<Map<String, Object>> customPropertiesSupplier) {
+
+        super(customPropertiesSupplier);
+
         this.graphDatabaseService = requireNonNull(graphDatabaseService);
         boolean available = this.graphDatabaseService.isAvailable(TIMEOUT);
         if (!available) {
@@ -128,7 +149,22 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request request() {
-        return new EmbeddedRequest(graphDatabaseService, transactionManager);
+        return new EmbeddedRequest(graphDatabaseService, transactionManager,
+            getParameterConversion(), getCypherModification());
+    }
+
+    private ParameterConversion getParameterConversion() {
+
+        ParameterConversionMode mode = (ParameterConversionMode) customPropertiesSupplier.get()
+            .getOrDefault(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE, CONVERT_ALL);
+        switch (mode) {
+            case CONVERT_ALL:
+                return AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
+            case CONVERT_NON_NATIVE_ONLY:
+                return EmbeddedBasedParameterConversion.INSTANCE;
+            default:
+                throw new IllegalStateException("Unsupported conversion mode: " + mode.name() + " for Bolt-Transport.");
+        }
     }
 
     private org.neo4j.graphdb.Transaction nativeTransaction() {
@@ -151,23 +187,25 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
         try {
 
-            Path path = Files.createTempDirectory("neo4j.db");
-            final File f = path.toFile();
+            Path path = Files.createTempDirectory("neo4jTmpEmbedded.db");
+            Path databasePath = Paths.get(path.toFile().getAbsolutePath() + "/database");
+            Files.createDirectories(databasePath);
+            final File f = databasePath.toFile();
             URI uri = f.toURI();
-            final String fileStoreUri = uri.toString();
-            logger.warn("Creating temporary file store: " + fileStoreUri);
+            final String databaseUriValue = uri.toString();
+            logger.warn("Creating temporary file store: " + databaseUriValue);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 close();
                 try {
-                    logger.warn("Deleting temporary file store: " + fileStoreUri);
-                    FileUtils.deleteDirectory(f);
+                    logger.warn("Deleting temporary file store: " + databaseUriValue);
+                    FileUtils.deleteDirectory(path.toFile());
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri, e);
+                    throw new RuntimeException("Failed to delete temporary files in " + databaseUriValue, e);
                 }
             }));
 
-            return fileStoreUri;
+            return databaseUriValue;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

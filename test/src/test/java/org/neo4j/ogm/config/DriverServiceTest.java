@@ -15,13 +15,12 @@ package org.neo4j.ogm.config;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.junit.AfterClass;
@@ -38,14 +37,14 @@ import org.neo4j.ogm.session.SessionFactory;
  */
 public class DriverServiceTest {
 
-    private static final URI TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toUri();
+    private static final Path TMP_NEO4J = Paths.get(System.getProperty("java.io.tmpdir"), "neo4jDriverServiceTest.db");
+    private static final Path TMP_NEO4J_DB = Paths.get(TMP_NEO4J.toFile().getAbsolutePath() + "/database");
+
 
     @BeforeClass
-    public static void createEmbeddedStore() throws IOException {
+    public static void createEmbeddedStore() {
         try {
-            Files.createDirectory(Paths.get(TMP_NEO4J_DB));
-        } catch (FileAlreadyExistsException e) {
-            // the directory already exists.
+            Files.createDirectories(TMP_NEO4J_DB);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -53,7 +52,7 @@ public class DriverServiceTest {
 
     @AfterClass
     public static void deleteEmbeddedStore() throws IOException {
-        deleteDirectory(new File(TMP_NEO4J_DB));
+        FileUtils.deleteDirectory(TMP_NEO4J.toFile());
     }
 
     @Test
@@ -70,24 +69,13 @@ public class DriverServiceTest {
 
     @Test
     public void shouldLoadEmbeddedDriver() {
-        Configuration driverConfiguration = new Configuration.Builder().uri(TMP_NEO4J_DB.toString()).build();
+        Configuration driverConfiguration = new Configuration.Builder().uri(TMP_NEO4J_DB.toUri().toString()).build();
 
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
         Driver driver = sf.getDriver();
         assertThat(driver).isNotNull();
         driver.close();
         sf.close();
-    }
-
-    private static void deleteDirectory(File dir) {
-        if (dir.isDirectory()) {
-            for (File file : dir.listFiles()) {
-                deleteDirectory(file);
-            }
-        }
-        if (!dir.delete()) {
-            throw new RuntimeException("Failed to delete file: " + dir);
-        }
     }
 
     /**

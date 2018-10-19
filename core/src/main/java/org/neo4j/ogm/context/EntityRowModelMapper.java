@@ -14,9 +14,12 @@
 package org.neo4j.ogm.context;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Objects;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
@@ -33,17 +36,22 @@ import org.neo4j.ogm.typeconversion.ConvertibleTypes;
  * @author Mark Angrish
  * @author Gerrit Meier
  * @author Michael J. Simons
- *
  * @deprecated since 3.1.1, no replacement yet but expect this mapper to go away.
  */
 @Deprecated
 public class EntityRowModelMapper implements ResponseMapper<RowModel> {
+
+    private static final Set<Class<?>> VOID_TYPES = new HashSet<>(Arrays.asList(Void.class, void.class));
 
     /**
      * @param <T> The type of entity to which the row is to be mapped
      */
     @Override
     public <T> Iterable<T> map(Class<T> type, Response<RowModel> response) {
+
+        if (VOID_TYPES.contains(type)) {
+            return Collections.emptyList();
+        }
 
         Collection<T> result = new ArrayList<>();
         RowModel model;
@@ -61,8 +69,8 @@ public class EntityRowModelMapper implements ResponseMapper<RowModel> {
         }
         final Object o = model.getValues()[0];
         return Optional.ofNullable(ConvertibleTypes.REGISTRY.get(type.getCanonicalName()))
-            .map(ac -> (AttributeConverter<T, Object>)(type.isArray() ? ac.forArray : ac.forScalar))
+            .map(ac -> (AttributeConverter<T, Object>) (type.isArray() ? ac.forArray : ac.forScalar))
             .map(c -> c.toEntityAttribute(o))
-            .orElse((T)Utils.coerceTypes(type, o));
+            .orElse((T) Utils.coerceTypes(type, o));
     }
 }

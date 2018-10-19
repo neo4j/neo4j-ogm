@@ -22,6 +22,7 @@ import org.neo4j.ogm.annotation.Relationship;
  * POJO used to test the direction of an undirected relationship.
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class User {
 
@@ -54,6 +55,10 @@ public class User {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void befriend(User user) {
         friends.add(user);
         user.friends.add(this);
@@ -62,5 +67,11 @@ public class User {
     public void unfriend(User user) {
         friends.remove(user);
         user.friends.remove(this);
+    }
+
+    @Override public String toString() {
+        return "User{" +
+            "name='" + name + '\'' +
+            '}';
     }
 }

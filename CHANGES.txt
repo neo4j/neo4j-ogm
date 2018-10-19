@@ -1,3 +1,17 @@
+3.1.4
+o Don't treat Void and void as scalar result types and thus allowing Neo4j-OGM session to handle queries mapped to these
+  types even if the query itself does return nodes or properties. #479
+o Fix a bug during detection of interface-hierarchies that prohibited the use of generics as target attributes for start
+  and end nodes of a relationship. #491
+o Fix a bug during recognition of type variables in generic classes or interfaces used as target attributes for
+  relationships. #528
+o Improve logging of Cypher statements and their parameters: To have less clutter in the log, only log to DEBUG. If you
+  rely on the old behavior, enable DEBUG log on the request type in question
+  (org.neo4j.ogm.drivers.bolt.request.BoltRequest, org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest or
+   org.neo4j.ogm.drivers.http.request.HttpRequest). #530
+o Introduce an experimental configuration option to use native types in parameter conversion
+  for both Bolt- and Embedded-Transports.
+
 3.1.3
 o Improve determination of labels in class hierarchy scenarios. Labels are now computed according to docs, the names of
   abstract classes are now considered as labels as long as the class contributes to the index. If a hierarchy lead to a
@@ -7,7 +21,8 @@ o Deprecate #getIndexes and #build in AutoIndexManager. #437
 o Convert array correct in delete operations. #509
 o Treat @PostLoad methods the same way as JSR-250 treats @PostConstruct. #516
 o Recognize overwritten @PostLoad methods in a class hierarchy. #414, #516
-o Deprecate default constructor and mutating put-method in ObjectAnnotations
+o Deprecate default constructor and mutating put-method in ObjectAnnotations.
+o Prevent possible accidental deletion of all nodes when no label can be determined.
 
 3.1.2
 o Improve documentation.

@@ -83,8 +83,7 @@ public class DeleteCapabilityTest extends MultiDriverTestClass {
         assertEntityCount(0);
     }
 
-    // gh-#509
-    @Test
+    @Test // GH-509
     public void canDeleteEntityArray() {
         Album album1 = new Album();
         Album album2 = new Album();

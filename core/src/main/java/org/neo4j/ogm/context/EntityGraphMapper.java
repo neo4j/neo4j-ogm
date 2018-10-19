@@ -16,6 +16,9 @@ package org.neo4j.ogm.context;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -42,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class EntityGraphMapper implements EntityMapper {
 
@@ -50,6 +54,10 @@ public class EntityGraphMapper implements EntityMapper {
     private final MetaData metaData;
     private final MappingContext mappingContext;
     private final Compiler compiler = new MultiStatementCypherCompiler();
+    /**
+     * Default supplier for write protection: Always write all the stuff.
+     */
+    private Optional<BiFunction<WriteProtectionTarget, Class<?>, Predicate<Object>>> optionalWriteProtectionSupplier = Optional.empty();
 
     /**
      * Constructs a new {@link EntityGraphMapper} that uses the given {@link MetaData}.
@@ -60,6 +68,11 @@ public class EntityGraphMapper implements EntityMapper {
     public EntityGraphMapper(MetaData metaData, MappingContext mappingContext) {
         this.metaData = metaData;
         this.mappingContext = mappingContext;
+    }
+
+    public void addWriteProtection(BiFunction<WriteProtectionTarget, Class<?>, Predicate<Object>> writeProtectionSupplier) {
+
+        this.optionalWriteProtectionSupplier = Optional.ofNullable(writeProtectionSupplier);
     }
 
     @Override
@@ -231,7 +244,17 @@ public class EntityGraphMapper implements EntityMapper {
             return context.visitedNode(entity);
         }
 
-        NodeBuilder nodeBuilder = getNodeBuilder(compiler, entity, horizon);
+        // Check if there's an existing node builder
+        // Seems to be different than the "visited" method above...
+        NodeBuilder nodeBuilder = context.visitedNode(entity);
+        if (nodeBuilder == null) {
+            // newNodeBuilder still seems to have side effects, so better not skip it
+            nodeBuilder = newNodeBuilder(compiler, entity, horizon);
+            if (!isWriteProtected(WriteProtectionTarget.PROPERTIES, entity)) {
+                updateNode(entity, context, nodeBuilder);
+            }
+        }
+
         if (nodeBuilder != null) {
             if (horizon != 0) {
                 mapEntityReferences(entity, nodeBuilder, horizon - 1, compiler);
@@ -240,6 +263,12 @@ public class EntityGraphMapper implements EntityMapper {
             }
         }
         return nodeBuilder;
+    }
+
+    private boolean isWriteProtected(WriteProtectionTarget mode, Object target) {
+        return this.optionalWriteProtectionSupplier.map(supplier -> supplier.apply(mode, target.getClass())) //
+            .map(p -> p.test(target)) //
+            .orElse(false);
     }
 
     /**
@@ -269,28 +298,25 @@ public class EntityGraphMapper implements EntityMapper {
      * @param compiler the {@link org.neo4j.ogm.cypher.compiler.Compiler}
      * @param entity   the object to save
      * @param horizon  current horizon
-     * @return a {@link NodeBuilder} object for either a new node or an existing one
+     * @return a new {@link NodeBuilder} object for a new node, null for transient classes or subclasses thereof
      */
-    private NodeBuilder getNodeBuilder(Compiler compiler, Object entity, int horizon) {
-        CompileContext context = compiler.context();
-
-        NodeBuilder nodeBuilder = context.visitedNode(entity);
-        if (nodeBuilder != null) {
-            return nodeBuilder;
-        }
+    private NodeBuilder newNodeBuilder(Compiler compiler, Object entity, int horizon) {
 
         ClassInfo classInfo = metaData.classInfo(entity);
-
         // transient or subclass of transient will not have class info
         if (classInfo == null) {
             return null;
         }
+
+        CompileContext context = compiler.context();
 
         Long id = mappingContext.nativeId(entity);
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
         final String primaryIndex =
             classInfo.primaryIndexField() != null ? classInfo.primaryIndexField().property() : null;
+
+        NodeBuilder nodeBuilder;
         if (id < 0) {
             nodeBuilder = compiler.newNode(id).addLabels(labels).setPrimaryIndex(primaryIndex);
             context.registerNewObject(id, entity);
@@ -299,10 +325,9 @@ public class EntityGraphMapper implements EntityMapper {
             nodeBuilder.addLabels(labels).setPrimaryIndex(primaryIndex);
             removePreviousLabelsIfRequired(entity, classInfo, nodeBuilder);
         }
-        context.visit(entity, nodeBuilder, horizon);
-        LOGGER.debug("visiting: {}", entity);
 
-        updateNode(entity, context, nodeBuilder);
+        LOGGER.debug("visiting: {}", entity);
+        context.visit(entity, nodeBuilder, horizon);
 
         return nodeBuilder;
     }

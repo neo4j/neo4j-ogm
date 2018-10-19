@@ -15,6 +15,8 @@ package org.neo4j.ogm.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -45,6 +47,7 @@ public class Configuration {
     private Credentials credentials;
     private Integer connectionLivenessCheckTimeout;
     private Boolean verifyConnection;
+    private Map<String, Object> customProperties;
 
     /**
      * Protected constructor of the Configuration class.
@@ -66,6 +69,7 @@ public class Configuration {
             builder.generatedIndexesOutputFilename :
             "generated_indexes.cql";
         this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
+        this.customProperties = builder.customProperties;
 
         if (this.uri != null) {
             java.net.URI uri = null;
@@ -81,12 +85,11 @@ public class Configuration {
                 this.uri = uri.toString().replace(uri.getUserInfo() + "@", "");
             }
             if (getDriverClassName() == null) {
-                determineDefaultDriverName(uri.getScheme());
+                this.driverName = Drivers.getDriverFor(uri.getScheme()).driverClassName();
             }
         } else {
-            determineDefaultDriverName("file");
+            this.driverName = Drivers.EMBEDDED.driverClassName();
         }
-        assert this.driverName != null;
 
         if (builder.username != null && builder.password != null) {
             if (this.credentials != null) {
@@ -152,25 +155,8 @@ public class Configuration {
         return credentials;
     }
 
-    private void determineDefaultDriverName(String scheme) {
-
-        if (scheme == null) {
-            throw new RuntimeException("A URI Scheme must be one of http/https, bolt or file.");
-        }
-
-        switch (scheme) {
-            case "http":
-            case "https":
-                this.driverName = "org.neo4j.ogm.drivers.http.driver.HttpDriver";
-                break;
-            case "bolt":
-            case "bolt+routing":
-                this.driverName = "org.neo4j.ogm.drivers.bolt.driver.BoltDriver";
-                break;
-            default:
-                this.driverName = "org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver";
-                break;
-        }
+    public Map<String, Object> getCustomProperties() {
+        return Collections.unmodifiableMap(customProperties);
     }
 
     @Override
@@ -245,7 +231,8 @@ public class Configuration {
                 .generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
                 .neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
-                .credentials(builder.username, builder.password);
+                .credentials(builder.username, builder.password)
+                .customProperties(new HashMap<>(builder.customProperties));
         }
 
         private static final String URI = "URI";
@@ -277,6 +264,7 @@ public class Configuration {
         private String neo4jHaPropertiesFile;
         private String username;
         private String password;
+        private Map<String, Object> customProperties = new HashMap<>();
 
         /**
          * Creates new Configuration builder
@@ -439,6 +427,16 @@ public class Configuration {
 
         public Builder neo4jHaPropertiesFile(String neo4jHaPropertiesFile) {
             this.neo4jHaPropertiesFile = neo4jHaPropertiesFile;
+            return this;
+        }
+
+        private Builder customProperties(Map<String, Object> customProperties) {
+            this.customProperties = customProperties;
+            return this;
+        }
+
+        public Builder withCustomProperty(String name, Object value) {
+            this.customProperties.put(name, value);
             return this;
         }
 

@@ -112,7 +112,7 @@ public class SessionFactory {
         Neo4jSession neo4jSession = (Neo4jSession) openSession();
 
         AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, configuration, neo4jSession);
-        autoIndexManager.build();
+        autoIndexManager.run();
     }
 
     /**

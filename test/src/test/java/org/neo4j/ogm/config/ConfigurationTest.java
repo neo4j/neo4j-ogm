@@ -119,6 +119,7 @@ public class ConfigurationTest {
             try (InputStream in = ConfigurationTest.class.getResourceAsStream("/ogm-simple.properties");
                 OutputStream out = new FileOutputStream(tempFile)) {
                 IOUtils.copy(in, out);
+                tempFile.deleteOnExit();
             }
             return tempFile.getPath();
         } catch (IOException e) {
@@ -170,5 +171,50 @@ public class ConfigurationTest {
         assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
         assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
+    }
+
+    @Test
+    public void shouldParseBoltUriSchemesCaseInsensitive() {
+        Configuration configuration = new Configuration.Builder()
+            .uri("BOLT://localhost")
+            .build();
+
+        assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
+        assertThat(configuration.getURI()).isEqualTo("BOLT://localhost");
+
+        configuration = new Configuration.Builder()
+            .uri("BOLT+ROUTING://localhost")
+            .build();
+
+        assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
+        assertThat(configuration.getURI()).isEqualTo("BOLT+ROUTING://localhost");
+    }
+
+    @Test
+    public void shouldParseHttpUriSchemesCaseInsensitive() {
+        Configuration configuration = new Configuration.Builder()
+            .uri("HTTP://localhost")
+            .build();
+
+        assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
+        assertThat(configuration.getURI()).isEqualTo("HTTP://localhost");
+
+        configuration = new Configuration.Builder()
+            .uri("HTTPS://localhost")
+            .build();
+
+        assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
+        assertThat(configuration.getURI()).isEqualTo("HTTPS://localhost");
+    }
+
+    @Test
+    public void shouldParseEmbeddedUriSchemeCaseInsensitive() {
+        Configuration configuration = new Configuration.Builder()
+            .uri("FILE:///somewhere")
+            .build();
+
+        assertThat(configuration.getDriverClassName())
+            .isEqualTo("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+        assertThat(configuration.getURI()).isEqualTo("FILE:///somewhere");
     }
 }

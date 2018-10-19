@@ -13,7 +13,15 @@
 
 package org.neo4j.ogm.driver;
 
+import java.util.Comparator;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
+
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.spi.CypherModificationProvider;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
@@ -32,11 +40,41 @@ import org.neo4j.ogm.transaction.TransactionManager;
  *
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public abstract class AbstractConfigurableDriver implements Driver {
 
+    public static final ParameterConversion CONVERT_ALL_PARAMETERS_CONVERSION = ObjectMapperBasedParameterConversion.INSTANCE;
+
+    private final ServiceLoader<CypherModificationProvider> cypherModificationProviderLoader =
+        ServiceLoader.load(CypherModificationProvider.class);
+
     protected Configuration configuration;
     protected TransactionManager transactionManager;
+
+    /**
+     * Used for configuring the cypher modification providers. Defaults to {@link #getConfiguration()} and reads the
+     * custom properties from the common {@link Configuration}.
+     */
+    protected final Supplier<Map<String, Object>> customPropertiesSupplier;
+    /**
+     * Final Cypher modififcation loaded from all present providers.
+     */
+    private volatile Function<String, String> cypherModification;
+
+    public AbstractConfigurableDriver() {
+        this.customPropertiesSupplier = this::getConfigurationProperties;
+    }
+
+    /**
+     * This is only provided for the embedded driver that can take a preconfigured, embedded database
+     * without any way to add configuration properties.
+     *
+     * @param customPropertiesSupplier
+     */
+    protected AbstractConfigurableDriver(Supplier<Map<String, Object>> customPropertiesSupplier) {
+        this.customPropertiesSupplier = customPropertiesSupplier;
+    }
 
     @Override
     public void configure(Configuration config) {
@@ -52,5 +90,39 @@ public abstract class AbstractConfigurableDriver implements Driver {
     @Override
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    @Override
+    public final Function<String, String> getCypherModification() {
+
+        Function<String, String> loadedCypherModification = this.cypherModification;
+        if(loadedCypherModification == null) {
+            synchronized (this) {
+                if(this.cypherModification == null) {
+                    loadedCypherModification = this.cypherModification = loadCypherModifications();
+                }
+            }
+        }
+        return loadedCypherModification;
+    }
+
+    private Map<String, Object> getConfigurationProperties() {
+
+        if(this.configuration == null) {
+            throw new IllegalStateException("Driver is not configured and cannot load Cypher modifications.");
+        }
+
+        return this.configuration.getCustomProperties();
+    }
+
+    private Function<String, String> loadCypherModifications() {
+
+        Map<String, Object> configurationProperties = this.customPropertiesSupplier.get();
+        this.cypherModificationProviderLoader.reload();
+
+        return StreamSupport.stream(this.cypherModificationProviderLoader.spliterator(), false)
+            .sorted(Comparator.comparing(CypherModificationProvider::getOrder))
+            .map(provider -> provider.getCypherModification(configurationProperties))
+            .reduce(Function.identity(), Function::andThen, Function::andThen);
     }
 }

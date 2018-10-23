@@ -40,7 +40,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <commonslang>3.4</commonslang>
         <commonsio>2.4</commonsio>
-        <jackson>2.7.1</jackson>
+        <jackson>2.8.11</jackson>
         <httpclient>4.5.2</httpclient>
         <junit>4.12</junit>
         <assertj>3.8.0</assertj>

@@ -21,7 +21,7 @@
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
     <packaging>pom</packaging>
-    <version>3.1.5-SNAPSHOT</version>
+    <version>3.1.5-DATAGRAPH-1144-SNAPSHOT</version>
 
     <modules>
         <module>api</module>

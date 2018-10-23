@@ -357,7 +357,7 @@
         <profile>
             <id>driver-1.7</id>
             <properties>
-                <bolt>1.7.0-beta02</bolt>
+                <bolt>1.7.0</bolt>
             </properties>
         </profile>
 

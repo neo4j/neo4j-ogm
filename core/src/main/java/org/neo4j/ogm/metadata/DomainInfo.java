@@ -197,6 +197,7 @@ public class DomainInfo {
         LOGGER.debug("Registering converters and deregistering transient fields and methods....");
         postProcessFields(transientClassesRemoved);
 
+        // TODO 🔥 the "lazy" initialization of the fields seems to be all in vain anyway.
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             classInfo.primaryIndexField();
             classInfo.getVersionField();

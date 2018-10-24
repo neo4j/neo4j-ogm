@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -1092,5 +1093,44 @@ public class ClassInfo {
             // cache that there is no version field
             versionField = Optional.empty();
         }
+    }
+
+    /**
+     * Reads the value of the entity's primary index field if any.
+     *
+     * @param entity
+     * @return
+     */
+    public Object readPrimaryIndexValueOf(Object entity) {
+
+        Objects.requireNonNull(entity, "Entity to read from must not be null.");
+        Object value = null;
+
+        if (this.hasPrimaryIndexField()) {
+            // One has to use #read here to get the ID as defined in the entity.
+            // #readProperty gives back the converted value the database sees.
+            // This breaks immediate in LoadOneDelegate#lookup(Class, Object).
+            // That is called by LoadOneDelegate#load(Class, Serializable, int)
+            // immediately after loading (and finding(!!) an entity, which is never
+            // returned directly but goes through a cache.
+            // However, LoadOneDelegate#load(Class, Serializable, int) deals with the
+            // ID as defined in the domain and so we have to use that in the same way here.
+            value = this.primaryIndexField().read(entity);
+        }
+        return value;
+    }
+
+    public Function<Object, Optional<Object>> getPrimaryIndexOrIdReader() {
+
+        Function<Object, Optional<Object>> reader;
+
+        if (this.hasPrimaryIndexField()) {
+            reader = t -> Optional.ofNullable(this.readPrimaryIndexValueOf(t));
+        } else {
+            final FieldInfo identityField = this.identityField();
+            reader = t -> Optional.ofNullable(identityField.read(t));
+        }
+
+        return reader;
     }
 }

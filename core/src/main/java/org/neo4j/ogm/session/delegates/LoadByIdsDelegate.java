@@ -17,7 +17,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
@@ -87,16 +89,12 @@ public class LoadByIdsDelegate extends SessionDelegate {
         Map<ID, T> items = new HashMap<>();
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
 
-        FieldInfo idField = classInfo.primaryIndexField();
-        if (idField == null) {
-            idField = classInfo.identityField();
-        }
+        Function<Object, Optional<Object>> primaryIndexOrIdReader
+            = classInfo.getPrimaryIndexOrIdReader();
 
         for (T t : mapped) {
-            Object id = idField.read(t);
-            if (id != null) {
-                items.put((ID) id, t);
-            }
+            primaryIndexOrIdReader.apply(t)
+                .ifPresent(id -> items.put((ID) id, t));
         }
 
         Set<T> results = new LinkedHashSet<>();
@@ -143,10 +141,9 @@ public class LoadByIdsDelegate extends SessionDelegate {
     private <T, ID extends Serializable> boolean includeMappedEntity(Collection<ID> ids, T mapped) {
 
         final ClassInfo classInfo = session.metaData().classInfo(mapped);
-        final FieldInfo primaryIndexField = classInfo.primaryIndexField();
 
-        if (primaryIndexField != null) {
-            final Object primaryIndexValue = primaryIndexField.read(mapped);
+        if (classInfo.hasPrimaryIndexField()) {
+            final Object primaryIndexValue = classInfo.readPrimaryIndexValueOf(mapped);
             if (ids.contains(primaryIndexValue)) {
                 return true;
             }

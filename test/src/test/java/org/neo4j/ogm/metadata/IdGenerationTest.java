@@ -110,13 +110,13 @@ public class IdGenerationTest extends MultiDriverTestClass {
         assertThat(retrievedEntity.identifier).isNotNull().isEqualTo(entity.identifier);
     }
 
+    // Deletion of entities with user type ids should be work if the are reloaded in another session.
     @Test // DATAGRAPH-1144
-    public void deleteByEntityShouldWorkWithUserTypedIds() {
+    public void deleteByEntityShouldWorkWithUserTypedIdsInNewSession() {
 
-        // Arrange an entity to be deleted
+        // Arrange entity to be deleted
         ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute entity = new ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute();
         session.save(entity);
-        assertThat(entity.identifier).isNotNull();
 
         // Open another session not having the id to native and vice versa cache.
         Session session2 = sessionFactory.openSession();
@@ -126,6 +126,34 @@ public class IdGenerationTest extends MultiDriverTestClass {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("identifier", entity.identifier.toString());
+
+        deleteAndAssertDeletion(entity, session2, parameters);
+    }
+
+    // Deletion of objects should also work in cleared session, i.e. after the end of a Spring transaction
+    @Test // DATAGRAPH-1144
+    public void deleteByEntityShouldWorkWithUserTypedIdsInClearedSession() {
+
+        // Arrange entity to be deleted
+        ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute entity = new ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute();
+        session.save(entity);
+
+        // The session.clear(); method is broken as well, it doesn't clear the id/native cache
+        // so we have to use a new session but in contrast to #deleteByEntityShouldWorkWithUserTypedIdsInNewSession();
+        // we don't load the object into the session
+
+        Session session2 = sessionFactory.openSession();
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("identifier", entity.identifier.toString());
+
+        deleteAndAssertDeletion(entity, session2, parameters);
+    }
+
+    private static void deleteAndAssertDeletion(
+        ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute entity,
+        Session session2, Map<String, Object> parameters
+    ) {
 
         String cypher = "MATCH (e:`ValidAnnotations$UuidIdAndGenerationTypeWithoutIdAttribute` {identifier: $identifier}) RETURN count(e)";
         // Assert it's there.

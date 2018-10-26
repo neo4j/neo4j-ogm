@@ -16,16 +16,9 @@ package org.neo4j.ogm.metadata;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -33,7 +26,6 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.core.InvalidPropertyFieldException;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.exception.core.MetadataException;
-import org.neo4j.ogm.exception.core.OgmException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.id.UuidStrategy;
@@ -86,8 +78,8 @@ public class ClassInfo {
     private volatile Map<String, FieldInfo> indexFields;
     private volatile Collection<FieldInfo> requiredFields;
     private volatile Collection<CompositeIndex> compositeIndexes;
-    private volatile LazyInstance<FieldInfo> identityField;
-    private volatile LazyInstance<FieldInfo> versionField;
+    private volatile Optional<FieldInfo> identityField;
+    private volatile Optional<FieldInfo> versionField;
     private volatile FieldInfo primaryIndexField = null;
     private volatile FieldInfo labelField = null;
     private volatile boolean labelFieldMapped = false;
@@ -303,7 +295,7 @@ public class ClassInfo {
 
     public FieldInfo identityFieldOrNull() {
         initIdentityField();
-        return identityField.get();
+        return identityField.orElse(null);
     }
 
     /**
@@ -315,38 +307,33 @@ public class ClassInfo {
      */
     public FieldInfo identityField() {
         initIdentityField();
-        FieldInfo field = identityField.get();
-        if (field == null) {
-            throw new MetadataException("No internal identity field found for class: " + this.className);
-        }
-        return field;
+        return identityField.orElseThrow(() ->new MetadataException("No internal identity field found for class: " + this.className));
     }
 
-    private void initIdentityField() {
-        if (identityField == null) {
-            identityField = new LazyInstance<>(() -> {
-                Collection<FieldInfo> identityFields = getFieldInfos(this::isInternalIdentity);
-                if (identityFields.size() == 1) {
-                    return identityFields.iterator().next();
-                }
-                if (identityFields.size() > 1) {
-                    throw new MetadataException("Expected exactly one internal identity field (@GraphId or @Id with " +
-                        "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
-                }
-                FieldInfo fieldInfo = fieldsInfo().get("id");
-                if (fieldInfo != null) {
-                    if (fieldInfo.getTypeDescriptor().equals("java.lang.Long")) {
-                        return fieldInfo;
-                    }
-                }
-                return null;
-            });
+    private synchronized void initIdentityField() {
+        if (identityField != null) {
+            return;
+        }
+
+        Collection<FieldInfo> identityFields = getFieldInfos(this::isInternalIdentity);
+        if (identityFields.size() == 1) {
+            this.identityField = Optional.of(identityFields.iterator().next());
+        } else if (identityFields.size() > 1) {
+            throw new MetadataException("Expected exactly one internal identity field (@GraphId or @Id with " +
+                "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
+        } else {
+            FieldInfo fieldInfo = fieldsInfo().get("id");
+            if (fieldInfo != null && fieldInfo.getTypeDescriptor().equals("java.lang.Long")) {
+                this.identityField = Optional.of(fieldInfo);
+            } else {
+                this.identityField = Optional.empty();
+            }
         }
     }
 
     public boolean hasIdentityField() {
         initIdentityField();
-        return identityField.exists();
+        return identityField.isPresent();
     }
 
     // Identity field
@@ -1081,32 +1068,69 @@ public class ClassInfo {
 
     public boolean hasVersionField() {
         initVersionField();
-        return versionField.exists();
+        return versionField.isPresent();
     }
 
     public FieldInfo getVersionField() {
         initVersionField();
-        return versionField.get();
+        return versionField.orElse(null);
     }
 
-    private void initVersionField() {
-        if (versionField == null) {
-            versionField = new LazyInstance<>(() -> {
-                Collection<FieldInfo> fields = getFieldInfos(FieldInfo::isVersionField);
+    private synchronized void initVersionField() {
+        if (versionField != null) {
+            return;
+        }
+        Collection<FieldInfo> fields = getFieldInfos(FieldInfo::isVersionField);
 
-                if (fields.size() > 1) {
-                    throw new MetadataException("Only one version field is allowed, found " + fields);
-                }
+        if (fields.size() > 1) {
+            throw new MetadataException("Only one version field is allowed, found " + fields);
+        }
 
-                Iterator<FieldInfo> iterator = fields.iterator();
-                if (iterator.hasNext()) {
-                    return iterator.next();
-                } else {
-                    // cache that there is no version field
-                    return null;
-                }
-            });
+        Iterator<FieldInfo> iterator = fields.iterator();
+        if (iterator.hasNext()) {
+            versionField = Optional.of(iterator.next());
+        } else {
+            // cache that there is no version field
+            versionField = Optional.empty();
         }
     }
-}
 
+    /**
+     * Reads the value of the entity's primary index field if any.
+     *
+     * @param entity
+     * @return
+     */
+    public Object readPrimaryIndexValueOf(Object entity) {
+
+        Objects.requireNonNull(entity, "Entity to read from must not be null.");
+        Object value = null;
+
+        if (this.hasPrimaryIndexField()) {
+            // One has to use #read here to get the ID as defined in the entity.
+            // #readProperty gives back the converted value the database sees.
+            // This breaks immediate in LoadOneDelegate#lookup(Class, Object).
+            // That is called by LoadOneDelegate#load(Class, Serializable, int)
+            // immediately after loading (and finding(!!) an entity, which is never
+            // returned directly but goes through a cache.
+            // However, LoadOneDelegate#load(Class, Serializable, int) deals with the
+            // ID as defined in the domain and so we have to use that in the same way here.
+            value = this.primaryIndexField().read(entity);
+        }
+        return value;
+    }
+
+    public Function<Object, Optional<Object>> getPrimaryIndexOrIdReader() {
+
+        Function<Object, Optional<Object>> reader;
+
+        if (this.hasPrimaryIndexField()) {
+            reader = t -> Optional.ofNullable(this.readPrimaryIndexValueOf(t));
+        } else {
+            final FieldInfo identityField = this.identityField();
+            reader = t -> Optional.ofNullable(identityField.read(t));
+        }
+
+        return reader;
+    }
+}

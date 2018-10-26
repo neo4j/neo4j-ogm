@@ -17,13 +17,15 @@ import static java.util.stream.Collectors.*;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.Neo4jSession;
 
@@ -43,17 +45,16 @@ public class LoadByInstancesDelegate extends SessionDelegate {
         }
 
         ClassInfo commonClassInfo = findCommonClassInfo(objects);
+        Function<Object, Optional<Object>> primaryIndexOrIdReader
+            = commonClassInfo.getPrimaryIndexOrIdReader();
 
-        Set<Serializable> ids = new LinkedHashSet<>();
-        for (Object o : objects) {
-            FieldInfo idField;
-            if (commonClassInfo.hasPrimaryIndexField()) {
-                idField = commonClassInfo.primaryIndexField();
-            } else {
-                idField = commonClassInfo.identityField();
-            }
-            ids.add((Serializable) idField.readProperty(o));
-        }
+        Set<Serializable> ids = objects.stream()
+            .map(primaryIndexOrIdReader::apply)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(Serializable.class::cast)
+            .collect(toCollection(LinkedHashSet::new));
+
         return session.loadAll((Class<T>) commonClassInfo.getUnderlyingClass(), ids, sortOrder, pagination, depth);
     }
 

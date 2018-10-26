@@ -15,6 +15,9 @@ package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -105,6 +108,64 @@ public class IdGenerationTest extends MultiDriverTestClass {
             .load(ValidAnnotations.UuidIdAndGenerationType.class, entity.identifier);
         assertThat(retrievedEntity).isNotNull();
         assertThat(retrievedEntity.identifier).isNotNull().isEqualTo(entity.identifier);
+    }
+
+    // Deletion of entities with user type ids should be work if the are reloaded in another session.
+    @Test // DATAGRAPH-1144
+    public void deleteByEntityShouldWorkWithUserTypedIdsInNewSession() {
+
+        // Arrange entity to be deleted
+        ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute entity = new ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute();
+        session.save(entity);
+
+        // Open another session not having the id to native and vice versa cache.
+        Session session2 = sessionFactory.openSession();
+        // Loading the entity here populates the id cache and it must populate it in a way
+        // that uses the same keys, here the UUID itself, not the converted value
+        entity = session2.load(ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute.class, entity.identifier);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("identifier", entity.identifier.toString());
+
+        deleteAndAssertDeletion(entity, session2, parameters);
+    }
+
+    // Deletion of objects should also work in cleared session, i.e. after the end of a Spring transaction
+    @Test // DATAGRAPH-1144
+    public void deleteByEntityShouldWorkWithUserTypedIdsInClearedSession() {
+
+        // Arrange entity to be deleted
+        ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute entity = new ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute();
+        session.save(entity);
+
+        // The session.clear(); method is broken as well, it doesn't clear the id/native cache
+        // so we have to use a new session but in contrast to #deleteByEntityShouldWorkWithUserTypedIdsInNewSession();
+        // we don't load the object into the session
+
+        Session session2 = sessionFactory.openSession();
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("identifier", entity.identifier.toString());
+
+        deleteAndAssertDeletion(entity, session2, parameters);
+    }
+
+    private static void deleteAndAssertDeletion(
+        ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute entity,
+        Session session2, Map<String, Object> parameters
+    ) {
+
+        String cypher = "MATCH (e:`ValidAnnotations$UuidIdAndGenerationTypeWithoutIdAttribute` {identifier: $identifier}) RETURN count(e)";
+        // Assert it's there.
+        assertThat(session2.queryForObject(Long.class, cypher, parameters))
+            .isEqualTo(1L);
+
+        // Delete it. The entity doesn't have a field where the native id is mapped.
+        session2.delete(entity);
+
+        // Assert it's gone.
+        assertThat(session2.queryForObject(ValidAnnotations.UuidIdAndGenerationType.class, cypher, parameters))
+            .isEqualTo(0l);
     }
 
     @Test

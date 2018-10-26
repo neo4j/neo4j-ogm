@@ -12,12 +12,14 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.neo4j.ogm.cypher.Filter;
@@ -36,15 +38,12 @@ import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeDeleteStatements;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipDeleteStatements;
 import org.neo4j.ogm.transaction.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class DeleteDelegate extends SessionDelegate {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DeleteDelegate.class);
 
     public DeleteDelegate(Neo4jSession session) {
         super(session);
@@ -68,7 +67,7 @@ public class DeleteDelegate extends SessionDelegate {
         if (classInfo != null) {
             String entityLabel = classInfo.neo4jName();
             if (entityLabel == null) {
-                LOG.warn("Unable to find database label for entity " + type.getName()
+                session.warn("Unable to find database label for entity " + type.getName()
                     + " : no results will be returned. Make sure the class is registered, "
                     + "and not abstract without @NodeEntity annotation");
                 return;
@@ -171,9 +170,23 @@ public class DeleteDelegate extends SessionDelegate {
 
             ClassInfo classInfo = session.metaData().classInfo(object);
 
-            if (classInfo != null) {
+            if (classInfo == null) {
+                session.warn(object.getClass().getName() + " is not an instance of a persistable class");
+            } else {
 
-                Long id = session.context().nativeId(object);
+                Long id = Optional.ofNullable(session.context().nativeId(object))
+                    .filter(possibleId -> possibleId >= 0)
+                    .orElseGet(() -> {
+                        session.warn(String.format(
+                                "Instance of class %s has to be reloaded to be deleted. This can happen if the session has " +
+                                "been cleared between loading and deleting or using an object from a different transaction.",
+                                object.getClass())
+                        );
+                        return classInfo.getPrimaryIndexOrIdReader().apply(object)
+                            .map(primaryIndexOrId -> session.load(object.getClass(), (Serializable) primaryIndexOrId))
+                            .map(reloadedObject -> session.context().nativeId(reloadedObject))
+                            .orElse(-1L);
+                    });
                 if (id >= 0) {
                     Statement request = getDeleteStatement(object, id, classInfo);
                     if (session.eventsEnabled()) {
@@ -203,10 +216,7 @@ public class DeleteDelegate extends SessionDelegate {
                             }
                         }
                     }, Transaction.Type.READ_WRITE);
-
                 }
-            } else {
-                session.warn(object.getClass().getName() + " is not an instance of a persistable class");
             }
         }
 

@@ -170,7 +170,9 @@ public class DeleteDelegate extends SessionDelegate {
 
             ClassInfo classInfo = session.metaData().classInfo(object);
 
-            if (classInfo != null) {
+            if (classInfo == null) {
+                session.warn(object.getClass().getName() + " is not an instance of a persistable class");
+            } else {
 
                 Long id = Optional.ofNullable(session.context().nativeId(object))
                     .filter(possibleId -> possibleId >= 0)
@@ -214,10 +216,7 @@ public class DeleteDelegate extends SessionDelegate {
                             }
                         }
                     }, Transaction.Type.READ_WRITE);
-
                 }
-            } else {
-                session.warn(object.getClass().getName() + " is not an instance of a persistable class");
             }
         }
 

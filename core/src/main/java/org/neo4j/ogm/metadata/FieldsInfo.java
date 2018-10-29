@@ -13,22 +13,11 @@
 
 package org.neo4j.ogm.metadata;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
+
+import java.lang.reflect.*;
+import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -42,10 +31,22 @@ public class FieldsInfo {
         this.fields = new HashMap<>();
     }
 
+
+    private List<Field> fields(Class<?> cls) {
+        List<Field> fields = new ArrayList<>();
+        do {
+            Field[] sFields = cls.getDeclaredFields();
+            fields.addAll(Arrays.asList(sFields));
+            cls = cls.getSuperclass();
+        } while (cls != null);
+        return fields;
+    }
+
+
     public FieldsInfo(ClassInfo classInfo, Class<?> cls) {
         this.fields = new HashMap<>();
 
-        for (Field field : cls.getDeclaredFields()) {
+        for (Field field : this.fields(cls)) {
             final int modifiers = field.getModifiers();
             if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
                 ObjectAnnotations objectAnnotations = ObjectAnnotations.of(field.getDeclaredAnnotations());
@@ -64,7 +65,7 @@ public class FieldsInfo {
                                 } else if ((typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType)
                                     // The type parameter descriptor doesn't matter if we're dealing with an explicit relationship
                                     // We must not try to persist it as a property if the user explicitly asked for storing it as a node.
-                                    && !objectAnnotations.has(Relationship.class))  {
+                                    && !objectAnnotations.has(Relationship.class)) {
                                     typeParameterDescriptor = Object.class.getName();
                                     break;
                                 } else if (typeArgument instanceof Class) {
@@ -102,6 +103,7 @@ public class FieldsInfo {
 
     /**
      * Should not be used directly as it doesn't take property fields into account.
+     *
      * @param name
      * @return
      * @deprecated since 3.1.1 use {@link ClassInfo#getFieldInfo(String)} instead.

@@ -14,11 +14,6 @@ Fields referencing other node entities (or collections thereof) are linked with 
 `@NodeEntity` annotations are inherited from super-types and interfaces.
 It is not necessary to annotate your domain objects at every inheritance level.
 
-If the `label` attribute is set then this will replace the default label applied to the node in the database.
-The label can also be set by providing just the value instead of the `label` attribute.
-The default label is just the simple class name of the annotated entity.
-All parent classes (excluding `java.lang.Object`) are also added as labels so that retrieving a collection of nodes via a parent type is supported.
-
 Entity fields can be annotated with annotations like `@Property`, `@Id`, `@GeneratedValue`, `@Transient` or `@Relationship`.
 All annotations live in the `org.neo4j.ogm.annotation` package.
 Marking a field with the transient modifier has the same effect as annotating it with `@Transient`; it won't be persisted to the graph database.
@@ -53,6 +48,16 @@ public class Movie {
 
 }
 ----
+
+The default label is the simple class name of the annotated entity.
+There are some rules to determine if parent classes also contribute their label to the child class:
+
+* the parent class is a non-abstract class (the existing of `@NodeEntity` is optional)
+* the parent class is an abstract class and has a `@NodeEntity` annotation
+* `java.lang.Object` will be ignored
+* interfaces do not create an additional label
+
+If the `label` (as you can see in the example above) or the `value` attribute of the `@NodeEntity` annotation is set it will replace the default label applied to the node in the database.
 
 Saving a simple object graph containing one actor and one film using the above annotated objects would result in the following being persisted in Neo4j.
 

@@ -322,13 +322,13 @@
         <profile>
             <id>neo4j-3.5</id>
             <properties>
-                <neo4j>3.5.0-beta02</neo4j>
+                <neo4j>3.5.0-beta03</neo4j>
             </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.neo4j.community</groupId>
                     <artifactId>it-test-support</artifactId>
-                    <version>3.5.0-beta01</version>
+                    <version>3.5.0-beta03</version>
                 </dependency>
             </dependencies>
         </profile>

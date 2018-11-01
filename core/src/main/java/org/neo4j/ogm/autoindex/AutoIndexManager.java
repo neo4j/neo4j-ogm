@@ -67,15 +67,6 @@ public class AutoIndexManager {
     }
 
     /**
-     * @return The list of automatic indexes.
-     * @deprecated since 3.1.3, will be removed in 3.1.4 as the list of automatic indexes is not meant to be mutated.
-     */
-    @Deprecated
-    List<AutoIndex> getIndexes() {
-        return indexes;
-    }
-
-    /**
      * Builds indexes according to the configured mode.
      * @deprecated since 3.1.3, use {@link #run()}  instead.
      */

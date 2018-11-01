@@ -54,24 +54,6 @@ public class ObjectAnnotations {
         this.annotations = annotations;
     }
 
-    /**
-     * @deprecated since 3.1.3, will be removed in 3.1.4 to reduce the public OGM surface
-     */
-    @Deprecated
-    public ObjectAnnotations() {
-        this(new HashMap<>());
-    }
-
-    /**
-     * @param key
-     * @param value
-     * @deprecated since 3.1.3, will be removed in 3.1.4 to reduce the public OGM surface
-     */
-    @Deprecated
-    public void put(String key, AnnotationInfo value) {
-        annotations.put(key, value);
-    }
-
     public AnnotationInfo get(String key) {
         return annotations.get(key);
     }

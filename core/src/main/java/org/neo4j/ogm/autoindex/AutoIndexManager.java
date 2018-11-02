@@ -87,6 +87,8 @@ public class AutoIndexManager {
 
             case DUMP:
                 dumpIndexes();
+                break;
+
             default:
         }
     }

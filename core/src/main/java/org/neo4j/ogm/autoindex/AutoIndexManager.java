@@ -18,6 +18,11 @@ import static org.neo4j.ogm.transaction.Transaction.Type.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -103,29 +108,18 @@ public class AutoIndexManager {
 
     private void dumpIndexes() {
 
-        final String newLine = System.lineSeparator();
-
-        StringBuilder sb = new StringBuilder();
+        List<String> dumpContent = new ArrayList<>();
         for (AutoIndex index : indexes) {
-            sb.append(index.getCreateStatement().getStatement()).append(newLine);
+            dumpContent.add(index.getCreateStatement().getStatement());
         }
 
-        File file = new File(this.dumpDir, this.dumpFilename);
-        FileWriter writer = null;
-
-        LOGGER.debug("Dumping Indexes to: [{}]", file.toString());
+        Path dumpPath = Paths.get(this.dumpDir, this.dumpFilename);
+        LOGGER.debug("Dumping Indexes to: [{}]", dumpPath.toAbsolutePath());
 
         try {
-            writer = new FileWriter(file);
-            writer.write(sb.toString());
+            Files.write(dumpPath, dumpContent, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new RuntimeException("Could not write file to " + file.getAbsolutePath(), e);
-        } finally {
-            if (writer != null)
-                try {
-                    writer.close();
-                } catch (IOException ignore) {
-                }
+            throw new RuntimeException("Could not write file to " + dumpPath.toAbsolutePath(), e);
         }
     }
 

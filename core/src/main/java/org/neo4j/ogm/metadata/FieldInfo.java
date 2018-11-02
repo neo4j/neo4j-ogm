@@ -17,6 +17,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Map;
 
 import org.neo4j.ogm.annotation.Id;
@@ -335,22 +337,29 @@ public class FieldInfo {
     // From FieldAccessor
     // =================================================================================================================
 
-    public static void write(Field field, Object instance, Object value) {
-        try {
-            field.setAccessible(true);
-            field.set(instance, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static void write(Field field, Object instance, final Object value) {
+
+        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+            try {
+                field.setAccessible(true);
+                field.set(instance, value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
     }
 
     public static Object read(Field field, Object instance) {
-        try {
-            field.setAccessible(true);
-            return field.get(instance);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+
+        return AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+            try {
+                field.setAccessible(true);
+                return field.get(instance);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void write(Object instance, Object value) {

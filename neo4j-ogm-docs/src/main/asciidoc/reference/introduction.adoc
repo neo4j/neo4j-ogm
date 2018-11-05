@@ -1,7 +1,7 @@
 [[reference:introduction]]
 = Introduction
 
-Neo4j OGM is a fast object-graph mapping library for Neo4j, optimised for server-based installations utilising Cypher.
+Neo4j-OGM is a fast object-graph mapping library for Neo4j, optimised for server-based installations utilising Cypher.
 
 It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects to do so.
 
@@ -32,7 +32,7 @@ You use annotations to mark domain objects to be reflected by nodes and relation
 For individual fields the annotations allow you to declare how they should be processed and mapped to the graph.
 For property fields and references to other entities this is straightforward.
 Because Neo4j is a schema-free database, the OGM uses a simple mechanism to map Java types to Neo4j nodes using labels.
-Relationships between entities are first class citizens in a graph database and therefore worth a <<reference:annotating-entities:relationship, section of it's own>> describing their usage in Neo4j OGM.
+Relationships between entities are first class citizens in a graph database and therefore worth a <<reference:annotating-entities:relationship, section of it's own>> describing their usage in Neo4j-OGM.
 
 Connecting to the Database::
 Managing how you connect to the database is important. <<reference:connecting,Connecting to the Database>> has all the details on
@@ -40,13 +40,13 @@ what needs to happen to get you up and running.
 
 
 Indexing and Primary Constraints::
-Indexing is an important part of any database. The Neo4j OGM provides a variety of features to support the management of Indexes as well
+Indexing is an important part of any database. The Neo4j-OGM provides a variety of features to support the management of Indexes as well
 as the ability to query your domain objects by something other than the internal Neo4j id. <<reference:indexing, Indexing>> has everything you will
 want to know when it comes to getting that working.
 
 Interacting with the Graph Model::
-Neo4j OGM offers a <<reference:session, session>> for interacting with the mapped entities and the Neo4j graph database.
-Neo4j uses transactions to guarantee the integrity of your data and Neo4j OGM supports this fully.
+Neo4j-OGM offers a <<reference:session, session>> for interacting with the mapped entities and the Neo4j graph database.
+Neo4j uses transactions to guarantee the integrity of your data and Neo4j-OGM supports this fully.
 The implications of this are described in the transactions section.
 To use advanced functionality like Cypher queries, a basic understanding of the graph data model is required.
 The graph data model is explained in the chapter about in the introduction chapter.

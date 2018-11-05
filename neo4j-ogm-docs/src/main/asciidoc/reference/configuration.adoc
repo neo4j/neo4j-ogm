@@ -126,7 +126,7 @@ You should use the Embedded driver if you don't want to use a client-server mode
 You can specify a permanent data store location to provide durability of your data after your application shuts down, or you can use an impermanent data store, which will only exist while your application is running.
 
 [NOTE]
-As of 2.1.0 the Neo4j OGM embedded driver no longer ships with the Neo4j kernel.  Users are expected to provide this dependency through their
+As of 2.1.0 the Neo4j-OGM embedded driver no longer ships with the Neo4j kernel.  Users are expected to provide this dependency through their
 dependency management system. See <<reference:getting-started, Getting Started>> for more details.
 
 .Permanent Data Store Embedded Driver Configuration
@@ -362,6 +362,6 @@ This settings is valid only for Bolt and HTTP drivers.
 [[reference:configuration:logging]]
 == Logging
 
-Neo4j OGM uses SLF4J to log statements. In production, you can set the log level in a file called *logback.xml* to be found at the root of the classpath.
+Neo4j-OGM uses SLF4J to log statements. In production, you can set the log level in a file called *logback.xml* to be found at the root of the classpath.
 Please see the link:http://logback.qos.ch/manual/[Logback manual] for further details.
 

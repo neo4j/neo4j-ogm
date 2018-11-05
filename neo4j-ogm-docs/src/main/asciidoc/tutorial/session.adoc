@@ -100,7 +100,7 @@ abstract class GenericService<T> implements Service<T> {
 }
 ----
 
-One of the features of Neo4j OGM is variable depth persistence.
+One of the features of Neo4j-OGM is variable depth persistence.
 This means you can vary the depth of fetches depending on the shape of your data and application.
 The default depth is 1, which loads simple properties of the entity and its immediate relations.
 This is sufficient for the `find` method, which is used in the application to present a create or edit form for an entity.

@@ -1,7 +1,7 @@
 [[reference:events]]
 = Events
 
-Neo4j OGM supports persistence events.
+Neo4j-OGM supports persistence events.
 This section describes how to intercept update and delete events.
 
 You may also check the `@PostLoad` annotation which is described <<reference:annotating-entities:postload, here>>.

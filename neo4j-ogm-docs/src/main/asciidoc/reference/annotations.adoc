@@ -202,7 +202,7 @@ public class Movie {
 ----
 
 It is also possible to have fields that reference a set of entities (1:N).
-Neo4j OGM supports the following types of entity collections:
+Neo4j-OGM supports the following types of entity collections:
 
 * `java.util.Vector`
 * `java.util.List`, backed by a `java.util.ArrayList`
@@ -230,7 +230,7 @@ The default depth of 1 implies that _related_ node or relationship entities will
 If this `Set` of related entities is modified, the changes are reflected in the graph once the root object (`Actor`, in this case) is saved.
 Relationships are added, removed or updated according to the differences between the root object that was loaded and the corresponding one that was saved..
 
-Neo4j OGM ensures by default that there is only one relationship of a given type between any two given entities.
+Neo4j-OGM ensures by default that there is only one relationship of a given type between any two given entities.
 The exception to this rule is when a relationship is specified as either `OUTGOING` or `INCOMING` between two entities of the same type.
 In this case, it is possible to have two relationships of the given type between the two entities, one relationship in either direction.
 
@@ -447,7 +447,7 @@ unique identifier for their domain objects (or use a UUID).
 
 Entity equality can be a grey area.
 There are many debatable issues, such as whether natural keys or database identifiers best describe equality and the effects of versioning over time.
-Neo4j OGM does not impose a dependency upon a particular style of `equals()` or `hashCode()` implementation.
+Neo4j-OGM does not impose a dependency upon a particular style of `equals()` or `hashCode()` implementation.
 The graph-id field is directly checked to see if two entities represent the same node and a 64-bit hash code is used for dirty checking, so you're not forced to write your code in a certain way!
 
 [WARNING]
@@ -506,7 +506,7 @@ As we touched on earlier, it is not necessary to annotate property fields as the
 Fields that are annotated as `@Transient` or with `transient` are exempted from persistence.
 All fields that contain primitive values are persisted directly to the graph.
 All fields convertible to a `String` using the conversion services will be stored as a string.
-Neo4j OGM includes default type converters that deal with the following types:
+Neo4j-OGM includes default type converters that deal with the following types:
 
 * `java.util.Date` to a String in the ISO 8601 format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
 * `java.time.Instant` to a String in the ISO 8601 with timezone format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
@@ -537,7 +537,7 @@ A method annotated with `@PostLoad` will be called once the entity is loaded fro
 [[reference:annotating-entities:non-annotated-properties]]
 == Non-annotated properties and best practices
 
-Neo4j OGM supports mapping annotated and non-annotated objects models.
+Neo4j-OGM supports mapping annotated and non-annotated objects models.
 It's possible to save any POJO without annotations to the graph, as the framework applies conventions to decide what to do.
 This is useful in cases when you don't have control over the classes that you want to persist.
 The recommended approach, however, is to use annotations wherever possible, since this gives greater control and means that code can be refactored safely without risking breaking changes to the labels and relationships in your graph.

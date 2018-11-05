@@ -31,7 +31,7 @@ Basic operations are limited to CRUD operations on entities and executing arbitr
 [NOTE]
 There is no way to manipulate relationship- and node-objects directly.
 
-Given that the Neo4j OGM framework is driven by Cypher queries alone, there's no way to work directly with `Node` and `Relationship` objects in remote server mode.
+Given that the Neo4j-OGM framework is driven by Cypher queries alone, there's no way to work directly with `Node` and `Relationship` objects in remote server mode.
 Similarly, Traversal Framework operations are not supported, again because the underlying query-driven model doesn't handle it in an efficient way.
 
 If you find yourself in trouble because of the omission of these features, then your best options are:
@@ -189,7 +189,7 @@ public class Group {
 Entities can be loaded from the OGM through the use of the `session.loadXXX()` methods or via `session.query()`/`session.queryForObject()` which will
 accept your own Cypher queries (See section below on <<reference:session:loading-entities:cypher-queries, cypher queries>>).
 
-Neo4j OGM includes the concept of persistence horizon (depth).
+Neo4j-OGM includes the concept of persistence horizon (depth).
 On any individual request, the persistence horizon indicates how many relationships should be traversed in the graph when loading or saving data.
 A horizon of zero means that only the root object's properties will be loaded or saved, a horizon of 1 will include the root object and all its immediate neighbours, and so on.
 This attribute is enabled via a `depth` argument available on all session methods, but the OGM chooses sensible defaults so that you don't have to specify the depth attribute unless you want change the default values.
@@ -265,7 +265,7 @@ Modifications made to the graph via Cypher queries directly will not be reflecte
 [[reference:session:loading-entities:sorting-and-paging]]
 === Sorting and paging
 
-Neo4j OGM supports Sorting and Paging of results when using the Session object.
+Neo4j-OGM supports Sorting and Paging of results when using the Session object.
 The Session object methods take independent arguments for Sorting and Pagination
 
 .Paging
@@ -298,6 +298,6 @@ Iterable<World> worlds = session.loadAll(World.class,
 
 [NOTE]
 ====
-Neo4j OGM does not yet support sorting and paging on custom queries.
+Neo4j-OGM does not yet support sorting and paging on custom queries.
 ====
 

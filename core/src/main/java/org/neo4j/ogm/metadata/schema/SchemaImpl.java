@@ -18,6 +18,7 @@ import java.util.Map;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 class SchemaImpl implements Schema {
 
@@ -34,16 +35,21 @@ class SchemaImpl implements Schema {
 
     @Override
     public Node findNode(String label) {
-        return nodes.computeIfAbsent(label, s -> {
+
+        if (!nodes.containsKey(label)) {
             throw new IllegalArgumentException("Unknown label " + label);
-        });
+        }
+        return nodes.get(label);
     }
 
     @Override
     public Relationship findRelationship(String type) {
-        return relationships.computeIfAbsent(type, s -> {
+
+        if (!relationships.containsKey(type)) {
             throw new IllegalArgumentException("Unknown type " + type);
-        });
+        }
+
+        return relationships.get(type);
     }
 
     Relationship getRelationship(String type) {

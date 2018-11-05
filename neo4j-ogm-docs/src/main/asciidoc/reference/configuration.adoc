@@ -4,7 +4,7 @@
 [[reference:configuration:method]]
 == Configuration method
 
-There are several ways to supply configuration to the OGM:
+There are several ways to supply configuration to neo4j-OGM:
 
 - using a properties file
 - programmatically using Java
@@ -35,7 +35,7 @@ Configuration configuration = new Configuration.Builder(props).build();
 [[reference:configuration:method:java]]
 === Programmatically using Java
 
-In cases where you are not be able to provide configuration via a properties file you can configure the OGM programmatically instead.
+In cases where you are not be able to provide configuration via a properties file you can configure neo4j-OGM programmatically instead.
 
 The `Configuration` object provides a fluent API to set various configuration options. This object then needs to be supplied to the
 `SessionFactory` constructor in order to be configured.
@@ -46,11 +46,11 @@ Just configure the driver as you would do for direct access to the database, and
 
 This method allows the greatest flexibility and gives you access to the full range of low level configuration options.
 
-.Example providing a bolt driver instance to OGM
+.Example providing a bolt driver instance toNeo4j-OGM
 [source, java]
 ----
 org.neo4j.driver.v1.Driver nativeDriver = ...;
-Driver ogmDriver = new BoltDriver(nativeDriver);
+DriverNeo4j-OGMDriver = new BoltDriver(nativeDriver);
 new SessionFactory(ogmDriver, ...);
 ----
 
@@ -174,14 +174,14 @@ Configuration configuration = new Configuration.Builder().build()
 [[reference:configuration:driver:embedded:unmanaged]]
 ==== Configuration in an Unmanaged Extension
 
-When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set up OGM configuration slightly differently.
+When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set upNeo4j-OGM configuration slightly differently.
 Neo4j provides `PluginLifecycle` SPI that allows to initialize extensions. Extend `OgmPluginInitializer` and list the full class name in
 `META-INF/services/org.neo4j.server.plugins.PluginLifecycle`:
 
 
 [source, java]
 ----
-public class MyApplicationPluginInitializer extends OgmPluginInitializer {
+public class MyApplicationPluginInitializer extendsNeo4j-OGMPluginInitializer {
 
     public MyApplicationPluginInitializer() {
         super(MyDomain.class.getPackage().getName());
@@ -242,7 +242,7 @@ Configuration configuration = new Configuration.Builder()
 ----
 |======================
 
-_Note: Currently only Basic Authentication is supported by the OGM. If you need to use more advanced authentication scheme, use the native driver configuration method._
+_Note: Currently only Basic Authentication is supported by neo4j-OGM. If you need to use more advanced authentication scheme, use the native driver configuration method._
 
 [[reference:configuration:driver:tsl]]
 === Transport Layer Security (TLS/SSL)

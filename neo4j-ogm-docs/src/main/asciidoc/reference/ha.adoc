@@ -23,7 +23,7 @@ Causal Clustering only works with the Neo4j Bolt Driver (`1.1.0` onwards). Tryin
 The Bolt driver will fully handle any load balancing, which operate in concert with the Causal Cluster to spread the workload. New cluster-aware sessions, managed on the client-side by the Bolt drivers, alleviate complex infrastructure concerns for developers.
 
 [[reference:ha:causal-clustering:configuration]]
-=== Configuring the OGM
+=== Configuring neo4j-OGM
 
 _Not cluster specific side note: you may also want to configure <<reference:configuration:driver:connection-test, connection testing>>_.
 
@@ -132,7 +132,7 @@ This means we must bind every request within a specific transaction to the same 
 [[reference:ha:ha-cluster:readwrite]]
 === Read-only transactions
 
-As of Version 2.0.5 read-only transactions are supported by the OGM.
+As of Version 2.0.5 read-only transactions are supported by neo4j-OGM.
 
 [[reference:ha:ha-cluster:readwrite:drivers]]
 ==== Drivers

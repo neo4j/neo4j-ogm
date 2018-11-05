@@ -2,7 +2,7 @@
 [[design-considerations]]
 = Design considerations
 
-The OGM attempts to minimise the Cypher payload when persisting your objects to the graph.
+Neo4j-OGM attempts to minimise the Cypher payload when persisting your objects to the graph.
 This is important for two reasons.
 Firstly in client-server mode, every network interaction involves an overhead (both bandwidth but more so latency) which impacts the response times of your application.
 Secondly, requests containing redundant operations (such as updating an object which hasn't changed) are unnecessary, and have similar impacts.

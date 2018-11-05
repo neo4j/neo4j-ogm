@@ -1,5 +1,5 @@
 [[tutorial:configuration]]
-= Configuring the OGM
+= Configuring neo4j-OGM
 
 Neo4j-OGM supports several drivers:
 

@@ -20,7 +20,7 @@ Two Date converters are provided "out of the box":
 . `@DateString`
 . `@DateLong`
 
-By default, the OGM will use the `@DateString` converter as described above.
+By default, neo4j-OGM will use the `@DateString` converter as described above.
 However if you want to use a different date format, you can annotate your entity attribute accordingly:
 
 .Example of user-defined date format

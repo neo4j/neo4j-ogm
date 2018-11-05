@@ -1,7 +1,7 @@
 [[tutorial:annotations]]
 = Annotating the domain model
 
-Much like Hibernate or JPA, the OGM allows you to annotate your POJOs in order to map them to nodes, relationships and properties in the graph.
+Much like Hibernate or JPA, neo4j-OGM allows you to annotate your POJOs in order to map them to nodes, relationships and properties in the graph.
 
 
 [[tutorial:annotations:nodes]]
@@ -143,7 +143,7 @@ A relationship entity must be annotated with `@RelationshipEntity` and also the 
 In this case, the type of relationship is `ENROLLED` as specified in both the `Student` and `Course` entities.
 
 
-We are also going to indicate to the OGM the start and end node of this relationship.
+We are also going to indicate to neo4j-OGM the start and end node of this relationship.
 
 [source, groovy]
 ----
@@ -166,7 +166,7 @@ class Enrollment {
 == Identifiers
 
 Every node and relationship persisted to the graph must have an id.
-The OGM uses this to identify and re-connect the entity to the graph in memory.
+Neo4j-OGM uses this to identify and re-connect the entity to the graph in memory.
 Identifier may be either a primary id or a native graph id.
 
 - primary id - any property annotated with `@Id`, set by the user and optionally with `@GeneratedValue` annotation
@@ -216,7 +216,7 @@ class Department extends Entity {
 
 We are almost there!
 
-The OGM also also requires a public no-args constructor to be able to construct objects from all our annotated entities.
+Neo4j-OGM also also requires a public no-args constructor to be able to construct objects from all our annotated entities.
 We'll make sure all our entities have one.
 
 
@@ -227,8 +227,8 @@ Neo4j supports `Numeric`, `String`, `boolean` and arrays of these as property va
 
 How do we handle the `enrolledDate` since `Date` is not a valid data type?
 
-Luckily for us, OGM provides many converters out of the box, one of which is a `Date` to `Long` converter.
-We simply annotate the field with `@DateLong` and the conversion of the `Date` to it's `Long` representation and back is handled by the OGM when persisting and loading from the graph.
+Luckily for us,Neo4j-OGM provides many converters out of the box, one of which is a `Date` to `Long` converter.
+We simply annotate the field with `@DateLong` and the conversion of the `Date` to it's `Long` representation and back is handled by neo4j-OGM when persisting and loading from the graph.
 
 [source, groovy]
 ----

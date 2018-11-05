@@ -1,5 +1,5 @@
 [[reference:session]]
-= Using neo4j-OGM Session
+= Using Neo4j-OGM Session
 
 The `Session` provides the core functionality to persist objects to the graph and load them in a variety of ways.
 
@@ -117,7 +117,7 @@ movie.setTopActor(actor);
 ====
 
 Neither the actor nor the movie has been assigned a node in the graph.
-If we were to call `session.save(movie)`, then neo4j-OGM would first create a node for the movie.
+If we were to call `session.save(movie)`, then Neo4j-OGM would first create a node for the movie.
 It would then note that there is a relationship to an actor, so it would save the actor in a cascading fashion.
 Once the actor has been persisted, it will create the relationship from the movie to the actor.
 All of this will be done atomically in one transaction.
@@ -186,13 +186,13 @@ public class Group {
 [[reference:session:loading-entities]]
 == Loading Entities
 
-Entities can be loaded from neo4j-OGM through the use of the `session.loadXXX()` methods or via `session.query()`/`session.queryForObject()` which will
+Entities can be loaded from Neo4j-OGM through the use of the `session.loadXXX()` methods or via `session.query()`/`session.queryForObject()` which will
 accept your own Cypher queries (See section below on <<reference:session:loading-entities:cypher-queries, cypher queries>>).
 
 Neo4j-OGM includes the concept of persistence horizon (depth).
 On any individual request, the persistence horizon indicates how many relationships should be traversed in the graph when loading or saving data.
 A horizon of zero means that only the root object's properties will be loaded or saved, a horizon of 1 will include the root object and all its immediate neighbours, and so on.
-This attribute is enabled via a `depth` argument available on all session methods, but neo4j-OGM chooses sensible defaults so that you don't have to specify the depth attribute unless you want change the default values.
+This attribute is enabled via a `depth` argument available on all session methods, but Neo4j-OGM chooses sensible defaults so that you don't have to specify the depth attribute unless you want change the default values.
 
 [[reference:session:loading-entities:load-depth]]
 === Load depth
@@ -231,7 +231,7 @@ The strategy can be overridden globally by calling `SessionFactory.setLoadStrate
 === Cypher queries
 
 Cypher is Neo4j's powerful query language.
-It is understood by all the different drivers in neo4j-OGM which means that your application code should run identically, whichever driver you choose to use.
+It is understood by all the different drivers in Neo4j-OGM which means that your application code should run identically, whichever driver you choose to use.
 This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the HTTP Driver or the Bolt Driver when deploying your code into a production client-server environment.
 
 

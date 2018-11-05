@@ -50,7 +50,7 @@ This feature is only supported by Neo4j Enterprise 3.1 and higher.
 
 By default index management is set to `None`.
 
-If you would like neo4j-OGM to manage your schema creation there are several ways to go about it.
+If you would like Neo4j-OGM to manage your schema creation there are several ways to go about it.
 
 Only classes marked with `@Index`, `@CompositeIndex` or `@Required` will be used.
 Indexes will always be generated with the containing class's label and the annotated property's name.
@@ -73,18 +73,23 @@ Below is a table of all options available for configuring Auto-Indexing.
 | config.setAutoIndex("validate");
 
 | *assert*
-| Drops all constraints and indexes on startup then builds indexes based on whatever is represented inNeo4j-OGM by `@Index`. Handy during development
+| Drops all constraints and indexes on startup then builds indexes based on whatever is represented inNeo4j-OGM by `@Index`.
+  Handy during development.
 | indexes.auto=assert
 | config.setAutoIndex("assert");
 
 | *update*
-| Builds indexes based on whatever is represented inNeo4j-OGM by `@Index`. Indexes will be changed to constraints and vise versa if the definition in db differs from metadata.
+| Builds indexes based on whatever is represented inNeo4j-OGM by `@Index`.
+  Indexes will be changed to constraints and vise versa if the definition in db differs from metadata.
  Handy during development
 | indexes.auto=update
 | config.setAutoIndex("update");
 
 | *dump*
-| Dumps the generated constraints and indexes to a file. Good for setting up environments. none: Default. Simply marks the field as using an index.
+| Dumps the generated constraints and indexes to a file.
+  Good for setting up environments.
+  none: Default.
+  Simply marks the field as using an index.
 | indexes.auto=dump
   indexes.auto.dump.dir=<a directory>
   indexes.auto.dump.filename=<a filename>

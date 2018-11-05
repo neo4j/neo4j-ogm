@@ -18,8 +18,8 @@ See <<reference:annotating-entities:node-entity:dynamic-properties, Dynamic prop
 * Improved performance
 +
 Retrieving data is more performant inNeo4j-OGM 3, particularly for deep depths, because querying leverages
-annotation information expressed in the domain model. This allows to build smarter queries, and
-only fetch useful mappable data.
+annotation information expressed in the domain model.
+This allows to build smarter queries, and only fetch useful mappable data.
 
 * More flexible configuration
 +
@@ -31,7 +31,7 @@ The minimum required versions are Java 8 and Neo4j 3.1.
 
 * Better integration with various execution environments
 +
-Internally,Neo4j-OGM 3 relies on https://github.com/lukehutch/fast-classpath-scanner[FastClasspathScanner] which
+Internally, Neo4j-OGM 3 relies on https://github.com/lukehutch/fast-classpath-scanner[FastClasspathScanner] which
 allows more reliable entity bytecode scanning, as well as better support application servers (like JBoss).
 
 NOTE: Check the <<appendix:migration:checklist, migration checklist>> when upgrading fromNeo4j-OGM 2.1

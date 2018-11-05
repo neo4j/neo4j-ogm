@@ -6,7 +6,7 @@
 == @NodeEntity: The basic building block
 
 The `@NodeEntity` annotation is used to declare that a POJO class is an entity backed by a node in the graph database.
-Entities handled by neo4j-OGM must have one empty public constructor to allow the library to construct the objects.
+Entities handled by Neo4j-OGM must have one empty public constructor to allow the library to construct the objects.
 
 Fields on the entity are by default mapped to properties of the node.
 Fields referencing other node entities (or collections thereof) are linked with relationships.
@@ -184,7 +184,7 @@ Using many distinct labels will result into many requests to the database (one r
 == @Relationship: Connecting node entities
 
 Every field of an entity that references one or more other node entities is backed by relationships in the graph.
-These relationships are managed by neo4j-OGM automatically.
+These relationships are managed by Neo4j-OGM automatically.
 
 The simplest kind of relationship is a single object reference pointing to another entity (1:1).
 In this case, the reference does not have to be annotated at all, although the annotation may be used to control the direction and type of the relationship.
@@ -289,7 +289,8 @@ If you want to impose order on collections of relationships you have several opt
 - sort relationships in <<reference:annotating-entities:postload, `@PostLoad`>> annotated method
 
 You can sort either by a property of a related node or by relationship property.
-To sort by relationship property you need to use a relationship entity. See <<reference:annotating-entities:relationship-entity>>.
+To sort by relationship property you need to use a relationship entity.
+See <<reference:annotating-entities:relationship-entity>>.
 
 [[reference:annotating-entities:relationship-entity]]
 == @RelationshipEntity: Rich relationships
@@ -305,13 +306,13 @@ A field annotated with one of these annotations will provide access to the corre
 For controlling the relationship-type a `String` attribute called `type` is available on the `@RelationshipEntity` annotation.
 Like the simple strategy for labelling node entities, if this is not provided then the name of the class is used to derive the relationship type,
 although it's converted into SNAKE_CASE to honour the naming conventions of Neo4j relationships.
-As of the current version of neo4j-OGM, the `type` *must* be specified on the `@RelationshipEntity` annotation as well as its corresponding `@Relationship` annotations.
+As of the current version of Neo4j-OGM, the `type` *must* be specified on the `@RelationshipEntity` annotation as well as its corresponding `@Relationship` annotations.
 This can also be done without naming the attribute but only providing the value.
 
 
 [NOTE]
 ====
-You must include `@RelationshipEntity` plus exactly one `@StartNode` field and one `@EndNode` field on your relationship entity classes or neo4j-OGM will throw a MappingException when reading or writing.
+You must include `@RelationshipEntity` plus exactly one `@StartNode` field and one `@EndNode` field on your relationship entity classes or Neo4j-OGM will throw a MappingException when reading or writing.
 It is not possible to use relationship entities in a non-annotated domain model.
 ====
 
@@ -343,9 +344,9 @@ Note that the `Actor` also contains a reference to a `Role`.
 This is important for persistence, *even when saving the `Role` directly*, because paths in the graph are written starting with nodes first and then relationships are created between them.
 Therefore, you need to structure your domain models so that relationship entities are reachable from node entities for this to work correctly.
 
-Additionally, neo4j-OGM will not persist a relationship entity that doesn't have any properties defined.
+Additionally, Neo4j-OGM will not persist a relationship entity that doesn't have any properties defined.
 If you don't want to include properties in your relationship entity then you should use a plain `@Relationship` instead.
-Multiple relationship entities which have the same property values and relate the same nodes are indistinguishable from each other and are represented as a single relationship by neo4j-OGM.
+Multiple relationship entities which have the same property values and relate the same nodes are indistinguishable from each other and are represented as a single relationship by Neo4j-OGM.
 
 [NOTE]
 ====
@@ -422,25 +423,22 @@ It must not be a primitive type because then an object in a transient state cann
 
 [WARNING]
 ====
-***Do not*** rely on this ID for long running applications. Neo4j will reuse deleted node ID's. It is recommended users come up with their own
-unique identifier for their domain objects (or use a UUID).
+***Do not*** rely on this ID for long running applications.
+Neo4j will reuse deleted node ID's. It is recommended users come up with their own unique identifier for their domain objects (or use a UUID).
 ====
 
 An entity can be looked up by this either type of id by using `Session.load(Class<T>, ID)` and `Session.loadAll(Class<T>, Collection<ID>)` methods.
 
-It is possible to have both natural and native id in one entity. In such situation lookups prefer the primary id.
+It is possible to have both natural and native id in one entity.
+In such situation lookups prefer the primary id.
 
-If the field of type `Long` is simply named 'id' then it is not necessary to annotate it with `@Id @GeneratedValue` as neo4j-OGM will use it automatically as native id.
+If the field of type `Long` is simply named 'id' then it is not necessary to annotate it with `@Id @GeneratedValue` as Neo4j-OGM will use it automatically as native id.
 
 [[reference:annotating-entities:graph-id]]
 == @GraphId: Neo4j id field
 
 The `@GraphId` annotation is superseded by `@Id @GeneratedValue` and exists for backwards compatibility.
 It is deprecated and will eventually be removed.
-
-[WARNING]
-***Do not*** rely on this ID for long running applications. Neo4j will reuse deleted node ID's. It is recommended users come up with their own
-unique identifier for their domain objects (or use a UUID).
 
 [[reference:annotating-entities:graph-id:equality]]
 === Entity Equality
@@ -452,7 +450,7 @@ The graph-id field is directly checked to see if two entities represent the same
 
 [WARNING]
 You are free to write your `equals` and `hashcode` in a domain specific way for managed entities. However, *we strongly advise developers to not use the `@GraphId` field in these implementations*.
-This is because when you first persist an entity, its hashcode changes because neo4j-OGM populates the database ID on save.
+This is because when you first persist an entity, its hashcode changes because Neo4j-OGM populates the database ID on save.
 This causes problems if you had inserted the newly created entity into a hash-based collection before saving.
 
 === Id Generation Strategy
@@ -496,8 +494,8 @@ When an optimistic locking failure happens following operations are performed on
 * in case a default transaction is used it is rolled back
 * in case a manual transaction is used then it is *not* rolled back, but because the update may contain multiple
 statements which are checked eagerly it is not defined what updates were actually performed in the database and it is
-advised to rollback the transaction. If you know you updates consists of single modification you may however choose to
-reload the object and continue the transaction.
+advised to rollback the transaction.
+If you know you updates consists of single modification you may however choose to reload the object and continue the transaction.
 
 [[reference:annotating-entities:property]]
 == @Property: Optional annotation for property fields
@@ -549,7 +547,7 @@ Annotated and non-annotated objects can be used within the same project without 
 The object graph mapping comes into play whenever an entity is constructed from a node or relationship.
 This could be done explicitly during the lookup or create operations of the `Session` but also implicitly while executing any graph operation that returns nodes or relationships and expecting mapped entities to be returned.
 
-Entities handled by neo4j-OGM must have one empty public constructor to allow the library to construct the objects.
+Entities handled by Neo4j-OGM must have one empty public constructor to allow the library to construct the objects.
 
 Unless annotations are used to specify otherwise, the framework will attempt to map any of an object's "simple" fields to node properties and any rich composite objects to related nodes.
 A "simple" field is any primitive, boxed primitive or String or arrays thereof, essentially anything that naturally fits into a Neo4j node property.

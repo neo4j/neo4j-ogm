@@ -4,7 +4,7 @@
 [[reference:getting-started:versions]]
 == Versions
 
-Consult the version table to determine which version of neo4j-OGM to use with a particular version of Neo4j and related technologies.
+Consult the version table to determine which version of Neo4j-OGM to use with a particular version of Neo4j and related technologies.
 
 === Compatibility
 
@@ -51,9 +51,9 @@ For building an application, your build automation tool needs to be configured t
 Neo4j-OGM dependencies consist of `neo4j-ogm-core`, together with the relevant dependency declarations on the driver you want to use.
 OGM provides support for connecting to Neo4j by configuring one of the following Drivers:
 
-- `neo4j-ogm-http-driver` - Uses HTTP to communicate between neo4j-OGM and a remote Neo4j instance.
+- `neo4j-ogm-http-driver` - Uses HTTP to communicate between Neo4j-OGM and a remote Neo4j instance.
 - `neo4j-ogm-embedded-driver` - Connects directly to the Neo4j database engine.
-- `neo4j-ogm-bolt-driver` - Uses native Bolt protocol to communicate between neo4j-OGM and a remote Neo4j instance.
+- `neo4j-ogm-bolt-driver` - Uses native Bolt protocol to communicate between Neo4j-OGM and a remote Neo4j instance.
 
 If you're not using a particular driver, you don't need to declare it.
 
@@ -99,7 +99,7 @@ In the `<dependencies>` section of your `pom.xml` add the following:
 </dependency>
 ----
 
-If you plan on using a development (i.e. `SNAPSHOT`) version of neo4j-OGM you will need to add the following to the
+If you plan on using a development (i.e. `SNAPSHOT`) version of Neo4j-OGM you will need to add the following to the
 `<repositories>` section of your `pom.xml`:
 
 .Neo4j Snapshot Repository
@@ -128,7 +128,7 @@ dependencies {
 }
 ----
 
-If you plan on using a development (i.e. `SNAPSHOT`) version of neo4j-OGM you will need to add the following section of your `build.gradle`:
+If you plan on using a development (i.e. `SNAPSHOT`) version of Neo4j-OGM you will need to add the following section of your `build.gradle`:
 
 .Neo4j Snapshot Repository
 [source, groovy, subs="attributes"]

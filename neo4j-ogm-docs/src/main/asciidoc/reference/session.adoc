@@ -219,9 +219,9 @@ WhenNeo4j-OGM loads entities through `load*` methods (including ones with filter
 
 Available load strategies are
 
-* *schema load strategy* - uses metadata on domain entities and pattern comprehensions to retrieve nodes and relationships (default sinceNeo4j-OGM 3.0)
+* *schema load strategy* - uses metadata on domain entities and pattern comprehensions to retrieve nodes and relationships (default since Neo4j-OGM 3.0)
 
-* *path load strategy* - uses paths from root node to fetch related nodes, `p=(n)-[0..]-()` (default beforeNeo4j-OGM 3.0)
+* *path load strategy* - uses paths from root node to fetch related nodes, `p=(n)-[0..]-()` (default before Neo4j-OGM 3.0)
 
 The strategy can be overridden globally by calling `SessionFactory.setLoadStrategy(strategy)` or for single session only
 (e.g. when different strategy is more effective for given query) by calling `Session.setLoadStrategy(strategy)`

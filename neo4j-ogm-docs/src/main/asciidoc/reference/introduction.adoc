@@ -32,7 +32,7 @@ How to make sense of all the options?
 
 
 Annotating your Domain Objects::
-To get started with yourNeo4j-OGM application, you need only your domain model and the <<reference:annotating-entities, annotations>> provided by the library.
+To get started with your Neo4j-OGM application, you need only your domain model and the <<reference:annotating-entities, annotations>> provided by the library.
 You use annotations to mark domain objects to be reflected by nodes and relationships of the graph database.
 For individual fields the annotations allow you to declare how they should be processed and mapped to the graph.
 For property fields and references to other entities this is straightforward.

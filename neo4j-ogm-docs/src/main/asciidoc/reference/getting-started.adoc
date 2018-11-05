@@ -25,7 +25,7 @@ Consult the version table to determine which version of Neo4j-OGM to use with a 
 
 === Transitive dependencies
 
-The following table list transitive dependencies between specific versions of projects related toNeo4j-OGM.
+The following table list transitive dependencies between specific versions of projects related to Neo4j-OGM.
 When reporting issues or asking for help on StackOverflow or neo4j-users slack channel always
 verify versions used (e.g through `mvn dependency:tree`) and report them as well.
 

@@ -47,7 +47,7 @@ Just configure the driver as you would do for direct access to the database, and
 
 This method allows the greatest flexibility and gives you access to the full range of low level configuration options.
 
-.Example providing a bolt driver instance toNeo4j-OGM
+.Example providing a bolt driver instance to Neo4j-OGM
 [source, java]
 ----
 org.neo4j.driver.v1.Driver nativeDriver = ...;
@@ -184,7 +184,7 @@ Extend `OgmPluginInitializer` and list the full class name in `META-INF/services
 
 [source, java]
 ----
-public class MyApplicationPluginInitializer extendsNeo4j-OGMPluginInitializer {
+public class MyApplicationPluginInitializer extends OGMPluginInitializer {
 
     public MyApplicationPluginInitializer() {
         super(MyDomain.class.getPackage().getName());

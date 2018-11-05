@@ -19,7 +19,7 @@ In cases where there is no index definition in a sub-class at al, the first inde
 == Primary Constraints
 
 [WARNING]
-The `primary` property of the `@Index` annotation is deprecated sinceNeo4j-OGM 3 and should not be used.
+The `primary` property of the `@Index` annotation is deprecated since Neo4j-OGM 3 and should not be used.
 The primary key is solely provided by the `@Id` annotation.
 See <<reference:annotating-entities:entity-identifier, Entity identifier>> for more information.
 
@@ -73,13 +73,13 @@ Below is a table of all options available for configuring Auto-Indexing.
 | config.setAutoIndex("validate");
 
 | *assert*
-| Drops all constraints and indexes on startup then builds indexes based on whatever is represented inNeo4j-OGM by `@Index`.
+| Drops all constraints and indexes on startup then builds indexes based on whatever is represented in Neo4j-OGM by `@Index`.
   Handy during development.
 | indexes.auto=assert
 | config.setAutoIndex("assert");
 
 | *update*
-| Builds indexes based on whatever is represented inNeo4j-OGM by `@Index`.
+| Builds indexes based on whatever is represented in Neo4j-OGM by `@Index`.
   Indexes will be changed to constraints and vise versa if the definition in db differs from metadata.
  Handy during development
 | indexes.auto=update

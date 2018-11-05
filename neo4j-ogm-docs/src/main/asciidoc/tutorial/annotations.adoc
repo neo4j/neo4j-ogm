@@ -230,7 +230,7 @@ Neo4j supports `Numeric`, `String`, `boolean` and arrays of these as property va
 
 How do we handle the `enrolledDate` since `Date` is not a valid data type?
 
-Luckily for us,Neo4j-OGM provides many converters out of the box, one of which is a `Date` to `Long` converter.
+Luckily for us, Neo4j-OGM provides many converters out of the box, one of which is a `Date` to `Long` converter.
 We simply annotate the field with `@DateLong` and the conversion of the `Date` to it's `Long` representation and back is handled by Neo4j-OGM when persisting and loading from the graph.
 
 [source, groovy]

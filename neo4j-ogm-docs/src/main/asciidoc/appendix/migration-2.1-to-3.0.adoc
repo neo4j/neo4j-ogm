@@ -2,11 +2,11 @@
 [[migration]]
 = Migration from 2.1 to 3.0/3.1
 
-This migration guide should help with migration fromNeo4j-OGM 2.1.x version to 3.0.x or 3.1.x.
+This migration guide should help with migration from Neo4j-OGM 2.1.x version to 3.0.x or 3.1.x.
 
 == Field access only
 
-Probably the most invasive change is howNeo4j-OGM accesses entity fields.
+Probably the most invasive change is how Neo4j-OGM accesses entity fields.
 Up to version 2.1.x any setters/getters took precedence before direct field access.
 This was also the reason why some annotations had to be on both setters and getters/fields and was a frequent source of
 confusion and many questions on Slack and StackOverflow.
@@ -36,11 +36,11 @@ The driver is automatically inferred from given `URI`.
 
 == Performance and unlimited load depth
 
-In order to improve loading performance, some optimizations are now used byNeo4j-OGM when querying.
+In order to improve loading performance, some optimizations are now used by Neo4j-OGM when querying.
 A new load policy based on https://neo4j.com/docs/developer-manual/current/cypher/syntax/lists/#cypher-list-comprehension[list comprehensions]
 generated from schema is now used.
 
-It means that, instead of loading blindly object graphs up to a certain depth,Neo4j-OGM will now only query the nodes and
+It means that, instead of loading blindly object graphs up to a certain depth, Neo4j-OGM will now only query the nodes and
 relationships that are expressed in your domain model.
 For applications that do not require following all the relationships, this can be a huge performance improvement.
 
@@ -78,7 +78,7 @@ Here are the things you (may) have to adapt :
 
 * The driver class name in the configuration is now inferred from connection URL.
 
-* Java 8 is now mandatory.Neo4j-OGM won't run on any previous Java version.
+* Java 8 is now mandatory. Neo4j-OGM won't run on any previous Java version.
 
 * Neo4j 3.1 or higher is required, because of the new schema load strategy, which uses list comprehensions.
 

@@ -1,7 +1,7 @@
 [[reference:testing]]
 = Testing
 
-Doing integration testing withNeo4j-OGM requires a few basic steps :
+Doing integration testing with Neo4j-OGM requires a few basic steps :
 
 * Add the `neo4j-ogm-test` artifact in you maven / gradle configuration
 * Declare the `Neo4jRule` JUnit rule, to setup a Neo4j test server

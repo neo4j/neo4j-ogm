@@ -10,7 +10,10 @@ Any property field annotated with `@Index` will have an appropriate schema index
 For `@Index(unique=true)` a constraint is created.
 
 You may add as many indexes or constraints as you like to your class.
-If you annotate a field in a class that is part of an inheritance hierarchy then the index or constraint will only be added to that class's label.
+A class outside any inheritance hierarchy leads to the creation of indexes for its annotated fields on its label.
+A class inheriting from a super-class and declaring an index on a field shadowing the same field of the super class leads to the creation of an index for that field on it’s own label.
+A non-abstract super-class will index that field on it’s corresponding label as well.
+In cases where there is no index definition in a sub-class at al, the first index-defining super class will define the index on its label in the database.
 
 [[reference:indexing:primary-constraints]]
 == Primary Constraints

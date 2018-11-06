@@ -29,7 +29,7 @@ public class PathNodeLoadClauseBuilder implements LoadClauseBuilder {
         } else if (depth > 0) {
             return " MATCH p=(" + variable + ")-[*0.." + depth + "]-(m) RETURN p";
         } else {
-            return " RETURN n";
+            return " RETURN " + variable;
         }
     }
 }

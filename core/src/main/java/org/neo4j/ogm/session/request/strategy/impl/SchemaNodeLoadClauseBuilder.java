@@ -39,7 +39,7 @@ public class SchemaNodeLoadClauseBuilder extends AbstractSchemaLoadClauseBuilder
 
         sb.append(" RETURN ");
         newLine(sb);
-        sb.append("n");
+        sb.append(variable);
         newLine(sb);
 
         Node node = schema.findNode(label);

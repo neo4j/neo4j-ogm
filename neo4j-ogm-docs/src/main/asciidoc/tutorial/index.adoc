@@ -3,7 +3,7 @@
 
 [abstract]
 --
-This chapter is a tutorial that takes the reader through steps necessary to get started with the Neo4j OGM.
+This chapter is a tutorial that takes the reader through steps necessary to get started with the Neo4j-OGM.
 --
 
 include::intro.adoc[leveloffset=+1]

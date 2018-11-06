@@ -6,7 +6,7 @@ The object-graph mapping framework provides support for default and bespoke type
 [[reference:type-conversion:built-in]]
 == Built-in type conversions
 
-Neo4j OGM will automatically perform the following type conversions:
+Neo4j-OGM will automatically perform the following type conversions:
 
 * `java.util.Date` to a String in the ISO 8601 format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
 * `java.time.Instant` to a String in the ISO 8601 with timezone format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
@@ -20,7 +20,7 @@ Two Date converters are provided "out of the box":
 . `@DateString`
 . `@DateLong`
 
-By default, the OGM will use the `@DateString` converter as described above.
+By default, Neo4j-OGM will use the `@DateString` converter as described above.
 However if you want to use a different date format, you can annotate your entity attribute accordingly:
 
 .Example of user-defined date format
@@ -71,8 +71,8 @@ The lenient feature is currently only supported by string-based converters to al
 == Custom Type Conversion
 
 In order to define bespoke type conversions for particular members, you can annotate a field with `@Convert`.
-One of either two convert implementations can be used. For simple cases where a single property maps to a single field,
-with type conversion, specify an implementation of `AttributeConverter`.
+One of either two convert implementations can be used.
+For simple cases where a single property maps to a single field, with type conversion, specify an implementation of `AttributeConverter`.
 
 .Example of mapping a single property to a field
 [source,java]

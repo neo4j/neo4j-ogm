@@ -4,13 +4,13 @@
 [[reference:getting-started:versions]]
 == Versions
 
-Consult the version table to determine which version of the OGM to use with a particular version of Neo4j and related technologies.
+Consult the version table to determine which version of Neo4j-OGM to use with a particular version of Neo4j and related technologies.
 
 === Compatibility
 
 [frame="topbot",options="header"]
 |======================
-|Neo4j OGM Version   |Neo4j Version       | Bolt Version^#^                 | Spring Data Neo4j Version       | Spring Boot Version
+|Neo4j-OGM Version   |Neo4j Version       | Bolt Version^#^                 | Spring Data Neo4j Version       | Spring Boot Version
 |3.1.0+              |3.1.x, 3.2.x, 3.3.x | 1.5.0+ (compatible with 1.4.0+) | 5.1.0+ (compatible with 5.0.0+) | 2.0.0+
 |3.0.0+              |3.1.x, 3.2.x, 3.3.x | 1.4.0+                          | 5.0.0+                          | 2.0.0+
 |2.1.0+              |2.3.x, 3.0.x, 3.1.x | 1.1.0+                          | 4.2.0+                          | 1.5.0+
@@ -25,13 +25,13 @@ Consult the version table to determine which version of the OGM to use with a pa
 
 === Transitive dependencies
 
-The following table list transitive dependencies between specific versions of projects related to OGM.
+The following table list transitive dependencies between specific versions of projects related to Neo4j-OGM.
 When reporting issues or asking for help on StackOverflow or neo4j-users slack channel always
 verify versions used (e.g through `mvn dependency:tree`) and report them as well.
 
 [frame="topbot",options="header"]
 |======================
-|Spring Boot Version | Spring Data Neo4j Version            | Neo4j OGM Version | Bolt Version
+|Spring Boot Version | Spring Data Neo4j Version            | Neo4j-OGM Version | Bolt Version
 |2.0.0               | 5.1.0                                | 3.1.0             | 1.5.0
 |2.0.0               | 5.0.0 (default for Spring Boot 2.0)  | 3.0.0             | 1.4.3
 |1.5.7               | 4.2.7                                | 2.1.3             | 1.2.3
@@ -45,19 +45,19 @@ These versions can be overridden manually in `pom.xml` or `build.gradle` files.
 [[reference:getting-started:dependency-management]]
 == Dependency Management
 
-For building an application, your build automation tool needs to be configured to include the Neo4j OGM dependencies.
+For building an application, your build automation tool needs to be configured to include the Neo4j-OGM dependencies.
 
 
-The OGM dependencies consist of `neo4j-ogm-core`, together with the relevant dependency declarations on the driver you want to use.
+Neo4j-OGM dependencies consist of `neo4j-ogm-core`, together with the relevant dependency declarations on the driver you want to use.
 OGM provides support for connecting to Neo4j by configuring one of the following Drivers:
 
-- `neo4j-ogm-http-driver` - Uses HTTP to communicate between the OGM and a remote Neo4j instance.
+- `neo4j-ogm-http-driver` - Uses HTTP to communicate between Neo4j-OGM and a remote Neo4j instance.
 - `neo4j-ogm-embedded-driver` - Connects directly to the Neo4j database engine.
-- `neo4j-ogm-bolt-driver` - Uses native Bolt protocol to communicate between the OGM and a remote Neo4j instance.
+- `neo4j-ogm-bolt-driver` - Uses native Bolt protocol to communicate between Neo4j-OGM and a remote Neo4j instance.
 
 If you're not using a particular driver, you don't need to declare it.
 
-Neo4j OGM projects can be built using Maven, Gradle or any other build system that utilises Maven's artifact repository structure.
+Neo4j-OGM projects can be built using Maven, Gradle or any other build system that utilises Maven's artifact repository structure.
 
 [[reference:getting-started:dependency-management:maven]]
 === Maven
@@ -99,7 +99,7 @@ In the `<dependencies>` section of your `pom.xml` add the following:
 </dependency>
 ----
 
-If you plan on using a development (i.e. `SNAPSHOT`) version of the OGM you will need to add the following to the
+If you plan on using a development (i.e. `SNAPSHOT`) version of Neo4j-OGM you will need to add the following to the
 `<repositories>` section of your `pom.xml`:
 
 .Neo4j Snapshot Repository
@@ -128,7 +128,7 @@ dependencies {
 }
 ----
 
-If you plan on using a development (i.e. `SNAPSHOT`) version of the OGM you will need to add the following section of your `build.gradle`:
+If you plan on using a development (i.e. `SNAPSHOT`) version of Neo4j-OGM you will need to add the following section of your `build.gradle`:
 
 .Neo4j Snapshot Repository
 [source, groovy, subs="attributes"]

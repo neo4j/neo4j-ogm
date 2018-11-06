@@ -59,5 +59,5 @@ When a student enrolls for a course, we're also going to keep track of the enrol
 In the model, this will be stored as a property on the `ENROLLED` relationship between a student and a course.
 This kind of rich relationship is managed by the class `Enrollment` and is known as a ***relationship entity***.
 
-The important thing to take away here is that the OGM supports Neo4j's philosophy of whiteboard friendly domain models.  By focusing
-on the model the code almost writes itself.
+The important thing to take away here is that Neo4j-OGM supports Neo4j's philosophy of whiteboard friendly domain models.
+By focusing on the model the code almost writes itself.

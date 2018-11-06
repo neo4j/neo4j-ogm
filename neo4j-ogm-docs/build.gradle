@@ -312,7 +312,7 @@ task pdf {
     doLast {
         def attrs = project.ext.commonAsciidoctorAttributes + project.ext.pdfAsciidoctorAttributes +
                 [
-                        'manual-title'      : "Neo4j OGM - An Object Graph Mapping Library for Neo4j: ${ogmDocVersion}",
+                        'manual-title'      : "Neo4j-OGM - An Object Graph Mapping Library for Neo4j: ${ogmDocVersion}",
                         'ogm-doc-version'   : "${ogmDocVersion}",
                         'ogm-version'       : "${ogmVersion}",
                         'pdf-stylesdir'     : pdfStylesDir.toString(),

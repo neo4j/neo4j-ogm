@@ -1,4 +1,4 @@
-= Neo4j OGM - An Object Graph Mapping Library for Neo4j v{ogm-doc-version}
+= Neo4j-OGM - An Object Graph Mapping Library for Neo4j v{ogm-doc-version}
 
 
 ifdef::backend-html5[(C) {copyright}]
@@ -20,8 +20,8 @@ This is the Neo4j object-graph mapping (OGM) manual, authored by the Neo4j team.
 The three parts of the manual are:
 
 * <<introduction>> -- Introducing graph database concepts, Neo4j and object-graph mapping.
-* <<tutorial>> -- Follow along as you get started using Neo4j OGM.
-* <<reference>> -- Reference documentation for Neo4j OGM.
+* <<tutorial>> -- Follow along as you get started using Neo4j-OGM.
+* <<reference>> -- Reference documentation for Neo4j-OGM.
 
 But before starting, let's see the most important new features.
 

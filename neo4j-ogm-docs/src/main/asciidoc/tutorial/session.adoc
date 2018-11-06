@@ -5,7 +5,8 @@ So our domain entities are annotated, now we're ready persist them to the graph!
 
 == Sessions
 
-The smart object mapping capability is provided by the `Session` object.  A `Session` is obtained from a `SessionFactory`.
+The smart object mapping capability is provided by the `Session` object.
+A `Session` is obtained from a `SessionFactory`.
 
 We're going to set up the `SessionFactory` just once and have it produce as many sessions as required.
 
@@ -38,8 +39,8 @@ The domain objects in our university application are grouped under `school.domai
 When the `SessionFactory` is created, it will scan `school.domain` for potential domain classes and construct the object mapping metadata to be used by all sessions created thereafter.
 
 NOTE: We use here the `SessionFactory` with the package of domain classes as a parameter.
-This sets up an in-memory embedded database. In your application, you would also pass the configuration
-to connect to your actual database.
+This sets up an in-memory embedded database.
+In your application, you would also pass the configuration to connect to your actual database.
 
 The `Session` keeps track of changes made to entities and relationships and persists ones that have been modified on save.
 Once an entity is tracked by the session, reloading this entity within the scope of the same session will result in the session cache returning the previously loaded entity.
@@ -100,7 +101,7 @@ abstract class GenericService<T> implements Service<T> {
 }
 ----
 
-One of the features of Neo4j OGM is variable depth persistence.
+One of the features of Neo4j-OGM is variable depth persistence.
 This means you can vary the depth of fetches depending on the shape of your data and application.
 The default depth is 1, which loads simple properties of the entity and its immediate relations.
 This is sufficient for the `find` method, which is used in the application to present a create or edit form for an entity.

@@ -1,5 +1,5 @@
 [[reference:session]]
-= Using the OGM Session
+= Using Neo4j-OGM Session
 
 The `Session` provides the core functionality to persist objects to the graph and load them in a variety of ways.
 
@@ -31,7 +31,7 @@ Basic operations are limited to CRUD operations on entities and executing arbitr
 [NOTE]
 There is no way to manipulate relationship- and node-objects directly.
 
-Given that the Neo4j OGM framework is driven by Cypher queries alone, there's no way to work directly with `Node` and `Relationship` objects in remote server mode.
+Given that the Neo4j-OGM framework is driven by Cypher queries alone, there's no way to work directly with `Node` and `Relationship` objects in remote server mode.
 Similarly, Traversal Framework operations are not supported, again because the underlying query-driven model doesn't handle it in an efficient way.
 
 If you find yourself in trouble because of the omission of these features, then your best options are:
@@ -56,7 +56,7 @@ Under the bonnet, the implementation of `Session` has access to the `MappingCont
 Upon invocation of `save()` with an entity, it checks the given object graph for changes compared with the data that was loaded from the database.
 The differences are used to construct a Cypher query that persists the deltas to Neo4j before repopulating it's state based on the response from the database server.
 
-The OGM doesn't automatically commit when a transaction closes, so an explicit call to `save(...)` is required in order to persist changes to the database.
+Neo4j-OGM doesn't automatically commit when a transaction closes, so an explicit call to `save(...)` is required in order to persist changes to the database.
 
 
 .Persisting entities
@@ -85,7 +85,7 @@ As mentioned previously, `save(entity)` is overloaded as `save(entity, depth)`, 
 The default depth, -1, will persist properties of the specified entity as well as every modified entity in the object graph reachable from it.
 This means that *all affected* objects in the entity model that are reachable from the root object being persisted will be modified in the graph.
 This is the recommended approach because it means you can persist all your changes in one request.
-The OGM is able to detect which objects and relationships require changing, so you won't flood Neo4j with a bunch of objects that don't require modification.
+Neo4j-OGM is able to detect which objects and relationships require changing, so you won't flood Neo4j with a bunch of objects that don't require modification.
 You can change the persistence depth to any value, but you should not make it less than the value used to load the corresponding data or you run the risk of not having changes you expect to be made actually being persisted in the graph.
 A depth of 0 will persist only the properties of the specified entity to the database.
 
@@ -117,7 +117,7 @@ movie.setTopActor(actor);
 ====
 
 Neither the actor nor the movie has been assigned a node in the graph.
-If we were to call `session.save(movie)`, then the OGM would first create a node for the movie.
+If we were to call `session.save(movie)`, then Neo4j-OGM would first create a node for the movie.
 It would then note that there is a relationship to an actor, so it would save the actor in a cascading fashion.
 Once the actor has been persisted, it will create the relationship from the movie to the actor.
 All of this will be done atomically in one transaction.
@@ -186,13 +186,13 @@ public class Group {
 [[reference:session:loading-entities]]
 == Loading Entities
 
-Entities can be loaded from the OGM through the use of the `session.loadXXX()` methods or via `session.query()`/`session.queryForObject()` which will
+Entities can be loaded from Neo4j-OGM through the use of the `session.loadXXX()` methods or via `session.query()`/`session.queryForObject()` which will
 accept your own Cypher queries (See section below on <<reference:session:loading-entities:cypher-queries, cypher queries>>).
 
-Neo4j OGM includes the concept of persistence horizon (depth).
+Neo4j-OGM includes the concept of persistence horizon (depth).
 On any individual request, the persistence horizon indicates how many relationships should be traversed in the graph when loading or saving data.
 A horizon of zero means that only the root object's properties will be loaded or saved, a horizon of 1 will include the root object and all its immediate neighbours, and so on.
-This attribute is enabled via a `depth` argument available on all session methods, but the OGM chooses sensible defaults so that you don't have to specify the depth attribute unless you want change the default values.
+This attribute is enabled via a `depth` argument available on all session methods, but Neo4j-OGM chooses sensible defaults so that you don't have to specify the depth attribute unless you want change the default values.
 
 [[reference:session:loading-entities:load-depth]]
 === Load depth
@@ -215,13 +215,13 @@ If it is required to load entities with a lower depth than previously requested,
 
 [[reference:session:loading-entities:query-strategy]]
 === Query Strategy
-When OGM loads entities through `load*` methods (including ones with filters) it uses `LoadStrategy` to generate the `RETURN` part of the query.
+WhenNeo4j-OGM loads entities through `load*` methods (including ones with filters) it uses `LoadStrategy` to generate the `RETURN` part of the query.
 
 Available load strategies are
 
-* *schema load strategy* - uses metadata on domain entities and pattern comprehensions to retrieve nodes and relationships (default since OGM 3.0)
+* *schema load strategy* - uses metadata on domain entities and pattern comprehensions to retrieve nodes and relationships (default since Neo4j-OGM 3.0)
 
-* *path load strategy* - uses paths from root node to fetch related nodes, `p=(n)-[0..]-()` (default before OGM 3.0)
+* *path load strategy* - uses paths from root node to fetch related nodes, `p=(n)-[0..]-()` (default before Neo4j-OGM 3.0)
 
 The strategy can be overridden globally by calling `SessionFactory.setLoadStrategy(strategy)` or for single session only
 (e.g. when different strategy is more effective for given query) by calling `Session.setLoadStrategy(strategy)`
@@ -231,7 +231,7 @@ The strategy can be overridden globally by calling `SessionFactory.setLoadStrate
 === Cypher queries
 
 Cypher is Neo4j's powerful query language.
-It is understood by all the different drivers in the OGM which means that your application code should run identically, whichever driver you choose to use.
+It is understood by all the different drivers in Neo4j-OGM which means that your application code should run identically, whichever driver you choose to use.
 This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the HTTP Driver or the Bolt Driver when deploying your code into a production client-server environment.
 
 
@@ -265,7 +265,7 @@ Modifications made to the graph via Cypher queries directly will not be reflecte
 [[reference:session:loading-entities:sorting-and-paging]]
 === Sorting and paging
 
-Neo4j OGM supports Sorting and Paging of results when using the Session object.
+Neo4j-OGM supports Sorting and Paging of results when using the Session object.
 The Session object methods take independent arguments for Sorting and Pagination
 
 .Paging
@@ -298,6 +298,6 @@ Iterable<World> worlds = session.loadAll(World.class,
 
 [NOTE]
 ====
-Neo4j OGM does not yet support sorting and paging on custom queries.
+Neo4j-OGM does not yet support sorting and paging on custom queries.
 ====
 

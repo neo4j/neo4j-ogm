@@ -12,18 +12,22 @@ Neo4j offers two separate solutions for ensuring redundancy and performance in a
 
 Neo4j 3.1 introduced Causal Clustering – a brand-new architecture using the state-of-the-art Raft protocol – that enables support for ultra-large clusters and a wider range of cluster topologies for data center and cloud.
 
-A Neo4j HA cluster is comprised of a single master instance and zero or more slave instances. All instances in the cluster have full copies of the data in their local database files. The basic cluster configuration usually consists of three instances.
+A Neo4j HA cluster is comprised of a single master instance and zero or more slave instances.
+All instances in the cluster have full copies of the data in their local database files.
+The basic cluster configuration usually consists of three instances.
 
 [[reference:ha:causal-clustering]]
 == Causal Clustering
 
 To find out more about Causal Clustering architecture please see https://neo4j.com/docs/operations-manual/current/clustering/[the reference].
 
-Causal Clustering only works with the Neo4j Bolt Driver (`1.1.0` onwards). Trying to set this up with the HTTP or Embedded Driver will not work.
-The Bolt driver will fully handle any load balancing, which operate in concert with the Causal Cluster to spread the workload. New cluster-aware sessions, managed on the client-side by the Bolt drivers, alleviate complex infrastructure concerns for developers.
+Causal Clustering only works with the Neo4j Bolt Driver (`1.1.0` onwards).
+Trying to set this up with the HTTP or Embedded Driver will not work.
+The Bolt driver will fully handle any load balancing, which operate in concert with the Causal Cluster to spread the workload.
+New cluster-aware sessions, managed on the client-side by the Bolt drivers, alleviate complex infrastructure concerns for developers.
 
 [[reference:ha:causal-clustering:configuration]]
-=== Configuring the OGM
+=== Configuring Neo4j-OGM
 
 _Not cluster specific side note: you may also want to configure <<reference:configuration:driver:connection-test, connection testing>>_.
 
@@ -77,7 +81,8 @@ To offload the core servers and improve performance, it is advised if possible t
 This is done in the application code, by declaring sessions / transactions as read-only.
 You can call `session.beginTransaction(Transaction.Type)` with `READ` to do that.
 
-NOTE: This is not always possible. You may only do this if you can afford to read some slightly outdated data.
+NOTE: This is not always possible.
+You may only do this if you can afford to read some slightly outdated data.
 
 [[reference:ha:causal-clustering:bookmarks]]
 === Use bookmarks to read your own writes
@@ -132,7 +137,7 @@ This means we must bind every request within a specific transaction to the same 
 [[reference:ha:ha-cluster:readwrite]]
 === Read-only transactions
 
-As of Version 2.0.5 read-only transactions are supported by the OGM.
+As of Version 2.0.5 read-only transactions are supported by Neo4j-OGM.
 
 [[reference:ha:ha-cluster:readwrite:drivers]]
 ==== Drivers

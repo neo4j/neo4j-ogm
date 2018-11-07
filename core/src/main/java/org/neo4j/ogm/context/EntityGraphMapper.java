@@ -1002,7 +1002,7 @@ public class EntityGraphMapper implements EntityMapper {
         return mapBothWays;
     }
 
-    class RelationshipNodes {
+    static class RelationshipNodes {
 
         Long sourceId;
         Long targetId;
@@ -1011,14 +1011,14 @@ public class EntityGraphMapper implements EntityMapper {
         Object source;
         Object target;
 
-        public RelationshipNodes(Long sourceId, Long targetId, Class sourceType, Class targetType) {
+        RelationshipNodes(Long sourceId, Long targetId, Class sourceType, Class targetType) {
             this.sourceId = sourceId;
             this.targetId = targetId;
             this.sourceType = sourceType;
             this.targetType = targetType;
         }
 
-        public RelationshipNodes(Object source, Object target, Class sourceType, Class targetType) {
+        RelationshipNodes(Object source, Object target, Class sourceType, Class targetType) {
             this.sourceType = sourceType;
             this.targetType = targetType;
             this.source = source;

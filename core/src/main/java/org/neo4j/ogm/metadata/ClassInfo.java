@@ -319,7 +319,7 @@ public class ClassInfo {
         if (identityFields.size() == 1) {
             this.identityField = Optional.of(identityFields.iterator().next());
         } else if (identityFields.size() > 1) {
-            throw new MetadataException("Expected exactly one internal identity field (@GraphId or @Id with " +
+            throw new MetadataException("Expected exactly one internal identity field (@Id with " +
                 "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
         } else {
             FieldInfo fieldInfo = fieldsInfo().get("id");

@@ -14,7 +14,8 @@ package org.neo4j.ogm.domain.simpleNetwork.abstractions;
 
 import java.util.Set;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceIdentityNode;
 import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceTimeRelation;
 
@@ -23,7 +24,7 @@ import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceTimeRelation;
  */
 public abstract class AbstractIdentityNode<R extends InterfaceTimeRelation> implements InterfaceIdentityNode {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long id;
 
     @Override

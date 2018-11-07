@@ -17,7 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
@@ -28,7 +29,7 @@ import org.neo4j.ogm.annotation.StartNode;
 @RelationshipEntity(type = "VISITED")
 public class Visit {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long id;
 
     @StartNode

@@ -13,7 +13,8 @@
 
 package org.neo4j.ogm.domain.restaurant;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 
 /**
  * A kind of entity that is willing to consume food from a Restaurant. Not to be confused with a roadside style eatery.
@@ -22,7 +23,7 @@ import org.neo4j.ogm.annotation.GraphId;
  */
 public class Diner {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long id;
     private String firstName;
     private String lastName;

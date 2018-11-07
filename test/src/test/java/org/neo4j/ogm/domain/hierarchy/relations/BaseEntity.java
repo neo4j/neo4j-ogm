@@ -15,7 +15,8 @@ package org.neo4j.ogm.domain.hierarchy.relations;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -25,7 +26,7 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity(label = "BaseType")
 public abstract class BaseEntity {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long graphId;
     public String name;
 

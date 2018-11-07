@@ -14,7 +14,6 @@
 package org.neo4j.ogm.domain.invalid.ids;
 
 import org.neo4j.ogm.annotation.GeneratedValue;
-import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
@@ -27,11 +26,6 @@ public class InvalidAnnotations {
 
         @Id public String identifier;
         @Id public String identifier2;
-    }
-
-    public static class GraphIdAndIdWithInternalStrategy {
-        @GraphId public Long graphId;
-        @Id @GeneratedValue Long id;
     }
 
     public static class NeitherGraphIdOrId {

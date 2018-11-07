@@ -17,7 +17,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
-import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -498,8 +497,9 @@ public interface Session {
 
     /**
      * Save entity(or entities) into the database, up to specified depth
-     * The entities are either created or updated. See {@link GraphId} and {@link org.neo4j.ogm.annotation.Id}
-     * When new objects are saved the instances are modified - the graph id is set to respective field.
+     * The entities are either created or updated.
+     * When new objects are saved and the objects have a field that is mapped with {@link org.neo4j.ogm.annotation.Id}
+     * using the internal Id-generation-strategy, those fields are modified and set to the internal graph-id.
      *
      * @param object object to save, may be single entity, array of entities or {@link Iterable}
      */
@@ -507,8 +507,9 @@ public interface Session {
 
     /**
      * Save entity(or entities) into the database, up to specified depth
-     * The objects are either created or updated. See {@link GraphId} and {@link org.neo4j.ogm.annotation.Id}.
-     * When new objects are saved the instances are modified - the graph id is set to respective field.
+     * The objects are either created or updated.
+     * When new objects are saved and the objects have a field that is mapped with {@link org.neo4j.ogm.annotation.Id}
+     * using the internal Id-generation-strategy, those fields are modified and set to the internal graph-id.
      *
      * @param object object to save, may be single entity, array of entities or {@link Iterable}
      */
@@ -675,7 +676,8 @@ public interface Session {
      * Resolve the graph id for a possible entity.
      *
      * @param possibleEntity the possible entity
-     * @return the value of the {@link GraphId} or null if either the object is not an entity or the id is null.
+     * @return the value of the internal graph id for the possible entity. Returns null if either the
+     * object is not an entity or the id is null.
      */
     Long resolveGraphIdFor(Object possibleEntity);
 

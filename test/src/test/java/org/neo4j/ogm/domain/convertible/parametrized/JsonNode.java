@@ -15,7 +15,8 @@ package org.neo4j.ogm.domain.convertible.parametrized;
 
 import java.util.Map;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
@@ -25,7 +26,7 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 @NodeEntity
 public class JsonNode {
 
-    @GraphId
+    @Id @GeneratedValue
     public Long id;
 
     @Convert(MapJson.class)

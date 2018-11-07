@@ -13,7 +13,8 @@
 
 package org.neo4j.ogm.domain.props;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.domain.restaurant.Location;
@@ -21,7 +22,7 @@ import org.neo4j.ogm.domain.restaurant.LocationConverter;
 
 public class PropertyAndConvertTogether {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long id;
 
     @Convert(LocationConverter.class)

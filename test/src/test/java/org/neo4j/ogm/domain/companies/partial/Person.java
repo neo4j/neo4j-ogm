@@ -13,14 +13,15 @@
 
 package org.neo4j.ogm.domain.companies.partial;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 
 /**
  * @author Frantisek Hartman
  */
 public class Person {
 
-    @GraphId
+    @Id @GeneratedValue
     Long id;
 
     private String name;

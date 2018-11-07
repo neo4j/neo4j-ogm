@@ -14,7 +14,8 @@
 package org.neo4j.ogm.domain.blog;
 
 import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
 
@@ -26,7 +27,7 @@ import org.neo4j.ogm.annotation.StartNode;
 @RelationshipEntity(type = "COMMENT_BY")
 public class Comment {
 
-    @GraphId Long id;
+    @Id @GeneratedValue Long id;
 
     @StartNode Post post;
     @EndNode Author author;

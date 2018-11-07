@@ -15,7 +15,8 @@ package org.neo4j.ogm.domain.forum;
 
 import java.util.List;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.forum.activity.Post;
 
@@ -28,7 +29,7 @@ public class Topic {
     private List<Post> posts;
     private Boolean inActive;
 
-    @GraphId
+    @Id @GeneratedValue
     private Long topicId;
 
     public Long getTopicId() {

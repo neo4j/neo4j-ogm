@@ -13,14 +13,15 @@
 
 package org.neo4j.ogm.domain.mappings;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 
 /**
  * @author Nils Dr\u00F6ge
  */
 public abstract class Entity {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long nodeId;
 
     public Long getNodeId() {

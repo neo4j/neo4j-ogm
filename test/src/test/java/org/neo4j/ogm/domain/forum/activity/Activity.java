@@ -15,7 +15,8 @@ package org.neo4j.ogm.domain.forum.activity;
 
 import java.util.Date;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 
 /**
  * @author Vince Bickers
@@ -24,7 +25,7 @@ public abstract class Activity {
 
     private Date date;
 
-    @GraphId  // not strictly necessary, can always default to field id, but required to explicitly use this getter
+    @Id @GeneratedValue
     private Long id;
 
     public Date getDate() {

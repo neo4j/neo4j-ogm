@@ -1,6 +1,7 @@
 package org.neo4j.ogm.domain.autoindex.invalid;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Index;
 
 /**
@@ -8,7 +9,7 @@ import org.neo4j.ogm.annotation.Index;
  */
 public class BadClass {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long id;
 
     @Index(unique = true, primary = true)

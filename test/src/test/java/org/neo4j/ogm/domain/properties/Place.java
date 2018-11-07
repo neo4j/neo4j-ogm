@@ -13,7 +13,8 @@
 
 package org.neo4j.ogm.domain.properties;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
@@ -22,7 +23,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity
 public class Place {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long id;
 
     public Long getId() {

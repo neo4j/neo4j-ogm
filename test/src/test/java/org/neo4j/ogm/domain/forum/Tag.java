@@ -13,7 +13,8 @@
 
 package org.neo4j.ogm.domain.forum;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
@@ -26,7 +27,7 @@ import org.neo4j.ogm.annotation.Property;
 @NodeEntity(label = "T-A-G")
 public class Tag {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long tagId;
 
     @Index(unique = true)

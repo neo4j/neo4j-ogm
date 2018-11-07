@@ -18,14 +18,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 public class Restaurant {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long id;
     private String name;
     private int zip;

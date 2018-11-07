@@ -13,7 +13,8 @@
 package org.neo4j.ogm.domain.simpleNetwork.abstractions;
 
 import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceIdentityNode;
@@ -21,22 +22,20 @@ import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceStateNode;
 import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceTimeRelation;
 
 /**
- * @author vince
- */
-
-/**
- * @param <S> a class implementing InterfaceIdentityNode
- * @param <T> a class implementing InterfaceStateNode
- * @see issue #42
- * <p/>
+ * See issue #42
+ * <br>
  * This class posed problems for the OGM because S and T are defined as classes that extend interfaces, rather
  * than concrete classes. Prior to the fix for this issue, this OGM would only work correctly if S and T were defined
  * as extending concrete classes.
+ *
+ * @param <T> a class implementing InterfaceStateNode
+ * @param <S> a class implementing InterfaceIdentityNode
+ * @author vince
  */
 public abstract class AbstractTimeRelation<S extends InterfaceIdentityNode, T extends InterfaceStateNode>
     implements InterfaceTimeRelation<S, T> {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long graphId;
 
     @StartNode

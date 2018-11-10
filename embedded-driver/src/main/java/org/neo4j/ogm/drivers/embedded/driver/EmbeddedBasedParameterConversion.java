@@ -23,8 +23,11 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.neo4j.graphdb.spatial.Point;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.driver.ParameterConversion;
+import org.neo4j.values.storable.CoordinateReferenceSystem;
+import org.neo4j.values.storable.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +63,6 @@ enum EmbeddedBasedParameterConversion implements ParameterConversion {
 
     @Override
     public Map<String, Object> convertParameters(Map<String, Object> originalParameter) {
-
         Map<Boolean, Map<String, Object>> allParameters = originalParameter.entrySet().stream()
             // Convert to native first if possible
             .collect(toMap(

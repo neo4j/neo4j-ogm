@@ -19,10 +19,13 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
+import org.neo4j.ogm.types.NativeTypes;
+import org.neo4j.ogm.types.NativeTypes.NoNativeTypes;
 
 /**
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public interface Driver extends AutoCloseable {
 
@@ -53,9 +56,14 @@ public interface Driver extends AutoCloseable {
     /**
      * Indicates if the driver requires an explicit transaction to run queries.
      * Used to know if transactions has to be explicitly triggered by OGM before accessing DB.
+     *
      * @return true if client code has to setup a transaction, false if the driver can auto-commit.
      */
     default boolean requiresTransaction() {
         return true;
+    }
+
+    default NativeTypes getNativeTypes() {
+        return NoNativeTypes.INSTANCE;
     }
 }

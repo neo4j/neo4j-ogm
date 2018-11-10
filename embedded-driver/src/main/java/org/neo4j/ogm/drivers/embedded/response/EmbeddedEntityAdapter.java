@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.drivers.embedded.response;
 
+import static org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver.NATIVE_TYPES;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,8 +96,18 @@ public class EmbeddedEntityAdapter {
     public static Map<String, Object> getAllProperties(PropertyContainer propertyContainer) {
         Map<String, Object> properties = new HashMap<>();
         for (String key : propertyContainer.getPropertyKeys()) {
-            properties.put(key, propertyContainer.getProperty(key));
+            properties.put(key, toMapped(propertyContainer.getProperty(key)));
         }
         return properties;
+    }
+
+    private static Object toMapped(Object value) {
+
+        if (value == null) {
+            return null;
+        }
+
+        return NATIVE_TYPES.getNativeToMappedTypeAdapter(value.getClass())
+            .apply(value);
     }
 }

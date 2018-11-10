@@ -13,6 +13,7 @@
 package org.neo4j.ogm.drivers.embedded.driver;
 
 import static java.util.stream.Collectors.*;
+import static org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver.NATIVE_TYPES;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,7 +41,7 @@ enum EmbeddedBasedParameterConversion implements ParameterConversion {
     private final Logger logger = LoggerFactory.getLogger(EmbeddedBasedParameterConversion.class);
     private final ParameterConversion fallback = AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
 
-    private Predicate<Entry<String, Object>> canConvert;
+    private Predicate<Entry<String, Object>> canStore;
 
     EmbeddedBasedParameterConversion() {
 
@@ -50,10 +51,10 @@ enum EmbeddedBasedParameterConversion implements ParameterConversion {
             Method unsafeOf = Class.forName(fqnOfValues)
                 .getDeclaredMethod("unsafeOf", Object.class, boolean.class);
 
-            this.canConvert = new WrappedValuesUnsafeOf(unsafeOf);
+            this.canStore = new WrappedValuesUnsafeOf(unsafeOf);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             logger.warn("Cannot use native type conversion prior to Neo4j 3.3.x");
-            canConvert = anyObject -> false;
+            canStore = anyObject -> false;
         }
     }
 
@@ -61,7 +62,19 @@ enum EmbeddedBasedParameterConversion implements ParameterConversion {
     public Map<String, Object> convertParameters(Map<String, Object> originalParameter) {
 
         Map<Boolean, Map<String, Object>> allParameters = originalParameter.entrySet().stream()
-            .collect(partitioningBy(canConvert, Collectors.toMap(Entry::getKey, Entry::getValue)));
+            // Convert to native first if possible
+            .collect(toMap(
+                Entry::getKey,
+                e -> {
+                    Object v = e.getValue();
+                    if(v == null) {
+                        return v;
+                    }
+                    return NATIVE_TYPES.getMappedToNativeTypeAdapter(v.getClass()).apply(v);
+                }))
+            .entrySet().stream()
+            // Then partition by whether be able to store or not
+            .collect(partitioningBy(canStore, Collectors.toMap(Entry::getKey, Entry::getValue)));
 
         Map<String, Object> convertedParameters = new HashMap<>(originalParameter.size());
         convertedParameters.putAll(allParameters.get(true));

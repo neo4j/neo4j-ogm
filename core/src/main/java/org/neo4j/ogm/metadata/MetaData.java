@@ -27,6 +27,8 @@ import org.neo4j.ogm.exception.core.AmbiguousBaseClassException;
 import org.neo4j.ogm.metadata.schema.DomainInfoSchemaBuilder;
 import org.neo4j.ogm.metadata.schema.Schema;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
+import org.neo4j.ogm.types.NativeTypes;
+import org.neo4j.ogm.types.NativeTypes.NoNativeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,10 +43,16 @@ public class MetaData {
     private final DomainInfo domainInfo;
     private final Schema schema;
     private Map<String, ClassInfo> classInfos = new HashMap<>();
+    private final NativeTypes nativeTypes;
 
     public MetaData(String... packages) {
-        domainInfo = DomainInfo.create(packages);
-        schema = new DomainInfoSchemaBuilder(domainInfo).build();
+        this(NoNativeTypes.INSTANCE, packages);
+    }
+
+    public MetaData(NativeTypes nativeTypes, String... packages) {
+        this.domainInfo = DomainInfo.create(nativeTypes, packages);
+        this.schema = new DomainInfoSchemaBuilder(domainInfo).build();
+        this.nativeTypes = nativeTypes;
     }
 
     public Schema getSchema() {
@@ -301,5 +309,9 @@ public class MetaData {
 
     public void registerConversionCallback(ConversionCallback conversionCallback) {
         this.domainInfo.registerConversionCallback(conversionCallback);
+    }
+
+    public NativeTypes getNativeTypes() {
+        return nativeTypes;
     }
 }

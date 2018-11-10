@@ -29,6 +29,8 @@ import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;
 import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
+import org.neo4j.ogm.types.NativeTypes;
+import org.neo4j.ogm.types.NativeTypes.NoNativeTypes;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,10 @@ public class DomainInfo {
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
     public static DomainInfo create(String... packages) {
+        return create(NoNativeTypes.INSTANCE, packages);
+    }
+
+    public static DomainInfo create(NativeTypes nativeTypes, String... packages) {
 
         ScanResult scanResult = new FastClasspathScanner(packages)
             .strictWhitelist()
@@ -68,7 +74,7 @@ public class DomainInfo {
                 continue;
             }
 
-            ClassInfo classInfo = new ClassInfo(cls);
+            ClassInfo classInfo = new ClassInfo(cls, nativeTypes);
 
             String superclassName = classInfo.superclassName();
 

@@ -74,6 +74,7 @@ public class FieldInfo {
     private final String typeParameterDescriptor;
     private final ObjectAnnotations annotations;
     private final boolean isArray;
+    private final boolean isSupportedNativeType;
     private final ClassInfo containingClassInfo;
     private final Field field;
     private final Class<?> fieldType;
@@ -94,7 +95,7 @@ public class FieldInfo {
      *                                if that's not appropriate
      * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
-    public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations) {
+    public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations, boolean isSupportedNativeType) {
         this.containingClassInfo = classInfo;
         this.field = field;
         this.fieldType = field.getType();
@@ -103,6 +104,7 @@ public class FieldInfo {
         this.descriptor = field.getType().getTypeName();
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
+        this.isSupportedNativeType = isSupportedNativeType;
         if (!this.annotations.isEmpty()) {
             Object converter = getAnnotations().getConverter(this.fieldType);
             if (converter instanceof AttributeConverter) {
@@ -186,6 +188,7 @@ public class FieldInfo {
     public boolean persistableAsProperty() {
 
         return PRIMITIVES.contains(descriptor)
+            || isSupportedNativeType
             || (AUTOBOXERS.contains(descriptor) && typeParameterDescriptor == null)
             || (typeParameterDescriptor != null && AUTOBOXERS.contains(typeParameterDescriptor))
             || propertyConverter != null

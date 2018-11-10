@@ -17,7 +17,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.neo4j.ogm.drivers.bolt.types.adapter.PointToBoltPointAdapter;
+import org.neo4j.ogm.drivers.bolt.types.adapter.BoltPointToPointAdapter;
 import org.neo4j.ogm.types.NativeTypes;
+import org.neo4j.ogm.types.spatial.CartesianPoint2d;
+import org.neo4j.ogm.types.spatial.CartesianPoint3d;
+import org.neo4j.ogm.types.spatial.GeographicPoint2d;
+import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 
 /**
  * @author Michael J. Simons
@@ -31,6 +37,25 @@ class BoltNativeTypes implements NativeTypes {
 
         this.nativeToMappedApdater = new HashMap<>();
         this.mappedToNativeAdapter = new HashMap<>();
+
+        this.addSpatialFeatures();
+    }
+
+    private final void addSpatialFeatures() {
+        Class<?> pointClass = null;
+        try {
+            pointClass = Class.forName("org.neo4j.driver.v1.types.Point", false, this.getClass().getClassLoader());
+        } catch (ClassNotFoundException e) {
+            return;
+        }
+
+        this.nativeToMappedApdater.put(pointClass, new BoltPointToPointAdapter());
+
+        PointToBoltPointAdapter pointToBoltPointAdapter = new PointToBoltPointAdapter();
+        this.mappedToNativeAdapter.put(CartesianPoint2d.class, pointToBoltPointAdapter);
+        this.mappedToNativeAdapter.put(CartesianPoint3d.class, pointToBoltPointAdapter);
+        this.mappedToNativeAdapter.put(GeographicPoint2d.class, pointToBoltPointAdapter);
+        this.mappedToNativeAdapter.put(GeographicPoint3d.class, pointToBoltPointAdapter);
     }
 
     public boolean supportsAsNativeType(Class<?> clazz) {

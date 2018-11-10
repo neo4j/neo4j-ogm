@@ -38,13 +38,14 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
+import org.neo4j.ogm.driver.ParameterConversion;
+import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.drivers.bolt.request.BoltRequest;
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
-import org.neo4j.ogm.driver.ParameterConversion;
-import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.types.NativeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,8 @@ import org.slf4j.LoggerFactory;
 public class BoltDriver extends AbstractConfigurableDriver {
 
     private final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
+
+    public static final NativeTypes NATIVE_TYPES = new BoltNativeTypes();
 
     private volatile Driver boltDriver;
 
@@ -288,6 +291,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
         }
     }
 
+    public NativeTypes getNativeTypes() {
+        return NATIVE_TYPES;
+    }
+
     class BoltConfig {
 
         public static final int DEFAULT_SESSION_POOL_SIZE = 50;
@@ -297,4 +304,5 @@ public class BoltDriver extends AbstractConfigurableDriver {
         String trustCertFile;
         Integer connectionLivenessCheckTimeout;
     }
+
 }

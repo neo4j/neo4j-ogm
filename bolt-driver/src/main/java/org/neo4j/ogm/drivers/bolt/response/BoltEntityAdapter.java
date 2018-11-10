@@ -12,14 +12,18 @@
  */
 package org.neo4j.ogm.drivers.bolt.response;
 
+import static org.neo4j.ogm.drivers.bolt.driver.BoltDriver.NATIVE_TYPES;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.types.Entity;
 import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
 import org.neo4j.driver.v1.types.Relationship;
+import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 
 /**
  * Helper methods for Bolt entities
@@ -70,7 +74,7 @@ class BoltEntityAdapter {
     }
 
     public Map<String, Object> properties(Object container) {
-        return ((Entity) container).asMap();
+        return ((Entity) container).asMap(BoltEntityAdapter::toMapped);
     }
 
     List<Object> nodesInPath(Object pathValue) {
@@ -89,5 +93,16 @@ class BoltEntityAdapter {
             rels.add(rel);
         }
         return rels;
+    }
+
+    private static Object toMapped(Value value) {
+
+        if (value == null) {
+            return null;
+        }
+
+        Object object = value.asObject();
+        return NATIVE_TYPES.getNativeToMappedTypeAdapter(object.getClass())
+            .apply(object);
     }
 }

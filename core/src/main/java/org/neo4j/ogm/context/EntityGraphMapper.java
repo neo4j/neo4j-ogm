@@ -695,21 +695,9 @@ public class EntityGraphMapper implements EntityMapper {
             } else if (fieldInfo.isVersionField()) {
                 updateVersionField(entity, builder, fieldInfo);
             } else {
-                Object value = toNative(fieldInfo.readProperty(entity));
-                builder.addProperty(fieldInfo.propertyName(), value);
+                builder.addProperty(fieldInfo.propertyName(), fieldInfo.readProperty(entity));
             }
         }
-    }
-
-    private Object toNative(Object value) {
-
-        if (value == null) {
-            return null;
-        }
-
-        return metaData.getNativeTypes()
-            .getMappedToNativeTypeAdapter(value.getClass())
-            .apply(value);
     }
 
     private <T> void updateVersionField(Object entity, PropertyContainerBuilder<T> builder, FieldInfo fieldInfo) {

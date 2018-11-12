@@ -15,6 +15,7 @@ package org.neo4j.ogm.drivers.bolt.driver;
 import static org.neo4j.ogm.drivers.bolt.driver.BoltDriver.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.neo4j.driver.v1.Value;
@@ -48,9 +49,20 @@ enum JavaDriverBasedParameterConversion implements ParameterConversion {
 
             if (unconvertedValue == null) {
                 convertedParameter.put(parameterKey, null);
+            } else if (unconvertedValue instanceof List) {
+                for (Object value : (List<Object>) unconvertedValue) {
+                    if (value instanceof Map) {
+                        convertedParameter.put(parameterKey, convertParametersImpl((Map<String, Object>) value));
+                    } else {
+                        Value convertedValue = Values.value(unconvertedValue);
+                        convertedParameter.put(parameterKey, convertedValue);
+                    }
+                }
+            } else if (unconvertedValue instanceof Map) {
+                convertedParameter.put(parameterKey, convertParametersImpl((Map<String, Object>) unconvertedValue));
             } else if (NATIVE_TYPES.supportsAsNativeType(unconvertedValue.getClass())) {
-                Object convertedValue = NATIVE_TYPES.getMappedToNativeTypeAdapter(unconvertedParameter.getClass())
-                    .apply(unconvertedParameter);
+                Object convertedValue = NATIVE_TYPES.getMappedToNativeTypeAdapter(unconvertedValue.getClass())
+                    .apply(unconvertedValue);
                 convertedParameter.put(parameterKey, convertedValue);
             } else {
                 try {

@@ -14,61 +14,62 @@ package org.neo4j.ogm.drivers.embedded.driver;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
-import org.neo4j.ogm.drivers.embedded.types.adapter.PointToEmbeddedPointAdapter;
+import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
 import org.neo4j.ogm.drivers.embedded.types.adapter.EmbeddedPointToPointAdapter;
+import org.neo4j.ogm.drivers.embedded.types.adapter.PointToEmbeddedPointAdapter;
 import org.neo4j.ogm.types.NativeTypes;
 
 /**
  * @author Michael J. Simons
  */
 class EmbeddedNativeTypes implements NativeTypes {
-    private final Map<Class<?>, Function> nativeToMappedApdater;
-    private final Map<Class<?>, Function> mappedToNativeAdapter;
+
+    private final TypeAdapterLookupDelegate nativeToMappedAdapter;
+    private final TypeAdapterLookupDelegate mappedToNativeAdapter;
 
     EmbeddedNativeTypes() {
 
-        this.nativeToMappedApdater = new HashMap<>();
-        this.mappedToNativeAdapter = new HashMap<>();
+        Map<Class<?>, Function> nativeToMappedAdapter = new HashMap<>();
+        Map<Class<?>, Function> mappedToNativeAdapter = new HashMap<>();
 
-        this.addSpatialFeatures();
+        addSpatialFeatures(nativeToMappedAdapter, mappedToNativeAdapter);
+
+        this.nativeToMappedAdapter = new TypeAdapterLookupDelegate(nativeToMappedAdapter);
+        this.mappedToNativeAdapter = new TypeAdapterLookupDelegate(mappedToNativeAdapter);
     }
 
-    private final void addSpatialFeatures() {
+    private static void addSpatialFeatures(Map<Class<?>, Function> nativeToMappedAdapter,
+        Map<Class<?>, Function> mappedToNativeAdapter) {
         Class<?> pointClass = null;
         try {
-            pointClass = Class.forName("org.neo4j.values.storable.PointValue", false, this.getClass().getClassLoader());
+            pointClass = Class
+                .forName("org.neo4j.values.storable.PointValue", false, EmbeddedNativeTypes.class.getClassLoader());
         } catch (ClassNotFoundException e) {
             return;
         }
 
-        this.nativeToMappedApdater.put(pointClass, new EmbeddedPointToPointAdapter());
+        nativeToMappedAdapter.put(pointClass, new EmbeddedPointToPointAdapter());
 
         PointToEmbeddedPointAdapter pointToEmbeddedPointAdapter = new PointToEmbeddedPointAdapter();
-        this.mappedToNativeAdapter.put(CartesianPoint2d.class, pointToEmbeddedPointAdapter);
-        this.mappedToNativeAdapter.put(CartesianPoint3d.class, pointToEmbeddedPointAdapter);
-        this.mappedToNativeAdapter.put(GeographicPoint2d.class, pointToEmbeddedPointAdapter);
-        this.mappedToNativeAdapter.put(GeographicPoint3d.class, pointToEmbeddedPointAdapter);
+        mappedToNativeAdapter.put(CartesianPoint2d.class, pointToEmbeddedPointAdapter);
+        mappedToNativeAdapter.put(CartesianPoint3d.class, pointToEmbeddedPointAdapter);
+        mappedToNativeAdapter.put(GeographicPoint2d.class, pointToEmbeddedPointAdapter);
+        mappedToNativeAdapter.put(GeographicPoint3d.class, pointToEmbeddedPointAdapter);
     }
 
     public boolean supportsAsNativeType(Class<?> clazz) {
-        return mappedToNativeAdapter.containsKey(clazz);
+        return mappedToNativeAdapter.hasAdapterFor(clazz);
     }
 
     @Override
     public Function<Object, Object> getNativeToMappedTypeAdapter(Class<?> clazz) {
-
-        return nativeToMappedApdater.getOrDefault(clazz, Function.identity());
-
+        return nativeToMappedAdapter.findAdapterFor(clazz);
     }
 
     @Override
     public Function<Object, Object> getMappedToNativeTypeAdapter(Class<?> clazz) {
-
-        return Optional.ofNullable(clazz)
-            .map(mappedToNativeAdapter::get)
-            .orElseGet(Function::identity);
+        return mappedToNativeAdapter.findAdapterFor(clazz);
     }
 }

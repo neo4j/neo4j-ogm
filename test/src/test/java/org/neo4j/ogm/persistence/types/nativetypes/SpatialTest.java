@@ -2,51 +2,56 @@ package org.neo4j.ogm.persistence.types.nativetypes;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.driver.v1.Config;
+import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.SingleDriverTestClass;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
-import org.neo4j.ogm.types.spatial.Coordinate;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
-import org.neo4j.ogm.types.spatial.PointBuilder;
 
-public class SpatialTest extends SingleDriverTestClass {
+public class SpatialTest {
+
+    private static final Config DRIVER_CONFIG = Config.build().withoutEncryption().toConfig();
+
+    private static final Map<String, Object> customConfiguration = Collections
+        .singletonMap(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE,
+            ParameterConversionMode.CONVERT_NON_NATIVE_ONLY);
+
+    private static URI boltURI = TestServerBuilders.newInProcessBuilder().newServer().boltURI();
 
     private static SessionFactory sessionFactory;
 
     private Session session;
 
-    @Before
-    public void init() throws IOException {
-        Map<String, Object> customConfiguration = Collections
-            .singletonMap(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE,
-                ParameterConversionMode.CONVERT_NON_NATIVE_ONLY);
-        BoltDriver driver = new BoltDriver(getDriver(), () -> customConfiguration);
+    @BeforeClass
+    public static void init() {
+        BoltDriver driver = new BoltDriver(GraphDatabase.driver(boltURI, DRIVER_CONFIG), () -> customConfiguration);
         sessionFactory = new SessionFactory(driver, SpatialTest.class.getPackage().getName());
     }
 
-    @After
-    public void shutDown() {
+    @AfterClass
+    public static void shutDown() {
         sessionFactory.close();
     }
 
     @Test
-    public void convertAndPersistGeographicPoint2d() {
+    public void convertPersistAndLoadGeographicPoint2d() {
         session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         GeographicPoint2d point = new GeographicPoint2d(1, 2);
@@ -59,27 +64,42 @@ public class SpatialTest extends SingleDriverTestClass {
     }
 
     @Test
-    public void convertAndPersistGeographicPoint3d() {
+    public void convertPersistAndLoadGeographicPoint3d() {
         session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
-        spatial.setGeographicPoint3d(new GeographicPoint3d(1,2, 3));
+        GeographicPoint3d point = new GeographicPoint3d(1, 2, 3);
+        spatial.setGeographicPoint3d(point);
         session.save(spatial);
+
+        session.clear();
+        SomethingSpatial loaded = session.load(SomethingSpatial.class, spatial.id);
+        assertThat(loaded.geographicPoint3d).isEqualTo(point);
     }
 
     @Test
-    public void convertAndPersistCartesianPoint2d() {
+    public void convertPersistAndLoadCartesianPoint2d() {
         session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
-        spatial.setCartesianPoint2d(new CartesianPoint2d(1,2));
+        CartesianPoint2d point = new CartesianPoint2d(1, 2);
+        spatial.setCartesianPoint2d(point);
         session.save(spatial);
+
+        session.clear();
+        SomethingSpatial loaded = session.load(SomethingSpatial.class, spatial.id);
+        assertThat(loaded.cartesianPoint2d).isEqualTo(point);
     }
 
     @Test
-    public void convertAndPersistCartesianPoint3d() {
+    public void convertPersistAndLoadCartesianPoint3d() {
         session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
-        spatial.setCartesianPoint3d(new CartesianPoint3d(1,2, 3));
+        CartesianPoint3d point = new CartesianPoint3d(1, 2, 3);
+        spatial.setCartesianPoint3d(point);
         session.save(spatial);
+
+        session.clear();
+        SomethingSpatial loaded = session.load(SomethingSpatial.class, spatial.id);
+        assertThat(loaded.cartesianPoint3d).isEqualTo(point);
     }
 
     static class SomethingSpatial {
@@ -99,7 +119,7 @@ public class SpatialTest extends SingleDriverTestClass {
         @Properties
         private Map<String, String> properties = new HashMap<>();
 
-        public SomethingSpatial(){
+        public SomethingSpatial() {
             stringList.add("a");
             stringList.add("b");
 

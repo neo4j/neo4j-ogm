@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,11 +11,10 @@ import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.v1.Config.EncryptionLevel;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.annotation.Properties;
-import org.neo4j.ogm.driver.ParameterConversionMode;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -25,13 +23,11 @@ import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 
+/**
+ * @author Gerrit Meier
+ * @author Michael J. Simons
+ */
 public class SpatialTest {
-
-    private static final Config DRIVER_CONFIG = Config.build().withoutEncryption().toConfig();
-
-    private static final Map<String, Object> customConfiguration = Collections
-        .singletonMap(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE,
-            ParameterConversionMode.CONVERT_NON_NATIVE_ONLY);
 
     private static URI boltURI = TestServerBuilders.newInProcessBuilder().newServer().boltURI();
 
@@ -41,7 +37,15 @@ public class SpatialTest {
 
     @BeforeClass
     public static void init() {
-        BoltDriver driver = new BoltDriver(GraphDatabase.driver(boltURI, DRIVER_CONFIG), () -> customConfiguration);
+
+        Configuration ogmConfiguration = new Configuration.Builder()
+            .uri(boltURI.toString())
+            .encryptionLevel(EncryptionLevel.NONE.name())
+            .useNativeTypes()
+            .build();
+
+        BoltDriver driver = new BoltDriver();
+        driver.configure(ogmConfiguration);
         sessionFactory = new SessionFactory(driver, SpatialTest.class.getPackage().getName());
     }
 

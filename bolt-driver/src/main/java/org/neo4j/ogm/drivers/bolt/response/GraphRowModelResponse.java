@@ -16,20 +16,26 @@ package org.neo4j.ogm.drivers.bolt.response;
 import java.util.Arrays;
 
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class GraphRowModelResponse extends BoltResponse<GraphRowListModel> {
 
-    private BoltGraphRowModelAdapter adapter = new BoltGraphRowModelAdapter(new BoltGraphModelAdapter());
+    private final BoltGraphRowModelAdapter adapter;
 
-    public GraphRowModelResponse(StatementResult result, TransactionManager transactionManager) {
+    public GraphRowModelResponse(StatementResult result, TransactionManager transactionManager, BoltEntityAdapter entityAdapter) {
+
         super(result, transactionManager);
-        adapter.setColumns(Arrays.asList(columns()));
+
+        this.adapter = new BoltGraphRowModelAdapter(new BoltGraphModelAdapter(entityAdapter));
+        this.adapter.setColumns(Arrays.asList(columns()));
     }
 
     @Override

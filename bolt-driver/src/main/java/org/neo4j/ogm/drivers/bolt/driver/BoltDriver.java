@@ -59,9 +59,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
 
-    public static final TypeSystem NATIVE_TYPES = new BoltNativeTypes();
-
     private volatile Driver boltDriver;
+    // It's a bit annoying to have the defaults repeated here but with BoltDriver being configurable without
+    // the configuration just by passing in the Java-Driver, there's no other way.
+    private TypeSystem typeSystem = TypeSystem.NoNativeTypes.INSTANCE;
 
     private Credentials credentials;
     private Config driverConfig;
@@ -96,10 +97,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
         super.configure(config);
 
         this.configuration = config;
-        driverConfig = buildDriverConfig(config);
-        credentials = config.getCredentials();
+        this.driverConfig = buildDriverConfig(this.configuration);
+        this.credentials = this.configuration.getCredentials();
+        this.typeSystem = loadTypeSystem("org.neo4j.ogm.drivers.bolt.types.BoltNativeTypes");
 
-        if (config.getVerifyConnection()) {
+        if (this.configuration.getVerifyConnection()) {
             checkDriverInitialized();
         }
     }
@@ -173,21 +175,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request request() {
-        return new BoltRequest(transactionManager, getParameterConversion(), getCypherModification());
-    }
-
-    private ParameterConversion getParameterConversion() {
-
-        ParameterConversionMode mode = (ParameterConversionMode) customPropertiesSupplier.get()
-            .getOrDefault(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE, CONVERT_ALL);
-        switch (mode) {
-            case CONVERT_ALL:
-                return AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
-            case CONVERT_NON_NATIVE_ONLY:
-                return JavaDriverBasedParameterConversion.INSTANCE;
-            default:
-                throw new IllegalStateException("Unsupported conversion mode: " + mode.name() + " for Bolt-Transport.");
-        }
+        return new BoltRequest(transactionManager, new BoltEntityAdapter(typeSystem), getCypherModification());
     }
 
     private Session newSession(Transaction.Type type, Iterable<String> bookmarks) {
@@ -292,7 +280,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     public TypeSystem getTypeSystem() {
-        return NATIVE_TYPES;
+        return this.typeSystem;
     }
 
     class BoltConfig {

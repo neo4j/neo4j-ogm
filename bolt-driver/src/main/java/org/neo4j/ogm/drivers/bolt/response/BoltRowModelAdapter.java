@@ -12,14 +12,21 @@
  */
 package org.neo4j.ogm.drivers.bolt.response;
 
+import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.result.adapter.RowModelAdapter;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class BoltRowModelAdapter extends RowModelAdapter {
 
-    private BoltEntityAdapter entityAdapter = new BoltEntityAdapter();
+    private final BoltEntityAdapter entityAdapter;
+
+    public BoltRowModelAdapter(BoltEntityAdapter entityAdapter) {
+        this.entityAdapter = entityAdapter;
+    }
 
     @Override
     public boolean isPath(Object value) {

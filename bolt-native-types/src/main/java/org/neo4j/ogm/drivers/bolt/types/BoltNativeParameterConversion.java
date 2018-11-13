@@ -10,9 +10,7 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.drivers.bolt.driver;
-
-import static org.neo4j.ogm.drivers.bolt.driver.BoltDriver.*;
+package org.neo4j.ogm.drivers.bolt.types;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,18 +21,24 @@ import org.neo4j.driver.v1.Values;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.driver.ParameterConversion;
+import org.neo4j.ogm.driver.TypeSystem;
 
 /**
  * This conversion mode first tries to map all parameters to a {@link Value} and uses them directly. For all non supported
  * object types, it falls back to the default object mapper based conversion.
  *
  * @author Michael J. Simons
+ * @author Gerrit Meier
  */
-enum JavaDriverBasedParameterConversion implements ParameterConversion {
-
-    INSTANCE;
+class BoltNativeParameterConversion implements ParameterConversion {
 
     private final ParameterConversion fallback = AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
+
+    private final TypeSystem typeSystem;
+
+    public BoltNativeParameterConversion(TypeSystem typeSystem) {
+        this.typeSystem = typeSystem;
+    }
 
     @Override
     public Map<String, Object> convertParameters(Map<String, Object> originalParameter) {
@@ -60,8 +64,8 @@ enum JavaDriverBasedParameterConversion implements ParameterConversion {
                 }
             } else if (unconvertedValue instanceof Map) {
                 convertedParameter.put(parameterKey, convertParametersImpl((Map<String, Object>) unconvertedValue));
-            } else if (NATIVE_TYPES.supportsAsNativeType(unconvertedValue.getClass())) {
-                Object convertedValue = NATIVE_TYPES.getMappedToNativeTypeAdapter(unconvertedValue.getClass())
+            } else if (typeSystem.supportsAsNativeType(unconvertedValue.getClass())) {
+                Object convertedValue = typeSystem.getMappedToNativeTypeAdapter(unconvertedValue.getClass())
                     .apply(unconvertedValue);
                 convertedParameter.put(parameterKey, convertedValue);
             } else {

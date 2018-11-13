@@ -10,9 +10,7 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.drivers.bolt.response;
-
-import static org.neo4j.ogm.drivers.bolt.driver.BoltDriver.NATIVE_TYPES;
+package org.neo4j.ogm.drivers.bolt.driver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,24 +21,34 @@ import org.neo4j.driver.v1.types.Entity;
 import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
 import org.neo4j.driver.v1.types.Relationship;
-import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
+import org.neo4j.ogm.driver.ParameterConversion;
+import org.neo4j.ogm.driver.TypeSystem;
 
 /**
  * Helper methods for Bolt entities
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
-class BoltEntityAdapter {
+public class BoltEntityAdapter {
 
-    boolean isPath(Object value) {
+    // TODO I see this as an interface that is shared accross transports. Soemthing for 3.2.x or 4.0. ^mjs
+
+    private final TypeSystem typeSystem;
+
+    public BoltEntityAdapter(TypeSystem typeSystem) {
+        this.typeSystem = typeSystem;
+    }
+
+    public boolean isPath(Object value) {
         return value instanceof Path;
     }
 
-    boolean isNode(Object value) {
+    public boolean isNode(Object value) {
         return value instanceof Node;
     }
 
-    boolean isRelationship(Object value) {
+    public boolean isRelationship(Object value) {
         return value instanceof Relationship;
     }
 
@@ -74,10 +82,10 @@ class BoltEntityAdapter {
     }
 
     public Map<String, Object> properties(Object container) {
-        return ((Entity) container).asMap(BoltEntityAdapter::toMapped);
+        return ((Entity) container).asMap(this::toMapped);
     }
 
-    List<Object> nodesInPath(Object pathValue) {
+    public List<Object> nodesInPath(Object pathValue) {
         Path path = (Path) pathValue;
         List<Object> nodes = new ArrayList<>(path.length());
         for (Node node : path.nodes()) {
@@ -86,7 +94,7 @@ class BoltEntityAdapter {
         return nodes;
     }
 
-    List<Object> relsInPath(Object pathValue) {
+    public List<Object> relsInPath(Object pathValue) {
         Path path = (Path) pathValue;
         List<Object> rels = new ArrayList<>(path.length());
         for (Relationship rel : path.relationships()) {
@@ -95,14 +103,18 @@ class BoltEntityAdapter {
         return rels;
     }
 
-    private static Object toMapped(Value value) {
+    public Map<String, Object> convertParameters(final Map<String, Object> originalParameter) {
+        return typeSystem.getParameterConversion().convertParameters(originalParameter);
+    }
+
+    private Object toMapped(Value value) {
 
         if (value == null) {
             return null;
         }
 
         Object object = value.asObject();
-        return NATIVE_TYPES.getNativeToMappedTypeAdapter(object.getClass())
+        return this.typeSystem.getNativeToMappedTypeAdapter(object.getClass())
             .apply(object);
     }
 }

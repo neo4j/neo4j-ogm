@@ -13,22 +13,24 @@
 
 package org.neo4j.ogm.drivers.bolt.response;
 
-import java.util.Map;
-
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.result.adapter.ResultAdapter;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class GraphModelResponse extends BoltResponse<GraphModel> {
 
-    private final ResultAdapter<Map<String, Object>, GraphModel> adapter = new BoltGraphModelAdapter();
+    private final BoltGraphModelAdapter adapter;
 
-    public GraphModelResponse(StatementResult result, TransactionManager transactionManager) {
+    public GraphModelResponse(StatementResult result, TransactionManager transactionManager, BoltEntityAdapter boltEntityAdapter) {
+
         super(result, transactionManager);
+
+        this.adapter = new BoltGraphModelAdapter(boltEntityAdapter);
     }
 
     @Override

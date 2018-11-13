@@ -16,14 +16,20 @@ package org.neo4j.ogm.drivers.bolt.response;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.result.adapter.RestModelAdapter;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class BoltRestModelAdapter extends RestModelAdapter {
 
-    private BoltEntityAdapter entityAdapter = new BoltEntityAdapter();
+    private final BoltEntityAdapter entityAdapter;
+
+    public BoltRestModelAdapter(BoltEntityAdapter entityAdapter) {
+        this.entityAdapter = entityAdapter;
+    }
 
     @Override
     public boolean isNode(Object value) {

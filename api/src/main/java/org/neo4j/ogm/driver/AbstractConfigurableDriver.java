@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.driver;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -104,6 +106,50 @@ public abstract class AbstractConfigurableDriver implements Driver {
             }
         }
         return loadedCypherModification;
+    }
+
+    /**
+     * Utility method to load the dedicated driver version of native types.
+     *
+     * @param nativeTypesImplementation the fully qualified name of the class implementing this drivers' natives types.
+     * @return A fully loaded and initialized instance of the class qualified by <code>nativeTypesImplementation</code>
+     * @throws ClassNotFoundException If the required implementation is not on the classpath. Initialization should terminate then.
+     * @since 3.2
+     */
+    private static TypeSystem loadNativeTypes(String nativeTypesImplementation) throws ClassNotFoundException {
+
+        try {
+            Class<TypeSystem> nativeTypesClass = (Class<TypeSystem>) Class
+                .forName(nativeTypesImplementation, true, AbstractConfigurableDriver.class.getClassLoader());
+
+            Constructor<TypeSystem> ctor = nativeTypesClass.getDeclaredConstructor();
+            ctor.setAccessible(true);
+            return ctor.newInstance();
+        } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            throw new RuntimeException("Could not load native types implementation " + nativeTypesImplementation);
+        }
+    }
+
+    /**
+     * Loads the configured type system.
+     *
+     * @param nativeTypesImplementation Driver specific implementation to load.
+     * @return Defaults to {@link TypeSystem.NoNativeTypes} if the configuration don't uses native types.
+     * @throws IllegalStateException In
+     * @since 3.2
+     */
+    protected final TypeSystem loadTypeSystem(String nativeTypesImplementation) {
+
+        if (!this.configuration.getUseNativeTypes()) {
+            return TypeSystem.NoNativeTypes.INSTANCE;
+        }
+
+        try {
+            return loadNativeTypes(nativeTypesImplementation);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(
+                "Cannot use native types. Make sure you have the native module for your driver on the classpath.");
+        }
     }
 
     private Map<String, Object> getConfigurationProperties() {

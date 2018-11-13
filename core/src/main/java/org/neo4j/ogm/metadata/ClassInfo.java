@@ -29,7 +29,7 @@ import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.id.UuidStrategy;
-import org.neo4j.ogm.types.NativeTypes;
+import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +107,7 @@ public class ClassInfo {
         addSubclass(subclass);
     }
 
-    public ClassInfo(Class<?> cls, NativeTypes nativeTypes) {
+    public ClassInfo(Class<?> cls, TypeSystem typeSystem) {
         this.cls = cls;
         final int modifiers = cls.getModifiers();
         this.isInterface = Modifier.isInterface(modifiers);
@@ -119,7 +119,7 @@ public class ClassInfo {
             this.directSuperclassName = cls.getSuperclass().getName();
         }
         this.interfacesInfo = new InterfacesInfo(cls);
-        this.fieldsInfo = new FieldsInfo(this, cls, nativeTypes);
+        this.fieldsInfo = new FieldsInfo(this, cls, typeSystem);
         this.methodsInfo = new MethodsInfo(cls);
         this.annotationsInfo = new AnnotationsInfo(cls);
 

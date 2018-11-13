@@ -17,9 +17,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
+import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.types.adapter.BoltPointToPointAdapter;
 import org.neo4j.ogm.drivers.bolt.types.adapter.PointToBoltPointAdapter;
-import org.neo4j.ogm.types.NativeTypes;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
@@ -28,7 +28,7 @@ import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 /**
  * @author Michael J. Simons
  */
-class BoltNativeTypes implements NativeTypes {
+class BoltNativeTypes implements TypeSystem {
 
     private final TypeAdapterLookupDelegate nativeToMappedAdapter;
     private final TypeAdapterLookupDelegate mappedToNativeAdapter;

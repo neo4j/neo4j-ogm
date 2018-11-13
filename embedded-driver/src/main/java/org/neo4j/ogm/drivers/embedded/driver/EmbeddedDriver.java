@@ -45,7 +45,7 @@ import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.support.ResourceUtils;
 import org.neo4j.ogm.transaction.Transaction;
-import org.neo4j.ogm.types.NativeTypes;
+import org.neo4j.ogm.driver.TypeSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +58,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     private static final int TIMEOUT = 60_000;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
-    public static final NativeTypes NATIVE_TYPES = new EmbeddedNativeTypes();
+    public static final TypeSystem NATIVE_TYPES = new EmbeddedNativeTypes();
 
     private GraphDatabaseService graphDatabaseService;
 
@@ -273,7 +273,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public NativeTypes getNativeTypes() {
+    public TypeSystem getTypeSystem() {
         return NATIVE_TYPES;
     }
 }

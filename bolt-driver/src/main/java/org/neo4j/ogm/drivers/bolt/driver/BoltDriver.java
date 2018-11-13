@@ -45,7 +45,7 @@ import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
-import org.neo4j.ogm.types.NativeTypes;
+import org.neo4j.ogm.driver.TypeSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
 
-    public static final NativeTypes NATIVE_TYPES = new BoltNativeTypes();
+    public static final TypeSystem NATIVE_TYPES = new BoltNativeTypes();
 
     private volatile Driver boltDriver;
 
@@ -291,7 +291,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
         }
     }
 
-    public NativeTypes getNativeTypes() {
+    public TypeSystem getTypeSystem() {
         return NATIVE_TYPES;
     }
 

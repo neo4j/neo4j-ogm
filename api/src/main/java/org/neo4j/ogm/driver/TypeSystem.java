@@ -10,17 +10,17 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.types;
+package org.neo4j.ogm.driver;
 
 import java.util.function.Function;
 
 /**
- * This interface describes a set of native type a driver can handle.
+ * This interface describes a type system with a set of native type a driver can handle.
  *
  * @author Michael J. Simons
  * @since 3.2
  */
-public interface NativeTypes {
+public interface TypeSystem {
 
     /**
      * @param clazz The class of an object that is to stored natively
@@ -47,9 +47,16 @@ public interface NativeTypes {
     }
 
     /**
+     * @return The parameter conversion that fits this type system.
+     */
+    default ParameterConversion getParameterConversion() {
+        return ObjectMapperBasedParameterConversion.INSTANCE;
+    }
+
+    /**
      * An empty set of native types.
      */
-    enum NoNativeTypes implements NativeTypes {
+    enum NoNativeTypes implements TypeSystem {
         INSTANCE
     }
 }

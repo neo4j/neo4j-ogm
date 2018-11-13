@@ -95,7 +95,7 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(Driver driver, String... packages) {
-        this.metaData = new MetaData(driver.getNativeTypes(), packages);
+        this.metaData = new MetaData(driver.getTypeSystem(), packages);
         this.driver = driver;
         this.eventListeners = new CopyOnWriteArrayList<>();
         this.entityInstantiator = new ReflectionEntityInstantiator(metaData);

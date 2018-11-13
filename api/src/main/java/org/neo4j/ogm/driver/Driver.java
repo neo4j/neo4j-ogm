@@ -19,8 +19,7 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
-import org.neo4j.ogm.types.NativeTypes;
-import org.neo4j.ogm.types.NativeTypes.NoNativeTypes;
+import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 
 /**
  * @author Vince Bickers
@@ -63,7 +62,7 @@ public interface Driver extends AutoCloseable {
         return true;
     }
 
-    default NativeTypes getNativeTypes() {
+    default TypeSystem getTypeSystem() {
         return NoNativeTypes.INSTANCE;
     }
 }

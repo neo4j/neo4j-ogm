@@ -27,10 +27,6 @@ public class BoltPointToPointAdapter implements Function<Point, AbstractPoint> {
     @Override
     public AbstractPoint apply(Point point) {
 
-        if (point == null) {
-            return null;
-        }
-
         Coordinate coordinate = new Coordinate(point.x(), point.y(), Double.isNaN(point.z()) ? null : point.z());
         return PointBuilder.withSrid(point.srid()).build(coordinate);
     }

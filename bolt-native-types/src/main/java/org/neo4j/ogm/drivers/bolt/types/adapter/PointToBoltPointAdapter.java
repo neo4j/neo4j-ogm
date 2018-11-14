@@ -27,10 +27,6 @@ public class PointToBoltPointAdapter implements Function<AbstractPoint, Point> {
     @Override
     public Point apply(AbstractPoint object) {
 
-        if (object == null) {
-            return null;
-        }
-
         Coordinate coordinate = object.getCoordinate();
         if (coordinate.getZ() == null) {
             return Values.point(object.getSrid(), coordinate.getX(), coordinate.getY()).asPoint();

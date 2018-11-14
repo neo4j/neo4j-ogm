@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * To be used by a driver to lookup type adapters, both native to mapped and mapped to native.
+ * To be used by a driver to lookup type adapters, both native to mapped and mapped to native. This lookup wraps all
+ * returned adapters to make resilient against null values.
  *
  * @author Michael J. Simons
  */
@@ -25,16 +26,20 @@ public final class TypeAdapterLookupDelegate {
      * @return An adapter to convert an object of clazz to native or mapped, identity function if there's no adapter
      */
     public Function<Object, Object> findAdapterFor(Class<?> clazz) {
+
+        Function<Object, Object> adapter;
         // Look for direct match
         if (hasAdapterFor(clazz)) {
-            return registeredTypeAdapter.get(clazz);
+            adapter = registeredTypeAdapter.get(clazz);
+        } else {
+            adapter = registeredTypeAdapter.entrySet()
+                .stream().filter(e -> e.getKey().isAssignableFrom(clazz))
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElseGet(Function::identity);
         }
 
-        return registeredTypeAdapter.entrySet()
-            .stream().filter(e -> e.getKey().isAssignableFrom(clazz))
-            .findFirst()
-            .map(Map.Entry::getValue)
-            .orElseGet(Function::identity);
+        return object -> object == null ? null : adapter.apply(object);
     }
 
     public boolean hasAdapterFor(Class<?> clazz) {

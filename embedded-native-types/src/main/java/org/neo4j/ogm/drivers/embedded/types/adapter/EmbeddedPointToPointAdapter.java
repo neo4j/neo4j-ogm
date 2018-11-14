@@ -28,10 +28,6 @@ public class EmbeddedPointToPointAdapter implements Function<PointValue, Abstrac
     @Override
     public AbstractPoint apply(PointValue point) {
 
-        if (point == null) {
-            return null;
-        }
-
         List<Double> nativeCoordinate = point.getCoordinate().getCoordinate();
         Coordinate coordinate;
         if (nativeCoordinate.size() == 2) {

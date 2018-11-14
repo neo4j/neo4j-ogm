@@ -32,10 +32,6 @@ public class PointToEmbeddedPointAdapter implements Function<AbstractPoint, Poin
     @Override
     public PointValue apply(AbstractPoint object) {
 
-        if (object == null) {
-            return null;
-        }
-
         Coordinate coordinate = object.getCoordinate();
         if (object instanceof CartesianPoint2d) {
             return Values.pointValue(CoordinateReferenceSystem.Cartesian, coordinate.getX(), coordinate.getY());

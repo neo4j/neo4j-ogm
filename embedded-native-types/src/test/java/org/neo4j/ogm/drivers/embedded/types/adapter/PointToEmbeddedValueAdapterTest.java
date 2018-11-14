@@ -23,10 +23,10 @@ import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 /**
  * @author Michael J. Simons
  */
-public class PointToEmbeddedPointAdapterTest {
+public class PointToEmbeddedValueAdapterTest {
     @Test
     public void mappingShouldWork() {
-        PointToEmbeddedPointAdapter adapter = new PointToEmbeddedPointAdapter();
+        PointToEmbeddedValueAdapter adapter = new PointToEmbeddedValueAdapter();
 
         Point point;
 

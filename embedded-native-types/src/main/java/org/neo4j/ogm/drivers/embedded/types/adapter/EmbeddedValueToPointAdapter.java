@@ -23,7 +23,7 @@ import org.neo4j.ogm.types.spatial.Coordinate;
 /**
  * @author Michael J. Simons
  */
-public class EmbeddedPointToPointAdapter implements Function<PointValue, AbstractPoint> {
+public class EmbeddedValueToPointAdapter implements Function<PointValue, AbstractPoint> {
 
     @Override
     public AbstractPoint apply(PointValue point) {

@@ -25,8 +25,8 @@ import org.neo4j.driver.v1.Values;
 import org.neo4j.driver.v1.types.Point;
 import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
 import org.neo4j.ogm.driver.TypeSystem;
-import org.neo4j.ogm.drivers.bolt.types.adapter.BoltPointToPointAdapter;
-import org.neo4j.ogm.drivers.bolt.types.adapter.PointToBoltPointAdapter;
+import org.neo4j.ogm.drivers.bolt.types.adapter.BoltValueToPointAdapter;
+import org.neo4j.ogm.drivers.bolt.types.adapter.PointToBoltValueAdapter;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
@@ -55,13 +55,13 @@ class BoltNativeTypes implements TypeSystem {
     private static void addSpatialFeatures(Map<Class<?>, Function> nativeToMappedAdapter,
         Map<Class<?>, Function> mappedToNativeAdapter) {
 
-        nativeToMappedAdapter.put(Point.class, new BoltPointToPointAdapter());
+        nativeToMappedAdapter.put(Point.class, new BoltValueToPointAdapter());
 
-        PointToBoltPointAdapter pointToBoltPointAdapter = new PointToBoltPointAdapter();
-        mappedToNativeAdapter.put(CartesianPoint2d.class, pointToBoltPointAdapter);
-        mappedToNativeAdapter.put(CartesianPoint3d.class, pointToBoltPointAdapter);
-        mappedToNativeAdapter.put(GeographicPoint2d.class, pointToBoltPointAdapter);
-        mappedToNativeAdapter.put(GeographicPoint3d.class, pointToBoltPointAdapter);
+        PointToBoltValueAdapter pointToBoltValueAdapter = new PointToBoltValueAdapter();
+        mappedToNativeAdapter.put(CartesianPoint2d.class, pointToBoltValueAdapter);
+        mappedToNativeAdapter.put(CartesianPoint3d.class, pointToBoltValueAdapter);
+        mappedToNativeAdapter.put(GeographicPoint2d.class, pointToBoltValueAdapter);
+        mappedToNativeAdapter.put(GeographicPoint3d.class, pointToBoltValueAdapter);
     }
 
     private static void addJavaTimeFeature(Map<Class<?>, Function> nativeToMappedAdapter,

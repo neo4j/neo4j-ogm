@@ -20,8 +20,8 @@ import java.util.function.Function;
 
 import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
 import org.neo4j.ogm.driver.TypeSystem;
-import org.neo4j.ogm.drivers.embedded.types.adapter.EmbeddedPointToPointAdapter;
-import org.neo4j.ogm.drivers.embedded.types.adapter.PointToEmbeddedPointAdapter;
+import org.neo4j.ogm.drivers.embedded.types.adapter.EmbeddedValueToPointAdapter;
+import org.neo4j.ogm.drivers.embedded.types.adapter.PointToEmbeddedValueAdapter;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
@@ -29,7 +29,6 @@ import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 import org.neo4j.values.storable.DateValue;
 import org.neo4j.values.storable.LocalDateTimeValue;
 import org.neo4j.values.storable.PointValue;
-import org.neo4j.values.storable.Value;
 import org.neo4j.values.storable.Values;
 
 /**
@@ -55,13 +54,13 @@ class EmbeddedNativeTypes implements TypeSystem {
     private static void addSpatialFeatures(Map<Class<?>, Function> nativeToMappedAdapter,
         Map<Class<?>, Function> mappedToNativeAdapter) {
 
-        nativeToMappedAdapter.put(PointValue.class, new EmbeddedPointToPointAdapter());
+        nativeToMappedAdapter.put(PointValue.class, new EmbeddedValueToPointAdapter());
 
-        PointToEmbeddedPointAdapter pointToEmbeddedPointAdapter = new PointToEmbeddedPointAdapter();
-        mappedToNativeAdapter.put(CartesianPoint2d.class, pointToEmbeddedPointAdapter);
-        mappedToNativeAdapter.put(CartesianPoint3d.class, pointToEmbeddedPointAdapter);
-        mappedToNativeAdapter.put(GeographicPoint2d.class, pointToEmbeddedPointAdapter);
-        mappedToNativeAdapter.put(GeographicPoint3d.class, pointToEmbeddedPointAdapter);
+        PointToEmbeddedValueAdapter pointToEmbeddedValueAdapter = new PointToEmbeddedValueAdapter();
+        mappedToNativeAdapter.put(CartesianPoint2d.class, pointToEmbeddedValueAdapter);
+        mappedToNativeAdapter.put(CartesianPoint3d.class, pointToEmbeddedValueAdapter);
+        mappedToNativeAdapter.put(GeographicPoint2d.class, pointToEmbeddedValueAdapter);
+        mappedToNativeAdapter.put(GeographicPoint3d.class, pointToEmbeddedValueAdapter);
     }
 
     private static void addJavaTimeFeature(Map<Class<?>, Function> nativeToMappedAdapter,

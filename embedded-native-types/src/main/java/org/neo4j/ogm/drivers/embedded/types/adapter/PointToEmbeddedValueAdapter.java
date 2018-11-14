@@ -27,7 +27,7 @@ import org.neo4j.values.storable.Values;
 /**
  * @author Michael J. Simons
  */
-public class PointToEmbeddedPointAdapter implements Function<AbstractPoint, PointValue> {
+public class PointToEmbeddedValueAdapter implements Function<AbstractPoint, PointValue> {
 
     @Override
     public PointValue apply(AbstractPoint object) {

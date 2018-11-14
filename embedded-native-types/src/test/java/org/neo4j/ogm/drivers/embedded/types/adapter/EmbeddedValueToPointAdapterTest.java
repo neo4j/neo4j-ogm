@@ -25,10 +25,10 @@ import org.neo4j.values.storable.Values;
 /**
  * @author Michael J. Simons
  */
-public class EmbeddedPointToPointAdapterTest {
+public class EmbeddedValueToPointAdapterTest {
     @Test
     public void mappingShouldWork() {
-        EmbeddedPointToPointAdapter adapter = new EmbeddedPointToPointAdapter();
+        EmbeddedValueToPointAdapter adapter = new EmbeddedValueToPointAdapter();
 
         AbstractPoint point;
 

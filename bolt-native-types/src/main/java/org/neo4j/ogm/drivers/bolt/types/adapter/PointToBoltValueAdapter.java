@@ -14,20 +14,24 @@ package org.neo4j.ogm.drivers.bolt.types.adapter;
 
 import java.util.function.Function;
 
+import org.neo4j.driver.v1.Values;
 import org.neo4j.driver.v1.types.Point;
 import org.neo4j.ogm.types.spatial.AbstractPoint;
 import org.neo4j.ogm.types.spatial.Coordinate;
-import org.neo4j.ogm.types.spatial.PointBuilder;
 
 /**
  * @author Michael J. Simons
  */
-public class BoltPointToPointAdapter implements Function<Point, AbstractPoint> {
+public class PointToBoltValueAdapter implements Function<AbstractPoint, Point> {
 
     @Override
-    public AbstractPoint apply(Point point) {
+    public Point apply(AbstractPoint object) {
 
-        Coordinate coordinate = new Coordinate(point.x(), point.y(), Double.isNaN(point.z()) ? null : point.z());
-        return PointBuilder.withSrid(point.srid()).build(coordinate);
+        Coordinate coordinate = object.getCoordinate();
+        if (coordinate.getZ() == null) {
+            return Values.point(object.getSrid(), coordinate.getX(), coordinate.getY()).asPoint();
+        } else {
+            return Values.point(object.getSrid(), coordinate.getX(), coordinate.getY(), coordinate.getZ()).asPoint();
+        }
     }
 }

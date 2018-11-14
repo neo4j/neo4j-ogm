@@ -22,7 +22,6 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.driver.TypeSystem;
 import org.slf4j.Logger;
@@ -39,7 +38,7 @@ class EmbeddedBasedParameterConversion implements ParameterConversion {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(EmbeddedBasedParameterConversion.class);
 
-    private final ParameterConversion fallback = AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
+    private final ParameterConversion fallback = DefaultParameterConversion.INSTANCE;
 
     private final TypeSystem typeSystem;
 
@@ -70,7 +69,7 @@ class EmbeddedBasedParameterConversion implements ParameterConversion {
                 Entry::getKey,
                 e -> {
                     Object v = e.getValue();
-                    if(v == null) {
+                    if (v == null) {
                         return v;
                     }
                     return typeSystem.getMappedToNativeTypeAdapter(v.getClass()).apply(v);

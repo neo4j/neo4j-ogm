@@ -19,7 +19,6 @@ import java.util.Map;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.Values;
 import org.neo4j.driver.v1.exceptions.ClientException;
-import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.driver.TypeSystem;
 
@@ -32,7 +31,7 @@ import org.neo4j.ogm.driver.TypeSystem;
  */
 class BoltNativeParameterConversion implements ParameterConversion {
 
-    private final ParameterConversion fallback = AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
+    private final ParameterConversion fallback = DefaultParameterConversion.INSTANCE;
 
     private final TypeSystem typeSystem;
 

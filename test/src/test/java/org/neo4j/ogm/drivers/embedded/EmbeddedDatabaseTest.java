@@ -77,7 +77,7 @@ public class EmbeddedDatabaseTest {
 
         GraphDatabaseService impermanentDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
 
-        try (EmbeddedDriver driver = new EmbeddedDriver(impermanentDatabase)) {
+        try (EmbeddedDriver driver = new EmbeddedDriver(impermanentDatabase, null)) {
 
             GraphDatabaseService databaseService = driver.getGraphDatabaseService();
 

@@ -14,17 +14,17 @@ package org.neo4j.ogm.drivers.bolt;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
-import static org.neo4j.ogm.driver.ParameterConversionMode.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+import org.neo4j.driver.v1.Config;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.types.TypeSystem;
-import org.neo4j.ogm.driver.ParameterConversionMode;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.testutil.SingleDriverTestClass;
@@ -40,12 +40,17 @@ public class JavaBasedParameterConversionTest extends SingleDriverTestClass {
         assumeTrue(driverSupportsLocalDate());
         assumeTrue(databaseSupportJava8TimeTypes());
 
-        Map<String, Object> customConfiguration = new HashMap<>();
-        customConfiguration.put(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE, CONVERT_NON_NATIVE_ONLY);
+        Configuration ogmConfiguration = new Configuration.Builder()
+            .uri(getBoltURI().toString())
+            .encryptionLevel(Config.EncryptionLevel.NONE.name())
+            .useNativeTypes()
+            .build();
 
-        try (Driver driver = getDriver()) {
-
-            BoltDriver boltOgmDriver = new BoltDriver(driver, () -> customConfiguration);
+        try (
+            Driver driver = getDriver();
+            BoltDriver boltOgmDriver = new BoltDriver()
+        ) {
+            boltOgmDriver.configure(ogmConfiguration);
 
             doWithSessionFactoryOf(boltOgmDriver, new Class[] { JavaBasedParameterConversionTest.class },
                 sessionFactory -> {

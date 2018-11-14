@@ -50,8 +50,6 @@ public abstract class AbstractConfigurableDriver implements Driver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Driver.class);
 
-    public static final ParameterConversion CONVERT_ALL_PARAMETERS_CONVERSION = ObjectMapperBasedParameterConversion.INSTANCE;
-
     private final ServiceLoader<CypherModificationProvider> cypherModificationProviderLoader =
         ServiceLoader.load(CypherModificationProvider.class);
 
@@ -152,7 +150,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
     private TypeSystem loadTypeSystem() {
 
         TypeSystem typeSystem = TypeSystem.NoNativeTypes.INSTANCE;
-        if (this.configuration.getUseNativeTypes()) {
+        if (this.configuration != null && this.configuration.getUseNativeTypes()) {
             try {
                 typeSystem = loadNativeTypes(getTypeSystemName());
             } catch (UnsupportedOperationException e) {

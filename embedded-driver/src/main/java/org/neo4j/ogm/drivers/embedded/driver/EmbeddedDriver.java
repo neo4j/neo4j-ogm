@@ -60,8 +60,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     public EmbeddedDriver() {
     }
 
-    public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
-        this(graphDatabaseService, Collections::emptyMap);
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService, Configuration configuration) {
+        this(graphDatabaseService, configuration, Collections::emptyMap);
     }
 
     /**
@@ -71,9 +71,13 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * @param customPropertiesSupplier Hook to provide custom configuration properties, i.e. for Cypher modification providers
      */
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService,
-        Supplier<Map<String, Object>> customPropertiesSupplier) {
+        Configuration configuration,
+        Supplier<Map<String, Object>> customPropertiesSupplier
+    ) {
 
         super(customPropertiesSupplier);
+
+        super.configure(configuration);
 
         this.graphDatabaseService = requireNonNull(graphDatabaseService);
         boolean available = this.graphDatabaseService.isAvailable(TIMEOUT);

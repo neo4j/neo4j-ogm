@@ -14,6 +14,8 @@ package org.neo4j.ogm.driver;
 
 import java.util.function.Function;
 
+import org.neo4j.ogm.driver.ParameterConversion.DefaultParameterConversion;
+
 /**
  * This interface describes a type system with a set of native type a driver can handle.
  *
@@ -47,10 +49,10 @@ public interface TypeSystem {
     }
 
     /**
-     * @return The parameter conversion that fits this type system.
+     * @return The parameter conversion that fits this type system. Defaults to the "classic" one done by Jackson's ObjectMapper.
      */
     default ParameterConversion getParameterConversion() {
-        return ObjectMapperBasedParameterConversion.INSTANCE;
+        return DefaultParameterConversion.INSTANCE;
     }
 
     /**

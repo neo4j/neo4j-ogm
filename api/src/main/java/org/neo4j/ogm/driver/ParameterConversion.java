@@ -12,7 +12,13 @@
  */
 package org.neo4j.ogm.driver;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import org.neo4j.ogm.config.ObjectMapperFactory;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Abstraction over the parameter conversion.
@@ -22,4 +28,24 @@ import java.util.Map;
 public interface ParameterConversion {
 
     Map<String, Object> convertParameters(Map<String, Object> originalParameter);
+
+    /**
+     * The "old" way of converting things. Based on Jacksons Object Mapper.
+     *
+     * @author Michael J. Simons
+     */
+    enum DefaultParameterConversion implements ParameterConversion {
+
+        INSTANCE;
+
+        private static final ObjectMapper OBJECT_MAPPER = ObjectMapperFactory.objectMapper();
+        private static final TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
+        };
+
+        @Override
+        public Map<String, Object> convertParameters(final Map<String, Object> originalParameter) {
+            return OBJECT_MAPPER.convertValue(originalParameter, MAP_TYPE_REF);
+        }
+    }
+
 }

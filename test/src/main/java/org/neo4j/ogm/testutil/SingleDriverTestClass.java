@@ -12,6 +12,7 @@
  */
 package org.neo4j.ogm.testutil;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -56,6 +57,10 @@ public abstract class SingleDriverTestClass {
      */
     public Driver getDriver() {
         return GraphDatabase.driver(serverControls.boltURI(), DRIVER_CONFIG);
+    }
+
+    public URI getBoltURI() {
+        return serverControls.boltURI();
     }
 
     /**

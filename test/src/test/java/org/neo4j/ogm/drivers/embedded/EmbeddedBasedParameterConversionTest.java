@@ -14,14 +14,15 @@ package org.neo4j.ogm.drivers.embedded;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
-import static org.neo4j.ogm.driver.ParameterConversionMode.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+import org.neo4j.driver.v1.Config;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.testutil.SingleDriverTestClass;
@@ -36,11 +37,12 @@ public class EmbeddedBasedParameterConversionTest extends SingleDriverTestClass 
 
         assumeTrue(databaseSupportJava8TimeTypes());
 
-        Map<String, Object> customConfiguration = new HashMap<>();
-        customConfiguration.put(CONFIG_PARAMETER_CONVERSION_MODE, CONVERT_NON_NATIVE_ONLY);
+        Configuration ogmConfiguration = new Configuration.Builder()
+            .useNativeTypes()
+            .build();
 
         GraphDatabaseService graphDatabaseService = getGraphDatabaseService();
-        EmbeddedDriver embeddedOgmDriver = new EmbeddedDriver(graphDatabaseService, () -> customConfiguration);
+        EmbeddedDriver embeddedOgmDriver = new EmbeddedDriver(graphDatabaseService, ogmConfiguration);
 
         doWithSessionFactoryOf(embeddedOgmDriver, new Class[] { EmbeddedBasedParameterConversionTest.class },
             sessionFactory -> {

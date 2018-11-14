@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.config;
 
-import static org.neo4j.ogm.driver.ParameterConversionMode.*;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -27,7 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
-import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.support.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,8 +84,6 @@ public class Configuration {
         this.customProperties = builder.customProperties;
         this.useNativeTypes = builder.useNativeTypes;
 
-        this.assertNativeTypeRequirements();
-
         if (this.uri != null) {
             java.net.URI uri = null;
             try {
@@ -115,24 +110,6 @@ public class Configuration {
             }
             credentials = new UsernamePasswordCredentials(builder.username, builder.password);
         }
-    }
-
-    /**
-     * Asserts additional requirements for the native type support, i.e. using the "modern" parameter conversion.
-     */
-    private void assertNativeTypeRequirements() {
-
-        if(!this.useNativeTypes)
-            return;
-
-        ParameterConversionMode currentParameterConversionMode = (ParameterConversionMode) this.customProperties
-            .get(CONFIG_PARAMETER_CONVERSION_MODE);
-
-        if(currentParameterConversionMode != null && currentParameterConversionMode != CONVERT_NON_NATIVE_ONLY) {
-            throw new IllegalStateException("Cannot use native types, parameter conversion mode has been explicitly set to " + CONVERT_ALL);
-        }
-
-        this.customProperties.put(CONFIG_PARAMETER_CONVERSION_MODE, CONVERT_NON_NATIVE_ONLY);
     }
 
     public AutoIndexMode getAutoIndex() {

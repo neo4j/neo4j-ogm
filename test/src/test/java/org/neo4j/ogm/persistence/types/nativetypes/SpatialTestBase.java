@@ -2,19 +2,14 @@ package org.neo4j.ogm.persistence.types.nativetypes;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.assertj.core.util.Files;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Properties;
-import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
@@ -25,22 +20,6 @@ import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 public abstract class SpatialTestBase {
 
     static SessionFactory sessionFactory;
-
-    @BeforeClass
-    public static void init() {
-
-        File temporaryFolder = Files.newTemporaryFolder();
-        temporaryFolder.deleteOnExit();
-
-        Configuration ogmConfiguration = new Configuration.Builder()
-            .uri("file://" + temporaryFolder.getAbsolutePath())
-            .useNativeTypes()
-            .build();
-
-        EmbeddedDriver driver = new EmbeddedDriver();
-        driver.configure(ogmConfiguration);
-        sessionFactory = new SessionFactory(driver, SpatialTestBase.class.getPackage().getName());
-    }
 
     @AfterClass
     public static void shutDown() {

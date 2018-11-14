@@ -74,15 +74,20 @@ public final class HttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public void configure(Configuration config) {
-        super.configure(config);
+    public void configure(Configuration configuration) {
+        super.configure(configuration);
 
-        if (config.getVerifyConnection()) {
+        if (configuration.getVerifyConnection()) {
             httpClient();
 
-            HttpRequest request = new HttpRequest(httpClient(), requestUrl(), configuration.getCredentials(), true);
+            HttpRequest request = new HttpRequest(httpClient(), requestUrl(), this.configuration.getCredentials(), true);
             request.execute(new VerifyRequest());
         }
+    }
+
+    @Override
+    protected String getTypeSystemName() {
+        throw new UnsupportedOperationException("The HTTP Driver doesn't support a native type system.");
     }
 
     @Override

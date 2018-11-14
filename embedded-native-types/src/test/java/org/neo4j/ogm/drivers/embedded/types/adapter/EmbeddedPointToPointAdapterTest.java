@@ -12,8 +12,7 @@
  */
 package org.neo4j.ogm.drivers.embedded.types.adapter;
 
-import static org.assertj.core.api.Assertions.*;
-
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.neo4j.ogm.types.spatial.AbstractPoint;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
@@ -34,30 +33,30 @@ public class EmbeddedPointToPointAdapterTest {
         AbstractPoint point;
 
         point = adapter.apply(Values.pointValue(CoordinateReferenceSystem.WGS84, 10.0, 20.0));
-        assertThat(point).isInstanceOf(GeographicPoint2d.class);
-        assertThat(point.getSrid()).isEqualTo(4326);
-        assertThat(((GeographicPoint2d) point).getLatitude()).isEqualTo(20.0);
-        assertThat(((GeographicPoint2d) point).getLongitude()).isEqualTo(10.0);
+        Assertions.assertThat(point).isInstanceOf(GeographicPoint2d.class);
+        Assertions.assertThat(point.getSrid()).isEqualTo(4326);
+        Assertions.assertThat(((GeographicPoint2d) point).getLatitude()).isEqualTo(20.0);
+        Assertions.assertThat(((GeographicPoint2d) point).getLongitude()).isEqualTo(10.0);
 
         point = adapter.apply(Values.pointValue(CoordinateReferenceSystem.Cartesian, 10.0, 20.0));
-        assertThat(point).isInstanceOf(CartesianPoint2d.class);
-        assertThat(point.getSrid()).isEqualTo(7203);
-        assertThat(((CartesianPoint2d) point).getX()).isEqualTo(10.0);
-        assertThat(((CartesianPoint2d) point).getY()).isEqualTo(20.0);
+        Assertions.assertThat(point).isInstanceOf(CartesianPoint2d.class);
+        Assertions.assertThat(point.getSrid()).isEqualTo(7203);
+        Assertions.assertThat(((CartesianPoint2d) point).getX()).isEqualTo(10.0);
+        Assertions.assertThat(((CartesianPoint2d) point).getY()).isEqualTo(20.0);
 
         point = adapter.apply(Values.pointValue(CoordinateReferenceSystem.WGS84_3D, 10.0, 20.0, 30));
-        assertThat(point).isInstanceOf(GeographicPoint3d.class);
-        assertThat(point.getSrid()).isEqualTo(4979);
-        assertThat(((GeographicPoint3d) point).getLatitude()).isEqualTo(20.0);
-        assertThat(((GeographicPoint3d) point).getLongitude()).isEqualTo(10.0);
-        assertThat(((GeographicPoint3d) point).getElevation()).isEqualTo(30.0);
+        Assertions.assertThat(point).isInstanceOf(GeographicPoint3d.class);
+        Assertions.assertThat(point.getSrid()).isEqualTo(4979);
+        Assertions.assertThat(((GeographicPoint3d) point).getLatitude()).isEqualTo(20.0);
+        Assertions.assertThat(((GeographicPoint3d) point).getLongitude()).isEqualTo(10.0);
+        Assertions.assertThat(((GeographicPoint3d) point).getElevation()).isEqualTo(30.0);
 
         point = adapter.apply(Values.pointValue(CoordinateReferenceSystem.Cartesian_3D, 10.0, 20.0, 30));
-        assertThat(point).isInstanceOf(CartesianPoint3d.class);
-        assertThat(point.getSrid()).isEqualTo(9157);
-        assertThat(((CartesianPoint3d) point).getX()).isEqualTo(10.0);
-        assertThat(((CartesianPoint3d) point).getY()).isEqualTo(20.0);
-        assertThat(((CartesianPoint3d) point).getZ()).isEqualTo(30.0);
+        Assertions.assertThat(point).isInstanceOf(CartesianPoint3d.class);
+        Assertions.assertThat(point.getSrid()).isEqualTo(9157);
+        Assertions.assertThat(((CartesianPoint3d) point).getX()).isEqualTo(10.0);
+        Assertions.assertThat(((CartesianPoint3d) point).getY()).isEqualTo(20.0);
+        Assertions.assertThat(((CartesianPoint3d) point).getZ()).isEqualTo(30.0);
 
     }
 

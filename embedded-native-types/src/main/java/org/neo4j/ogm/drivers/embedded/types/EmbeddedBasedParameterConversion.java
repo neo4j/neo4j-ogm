@@ -10,10 +10,9 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.drivers.embedded.driver;
+package org.neo4j.ogm.drivers.embedded.types;
 
 import static java.util.stream.Collectors.*;
-import static org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver.NATIVE_TYPES;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,11 +22,9 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.neo4j.graphdb.spatial.Point;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.driver.ParameterConversion;
-import org.neo4j.values.storable.CoordinateReferenceSystem;
-import org.neo4j.values.storable.Values;
+import org.neo4j.ogm.driver.TypeSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,17 +33,19 @@ import org.slf4j.LoggerFactory;
  * null if a conversion is not possible. For those parameters, the default fallback is used.
  *
  * @author Michael J. Simons
+ * @author Gerrit Meier
  */
-enum EmbeddedBasedParameterConversion implements ParameterConversion {
+class EmbeddedBasedParameterConversion implements ParameterConversion {
 
-    INSTANCE;
+    private final static Logger LOGGER = LoggerFactory.getLogger(EmbeddedBasedParameterConversion.class);
 
-    private final Logger logger = LoggerFactory.getLogger(EmbeddedBasedParameterConversion.class);
     private final ParameterConversion fallback = AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
+
+    private final TypeSystem typeSystem;
 
     private Predicate<Entry<String, Object>> canStore;
 
-    EmbeddedBasedParameterConversion() {
+    EmbeddedBasedParameterConversion(TypeSystem typeSystem) {
 
         // The infrastructure for the kernel based value utils is available since 3.3.x only.
         try {
@@ -56,9 +55,11 @@ enum EmbeddedBasedParameterConversion implements ParameterConversion {
 
             this.canStore = new WrappedValuesUnsafeOf(unsafeOf);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
-            logger.warn("Cannot use native type conversion prior to Neo4j 3.3.x");
+            LOGGER.warn("Cannot use native type conversion prior to Neo4j 3.3.x");
             canStore = anyObject -> false;
         }
+
+        this.typeSystem = typeSystem;
     }
 
     @Override
@@ -72,7 +73,7 @@ enum EmbeddedBasedParameterConversion implements ParameterConversion {
                     if(v == null) {
                         return v;
                     }
-                    return NATIVE_TYPES.getMappedToNativeTypeAdapter(v.getClass()).apply(v);
+                    return typeSystem.getMappedToNativeTypeAdapter(v.getClass()).apply(v);
                 }))
             .entrySet().stream()
             // Then partition by whether be able to store or not

@@ -12,8 +12,7 @@
  */
 package org.neo4j.ogm.drivers.embedded.types.adapter;
 
-import static org.assertj.core.api.Assertions.*;
-
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.neo4j.graphdb.spatial.Point;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
@@ -32,25 +31,25 @@ public class PointToEmbeddedPointAdapterTest {
         Point point;
 
         point = adapter.apply(new GeographicPoint2d(10, 20));
-        assertThat(point.getCRS().getCode()).isEqualTo(4326);
-        assertThat(point.getCoordinate().getCoordinate().get(0)).isEqualTo(20.0);
-        assertThat(point.getCoordinate().getCoordinate().get(1)).isEqualTo(10.0);
+        Assertions.assertThat(point.getCRS().getCode()).isEqualTo(4326);
+        Assertions.assertThat(point.getCoordinate().getCoordinate().get(0)).isEqualTo(20.0);
+        Assertions.assertThat(point.getCoordinate().getCoordinate().get(1)).isEqualTo(10.0);
 
         point = adapter.apply(new CartesianPoint2d(10, 20));
-        assertThat(point.getCRS().getCode()).isEqualTo(7203);
-        assertThat(point.getCoordinate().getCoordinate().get(0)).isEqualTo(10.0);
-        assertThat(point.getCoordinate().getCoordinate().get(1)).isEqualTo(20.0);
+        Assertions.assertThat(point.getCRS().getCode()).isEqualTo(7203);
+        Assertions.assertThat(point.getCoordinate().getCoordinate().get(0)).isEqualTo(10.0);
+        Assertions.assertThat(point.getCoordinate().getCoordinate().get(1)).isEqualTo(20.0);
 
         point = adapter.apply(new GeographicPoint3d(10.0, 20.0, 30));
-        assertThat(point.getCRS().getCode()).isEqualTo(4979);
-        assertThat(point.getCoordinate().getCoordinate().get(0)).isEqualTo(20.0);
-        assertThat(point.getCoordinate().getCoordinate().get(1)).isEqualTo(10.0);
-        assertThat(point.getCoordinate().getCoordinate().get(2)).isEqualTo(30.0);
+        Assertions.assertThat(point.getCRS().getCode()).isEqualTo(4979);
+        Assertions.assertThat(point.getCoordinate().getCoordinate().get(0)).isEqualTo(20.0);
+        Assertions.assertThat(point.getCoordinate().getCoordinate().get(1)).isEqualTo(10.0);
+        Assertions.assertThat(point.getCoordinate().getCoordinate().get(2)).isEqualTo(30.0);
 
         point = adapter.apply(new CartesianPoint3d(10.0, 20.0, 30));
-        assertThat(point.getCRS().getCode()).isEqualTo(9157);
-        assertThat(point.getCoordinate().getCoordinate().get(0)).isEqualTo(10.0);
-        assertThat(point.getCoordinate().getCoordinate().get(1)).isEqualTo(20.0);
-        assertThat(point.getCoordinate().getCoordinate().get(2)).isEqualTo(30.0);
+        Assertions.assertThat(point.getCRS().getCode()).isEqualTo(9157);
+        Assertions.assertThat(point.getCoordinate().getCoordinate().get(0)).isEqualTo(10.0);
+        Assertions.assertThat(point.getCoordinate().getCoordinate().get(1)).isEqualTo(20.0);
+        Assertions.assertThat(point.getCoordinate().getCoordinate().get(2)).isEqualTo(30.0);
     }
 }

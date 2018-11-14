@@ -10,12 +10,13 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.drivers.embedded.driver;
+package org.neo4j.ogm.drivers.embedded.types;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
 import org.neo4j.ogm.drivers.embedded.types.adapter.EmbeddedPointToPointAdapter;
 import org.neo4j.ogm.drivers.embedded.types.adapter.PointToEmbeddedPointAdapter;
@@ -75,5 +76,10 @@ class EmbeddedNativeTypes implements TypeSystem {
     @Override
     public Function<Object, Object> getMappedToNativeTypeAdapter(Class<?> clazz) {
         return mappedToNativeAdapter.findAdapterFor(clazz);
+    }
+
+    @Override
+    public ParameterConversion getParameterConversion() {
+        return new EmbeddedBasedParameterConversion(this);
     }
 }

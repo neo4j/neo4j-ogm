@@ -165,6 +165,7 @@
         <module>api</module>
         <module>http-driver</module>
         <module>embedded-driver</module>
+        <module>embedded-native-types</module>
         <module>bolt-driver</module>
         <module>bolt-native-types</module>
         <module>core</module>

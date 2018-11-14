@@ -11,9 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.drivers.embedded.response;
-
-import static org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver.NATIVE_TYPES;
+package org.neo4j.ogm.drivers.embedded.driver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,13 +23,21 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.ogm.driver.TypeSystem;
 
 /**
  * Helper methods for embedded graph entities
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class EmbeddedEntityAdapter {
+
+    private final TypeSystem typeSystem;
+
+    EmbeddedEntityAdapter(TypeSystem typeSystem) {
+        this.typeSystem = typeSystem;
+    }
 
     public boolean isPath(Object value) {
         return value instanceof Path;
@@ -93,7 +99,7 @@ public class EmbeddedEntityAdapter {
         return rels;
     }
 
-    public static Map<String, Object> getAllProperties(PropertyContainer propertyContainer) {
+    public Map<String, Object> getAllProperties(PropertyContainer propertyContainer) {
         Map<String, Object> properties = new HashMap<>();
         for (String key : propertyContainer.getPropertyKeys()) {
             properties.put(key, toMapped(propertyContainer.getProperty(key)));
@@ -101,13 +107,17 @@ public class EmbeddedEntityAdapter {
         return properties;
     }
 
-    private static Object toMapped(Object value) {
+    public Map<String, Object> convertParameters(final Map<String, Object> originalParameter) {
+        return typeSystem.getParameterConversion().convertParameters(originalParameter);
+    }
+
+    private Object toMapped(Object value) {
 
         if (value == null) {
             return null;
         }
 
-        return NATIVE_TYPES.getNativeToMappedTypeAdapter(value.getClass())
+        return this.typeSystem.getNativeToMappedTypeAdapter(value.getClass())
             .apply(value);
     }
 }

@@ -36,7 +36,7 @@ public class BoltEntityAdapter {
 
     private final TypeSystem typeSystem;
 
-    public BoltEntityAdapter(TypeSystem typeSystem) {
+    BoltEntityAdapter(TypeSystem typeSystem) {
         this.typeSystem = typeSystem;
     }
 

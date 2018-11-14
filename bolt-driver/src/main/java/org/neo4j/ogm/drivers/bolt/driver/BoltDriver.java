@@ -14,7 +14,6 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static java.util.Objects.*;
-import static org.neo4j.ogm.driver.ParameterConversionMode.*;
 
 import java.io.File;
 import java.net.URI;
@@ -38,14 +37,12 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
-import org.neo4j.ogm.driver.ParameterConversion;
-import org.neo4j.ogm.driver.ParameterConversionMode;
+import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.request.BoltRequest;
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
-import org.neo4j.ogm.driver.TypeSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,13 +57,9 @@ public class BoltDriver extends AbstractConfigurableDriver {
     private final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
 
     private volatile Driver boltDriver;
-    // It's a bit annoying to have the defaults repeated here but with BoltDriver being configurable without
-    // the configuration just by passing in the Java-Driver, there's no other way.
-    private TypeSystem typeSystem = TypeSystem.NoNativeTypes.INSTANCE;
 
     private Credentials credentials;
     private Config driverConfig;
-    private Configuration configuration;
 
     // required for service loader mechanism
     public BoltDriver() {
@@ -90,20 +83,23 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public void configure(Configuration config) {
+    public void configure(Configuration configuration) {
 
         close();
 
-        super.configure(config);
+        super.configure(configuration);
 
-        this.configuration = config;
         this.driverConfig = buildDriverConfig(this.configuration);
         this.credentials = this.configuration.getCredentials();
-        this.typeSystem = loadTypeSystem("org.neo4j.ogm.drivers.bolt.types.BoltNativeTypes");
 
         if (this.configuration.getVerifyConnection()) {
             checkDriverInitialized();
         }
+    }
+
+    @Override
+    protected String getTypeSystemName() {
+        return "org.neo4j.ogm.drivers.bolt.types.BoltNativeTypes";
     }
 
     @Override
@@ -277,10 +273,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
         } catch (Exception e) {
             throw new ConnectionException("Unable to build driver configuration", e);
         }
-    }
-
-    public TypeSystem getTypeSystem() {
-        return this.typeSystem;
     }
 
     class BoltConfig {

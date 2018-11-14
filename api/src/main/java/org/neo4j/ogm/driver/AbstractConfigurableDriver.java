@@ -25,6 +25,8 @@ import java.util.stream.StreamSupport;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.spi.CypherModificationProvider;
 import org.neo4j.ogm.transaction.TransactionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The AbstractConfigurableDriver is used by all drivers to register themselves.
@@ -46,12 +48,15 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public abstract class AbstractConfigurableDriver implements Driver {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Driver.class);
+
     public static final ParameterConversion CONVERT_ALL_PARAMETERS_CONVERSION = ObjectMapperBasedParameterConversion.INSTANCE;
 
     private final ServiceLoader<CypherModificationProvider> cypherModificationProviderLoader =
         ServiceLoader.load(CypherModificationProvider.class);
 
     protected Configuration configuration;
+    protected TypeSystem typeSystem = Driver.super.getTypeSystem();
     protected TransactionManager transactionManager;
 
     /**
@@ -78,9 +83,16 @@ public abstract class AbstractConfigurableDriver implements Driver {
         this.customPropertiesSupplier = customPropertiesSupplier;
     }
 
+    /**
+     * Stores the configuration locally and loads the native type system for this driver if applicable. Be sure to call
+     * this method in case you opt to overwrite it in an implementation.
+     *
+     * @param configuration The new configuration
+     */
     @Override
-    public void configure(Configuration config) {
-        this.configuration = config;
+    public void configure(Configuration configuration) {
+        this.configuration = configuration;
+        this.typeSystem = loadTypeSystem();
     }
 
     @Override
@@ -133,24 +145,36 @@ public abstract class AbstractConfigurableDriver implements Driver {
     /**
      * Loads the configured type system.
      *
-     * @param nativeTypesImplementation Driver specific implementation to load.
      * @return Defaults to {@link TypeSystem.NoNativeTypes} if the configuration don't uses native types.
-     * @throws IllegalStateException In
+     * @throws IllegalStateException In case the driver supports native types but those types aren't on the class path
      * @since 3.2
      */
-    protected final TypeSystem loadTypeSystem(String nativeTypesImplementation) {
+    private TypeSystem loadTypeSystem() {
 
-        if (!this.configuration.getUseNativeTypes()) {
-            return TypeSystem.NoNativeTypes.INSTANCE;
+        TypeSystem typeSystem = TypeSystem.NoNativeTypes.INSTANCE;
+        if (this.configuration.getUseNativeTypes()) {
+            try {
+                typeSystem = loadNativeTypes(getTypeSystemName());
+            } catch (UnsupportedOperationException e) {
+                LOGGER.warn("Neo4j-OGM driver {} doesn't support native types.", this.getClass().getName());
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException(
+                    "Cannot use native types. Make sure you have the native module for your driver on the classpath.");
+            }
         }
-
-        try {
-            return loadNativeTypes(nativeTypesImplementation);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException(
-                "Cannot use native types. Make sure you have the native module for your driver on the classpath.");
-        }
+        return typeSystem;
     }
+
+    @Override
+    public TypeSystem getTypeSystem() {
+        return this.typeSystem;
+    }
+
+    /**
+     * @return The fully qualified name of the native typesystem to use.
+     * @throws UnsupportedOperationException in case the concrete driver doesn't support a native typesystem.
+     */
+    abstract protected String getTypeSystemName();
 
     private Map<String, Object> getConfigurationProperties() {
 

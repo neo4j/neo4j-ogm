@@ -174,4 +174,9 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
             }
         };
     }
+
+    @Override
+    protected String getTypeSystemName() {
+        throw new UnsupportedOperationException();
+    }
 }

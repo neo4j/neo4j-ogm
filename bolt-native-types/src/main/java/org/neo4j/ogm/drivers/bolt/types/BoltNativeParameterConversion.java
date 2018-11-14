@@ -36,7 +36,7 @@ class BoltNativeParameterConversion implements ParameterConversion {
 
     private final TypeSystem typeSystem;
 
-    public BoltNativeParameterConversion(TypeSystem typeSystem) {
+    BoltNativeParameterConversion(TypeSystem typeSystem) {
         this.typeSystem = typeSystem;
     }
 

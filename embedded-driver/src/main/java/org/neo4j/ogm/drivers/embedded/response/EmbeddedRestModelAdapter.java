@@ -16,16 +16,22 @@ package org.neo4j.ogm.drivers.embedded.response;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
 import org.neo4j.ogm.result.adapter.RestModelAdapter;
 
 /**
  * Adapt embedded response to a NodeModels, RelationshipModels, and objects
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class EmbeddedRestModelAdapter extends RestModelAdapter {
 
-    private EmbeddedEntityAdapter entityAdapter = new EmbeddedEntityAdapter();
+    private final EmbeddedEntityAdapter entityAdapter;
+
+    public EmbeddedRestModelAdapter(EmbeddedEntityAdapter entityAdapter) {
+        this.entityAdapter = entityAdapter;
+    }
 
     @Override
     public boolean isNode(Object value) {

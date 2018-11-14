@@ -15,12 +15,12 @@ package org.neo4j.ogm.drivers.embedded;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.neo4j.driver.v1.Config;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
@@ -48,16 +48,23 @@ public class EmbeddedBasedParameterConversionTest extends SingleDriverTestClass 
             sessionFactory -> {
                 Session session = sessionFactory.openSession();
 
-                LocalDateTime originalDateTime = LocalDateTime.of(2018, 10, 11, 15, 24);
+                LocalDate localDate = LocalDate.of(2018, 11, 14);
+                LocalDateTime localDateTime = LocalDateTime.of(2018, 10, 11, 15, 24);
 
                 Map<String, Object> parameters = new HashMap<>();
-                parameters.put("createdAt", originalDateTime);
-                session.query("CREATE (n:Test {createdAt: $createdAt})", parameters);
+                parameters.put("a", localDate);
+                parameters.put("b", localDateTime);
+                session.query("CREATE (n:Test {a: $a, b: $b})", parameters);
 
-                Object createdAt = graphDatabaseService.execute("MATCH (n:Test) RETURN n.createdAt AS createdAt").next()
-                    .get("createdAt");
-                assertThat(createdAt).isInstanceOf(LocalDateTime.class)
-                    .isEqualTo(originalDateTime);
+                Map<String, Object> result = graphDatabaseService.execute("MATCH (n:Test) RETURN n.a, n.b").next();
+
+                Object a = result.get("n.a");
+                assertThat(a).isInstanceOf(LocalDate.class)
+                    .isEqualTo(localDate);
+
+                Object b = result.get("n.b");
+                assertThat(b).isInstanceOf(LocalDateTime.class)
+                    .isEqualTo(localDateTime);
             });
     }
 }

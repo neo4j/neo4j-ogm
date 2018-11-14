@@ -12,10 +12,16 @@
  */
 package org.neo4j.ogm.drivers.bolt.types;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.neo4j.driver.internal.value.DateValue;
+import org.neo4j.driver.internal.value.LocalDateTimeValue;
+import org.neo4j.driver.v1.Value;
+import org.neo4j.driver.v1.Values;
 import org.neo4j.driver.v1.types.Point;
 import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
 import org.neo4j.ogm.driver.TypeSystem;
@@ -40,12 +46,14 @@ class BoltNativeTypes implements TypeSystem {
         Map<Class<?>, Function> mappedToNativeAdapter = new HashMap<>();
 
         addSpatialFeatures(nativeToMappedAdapter, mappedToNativeAdapter);
+        addJavaTimeFeature(nativeToMappedAdapter, mappedToNativeAdapter);
 
         this.nativeToMappedAdapter = new TypeAdapterLookupDelegate(nativeToMappedAdapter);
         this.mappedToNativeAdapter = new TypeAdapterLookupDelegate(mappedToNativeAdapter);
     }
 
-    private static void addSpatialFeatures(Map<Class<?>, Function> nativeToMappedAdapter, Map<Class<?>, Function> mappedToNativeAdapter) {
+    private static void addSpatialFeatures(Map<Class<?>, Function> nativeToMappedAdapter,
+        Map<Class<?>, Function> mappedToNativeAdapter) {
 
         nativeToMappedAdapter.put(Point.class, new BoltPointToPointAdapter());
 
@@ -54,6 +62,16 @@ class BoltNativeTypes implements TypeSystem {
         mappedToNativeAdapter.put(CartesianPoint3d.class, pointToBoltPointAdapter);
         mappedToNativeAdapter.put(GeographicPoint2d.class, pointToBoltPointAdapter);
         mappedToNativeAdapter.put(GeographicPoint3d.class, pointToBoltPointAdapter);
+    }
+
+    private static void addJavaTimeFeature(Map<Class<?>, Function> nativeToMappedAdapter,
+        Map<Class<?>, Function> mappedToNativeAdapter) {
+
+        nativeToMappedAdapter.put(DateValue.class, new DriverFunctionWrapper<>(Values.ofLocalDate()));
+        nativeToMappedAdapter.put(LocalDateTimeValue.class, new DriverFunctionWrapper<>(Values.ofLocalDateTime()));
+
+        mappedToNativeAdapter.put(LocalDate.class, v -> Values.value(v));
+        mappedToNativeAdapter.put(LocalDateTime.class, v -> Values.value(v));
     }
 
     public boolean supportsAsNativeType(Class<?> clazz) {
@@ -68,6 +86,20 @@ class BoltNativeTypes implements TypeSystem {
     @Override
     public Function<Object, Object> getMappedToNativeTypeAdapter(Class<?> clazz) {
         return mappedToNativeAdapter.findAdapterFor(clazz);
+    }
+
+    static class DriverFunctionWrapper<R> implements Function<Value, R> {
+
+        private final org.neo4j.driver.v1.util.Function<Value, R> delegate;
+
+        DriverFunctionWrapper(org.neo4j.driver.v1.util.Function<Value, R> delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public R apply(Value t) {
+            return delegate.apply(t);
+        }
     }
 
 }

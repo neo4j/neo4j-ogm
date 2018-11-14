@@ -15,6 +15,7 @@ package org.neo4j.ogm.drivers.bolt;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class JavaBasedParameterConversionTest extends SingleDriverTestClass {
         Configuration ogmConfiguration = new Configuration.Builder()
             .uri(getBoltURI().toString())
             .encryptionLevel(Config.EncryptionLevel.NONE.name())
-        //    .useNativeTypes()
+            .useNativeTypes()
             .build();
 
         try (
@@ -56,16 +57,22 @@ public class JavaBasedParameterConversionTest extends SingleDriverTestClass {
                 sessionFactory -> {
                     Session session = sessionFactory.openSession();
 
-                    LocalDateTime originalDateTime = LocalDateTime.of(2018, 10, 11, 15, 24);
+                    LocalDate localDate = LocalDate.of(2018, 11, 14);
+                    LocalDateTime localDateTime = LocalDateTime.of(2018, 10, 11, 15, 24);
 
                     Map<String, Object> parameters = new HashMap<>();
-                    parameters.put("createdAt", originalDateTime);
-                    session.query("CREATE (n:Test {createdAt: $createdAt})", parameters);
+                    parameters.put("a", localDate);
+                    parameters.put("b", localDateTime);
+                    session.query("CREATE (n:Test {a: $a, b: $b})", parameters);
 
-                    Record record = driver.session().run("MATCH (n:Test) RETURN n.createdAt as createdAt").single();
-                    Object createdAt = record.get("createdAt").asObject();
-                    assertThat(createdAt).isInstanceOf(LocalDateTime.class)
-                        .isEqualTo(originalDateTime);
+                    Record record = driver.session().run("MATCH (n:Test) RETURN n.a, n.b").single();
+                    Object a = record.get("n.a").asObject();
+                    assertThat(a).isInstanceOf(LocalDate.class)
+                        .isEqualTo(localDate);
+
+                    Object b = record.get("n.b").asObject();
+                    assertThat(b).isInstanceOf(LocalDateTime.class)
+                        .isEqualTo(localDateTime);
                 });
         }
     }

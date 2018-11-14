@@ -12,6 +12,8 @@
  */
 package org.neo4j.ogm.drivers.embedded.types;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -24,6 +26,11 @@ import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
+import org.neo4j.values.storable.DateValue;
+import org.neo4j.values.storable.LocalDateTimeValue;
+import org.neo4j.values.storable.PointValue;
+import org.neo4j.values.storable.Value;
+import org.neo4j.values.storable.Values;
 
 /**
  * @author Michael J. Simons
@@ -39,6 +46,7 @@ class EmbeddedNativeTypes implements TypeSystem {
         Map<Class<?>, Function> mappedToNativeAdapter = new HashMap<>();
 
         addSpatialFeatures(nativeToMappedAdapter, mappedToNativeAdapter);
+        addJavaTimeFeature(nativeToMappedAdapter, mappedToNativeAdapter);
 
         this.nativeToMappedAdapter = new TypeAdapterLookupDelegate(nativeToMappedAdapter);
         this.mappedToNativeAdapter = new TypeAdapterLookupDelegate(mappedToNativeAdapter);
@@ -46,21 +54,24 @@ class EmbeddedNativeTypes implements TypeSystem {
 
     private static void addSpatialFeatures(Map<Class<?>, Function> nativeToMappedAdapter,
         Map<Class<?>, Function> mappedToNativeAdapter) {
-        Class<?> pointClass = null;
-        try {
-            pointClass = Class
-                .forName("org.neo4j.values.storable.PointValue", false, EmbeddedNativeTypes.class.getClassLoader());
-        } catch (ClassNotFoundException e) {
-            return;
-        }
 
-        nativeToMappedAdapter.put(pointClass, new EmbeddedPointToPointAdapter());
+        nativeToMappedAdapter.put(PointValue.class, new EmbeddedPointToPointAdapter());
 
         PointToEmbeddedPointAdapter pointToEmbeddedPointAdapter = new PointToEmbeddedPointAdapter();
         mappedToNativeAdapter.put(CartesianPoint2d.class, pointToEmbeddedPointAdapter);
         mappedToNativeAdapter.put(CartesianPoint3d.class, pointToEmbeddedPointAdapter);
         mappedToNativeAdapter.put(GeographicPoint2d.class, pointToEmbeddedPointAdapter);
         mappedToNativeAdapter.put(GeographicPoint3d.class, pointToEmbeddedPointAdapter);
+    }
+
+    private static void addJavaTimeFeature(Map<Class<?>, Function> nativeToMappedAdapter,
+        Map<Class<?>, Function> mappedToNativeAdapter) {
+
+        nativeToMappedAdapter.put(DateValue.class, (Function<DateValue, LocalDate>) v -> v.asObjectCopy());
+        nativeToMappedAdapter.put(LocalDateTimeValue.class, (Function<LocalDateTimeValue, LocalDateTime>) v -> v.asObjectCopy());
+
+        mappedToNativeAdapter.put(LocalDate.class, v -> Values.of(v));
+        mappedToNativeAdapter.put(LocalDateTime.class, v -> Values.of(v));
     }
 
     public boolean supportsAsNativeType(Class<?> clazz) {
@@ -76,5 +87,4 @@ class EmbeddedNativeTypes implements TypeSystem {
     public Function<Object, Object> getMappedToNativeTypeAdapter(Class<?> clazz) {
         return mappedToNativeAdapter.findAdapterFor(clazz);
     }
-
 }

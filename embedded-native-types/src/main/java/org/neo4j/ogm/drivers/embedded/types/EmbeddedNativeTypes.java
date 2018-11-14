@@ -16,12 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
-import org.neo4j.ogm.driver.TypeSystemBasedParameterConversion;
+import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.embedded.types.adapter.EmbeddedPointToPointAdapter;
 import org.neo4j.ogm.drivers.embedded.types.adapter.PointToEmbeddedPointAdapter;
-import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
@@ -79,8 +77,4 @@ class EmbeddedNativeTypes implements TypeSystem {
         return mappedToNativeAdapter.findAdapterFor(clazz);
     }
 
-    @Override
-    public ParameterConversion getParameterConversion() {
-        return new TypeSystemBasedParameterConversion(this);
-    }
 }

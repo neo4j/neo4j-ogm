@@ -2,20 +2,19 @@ package org.neo4j.ogm.persistence.types.nativetypes;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.net.URI;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.assertj.core.util.Files;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.driver.v1.Config.EncryptionLevel;
-import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
+import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
@@ -23,30 +22,24 @@ import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 
-/**
- * @author Gerrit Meier
- * @author Michael J. Simons
- */
-public class SpatialTest {
+public abstract class SpatialTestBase {
 
-    private static URI boltURI = TestServerBuilders.newInProcessBuilder().newServer().boltURI();
-
-    private static SessionFactory sessionFactory;
-
-    private Session session;
+    static SessionFactory sessionFactory;
 
     @BeforeClass
     public static void init() {
 
+        File temporaryFolder = Files.newTemporaryFolder();
+        temporaryFolder.deleteOnExit();
+
         Configuration ogmConfiguration = new Configuration.Builder()
-            .uri(boltURI.toString())
-            .encryptionLevel(EncryptionLevel.NONE.name())
+            .uri("file://" + temporaryFolder.getAbsolutePath())
             .useNativeTypes()
             .build();
 
-        BoltDriver driver = new BoltDriver();
+        EmbeddedDriver driver = new EmbeddedDriver();
         driver.configure(ogmConfiguration);
-        sessionFactory = new SessionFactory(driver, SpatialTest.class.getPackage().getName());
+        sessionFactory = new SessionFactory(driver, SpatialTestBase.class.getPackage().getName());
     }
 
     @AfterClass
@@ -56,7 +49,7 @@ public class SpatialTest {
 
     @Test
     public void convertPersistAndLoadGeographicPoint2d() {
-        session = sessionFactory.openSession();
+        Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         GeographicPoint2d point = new GeographicPoint2d(1, 2);
         spatial.setGeographicPoint2d(point);
@@ -69,7 +62,7 @@ public class SpatialTest {
 
     @Test
     public void convertPersistAndLoadGeographicPoint3d() {
-        session = sessionFactory.openSession();
+        Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         GeographicPoint3d point = new GeographicPoint3d(1, 2, 3);
         spatial.setGeographicPoint3d(point);
@@ -82,7 +75,7 @@ public class SpatialTest {
 
     @Test
     public void convertPersistAndLoadCartesianPoint2d() {
-        session = sessionFactory.openSession();
+        Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         CartesianPoint2d point = new CartesianPoint2d(1, 2);
         spatial.setCartesianPoint2d(point);
@@ -95,7 +88,7 @@ public class SpatialTest {
 
     @Test
     public void convertPersistAndLoadCartesianPoint3d() {
-        session = sessionFactory.openSession();
+        Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         CartesianPoint3d point = new CartesianPoint3d(1, 2, 3);
         spatial.setCartesianPoint3d(point);

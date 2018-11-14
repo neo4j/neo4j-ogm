@@ -19,9 +19,10 @@ import java.util.function.Function;
 import org.neo4j.driver.v1.types.Point;
 import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
+import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.driver.TypeSystemBasedParameterConversion;
 import org.neo4j.ogm.drivers.bolt.types.adapter.BoltPointToPointAdapter;
 import org.neo4j.ogm.drivers.bolt.types.adapter.PointToBoltPointAdapter;
-import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
@@ -73,6 +74,6 @@ class BoltNativeTypes implements TypeSystem {
 
     @Override
     public ParameterConversion getParameterConversion() {
-        return new BoltNativeParameterConversion(this);
+        return new TypeSystemBasedParameterConversion(this);
     }
 }

@@ -103,10 +103,6 @@ public class BoltEntityAdapter {
         return rels;
     }
 
-    public Map<String, Object> convertParameters(final Map<String, Object> originalParameter) {
-        return typeSystem.getParameterConversion().convertParameters(originalParameter);
-    }
-
     private Object toMapped(Value value) {
 
         if (value == null) {

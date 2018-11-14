@@ -22,6 +22,7 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.driver.v1.exceptions.DatabaseException;
 import org.neo4j.driver.v1.exceptions.TransientException;
+import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.drivers.bolt.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.bolt.response.GraphRowModelResponse;
@@ -57,13 +58,16 @@ public class BoltRequest implements Request {
 
     private final TransactionManager transactionManager;
 
+    private final ParameterConversion parameterConversion;
+
     private final BoltEntityAdapter entityAdapter;
 
     private final Function<String, String> cypherModification;
 
-    public BoltRequest(TransactionManager transactionManager, BoltEntityAdapter entityAdapter,
+    public BoltRequest(TransactionManager transactionManager, ParameterConversion parameterConversion, BoltEntityAdapter entityAdapter,
         Function<String, String> cypherModification) {
         this.transactionManager = transactionManager;
+        this.parameterConversion = parameterConversion;
         this.entityAdapter = entityAdapter;
         this.cypherModification = cypherModification;
     }
@@ -145,7 +149,7 @@ public class BoltRequest implements Request {
 
     private StatementResult executeRequest(Statement request) {
         try {
-            Map<String, Object> parameterMap = this.entityAdapter.convertParameters(request.getParameters());
+            Map<String, Object> parameterMap = this.parameterConversion.convertParameters(request.getParameters());
             String cypher = cypherModification.apply(request.getStatement());
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Request: {} with params {}", cypher, parameterMap);

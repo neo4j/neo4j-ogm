@@ -107,10 +107,6 @@ public class EmbeddedEntityAdapter {
         return properties;
     }
 
-    public Map<String, Object> convertParameters(final Map<String, Object> originalParameter) {
-        return typeSystem.getParameterConversion().convertParameters(originalParameter);
-    }
-
     private Object toMapped(Object value) {
 
         if (value == null) {

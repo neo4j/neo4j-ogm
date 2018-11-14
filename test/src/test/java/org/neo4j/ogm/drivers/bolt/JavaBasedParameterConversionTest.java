@@ -43,7 +43,7 @@ public class JavaBasedParameterConversionTest extends SingleDriverTestClass {
         Configuration ogmConfiguration = new Configuration.Builder()
             .uri(getBoltURI().toString())
             .encryptionLevel(Config.EncryptionLevel.NONE.name())
-            .useNativeTypes()
+        //    .useNativeTypes()
             .build();
 
         try (

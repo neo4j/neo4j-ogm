@@ -30,9 +30,7 @@ public interface ParameterConversion {
     Map<String, Object> convertParameters(Map<String, Object> originalParameter);
 
     /**
-     * The "old" way of converting things. Based on Jacksons Object Mapper.
-     *
-     * @author Michael J. Simons
+     * The "old" way of converting things. Based on Jackson's Object Mapper.
      */
     enum DefaultParameterConversion implements ParameterConversion {
 

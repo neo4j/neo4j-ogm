@@ -21,6 +21,7 @@ import java.util.function.Function;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.QueryExecutionException;
 import org.neo4j.graphdb.Result;
+import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
 import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
@@ -56,17 +57,20 @@ public class EmbeddedRequest implements Request {
     private final GraphDatabaseService graphDatabaseService;
     private final TransactionManager transactionManager;
 
+    private final ParameterConversion parameterConversion;
+
     private final EmbeddedEntityAdapter entityAdapter;
 
     private final Function<String, String> cypherModification;
 
     public EmbeddedRequest(GraphDatabaseService graphDatabaseService,
         TransactionManager transactionManager,
-        EmbeddedEntityAdapter entityAdapter,
+        ParameterConversion parameterConversion, EmbeddedEntityAdapter entityAdapter,
         Function<String, String> cypherModification
     ) {
         this.graphDatabaseService = graphDatabaseService;
         this.transactionManager = transactionManager;
+        this.parameterConversion = parameterConversion;
         this.entityAdapter = entityAdapter;
         this.cypherModification = cypherModification;
     }
@@ -150,7 +154,7 @@ public class EmbeddedRequest implements Request {
     private Result executeRequest(Statement request) {
 
         try {
-            Map<String, Object> parameterMap = this.entityAdapter.convertParameters(request.getParameters());
+            Map<String, Object> parameterMap = this.parameterConversion.convertParameters(request.getParameters());
             String cypher = cypherModification.apply(request.getStatement());
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Request: {} with params {}", cypher, parameterMap);

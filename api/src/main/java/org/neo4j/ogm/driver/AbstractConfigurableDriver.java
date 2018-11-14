@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.driver.ParameterConversion.DefaultParameterConversion;
 import org.neo4j.ogm.spi.CypherModificationProvider;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -48,13 +49,12 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractConfigurableDriver implements Driver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Driver.class);
-
     private final ServiceLoader<CypherModificationProvider> cypherModificationProviderLoader =
         ServiceLoader.load(CypherModificationProvider.class);
 
     protected Configuration configuration;
     protected TypeSystem typeSystem = Driver.super.getTypeSystem();
+    protected ParameterConversion parameterConversion = DefaultParameterConversion.INSTANCE;
     protected TransactionManager transactionManager;
 
     /**
@@ -89,8 +89,9 @@ public abstract class AbstractConfigurableDriver implements Driver {
      */
     @Override
     public void configure(Configuration configuration) {
+
         this.configuration = configuration;
-        this.typeSystem = loadTypeSystem();
+        initializeTypeSystem();
     }
 
     @Override
@@ -141,26 +142,27 @@ public abstract class AbstractConfigurableDriver implements Driver {
     }
 
     /**
-     * Loads the configured type system.
+     * Initializes the configured type system.
      *
-     * @return Defaults to {@link TypeSystem.NoNativeTypes} if the configuration don't uses native types.
      * @throws IllegalStateException In case the driver supports native types but those types aren't on the class path
      * @since 3.2
      */
-    private TypeSystem loadTypeSystem() {
+    private void initializeTypeSystem() {
 
-        TypeSystem typeSystem = TypeSystem.NoNativeTypes.INSTANCE;
-        if (this.configuration != null && this.configuration.getUseNativeTypes()) {
+        if (this.configuration == null || !this.configuration.getUseNativeTypes()) {
+            this.typeSystem = TypeSystem.NoNativeTypes.INSTANCE;
+            this.parameterConversion = DefaultParameterConversion.INSTANCE;
+        } else {
             try {
-                typeSystem = loadNativeTypes(getTypeSystemName());
+                this.typeSystem = loadNativeTypes(getTypeSystemName());
+                this.parameterConversion = new TypeSystemBasedParameterConversion(this.typeSystem);
             } catch (UnsupportedOperationException e) {
-                LOGGER.warn("Neo4j-OGM driver {} doesn't support native types.", this.getClass().getName());
+                throw new IllegalStateException("Neo4j-OGM driver " + this.getClass().getName() + " doesn't support native types.");
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(
                     "Cannot use native types. Make sure you have the native module for your driver on the classpath.");
             }
         }
-        return typeSystem;
     }
 
     @Override

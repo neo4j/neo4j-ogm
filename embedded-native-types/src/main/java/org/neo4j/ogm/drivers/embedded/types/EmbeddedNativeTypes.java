@@ -18,6 +18,7 @@ import java.util.function.Function;
 
 import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
+import org.neo4j.ogm.driver.TypeSystemBasedParameterConversion;
 import org.neo4j.ogm.drivers.embedded.types.adapter.EmbeddedPointToPointAdapter;
 import org.neo4j.ogm.drivers.embedded.types.adapter.PointToEmbeddedPointAdapter;
 import org.neo4j.ogm.driver.TypeSystem;
@@ -80,6 +81,6 @@ class EmbeddedNativeTypes implements TypeSystem {
 
     @Override
     public ParameterConversion getParameterConversion() {
-        return new EmbeddedBasedParameterConversion(this);
+        return new TypeSystemBasedParameterConversion(this);
     }
 }

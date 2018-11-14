@@ -10,32 +10,29 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.drivers.bolt.types;
+package org.neo4j.ogm.driver;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.driver.v1.Value;
-import org.neo4j.driver.v1.Values;
-import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.driver.TypeSystem;
 
 /**
- * This conversion mode first tries to map all parameters to a {@link Value} and uses them directly. For all non supported
+ * This conversion mode first tries to map all parameters to a FOOBAR  and uses them directly. For all non supported
  * object types, it falls back to the default object mapper based conversion.
  *
  * @author Michael J. Simons
  * @author Gerrit Meier
  */
-class BoltNativeParameterConversion implements ParameterConversion {
+class TypeSystemBasedParameterConversion implements ParameterConversion {
 
     private final ParameterConversion fallback = DefaultParameterConversion.INSTANCE;
 
     private final TypeSystem typeSystem;
 
-    BoltNativeParameterConversion(TypeSystem typeSystem) {
+    TypeSystemBasedParameterConversion(TypeSystem typeSystem) {
         this.typeSystem = typeSystem;
     }
 
@@ -56,9 +53,12 @@ class BoltNativeParameterConversion implements ParameterConversion {
                 for (Object value : (List<Object>) unconvertedValue) {
                     if (value instanceof Map) {
                         convertedParameter.put(parameterKey, convertParametersImpl((Map<String, Object>) value));
-                    } else {
-                        Value convertedValue = Values.value(unconvertedValue);
+                    } else if (typeSystem.supportsAsNativeType(unconvertedValue.getClass())) {
+                        Object convertedValue = typeSystem.getMappedToNativeTypeAdapter(unconvertedValue.getClass())
+                            .apply(unconvertedValue);
                         convertedParameter.put(parameterKey, convertedValue);
+                    } else {
+                        unconvertedParameter.put(parameterKey, unconvertedValue);
                     }
                 }
             } else if (unconvertedValue instanceof Map) {
@@ -68,12 +68,7 @@ class BoltNativeParameterConversion implements ParameterConversion {
                     .apply(unconvertedValue);
                 convertedParameter.put(parameterKey, convertedValue);
             } else {
-                try {
-                    Value convertedValue = Values.value(unconvertedValue);
-                    convertedParameter.put(parameterKey, convertedValue);
-                } catch (ClientException e) {
-                    unconvertedParameter.put(parameterKey, unconvertedValue);
-                }
+            unconvertedParameter.put(parameterKey, unconvertedValue);
             }
         });
 

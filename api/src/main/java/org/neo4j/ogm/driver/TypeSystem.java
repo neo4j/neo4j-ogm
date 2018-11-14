@@ -49,13 +49,6 @@ public interface TypeSystem {
     }
 
     /**
-     * @return The parameter conversion that fits this type system. Defaults to the "classic" one done by Jackson's ObjectMapper.
-     */
-    default ParameterConversion getParameterConversion() {
-        return DefaultParameterConversion.INSTANCE;
-    }
-
-    /**
      * An empty set of native types.
      */
     enum NoNativeTypes implements TypeSystem {

@@ -54,6 +54,7 @@ class BoltNativeTypes implements TypeSystem {
 
         addSpatialFeatures(nativeToMappedAdapter, mappedToNativeAdapter);
         addJavaTimeFeature(nativeToMappedAdapter, mappedToNativeAdapter);
+        addPassthroughForBuildInTypes(mappedToNativeAdapter);
 
         this.nativeToMappedAdapter = new TypeAdapterLookupDelegate(nativeToMappedAdapter);
         this.mappedToNativeAdapter = new TypeAdapterLookupDelegate(mappedToNativeAdapter);
@@ -84,6 +85,20 @@ class BoltNativeTypes implements TypeSystem {
         mappedToNativeAdapter.put(Duration.class, Values::value);
         mappedToNativeAdapter.put(Period.class, Values::value);
         mappedToNativeAdapter.put(TemporalAmount.class, Values::value);
+    }
+
+    private static void addPassthroughForBuildInTypes(Map<Class<?>, Function> mappedToNativeAdapter) {
+        /*
+            // This allows passing in native parameters like this
+            Map<String, Object> params  =new HashMap<>();
+            params.put("x", Values.isoDuration(526, 45, 97200, 0).asIsoDuration());
+            session.queryForObject(Long.class, "CREATE (s:`DatesTestBase$Sometime` {temporalAmount: $x}) RETURN id(s)",params);
+         */
+        mappedToNativeAdapter.put(PointValue.class, Function.identity());
+
+        mappedToNativeAdapter.put(DateValue.class, Function.identity());
+        mappedToNativeAdapter.put(LocalDateTimeValue.class, Function.identity());
+        mappedToNativeAdapter.put(DurationValue.class, Function.identity());
     }
 
     public boolean supportsAsNativeType(Class<?> clazz) {

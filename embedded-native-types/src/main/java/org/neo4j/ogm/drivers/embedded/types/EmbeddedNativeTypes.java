@@ -51,6 +51,7 @@ class EmbeddedNativeTypes implements TypeSystem {
 
         addSpatialFeatures(nativeToMappedAdapter, mappedToNativeAdapter);
         addJavaTimeFeature(nativeToMappedAdapter, mappedToNativeAdapter);
+        addPassthroughForBuildInTypes(mappedToNativeAdapter);
 
         this.nativeToMappedAdapter = new TypeAdapterLookupDelegate(nativeToMappedAdapter);
         this.mappedToNativeAdapter = new TypeAdapterLookupDelegate(mappedToNativeAdapter);
@@ -81,6 +82,14 @@ class EmbeddedNativeTypes implements TypeSystem {
         mappedToNativeAdapter.put(Duration.class, Values::of);
         mappedToNativeAdapter.put(Period.class, Values::of);
         mappedToNativeAdapter.put(TemporalAmount.class, Values::of);
+    }
+
+    private static void addPassthroughForBuildInTypes(Map<Class<?>, Function> mappedToNativeAdapter) {
+        mappedToNativeAdapter.put(PointValue.class, Function.identity());
+
+        mappedToNativeAdapter.put(DateValue.class, Function.identity());
+        mappedToNativeAdapter.put(LocalDateTimeValue.class, Function.identity());
+        mappedToNativeAdapter.put(DurationValue.class, Function.identity());
     }
 
     public boolean supportsAsNativeType(Class<?> clazz) {

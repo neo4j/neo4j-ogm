@@ -23,12 +23,12 @@ import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.neo4j.ogm.exception.core.AmbiguousBaseClassException;
 import org.neo4j.ogm.metadata.schema.DomainInfoSchemaBuilder;
 import org.neo4j.ogm.metadata.schema.Schema;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
-import org.neo4j.ogm.driver.TypeSystem;
-import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,6 @@ public class MetaData {
     private final DomainInfo domainInfo;
     private final Schema schema;
     private Map<String, ClassInfo> classInfos = new HashMap<>();
-    private final TypeSystem typeSystem;
 
     public MetaData(String... packages) {
         this(NoNativeTypes.INSTANCE, packages);
@@ -52,7 +51,6 @@ public class MetaData {
     public MetaData(TypeSystem typeSystem, String... packages) {
         this.domainInfo = DomainInfo.create(typeSystem, packages);
         this.schema = new DomainInfoSchemaBuilder(domainInfo).build();
-        this.typeSystem = typeSystem;
     }
 
     public Schema getSchema() {
@@ -311,7 +309,4 @@ public class MetaData {
         this.domainInfo.registerConversionCallback(conversionCallback);
     }
 
-    public TypeSystem getTypeSystem() {
-        return typeSystem;
-    }
 }

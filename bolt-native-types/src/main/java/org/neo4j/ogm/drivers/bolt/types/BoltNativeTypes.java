@@ -15,16 +15,22 @@ package org.neo4j.ogm.drivers.bolt.types;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetTime;
 import java.time.Period;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.neo4j.driver.internal.value.DateTimeValue;
 import org.neo4j.driver.internal.value.DateValue;
 import org.neo4j.driver.internal.value.DurationValue;
 import org.neo4j.driver.internal.value.LocalDateTimeValue;
+import org.neo4j.driver.internal.value.LocalTimeValue;
 import org.neo4j.driver.internal.value.PointValue;
+import org.neo4j.driver.internal.value.TimeValue;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.Values;
 import org.neo4j.driver.v1.types.IsoDuration;
@@ -76,10 +82,17 @@ class BoltNativeTypes implements TypeSystem {
         Map<Class<?>, Function> mappedToNativeAdapter) {
 
         nativeToMappedAdapter.put(DateValue.class, new DriverFunctionWrapper<>(Values.ofLocalDate()));
+        nativeToMappedAdapter.put(TimeValue.class, new DriverFunctionWrapper<>(Values.ofOffsetTime()));
+        nativeToMappedAdapter.put(LocalTimeValue.class, new DriverFunctionWrapper<>(Values.ofLocalTime()));
+        nativeToMappedAdapter.put(DateTimeValue.class, new DriverFunctionWrapper<>(Values.ofZonedDateTime()));
         nativeToMappedAdapter.put(LocalDateTimeValue.class, new DriverFunctionWrapper<>(Values.ofLocalDateTime()));
+
         nativeToMappedAdapter.put(IsoDuration.class, new TemporalAmountAdapter());
 
         mappedToNativeAdapter.put(LocalDate.class, Values::value);
+        mappedToNativeAdapter.put(OffsetTime.class, Values::value);
+        mappedToNativeAdapter.put(LocalTime.class, Values::value);
+        mappedToNativeAdapter.put(ZonedDateTime.class, Values::value);
         mappedToNativeAdapter.put(LocalDateTime.class, Values::value);
 
         mappedToNativeAdapter.put(Duration.class, Values::value);
@@ -87,6 +100,8 @@ class BoltNativeTypes implements TypeSystem {
         mappedToNativeAdapter.put(TemporalAmount.class, Values::value);
     }
 
+    // Those look the same as in embbedded native types, but the packages are different
+    @SuppressWarnings("Duplicates")
     private static void addPassthroughForBuildInTypes(Map<Class<?>, Function> mappedToNativeAdapter) {
         /*
             // This allows passing in native parameters like this
@@ -97,7 +112,11 @@ class BoltNativeTypes implements TypeSystem {
         mappedToNativeAdapter.put(PointValue.class, Function.identity());
 
         mappedToNativeAdapter.put(DateValue.class, Function.identity());
+        mappedToNativeAdapter.put(TimeValue.class, Function.identity());
+        mappedToNativeAdapter.put(LocalTimeValue.class, Function.identity());
+        mappedToNativeAdapter.put(DateTimeValue.class, Function.identity());
         mappedToNativeAdapter.put(LocalDateTimeValue.class, Function.identity());
+
         mappedToNativeAdapter.put(DurationValue.class, Function.identity());
     }
 
@@ -128,5 +147,4 @@ class BoltNativeTypes implements TypeSystem {
             return delegate.apply(t);
         }
     }
-
 }

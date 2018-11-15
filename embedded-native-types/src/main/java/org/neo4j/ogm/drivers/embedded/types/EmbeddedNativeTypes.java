@@ -15,7 +15,10 @@ package org.neo4j.ogm.drivers.embedded.types;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetTime;
 import java.time.Period;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,10 +33,13 @@ import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
+import org.neo4j.values.storable.DateTimeValue;
 import org.neo4j.values.storable.DateValue;
 import org.neo4j.values.storable.DurationValue;
 import org.neo4j.values.storable.LocalDateTimeValue;
+import org.neo4j.values.storable.LocalTimeValue;
 import org.neo4j.values.storable.PointValue;
+import org.neo4j.values.storable.TimeValue;
 import org.neo4j.values.storable.Values;
 
 /**
@@ -73,22 +79,35 @@ class EmbeddedNativeTypes implements TypeSystem {
         Map<Class<?>, Function> mappedToNativeAdapter) {
 
         nativeToMappedAdapter.put(DateValue.class, (Function<DateValue, LocalDate>) v -> v.asObjectCopy());
-        nativeToMappedAdapter
-            .put(LocalDateTimeValue.class, (Function<LocalDateTimeValue, LocalDateTime>) v -> v.asObjectCopy());
+        nativeToMappedAdapter.put(TimeValue.class, (Function<TimeValue, OffsetTime>) v -> v.asObjectCopy());
+        nativeToMappedAdapter.put(LocalTimeValue.class, (Function<LocalTimeValue, LocalTime>) v -> v.asObjectCopy());
+        nativeToMappedAdapter.put(DateTimeValue.class, (Function<DateTimeValue, ZonedDateTime>) v -> v.asObjectCopy());
+        nativeToMappedAdapter.put(LocalDateTimeValue.class, (Function<LocalDateTimeValue, LocalDateTime>) v -> v.asObjectCopy());
+
         nativeToMappedAdapter.put(DurationValue.class, new TemporalAmountAdapter());
 
         mappedToNativeAdapter.put(LocalDate.class, Values::of);
+        mappedToNativeAdapter.put(OffsetTime.class, Values::of);
+        mappedToNativeAdapter.put(LocalTime.class, Values::of);
+        mappedToNativeAdapter.put(ZonedDateTime.class, Values::of);
         mappedToNativeAdapter.put(LocalDateTime.class, Values::of);
+
         mappedToNativeAdapter.put(Duration.class, Values::of);
         mappedToNativeAdapter.put(Period.class, Values::of);
         mappedToNativeAdapter.put(TemporalAmount.class, Values::of);
     }
 
+    // Those look the same as in bolt native types, but the packages are different
+    @SuppressWarnings("Duplicates")
     private static void addPassthroughForBuildInTypes(Map<Class<?>, Function> mappedToNativeAdapter) {
         mappedToNativeAdapter.put(PointValue.class, Function.identity());
 
         mappedToNativeAdapter.put(DateValue.class, Function.identity());
+        mappedToNativeAdapter.put(TimeValue.class, Function.identity());
+        mappedToNativeAdapter.put(LocalTimeValue.class, Function.identity());
+        mappedToNativeAdapter.put(DateTimeValue.class, Function.identity());
         mappedToNativeAdapter.put(LocalDateTimeValue.class, Function.identity());
+
         mappedToNativeAdapter.put(DurationValue.class, Function.identity());
     }
 

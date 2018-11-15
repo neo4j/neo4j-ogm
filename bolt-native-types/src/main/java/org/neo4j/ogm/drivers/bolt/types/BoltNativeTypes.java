@@ -12,21 +12,28 @@
  */
 package org.neo4j.ogm.drivers.bolt.types;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.neo4j.driver.internal.value.DateValue;
+import org.neo4j.driver.internal.value.DurationValue;
 import org.neo4j.driver.internal.value.LocalDateTimeValue;
+import org.neo4j.driver.internal.value.PointValue;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.Values;
+import org.neo4j.driver.v1.types.IsoDuration;
 import org.neo4j.driver.v1.types.Point;
 import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
 import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.types.adapter.BoltValueToPointAdapter;
 import org.neo4j.ogm.drivers.bolt.types.adapter.PointToBoltValueAdapter;
+import org.neo4j.ogm.types.adapter.TemporalAmountAdapter;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
@@ -69,9 +76,14 @@ class BoltNativeTypes implements TypeSystem {
 
         nativeToMappedAdapter.put(DateValue.class, new DriverFunctionWrapper<>(Values.ofLocalDate()));
         nativeToMappedAdapter.put(LocalDateTimeValue.class, new DriverFunctionWrapper<>(Values.ofLocalDateTime()));
+        nativeToMappedAdapter.put(IsoDuration.class, new TemporalAmountAdapter());
 
-        mappedToNativeAdapter.put(LocalDate.class, v -> Values.value(v));
-        mappedToNativeAdapter.put(LocalDateTime.class, v -> Values.value(v));
+        mappedToNativeAdapter.put(LocalDate.class, Values::value);
+        mappedToNativeAdapter.put(LocalDateTime.class, Values::value);
+
+        mappedToNativeAdapter.put(Duration.class, Values::value);
+        mappedToNativeAdapter.put(Period.class, Values::value);
+        mappedToNativeAdapter.put(TemporalAmount.class, Values::value);
     }
 
     public boolean supportsAsNativeType(Class<?> clazz) {
@@ -80,12 +92,12 @@ class BoltNativeTypes implements TypeSystem {
 
     @Override
     public Function<Object, Object> getNativeToMappedTypeAdapter(Class<?> clazz) {
-        return nativeToMappedAdapter.findAdapterFor(clazz);
+        return nativeToMappedAdapter.getAdapterFor(clazz);
     }
 
     @Override
     public Function<Object, Object> getMappedToNativeTypeAdapter(Class<?> clazz) {
-        return mappedToNativeAdapter.findAdapterFor(clazz);
+        return mappedToNativeAdapter.getAdapterFor(clazz);
     }
 
     static class DriverFunctionWrapper<R> implements Function<Value, R> {

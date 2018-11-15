@@ -12,8 +12,11 @@
  */
 package org.neo4j.ogm.drivers.embedded.types;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -22,11 +25,13 @@ import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
 import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.embedded.types.adapter.EmbeddedValueToPointAdapter;
 import org.neo4j.ogm.drivers.embedded.types.adapter.PointToEmbeddedValueAdapter;
+import org.neo4j.ogm.types.adapter.TemporalAmountAdapter;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 import org.neo4j.values.storable.DateValue;
+import org.neo4j.values.storable.DurationValue;
 import org.neo4j.values.storable.LocalDateTimeValue;
 import org.neo4j.values.storable.PointValue;
 import org.neo4j.values.storable.Values;
@@ -67,10 +72,15 @@ class EmbeddedNativeTypes implements TypeSystem {
         Map<Class<?>, Function> mappedToNativeAdapter) {
 
         nativeToMappedAdapter.put(DateValue.class, (Function<DateValue, LocalDate>) v -> v.asObjectCopy());
-        nativeToMappedAdapter.put(LocalDateTimeValue.class, (Function<LocalDateTimeValue, LocalDateTime>) v -> v.asObjectCopy());
+        nativeToMappedAdapter
+            .put(LocalDateTimeValue.class, (Function<LocalDateTimeValue, LocalDateTime>) v -> v.asObjectCopy());
+        nativeToMappedAdapter.put(DurationValue.class, new TemporalAmountAdapter());
 
-        mappedToNativeAdapter.put(LocalDate.class, v -> Values.of(v));
-        mappedToNativeAdapter.put(LocalDateTime.class, v -> Values.of(v));
+        mappedToNativeAdapter.put(LocalDate.class, Values::of);
+        mappedToNativeAdapter.put(LocalDateTime.class, Values::of);
+        mappedToNativeAdapter.put(Duration.class, Values::of);
+        mappedToNativeAdapter.put(Period.class, Values::of);
+        mappedToNativeAdapter.put(TemporalAmount.class, Values::of);
     }
 
     public boolean supportsAsNativeType(Class<?> clazz) {
@@ -79,11 +89,11 @@ class EmbeddedNativeTypes implements TypeSystem {
 
     @Override
     public Function<Object, Object> getNativeToMappedTypeAdapter(Class<?> clazz) {
-        return nativeToMappedAdapter.findAdapterFor(clazz);
+        return nativeToMappedAdapter.getAdapterFor(clazz);
     }
 
     @Override
     public Function<Object, Object> getMappedToNativeTypeAdapter(Class<?> clazz) {
-        return mappedToNativeAdapter.findAdapterFor(clazz);
+        return mappedToNativeAdapter.getAdapterFor(clazz);
     }
 }

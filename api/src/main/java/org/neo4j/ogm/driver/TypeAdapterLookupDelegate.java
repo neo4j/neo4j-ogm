@@ -3,6 +3,7 @@ package org.neo4j.ogm.driver;
 import static java.util.Collections.*;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -25,24 +26,25 @@ public final class TypeAdapterLookupDelegate {
      * @param clazz The class for which an adapter is needed.
      * @return An adapter to convert an object of clazz to native or mapped, identity function if there's no adapter
      */
-    public Function<Object, Object> findAdapterFor(Class<?> clazz) {
+    public Function<Object, Object> getAdapterFor(Class<?> clazz) {
 
-        Function<Object, Object> adapter;
-        // Look for direct match
-        if (hasAdapterFor(clazz)) {
-            adapter = registeredTypeAdapter.get(clazz);
-        } else {
-            adapter = registeredTypeAdapter.entrySet()
-                .stream().filter(e -> e.getKey().isAssignableFrom(clazz))
-                .findFirst()
-                .map(Map.Entry::getValue)
-                .orElseGet(Function::identity);
-        }
-
+        Function<Object, Object> adapter = findAdapterFor(clazz).orElseGet(Function::identity);
         return object -> object == null ? null : adapter.apply(object);
     }
 
     public boolean hasAdapterFor(Class<?> clazz) {
-        return this.registeredTypeAdapter.containsKey(clazz);
+        return findAdapterFor(clazz).isPresent();
+    }
+
+    private Optional<Function<Object, Object>> findAdapterFor(Class<?> clazz) {
+
+        if (this.registeredTypeAdapter.containsKey(clazz)) {
+            return Optional.of(registeredTypeAdapter.get(clazz));
+        } else {
+            return registeredTypeAdapter.entrySet()
+                .stream().filter(e -> e.getKey().isAssignableFrom(clazz))
+                .findFirst()
+                .map(Map.Entry::getValue);
+        }
     }
 }

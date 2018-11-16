@@ -20,8 +20,146 @@
 
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
-    <packaging>pom</packaging>
     <version>3.1.5-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Neo4j Object-Graph Mapper</name>
+    <description>Annotation based Object Graph Mapper for Neo4j Server with Repository and Conversion support
+    </description>
+    <url>https://neo4j.com/developer/neo4j-ogm</url>
+    <inceptionYear>2015</inceptionYear>
+    <organization>
+        <name>Neo Technology, Inc.</name>
+        <url>http://neotechnology.com/</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>gmeier</id>
+            <name>Gerrit Meier</name>
+            <email>gerrit.meier at neo4j.com</email>
+            <organization>Neo Technology</organization>
+            <organizationUrl>http://www.neotechnology.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>msimons</id>
+            <name>Michael Simons</name>
+            <email>michael.simons at neo4j.com</email>
+            <organization>Neo Technology</organization>
+            <organizationUrl>http://www.neotechnology.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>lwesthnielsen</id>
+            <name>Lasse Westh-Nielsen</name>
+            <email>lasse.westh-nielsen at neo4j.com</email>
+            <organization>Neo Technology</organization>
+            <organizationUrl>http://www.neotechnology.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>jjaderberg</id>
+            <name>Jonatan Jäderberg</name>
+            <email>jonatan.jaderberg at neo4j.com</email>
+            <organization>Neo Technology</organization>
+            <organizationUrl>http://www.neotechnology.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>vbickers</id>
+            <name>Vince Bickers</name>
+            <email>vince at graphaware.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>GMT</timezone>
+        </developer>
+        <developer>
+            <id>lmisquitta</id>
+            <name>Luanne Misquitta</name>
+            <email>luanne at graphaware.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+5:30</timezone>
+        </developer>
+        <developer>
+            <id>fhartman</id>
+            <name>František Hartman</name>
+            <email>frant.hartm at gmail.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>mangrish</id>
+            <name>Mark Angrish</name>
+            <email>mark at graphaware.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+11</timezone>
+        </developer>
+        <developer>
+            <id>nmervaillie</id>
+            <name>Nicolas Mervaillie</name>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>jasperblues</id>
+            <name>Jasper Blues</name>
+            <email>jasper at graphaware.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+        <developer>
+            <id>atg</id>
+            <name>Adam George</name>
+            <email>adam at graphaware.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>GMT</timezone>
+        </developer>
+    </developers>
 
     <modules>
         <module>api</module>
@@ -31,6 +169,28 @@
         <module>core</module>
         <module>test</module>
     </modules>
+
+    <scm>
+        <url>http://github.com/neo4j/neo4j-ogm/</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/neo4j/neo4j-ogm/issues</url>
+    </issueManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>jfrog-release</id>
+            <name>neo-releases</name>
+            <url>https://neo.jfrog.io/neo/ogm-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>jfrog-snapshots</id>
+            <name>neo-snapshots</name>
+            <url>https://neo.jfrog.io/neo/ogm-local</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <!-- to be overridden in sub modules -->
@@ -409,45 +569,6 @@
                 <ogm.properties>ogm-http.properties</ogm.properties>
             </properties>
         </profile>
-
     </profiles>
-
-    <!-- Stuff Maven Central needs -->
-    <name>Neo4j Object-Graph Mapper</name>
-    <description>Annotation based Object Graph Mapper for Neo4j Server with Repository and Conversion support
-    </description>
-    <organization>
-        <name>Neo Technology, Inc.</name>
-        <url>http://neotechnology.com/</url>
-    </organization>
-    <developers>
-        <developer>
-            <id>neo-technology</id>
-        </developer>
-    </developers>
-    <url>http://github.com/neo4j/neo4j-ogm/</url>
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <scm>
-        <url>http://github.com/neo4j/neo4j-ogm/</url>
-    </scm>
-
-    <distributionManagement>
-        <repository>
-            <id>jfrog-release</id>
-            <name>neo-releases</name>
-            <url>https://neo.jfrog.io/neo/ogm-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>jfrog-snapshots</id>
-            <name>neo-snapshots</name>
-            <url>https://neo.jfrog.io/neo/ogm-local</url>
-        </snapshotRepository>
-    </distributionManagement>
 
 </project>

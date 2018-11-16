@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
   ~ Copyright (c) 2002-2018 "Neo Technology,"
   ~ Network Engine for Objects in Lund AB [http://neotechnology.com]
@@ -15,28 +16,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>neo4j-ogm</artifactId>
-    <groupId>org.neo4j</groupId>
-    <version>3.1.5-SNAPSHOT</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>neo4j-ogm-api</artifactId>
+    <modelVersion>4.0.0</modelVersion>
 
-  <properties>
-    <java-module-name>org.neo4j.ogm.drivers.api</java-module-name>
-  </properties>
+    <parent>
+        <artifactId>neo4j-ogm</artifactId>
+        <groupId>org.neo4j</groupId>
+        <version>3.1.5-SNAPSHOT</version>
+    </parent>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-  </dependencies>
+    <artifactId>neo4j-ogm-api</artifactId>
+
+    <name>Neo4j-OGM Api</name>
+    <description>Neo4j-OGM's internal Api for connecting different transports.</description>
+    <url>https://neo4j.com/developer/neo4j-ogm</url>
+
+    <properties>
+        <java-module-name>org.neo4j.ogm.drivers.api</java-module-name>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+    </dependencies>
 </project>
 

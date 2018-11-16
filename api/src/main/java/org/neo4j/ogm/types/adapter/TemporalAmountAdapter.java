@@ -50,6 +50,12 @@ public class TemporalAmountAdapter implements Function<TemporalAmount, TemporalA
         ChronoUnit.NANOS
     };
 
+    private static final short FIELD_YEAR = 0;
+    private static final short FIELD_MONTH = 1;
+    private static final short FIELD_DAY = 2;
+    private static final short FIELD_SECONDS = 3;
+    private static final short FIELD_NANOS = 4;
+
     private static final BiFunction<TemporalAmount, TemporalUnit, Integer> TEMPORAL_UNIT_EXTRACTOR = (d, u) -> {
         if (!d.getUnits().contains(u)) {
             return 0;
@@ -64,16 +70,16 @@ public class TemporalAmountAdapter implements Function<TemporalAmount, TemporalA
         int type = 0;
         for (int i = 0; i < SUPPORTED_UNITS.length; ++i) {
             values[i] = TEMPORAL_UNIT_EXTRACTOR.apply(internalTemporalAmountRepresentation, SUPPORTED_UNITS[i]);
-            type |= values[i] == 0 ? 0 : 0b10000 >> i;
+            type |= (values[i] == 0) ? 0 : (0b10000 >> i);
         }
 
         boolean couldBePeriod = couldBePeriod(type);
         boolean couldBeDuration = couldBeDuration(type);
 
         if (couldBePeriod && !couldBeDuration) {
-            return Period.of(values[0], values[1], values[2]).normalized();
+            return Period.of(values[FIELD_YEAR], values[FIELD_MONTH], values[FIELD_DAY]).normalized();
         } else if (couldBeDuration && !couldBePeriod) {
-            return Duration.ofSeconds(values[3]).plusNanos(values[4]);
+            return Duration.ofSeconds(values[FIELD_SECONDS]).plusNanos(values[FIELD_NANOS]);
         } else {
             return internalTemporalAmountRepresentation;
         }

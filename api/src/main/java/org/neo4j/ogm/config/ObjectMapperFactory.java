@@ -16,21 +16,24 @@ package org.neo4j.ogm.config;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * Produces a singleton ObjectMapper
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
-public class ObjectMapperFactory {
+public final class ObjectMapperFactory {
 
     private static final JsonFactory jsonFactory = new JsonFactory();
     private static final ObjectMapper mapper = new ObjectMapper(jsonFactory)
+        .registerModule(new Jdk8Module())
+        .registerModule(new JavaTimeModule())
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
         .configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
-
-    private ObjectMapperFactory() {
-
-    }
 
     public static ObjectMapper objectMapper() {
         return mapper;
@@ -38,5 +41,8 @@ public class ObjectMapperFactory {
 
     public static JsonFactory jsonFactory() {
         return jsonFactory;
+    }
+
+    private ObjectMapperFactory() {
     }
 }

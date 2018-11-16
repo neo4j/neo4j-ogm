@@ -24,6 +24,10 @@
 
     <artifactId>neo4j-ogm-embedded-driver</artifactId>
 
+    <name>Neo4j-OGM Embedded transport</name>
+    <description>Neo4j-OGM transport interacts with an embedded Neo4j instance.</description>
+    <url>https://neo4j.com/developer/neo4j-ogm</url>
+
     <properties>
         <java-module-name>org.neo4j.ogm.drivers.embedded</java-module-name>
     </properties>

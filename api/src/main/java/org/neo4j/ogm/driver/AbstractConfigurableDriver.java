@@ -166,7 +166,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
     }
 
     @Override
-    public TypeSystem getTypeSystem() {
+    public final TypeSystem getTypeSystem() {
         return this.typeSystem;
     }
 

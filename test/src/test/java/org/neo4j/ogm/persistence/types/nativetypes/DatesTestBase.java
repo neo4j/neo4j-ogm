@@ -20,9 +20,16 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 
 import org.junit.Test;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
@@ -38,7 +45,7 @@ public abstract class DatesTestBase {
     public void convertPersistAndLoadLocalDate() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
-        LocalDate localDate =  LocalDate.of(2018, 11, 15);
+        LocalDate localDate = LocalDate.of(2018, 11, 15);
         sometime.setLocalDate(localDate);
         session.save(sometime);
 
@@ -51,7 +58,7 @@ public abstract class DatesTestBase {
     public void convertPersistAndLoadLocalDateTime() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
-        LocalDateTime localDateTime =  LocalDateTime.of(2018, 11, 15, 8, 36);
+        LocalDateTime localDateTime = LocalDateTime.of(2018, 11, 15, 8, 36);
         sometime.setLocalDateTime(localDateTime);
         session.save(sometime);
 
@@ -64,7 +71,7 @@ public abstract class DatesTestBase {
     public void convertPersistAndLoadDate() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
-        LocalDateTime localDateTime =  LocalDateTime.of(2018, 11, 15, 8, 36);
+        LocalDateTime localDateTime = LocalDateTime.of(2018, 11, 15, 8, 36);
         Date date = Date.from(localDateTime.toInstant(ZoneOffset.UTC));
         sometime.setDate(date);
         session.save(sometime);
@@ -101,18 +108,145 @@ public abstract class DatesTestBase {
     }
 
     @Test
+    public void convertPersistAndLoadLocalDateForRelationship() {
+        Session session = sessionFactory.openSession();
+        SometimeRelationship sometime = new SometimeRelationship();
+        LocalDate localDate = LocalDate.of(2018, 11, 15);
+        sometime.setLocalDate(localDate);
+        session.save(sometime);
+
+        session.clear();
+        SometimeRelationship loaded = session.load(SometimeRelationship.class, sometime.id);
+        assertThat(loaded.localDate).isEqualTo(localDate);
+    }
+
+    @Test
+    public void convertPersistAndLoadLocalDateTimeForRelationship() {
+        Session session = sessionFactory.openSession();
+        SometimeRelationship sometime = new SometimeRelationship();
+        LocalDateTime localDateTime = LocalDateTime.of(2018, 11, 15, 8, 36);
+        sometime.setLocalDateTime(localDateTime);
+        session.save(sometime);
+
+        session.clear();
+        SometimeRelationship loaded = session.load(SometimeRelationship.class, sometime.id);
+        assertThat(loaded.localDateTime).isEqualTo(localDateTime);
+    }
+
+    @Test
+    public void convertPersistAndLoadDateForRelationship() {
+        Session session = sessionFactory.openSession();
+        SometimeRelationship sometimeRelationship = new SometimeRelationship();
+        LocalDateTime localDateTime = LocalDateTime.of(2018, 11, 15, 8, 36);
+        Date date = Date.from(localDateTime.toInstant(ZoneOffset.UTC));
+        sometimeRelationship.setDate(date);
+        session.save(sometimeRelationship);
+
+        session.clear();
+        SometimeRelationship loaded = session.load(SometimeRelationship.class, sometimeRelationship.id);
+        assertThat(loaded.date).isEqualTo(date);
+    }
+
+    @Test
+    public void convertPersistAndLoadDurationForRelationship() {
+        Session session = sessionFactory.openSession();
+        SometimeRelationship sometime = new SometimeRelationship();
+        Duration duration = Duration.ofDays(32).plusHours(25).plusMinutes(61).plusSeconds(61).plusMillis(2123);
+        sometime.setDuration(duration);
+        session.save(sometime);
+
+        session.clear();
+        SometimeRelationship loaded = session.load(SometimeRelationship.class, sometime.id);
+        assertThat(loaded.duration).isEqualTo(duration);
+    }
+
+    @Test
+    public void convertPersistAndLoadPeriodsForRelationship() {
+        Session session = sessionFactory.openSession();
+        SometimeRelationship sometime = new SometimeRelationship();
+        Period period = Period.of(13, 13, 400);
+        sometime.setPeriod(period);
+        session.save(sometime);
+
+        session.clear();
+        SometimeRelationship loaded = session.load(SometimeRelationship.class, sometime.id);
+        assertThat(loaded.period).isEqualTo(period.normalized());
+    }
+
+    @Test
     public abstract void convertPersistAndLoadTemporalAmounts();
 
+    @NodeEntity
     static class Sometime {
 
+        LocalDate localDate;
+        LocalDateTime localDateTime;
+        Date date;
+        Duration duration;
+        Period period;
+        TemporalAmount temporalAmount;
         private Long id;
 
-        private LocalDate localDate;
-        private LocalDateTime localDateTime;
-        private Date date;
-        private Duration duration;
-        private Period period;
-        private TemporalAmount temporalAmount;
+        @Relationship(value = "REL")
+        private Collection<SometimeRelationship> rels = new ArrayList<>();
+
+        public void setLocalDate(LocalDate localDate) {
+            this.localDate = localDate;
+        }
+
+        public void setLocalDateTime(LocalDateTime localDateTime) {
+            this.localDateTime = localDateTime;
+        }
+
+        public void setDate(Date date) {
+            this.date = date;
+        }
+
+        public void setDuration(Duration duration) {
+            this.duration = duration;
+        }
+
+        public void setPeriod(Period period) {
+            this.period = period;
+        }
+
+        public TemporalAmount getTemporalAmount() {
+            return temporalAmount;
+        }
+    }
+
+    @NodeEntity
+    static class Some {
+
+        LocalDate localDate;
+        private Long id;
+
+        @Relationship(value = "REL", direction = Relationship.INCOMING)
+        private Collection<SometimeRelationship> rels = new ArrayList<>();
+
+    }
+
+    @RelationshipEntity(type = "REL")
+    static class SometimeRelationship {
+
+        Long id;
+        LocalDate localDate;
+        LocalDateTime localDateTime;
+        Date date;
+        Duration duration;
+        Period period;
+        TemporalAmount temporalAmount;
+
+        @StartNode
+        private Sometime sometimeStart = new Sometime();
+
+        @EndNode
+        private Some someEnd = new Some();
+
+        public SometimeRelationship() {
+            this.sometimeStart.rels.add(this);
+            this.someEnd.rels.add(this);
+        }
 
         public void setLocalDate(LocalDate localDate) {
             this.localDate = localDate;

@@ -116,7 +116,7 @@
 
     <profiles>
         <profile>
-            <id>neo4j-3.5-enterprise</id>
+            <id>neo4j-enterprise</id>
             <dependencies>
                 <dependency>
                     <groupId>org.neo4j.test</groupId>

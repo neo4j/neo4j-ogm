@@ -116,16 +116,35 @@
 
     <profiles>
         <profile>
-            <id>neo4j-enterprise</id>
-            <!--
-            This will add Neo4j Enterprise on the class path.
-            TestServer will detect it and run tests against enterprise edition.
-            -->
+            <id>neo4j-3.5-enterprise</id>
             <dependencies>
                 <dependency>
                     <groupId>org.neo4j.test</groupId>
                     <artifactId>neo4j-harness-enterprise</artifactId>
                     <scope>compile</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>neo4j-3.5</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.neo4j.community</groupId>
+                    <artifactId>it-test-support</artifactId>
+                    <version>${neo4j}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>neo4j-3.5-enterprise</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.neo4j.test</groupId>
+                    <artifactId>neo4j-harness-enterprise</artifactId>
+                    <scope>compile</scope>
+                    <version>${neo4j}</version>
                 </dependency>
             </dependencies>
         </profile>

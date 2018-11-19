@@ -198,7 +198,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <commonslang>3.4</commonslang>
+        <commonslang>3.8</commonslang>
         <commonsio>2.4</commonsio>
         <jackson>2.8.11</jackson>
         <httpclient>4.5.2</httpclient>
@@ -273,19 +273,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.neo4j.test</groupId>
-                <artifactId>neo4j-harness-enterprise</artifactId>
-                <version>${neo4j}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-nop</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback}</version>
@@ -310,27 +297,6 @@
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j</artifactId>
-                <version>${neo4j}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.neo4j</groupId>
-                <artifactId>neo4j-cluster</artifactId>
-                <version>${neo4j}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.neo4j</groupId>
-                <artifactId>neo4j-ha</artifactId>
-                <version>${neo4j}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.neo4j</groupId>
-                <artifactId>neo4j-enterprise</artifactId>
                 <version>${neo4j}</version>
                 <scope>provided</scope>
             </dependency>
@@ -499,11 +465,40 @@
             <properties>
                 <neo4j>3.5.0-rc01</neo4j>
             </properties>
+        </profile>
+
+        <profile>
+            <id>neo4j-enterprise</id>
             <dependencies>
                 <dependency>
-                    <groupId>org.neo4j.community</groupId>
-                    <artifactId>it-test-support</artifactId>
-                    <version>3.5.0-rc01</version>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-cluster</artifactId>
+                    <version>${neo4j}</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-enterprise</artifactId>
+                    <version>${neo4j}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-ha</artifactId>
+                    <version>${neo4j}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>neo4j-3.5-enterprise</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.neo4j</groupId>
+                    <artifactId>neo4j-enterprise</artifactId>
+                    <version>${neo4j}</version>
                 </dependency>
             </dependencies>
         </profile>

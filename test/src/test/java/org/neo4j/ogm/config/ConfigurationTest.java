@@ -16,12 +16,11 @@ package org.neo4j.ogm.config;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 /**
@@ -116,9 +115,8 @@ public class ConfigurationTest {
             // Copy ogm-simple to temp file - the file is only inside jar on TeamCity, we need regular file
 
             File tempFile = File.createTempFile("ogm-simple", ".properties");
-            try (InputStream in = ConfigurationTest.class.getResourceAsStream("/ogm-simple.properties");
-                OutputStream out = new FileOutputStream(tempFile)) {
-                IOUtils.copy(in, out);
+            try (InputStream in = ConfigurationTest.class.getResourceAsStream("/ogm-simple.properties")) {
+                Files.copy(in, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 tempFile.deleteOnExit();
             }
             return tempFile.getPath();

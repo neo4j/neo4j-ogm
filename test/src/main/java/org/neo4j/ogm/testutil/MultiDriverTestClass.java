@@ -21,7 +21,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
@@ -111,18 +110,17 @@ public class MultiDriverTestClass {
     private static File createTemporaryGraphStore() {
         try {
             Path path = Files.createTempDirectory("graph.db");
-            File f = path.toFile();
             Path databaseDirectory = Paths.get(path.toFile().getAbsolutePath() + "/database");
             Files.createDirectories(databaseDirectory);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
-                    FileUtils.deleteDirectory(f);
+                    FileUtils.deleteDirectory(path);
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed to delete temporary files in " + f, e);
+                    throw new RuntimeException("Failed to delete temporary files in " + path, e);
                 }
             }));
-            return f;
+            return path.toFile();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

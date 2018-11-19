@@ -14,7 +14,7 @@
 package org.neo4j.ogm.drivers.embedded.driver;
 
 import static java.util.Objects.*;
-import static org.neo4j.ogm.driver.ParameterConversionMode.CONVERT_ALL;
+import static org.neo4j.ogm.driver.ParameterConversionMode.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,14 +22,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
@@ -57,7 +59,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     private GraphDatabaseService graphDatabaseService;
 
     // required for service loader mechanism
-    public EmbeddedDriver() {}
+    public EmbeddedDriver() {
+    }
 
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
         this(graphDatabaseService, Collections::emptyMap);
@@ -66,7 +69,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     /**
      * Create OGM EmbeddedDriver with provided embedded instance.
      *
-     * @param graphDatabaseService            Preconfigured, embedded instance.
+     * @param graphDatabaseService     Preconfigured, embedded instance.
      * @param customPropertiesSupplier Hook to provide custom configuration properties, i.e. for Cypher modification providers
      */
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService,
@@ -199,7 +202,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                 close();
                 try {
                     logger.warn("Deleting temporary file store: " + databaseUriValue);
-                    FileUtils.deleteDirectory(path.toFile());
+                    deleteDirectory(path);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to delete temporary files in " + databaseUriValue, e);
                 }
@@ -226,5 +229,27 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         } catch (IOException | URISyntaxException ioe) {
             throw new RuntimeException(ioe);
         }
+    }
+
+    /**
+     * Recursively deletes a directory tree.
+     *
+     * @param directory
+     * @throws IOException
+     */
+    private static void deleteDirectory(Path directory) throws IOException {
+        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 }

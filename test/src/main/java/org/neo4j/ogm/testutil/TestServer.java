@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilder;
@@ -141,9 +140,7 @@ public class TestServer {
 
             if (enableAuthentication) {
                 try (Writer authStoreWriter = new FileWriter(authStore.toFile())) {
-                    IOUtils.write(
-                        "neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A,819BDB957119F8DFFF65604C92980A91:",
-                        authStoreWriter);
+                    authStoreWriter.write("neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A,819BDB957119F8DFFF65604C92980A91:");
                 }
                 this.username = "neo4j";
                 this.password = "password";

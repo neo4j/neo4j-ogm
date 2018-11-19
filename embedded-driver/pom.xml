@@ -58,11 +58,6 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-cluster</artifactId>
         </dependency>

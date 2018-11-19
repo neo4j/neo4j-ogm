@@ -250,12 +250,6 @@
                 <version>${commonslang}</version>
             </dependency>
 
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commonsio}</version>
-            </dependency>
-
             <!--Testing  Dependencies -->
             <dependency>
                 <groupId>junit</groupId>

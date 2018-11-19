@@ -20,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.junit.AfterClass;
@@ -31,6 +30,7 @@ import org.junit.Test;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.FileUtils;
 
 /**
  * @author vince
@@ -39,7 +39,6 @@ public class DriverServiceTest {
 
     private static final Path TMP_NEO4J = Paths.get(System.getProperty("java.io.tmpdir"), "neo4jDriverServiceTest.db");
     private static final Path TMP_NEO4J_DB = Paths.get(TMP_NEO4J.toFile().getAbsolutePath() + "/database");
-
 
     @BeforeClass
     public static void createEmbeddedStore() {
@@ -52,7 +51,7 @@ public class DriverServiceTest {
 
     @AfterClass
     public static void deleteEmbeddedStore() throws IOException {
-        FileUtils.deleteDirectory(TMP_NEO4J.toFile());
+        FileUtils.deleteDirectory(TMP_NEO4J);
     }
 
     @Test

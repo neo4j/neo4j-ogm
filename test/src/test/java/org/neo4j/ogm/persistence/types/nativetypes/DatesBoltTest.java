@@ -12,19 +12,31 @@
  */
 package org.neo4j.ogm.persistence.types.nativetypes;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assume.*;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.BeforeClass;
+import org.junit.Test;
+import org.neo4j.driver.internal.util.ServerVersion;
 import org.neo4j.driver.v1.Config;
+import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Values;
+import org.neo4j.driver.v1.types.TypeSystem;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Gerrit Meier
@@ -33,6 +45,7 @@ import org.neo4j.ogm.session.SessionFactory;
 public class DatesBoltTest extends DatesTestBase {
 
     private static URI boltURI = TestServerBuilders.newInProcessBuilder().newServer().boltURI();
+    private static BoltDriver boltOgmDriver;
 
     @BeforeClass
     public static void init() {
@@ -43,9 +56,9 @@ public class DatesBoltTest extends DatesTestBase {
             .useNativeTypes()
             .build();
 
-        BoltDriver driver = new BoltDriver();
-        driver.configure(ogmConfiguration);
-        sessionFactory = new SessionFactory(driver, DatesBoltTest.class.getPackage().getName());
+        boltOgmDriver = new BoltDriver();
+        boltOgmDriver.configure(ogmConfiguration);
+        sessionFactory = new SessionFactory(boltOgmDriver, DatesBoltTest.class.getPackage().getName());
     }
 
     @Override
@@ -59,5 +72,53 @@ public class DatesBoltTest extends DatesTestBase {
         session.clear();
         Sometime loaded = session.load(Sometime.class, id);
         assertThat(loaded.getTemporalAmount()).isEqualTo(Values.isoDuration(526, 45, 97200, 0).asIsoDuration());
+    }
+
+    @Override
+    public void shouldUseNativeDateTimeTypesInParameterMaps() {
+
+        assumeTrue(driverSupportsLocalDate());
+
+        try (
+            Driver driver = GraphDatabase.driver(boltURI, Config.build().withoutEncryption().toConfig());
+        ) {
+            assumeTrue(databaseSupportJava8TimeTypes(driver));
+
+            Session session = sessionFactory.openSession();
+
+            Transaction transaction = session.beginTransaction();
+            LocalDate localDate = LocalDate.of(2018, 11, 14);
+            LocalDateTime localDateTime = LocalDateTime.of(2018, 10, 11, 15, 24);
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("a", localDate);
+            parameters.put("b", localDateTime);
+            session.query("CREATE (n:Test {a: $a, b: $b})", parameters);
+            transaction.commit();
+
+            Record record = driver.session().run("MATCH (n:Test) RETURN n.a, n.b").single();
+            Object a = record.get("n.a").asObject();
+            assertThat(a).isInstanceOf(LocalDate.class)
+                .isEqualTo(localDate);
+
+            Object b = record.get("n.b").asObject();
+            assertThat(b).isInstanceOf(LocalDateTime.class)
+                .isEqualTo(localDateTime);
+        }
+    }
+
+    private static boolean driverSupportsLocalDate() {
+
+        Class<TypeSystem> t = TypeSystem.class;
+        try {
+            return t.getDeclaredMethod("LOCAL_DATE_TIME") != null;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    private static boolean databaseSupportJava8TimeTypes(Driver driver) {
+        return ServerVersion.version(driver)
+            .greaterThanOrEqual(ServerVersion.version("3.4.0"));
     }
 }

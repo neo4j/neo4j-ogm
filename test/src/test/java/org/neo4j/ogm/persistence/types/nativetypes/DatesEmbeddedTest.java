@@ -12,14 +12,17 @@
  */
 package org.neo4j.ogm.persistence.types.nativetypes;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.assertj.core.util.Files;
 import org.junit.BeforeClass;
-import org.neo4j.driver.v1.Values;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.session.Session;
@@ -32,6 +35,8 @@ import org.neo4j.values.storable.DurationValue;
  */
 public class DatesEmbeddedTest extends DatesTestBase {
 
+    private static EmbeddedDriver embeddedOgmDriver;
+
     @BeforeClass
     public static void init() {
 
@@ -43,13 +48,13 @@ public class DatesEmbeddedTest extends DatesTestBase {
             .useNativeTypes()
             .build();
 
-        EmbeddedDriver driver = new EmbeddedDriver();
-        driver.configure(ogmConfiguration);
-        sessionFactory = new SessionFactory(driver, SpatialEmbeddedTest.class.getPackage().getName());
+        embeddedOgmDriver = new EmbeddedDriver();
+        embeddedOgmDriver.configure(ogmConfiguration);
+        sessionFactory = new SessionFactory(embeddedOgmDriver, SpatialEmbeddedTest.class.getPackage().getName());
     }
 
     @Override
-    public void convertPersistAndLoadTemporalAmounts()  {
+    public void convertPersistAndLoadTemporalAmounts() {
         Session session = sessionFactory.openSession();
 
         long id = session.queryForObject(
@@ -60,5 +65,50 @@ public class DatesEmbeddedTest extends DatesTestBase {
         Sometime loaded = session.load(Sometime.class, id);
 
         assertThat(loaded.getTemporalAmount()).isEqualTo(DurationValue.parse("P13Y370M45DT25H120M"));
+    }
+
+    @Override
+    public void shouldUseNativeDateTimeTypesInParameterMaps() {
+        Session session = sessionFactory.openSession();
+
+        LocalDate localDate = LocalDate.of(2018, 11, 14);
+        LocalDateTime localDateTime = LocalDateTime.of(2018, 10, 11, 15, 24);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("a", localDate);
+        parameters.put("b", localDateTime);
+        session.query("CREATE (n:Test {a: $a, b: $b})", parameters);
+
+        Map<String, Object> result = embeddedOgmDriver.getGraphDatabaseService()
+            .execute("MATCH (n:Test) RETURN n.a, n.b").next();
+
+        Object a = result.get("n.a");
+        assertThat(a).isInstanceOf(LocalDate.class)
+            .isEqualTo(localDate);
+
+        Object b = result.get("n.b");
+        assertThat(b).isInstanceOf(LocalDateTime.class)
+            .isEqualTo(localDateTime);
+    }
+
+    private static boolean databaseSupportJava8TimeTypes() {
+
+        boolean localDateExists = true;
+        boolean localDateTimeExists = true;
+
+        try {
+            Class.forName("org.neo4j.values.storable.DateValue", false, DatesEmbeddedTest.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            localDateExists = false;
+        }
+
+        try {
+            Class.forName("org.neo4j.values.storable.LocalDateTimeValue", false,
+                DatesEmbeddedTest.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            localDateTimeExists = false;
+        }
+
+        return localDateExists && localDateTimeExists;
     }
 }

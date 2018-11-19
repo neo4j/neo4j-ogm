@@ -34,7 +34,6 @@ import java.util.function.Supplier;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.driver.ParameterConversion;
@@ -53,9 +52,8 @@ import org.slf4j.LoggerFactory;
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {
 
-    private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
     private static final int TIMEOUT = 60_000;
-
+    private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
     private GraphDatabaseService graphDatabaseService;
 
     // required for service loader mechanism
@@ -82,6 +80,28 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         if (!available) {
             throw new IllegalArgumentException("Provided GraphDatabaseService is not in usable state");
         }
+    }
+
+    /**
+     * Recursively deletes a directory tree.
+     *
+     * @param directory
+     * @throws IOException
+     */
+    private static void deleteDirectory(Path directory) throws IOException {
+        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     @Override
@@ -119,8 +139,11 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         }
     }
 
-    private void setHAGraphDatabase(File file, URL propertiesFileURL) {
-        graphDatabaseService = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(file)
+    private void setHAGraphDatabase(File file, URL propertiesFileURL)
+        throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        Class<?> haFactoryClass = Class.forName("org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory");
+        Object haFactory = haFactoryClass.newInstance();
+        graphDatabaseService = ((GraphDatabaseFactory) haFactory).newEmbeddedDatabaseBuilder(file)
             .loadPropertiesFromURL(propertiesFileURL).newGraphDatabase();
     }
 
@@ -229,27 +252,5 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         } catch (IOException | URISyntaxException ioe) {
             throw new RuntimeException(ioe);
         }
-    }
-
-    /**
-     * Recursively deletes a directory tree.
-     *
-     * @param directory
-     * @throws IOException
-     */
-    private static void deleteDirectory(Path directory) throws IOException {
-        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
     }
 }

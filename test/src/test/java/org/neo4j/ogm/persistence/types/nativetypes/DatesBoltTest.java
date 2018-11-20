@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.neo4j.driver.internal.util.ServerVersion;
 import org.neo4j.driver.v1.Config;
 import org.neo4j.driver.v1.Driver;
@@ -45,7 +44,6 @@ import org.neo4j.ogm.transaction.Transaction;
 public class DatesBoltTest extends DatesTestBase {
 
     private static URI boltURI = TestServerBuilders.newInProcessBuilder().newServer().boltURI();
-    private static BoltDriver boltOgmDriver;
 
     @BeforeClass
     public static void init() {
@@ -56,7 +54,7 @@ public class DatesBoltTest extends DatesTestBase {
             .useNativeTypes()
             .build();
 
-        boltOgmDriver = new BoltDriver();
+        BoltDriver boltOgmDriver = new BoltDriver();
         boltOgmDriver.configure(ogmConfiguration);
         sessionFactory = new SessionFactory(boltOgmDriver, DatesBoltTest.class.getPackage().getName());
     }

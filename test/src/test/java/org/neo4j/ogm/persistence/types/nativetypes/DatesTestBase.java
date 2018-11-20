@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.junit.Test;
-import org.neo4j.driver.internal.util.ServerVersion;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;

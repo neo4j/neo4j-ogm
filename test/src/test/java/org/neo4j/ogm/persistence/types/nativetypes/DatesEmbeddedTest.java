@@ -91,6 +91,20 @@ public class DatesEmbeddedTest extends DatesTestBase {
             .isEqualTo(localDateTime);
     }
 
+    @Override
+    public void shouldObeyExplicitConversionOfNativeTypes() {
+
+        Map<String, Object> params = createSometimeWithConvertedLocalDate();
+        Map<String, Object> result = embeddedOgmDriver.getGraphDatabaseService()
+            .execute(
+                "MATCH (n:`DatesTestBase$Sometime`) WHERE id(n) = $id RETURN n.convertedLocalDate AS convertedLocalDate",
+                params).next();
+
+        Object a = result.get("convertedLocalDate");
+        assertThat(a).isInstanceOf(String.class)
+            .isEqualTo("2018-11-21");
+    }
+
     private static boolean databaseSupportJava8TimeTypes() {
 
         boolean localDateExists = true;

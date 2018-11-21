@@ -105,6 +105,22 @@ public class DatesBoltTest extends DatesTestBase {
         }
     }
 
+    @Override
+    public void shouldObeyExplicitConversionOfNativeTypes() {
+
+        Map<String, Object> params = createSometimeWithConvertedLocalDate();
+        try (
+            Driver driver = GraphDatabase.driver(boltURI, Config.build().withoutEncryption().toConfig());
+        ) {
+            Record record = driver.session()
+                .run("MATCH (n:`DatesTestBase$Sometime`) WHERE id(n) = $id RETURN n.convertedLocalDate as convertedLocalDate", params).next();
+
+            Object a = record.get("convertedLocalDate").asObject();
+            assertThat(a).isInstanceOf(String.class)
+                .isEqualTo("2018-11-21");
+        }
+    }
+
     private static boolean driverSupportsLocalDate() {
 
         Class<TypeSystem> t = TypeSystem.class;

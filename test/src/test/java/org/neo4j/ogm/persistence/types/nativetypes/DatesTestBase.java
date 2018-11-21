@@ -22,7 +22,10 @@ import java.time.ZoneOffset;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 import org.neo4j.ogm.annotation.EndNode;
@@ -30,8 +33,10 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.typeconversion.LocalDateStringConverter;
 
 /**
  * @author Gerrit Meier
@@ -174,7 +179,23 @@ public abstract class DatesTestBase {
     }
 
     @Test
+    public abstract void shouldObeyExplicitConversionOfNativeTypes();
+
+    @Test
     public abstract void convertPersistAndLoadTemporalAmounts();
+
+    Map<String, Object> createSometimeWithConvertedLocalDate() {
+        Session session = sessionFactory.openSession();
+        Sometime sometime = new Sometime();
+        LocalDate convertedLocalDate = LocalDate.of(2018, 11, 21);
+        sometime.setConvertedLocalDate(convertedLocalDate);
+        session.save(sometime);
+
+        session.clear();
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", sometime.getId());
+        return Collections.unmodifiableMap(params);
+    }
 
     @Test
     public abstract void shouldUseNativeDateTimeTypesInParameterMaps();
@@ -190,8 +211,15 @@ public abstract class DatesTestBase {
         TemporalAmount temporalAmount;
         private Long id;
 
+        @Convert(LocalDateStringConverter.class)
+        LocalDate convertedLocalDate;
+
         @Relationship(value = "REL")
         private Collection<SometimeRelationship> rels = new ArrayList<>();
+
+        public Long getId() {
+            return id;
+        }
 
         public void setLocalDate(LocalDate localDate) {
             this.localDate = localDate;
@@ -215,6 +243,10 @@ public abstract class DatesTestBase {
 
         public TemporalAmount getTemporalAmount() {
             return temporalAmount;
+        }
+
+        public void setConvertedLocalDate(LocalDate convertedLocalDate) {
+            this.convertedLocalDate = convertedLocalDate;
         }
     }
 

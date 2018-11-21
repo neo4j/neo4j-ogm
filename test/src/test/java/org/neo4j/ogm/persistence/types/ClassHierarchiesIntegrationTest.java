@@ -19,13 +19,17 @@ import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.ogm.domain.hierarchy.domain.custom_id.RootEntity;
+import org.neo4j.ogm.domain.hierarchy.domain.custom_id.SubEntity;
 import org.neo4j.ogm.domain.hierarchy.domain.annotated.*;
+import org.neo4j.ogm.domain.hierarchy.domain.custom_id.SubSubEntity;
 import org.neo4j.ogm.domain.hierarchy.domain.people.Bloke;
 import org.neo4j.ogm.domain.hierarchy.domain.people.Entity;
 import org.neo4j.ogm.domain.hierarchy.domain.people.Female;
@@ -826,4 +830,41 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(m1.getName()).isEqualTo("m1");
         assertThat(m1.getChildren().iterator().next().getName()).isEqualTo("c1");
     }
+
+    /**
+     * #553
+     */
+    @Test
+    public void shouldLoadImplementationWhenParentClassIsQueriedDirectSubclass() {
+        UUID uuid = UUID.randomUUID();
+        SubEntity subEntity = new SubEntity();
+        subEntity.setMyId(uuid);
+        subEntity.setName("test");
+
+        session.save(subEntity);
+        session.clear();
+
+        RootEntity rootEntity = session.load(RootEntity.class, uuid);
+
+        assertThat(rootEntity).isNotNull();
+    }
+
+    /**
+     * #553
+     */
+    @Test
+    public void shouldLoadImplementationWhenParentClassIsQueriedDeepSubclass() {
+        UUID uuid = UUID.randomUUID();
+        SubSubEntity subsubEntity = new SubSubEntity();
+        subsubEntity.setMyId(uuid);
+        subsubEntity.setName("test");
+
+        session.save(subsubEntity);
+        session.clear();
+
+        RootEntity rootEntity = session.load(RootEntity.class, uuid);
+
+        assertThat(rootEntity).isNotNull();
+    }
+
 }

@@ -249,7 +249,7 @@ public class ClassInfo {
         return labelNames;
     }
 
-    List<ClassInfo> directSubclasses() {
+    public List<ClassInfo> directSubclasses() {
         return directSubclasses;
     }
 

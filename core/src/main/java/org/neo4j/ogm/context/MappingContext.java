@@ -13,15 +13,10 @@
 
 package org.neo4j.ogm.context;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
@@ -92,7 +87,34 @@ public class MappingContext {
      * @return the entity or null if not found
      */
     public Object getNodeEntityById(ClassInfo classInfo, Object id) {
-        return primaryIndexNodeRegister.get(new LabelPrimaryId(classInfo, id));
+
+        // direct match
+        Object node = primaryIndexNodeRegister.get(new LabelPrimaryId(classInfo, id));
+        if (node != null) {
+            return node;
+        }
+
+        // the retrieved node is an implementation/extension of the abstract type / interface queried for.
+        Deque<ClassInfo> queue = new LinkedList<>(classInfo.directSubclasses());
+
+        while (!queue.isEmpty()) {
+
+            ClassInfo subClassInfo = queue.pop();
+
+            if (subClassInfo.annotationsInfo().get(NodeEntity.class) ==null) {
+                continue;
+            }
+
+            node = primaryIndexNodeRegister.get(new LabelPrimaryId(subClassInfo, id));
+            if (node != null) {
+                return node;
+            }
+
+            List<ClassInfo> deepSubClassInfos = subClassInfo.directSubclasses();
+            queue.addAll(deepSubClassInfos);
+        }
+
+        return null;
     }
 
     /**

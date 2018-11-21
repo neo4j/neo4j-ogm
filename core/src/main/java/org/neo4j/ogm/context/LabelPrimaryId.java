@@ -27,6 +27,7 @@ import org.neo4j.ogm.metadata.ClassInfo;
  *
  * @author Frantisek Hartman
  * @author Jonathan D'Orleans
+ * @author Gerrit Meier
  */
 class LabelPrimaryId {
 
@@ -39,17 +40,9 @@ class LabelPrimaryId {
      * @param classInfo class info containing the primary id
      * @param id        the value of the id
      */
-    public LabelPrimaryId(ClassInfo classInfo, Object id) {
+    LabelPrimaryId(ClassInfo classInfo, Object id) {
         this.label = classInfo.neo4jName();
         this.id = requireNonNull(id);
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public Object getId() {
-        return id;
     }
 
     @Override

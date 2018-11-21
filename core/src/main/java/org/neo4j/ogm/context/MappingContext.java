@@ -13,7 +13,15 @@
 
 package org.neo4j.ogm.context;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -88,6 +96,12 @@ public class MappingContext {
      */
     public Object getNodeEntityById(ClassInfo classInfo, Object id) {
 
+        // immediately return if the requests class cannot represent a node in the graph
+        if ((classInfo.isInterface() || classInfo.isAbstract())
+            && classInfo.annotationsInfo().get(NodeEntity.class) == null) {
+            return null;
+        }
+
         // direct match
         Object node = primaryIndexNodeRegister.get(new LabelPrimaryId(classInfo, id));
         if (node != null) {
@@ -95,15 +109,10 @@ public class MappingContext {
         }
 
         // the retrieved node is an implementation/extension of the abstract type / interface queried for.
-        Deque<ClassInfo> queue = new LinkedList<>(classInfo.directSubclasses());
-
+        Queue<ClassInfo> queue = new LinkedList<>(classInfo.directSubclasses());
         while (!queue.isEmpty()) {
 
-            ClassInfo subClassInfo = queue.pop();
-
-            if (subClassInfo.annotationsInfo().get(NodeEntity.class) ==null) {
-                continue;
-            }
+            ClassInfo subClassInfo = queue.poll();
 
             node = primaryIndexNodeRegister.get(new LabelPrimaryId(subClassInfo, id));
             if (node != null) {

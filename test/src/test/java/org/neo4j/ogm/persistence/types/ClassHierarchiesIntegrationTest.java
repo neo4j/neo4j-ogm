@@ -26,6 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.ogm.domain.hierarchy.domain.custom_id.MostBasicEntity;
 import org.neo4j.ogm.domain.hierarchy.domain.custom_id.RootEntity;
 import org.neo4j.ogm.domain.hierarchy.domain.custom_id.SubEntity;
 import org.neo4j.ogm.domain.hierarchy.domain.annotated.*;
@@ -865,6 +866,60 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         RootEntity rootEntity = session.load(RootEntity.class, uuid);
 
         assertThat(rootEntity).isNotNull();
+    }
+
+    /**
+     * #553
+     */
+    @Test
+    public void shouldLoadImplementationWhenParentClassIsQueriedDeepSubclasWithsMostBasicEntity() {
+        UUID uuid = UUID.randomUUID();
+        SubSubEntity subsubEntity = new SubSubEntity();
+        subsubEntity.setMyId(uuid);
+        subsubEntity.setName("test");
+
+        session.save(subsubEntity);
+        session.clear();
+
+        MostBasicEntity rootEntity = session.load(MostBasicEntity.class, uuid);
+
+        assertThat(rootEntity).isNull();
+    }
+
+    /**
+     * #553
+     */
+    @Test
+    public void shouldLoadImplementationWhenParentClassIsQueriedLoadAll() {
+        UUID uuid = UUID.randomUUID();
+        SubSubEntity subsubEntity = new SubSubEntity();
+        subsubEntity.setMyId(uuid);
+        subsubEntity.setName("test");
+
+        session.save(subsubEntity);
+        session.clear();
+
+        Collection<RootEntity> rootEntity = session.loadAll(RootEntity.class);
+
+        assertThat(rootEntity).isNotEmpty();
+    }
+
+    /**
+     * #553
+     */
+    @Test
+    public void shouldLoadImplementationWhenParentClassIsQueriedLoadAllWithAbstractNonAnnotatedBaseClass() {
+        UUID uuid = UUID.randomUUID();
+        SubSubEntity subsubEntity = new SubSubEntity();
+        subsubEntity.setMyId(uuid);
+        subsubEntity.setName("test");
+
+        session.save(subsubEntity);
+        session.clear();
+
+        Collection<MostBasicEntity> rootEntity = session.loadAll(MostBasicEntity.class);
+
+        assertThat(rootEntity).isEmpty();
     }
 
 }

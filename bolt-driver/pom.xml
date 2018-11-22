@@ -33,6 +33,7 @@
 
     <properties>
         <java-module-name>org.neo4j.ogm.drivers.bolt</java-module-name>
+        <bolt-driver>1.7.0</bolt-driver>
     </properties>
 
     <dependencies>
@@ -44,6 +45,7 @@
         <dependency>
             <groupId>org.neo4j.driver</groupId>
             <artifactId>neo4j-java-driver</artifactId>
+            <version>${bolt-driver}</version>
         </dependency>
     </dependencies>
 </project>

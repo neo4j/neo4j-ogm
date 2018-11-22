@@ -209,7 +209,6 @@
         <mockito>2.2.29</mockito>
         <!-- default for build, if no profiles invoked -->
         <neo4j>3.4.9</neo4j>
-        <bolt-driver>1.7.0</bolt-driver>
         <fast.classpath.scanner>2.18.1</fast.classpath.scanner>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
         <neo4j.edition>enterprise</neo4j.edition>
@@ -220,12 +219,6 @@
         <dependencies>
 
             <!--Compile and Runtime Dependencies -->
-            <dependency>
-                <groupId>org.neo4j.driver</groupId>
-                <artifactId>neo4j-java-driver</artifactId>
-                <version>${bolt-driver}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>

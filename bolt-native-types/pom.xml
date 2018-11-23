@@ -20,22 +20,20 @@
     <parent>
         <groupId>org.neo4j</groupId>
         <artifactId>neo4j-ogm</artifactId>
-        <version>3.1.5-Spatial-Support-SNAPSHOT</version>
+        <version>3.2.1-Spatial-Support-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-bolt-native-types</artifactId>
-    <version>3.1.5-Spatial-Support-SNAPSHOT</version>
+
+    <name>Neo4j-OGM Bolt native types</name>
+    <description>Support for native Neo4j types in Bolt transport mode.</description>
+    <url>https://neo4j.com/developer/neo4j-ogm</url>
 
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm-api</artifactId>
-            <version>3.1.5-Spatial-Support-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j.driver</groupId>
-            <artifactId>neo4j-java-driver</artifactId>
+            <artifactId>neo4j-ogm-bolt-driver</artifactId>
+            <version>3.2.1-Spatial-Support-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

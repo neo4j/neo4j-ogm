@@ -1,3 +1,10 @@
+3.1.5
+o Fix loading by parent class / interface for custom id. (#554)
+o Fix computation of keys for primaryIdToNativeId mapping.
+o Fix usage of fixed variable name.
+o Remove methods that had been scheduled for removal in 3.1.4.
+o Remove dependency on commons-io.
+
 3.1.4
 o Don't treat Void and void as scalar result types and thus allowing Neo4j-OGM session to handle queries mapped to these
   types even if the query itself does return nodes or properties. #479

@@ -13,7 +13,6 @@
 package org.neo4j.ogm.persistence.types.nativetypes;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -23,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.BeforeClass;
-import org.neo4j.driver.internal.util.ServerVersion;
 import org.neo4j.driver.v1.Config;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
@@ -108,7 +106,9 @@ public class DatesBoltTest extends DatesTestBase {
             Driver driver = GraphDatabase.driver(boltURI, Config.build().withoutEncryption().toConfig());
         ) {
             Record record = driver.session()
-                .run("MATCH (n:`DatesTestBase$Sometime`) WHERE id(n) = $id RETURN n.convertedLocalDate as convertedLocalDate", params).next();
+                .run(
+                    "MATCH (n:`DatesTestBase$Sometime`) WHERE id(n) = $id RETURN n.convertedLocalDate as convertedLocalDate",
+                    params).next();
 
             Object a = record.get("convertedLocalDate").asObject();
             assertThat(a).isInstanceOf(String.class)

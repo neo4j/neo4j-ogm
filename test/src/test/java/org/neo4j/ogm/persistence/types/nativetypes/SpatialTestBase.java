@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2002-2018 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This product is licensed to you under the Apache License, Version 2.0 (the "License").
+ * You may not use this product except in compliance with the License.
+ *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ *  conditions of the subcomponent's license, as noted in the LICENSE file.
+ */
 package org.neo4j.ogm.persistence.types.nativetypes;
 
 import static org.assertj.core.api.Assertions.*;
@@ -24,6 +36,10 @@ import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 
+/**
+ * @author Gerrit Meier
+ * @author Michael J. Simons
+ */
 public abstract class SpatialTestBase {
 
     static SessionFactory sessionFactory;
@@ -137,7 +153,6 @@ public abstract class SpatialTestBase {
         assertThat(loaded.cartesianPoint3d).isEqualTo(point);
     }
 
-
     @NodeEntity
     static class SomethingSpatial {
 
@@ -194,7 +209,6 @@ public abstract class SpatialTestBase {
         private Collection<SomethingRelationship> rels = new ArrayList<>();
 
     }
-
 
     @RelationshipEntity("REF")
     static class SomethingRelationship {

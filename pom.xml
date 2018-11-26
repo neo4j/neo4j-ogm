@@ -165,9 +165,7 @@
         <module>api</module>
         <module>http-driver</module>
         <module>embedded-driver</module>
-        <module>embedded-native-types</module>
         <module>bolt-driver</module>
-        <module>bolt-native-types</module>
         <module>core</module>
         <module>test</module>
     </modules>
@@ -473,6 +471,11 @@
             <properties>
                 <neo4j>3.4.10</neo4j>
             </properties>
+            <modules>
+                <module>native-types-test</module>
+                <module>embedded-native-types</module>
+                <module>bolt-native-types</module>
+            </modules>
         </profile>
 
         <profile>
@@ -480,6 +483,11 @@
             <properties>
                 <neo4j>3.5.0-rc01</neo4j>
             </properties>
+            <modules>
+                <module>native-types-test</module>
+                <module>embedded-native-types</module>
+                <module>bolt-native-types</module>
+            </modules>
         </profile>
 
         <profile>

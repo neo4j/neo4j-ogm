@@ -29,7 +29,6 @@ import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Values;
-import org.neo4j.driver.v1.types.TypeSystem;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
@@ -60,7 +59,7 @@ public class DatesBoltTest extends DatesTestBase {
     }
 
     @Override
-    public void convertPersistAndLoadTemporalAmounts()  {
+    public void convertPersistAndLoadTemporalAmounts() {
         Session session = sessionFactory.openSession();
 
         long id = session.queryForObject(
@@ -74,8 +73,6 @@ public class DatesBoltTest extends DatesTestBase {
 
     @Override
     public void shouldUseNativeDateTimeTypesInParameterMaps() {
-
-        assumeTrue(driverSupportsLocalDate());
 
         try (
             Driver driver = GraphDatabase.driver(boltURI, Config.build().withoutEncryption().toConfig());
@@ -121,18 +118,8 @@ public class DatesBoltTest extends DatesTestBase {
         }
     }
 
-    private static boolean driverSupportsLocalDate() {
-
-        Class<TypeSystem> t = TypeSystem.class;
-        try {
-            return t.getDeclaredMethod("LOCAL_DATE_TIME") != null;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-    }
-
     private static boolean databaseSupportJava8TimeTypes(Driver driver) {
         return ServerVersion.version(driver)
-            .greaterThanOrEqual(ServerVersion.version("3.4.0"));
+            .greaterThanOrEqual(ServerVersion.v3_4_0);
     }
 }

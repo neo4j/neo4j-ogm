@@ -215,6 +215,7 @@
         <ogm.properties>ogm-bolt.properties</ogm.properties>
         <neo4j.edition>enterprise</neo4j.edition>
         <spotbugs.plugin.version>3.1.3</spotbugs.plugin.version>
+        <neo4j-java-driver.version>1.7.0</neo4j-java-driver.version>
     </properties>
 
     <dependencyManagement>
@@ -298,6 +299,13 @@
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- Used in Bolt-Transport and related. -->
+            <dependency>
+                <groupId>org.neo4j.driver</groupId>
+                <artifactId>neo4j-java-driver</artifactId>
+                <version>${neo4j-java-driver.version}</version>
             </dependency>
 
             <!-- Embedded Driver Dependencies -->

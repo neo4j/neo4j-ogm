@@ -104,25 +104,4 @@ public class DatesEmbeddedTest extends DatesTestBase {
         assertThat(a).isInstanceOf(String.class)
             .isEqualTo("2018-11-21");
     }
-
-    private static boolean databaseSupportJava8TimeTypes() {
-
-        boolean localDateExists = true;
-        boolean localDateTimeExists = true;
-
-        try {
-            Class.forName("org.neo4j.values.storable.DateValue", false, DatesEmbeddedTest.class.getClassLoader());
-        } catch (ClassNotFoundException e) {
-            localDateExists = false;
-        }
-
-        try {
-            Class.forName("org.neo4j.values.storable.LocalDateTimeValue", false,
-                DatesEmbeddedTest.class.getClassLoader());
-        } catch (ClassNotFoundException e) {
-            localDateTimeExists = false;
-        }
-
-        return localDateExists && localDateTimeExists;
-    }
 }

@@ -77,8 +77,6 @@ public class DatesBoltTest extends DatesTestBase {
         try (
             Driver driver = GraphDatabase.driver(boltURI, Config.build().withoutEncryption().toConfig());
         ) {
-            assumeTrue(databaseSupportJava8TimeTypes(driver));
-
             Session session = sessionFactory.openSession();
 
             Transaction transaction = session.beginTransaction();
@@ -116,10 +114,5 @@ public class DatesBoltTest extends DatesTestBase {
             assertThat(a).isInstanceOf(String.class)
                 .isEqualTo("2018-11-21");
         }
-    }
-
-    private static boolean databaseSupportJava8TimeTypes(Driver driver) {
-        return ServerVersion.version(driver)
-            .greaterThanOrEqual(ServerVersion.v3_4_0);
     }
 }

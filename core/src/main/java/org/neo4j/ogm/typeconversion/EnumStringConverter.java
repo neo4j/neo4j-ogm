@@ -22,10 +22,11 @@ import org.apache.commons.lang3.StringUtils;
  * is (slightly) safer: a persisted enum have to be renamed
  * to break its database mapping, whereas if its ordinal
  * was persisted instead, the mapping would be broken
- * simply by changing the declaration order in the enum set.
+ * simply by changing the declaration order of the enum constants.
  *
  * @author Vince Bickers
  * @author Gerrit Meier
+ * @author Róbert Papp
  */
 public class EnumStringConverter implements AttributeConverter<Enum, String> {
 

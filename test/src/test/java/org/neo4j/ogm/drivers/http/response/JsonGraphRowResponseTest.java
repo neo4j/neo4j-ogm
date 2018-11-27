@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
+import static java.nio.charset.StandardCharsets.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -431,7 +432,7 @@ public class JsonGraphRowResponseTest {
             "  ],\n" +
             "  \"errors\": []\n" +
             "}";
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     static class TestGraphRowHttpResponse extends AbstractHttpResponse<ResultGraphRowListModel>

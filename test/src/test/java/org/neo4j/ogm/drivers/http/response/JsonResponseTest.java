@@ -12,6 +12,7 @@
  */
 package org.neo4j.ogm.drivers.http.response;
 
+import static java.nio.charset.StandardCharsets.*;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -111,7 +112,7 @@ public class JsonResponseTest {
             "    }\n" +
             "  ]\n" +
             "}";
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     private InputStream noResultsAndErrors() {
@@ -126,21 +127,21 @@ public class JsonResponseTest {
             "  ]\n" +
             "}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     private InputStream rowResultsAndNoErrors() {
 
         final String s = "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[[{\"name\": \"My Test\"}]]]}]}],\"errors\": []}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     private InputStream noRowResultsAndNoErrors() {
 
         final String s = "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[]]}]}],\"errors\": []}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     static class TestRowHttpResponse extends AbstractHttpResponse<ResultRowModel> implements Response<DefaultRowModel> {

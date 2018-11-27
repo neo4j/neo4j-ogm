@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
+import static java.nio.charset.StandardCharsets.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -118,14 +119,14 @@ public class JsonRowResponseTest {
 
         final String s = "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[[{\"name\": \"My Test\"}]]]}]}],\"errors\": []}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     private InputStream noRowResultsAndNoErrors() {
 
         final String s = "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[]]}]}],\"errors\": []}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     private InputStream createRowResults() {
@@ -152,7 +153,7 @@ public class JsonRowResponseTest {
             "  ],\n" +
             "  \"errors\": []\n" +
             "}";
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     private InputStream customQueryRowResults() {
@@ -197,7 +198,7 @@ public class JsonRowResponseTest {
             "  ],\n" +
             "  \"errors\": []\n" +
             "}";
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     static class TestRowHttpResponse extends AbstractHttpResponse<ResultRowModel> implements Response<DefaultRowModel> {

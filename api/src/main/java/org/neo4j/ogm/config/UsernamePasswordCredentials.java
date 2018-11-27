@@ -13,11 +13,13 @@
 
 package org.neo4j.ogm.config;
 
-import java.io.UnsupportedEncodingException;
+import static java.nio.charset.StandardCharsets.*;
+
 import java.util.Base64;
 
 /**
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class UsernamePasswordCredentials implements Credentials<String> {
 
@@ -25,16 +27,15 @@ public class UsernamePasswordCredentials implements Credentials<String> {
     private final String username;
     private final String password;
 
-    public UsernamePasswordCredentials(String userName, String password) {
-        if (userName == null || password == null) {
+    public UsernamePasswordCredentials(String username, String password) {
+
+        if (username == null || password == null) {
             throw new IllegalArgumentException("username or password cannot be null");
         }
-        try {
-            this.credentials = Base64.getEncoder().encodeToString(userName.concat(":").concat(password).getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("UTF-8 encoding support required", e);
-        }
-        this.username = userName;
+
+        this.credentials = Base64.getEncoder()
+            .encodeToString(String.format("%s:%s", username, password).getBytes(UTF_8));
+        this.username = username;
         this.password = password;
     }
 

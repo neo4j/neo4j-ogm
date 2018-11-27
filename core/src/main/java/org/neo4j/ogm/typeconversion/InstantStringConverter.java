@@ -17,11 +17,13 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Converter to convert {@link Instant} to {@link String}.
- * Stores values in db as milliseconds from the epoch of 1970-01-01T00:00:00Z, UTC being used to preserve from
- * timezones problems.
+ * Converter to convert between {@link Instant} and {@link String}.
+ * Stores values in database as string in format specified by
+ * {@link java.time.format.DateTimeFormatter#ISO_INSTANT}.
+ * UTC time zone is being used to prevent timezones problems.
  *
  * @author Nicolas Mervaillie
+ * @author Róbert Papp
  */
 public class InstantStringConverter implements AttributeConverter<Instant, String> {
 

@@ -16,8 +16,10 @@ package org.neo4j.ogm.typeconversion;
 import java.util.Date;
 
 /**
- * Converter to convert {@link java.util.Date} to {@link java.lang.Long}.
- * Since the value as represented in JSON loses type information and is just numeric, the converted type used is {@link java.lang.Number}
+ * Converter to convert between {@link Date} and {@link Long}.
+ * Since the value as represented in JSON loses type information and is just numeric,
+ * the converted type used is {@link java.lang.Number}.
+ * Stores values in database as milliseconds from the epoch of {@code 1970-01-01T00:00:00Z}.
  *
  * @author Vince Bickers
  * @author Luanne Misquitta

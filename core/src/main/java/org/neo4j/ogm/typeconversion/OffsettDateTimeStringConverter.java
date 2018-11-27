@@ -16,10 +16,12 @@ package org.neo4j.ogm.typeconversion;
 import java.time.OffsetDateTime;
 
 /**
- * Converter to convert {@link OffsetDateTime} to {@link String}.
- * Stores values in db as string in format YYYY-MM-DDTHH-MM-SS+01:00.
+ * Converter to convert between {@link OffsetDateTime} and {@link String}.
+ * Stores values in database as string in format specified by
+ * {@link java.time.format.DateTimeFormatter#ISO_OFFSET_DATE_TIME}.
  *
  * @author Frantisek Hartman
+ * @author Róbert Papp
  */
 public class OffsettDateTimeStringConverter implements AttributeConverter<OffsetDateTime, String> {
 

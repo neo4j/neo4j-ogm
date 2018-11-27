@@ -13,14 +13,15 @@
 
 package org.neo4j.ogm.typeconversion;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Converter to convert {@link LocalDate} to {@link Long}.
- * Stores values in db as string in format YYYY-MM-DDTHH-MM-SS.
+ * Converter to convert between {@link LocalDateTime} and {@link String}.
+ * Stores values in database as string in format specified by
+ * {@link java.time.format.DateTimeFormatter#ISO_LOCAL_DATE_TIME}.
  *
  * @author Frantisek Hartman
+ * @author Róbert Papp
  */
 public class LocalDateTimeStringConverter implements AttributeConverter<LocalDateTime, String> {
 

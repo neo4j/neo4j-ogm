@@ -504,19 +504,12 @@ As we touched on earlier, it is not necessary to annotate property fields as the
 Fields that are annotated as `@Transient` or with `transient` are exempted from persistence.
 All fields that contain primitive values are persisted directly to the graph.
 All fields convertible to a `String` using the conversion services will be stored as a string.
-Neo4j-OGM includes default type converters that deal with the following types:
+Neo4j-OGM includes default type converters for commonly used types, for a full list see <<reference:type-conversion:built-in>>.
 
-* `java.util.Date` to a String in the ISO 8601 format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-* `java.time.Instant` to a String in the ISO 8601 with timezone format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-* `java.time.LocalDate` to a String in the ISO 8601 with format: "yyyy-MM-dd"
-* `java.math.BigInteger` to a String property
-* `java.math.BigDecimal` to a String property
-* binary data (as byte[] or Byte[]) to base-64 String
-* `java.lang.Enum` types using the enum's `name()` method and `Enum.valueOf()`
+Custom converters are also specified by using `@Convert` - this is discussed in detail <<reference:type-conversion:custom, later on>>.
 
 Collections of primitive or convertible values are stored as well.
 They are converted to arrays of their type or strings respectively.
-Custom converters are also specified by using `@Convert` - this is discussed in detail <<reference:type-conversion:custom, later on>>.
 
 Node property names can be explicitly assigned by setting the `name` attribute.
 For example `@Property(name="last_name") String lastName`.

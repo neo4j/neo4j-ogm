@@ -22,7 +22,7 @@
     <parent>
         <artifactId>neo4j-ogm</artifactId>
         <groupId>org.neo4j</groupId>
-        <version>3.1.5-SNAPSHOT</version>
+        <version>3.1.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>neo4j-ogm-api</artifactId>

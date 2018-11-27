@@ -13,12 +13,14 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
+import static java.nio.charset.StandardCharsets.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -124,7 +126,7 @@ public class JsonGraphResponseTest {
             "  \"errors\": []\n" +
             "}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     private InputStream noGraphResultsAndNoErrors() {
@@ -141,7 +143,7 @@ public class JsonGraphResponseTest {
             "  \"errors\": []\n" +
             "}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     private InputStream loadByIdsGraphResults() {
@@ -325,7 +327,7 @@ public class JsonGraphResponseTest {
             "  ],\n" +
             "  \"errors\": []\n" +
             "}";
-        return new ByteArrayInputStream(s.getBytes());
+        return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
 
     static class TestGraphHttpResponse extends AbstractHttpResponse<ResultGraphModel> implements Response<GraphModel> {

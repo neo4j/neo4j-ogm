@@ -252,6 +252,7 @@ public class Configuration {
                 .autoIndex(builder.autoIndex)
                 .generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
+                .neo4jConfLocation(builder.neo4jConfLocation)
                 .neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
                 .credentials(builder.username, builder.password)
                 .customProperties(new HashMap<>(builder.customProperties));

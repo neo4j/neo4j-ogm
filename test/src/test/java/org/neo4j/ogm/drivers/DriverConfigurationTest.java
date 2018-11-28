@@ -23,8 +23,8 @@ import org.neo4j.ogm.config.UsernamePasswordCredentials;
 
 /**
  * @author vince
+ * @author Michael J. Simons
  */
-
 public class DriverConfigurationTest {
 
     @Test
@@ -69,6 +69,6 @@ public class DriverConfigurationTest {
     public void shouldGetNeo4jHaPropertiesFileFromDriverConfiguration() {
         Configuration config = new Configuration.Builder(
             new ClasspathConfigurationSource("embedded.ha.driver.properties")).build();
-        assertThat(config.getNeo4jHaPropertiesFile()).isEqualTo("neo4j-ha.properties");
+        assertThat(config.getNeo4jConfLocation()).isEqualTo("neo4j-ha.properties");
     }
 }

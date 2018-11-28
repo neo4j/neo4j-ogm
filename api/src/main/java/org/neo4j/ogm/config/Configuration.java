@@ -13,12 +13,20 @@
 
 package org.neo4j.ogm.config;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
 
+import org.neo4j.ogm.support.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class Configuration {
 
@@ -42,6 +51,17 @@ public class Configuration {
     private AutoIndexMode autoIndex;
     private String generatedIndexesOutputDir;
     private String generatedIndexesOutputFilename;
+    /**
+     * The url of a neo4j.conf (properties) file to configure the embedded driver.
+     *
+     * If both {@link #neo4jConfLocation} and {@link #neo4jHaPropertiesFile} are set, the later takes precedence.
+     */
+    private String neo4jConfLocation;
+    /**
+     * @deprecated since 3.1.6, will be removed in 3.2. Use neo4jConfLocation instead and set
+     * {@code https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.mode} in that.
+     */
+    @Deprecated
     private String neo4jHaPropertiesFile;
     private String driverName;
     private Credentials credentials;
@@ -68,9 +88,9 @@ public class Configuration {
         this.generatedIndexesOutputFilename = builder.generatedIndexesOutputFilename != null ?
             builder.generatedIndexesOutputFilename :
             "generated_indexes.cql";
+        this.neo4jConfLocation = builder.neo4jConfLocation;
         this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
         this.customProperties = builder.customProperties;
-
         if (this.uri != null) {
             java.net.URI uri = null;
             try {
@@ -147,8 +167,31 @@ public class Configuration {
         return verifyConnection;
     }
 
-    public String getNeo4jHaPropertiesFile() {
-        return neo4jHaPropertiesFile;
+    public String getNeo4jConfLocation() {
+        return Optional.ofNullable(neo4jHaPropertiesFile).orElseGet(() -> this.neo4jConfLocation);
+    }
+
+    /**
+     * @return True if current configuration is setup to use embedded HA.
+     */
+    public boolean isEmbeddedHA() {
+
+        // First check old way of doing stuff
+        boolean isEmbeddedHA = this.neo4jHaPropertiesFile != null;
+        if(!isEmbeddedHA && this.neo4jConfLocation != null) {
+            try {
+                URL url = ResourceUtils.getResourceUrl(neo4jConfLocation);
+
+                Properties neo4Properties = new Properties();
+                neo4Properties.load(url.openStream());
+
+                isEmbeddedHA = "HA".equalsIgnoreCase(neo4Properties.getProperty("dbms.mode", "-"));
+            } catch (IOException e) {
+                throw new UncheckedIOException("Could not load neo4j.conf at location " + neo4jConfLocation, e);
+            }
+        }
+
+        return isEmbeddedHA;
     }
 
     public Credentials getCredentials() {
@@ -163,53 +206,32 @@ public class Configuration {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof Configuration))
             return false;
-
         Configuration that = (Configuration) o;
-
-        if (connectionPoolSize != that.connectionPoolSize)
-            return false;
-        if (uri != null ? !uri.equals(that.uri) : that.uri != null)
-            return false;
-        if (encryptionLevel != null ? !encryptionLevel.equals(that.encryptionLevel) : that.encryptionLevel != null)
-            return false;
-        if (trustStrategy != null ? !trustStrategy.equals(that.trustStrategy) : that.trustStrategy != null)
-            return false;
-        if (trustCertFile != null ? !trustCertFile.equals(that.trustCertFile) : that.trustCertFile != null)
-            return false;
-        if (autoIndex != that.autoIndex)
-            return false;
-        if (generatedIndexesOutputDir != null ?
-            !generatedIndexesOutputDir.equals(that.generatedIndexesOutputDir) :
-            that.generatedIndexesOutputDir != null)
-            return false;
-        if (generatedIndexesOutputFilename != null ?
-            !generatedIndexesOutputFilename.equals(that.generatedIndexesOutputFilename) :
-            that.generatedIndexesOutputFilename != null)
-            return false;
-        if (neo4jHaPropertiesFile != null ?
-            !neo4jHaPropertiesFile.equals(that.neo4jHaPropertiesFile) :
-            that.neo4jHaPropertiesFile != null)
-            return false;
-        if (!driverName.equals(that.driverName))
-            return false;
-        return credentials != null ? credentials.equals(that.credentials) : that.credentials == null;
+        return connectionPoolSize == that.connectionPoolSize &&
+            Objects.equals(uri, that.uri) &&
+            Arrays.equals(uris, that.uris) &&
+            Objects.equals(encryptionLevel, that.encryptionLevel) &&
+            Objects.equals(trustStrategy, that.trustStrategy) &&
+            Objects.equals(trustCertFile, that.trustCertFile) &&
+            autoIndex == that.autoIndex &&
+            Objects.equals(generatedIndexesOutputDir, that.generatedIndexesOutputDir) &&
+            Objects.equals(generatedIndexesOutputFilename, that.generatedIndexesOutputFilename) &&
+            Objects.equals(neo4jConfLocation, that.neo4jConfLocation) &&
+            Objects.equals(neo4jHaPropertiesFile, that.neo4jHaPropertiesFile) &&
+            Objects.equals(driverName, that.driverName) &&
+            Objects.equals(credentials, that.credentials) &&
+            Objects.equals(connectionLivenessCheckTimeout, that.connectionLivenessCheckTimeout) &&
+            Objects.equals(verifyConnection, that.verifyConnection);
     }
 
     @Override
     public int hashCode() {
-        int result = uri != null ? uri.hashCode() : 0;
-        result = 31 * result + connectionPoolSize;
-        result = 31 * result + (encryptionLevel != null ? encryptionLevel.hashCode() : 0);
-        result = 31 * result + (trustStrategy != null ? trustStrategy.hashCode() : 0);
-        result = 31 * result + (trustCertFile != null ? trustCertFile.hashCode() : 0);
-        result = 31 * result + (autoIndex != null ? autoIndex.hashCode() : 0);
-        result = 31 * result + (generatedIndexesOutputDir != null ? generatedIndexesOutputDir.hashCode() : 0);
-        result = 31 * result + (generatedIndexesOutputFilename != null ? generatedIndexesOutputFilename.hashCode() : 0);
-        result = 31 * result + (neo4jHaPropertiesFile != null ? neo4jHaPropertiesFile.hashCode() : 0);
-        result = 31 * result + driverName.hashCode();
-        result = 31 * result + (credentials != null ? credentials.hashCode() : 0);
+        int result = Objects.hash(uri, connectionPoolSize, encryptionLevel, trustStrategy, trustCertFile, autoIndex,
+            generatedIndexesOutputDir, generatedIndexesOutputFilename, neo4jConfLocation, neo4jHaPropertiesFile, driverName,
+            credentials, connectionLivenessCheckTimeout, verifyConnection);
+        result = 31 * result + Arrays.hashCode(uris);
         return result;
     }
 
@@ -235,6 +257,7 @@ public class Configuration {
                 .customProperties(new HashMap<>(builder.customProperties));
         }
 
+        // Those are the keys inside ogm.properties, not configuration values.
         private static final String URI = "URI";
         private static final String URIS = "URIS";
         private static final String USERNAME = "username";
@@ -248,6 +271,7 @@ public class Configuration {
         private static final String AUTO_INDEX = "indexes.auto";
         private static final String GENERATED_INDEXES_OUTPUT_DIR = "indexes.auto.dump.dir";
         private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
+        private static final String NEO4J_CONF_LOCATION = "neo4j.conf.location";
         private static final String NEO4J_HA_PROPERTIES_FILE = "neo4j.ha.properties.file";
 
         private String uri;
@@ -261,6 +285,11 @@ public class Configuration {
         private String autoIndex;
         private String generatedIndexesOutputDir;
         private String generatedIndexesOutputFilename;
+        private String neo4jConfLocation;
+        /**
+         * @deprecated See {@link Configuration#neo4jHaPropertiesFile}.
+         */
+        @Deprecated
         private String neo4jHaPropertiesFile;
         private String username;
         private String password;
@@ -322,6 +351,9 @@ public class Configuration {
                         break;
                     case NEO4J_HA_PROPERTIES_FILE:
                         this.neo4jHaPropertiesFile = (String) entry.getValue();
+                        break;
+                    case NEO4J_CONF_LOCATION:
+                        this.neo4jConfLocation = (String) entry.getValue();
                         break;
                     default:
                         LOGGER.warn("Could not process property with key: {}", entry.getKey());
@@ -425,8 +457,17 @@ public class Configuration {
             return this;
         }
 
+        /**
+         * @deprecated See {@link Configuration#neo4jHaPropertiesFile}.
+         */
+        @Deprecated
         public Builder neo4jHaPropertiesFile(String neo4jHaPropertiesFile) {
             this.neo4jHaPropertiesFile = neo4jHaPropertiesFile;
+            return this;
+        }
+
+        public Builder neo4jConfLocation(String neo4jConfLocation) {
+            this.neo4jConfLocation = neo4jConfLocation;
             return this;
         }
 

@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
@@ -42,6 +43,7 @@ import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.support.ResourceUtils;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,29 +128,41 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                 throw new RuntimeException("Could not create/open filestore: " + fileStoreUri);
             }
 
-            // do we want to start a HA instance or a community instance?
-            String haPropertiesFileName = config.getNeo4jHaPropertiesFile();
-            if (haPropertiesFileName != null) {
-                setHAGraphDatabase(file,
-                    Thread.currentThread().getContextClassLoader().getResource(haPropertiesFileName));
-            } else {
-                setGraphDatabase(file);
+            GraphDatabaseBuilder graphDatabaseBuilder = getGraphDatabaseFactory(configuration)
+                .newEmbeddedDatabaseBuilder(file);
+
+            String neo4jConfLocation = config.getNeo4jConfLocation();
+            if(neo4jConfLocation != null) {
+                URL neo4ConfUrl = ResourceUtils.getResourceUrl(neo4jConfLocation);
+                graphDatabaseBuilder = graphDatabaseBuilder.loadPropertiesFromURL(neo4ConfUrl);
             }
+
+            this.graphDatabaseService = graphDatabaseBuilder.newGraphDatabase();
         } catch (Exception e) {
             throw new ConnectionException("Error connecting to embedded graph", e);
         }
     }
 
-    private void setHAGraphDatabase(File file, URL propertiesFileURL)
-        throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Class<?> haFactoryClass = Class.forName("org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory");
-        Object haFactory = haFactoryClass.newInstance();
-        graphDatabaseService = ((GraphDatabaseFactory) haFactory).newEmbeddedDatabaseBuilder(file)
-            .loadPropertiesFromURL(propertiesFileURL).newGraphDatabase();
-    }
+    /**
+     * Creates an instance of a {@code HighlyAvailableGraphDatabaseFactory} if requested by the config. Otherwise just
+     * a standard one.
+     *
+     * @param configuration
+     * @return
+     * @throws Exception all the exceptions that might happen during dynamic construction of things.
+     */
+    private static GraphDatabaseFactory getGraphDatabaseFactory(Configuration configuration) throws Exception {
 
-    private void setGraphDatabase(File file) {
-        graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file);
+        GraphDatabaseFactory graphDatabaseFactory;
+        if (!configuration.isEmbeddedHA()) {
+            graphDatabaseFactory = new GraphDatabaseFactory();
+        } else {
+            String classnameOfHaFactory = "org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory";
+            Class<GraphDatabaseFactory> haFactoryClass = (Class<GraphDatabaseFactory>) Class.forName(classnameOfHaFactory);
+            graphDatabaseFactory = haFactoryClass.getDeclaredConstructor().newInstance();
+        }
+
+        return graphDatabaseFactory;
     }
 
     @Override

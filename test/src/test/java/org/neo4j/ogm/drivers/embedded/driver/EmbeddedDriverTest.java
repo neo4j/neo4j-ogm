@@ -70,20 +70,6 @@ public class EmbeddedDriverTest {
     }
 
     @Test
-    public void shouldLoadHaBasedOnHaPropertiesFile() {
-
-        assumeTrue(canRunHATests());
-
-        try (EmbeddedDriver driver = new EmbeddedDriver()) {
-            driver.configure(
-                new Configuration.Builder(new ClasspathConfigurationSource("embedded.ha.driver.properties")).build());
-
-            GraphDatabaseService databaseService = driver.getGraphDatabaseService();
-            assertThat(databaseService.getClass().getSimpleName()).isEqualTo(NAME_OF_HA_DATABASE_CLASS);
-        }
-    }
-
-    @Test
     public void shouldLoadHaBasedOnNeo4ConfFile() {
 
         assumeTrue(canRunHATests());

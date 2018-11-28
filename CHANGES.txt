@@ -1,3 +1,6 @@
+3.2.x
+o Remove "neo4j.ha.properties.file" property from OGM configuration. Use "neo4j.conf.location" instead.
+
 3.1.6
 o Improve documentation of type conversions. #501
 o Provide "neo4j.conf.location" in OGM configuration, pointing to a custom configuration file (url or classpath resource)

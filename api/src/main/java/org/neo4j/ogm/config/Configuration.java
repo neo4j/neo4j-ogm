@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 
 import org.neo4j.ogm.support.ResourceUtils;
@@ -53,16 +52,8 @@ public class Configuration {
     private String generatedIndexesOutputFilename;
     /**
      * The url of a neo4j.conf (properties) file to configure the embedded driver.
-     *
-     * If both {@link #neo4jConfLocation} and {@link #neo4jHaPropertiesFile} are set, the later takes precedence.
      */
     private String neo4jConfLocation;
-    /**
-     * @deprecated since 3.1.6, will be removed in 3.2. Use neo4jConfLocation instead and set
-     * {@code https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.mode} in that.
-     */
-    @Deprecated
-    private String neo4jHaPropertiesFile;
     private String driverName;
     private Credentials credentials;
     private Integer connectionLivenessCheckTimeout;
@@ -89,7 +80,6 @@ public class Configuration {
             builder.generatedIndexesOutputFilename :
             "generated_indexes.cql";
         this.neo4jConfLocation = builder.neo4jConfLocation;
-        this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
         this.customProperties = builder.customProperties;
         if (this.uri != null) {
             java.net.URI uri = null;
@@ -168,7 +158,7 @@ public class Configuration {
     }
 
     public String getNeo4jConfLocation() {
-        return Optional.ofNullable(neo4jHaPropertiesFile).orElseGet(() -> this.neo4jConfLocation);
+        return this.neo4jConfLocation;
     }
 
     /**
@@ -176,9 +166,8 @@ public class Configuration {
      */
     public boolean isEmbeddedHA() {
 
-        // First check old way of doing stuff
-        boolean isEmbeddedHA = this.neo4jHaPropertiesFile != null;
-        if(!isEmbeddedHA && this.neo4jConfLocation != null) {
+        boolean isEmbeddedHA = false;
+        if (this.neo4jConfLocation != null) {
             try {
                 URL url = ResourceUtils.getResourceUrl(neo4jConfLocation);
 
@@ -219,7 +208,6 @@ public class Configuration {
             Objects.equals(generatedIndexesOutputDir, that.generatedIndexesOutputDir) &&
             Objects.equals(generatedIndexesOutputFilename, that.generatedIndexesOutputFilename) &&
             Objects.equals(neo4jConfLocation, that.neo4jConfLocation) &&
-            Objects.equals(neo4jHaPropertiesFile, that.neo4jHaPropertiesFile) &&
             Objects.equals(driverName, that.driverName) &&
             Objects.equals(credentials, that.credentials) &&
             Objects.equals(connectionLivenessCheckTimeout, that.connectionLivenessCheckTimeout) &&
@@ -229,7 +217,7 @@ public class Configuration {
     @Override
     public int hashCode() {
         int result = Objects.hash(uri, connectionPoolSize, encryptionLevel, trustStrategy, trustCertFile, autoIndex,
-            generatedIndexesOutputDir, generatedIndexesOutputFilename, neo4jConfLocation, neo4jHaPropertiesFile, driverName,
+            generatedIndexesOutputDir, generatedIndexesOutputFilename, neo4jConfLocation, driverName,
             credentials, connectionLivenessCheckTimeout, verifyConnection);
         result = 31 * result + Arrays.hashCode(uris);
         return result;
@@ -252,7 +240,7 @@ public class Configuration {
                 .autoIndex(builder.autoIndex)
                 .generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
-                .neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
+                .neo4jConfLocation(builder.neo4jConfLocation)
                 .credentials(builder.username, builder.password)
                 .customProperties(new HashMap<>(builder.customProperties));
         }
@@ -272,7 +260,6 @@ public class Configuration {
         private static final String GENERATED_INDEXES_OUTPUT_DIR = "indexes.auto.dump.dir";
         private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
         private static final String NEO4J_CONF_LOCATION = "neo4j.conf.location";
-        private static final String NEO4J_HA_PROPERTIES_FILE = "neo4j.ha.properties.file";
 
         private String uri;
         private String[] uris;
@@ -286,11 +273,6 @@ public class Configuration {
         private String generatedIndexesOutputDir;
         private String generatedIndexesOutputFilename;
         private String neo4jConfLocation;
-        /**
-         * @deprecated See {@link Configuration#neo4jHaPropertiesFile}.
-         */
-        @Deprecated
-        private String neo4jHaPropertiesFile;
         private String username;
         private String password;
         private Map<String, Object> customProperties = new HashMap<>();
@@ -348,9 +330,6 @@ public class Configuration {
                         break;
                     case GENERATED_INDEXES_OUTPUT_FILENAME:
                         this.generatedIndexesOutputFilename = (String) entry.getValue();
-                        break;
-                    case NEO4J_HA_PROPERTIES_FILE:
-                        this.neo4jHaPropertiesFile = (String) entry.getValue();
                         break;
                     case NEO4J_CONF_LOCATION:
                         this.neo4jConfLocation = (String) entry.getValue();
@@ -454,15 +433,6 @@ public class Configuration {
 
         public Builder generatedIndexesOutputFilename(String generatedIndexesOutputFilename) {
             this.generatedIndexesOutputFilename = generatedIndexesOutputFilename;
-            return this;
-        }
-
-        /**
-         * @deprecated See {@link Configuration#neo4jHaPropertiesFile}.
-         */
-        @Deprecated
-        public Builder neo4jHaPropertiesFile(String neo4jHaPropertiesFile) {
-            this.neo4jHaPropertiesFile = neo4jHaPropertiesFile;
             return this;
         }
 

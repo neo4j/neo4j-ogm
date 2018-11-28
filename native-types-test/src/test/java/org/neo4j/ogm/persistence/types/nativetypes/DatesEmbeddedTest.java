@@ -43,8 +43,10 @@ public class DatesEmbeddedTest extends DatesTestBase {
         File temporaryFolder = Files.newTemporaryFolder();
         temporaryFolder.deleteOnExit();
 
+        File databaseDirectory = Files.newFolder(temporaryFolder.getAbsolutePath() + "/database");
+
         Configuration ogmConfiguration = new Configuration.Builder()
-            .uri("file://" + temporaryFolder.getAbsolutePath())
+            .uri("file://" + databaseDirectory)
             .useNativeTypes()
             .build();
 

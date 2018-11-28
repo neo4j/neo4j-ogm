@@ -13,6 +13,7 @@
 package org.neo4j.ogm.persistence.types.nativetypes;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 import org.assertj.core.util.Files;
 import org.junit.BeforeClass;
@@ -32,8 +33,10 @@ public class SpatialEmbeddedTest extends SpatialTestBase {
         File temporaryFolder = Files.newTemporaryFolder();
         temporaryFolder.deleteOnExit();
 
+        File databaseDirectory = Files.newFolder(temporaryFolder.getAbsolutePath() + "/database");
+
         Configuration ogmConfiguration = new Configuration.Builder()
-            .uri("file://" + temporaryFolder.getAbsolutePath())
+            .uri("file://" + databaseDirectory.getAbsolutePath())
             .useNativeTypes()
             .build();
 

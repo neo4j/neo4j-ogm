@@ -115,12 +115,13 @@ public class MultiDriverTestClass {
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
+                    FileUtils.deleteDirectory(databaseDirectory);
                     FileUtils.deleteDirectory(path);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to delete temporary files in " + path, e);
                 }
             }));
-            return path.toFile();
+            return databaseDirectory.toFile();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

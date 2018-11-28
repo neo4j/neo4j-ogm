@@ -654,13 +654,6 @@ public class Neo4jSession implements Session {
         mappingContext.clear();
     }
 
-    @Deprecated
-    // TODO: Replace calls to this with a mockito test instead.
-    // inject a custom driver
-    public void setDriver(Driver driver) {
-        this.driver = driver;
-    }
-
     public Request requestHandler() {
         return driver.request();
     }

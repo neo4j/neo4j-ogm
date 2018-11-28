@@ -21,6 +21,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Map;
 
+import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.Labels;
@@ -29,6 +30,7 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Version;
 import org.neo4j.ogm.exception.core.MappingException;
+import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
@@ -474,6 +476,17 @@ public class FieldInfo {
     public boolean isVersionField() {
         return field.getAnnotation(Version.class) != null;
     }
+
+    /**
+     * @return True if this field info describes the internal identity field.
+     */
+    public boolean isInternalIdentity() {
+        return this.getAnnotations().has(Id.class) &&
+            this.getAnnotations().has(GeneratedValue.class) &&
+            ((GeneratedValue) this.getAnnotations().get(GeneratedValue.class).getAnnotation())
+                .strategy().equals(InternalIdStrategy.class);
+    }
+
 
     private static boolean doesDescriptorMatchType(String descriptor, Class<?> type) {
 

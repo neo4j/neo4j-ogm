@@ -316,7 +316,7 @@ public class ClassInfo {
             return;
         }
 
-        Collection<FieldInfo> identityFields = getFieldInfos(this::isInternalIdentity);
+        Collection<FieldInfo> identityFields = getFieldInfos(FieldInfo::isInternalIdentity);
         if (identityFields.size() == 1) {
             this.identityField = Optional.of(identityFields.iterator().next());
         } else if (identityFields.size() > 1) {
@@ -333,16 +333,6 @@ public class ClassInfo {
     public boolean hasIdentityField() {
         initIdentityField();
         return identityField.isPresent();
-    }
-
-    // Identity field
-    private boolean isInternalIdentity(FieldInfo fieldInfo) {
-        return fieldInfo.getAnnotations().has(GraphId.class) ||
-            (fieldInfo.getAnnotations().has(Id.class) &&
-                fieldInfo.getAnnotations().has(GeneratedValue.class) &&
-                ((GeneratedValue) fieldInfo.getAnnotations().get(GeneratedValue.class).getAnnotation())
-                    .strategy().equals(InternalIdStrategy.class)
-            );
     }
 
     Collection<FieldInfo> getFieldInfos(Predicate<FieldInfo> predicate) {

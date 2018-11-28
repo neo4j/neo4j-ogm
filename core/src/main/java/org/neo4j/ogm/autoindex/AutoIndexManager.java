@@ -15,10 +15,7 @@ package org.neo4j.ogm.autoindex;
 import static java.util.Collections.*;
 import static org.neo4j.ogm.transaction.Transaction.Type.*;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,11 +69,10 @@ public class AutoIndexManager {
     }
 
     /**
-     * Builds indexes according to the configured mode.
-     * @deprecated since 3.1.3, use {@link #run()}  instead.
+     * Runs the auto index manager. Depending on the configured mode it either asserts, updates, validates or dumps
+     * indexes. Does nothing in all other cases.
      */
-    @Deprecated
-    public void build() {
+    public void run() {
         switch (this.mode) {
             case ASSERT:
                 assertIndexes();
@@ -96,14 +92,6 @@ public class AutoIndexManager {
 
             default:
         }
-    }
-
-    /**
-     * Runs the auto index manager. Depending on the configured mode it either asserts, updates, validates or dumps
-     * indexes. Does nothing in all other cases.
-     */
-    public void run() {
-        this.build();
     }
 
     private void dumpIndexes() {
@@ -222,7 +210,9 @@ public class AutoIndexManager {
         List<Statement> procedures = new ArrayList<>();
 
         procedures.add(new RowDataStatement("CALL db.constraints()", emptyMap()));
-        procedures.add(new RowDataStatement("call db.indexes() yield description, type with description, type where type <> 'node_unique_property' return description" , emptyMap()));
+        procedures.add(new RowDataStatement(
+            "call db.indexes() yield description, type with description, type where type <> 'node_unique_property' return description",
+            emptyMap()));
 
         DefaultRequest getIndexesRequest = new DefaultRequest();
         getIndexesRequest.setStatements(procedures);

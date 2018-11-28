@@ -101,13 +101,11 @@ public class FieldsInfo {
     }
 
     /**
-     * Should not be used directly as it doesn't take property fields into account.
+     * To be used only internally.
      * @param name
      * @return
-     * @deprecated since 3.1.1 use {@link ClassInfo#getFieldInfo(String)} instead.
      */
-    @Deprecated
-    public FieldInfo get(String name) {
+    FieldInfo get(String name) {
         return fields.get(name);
     }
 

@@ -27,7 +27,7 @@ public class TestMetaDataTypeResolution {
 
     public void checkField(String name, String expectedDescriptor, Class expectedPersistableType) {
         ClassInfo classInfo = metaData.classInfo("POJO");
-        FieldInfo fieldInfo = classInfo.fieldsInfo().get(name);
+        FieldInfo fieldInfo = classInfo.getFieldInfo(name);
         String fieldDescriptor = fieldInfo.getTypeDescriptor();
         assertThat(fieldDescriptor).isEqualTo(expectedDescriptor);
         Class clazz = ClassUtils.getType(fieldDescriptor);

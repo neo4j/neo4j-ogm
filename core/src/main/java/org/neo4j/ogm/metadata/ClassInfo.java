@@ -311,6 +311,7 @@ public class ClassInfo {
     }
 
     private synchronized void initIdentityField() {
+
         if (identityField != null) {
             return;
         }
@@ -322,12 +323,10 @@ public class ClassInfo {
             throw new MetadataException("Expected exactly one internal identity field (@Id with " +
                 "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
         } else {
-            FieldInfo fieldInfo = fieldsInfo().get("id");
-            if (fieldInfo != null && fieldInfo.getTypeDescriptor().equals("java.lang.Long")) {
-                this.identityField = Optional.of(fieldInfo);
-            } else {
-                this.identityField = Optional.empty();
-            }
+            this.identityField = fieldsInfo.fields().stream()
+                .filter(f -> "id".equals(f.getName()))
+                .filter(f -> "java.lang.Long".equals(f.getTypeDescriptor()))
+                .findFirst();
         }
     }
 
@@ -1007,7 +1006,8 @@ public class ClassInfo {
         if (propertyField != null) {
             return propertyField;
         }
-        return null;
+
+        return fieldsInfo.get(propertyName);
     }
 
     /**

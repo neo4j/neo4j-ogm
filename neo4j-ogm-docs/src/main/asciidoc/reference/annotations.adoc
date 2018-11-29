@@ -440,7 +440,7 @@ If the field of type `Long` is simply named 'id' then it is not necessary to ann
 Entity equality can be a grey area.
 There are many debatable issues, such as whether natural keys or database identifiers best describe equality and the effects of versioning over time.
 Neo4j-OGM does not impose a dependency upon a particular style of `equals()` or `hashCode()` implementation.
-The graph-id field is directly checked to see if two entities represent the same node and a 64-bit hash code is used for dirty checking, so you're not forced to write your code in a certain way!
+The native or custom id field are directly checked to see if two entities represent the same node and a 64-bit hash code is used for dirty checking, so you're not forced to write your code in a certain way!
 
 [WARNING]
 You should write your `equals` and `hashcode` in a domain specific way for managed entities. *We strongly advise developers to not use the native graph id described by a `Long` field in combination with `@Id @GeneratedValue` in these methods*.

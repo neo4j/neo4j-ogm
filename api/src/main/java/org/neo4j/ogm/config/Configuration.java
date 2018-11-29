@@ -218,14 +218,15 @@ public class Configuration {
             Objects.equals(driverName, that.driverName) &&
             Objects.equals(credentials, that.credentials) &&
             Objects.equals(connectionLivenessCheckTimeout, that.connectionLivenessCheckTimeout) &&
-            Objects.equals(verifyConnection, that.verifyConnection);
+            Objects.equals(verifyConnection, that.verifyConnection) &&
+            Objects.equals(useNativeTypes, that.useNativeTypes);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(uri, connectionPoolSize, encryptionLevel, trustStrategy, trustCertFile, autoIndex,
-            generatedIndexesOutputDir, generatedIndexesOutputFilename, neo4jConfLocation, driverName,
-            credentials, connectionLivenessCheckTimeout, verifyConnection);
+            generatedIndexesOutputDir, generatedIndexesOutputFilename, neo4jConfLocation, driverName, credentials,
+            connectionLivenessCheckTimeout, verifyConnection, useNativeTypes);
         result = 31 * result + Arrays.hashCode(uris);
         return result;
     }
@@ -267,6 +268,7 @@ public class Configuration {
         private static final String GENERATED_INDEXES_OUTPUT_DIR = "indexes.auto.dump.dir";
         private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
         private static final String NEO4J_CONF_LOCATION = "neo4j.conf.location";
+        private static final String USE_NATIVE_TYPES = "use-native-types";
 
         private String uri;
         private String[] uris;
@@ -341,6 +343,9 @@ public class Configuration {
                         break;
                     case NEO4J_CONF_LOCATION:
                         this.neo4jConfLocation = (String) entry.getValue();
+                        break;
+                    case USE_NATIVE_TYPES:
+                        this.useNativeTypes = Boolean.valueOf((String) entry.getValue());
                         break;
                     default:
                         LOGGER.warn("Could not process property with key: {}", entry.getKey());

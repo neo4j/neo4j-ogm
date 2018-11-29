@@ -20,7 +20,7 @@
 
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
-    <version>3.2.1-SNAPSHOT</version>
+    <version>3.2.1-Spatial-Support-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neo4j Object-Graph Mapper</name>
@@ -213,6 +213,7 @@
         <ogm.properties>ogm-bolt.properties</ogm.properties>
         <neo4j.edition>enterprise</neo4j.edition>
         <spotbugs.plugin.version>3.1.3</spotbugs.plugin.version>
+        <neo4j-java-driver.version>1.7.1</neo4j-java-driver.version>
     </properties>
 
     <dependencyManagement>
@@ -222,6 +223,18 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
+                <version>${jackson}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jdk8</artifactId>
+                <version>${jackson}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson}</version>
             </dependency>
 
@@ -284,6 +297,13 @@
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- Used in Bolt-Transport and related. -->
+            <dependency>
+                <groupId>org.neo4j.driver</groupId>
+                <artifactId>neo4j-java-driver</artifactId>
+                <version>${neo4j-java-driver.version}</version>
             </dependency>
 
             <!-- Embedded Driver Dependencies -->
@@ -451,6 +471,11 @@
             <properties>
                 <neo4j>3.4.10</neo4j>
             </properties>
+            <modules>
+                <module>native-types-test</module>
+                <module>embedded-native-types</module>
+                <module>bolt-native-types</module>
+            </modules>
         </profile>
 
         <profile>
@@ -458,6 +483,11 @@
             <properties>
                 <neo4j>3.5.0-rc01</neo4j>
             </properties>
+            <modules>
+                <module>native-types-test</module>
+                <module>embedded-native-types</module>
+                <module>bolt-native-types</module>
+            </modules>
         </profile>
 
         <profile>

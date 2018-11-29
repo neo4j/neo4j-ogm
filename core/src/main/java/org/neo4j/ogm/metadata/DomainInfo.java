@@ -29,6 +29,8 @@ import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;
 import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
+import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,7 @@ import org.slf4j.LoggerFactory;
 public class DomainInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainInfo.class);
+    private final TypeSystem typeSystem;
 
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
@@ -49,7 +52,15 @@ public class DomainInfo {
     private final Set<Class> enumTypes = new HashSet<>();
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
+    public DomainInfo(TypeSystem typeSystem) {
+        this.typeSystem = typeSystem;
+    }
+
     public static DomainInfo create(String... packages) {
+        return create(NoNativeTypes.INSTANCE, packages);
+    }
+
+    public static DomainInfo create(TypeSystem typeSystem, String... packages) {
 
         ScanResult scanResult = new FastClasspathScanner(packages)
             .strictWhitelist()
@@ -57,7 +68,7 @@ public class DomainInfo {
 
         List<String> allClasses = scanResult.getNamesOfAllClasses();
 
-        DomainInfo domainInfo = new DomainInfo();
+        DomainInfo domainInfo = new DomainInfo(typeSystem);
 
         for (String className : allClasses) {
             Class<?> cls = null;
@@ -68,7 +79,7 @@ public class DomainInfo {
                 continue;
             }
 
-            ClassInfo classInfo = new ClassInfo(cls);
+            ClassInfo classInfo = new ClassInfo(cls, typeSystem);
 
             String superclassName = classInfo.superclassName();
 
@@ -337,7 +348,7 @@ public class DomainInfo {
                     .flatMap(selectAttributeConverter);
 
             // We can use a registered converter
-            if (registeredAttributeConverter.isPresent()) {
+            if (registeredAttributeConverter.isPresent() && !typeSystem.supportsAsNativeType(fieldInfo.type())) {
                 fieldInfo.setPropertyConverter(registeredAttributeConverter.get());
             } else {
                 // Check if the user configured one through the convert annotation

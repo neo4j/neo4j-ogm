@@ -16,14 +16,21 @@ package org.neo4j.ogm.drivers.bolt.response;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.result.adapter.GraphModelAdapter;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class BoltGraphModelAdapter extends GraphModelAdapter {
 
-    private BoltEntityAdapter entityAdapter = new BoltEntityAdapter();
+    private final BoltEntityAdapter entityAdapter;
+
+    public BoltGraphModelAdapter(BoltEntityAdapter entityAdapter) {
+        this.entityAdapter = entityAdapter;
+    }
 
     @Override
     public boolean isPath(Object value) {

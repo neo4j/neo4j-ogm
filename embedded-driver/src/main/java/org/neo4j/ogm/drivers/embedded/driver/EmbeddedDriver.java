@@ -14,7 +14,6 @@
 package org.neo4j.ogm.drivers.embedded.driver;
 
 import static java.util.Objects.*;
-import static org.neo4j.ogm.driver.ParameterConversionMode.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +36,6 @@ import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
-import org.neo4j.ogm.driver.ParameterConversion;
-import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
@@ -56,14 +53,15 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     private static final int TIMEOUT = 60_000;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
+
     private GraphDatabaseService graphDatabaseService;
 
     // required for service loader mechanism
     public EmbeddedDriver() {
     }
 
-    public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
-        this(graphDatabaseService, Collections::emptyMap);
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService, Configuration configuration) {
+        this(graphDatabaseService, configuration, Collections::emptyMap);
     }
 
     /**
@@ -73,9 +71,13 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * @param customPropertiesSupplier Hook to provide custom configuration properties, i.e. for Cypher modification providers
      */
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService,
-        Supplier<Map<String, Object>> customPropertiesSupplier) {
+        Configuration configuration,
+        Supplier<Map<String, Object>> customPropertiesSupplier
+    ) {
 
         super(customPropertiesSupplier);
+
+        super.configure(configuration);
 
         this.graphDatabaseService = requireNonNull(graphDatabaseService);
         boolean available = this.graphDatabaseService.isAvailable(TIMEOUT);
@@ -107,12 +109,12 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public synchronized void configure(Configuration config) {
+    public synchronized void configure(Configuration configuration) {
 
-        super.configure(config);
+        super.configure(configuration);
 
         try {
-            String fileStoreUri = config.getURI();
+            String fileStoreUri = configuration.getURI();
 
             // if no URI is set, create a temporary folder for the graph db
             // that will persist only for the duration of the JVM
@@ -131,7 +133,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             GraphDatabaseBuilder graphDatabaseBuilder = getGraphDatabaseFactory(configuration)
                 .newEmbeddedDatabaseBuilder(file);
 
-            String neo4jConfLocation = config.getNeo4jConfLocation();
+            String neo4jConfLocation = configuration.getNeo4jConfLocation();
             if(neo4jConfLocation != null) {
                 URL neo4ConfUrl = ResourceUtils.getResourceUrl(neo4jConfLocation);
                 graphDatabaseBuilder = graphDatabaseBuilder.loadPropertiesFromURL(neo4ConfUrl);
@@ -166,6 +168,11 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
+    protected String getTypeSystemName() {
+        return "org.neo4j.ogm.drivers.embedded.types.EmbeddedNativeTypes";
+    }
+
+    @Override
     public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
         if (bookmarks != null && bookmarks.iterator().hasNext()) {
             logger.warn("Passing bookmarks {} to EmbeddedDriver. This is not currently supported.", bookmarks);
@@ -190,21 +197,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     @Override
     public Request request() {
         return new EmbeddedRequest(graphDatabaseService, transactionManager,
-            getParameterConversion(), getCypherModification());
-    }
-
-    private ParameterConversion getParameterConversion() {
-
-        ParameterConversionMode mode = (ParameterConversionMode) customPropertiesSupplier.get()
-            .getOrDefault(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE, CONVERT_ALL);
-        switch (mode) {
-            case CONVERT_ALL:
-                return AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
-            case CONVERT_NON_NATIVE_ONLY:
-                return EmbeddedBasedParameterConversion.INSTANCE;
-            default:
-                throw new IllegalStateException("Unsupported conversion mode: " + mode.name() + " for Bolt-Transport.");
-        }
+            parameterConversion, new EmbeddedEntityAdapter(typeSystem), getCypherModification());
     }
 
     private org.neo4j.graphdb.Transaction nativeTransaction() {

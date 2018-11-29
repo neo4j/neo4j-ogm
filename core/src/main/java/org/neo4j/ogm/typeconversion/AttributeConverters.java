@@ -26,7 +26,7 @@ public class AttributeConverters {
     public final Function<String, AttributeConverter<?, ?>> forIterable;
 
     static class Builder {
-        AttributeConverters buildTarget;
+        private AttributeConverters buildTarget;
 
         private Builder(AttributeConverters buildTarget) {
             this.buildTarget = buildTarget;

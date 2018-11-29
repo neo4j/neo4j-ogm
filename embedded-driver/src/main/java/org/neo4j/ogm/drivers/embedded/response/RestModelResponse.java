@@ -17,21 +17,26 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.neo4j.graphdb.Result;
+import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class RestModelResponse extends EmbeddedResponse<DefaultRestModel> {
 
-    private EmbeddedRestModelAdapter restModelAdapter = new EmbeddedRestModelAdapter();
+    private final EmbeddedRestModelAdapter restModelAdapter;
     private final QueryStatisticsModel statisticsModel;
 
-    public RestModelResponse(Result result, TransactionManager transactionManager) {
+    public RestModelResponse(Result result, TransactionManager transactionManager, EmbeddedEntityAdapter entityAdapter) {
+
         super(result, transactionManager);
-        statisticsModel = new StatisticsModelAdapter().adapt(result);
+
+        this.restModelAdapter = new EmbeddedRestModelAdapter(entityAdapter);
+        this.statisticsModel = new StatisticsModelAdapter().adapt(result);
     }
 
     @Override

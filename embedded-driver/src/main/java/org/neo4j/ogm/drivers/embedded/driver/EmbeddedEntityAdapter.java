@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.drivers.embedded.response;
+package org.neo4j.ogm.drivers.embedded.driver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,13 +23,21 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.ogm.driver.TypeSystem;
 
 /**
  * Helper methods for embedded graph entities
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class EmbeddedEntityAdapter {
+
+    private final TypeSystem typeSystem;
+
+    EmbeddedEntityAdapter(TypeSystem typeSystem) {
+        this.typeSystem = typeSystem;
+    }
 
     public boolean isPath(Object value) {
         return value instanceof Path;
@@ -91,11 +99,21 @@ public class EmbeddedEntityAdapter {
         return rels;
     }
 
-    public static Map<String, Object> getAllProperties(PropertyContainer propertyContainer) {
+    public Map<String, Object> getAllProperties(PropertyContainer propertyContainer) {
         Map<String, Object> properties = new HashMap<>();
         for (String key : propertyContainer.getPropertyKeys()) {
-            properties.put(key, propertyContainer.getProperty(key));
+            properties.put(key, toMapped(propertyContainer.getProperty(key)));
         }
         return properties;
+    }
+
+    private Object toMapped(Object value) {
+
+        if (value == null) {
+            return null;
+        }
+
+        return this.typeSystem.getNativeToMappedTypeAdapter(value.getClass())
+            .apply(value);
     }
 }

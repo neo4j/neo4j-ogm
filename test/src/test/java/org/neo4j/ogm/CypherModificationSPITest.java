@@ -125,6 +125,11 @@ public class CypherModificationSPITest {
         @Override public Request request() {
             return null;
         }
+
+        @Override
+        protected String getTypeSystemName() {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class TestServiceLoaderClassLoader extends ClassLoader {

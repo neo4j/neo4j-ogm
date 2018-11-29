@@ -16,20 +16,26 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.result.adapter.ResultAdapter;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class RowModelResponse extends BoltResponse<RowModel> {
 
-    private final ResultAdapter<Map<String, Object>, RowModel> adapter = new BoltRowModelAdapter();
+    private final BoltRowModelAdapter adapter;
 
-    public RowModelResponse(StatementResult result, TransactionManager transactionManager) {
+    public RowModelResponse(StatementResult result, TransactionManager transactionManager, BoltEntityAdapter entityAdapter) {
+
         super(result, transactionManager);
-        ((BoltRowModelAdapter) adapter).setColumns(Arrays.asList(columns()));
+
+        this.adapter = new BoltRowModelAdapter(entityAdapter);
+        this.adapter.setColumns(Arrays.asList(columns()));
     }
 
     @Override

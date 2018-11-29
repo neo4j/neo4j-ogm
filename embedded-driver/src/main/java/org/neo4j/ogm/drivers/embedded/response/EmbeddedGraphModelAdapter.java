@@ -16,16 +16,22 @@ package org.neo4j.ogm.drivers.embedded.response;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
 import org.neo4j.ogm.result.adapter.GraphModelAdapter;
 
 /**
  * This adapter will transform an embedded response into a json response
  *
  * @author vince
+ * @author Michael J. Simons
  */
 public class EmbeddedGraphModelAdapter extends GraphModelAdapter {
 
-    private EmbeddedEntityAdapter entityAdapter = new EmbeddedEntityAdapter();
+    private final EmbeddedEntityAdapter entityAdapter;
+
+    public EmbeddedGraphModelAdapter(EmbeddedEntityAdapter entityAdapter) {
+        this.entityAdapter = entityAdapter;
+    }
 
     @Override
     public boolean isPath(Object value) {

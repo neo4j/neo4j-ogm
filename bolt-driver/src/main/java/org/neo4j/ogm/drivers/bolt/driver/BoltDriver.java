@@ -14,7 +14,6 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static java.util.Objects.*;
-import static org.neo4j.ogm.driver.ParameterConversionMode.*;
 
 import java.io.File;
 import java.net.URI;
@@ -38,11 +37,10 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
+import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.request.BoltRequest;
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
-import org.neo4j.ogm.driver.ParameterConversion;
-import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
@@ -62,7 +60,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private Credentials credentials;
     private Config driverConfig;
-    private Configuration configuration;
 
     // required for service loader mechanism
     public BoltDriver() {
@@ -86,19 +83,23 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public void configure(Configuration config) {
+    public void configure(Configuration configuration) {
 
         close();
 
-        super.configure(config);
+        super.configure(configuration);
 
-        this.configuration = config;
-        driverConfig = buildDriverConfig(config);
-        credentials = config.getCredentials();
+        this.driverConfig = buildDriverConfig(this.configuration);
+        this.credentials = this.configuration.getCredentials();
 
-        if (config.getVerifyConnection()) {
+        if (this.configuration.getVerifyConnection()) {
             checkDriverInitialized();
         }
+    }
+
+    @Override
+    protected String getTypeSystemName() {
+        return "org.neo4j.ogm.drivers.bolt.types.BoltNativeTypes";
     }
 
     @Override
@@ -170,21 +171,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request request() {
-        return new BoltRequest(transactionManager, getParameterConversion(), getCypherModification());
-    }
-
-    private ParameterConversion getParameterConversion() {
-
-        ParameterConversionMode mode = (ParameterConversionMode) customPropertiesSupplier.get()
-            .getOrDefault(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE, CONVERT_ALL);
-        switch (mode) {
-            case CONVERT_ALL:
-                return AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
-            case CONVERT_NON_NATIVE_ONLY:
-                return JavaDriverBasedParameterConversion.INSTANCE;
-            default:
-                throw new IllegalStateException("Unsupported conversion mode: " + mode.name() + " for Bolt-Transport.");
-        }
+        return new BoltRequest(transactionManager, this.parameterConversion, new BoltEntityAdapter(typeSystem), getCypherModification());
     }
 
     private Session newSession(Transaction.Type type, Iterable<String> bookmarks) {
@@ -297,4 +284,5 @@ public class BoltDriver extends AbstractConfigurableDriver {
         String trustCertFile;
         Integer connectionLivenessCheckTimeout;
     }
+
 }

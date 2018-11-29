@@ -13,23 +13,25 @@
 
 package org.neo4j.ogm.drivers.embedded.response;
 
-import java.util.Map;
-
 import org.neo4j.graphdb.Result;
+import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.result.adapter.ResultAdapter;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author vince
+ * @author Michael J. Simons
  */
 public class RowModelResponse extends EmbeddedResponse<RowModel> {
 
-    private final ResultAdapter<Map<String, Object>, RowModel> adapter = new EmbeddedRowModelAdapter();
+    private final EmbeddedRowModelAdapter adapter;
 
-    public RowModelResponse(Result result, TransactionManager transactionManager) {
+    public RowModelResponse(Result result, TransactionManager transactionManager, EmbeddedEntityAdapter entityAdapter) {
+
         super(result, transactionManager);
-        ((EmbeddedRowModelAdapter) adapter).setColumns(result.columns());
+
+        this.adapter = new EmbeddedRowModelAdapter(entityAdapter);
+        this.adapter.setColumns(result.columns());
     }
 
     @Override

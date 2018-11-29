@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.metadata;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -29,6 +28,7 @@ import java.util.Map;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
+import org.neo4j.ogm.driver.TypeSystem;
 
 /**
  * @author Vince Bickers
@@ -42,7 +42,7 @@ public class FieldsInfo {
         this.fields = new HashMap<>();
     }
 
-    public FieldsInfo(ClassInfo classInfo, Class<?> cls) {
+    public FieldsInfo(ClassInfo classInfo, Class<?> cls, TypeSystem typeSystem) {
         this.fields = new HashMap<>();
 
         for (Field field : cls.getDeclaredFields()) {
@@ -79,8 +79,11 @@ public class FieldsInfo {
                     if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
                         typeParameterDescriptor = field.getType().getTypeName();
                     }
+
+                    boolean isSupportedNativeType = typeSystem.supportsAsNativeType(field.getType());
                     fields.put(field.getName(),
-                        new FieldInfo(classInfo, field, typeParameterDescriptor, objectAnnotations));
+                        new FieldInfo(classInfo, field, typeParameterDescriptor, objectAnnotations,
+                            isSupportedNativeType));
                 }
             }
         }

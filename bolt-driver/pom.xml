@@ -22,7 +22,7 @@
     <parent>
         <artifactId>neo4j-ogm</artifactId>
         <groupId>org.neo4j</groupId>
-        <version>3.2.1-SNAPSHOT</version>
+        <version>3.2.1-Spatial-Support-SNAPSHOT</version>
     </parent>
 
     <artifactId>neo4j-ogm-bolt-driver</artifactId>
@@ -33,19 +33,17 @@
 
     <properties>
         <java-module-name>org.neo4j.ogm.drivers.bolt</java-module-name>
-        <bolt-driver>1.7.0</bolt-driver>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-api</artifactId>
-            <version>3.2.1-SNAPSHOT</version>
+            <version>3.2.1-Spatial-Support-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.neo4j.driver</groupId>
             <artifactId>neo4j-java-driver</artifactId>
-            <version>${bolt-driver}</version>
         </dependency>
     </dependencies>
 </project>

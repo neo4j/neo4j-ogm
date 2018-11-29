@@ -14,10 +14,15 @@ package org.neo4j.ogm.drivers.bolt.types.adapter;
 
 import java.util.function.Function;
 
+import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.Values;
 import org.neo4j.driver.v1.types.Point;
 import org.neo4j.ogm.types.spatial.AbstractPoint;
+import org.neo4j.ogm.types.spatial.CartesianPoint2d;
+import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.Coordinate;
+import org.neo4j.ogm.types.spatial.GeographicPoint2d;
+import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 
 /**
  * @author Michael J. Simons
@@ -27,11 +32,24 @@ public class PointToBoltValueAdapter implements Function<AbstractPoint, Point> {
     @Override
     public Point apply(AbstractPoint object) {
 
-        Coordinate coordinate = object.getCoordinate();
-        if (coordinate.getZ() == null) {
-            return Values.point(object.getSrid(), coordinate.getX(), coordinate.getY()).asPoint();
+        Value value;
+        if (object instanceof CartesianPoint2d) {
+            CartesianPoint2d point = (CartesianPoint2d) object;
+            value = Values.point(point.getSrid(), point.getX(), point.getY());
+        } else if (object instanceof CartesianPoint3d) {
+            CartesianPoint3d point = (CartesianPoint3d) object;
+            value = Values.point(point.getSrid(), point.getX(), point.getY(), point.getZ());
+        } else if (object instanceof GeographicPoint2d) {
+            GeographicPoint2d point = (GeographicPoint2d) object;
+            value = Values.point(point.getSrid(), point.getLongitude(), point.getLatitude());
+        } else if (object instanceof GeographicPoint3d) {
+            GeographicPoint3d point = (GeographicPoint3d) object;
+            value = Values.point(point.getSrid(), point.getLongitude(), point.getLatitude(),
+                point.getElevation());
         } else {
-            return Values.point(object.getSrid(), coordinate.getX(), coordinate.getY(), coordinate.getZ()).asPoint();
+            throw new IllegalArgumentException("Unsupported point implementation: " + object.getClass());
         }
+
+        return value.asPoint();
     }
 }

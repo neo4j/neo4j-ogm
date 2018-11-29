@@ -17,7 +17,6 @@ import java.util.function.Function;
 import org.neo4j.ogm.types.spatial.AbstractPoint;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
-import org.neo4j.ogm.types.spatial.Coordinate;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 import org.neo4j.values.storable.CoordinateReferenceSystem;
@@ -32,17 +31,20 @@ public class PointToEmbeddedValueAdapter implements Function<AbstractPoint, Poin
     @Override
     public PointValue apply(AbstractPoint object) {
 
-        Coordinate coordinate = object.getCoordinate();
         if (object instanceof CartesianPoint2d) {
-            return Values.pointValue(CoordinateReferenceSystem.Cartesian, coordinate.getX(), coordinate.getY());
+            CartesianPoint2d point = (CartesianPoint2d) object;
+            return Values.pointValue(CoordinateReferenceSystem.Cartesian, point.getX(), point.getY());
         } else if (object instanceof CartesianPoint3d) {
-            return Values.pointValue(CoordinateReferenceSystem.Cartesian_3D, coordinate.getX(), coordinate.getY(),
-                coordinate.getZ());
+            CartesianPoint3d point = (CartesianPoint3d) object;
+            return Values.pointValue(CoordinateReferenceSystem.Cartesian_3D, point.getX(), point.getY(),
+                point.getZ());
         } else if (object instanceof GeographicPoint2d) {
-            return Values.pointValue(CoordinateReferenceSystem.WGS84, coordinate.getX(), coordinate.getY());
+            GeographicPoint2d point = (GeographicPoint2d) object;
+            return Values.pointValue(CoordinateReferenceSystem.WGS84, point.getLongitude(), point.getLatitude());
         } else if (object instanceof GeographicPoint3d) {
-            return Values.pointValue(CoordinateReferenceSystem.WGS84_3D, coordinate.getX(), coordinate.getY(),
-                coordinate.getZ());
+            GeographicPoint3d point = (GeographicPoint3d) object;
+            return Values.pointValue(CoordinateReferenceSystem.WGS84_3D, point.getLongitude(), point.getLatitude(),
+                point.getElevation());
         } else {
             throw new IllegalArgumentException("Unsupported point implementation: " + object.getClass());
         }

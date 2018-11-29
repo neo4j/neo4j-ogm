@@ -16,7 +16,7 @@ import java.util.Objects;
 
 /**
  * Not part of public API, subject to change without notice.
- * 
+ *
  * @author Michael J. Simons
  */
 public abstract class AbstractPoint {
@@ -30,7 +30,7 @@ public abstract class AbstractPoint {
         this.srid = srid;
     }
 
-    public final Coordinate getCoordinate() {
+    final Coordinate getCoordinate() {
         return coordinate;
     }
 

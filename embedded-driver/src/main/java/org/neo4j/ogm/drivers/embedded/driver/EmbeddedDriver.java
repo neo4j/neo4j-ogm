@@ -14,6 +14,7 @@
 package org.neo4j.ogm.drivers.embedded.driver;
 
 import static java.util.Objects.*;
+import static org.neo4j.ogm.support.FileUtils.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,12 +22,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -86,28 +84,6 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         }
     }
 
-    /**
-     * Recursively deletes a directory tree.
-     *
-     * @param directory
-     * @throws IOException
-     */
-    private static void deleteDirectory(Path directory) throws IOException {
-        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-    }
-
     @Override
     public synchronized void configure(Configuration configuration) {
 
@@ -134,7 +110,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                 .newEmbeddedDatabaseBuilder(file);
 
             String neo4jConfLocation = configuration.getNeo4jConfLocation();
-            if(neo4jConfLocation != null) {
+            if (neo4jConfLocation != null) {
                 URL neo4ConfUrl = ResourceUtils.getResourceUrl(neo4jConfLocation);
                 graphDatabaseBuilder = graphDatabaseBuilder.loadPropertiesFromURL(neo4ConfUrl);
             }
@@ -160,7 +136,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             graphDatabaseFactory = new GraphDatabaseFactory();
         } else {
             String classnameOfHaFactory = "org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory";
-            Class<GraphDatabaseFactory> haFactoryClass = (Class<GraphDatabaseFactory>) Class.forName(classnameOfHaFactory);
+            Class<GraphDatabaseFactory> haFactoryClass = (Class<GraphDatabaseFactory>) Class
+                .forName(classnameOfHaFactory);
             graphDatabaseFactory = haFactoryClass.getDeclaredConstructor().newInstance();
         }
 

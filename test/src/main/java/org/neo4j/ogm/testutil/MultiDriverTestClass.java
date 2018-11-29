@@ -32,6 +32,7 @@ import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.exception.core.ConfigurationException;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.support.FileUtils;
 
 /**
  * @author Vince Bickers

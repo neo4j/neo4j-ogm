@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.FileUtils;
+import org.neo4j.ogm.support.FileUtils;
 
 /**
  * @author vince

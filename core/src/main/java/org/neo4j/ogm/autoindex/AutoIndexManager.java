@@ -211,7 +211,7 @@ public class AutoIndexManager {
 
         procedures.add(new RowDataStatement("CALL db.constraints()", emptyMap()));
         procedures.add(new RowDataStatement(
-            "call db.indexes() yield description, type with description, type where type <> 'node_unique_property' return description",
+            "CALL db.indexes() YIELD description, type WITH description, type WHERE type <> 'node_unique_property' RETURN description",
             emptyMap()));
 
         DefaultRequest getIndexesRequest = new DefaultRequest();
@@ -220,22 +220,20 @@ public class AutoIndexManager {
     }
 
     private void create() {
+
         // build indexes according to metadata
         List<Statement> statements = new ArrayList<>();
         for (AutoIndex index : indexes) {
             final Statement createStatement = index.getCreateStatement();
-            LOGGER.debug("[{}] added to create statements.", createStatement);
             statements.add(createStatement);
+
+            LOGGER.debug("[{}] added to create statements.", createStatement);
         }
+
+        LOGGER.debug("Creating indexes and constraints.");
         DefaultRequest request = new DefaultRequest();
         request.setStatements(statements);
-        LOGGER.debug("Creating indexes and constraints.");
-
-        session.doInTransaction(() -> {
-            try (Response<RowModel> response = session.requestHandler().execute(request)) {
-                // Success
-            }
-        }, READ_WRITE);
+        session.doInTransaction(() -> session.requestHandler().execute(request).close(), READ_WRITE);
     }
 
     private static List<AutoIndex> initialiseAutoIndex(MetaData metaData) {

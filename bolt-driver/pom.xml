@@ -22,7 +22,7 @@
     <parent>
         <artifactId>neo4j-ogm</artifactId>
         <groupId>org.neo4j</groupId>
-        <version>3.2.1-Spatial-Support-SNAPSHOT</version>
+        <version>3.2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>neo4j-ogm-bolt-driver</artifactId>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-api</artifactId>
-            <version>3.2.1-Spatial-Support-SNAPSHOT</version>
+            <version>3.2.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.neo4j.driver</groupId>

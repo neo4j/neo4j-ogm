@@ -2,6 +2,7 @@
 o Removed "neo4j.ha.properties.file" property from OGM configuration. Use "neo4j.conf.location" instead.
 o Removed `org.neo4j.ogm.autoindex.AutoIndexManager#build`. Use `org.neo4j.ogm.autoindex.AutoIndexManager#run` instead.
 o Removed deprecated and unsupported method `org.neo4j.ogm.session.Neo4jSession#setDriver`.
+o Removed deprecated `@GraphId`. Please use a `Long` field annotated with `@Id @GeneratedValue` instead.
 
 3.1.6
 o Improve documentation of type conversions. #501

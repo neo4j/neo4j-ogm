@@ -434,22 +434,16 @@ In such situation lookups prefer the primary id.
 
 If the field of type `Long` is simply named 'id' then it is not necessary to annotate it with `@Id @GeneratedValue` as Neo4j-OGM will use it automatically as native id.
 
-[[reference:annotating-entities:graph-id]]
-== @GraphId: Neo4j id field
-
-The `@GraphId` annotation is superseded by `@Id @GeneratedValue` and exists for backwards compatibility.
-It is deprecated and will eventually be removed.
-
 [[reference:annotating-entities:graph-id:equality]]
 === Entity Equality
 
 Entity equality can be a grey area.
 There are many debatable issues, such as whether natural keys or database identifiers best describe equality and the effects of versioning over time.
 Neo4j-OGM does not impose a dependency upon a particular style of `equals()` or `hashCode()` implementation.
-The graph-id field is directly checked to see if two entities represent the same node and a 64-bit hash code is used for dirty checking, so you're not forced to write your code in a certain way!
+The native or custom id field are directly checked to see if two entities represent the same node and a 64-bit hash code is used for dirty checking, so you're not forced to write your code in a certain way!
 
 [WARNING]
-You are free to write your `equals` and `hashcode` in a domain specific way for managed entities. However, *we strongly advise developers to not use the `@GraphId` field in these implementations*.
+You should write your `equals` and `hashCode` in a domain specific way for managed entities. *We strongly advise developers to not use the native id described by a `Long` field in combination with `@Id @GeneratedValue` in these methods*.
 This is because when you first persist an entity, its hashcode changes because Neo4j-OGM populates the database ID on save.
 This causes problems if you had inserted the newly created entity into a hash-based collection before saving.
 

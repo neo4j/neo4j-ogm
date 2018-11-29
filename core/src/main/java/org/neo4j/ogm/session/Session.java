@@ -594,17 +594,6 @@ public interface Session {
     Transaction beginTransaction(Transaction.Type type, Iterable<String> bookmarks);
 
     /**
-     * Applies the {@link GraphCallback} in the scope of this {@link Session}, giving fine-grained control over
-     * behaviour.
-     *
-     * @param <T>           The type of object returned from applying this callback
-     * @param graphCallback The {@link GraphCallback} to execute
-     * @return The result of calling the {@link GraphCallback}
-     * @throws NullPointerException if invoked with <code>null</code>
-     */
-    @Deprecated <T> T doInTransaction(GraphCallback<T> graphCallback);
-
-    /**
      * a cypher statement this method will return a domain object that is hydrated to the
      * default level or a scalar (depending on the parametrized type).
      *

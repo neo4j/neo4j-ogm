@@ -524,12 +524,6 @@ public class Neo4jSession implements Session {
         return txManager.openTransaction(type, bookmarks);
     }
 
-    @Override
-    @Deprecated
-    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
-        return graphCallback.apply(requestHandler(), getTransaction(), metaData);
-    }
-
     /**
      * @see Neo4jSession#doInTransaction(TransactionalUnitOfWork, org.neo4j.ogm.transaction.Transaction.Type)
      * @param function The code to execute.

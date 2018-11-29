@@ -10,7 +10,7 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.testutil;
+package org.neo4j.ogm.support;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -23,14 +23,15 @@ import java.nio.file.attribute.BasicFileAttributes;
  * @author Michael J. Simons
  */
 public final class FileUtils {
+
     /**
-     * Recursively deletes a directory tree. Duplicated on purpose, so that noone relies on it's existince throughout OGM.
+     * Recursively deletes a directory tree.
      *
      * @param directory
      * @throws IOException
      */
-    @SuppressWarnings({"Duplicates"})
     public static void deleteDirectory(Path directory) throws IOException {
+
         Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {

@@ -443,7 +443,7 @@ Neo4j-OGM does not impose a dependency upon a particular style of `equals()` or 
 The native or custom id field are directly checked to see if two entities represent the same node and a 64-bit hash code is used for dirty checking, so you're not forced to write your code in a certain way!
 
 [WARNING]
-You should write your `equals` and `hashcode` in a domain specific way for managed entities. *We strongly advise developers to not use the native graph id described by a `Long` field in combination with `@Id @GeneratedValue` in these methods*.
+You should write your `equals` and `hashCode` in a domain specific way for managed entities. *We strongly advise developers to not use the native id described by a `Long` field in combination with `@Id @GeneratedValue` in these methods*.
 This is because when you first persist an entity, its hashcode changes because Neo4j-OGM populates the database ID on save.
 This causes problems if you had inserted the newly created entity into a hash-based collection before saving.
 

@@ -330,7 +330,7 @@ public class ClassInfo {
         }
     }
 
-    public boolean hasIdentityField() {
+    boolean hasIdentityField() {
         initIdentityField();
         return identityField.isPresent();
     }

@@ -419,7 +419,7 @@ public class ClassInfo {
         if (propertyFields == null) {
             initPropertyFields();
         }
-        return propertyName == null ? null : propertyFields.get(propertyName.toLowerCase());
+        return propertyName == null ? null : propertyFields.get(propertyName);
     }
 
     @SuppressWarnings("HiddenField")
@@ -444,13 +444,13 @@ public class ClassInfo {
                     // If a field is not marked explicitly as a property but is persistable as such, add it.
                     if (fieldInfo.persistableAsProperty()) {
                         fieldInfos.add(fieldInfo);
-                        propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
+                        propertyFields.put(fieldInfo.property(), fieldInfo);
                     }
                 } else if (fieldInfo.persistableAsProperty()) {
 
                     // If it is marked as a property, than it should be persistable as such
                     fieldInfos.add(fieldInfo);
-                    propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
+                    propertyFields.put(fieldInfo.property(), fieldInfo);
                 } else {
 
                     // Otherwise throw a fitting exception

@@ -40,8 +40,8 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
 
     private static final String[] INDEXES = {
         "INDEX ON :`EntityWithCompositeIndex`(`name`,`age`)",
-        "INDEX ON :`EntityWithMultipleCompositeIndexes`(`name`,`age`)",
-        "INDEX ON :`EntityWithMultipleCompositeIndexes`(`name`,`email`)"
+        "INDEX ON :`EntityWithMultipleCompositeIndexes`(`firstName`,`age`)",
+        "INDEX ON :`EntityWithMultipleCompositeIndexes`(`firstName`,`email`)"
     };
     private static final String CONSTRAINT = "CONSTRAINT ON (entity:EntityWithCompositeIndex) ASSERT (entity.name, entity.age) IS NODE KEY";
 
@@ -90,8 +90,8 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
                     .hasSize(2)
             );
         } finally {
-            executeDrop("INDEX ON :EntityWithMultipleCompositeIndexes(name, age)");
-            executeDrop("INDEX ON :EntityWithMultipleCompositeIndexes(name, email)");
+            executeDrop("INDEX ON :EntityWithMultipleCompositeIndexes(firstName, age)");
+            executeDrop("INDEX ON :EntityWithMultipleCompositeIndexes(firstName, email)");
         }
     }
 

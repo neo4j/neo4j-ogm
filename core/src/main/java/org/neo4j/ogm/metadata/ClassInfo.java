@@ -421,7 +421,7 @@ public class ClassInfo {
         if (propertyFields == null) {
             initPropertyFields();
         }
-        return propertyName == null ? null : propertyFields.get(propertyName.toLowerCase());
+        return propertyName == null ? null : propertyFields.get(propertyName);
     }
 
     private synchronized void initPropertyFields() {
@@ -444,13 +444,13 @@ public class ClassInfo {
                 if (!fieldInfo.getAnnotations().has(Property.class)) {
                     if (fieldInfo.persistableAsProperty()) {
                         fieldInfos.add(fieldInfo);
-                        propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
+                        propertyFields.put(fieldInfo.property(), fieldInfo);
                     }
                 }
                 // If it is marked as a property, than it should be persistable as such
                 else if (fieldInfo.persistableAsProperty()) {
                     fieldInfos.add(fieldInfo);
-                    propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
+                    propertyFields.put(fieldInfo.property(), fieldInfo);
                 }
                 // Otherwise throw a fitting exception
                 else {

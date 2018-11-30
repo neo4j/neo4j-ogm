@@ -14,6 +14,7 @@
 package org.neo4j.ogm.domain.pizza;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,8 @@ import org.neo4j.ogm.annotation.Relationship;
  * An entity that contains multiple relationships and RE's with the same relationship type and direction.
  *
  * @author Luanne Misquitta
+ * @author Jonathan D'Orleans
+ * @author Michael J. Simons
  */
 @NodeEntity(label = "Pizza")
 public class Pizza {
@@ -62,6 +65,18 @@ public class Pizza {
         this.name = name;
         this.crust = crust;
         this.toppings = toppings;
+    }
+
+    public void addLabel(Object... labels) {
+        for (Object label : labels) {
+            this.labels.add(label.toString());
+        }
+    }
+
+    public void removeLabel(Object... labels) {
+        for (Object label : labels) {
+            this.labels.remove(label.toString());
+        }
     }
 
     public Long getId() {

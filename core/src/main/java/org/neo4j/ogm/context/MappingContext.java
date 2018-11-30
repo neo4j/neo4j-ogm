@@ -147,14 +147,15 @@ public class MappingContext {
 
         ClassInfo classInfo = metaData.classInfo(entity);
 
-        if (nodeEntityRegister.putIfAbsent(id, entity) == null) {
-            remember(entity);
+        if (!nodeEntityRegister.containsKey(id)) {
+            nodeEntityRegister.put(id, entity);
             final Object primaryIndexValue = classInfo.readPrimaryIndexValueOf(entity);
             if (primaryIndexValue != null) {
                 LabelPrimaryId key = new LabelPrimaryId(classInfo, primaryIndexValue);
                 primaryIndexNodeRegister.putIfAbsent(key, entity);
                 primaryIdToNativeId.put(key, id);
             }
+            remember(entity, id);
         }
 
         return entity;
@@ -243,7 +244,7 @@ public class MappingContext {
      * @return The label information
      */
     LabelHistory labelHistory(Object entity) {
-        return identityMap.labelHistory(entity, nativeId(entity));
+        return identityMap.labelHistory(nativeId(entity));
     }
 
     /**
@@ -303,7 +304,7 @@ public class MappingContext {
 
         if (relationshipEntityRegister.putIfAbsent(id, relationshipEntity) == null) {
             relationshipEntity = relationshipEntityRegister.get(id);
-            remember(relationshipEntity);
+            remember(relationshipEntity, id);
 
             ClassInfo classInfo = metaData.classInfo(relationshipEntity);
             if (classInfo.hasPrimaryIndexField()) {
@@ -500,8 +501,8 @@ public class MappingContext {
         }
     }
 
-    private void remember(Object entity) {
-        identityMap.remember(entity, nativeId(entity));
+    private void remember(Object entity, Long id) {
+        identityMap.remember(entity, id);
     }
 
     public Long nativeId(Object entity) {

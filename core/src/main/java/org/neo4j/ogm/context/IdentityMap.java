@@ -105,17 +105,18 @@ class IdentityMap {
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {
             Collection<String> labels = (Collection<String>) fieldInfo.read(entity);
-            labelHistory(entity, entityId).push(labels);
+            labelHistory(entityId).push(labels);
         }
     }
 
-    LabelHistory labelHistory(Object entity, Long entityId) {
+    LabelHistory labelHistory(Long entityId) {
         return labelHistoryRegister.computeIfAbsent(entityId, k -> new LabelHistory());
     }
 
     void clear() {
         nodeHash.clear();
         relEntityHash.clear();
+        labelHistoryRegister.clear();
     }
 
     private long hash(Object object, ClassInfo classInfo) {

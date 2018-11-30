@@ -127,6 +127,46 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
         }
     }
 
+    @Test // See #488
+    public void shouldUpdateLabelWhenLoadingEntityInSameSession() {
+        ChildA a = new ChildA();
+        a.addLabel("A0");
+        session.save(a);
+        session.clear();
+
+        ChildA dbA = session.load(ChildA.class, a.getUuid());
+        assertThat(dbA.getLabels().size()).isEqualTo(1);
+        assertThat(dbA.getLabels()).contains("A0");
+        dbA.removeLabel("A0");
+        dbA.addLabel("A1");
+        session.save(dbA);
+        session.clear();
+
+        dbA = session.load(ChildA.class, a.getUuid());
+        assertThat(dbA.getLabels().size()).isEqualTo(1);
+        assertThat(dbA.getLabels()).contains("A1");
+    }
+
+    @Test // See #488
+    public void shouldUpdateLabelWhenLoadingEntityInNewSession() {
+        ChildA a = new ChildA();
+        a.addLabel("A0");
+        session.save(a);
+
+        Session newSession = sessionFactory.openSession();
+        ChildA dbA = newSession.load(ChildA.class, a.getUuid());
+        assertThat(dbA.getLabels().size()).isEqualTo(1);
+        assertThat(dbA.getLabels()).contains("A0");
+        dbA.removeLabel("A0");
+        dbA.addLabel("A1");
+        newSession.save(dbA);
+        newSession.clear();
+
+        dbA = newSession.load(ChildA.class, a.getUuid());
+        assertThat(dbA.getLabels().size()).isEqualTo(1);
+        assertThat(dbA.getLabels()).contains("A1");
+    }
+
     static class IndexDescription {
         final String label;
 

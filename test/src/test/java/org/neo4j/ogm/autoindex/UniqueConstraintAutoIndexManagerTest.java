@@ -41,16 +41,12 @@ public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTe
     }
 
     @Test
-    public void testAutoIndexManagerUpdateIndexChangedToConstraint() throws Exception {
+    public void testAutoIndexManagerUpdateIndexChangedToConstraint() {
         executeCreate(INDEX);
 
         runAutoIndex("update");
 
-        executeForIndexes(indexes -> {
-            assertThat(indexes).isEmpty();
-        });
-        executeForConstraints(constraints -> {
-            assertThat(constraints).hasSize(1);
-        });
+        executeForIndexes(indexes -> assertThat(indexes).isEmpty());
+        executeForConstraints(constraints -> assertThat(constraints).hasSize(1));
     }
 }

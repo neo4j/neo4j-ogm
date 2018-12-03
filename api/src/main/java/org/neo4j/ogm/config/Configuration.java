@@ -15,6 +15,7 @@ package org.neo4j.ogm.config;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -23,7 +24,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.neo4j.ogm.support.ResourceUtils;
 import org.slf4j.Logger;
@@ -60,6 +64,11 @@ public class Configuration {
     private Boolean verifyConnection;
     private Boolean useNativeTypes;
     private Map<String, Object> customProperties;
+    /**
+     * Base packages to scan for annotated components. They will be merged into a unique list
+     * of packages with the programmatically registered packages to scan.
+     */
+    private String[] basePackages;
 
     /**
      * Protected constructor of the Configuration class.
@@ -83,6 +92,7 @@ public class Configuration {
         this.neo4jConfLocation = builder.neo4jConfLocation;
         this.customProperties = builder.customProperties;
         this.useNativeTypes = builder.useNativeTypes;
+        this.basePackages = builder.basePackages;
 
         if (this.uri != null) {
             java.net.URI uri = null;
@@ -198,6 +208,20 @@ public class Configuration {
         return useNativeTypes;
     }
 
+    public String[] getBasePackages() {
+        return basePackages;
+    }
+
+    public String[] mergeBasePackagesWith(String...anotherSetOfBasePackages) {
+        String[] set1 = Optional.ofNullable(this.basePackages).orElseGet(() -> new String[0]);
+        String[] set2 = Optional.ofNullable(anotherSetOfBasePackages).orElseGet(() -> new String[0]);
+
+        return Stream.concat(Arrays.stream(set1), Arrays.stream(set2))
+            .filter(s -> s != null)
+            .distinct()
+            .toArray(String[]::new);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -219,7 +243,8 @@ public class Configuration {
             Objects.equals(credentials, that.credentials) &&
             Objects.equals(connectionLivenessCheckTimeout, that.connectionLivenessCheckTimeout) &&
             Objects.equals(verifyConnection, that.verifyConnection) &&
-            Objects.equals(useNativeTypes, that.useNativeTypes);
+            Objects.equals(useNativeTypes, that.useNativeTypes) &&
+            Arrays.equals(basePackages, that.basePackages);
     }
 
     @Override
@@ -228,6 +253,7 @@ public class Configuration {
             generatedIndexesOutputDir, generatedIndexesOutputFilename, neo4jConfLocation, driverName, credentials,
             connectionLivenessCheckTimeout, verifyConnection, useNativeTypes);
         result = 31 * result + Arrays.hashCode(uris);
+        result = 31 * result + Arrays.hashCode(basePackages);
         return result;
     }
 
@@ -269,6 +295,7 @@ public class Configuration {
         private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
         private static final String NEO4J_CONF_LOCATION = "neo4j.conf.location";
         private static final String USE_NATIVE_TYPES = "use-native-types";
+        private static final String BASE_PACKAGES = "base-packages";
 
         private String uri;
         private String[] uris;
@@ -286,6 +313,7 @@ public class Configuration {
         private String password;
         private boolean useNativeTypes;
         private Map<String, Object> customProperties = new HashMap<>();
+        private String[] basePackages;
 
         /**
          * Creates new Configuration builder
@@ -312,7 +340,7 @@ public class Configuration {
                         this.password = (String) entry.getValue();
                         break;
                     case URIS:
-                        this.uris = ((String) entry.getValue()).split(",");
+                        this.uris = splitValue(entry.getValue());
                         break;
                     case CONNECTION_POOL_SIZE:
                         this.connectionPoolSize = Integer.parseInt((String) entry.getValue());
@@ -347,10 +375,28 @@ public class Configuration {
                     case USE_NATIVE_TYPES:
                         this.useNativeTypes = Boolean.valueOf((String) entry.getValue());
                         break;
+                    case BASE_PACKAGES:
+                        this.basePackages = splitValue(entry.getValue());
+                        break;
                     default:
                         LOGGER.warn("Could not process property with key: {}", entry.getKey());
                 }
             }
+        }
+
+        private static String[] splitValue(Object value) {
+
+            if(!(value instanceof String)) {
+                throw new IllegalArgumentException("Cannot split values of type other than java.lang.String (was " + value.getClass() + ").");
+            }
+
+            String stringValue = (String) value;
+            if(stringValue == null || stringValue.trim().isEmpty()) {
+                return new String[0];
+            }
+
+            return Arrays.stream(stringValue.split(","))
+                .map(String::trim).toArray(String[]::new);
         }
 
         /**
@@ -480,6 +526,19 @@ public class Configuration {
          */
         public Builder useNativeTypes() {
             this.useNativeTypes = true;
+            return this;
+        }
+
+        /**
+         * Creates a new builder with a list of base packages to scan.
+         *
+         * @param basePackages The new base backages.
+         * @return The modified builder.
+         *
+         * @since 3.2
+         */
+        public Builder withBasePackages(String... basePackages) {
+            this.basePackages = basePackages;
             return this;
         }
 

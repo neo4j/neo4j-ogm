@@ -5,6 +5,7 @@ o Removed deprecated and unsupported method `org.neo4j.ogm.session.Neo4jSession#
 o Removed deprecated `@GraphId`. Please use a `Long` field annotated with `@Id @GeneratedValue` instead.
 o Removed deprecated `org.neo4j.ogm.session.Session.doInTransaction(GraphCallback<T>)`. SDN doesn't use that from 5.1.4
   upwards anymore.
+o Allow configuration of packages to scan in `ogm.properties` through `base-packages`. (#131)
 
 3.1.6
 o Improve documentation of type conversions. #501

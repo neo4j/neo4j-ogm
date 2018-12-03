@@ -76,10 +76,10 @@ public class SessionFactory {
      * Indexes will also be checked or built unless auto index mode is set to <code>NONE</code>.
      *
      * @param configuration The baseConfiguration to use
-     * @param packages      The packages to scan for domain objects
+     * @param packages      The packages to scan for domain objects. They will be merged with the configuration.
      */
     public SessionFactory(Configuration configuration, String... packages) {
-        this(newConfiguredDriverInstance(configuration), packages);
+        this(newConfiguredDriverInstance(configuration), configuration.mergeBasePackagesWith(packages));
 
         if (configuration.getAutoIndex() != NONE) {
             runAutoIndexManager(configuration);

@@ -44,7 +44,7 @@ import org.neo4j.ogm.typeconversion.LocalDateStringConverter;
  */
 public abstract class DatesTestBase {
 
-    protected static SessionFactory sessionFactory;
+    static SessionFactory sessionFactory;
 
     @Test
     public void convertPersistAndLoadLocalDate() {

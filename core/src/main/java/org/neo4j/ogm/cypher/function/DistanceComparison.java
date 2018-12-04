@@ -49,7 +49,6 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
 
     @Override
     public String expression(String nodeIdentifier) {
-
         String latitude = nodeIdentifier + LATITUDE_PROPERTY_SUFFIX;
         String longitude = nodeIdentifier + LONGITUDE_PROPERTY_SUFFIX;
 

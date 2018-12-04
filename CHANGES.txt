@@ -9,6 +9,7 @@ o Fix update of labels depending on the session in which an entity was loaded. (
 o Allow configuration of embedded database through file specified in `ogm.properties` under `neo4j.conf.location`. (#408)
 o Improve documentation of attribute conversions. (#501)
 o Don't rely on system encoding.
+o Constraint violations are now handled consistent across drivers. (#301)
 
 3.1.5
 o Fix loading by parent class / interface for custom id. (#554)

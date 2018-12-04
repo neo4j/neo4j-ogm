@@ -82,8 +82,7 @@ public abstract class AbstractHttpResponse<T> {
             JsonNode errors = responseNode.findValue("errors");
             if (errors.elements().hasNext()) {
                 JsonNode errorNode = errors.elements().next();
-                throw new CypherException("Error executing Cypher " + errorNode.findValue("code"),
-                    errorNode.findValue("code").asText(), errorNode.findValue("message").asText());
+                throw new CypherException(errorNode.findValue("code").asText(), errorNode.findValue("message").asText());
             }
         } catch (IOException e) {
             throw new ResultProcessingException("Error processing results", e);

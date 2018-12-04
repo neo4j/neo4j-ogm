@@ -126,8 +126,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
                 JsonNode errors = responseNode.findValue("errors");
                 if (errors.elements().hasNext()) {
                     JsonNode errorNode = errors.elements().next();
-                    throw new CypherException("Error executing Cypher",
-                        errorNode.findValue("code").asText(), errorNode.findValue("message").asText());
+                    throw new CypherException(errorNode.findValue("code").asText(), errorNode.findValue("message").asText());
                 }
             }
             return response;

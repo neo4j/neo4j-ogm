@@ -81,7 +81,7 @@ public class BoltTransaction extends AbstractTransaction {
             if (ce.code().startsWith(NEO_CLIENT_ERROR_SECURITY)) {
                 throw new ConnectionException("Security Error: " + ce.code() + ", " + ce.getMessage(), ce);
             }
-            throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
+            throw new CypherException(ce.code(), ce.getMessage(), ce);
         } catch (Exception e) {
             closeNativeSessionIfPossible();
             throw new TransactionException(e.getLocalizedMessage(), e);

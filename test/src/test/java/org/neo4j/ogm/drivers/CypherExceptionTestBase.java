@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2002-2018 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This product is licensed to you under the Apache License, Version 2.0 (the "License").
+ * You may not use this product except in compliance with the License.
+ *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ *  conditions of the subcomponent's license, as noted in the LICENSE file.
+ */
+package org.neo4j.ogm.drivers;
+
+import java.util.regex.Pattern;
+
+import org.assertj.core.api.Assertions;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.ogm.domain.cypher_exception_test.ConstraintedNode;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.exception.CypherException;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+
+/**
+ * Tests extending from this test base make sure that Neo4j-OGM deals with database exception in a consistent way.
+ * Idea is to use the {@link ServerControls} from the test harness to build a session factory in a {@link BeforeClass}
+ * method to be returned in {@link #getSessionFactory()}.
+ * <br><br>
+ * In an ideal world, non of the concrete classes should have any {@link Test} method.
+ *
+ * @param <T></T> type of driver
+ * @author Michael J. Simons
+ */
+public abstract class CypherExceptionTestBase<T extends Driver> {
+
+    private static final String CONSTRAINT_VIOLATED_MESSAGE_PATTERN = Pattern
+        .quote("Cypher execution failed with code 'Neo.ClientError.Schema.ConstraintValidationFailed': Node(")
+        .concat("\\d")
+        .concat(Pattern.quote(") already exists with label `CONSTRAINTED_NODE` and property `name` = 'test'."));
+
+    protected static final String DOMAIN_PACKAGE = "org.neo4j.ogm.domain.cypher_exception_test";
+
+    protected static ServerControls serverControls;
+
+    @BeforeClass
+    public static void startServer() {
+        serverControls = TestServerBuilders.newInProcessBuilder()
+            .withFixture(database -> {
+                database.execute("MATCH (n:CONSTRAINTED_NODE) DETACH DELETE n");
+                database.execute("CREATE CONSTRAINT ON (n:CONSTRAINTED_NODE) ASSERT n.name IS UNIQUE");
+                database.execute("CREATE (n:CONSTRAINTED_NODE {name: 'test'})");
+                return null;
+            }).newServer();
+    }
+
+    protected abstract SessionFactory getSessionFactory();
+
+    @Test
+    public void constraintViolationExceptionShouldBeConsistent() {
+        Session session = getSessionFactory().openSession();
+
+        Assertions.assertThatExceptionOfType(CypherException.class).isThrownBy(() -> {
+            ConstraintedNode node = new ConstraintedNode("test");
+            session.save(node);
+
+        }).withMessageMatching(CONSTRAINT_VIOLATED_MESSAGE_PATTERN);
+    }
+
+    @AfterClass
+    public static void stopServer() {
+        serverControls.close();
+    }
+}

@@ -45,7 +45,7 @@ public abstract class BoltResponse<T> implements Response {
             return fetchNext();
         } catch (ClientException ce) {
             LOGGER.debug("Error executing Cypher: {}, {}", ce.code(), ce.getMessage());
-            throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
+            throw new CypherException(ce.code(), ce.getMessage(), ce);
         }
     }
 

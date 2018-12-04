@@ -162,7 +162,7 @@ public class EmbeddedRequest implements Request {
 
             return graphDatabaseService.execute(cypher, parameterMap);
         } catch (QueryExecutionException qee) {
-            throw new CypherException("Error executing Cypher", qee, qee.getStatusCode(), qee.getMessage());
+            throw new CypherException(qee.getStatusCode(), qee.getMessage(), qee);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -358,6 +358,12 @@
                 <configuration>
                     <additionalparam>-Xdoclint:html</additionalparam>
                     <additionalparam>-Xdoclint:syntax</additionalparam>
+                    <tags>
+                        <tag>
+                            <name>soundtrack</name>
+                            <placement>X</placement>
+                        </tag>
+                    </tags>
                 </configuration>
             </plugin>
             <plugin>

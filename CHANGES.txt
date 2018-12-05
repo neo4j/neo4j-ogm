@@ -6,6 +6,11 @@ o Removed deprecated `@GraphId`. Please use a `Long` field annotated with `@Id @
 o Removed deprecated `org.neo4j.ogm.session.Session.doInTransaction(GraphCallback<T>)`. SDN doesn't use that from 5.1.4
   upwards anymore.
 o Allow configuration of packages to scan in `ogm.properties` through `base-packages`. (#131)
+o Removed deprecated and unused ServiceNotFoundException for good this time. (#319)
+o Removed deprecated `org.neo4j.ogm.session.Neo4jException`. (#319)
+o Removed deprecated `org.neo4j.ogm.exception.core.NotFoundException`. (#319)
+o Removed deprecated `org.neo4j.ogm.exception.core.ResultErrorsException`. (#319)
+o Introduced exception translator to unify exceptions of different transports into an OGM hierarchy. (#319)
 
 3.1.x
 o Improve documentation of type conversions. #501
@@ -19,6 +24,9 @@ o Allow configuration of embedded database through file specified in `ogm.proper
 o Improve documentation of attribute conversions. (#501)
 o Don't rely on system encoding.
 o Constraint violations are now handled consistent across drivers. (#301)
+o Deprecated `org.neo4j.ogm.session.Neo4jException`, will be removed in 3.2. (#319)
+o Deprecated `org.neo4j.ogm.exception.core.NotFoundException`, will be removed in 3.2. (#319)
+o Deprecated `org.neo4j.ogm.exception.core.ResultErrorsException`, will be removed in 3.2. (#319)
 
 3.1.5
 o Fix loading by parent class / interface for custom id. (#554)

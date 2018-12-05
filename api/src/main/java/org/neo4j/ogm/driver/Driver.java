@@ -16,10 +16,10 @@ package org.neo4j.ogm.driver;
 import java.util.function.Function;
 
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
-import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 
 /**
  * @author Vince Bickers
@@ -62,7 +62,24 @@ public interface Driver extends AutoCloseable {
         return true;
     }
 
+    /**
+     * This returns the type system of the specific drivers. A type system for a driver is set of types that
+     * are special to Neo4j and can be represented in either Java built-ins or dedicated types. The driver interface
+     * defaults to a type system that does not support any native types.
+     *
+     * @return This driver's type system.
+     */
     default TypeSystem getTypeSystem() {
         return NoNativeTypes.INSTANCE;
+    }
+
+    /**
+     * An {@link ExceptionTranslator} translating driver specific exception into a Neo4j-OGM api exceptions.
+     *
+     * @return The default translator returning the exception itself.
+     * @since 3.2
+     */
+    default ExceptionTranslator getExceptionTranslator() {
+        return e -> e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
     }
 }

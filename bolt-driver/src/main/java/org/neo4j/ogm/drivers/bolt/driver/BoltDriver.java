@@ -37,6 +37,7 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
+import org.neo4j.ogm.driver.ExceptionTranslator;
 import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.request.BoltRequest;
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
@@ -56,8 +57,9 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
 
-    private volatile Driver boltDriver;
+    private final ExceptionTranslator exceptionTranslator = new BoltDriverExceptionTranslator();
 
+    private volatile Driver boltDriver;
     private Credentials credentials;
     private Config driverConfig;
 
@@ -172,6 +174,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
     @Override
     public Request request() {
         return new BoltRequest(transactionManager, this.parameterConversion, new BoltEntityAdapter(typeSystem), getCypherModification());
+    }
+
+    @Override
+    public ExceptionTranslator getExceptionTranslator() {
+        return this.exceptionTranslator;
     }
 
     private Session newSession(Transaction.Type type, Iterable<String> bookmarks) {

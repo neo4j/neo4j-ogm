@@ -551,39 +551,45 @@ public class Neo4jSession implements Session {
      * For internal use only. Opens a new transaction if necessary before running statements
      * in case an explicit transaction does not exist. It is designed to be the central point
      * for handling exceptions coming from the DB and apply commit / rollback rules.
+     *
      * @param function The callback to execute.
-     * @param <T> The result type.
-     * @param txType Transaction type, readonly or not.
+     * @param <T>      The result type.
+     * @param txType   Transaction type, readonly or not.
      * @return The result of the transaction function.
      */
     public <T> T doInTransaction(TransactionalUnitOfWork<T> function, boolean forceTx, Transaction.Type txType) {
 
         Transaction transaction = txManager.getCurrentTransaction();
-        if (!forceTx && (!driver.requiresTransaction() || transaction != null)) {
-            return function.doInTransaction();
-        }
 
-        transaction = beginTransaction(txType);
+        // If we (force) create a new transaction, we are in charge of handling rollback in case of errors
+        // and cleaning up afterwards.
+        boolean newTransaction = false;
         try {
+            if (forceTx || (driver.requiresTransaction() && transaction == null)) {
+                transaction = beginTransaction(txType);
+                newTransaction = true;
+            }
+
             T result = function.doInTransaction();
-            if (transactionManager().canCommit()) {
+            if (newTransaction && txManager.canCommit()) {
                 transaction.commit();
             }
             return result;
         } catch (CypherException e) {
-            logger.warn("Error executing query : {} - {}. Rolling back transaction.", e.getCode(), e.getDescription());
-            if (transactionManager().canRollback()) {
+            if (newTransaction && txManager.canRollback()) {
+                logger.warn("Error executing query : {} - {}. Rolling back transaction.", e.getCode(),
+                    e.getDescription());
                 transaction.rollback();
             }
             throw e;
         } catch (Throwable e) {
-            logger.warn("Error executing query : {}. Rolling back transaction.", e.getMessage());
-            if(transactionManager().canRollback()) {
+            if (newTransaction && txManager.canRollback()) {
+                logger.warn("Error executing query : {}. Rolling back transaction.", e.getMessage());
                 transaction.rollback();
             }
-            throw e;
+            throw driver.getExceptionTranslator().translateExceptionIfPossible(e);
         } finally {
-            if (!transaction.status().equals(Transaction.Status.CLOSED)) {
+            if (newTransaction && transaction != null && !transaction.status().equals(Transaction.Status.CLOSED)) {
                 transaction.close();
             }
         }
@@ -650,10 +656,6 @@ public class Neo4jSession implements Session {
 
     public Request requestHandler() {
         return driver.request();
-    }
-
-    public DefaultTransactionManager transactionManager() {
-        return txManager;
     }
 
     public void warn(String msg) {

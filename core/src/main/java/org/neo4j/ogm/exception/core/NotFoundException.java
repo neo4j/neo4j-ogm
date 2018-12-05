@@ -15,7 +15,9 @@ package org.neo4j.ogm.exception.core;
 
 /**
  * @author Michal Bachman
+ * @deprecated since 3.1.6, will be removed without replacement in 3.2
  */
+@Deprecated
 public class NotFoundException extends RuntimeException {
 
     public NotFoundException() {

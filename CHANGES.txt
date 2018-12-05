@@ -10,6 +10,7 @@ o Allow configuration of embedded database through file specified in `ogm.proper
 o Improve documentation of attribute conversions. (#501)
 o Don't rely on system encoding.
 o Constraint violations are now handled consistent across drivers. (#301)
+o Deprecated `org.neo4j.ogm.session.Neo4jException`, will be removed in 3.2. (#319)
 
 3.1.5
 o Fix loading by parent class / interface for custom id. (#554)

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
+import org.neo4j.ogm.cypher.function.NativeDistanceComparison;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
@@ -118,6 +119,14 @@ public class Filter implements FilterWithRelationship {
     public Filter(DistanceComparison distanceComparisonFunction, ComparisonOperator comparisonOperator) {
         this.index = 0;
         this.function = distanceComparisonFunction;
+        this.function.setFilter(this);
+        this.comparisonOperator = comparisonOperator;
+    }
+
+    public Filter(String propertyName, NativeDistanceComparison comparison, ComparisonOperator comparisonOperator) {
+        this.index = 0;
+        this.propertyName = propertyName;
+        this.function = comparison;
         this.function.setFilter(this);
         this.comparisonOperator = comparisonOperator;
     }

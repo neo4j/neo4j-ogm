@@ -13,7 +13,6 @@
 package org.neo4j.ogm.persistence.types.nativetypes;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 import org.assertj.core.util.Files;
 import org.junit.BeforeClass;

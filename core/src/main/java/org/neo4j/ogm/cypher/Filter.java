@@ -109,39 +109,28 @@ public class Filter implements FilterWithRelationship {
 
     private List<NestedPathSegment> nestedPath;
 
-    //Primary Constructor
     public Filter(FilterFunction function) {
-        this.index = 0;
-        this.function = function;
-        this.function.setFilter(this);
+        this(null, function, null);
+    }
+
+    public Filter(String propertyName, FilterFunction filterFunction) {
+        this(propertyName, filterFunction, null);
     }
 
     public Filter(DistanceComparison distanceComparisonFunction, ComparisonOperator comparisonOperator) {
-        this.index = 0;
-        this.function = distanceComparisonFunction;
-        this.function.setFilter(this);
-        this.comparisonOperator = comparisonOperator;
+        this(null, distanceComparisonFunction, comparisonOperator);
     }
 
-    public Filter(String propertyName, NativeDistanceComparison comparison, ComparisonOperator comparisonOperator) {
-        this.index = 0;
-        this.propertyName = propertyName;
-        this.function = comparison;
-        this.function.setFilter(this);
-        this.comparisonOperator = comparisonOperator;
-    }
-
-    //Convenience Constructor
     public Filter(String propertyName, ComparisonOperator comparisonOperator, Object propertyValue) {
-        this(new PropertyComparison(propertyValue));
-        this.comparisonOperator = comparisonOperator;
-        this.propertyName = propertyName;
+        this(propertyName, new PropertyComparison(propertyValue), comparisonOperator);
     }
 
-    //Convenience Constructor
-    public Filter(String propertyName, FilterFunction filterFunction) {
-        this(filterFunction);
+    public Filter(String propertyName, FilterFunction filterFunction, ComparisonOperator comparisonOperator) {
+        this.index = 0;
         this.propertyName = propertyName;
+        this.function = filterFunction;
+        this.function.setFilter(this);
+        this.comparisonOperator = comparisonOperator;
     }
 
     // TODO: Split Operators up into binary and unary.

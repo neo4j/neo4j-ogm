@@ -204,8 +204,8 @@
         <httpclient>4.5.2</httpclient>
         <junit>4.12</junit>
         <assertj>3.8.0</assertj>
-        <slf4j>1.7.21</slf4j>
-        <logback>1.1.7</logback>
+        <slf4j.version>1.7.25</slf4j.version>
+        <logback.version>1.2.3</logback.version>
         <mockito>2.2.29</mockito>
         <!-- default for build, if no profiles invoked -->
         <neo4j>3.4.9</neo4j>
@@ -241,7 +241,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4j}</version>
+                <version>${slf4j.version}</version>
             </dependency>
 
             <dependency>
@@ -275,14 +275,7 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>${logback}</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback}</version>
+                <version>${logback.version}</version>
                 <scope>test</scope>
             </dependency>
 

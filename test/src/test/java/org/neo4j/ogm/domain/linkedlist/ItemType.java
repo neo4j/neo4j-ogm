@@ -19,37 +19,26 @@
 package org.neo4j.ogm.domain.linkedlist;
 
 import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
 
 /**
- * @author Vince Bickers
+ * @author Atul Mahind
  */
 @NodeEntity
-public class Item {
-
-    @Relationship(type = "NEXT", direction = Relationship.OUTGOING)
-    public Item next;
-    @Relationship(type = "NEXT", direction = Relationship.INCOMING)
-    public Item previous;
-
-    @Relationship(type = "BELONGS_TO", direction = Relationship.OUTGOING)
-    public Item belongsTo;
+public class ItemType {
 
     private Long id;
-    private String name;
 
-    public Item() {
+    private String type;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

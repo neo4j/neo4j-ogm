@@ -30,12 +30,15 @@ import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.domain.nested.NestingClass;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -48,8 +51,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.testutil.TestUtils;
 
 /**
- * @author Luanne Misquitta
+ * @author Andreas Berger
+ * @author Atul Mahind
  * @author Gerrit Meier
+ * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class QueryCapabilityTest extends MultiDriverTestClass {
 
@@ -57,17 +63,24 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
+        session = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.linkedlist").openSession();
         session = new SessionFactory(driver,
             "org.neo4j.ogm.domain.cineasts.annotated",
-            "org.neo4j.ogm.domain.nested"
+            "org.neo4j.ogm.domain.nested",
+            "org.neo4j.ogm.domain.linkedlist"
         ).openSession();
         session.purgeDatabase();
         session.clear();
         importCineasts();
+        importFriendships();
     }
 
     private void importCineasts() {
         session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Utils.map());
+    }
+
+    private void importFriendships() {
+        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/items.cql").toString(), Utils.map());
     }
 
     @After
@@ -222,10 +235,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(result.get("nonExistent")).isNull();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntities() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:{name}})-[:RATED]->(m) RETURN u as user, m as movie",
@@ -242,10 +252,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntitiesAndScalars() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:{name}})-[:RATED]->(m) RETURN u as user, count(m) as count",
@@ -261,10 +268,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntitiesAndScalarsMultipleRows() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User)-[r:RATED]->(m) RETURN m as movie, avg(r.stars) as average ORDER BY average DESC",
@@ -290,10 +294,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntitiesAndScalarsMultipleRowsAndNoAlias() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User)-[r:RATED]->(m) RETURN m, avg(r.stars) ORDER BY avg(r.stars) DESC",
@@ -319,10 +320,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntitiesAndRelationships() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:{name}})-[r:FRIENDS]->(friend) RETURN u as user, friend as friend, r",
@@ -344,10 +342,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntitiesAndRelationshipsOfDifferentTypes() {
         Iterator<Map<String, Object>> results = session.query(
             "MATCH (u:User {name:{name}})-[r:FRIENDS]->(friend)-[r2:RATED]->(m) RETURN u as user, friend as friend, r, r2, m as movie, r2.stars as stars",
@@ -378,10 +373,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapRelationshipEntities() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:{name}})-[r:RATED]->(m) RETURN u,r,m", MapUtil.map("name", "Vince")).iterator();
@@ -407,10 +399,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapVariableDepthRelationshipsWithIncompletePaths() {
         Iterator<Map<String, Object>> results = session
             .query("match (u:User {name:{name}}) match (m:Movie {title:{title}}) match (u)-[r*0..2]-(m) return u,r,m",
@@ -469,10 +458,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(user.getFriends()).isNull();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapVariableDepthRelationshipsWithCompletePaths() {
         Iterator<Map<String, Object>> results = session
             .query("match (u:User {name:{name}}) match (u)-[r*0..1]-(n) return u,r,n", MapUtil.map("name", "Vince"))
@@ -480,34 +466,29 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
         assertThat(result).isNotNull();
-        boolean foundMichal = false;
         /*
-            Expect 3 rows:
+            Expect at max 4 rows:
              one with (vince)-[:FRIENDS]-(michal)
              one with (vince)-[:RATED]-(top gear)
+             one with (vince)-[:EXTENDED_FRIEND]->(extended)
              one with (vince)
          */
 
         User user = (User) result.get("u");
         assertThat(user).isNotNull();
         assertThat(user.getName()).isEqualTo("Vince");
-        foundMichal = checkForMichal(result, foundMichal);
 
-        result = results.next();
-        assertThat(result).isNotNull();
-        foundMichal = checkForMichal(result, foundMichal);
-
-        result = results.next();
-        assertThat(result).isNotNull();
-        foundMichal = checkForMichal(result, foundMichal);
+        boolean foundMichal = checkForMichal(result);
+        while (!foundMichal && results.hasNext()) {
+            result = results.next();
+            assertThat(result).isNotNull();
+            foundMichal = checkForMichal(result);
+        }
 
         assertThat(foundMichal).isTrue();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapCollectionsOfNodes() {
         Iterator<Map<String, Object>> results = session
             .query("match (u:User {name:{name}})-[r:RATED]->(m) return u as user,collect(r), collect(m) as movies",
@@ -536,10 +517,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapCollectionsFromPath() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH p=(u:User {name:{name}})-[r:RATED]->(m) RETURN nodes(p) as nodes, rels(p) as rels",
@@ -568,10 +546,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         }
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapArrays() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:{name}}) RETURN u.array as arr", MapUtil.map("name", "Christophe")).iterator();
@@ -581,10 +556,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(((String[]) result.get("arr")).length).isEqualTo(2);
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapMixedArrays() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:{name}}) RETURN u.array as arr, [1,'two',true] as mixed",
@@ -600,10 +572,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(mixed[2]).isEqualTo(true);
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void modifyingQueryShouldBeAbleToMapEntitiesAndReturnStatistics() {
         Result result = session
             .query("MATCH (u:User {name:{name}})-[:RATED]->(m) WITH u,m SET u.age={age} RETURN u as user, m as movie",
@@ -621,10 +590,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see Issue 136
-     */
-    @Test
+    @Test // #136
     public void shouldNotOverflowIntegers() {
         long start = Integer.MAX_VALUE;
         session.query("CREATE (n:Sequence {id:{id}, next:{start}})", MapUtil.map("id", "test", "start", start));
@@ -640,10 +606,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(((Number) result.iterator().next().get("current")).longValue()).isEqualTo(start + 1);
     }
 
-    /**
-     * @see Issue 150
-     */
-    @Test
+    @Test // #150
     public void shouldLoadNodesWithUnmappedOrNoLabels() {
         int movieCount = 0;
         int userCount = 0;
@@ -674,13 +637,10 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(unmappedCount).isEqualTo(1);
         assertThat(noLabelCount).isEqualTo(1);
         assertThat(movieCount).isEqualTo(4);
-        assertThat(userCount).isEqualTo(4);
+        assertThat(userCount).isEqualTo(5);
     }
 
-    /**
-     * @see Issue 148
-     */
-    @Test
+    @Test // GH-148
     public void shouldMapCypherCollectionsToArrays() {
         Iterator<Map<String, Object>> iterator = session
             .query("MATCH (n:User) return collect(n.name) as names", emptyMap()).iterator();
@@ -725,15 +685,44 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(something).isNotNull();
     }
 
-    private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {
+    @Test // GH-496
+    @Ignore
+    public void testQueryWithProjection() {
+        Iterable<User> results = session
+            .query(User.class,
+                "MATCH (u:User) where u.name={name} return u "
+                    + ",[[(u)-[r:EXTENDED_FRIEND]->(e) | [r, e   ]    ]  ]  ",
+                Collections.singletonMap("name", "Vince"));
+        assertThat(results).size().isEqualTo(1);
+        User user = results.iterator().next();
+        assertThat(user.getName()).isEqualTo("Vince");
+        assertThat(user.getExtendedFriends()).isNotEmpty();
+        assertThat(user.getExtendedFriends()).contains(new ExtendedUser(null, "extended", null));
+    }
+
+    @Test // GH-496
+    @Ignore
+    public void shouldMaintainTheTraversalOrderFromMatchClause() {
+        Iterable<Item> result = session
+            .query(Item.class, "MATCH (i:Item)-[:NEXT*0..]->(n:Item) WHERE i.name={name} return n ,"
+                    + "[ [ (n)-[r:BELONGS_TO]->(c:Item) | [r, c] ] ]",
+                Collections.singletonMap("name", "A"));
+
+        assertThat(result)
+            .isNotNull()
+            .extracting(Item::getName)
+            .containsExactly("A", "B", "C", "D");
+    }
+
+    private static boolean checkForMichal(Map<String, Object> result) {
         if (result.get("n") instanceof User) {
             User u = (User) result.get("n");
             if (u.getName().equals("Michal")) {
                 assertThat(u.getFriends()).hasSize(1);
                 assertThat(u.getFriends().iterator().next().getName()).isEqualTo("Vince");
-                foundMichal = true;
+                return true;
             }
         }
-        return foundMichal;
+        return false;
     }
 }

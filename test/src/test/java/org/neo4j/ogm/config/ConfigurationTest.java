@@ -24,8 +24,6 @@ import java.util.Properties;
 
 import org.junit.Test;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 /**
  * @author vince
  * @author Michael J. Simons

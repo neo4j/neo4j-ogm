@@ -13,9 +13,11 @@
 
 package org.neo4j.ogm.persistence.model;
 
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.StreamSupport;
@@ -32,6 +34,7 @@ import org.neo4j.ogm.domain.generic_hierarchy.ChildA;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildB;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildC;
 import org.neo4j.ogm.domain.generic_hierarchy.Entity;
+import org.neo4j.ogm.domain.generic_hierarchy.EntityWithImplicitPlusAdditionalLabels;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -111,7 +114,8 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
             new IndexDescription("ChildA", "uuid"),
             new IndexDescription("ChildB", "uuid"),
             new IndexDescription("ChildC", "uuid"),
-            new IndexDescription("LabeledEntity", "uuid")
+            new IndexDescription("LabeledEntity", "uuid"),
+            new IndexDescription("EntityWithImplicitPlusAdditionalLabels", "id")
         };
 
         sessionFactory.runAutoIndexManager(getBaseConfiguration().autoIndex(AutoIndexMode.UPDATE.name()).build());
@@ -165,6 +169,24 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
         dbA = newSession.load(ChildA.class, a.getUuid());
         assertThat(dbA.getLabels().size()).isEqualTo(1);
         assertThat(dbA.getLabels()).contains("A1");
+    }
+
+    @Test // See #539
+    public void labelsShouldBeDeleted() {
+        Session throwAwaySession = sessionFactory.openSession();
+        throwAwaySession.query("CREATE (a:EntityWithImplicitPlusAdditionalLabels:Label1:Label2 {id: 'myId'}) RETURN a", emptyMap());
+        throwAwaySession.clear();
+
+        throwAwaySession = sessionFactory.openSession();
+        EntityWithImplicitPlusAdditionalLabels entity = session.load(EntityWithImplicitPlusAdditionalLabels.class, "myId");
+        assertThat(entity.getLabels()).containsExactlyInAnyOrder("Label1", "Label2");
+        entity.getLabels().remove("Label1");
+        throwAwaySession.save(entity);
+        throwAwaySession.clear();
+
+        throwAwaySession = sessionFactory.openSession();
+        entity = session.load(EntityWithImplicitPlusAdditionalLabels.class, "myId");
+        assertThat(entity.getLabels()).containsExactlyInAnyOrder("Label2");
     }
 
     static class IndexDescription {

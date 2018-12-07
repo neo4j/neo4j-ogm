@@ -13,15 +13,7 @@
 
 package org.neo4j.ogm.context;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -161,10 +153,6 @@ public class MappingContext {
         return entity;
     }
 
-    boolean removeRelationship(MappedRelationship mappedRelationship) {
-        return relationshipRegister.remove(mappedRelationship);
-    }
-
     /**
      * De-registers an object from the mapping context
      * - removes the object instance from the typeRegister(s)
@@ -237,14 +225,13 @@ public class MappingContext {
     }
 
     /**
-     * Return dynamic label information about the entity (@Labels). History contains a snapshot of labels the entity had
-     * when registered in the context, and the current labels.
+     * Gets the initial snapshot of the objects dynamic labels and properties as stored during initial load of the entity.
      *
-     * @param entity The entity to inspect
-     * @return The label information
+     * @param entity The entity for which a snapshot is to be retrieved
+     * @return The snapshot or an empty optional if there's no such snapshot.
      */
-    LabelHistory labelHistory(Object entity) {
-        return identityMap.labelHistory(nativeId(entity));
+    Optional<EntitySnapshot> getSnapshotOf(Object entity) {
+        return identityMap.getSnapshotFor(nativeId(entity));
     }
 
     /**

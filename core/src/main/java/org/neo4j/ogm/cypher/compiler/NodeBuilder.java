@@ -15,6 +15,7 @@ package org.neo4j.ogm.cypher.compiler;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.model.Node;
 
@@ -23,6 +24,7 @@ import org.neo4j.ogm.model.Node;
  *
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public interface NodeBuilder extends PropertyContainerBuilder<NodeBuilder> {
 
@@ -30,12 +32,9 @@ public interface NodeBuilder extends PropertyContainerBuilder<NodeBuilder> {
 
     NodeBuilder addLabels(Collection<String> labels);
 
-    String[] addedLabels();
-
-    NodeBuilder removeLabels(Collection<String> labels);
-
     Node node();
 
     NodeBuilder setPrimaryIndex(String primaryIndexField);
 
+    NodeBuilder setPreviousDynamicLabels(Set<String> previousDynamicLabels);
 }

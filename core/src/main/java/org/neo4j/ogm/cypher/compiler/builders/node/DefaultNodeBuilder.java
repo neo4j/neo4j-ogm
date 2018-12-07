@@ -15,7 +15,7 @@ package org.neo4j.ogm.cypher.compiler.builders.node;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -27,18 +27,17 @@ import org.neo4j.ogm.response.model.PropertyModel;
 /**
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
-public class DefaultNodeBuilder implements NodeBuilder {
-
-    NodeModel node = new NodeModel();
+public class DefaultNodeBuilder extends AbstractPropertyContainerBuilder<NodeBuilder, NodeModel> implements NodeBuilder {
 
     public DefaultNodeBuilder(Long reference) {
-        node.setId(reference);
+        super(new NodeModel(reference));
     }
 
     @Override
     public NodeBuilder addProperty(String key, Object value) {
-        List<Property<String, Object>> propertyList = node.getPropertyList();
+        List<Property<String, Object>> propertyList = super.targetContainer.getPropertyList();
 
         for (Property<String, Object> property : propertyList) {
             if (property.getKey().equals(key)) {
@@ -51,53 +50,37 @@ public class DefaultNodeBuilder implements NodeBuilder {
     }
 
     @Override
-    public NodeBuilder addProperties(Map<String, ?> properties) {
-        for (String key : properties.keySet()) {
-            addProperty(key, properties.get(key));
-        }
-        return this;
-    }
-
-    @Override
     public NodeBuilder addLabels(Collection<String> newLabels) {
-        String[] labels;
-        labels = newLabels.toArray(new String[newLabels.size()]);
-        node.setLabels(labels);
+        String[] labels = newLabels.toArray(new String[newLabels.size()]);
+        super.targetContainer.setLabels(labels);
         return this;
     }
 
     @Override
     public Long reference() {
-        return node.getId();
+        return super.targetContainer.getId();
     }
 
     @Override
-    public String[] addedLabels() {
-        return node.getLabels();
-    }
-
-    @Override
-    public NodeBuilder removeLabels(Collection<String> removedLabels) {
-        String[] labels;
-        labels = removedLabels.toArray(new String[removedLabels.size()]);
-        node.removeLabels(labels);
+    public NodeBuilder setPreviousDynamicLabels(Set<String> previousDynamicLabels) {
+        super.targetContainer.setPreviousDynamicLabels(previousDynamicLabels);
         return this;
     }
 
     @Override
     public Node node() {
-        return node;
+        return super.targetContainer;
     }
 
     @Override
     public NodeBuilder setPrimaryIndex(String primaryIndexField) {
-        node.setPrimaryIndex(primaryIndexField);
+        super.targetContainer.setPrimaryIndex(primaryIndexField);
         return this;
     }
 
     @Override
     public NodeBuilder setVersionProperty(String name, Long version) {
-        node.setVersion(new PropertyModel<>(name, version));
+        super.targetContainer.setVersion(new PropertyModel<>(name, version));
         return this;
     }
 

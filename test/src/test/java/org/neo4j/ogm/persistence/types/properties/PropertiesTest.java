@@ -16,10 +16,11 @@ package org.neo4j.ogm.persistence.types.properties;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.junit.Before;
@@ -27,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.ogm.domain.properties.SomeNode;
 import org.neo4j.ogm.domain.properties.User;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Session;
@@ -35,6 +37,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class PropertiesTest extends MultiDriverTestClass {
 
@@ -43,18 +46,18 @@ public class PropertiesTest extends MultiDriverTestClass {
     private Session session;
 
     @BeforeClass
-    public static void init() throws IOException {
-        sessionFactory = new SessionFactory(driver, User.class.getName());
+    public static void init() {
+        sessionFactory = new SessionFactory(driver, User.class.getName(), SomeNode.class.getName());
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldMapPropertiesAttributeToNodeProperties() throws Exception {
+    public void shouldMapPropertiesAttributeToNodeProperties() {
         User user = new User("Frantisek");
         user.putMyProperty("city", "London");
         user.putMyProperty("zipCode", "SW1A 1AA");
@@ -74,7 +77,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldMapPropertiesAttributeWithNestedMapToNodeProperties() throws Exception {
+    public void shouldMapPropertiesAttributeWithNestedMapToNodeProperties() {
         User user = new User("Frantisek");
         Map<String, String> address = new HashMap<String, String>();
         address.put("city", "London");
@@ -96,7 +99,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldMapPropertiesAttributeWithPrefixToNodeProperties() throws Exception {
+    public void shouldMapPropertiesAttributeWithPrefixToNodeProperties() {
         User user = new User("Frantisek");
         user.putPrefixedProperty("city", "London");
         user.putPrefixedProperty("zipCode", "SW1A 1AA");
@@ -116,7 +119,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldMapPropertiesAttributeWithDelimiterToNodeProperties() throws Exception {
+    public void shouldMapPropertiesAttributeWithDelimiterToNodeProperties() {
         User user = new User("Frantisek");
         user.putDelimiterProperty("city", "London");
         user.putDelimiterProperty("zipCode", "SW1A 1AA");
@@ -136,7 +139,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldMapNodePropertiesToPropertiesAttribute() throws Exception {
+    public void shouldMapNodePropertiesToPropertiesAttribute() {
         session.query("CREATE (u:User {`name`:'Frantisek', `myProperties.city`:'London', " +
                 "`myProperties.zipCode`:'SW1A 1AA'})",
             emptyMap());
@@ -150,7 +153,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldMapNestedNodePropertiesToPropertiesAttributeAsNestedMap() throws Exception {
+    public void shouldMapNestedNodePropertiesToPropertiesAttributeAsNestedMap() {
         session.query("CREATE (u:User {`name`:'Frantisek', " +
                 "`myProperties.address.city`:'London', " +
                 "`myProperties.address.zipCode`:'SW1A 1AA'})",
@@ -165,7 +168,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldMapNodePropertiesToPropertiesAttributeWithPrefix() throws Exception {
+    public void shouldMapNodePropertiesToPropertiesAttributeWithPrefix() {
         session.query("CREATE (u:User {`name`:'Frantisek', `myPrefix.city`:'London', `myPrefix.zipCode`:'SW1A 1AA'})",
             emptyMap());
 
@@ -178,7 +181,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldMapNodePropertiesToPropertiesAttributeWithDelimiter() throws Exception {
+    public void shouldMapNodePropertiesToPropertiesAttributeWithDelimiter() {
         session.query("CREATE (u:User {`name`:'Frantisek', " +
                 "`delimiterProperties__city`:'London', " +
                 "`delimiterProperties__zipCode`:'SW1A 1AA'})",
@@ -193,7 +196,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldSaveAndLoadMapOfAllPropertyTypes() throws Exception {
+    public void shouldSaveAndLoadMapOfAllPropertyTypes() {
         //        propertyMap.put("Character", 'c');
         //        propertyMap.put("Byte", (byte) 2);
         //        propertyMap.put("Short", (short) 3);
@@ -225,7 +228,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test(expected = MappingException.class)
-    public void shouldThrowExceptionWhenMappingNonCypherType() throws Exception {
+    public void shouldThrowExceptionWhenMappingNonCypherType() {
 
         User user = new User();
         user.putMyProperty("age", 18);
@@ -234,7 +237,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test(expected = MappingException.class)
-    public void shouldThrowExceptionWhenMappingNonConvertibleType() throws Exception {
+    public void shouldThrowExceptionWhenMappingNonConvertibleType() {
 
         User user = new User();
         user.putAllowCastProperty("age", new Date());
@@ -243,7 +246,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldMapSpecificValueType() throws Exception {
+    public void shouldMapSpecificValueType() {
 
         User user = new User();
         user.putIntegerProperty("age", 18);
@@ -257,7 +260,7 @@ public class PropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldConvertNestedMapWithList() throws Exception {
+    public void shouldConvertNestedMapWithList() {
         Map<String, Object> nested = new HashMap<>();
         nested.put("value", Arrays.asList(1, 2, 3, 4));
 
@@ -269,5 +272,72 @@ public class PropertiesTest extends MultiDriverTestClass {
 
         User loaded = session.load(User.class, user.getId());
         assertThat(loaded.getMyProperties()).isEqualTo(loaded.getMyProperties());
+    }
+
+    @Test // GH-518
+    public void shouldBeAbleToDeletePropertiesAgain() {
+        User user = new User();
+
+        user.putMyProperty("prop1", "A property");
+        user.putMyProperty("prop2", "Another property");
+
+        user.putIntegerProperty("anInt", 1);
+        user.putIntegerProperty("anotherInt", 2);
+
+        user.putDelimiterProperty("a", "b");
+
+        session.save(user);
+        session.clear();
+
+        User loaded = session.load(User.class, user.getId());
+        assertThat(loaded.getMyProperties()).containsKeys("prop1", "prop2");
+        assertThat(loaded.getIntegerProperties()).hasSize(2);
+        assertThat(loaded.getDelimiterProperties()).hasSize(1);
+        assertThat(loaded.getPrefixedProperties()).isEmpty();
+
+        loaded.getMyProperties().remove("prop1");
+        loaded.getIntegerProperties().clear();
+        loaded.setDelimiterProperties(null);
+
+        session.save(loaded);
+        session.clear();
+
+        loaded = session.load(User.class, user.getId());
+        assertThat(loaded.getMyProperties()).containsKeys("prop2");
+        assertThat(loaded.getIntegerProperties()).isEmpty();
+        assertThat(loaded.getDelimiterProperties()).isEmpty();
+        assertThat(loaded.getPrefixedProperties()).isEmpty();
+    }
+
+    @Test  // GH-518
+    public void shouldNotDeleteUnmappedProperties() {
+        session.query("CREATE (u:SomeNode {`name`:'Unmapped', `myPrefix.aProperty`:'aValue'})",
+            emptyMap());
+
+        // Make sure all the mapped properties are there
+        SomeNode someNode = session.loadAll(SomeNode.class).iterator().next();
+        assertThat(someNode.getPrefixedProperties())
+            .hasSize(1)
+            .containsEntry("aProperty", "aValue");
+
+        // Then remove some
+        someNode.getPrefixedProperties().remove("aProperty");
+        someNode.getPrefixedProperties().put("anotherProperty", "anotherValue");
+        session.save(someNode);
+
+        // Check if the unmapped is still there
+        session.clear();
+        Iterator<Map<String, Object>> result = session
+            .query(
+                "MATCH (u:SomeNode) WHERE id(u) = $id RETURN u.name as name, u.`myPrefix.anotherProperty` as anotherProperty",
+                Collections.singletonMap("id", someNode.getId())).iterator();
+
+        assertThat(result.hasNext()).isTrue();
+        result.forEachRemaining(m ->
+            assertThat(m)
+                .hasSize(2)
+                .containsEntry("name", "Unmapped")
+                .containsEntry("anotherProperty", "anotherValue")
+        );
     }
 }

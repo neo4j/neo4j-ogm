@@ -39,7 +39,7 @@ public class EntityFactoryTest {
 
     @Test
     public void shouldConstructObjectOfParticularTypeUsingItsDefaultZeroArgConstructor() {
-        NodeModel personNodeModel = new NodeModel();
+        NodeModel personNodeModel = new NodeModel(-1L);
         personNodeModel.setLabels(new String[] { "Individual" });
         Individual sheila = this.entityFactory.newObject(personNodeModel);
         assertThat(sheila).isNotNull();
@@ -47,7 +47,7 @@ public class EntityFactoryTest {
 
     @Test
     public void shouldHandleMultipleLabelsSafely() {
-        NodeModel personNodeModel = new NodeModel();
+        NodeModel personNodeModel = new NodeModel(-1L);
         personNodeModel.setLabels(new String[] { "Female", "Individual", "Lass" });
         Individual ourLass = this.entityFactory.newObject(personNodeModel);
         assertThat(ourLass).isNotNull();
@@ -55,18 +55,16 @@ public class EntityFactoryTest {
 
     @Test
     public void shouldBeAbleToConstructObjectWithNonPublicZeroArgConstructor() {
-        NodeModel vertex = new NodeModel();
-        vertex.setId(163L);
-        vertex.setLabels(new String[] { "ClassWithPrivateConstructor" });
-        this.entityFactory.newObject(vertex);
+        NodeModel node = new NodeModel(163L);
+        node.setLabels(new String[] { "ClassWithPrivateConstructor" });
+        this.entityFactory.newObject(node);
     }
 
     @Test(expected = MappingException.class)
     public void shouldFailForGraphModelComponentWithNoTaxa() {
-        NodeModel vertex = new NodeModel();
-        vertex.setId(302L);
-        vertex.setLabels(new String[0]);
-        this.entityFactory.newObject(vertex);
+        NodeModel node = new NodeModel(302L);
+        node.setLabels(new String[0]);
+        this.entityFactory.newObject(node);
     }
 
     @Test

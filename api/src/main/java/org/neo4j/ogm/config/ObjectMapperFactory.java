@@ -13,9 +13,14 @@
 
 package org.neo4j.ogm.config;
 
+import org.neo4j.ogm.response.model.NodeModel;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * Produces a singleton ObjectMapper
@@ -26,11 +31,8 @@ public class ObjectMapperFactory {
 
     private static final JsonFactory jsonFactory = new JsonFactory();
     private static final ObjectMapper mapper = new ObjectMapper(jsonFactory)
+        .registerModule(new Neo4jOgmJacksonModule())
         .configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
-
-    private ObjectMapperFactory() {
-
-    }
 
     public static ObjectMapper objectMapper() {
         return mapper;
@@ -38,5 +40,25 @@ public class ObjectMapperFactory {
 
     public static JsonFactory jsonFactory() {
         return jsonFactory;
+    }
+
+    abstract static class NodeModelMixin {
+        @JsonCreator
+        public NodeModelMixin(@JsonProperty("id") Long id) {
+        }
+    }
+
+    static class Neo4jOgmJacksonModule extends SimpleModule {
+
+        Neo4jOgmJacksonModule() {
+        }
+
+        @Override
+        public void setupModule(SetupContext context) {
+            context.setMixInAnnotations(NodeModel.class, NodeModelMixin.class);
+        }
+    }
+
+    private ObjectMapperFactory() {
     }
 }

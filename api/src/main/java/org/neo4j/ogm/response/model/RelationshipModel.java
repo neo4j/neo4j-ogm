@@ -14,16 +14,21 @@
 package org.neo4j.ogm.response.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Property;
 
 /**
  * @author Michal Bachman
+ * @author Michael J. Simons
  */
-public class RelationshipModel implements Edge {
+public class RelationshipModel extends AbstractPropertyContainer implements Edge {
 
     private Long id;
     private Property<String, Long> version;
@@ -86,14 +91,6 @@ public class RelationshipModel implements Edge {
     public String getPrimaryIdName() {
         return primaryIdName;
     }
-
-    //    public Map<String, Object> getProperties() {
-    //        Map<String, Object> map = new HashMap<>();
-    //        for (Property<String, Object> property : properties) {
-    //            map.put(property.getKey(), property.getValue());
-    //        }
-    //        return map;
-    //    }
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = new ArrayList<>();

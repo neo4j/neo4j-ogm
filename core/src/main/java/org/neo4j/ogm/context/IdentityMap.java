@@ -17,10 +17,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -31,6 +31,7 @@ import org.neo4j.ogm.metadata.MetaData;
  *
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 class IdentityMap {
 
@@ -41,14 +42,14 @@ class IdentityMap {
 
     private final Map<Long, Long> relEntityHash;
 
-    private final Map<Long, LabelHistory> labelHistoryRegister;
+    private final Map<Long, EntitySnapshot> snapshots;
 
     private final MetaData metaData;
 
     IdentityMap(MetaData metaData) {
         this.nodeHash = new HashMap<>();
         this.relEntityHash = new HashMap<>();
-        labelHistoryRegister = new HashMap<>();
+        this.snapshots = new HashMap<>();
         this.metaData = metaData;
     }
 
@@ -66,7 +67,8 @@ class IdentityMap {
         } else {
             nodeHash.put(entityId, hash(object, classInfo));
         }
-        collectLabelHistory(object, entityId, classInfo);
+
+        this.snapshots.put(entityId, EntitySnapshot.basedOn(metaData).take(object));
     }
 
     /**
@@ -101,22 +103,22 @@ class IdentityMap {
         return false;
     }
 
-    private void collectLabelHistory(Object entity, Long entityId, ClassInfo classInfo) {
-        FieldInfo fieldInfo = classInfo.labelFieldOrNull();
-        if (fieldInfo != null) {
-            Collection<String> labels = (Collection<String>) fieldInfo.read(entity);
-            labelHistory(entityId).push(labels);
-        }
-    }
-
-    LabelHistory labelHistory(Long entityId) {
-        return labelHistoryRegister.computeIfAbsent(entityId, k -> new LabelHistory());
+    /**
+     * Returns the snapshot for the given id. The snapshot contains the corresponding entity's dynamic labels and properties
+     * as stored during initial load of the entity.
+     *
+     * @param entityId
+     * @return A snapshot of dynamic labels and properties or an empty optional.
+     */
+    Optional<EntitySnapshot> getSnapshotFor(Long entityId) {
+        return Optional.ofNullable(snapshots.get(entityId));
     }
 
     void clear() {
+
         nodeHash.clear();
         relEntityHash.clear();
-        labelHistoryRegister.clear();
+        snapshots.clear();
     }
 
     private long hash(Object object, ClassInfo classInfo) {

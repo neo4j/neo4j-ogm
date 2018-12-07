@@ -54,6 +54,8 @@ public class ExistingRelationshipStatementBuilder extends BaseBuilder implements
                 appendVersionPropertyCheck(queryBuilder, firstEdge, "r");
             }
 
+            queryBuilder.append(firstEdge.createPropertyRemovalFragment("r"));
+
             queryBuilder.append("SET r += row.props ");
             queryBuilder.append("RETURN ID(r) as ref, ID(r) as id, {type} as type");
             List<Map> rows = new ArrayList<>();

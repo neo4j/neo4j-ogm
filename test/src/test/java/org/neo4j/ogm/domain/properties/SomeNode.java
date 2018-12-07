@@ -10,29 +10,29 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-
-package org.neo4j.ogm.cypher.compiler;
+package org.neo4j.ogm.domain.properties;
 
 import java.util.Map;
-import java.util.Set;
 
-import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Properties;
 
 /**
- * Interface to abstract setting properties on nodes/relationship entities
- *
- * @author Frantisek Hartman
  * @author Michael J. Simons
+ * @soundtrack Eric Fish - Reden
  */
-public interface PropertyContainerBuilder<T> {
+@NodeEntity
+public class SomeNode {
+    private Long id;
 
-    Long reference();
+    @Properties(prefix = "myPrefix")
+    private Map<String, Object> prefixedProperties;
 
-    T addProperty(String key, Object value);
+    public Long getId() {
+        return id;
+    }
 
-    T addCompositeProperties(Map<String, ?> properties);
-
-    T setVersionProperty(String name, Long version);
-
-    T setPreviousCompositeProperties(Set<String> previousCompositeProperties);
+    public Map<String, Object> getPrefixedProperties() {
+        return prefixedProperties;
+    }
 }

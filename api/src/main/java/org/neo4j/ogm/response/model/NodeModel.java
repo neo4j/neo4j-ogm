@@ -18,9 +18,13 @@ import static java.util.stream.Collectors.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
@@ -28,15 +32,20 @@ import org.neo4j.ogm.model.Property;
 /**
  * @author Michal Bachman
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
-public class NodeModel implements Node {
+public class NodeModel extends AbstractPropertyContainer implements Node {
 
     private final Long id;
     private Property<String, Long> version;
     private String[] labels;
-    private String[] removedLabels;
     private List<Property<String, Object>> properties = new ArrayList<>();
     private String primaryIndex;
+
+    /**
+     * Those are the previous, dynamic labels if any.
+     */
+    private Set<String> previousDynamicLabels = Collections.emptySet();
 
     public NodeModel(Long id) {
         this.id = id;
@@ -77,11 +86,6 @@ public class NodeModel implements Node {
         return labels;
     }
 
-    @Override
-    public String[] getRemovedLabels() {
-        return removedLabels;
-    }
-
     public void setVersion(Property<String, Long> version) {
         this.version = version;
     }
@@ -91,14 +95,18 @@ public class NodeModel implements Node {
         return version != null;
     }
 
+    @Override
+    public Set<String> getPreviousDynamicLabels() {
+        return Collections.unmodifiableSet(previousDynamicLabels);
+    }
+
+    public void setPreviousDynamicLabels(Set<String> previousDynamicLabels) {
+        this.previousDynamicLabels = new HashSet<>(previousDynamicLabels);
+    }
+
     public void setLabels(String[] labels) {
         Arrays.sort(labels);
         this.labels = labels;
-    }
-
-    public void removeLabels(String[] labels) {
-        Arrays.sort(labels);
-        this.removedLabels = labels;
     }
 
     public Object property(String key) {
@@ -109,16 +117,12 @@ public class NodeModel implements Node {
         return null;
     }
 
+    @Override
     public String labelSignature() {
-        ArrayList<String> allLabels = new ArrayList<>();
-        Collections.addAll(allLabels, labels);
-
-        if (removedLabels != null) {
-            allLabels.add("_SEPARATOR_");
-            Collections.addAll(allLabels, removedLabels);
-        }
-
-        return allLabels.stream().collect(joining(","));
+        return Stream.concat(
+            Arrays.stream(labels),
+            Optional.ofNullable(previousDynamicLabels).orElseGet(HashSet::new).stream()
+        ).distinct().collect(joining(","));
     }
 
     @Override

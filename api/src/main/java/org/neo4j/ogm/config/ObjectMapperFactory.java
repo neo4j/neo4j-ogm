@@ -13,10 +13,15 @@
 
 package org.neo4j.ogm.config;
 
+import org.neo4j.ogm.response.model.NodeModel;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -30,6 +35,7 @@ public final class ObjectMapperFactory {
 
     private static final JsonFactory jsonFactory = new JsonFactory();
     private static final ObjectMapper mapper = new ObjectMapper(jsonFactory)
+        .registerModule(new Neo4jOgmJacksonModule())
         .registerModule(new Jdk8Module())
         .registerModule(new JavaTimeModule())
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
@@ -41,6 +47,23 @@ public final class ObjectMapperFactory {
 
     public static JsonFactory jsonFactory() {
         return jsonFactory;
+    }
+
+    abstract static class NodeModelMixin {
+        @JsonCreator
+        public NodeModelMixin(@JsonProperty("id") Long id) {
+        }
+    }
+
+    static class Neo4jOgmJacksonModule extends SimpleModule {
+
+        Neo4jOgmJacksonModule() {
+        }
+
+        @Override
+        public void setupModule(SetupContext context) {
+            context.setMixInAnnotations(NodeModel.class, NodeModelMixin.class);
+        }
     }
 
     private ObjectMapperFactory() {

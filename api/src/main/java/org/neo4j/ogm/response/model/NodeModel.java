@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
@@ -30,12 +31,16 @@ import org.neo4j.ogm.model.Property;
  */
 public class NodeModel implements Node {
 
-    private Long id;
+    private final Long id;
     private Property<String, Long> version;
     private String[] labels;
     private String[] removedLabels;
     private List<Property<String, Object>> properties = new ArrayList<>();
     private String primaryIndex;
+
+    public NodeModel(Long id) {
+        this.id = id;
+    }
 
     @Override
     public List<Property<String, Object>> getPropertyList() {
@@ -75,10 +80,6 @@ public class NodeModel implements Node {
     @Override
     public String[] getRemovedLabels() {
         return removedLabels;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public void setVersion(Property<String, Long> version) {
@@ -124,16 +125,14 @@ public class NodeModel implements Node {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof NodeModel))
             return false;
-
         NodeModel nodeModel = (NodeModel) o;
-
         return id.equals(nodeModel.id);
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return Objects.hash(id);
     }
 }

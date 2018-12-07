@@ -61,8 +61,7 @@ public abstract class RestModelAdapter extends BaseAdapter
     }
 
     private NodeModel buildNode(Object node) {
-        NodeModel nodeModel = new NodeModel();
-        nodeModel.setId(nodeId(node));
+        NodeModel nodeModel = new NodeModel(nodeId(node));
         List<String> labels = labels(node);
         nodeModel.setLabels(labels.toArray(new String[labels.size()]));
         nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));

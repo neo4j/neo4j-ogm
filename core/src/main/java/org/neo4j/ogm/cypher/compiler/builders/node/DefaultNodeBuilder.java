@@ -30,10 +30,10 @@ import org.neo4j.ogm.response.model.PropertyModel;
  */
 public class DefaultNodeBuilder implements NodeBuilder {
 
-    NodeModel node = new NodeModel();
+    NodeModel node;
 
     public DefaultNodeBuilder(Long reference) {
-        node.setId(reference);
+        node = new NodeModel(reference);
     }
 
     @Override

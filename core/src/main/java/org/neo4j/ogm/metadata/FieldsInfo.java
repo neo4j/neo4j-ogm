@@ -20,15 +20,18 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
 import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.metadata.reflect.GenericUtils;
 
 /**
  * @author Vince Bickers
@@ -42,10 +45,17 @@ public class FieldsInfo {
         this.fields = new HashMap<>();
     }
 
-    public FieldsInfo(ClassInfo classInfo, Class<?> cls, TypeSystem typeSystem) {
+    FieldsInfo(ClassInfo classInfo, Class<?> clazz, TypeSystem typeSystem) {
         this.fields = new HashMap<>();
 
-        for (Field field : cls.getDeclaredFields()) {
+        // Fields influenced by this class are all all declared fields plus
+        // all generics fields of possible superclasses that resolve to concrete
+        // types through this class.
+        List<Field> allFieldsInfluencedByThisClass = new ArrayList<>();
+        allFieldsInfluencedByThisClass.addAll(getGenericFieldsInHierarchyOf(clazz));
+        allFieldsInfluencedByThisClass.addAll(Arrays.asList(clazz.getDeclaredFields()));
+
+        for (Field field : allFieldsInfluencedByThisClass) {
             final int modifiers = field.getModifiers();
             if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
                 ObjectAnnotations objectAnnotations = ObjectAnnotations.of(field.getDeclaredAnnotations());
@@ -87,6 +97,20 @@ public class FieldsInfo {
                 }
             }
         }
+    }
+
+    private static List<Field> getGenericFieldsInHierarchyOf(Class<?> clazz) {
+
+        List<Field> genericFieldsInHierarchy = new ArrayList<>();
+        Class<?> currentClass = clazz.getSuperclass();
+        while(currentClass != null) {
+            Stream.of(currentClass.getDeclaredFields())
+                .filter(GenericUtils::isGenericField)
+                .forEach(genericFieldsInHierarchy::add);
+            currentClass = currentClass.getSuperclass();
+        }
+
+        return genericFieldsInHierarchy;
     }
 
     public Collection<FieldInfo> fields() {

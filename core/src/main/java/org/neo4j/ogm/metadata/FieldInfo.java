@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.metadata;
 
+import static org.neo4j.ogm.metadata.reflect.GenericUtils.*;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -95,8 +97,8 @@ public class FieldInfo {
     public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations) {
         this.containingClassInfo = classInfo;
         this.field = field;
-        this.fieldType = field.getType();
-        this.isArray = field.getType().isArray();
+        this.fieldType = isGenericField(field) ? findFieldType(field, classInfo.getUnderlyingClass()) : field.getType();
+        this.isArray = fieldType.isArray();
         this.name = field.getName();
         this.descriptor = field.getType().getTypeName();
         this.typeParameterDescriptor = typeParameterDescriptor;

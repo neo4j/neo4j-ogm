@@ -84,7 +84,7 @@ public class EntityAccessManager {
 
             Object array = Array.newInstance(type, objects.size());
             for (int i = 0; i < objects.size(); i++) {
-                Array.set(array, i, objects.get(i));
+                Array.set(array, i, Utils.coerceTypes(type, objects.get(i)));
             }
             return array;
         }

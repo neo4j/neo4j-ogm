@@ -13,13 +13,17 @@
 
 package org.neo4j.ogm.metadata;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.Serializable;
 import java.util.Map;
 
 import org.junit.Test;
+import org.neo4j.ogm.domain.gh492.BaseUser;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class GenericsFieldsTest extends TestMetaDataTypeResolution {
 
@@ -91,5 +95,25 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
     @Test    // Iterable<Map<Class<S>, POJO<S, T, U>>> iterable;
     public void testIterableOfMapOfParameterizedClasses() {
         checkField("iterable", "java.util.Map", Map.class);
+    }
+
+    @Test // GH-492
+    public void shouldDetectPrimitiveArraysInGenericFields() {
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh492");
+
+        ClassInfo classInfo = metaData.classInfo(BaseUser.IntUser.class);
+        FieldInfo fieldInfo = classInfo.getFieldInfo("genericValue");
+        assertThat(fieldInfo.isArray()).isTrue();
+        assertThat(fieldInfo.type()).isEqualTo(int[].class);
+    }
+
+    @Test // GH-492
+    public void shouldDetectWrapperArraysInGenericFields() {
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh492");
+
+        ClassInfo classInfo = metaData.classInfo(BaseUser.IntegerUser.class);
+        FieldInfo fieldInfo = classInfo.getFieldInfo("genericValue");
+        assertThat(fieldInfo.isArray()).isTrue();
+        assertThat(fieldInfo.type()).isEqualTo(Integer[].class);
     }
 }

@@ -28,6 +28,7 @@ o Deprecated `org.neo4j.ogm.session.Neo4jException`, will be removed in 3.2. (#3
 o Deprecated `org.neo4j.ogm.exception.core.NotFoundException`, will be removed in 3.2. (#319)
 o Deprecated `org.neo4j.ogm.exception.core.ResultErrorsException`, will be removed in 3.2. (#319)
 o Fixed detection of field types in concrete subclasses of generic base classes. (#492)
+o Changes to dynamic properties (map attributes) are now correctly tracked. (#518)
 
 3.1.5
 o Fix loading by parent class / interface for custom id. (#554)

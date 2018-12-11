@@ -38,10 +38,10 @@ import org.neo4j.ogm.session.SessionFactory;
  */
 public abstract class CypherExceptionTestBase<T extends Driver> {
 
-    private static final String CONSTRAINT_VIOLATED_MESSAGE_PATTERN = Pattern
-        .quote("Cypher execution failed with code 'Neo.ClientError.Schema.ConstraintValidationFailed': Node(")
-        .concat("\\d")
-        .concat(Pattern.quote(") already exists with label `CONSTRAINTED_NODE` and property `name` = 'test'."));
+    private static final String CONSTRAINT_VIOLATED_MESSAGE_PATTERN
+        = "Cypher execution failed with code 'Neo\\.ClientError\\.Schema\\.ConstraintValidationFailed': "
+        + "Node(?: |\\(?)\\d\\)? already exists with label `?CONSTRAINTED_NODE`? and "
+        + "property (?:`|\")name(?:`|\") ?= ?(?:'test'|\\[test\\])\\.";
 
     protected static final String DOMAIN_PACKAGE = "org.neo4j.ogm.domain.cypher_exception_test";
 

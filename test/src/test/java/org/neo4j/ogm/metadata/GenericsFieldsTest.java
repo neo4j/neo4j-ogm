@@ -117,3 +117,4 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
         assertThat(fieldInfo.type()).isEqualTo(Integer[].class);
     }
 }
+

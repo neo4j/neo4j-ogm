@@ -41,7 +41,6 @@ public class EntityUtils {
      * @param entity   entity
      * @param metaData metadata
      * @return native id or refId
-     * @throws org.neo4j.ogm.exception.MetadataException when there is no native id field on the entity class
      */
     public static Long identity(Object entity, MetaData metaData) {
 

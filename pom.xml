@@ -192,28 +192,42 @@
         </snapshotRepository>
     </distributionManagement>
 
+
     <properties>
-        <!-- to be overridden in sub modules -->
-        <java-module-name></java-module-name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <commonslang>3.8</commonslang>
-        <commonsio>2.4</commonsio>
-        <jackson>2.8.11</jackson>
-        <httpclient>4.5.2</httpclient>
-        <junit>4.12</junit>
-        <assertj>3.8.0</assertj>
-        <slf4j.version>1.7.25</slf4j.version>
-        <logback.version>1.2.3</logback.version>
-        <mockito>2.2.29</mockito>
+
+        <java-module-name></java-module-name> <!-- to be overridden in sub modules -->
+        <java.version>1.8</java.version>
+
         <!-- default for build, if no profiles invoked -->
         <neo4j>3.4.9</neo4j>
-        <fast.classpath.scanner>2.18.1</fast.classpath.scanner>
-        <ogm.properties>ogm-bolt.properties</ogm.properties>
         <neo4j.edition>enterprise</neo4j.edition>
-        <spotbugs.plugin.version>3.1.3</spotbugs.plugin.version>
+
+        <assertj.version>3.11.1</assertj.version>
+        <caffeine.version>2.6.2</caffeine.version>
+        <commons-codec.version>1.11</commons-codec.version>
+        <commons-lang3.version>3.8</commons-lang3.version>
+        <commons-logging.version>1.2</commons-logging.version>
+        <fast.classpath.scanner>2.18.1</fast.classpath.scanner>
+        <httpclient.version>4.5.2</httpclient.version>
+        <httpcore.version>4.4.10</httpcore.version>
+        <jackson.version>2.9.7</jackson.version>
+        <junit.version>4.12</junit.version>
+        <logback.version>1.2.3</logback.version>
+        <lucene.version>5.5.5</lucene.version>
         <neo4j-java-driver.version>1.7.1</neo4j-java-driver.version>
+        <ogm.properties>ogm-bolt.properties</ogm.properties>
+        <maven-jar-plugin.version>3.0.1</maven-jar-plugin.version>
+        <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+        <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
+        <maven-source.plugin.version>3.0.1</maven-source.plugin.version>
+        <mockito.version>2.23.4</mockito.version>
+        <scala.version>2.11.12</scala.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <spotbugs.plugin.version>3.1.3</spotbugs.plugin.version>
+
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <dependencyManagement>
@@ -223,25 +237,30 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson}</version>
+                <version>${jackson.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jdk8</artifactId>
-                <version>${jackson}</version>
+                <version>${jackson.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${jackson}</version>
+                <version>${jackson.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>${httpclient}</version>
+                <version>${httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${httpcore.version}</version>
             </dependency>
 
             <dependency>
@@ -253,21 +272,27 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>${commonslang}</version>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
             </dependency>
 
             <!--Testing  Dependencies -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>${junit}</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>${assertj}</version>
+                <version>${assertj.version}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -288,8 +313,21 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>${mockito}</version>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- Test harness pulls them in. -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons-logging.version}</version>
             </dependency>
 
             <!-- Used in Bolt-Transport and related. -->
@@ -314,6 +352,37 @@
                 <scope>compile</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-reflect</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.neo4j</groupId>
+                <artifactId>neo4j-kernel</artifactId>
+                <version>${neo4j}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.neo4j</groupId>
+                <artifactId>neo4j-graphdb-api</artifactId>
+                <version>${neo4j}</version>
+            </dependency>
+
+            <!-- See https://github.com/neo-technology/neo4j/pull/1177 -->
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-core</artifactId>
+                <version>${lucene.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -321,8 +390,30 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <configuration>
+                            <rules>
+                                <DependencyConvergence/>
+                                <requireMavenVersion>
+                                    <version>3.5.4</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
+                <version>${maven-source.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -335,7 +426,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
+                <version>${maven-javadoc-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -349,8 +440,8 @@
                 See http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javadoc.html#BEJEFABE
                 -->
                 <configuration>
-                    <additionalparam>-Xdoclint:html</additionalparam>
-                    <additionalparam>-Xdoclint:syntax</additionalparam>
+                    <doclint>syntax</doclint>
+                    <doclint>html</doclint>
                     <tags>
                         <tag>
                             <name>soundtrack</name>
@@ -372,7 +463,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <version>${maven-jar-plugin.version}</version>
                 <configuration>
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>

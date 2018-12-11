@@ -34,7 +34,7 @@ import org.neo4j.ogm.transaction.Transaction;
  * In a typical application scenario there should be a Session instance per thread.
  * A broader scope may be chosen, but the access to the Session must be synchronized externally.
  * <h2>Load methods</h2>
- * Methods {@code load(java.lang.Class, java.io.Serializable)} load single instance of class by id.<br/>
+ * Methods {@code load(java.lang.Class, java.io.Serializable)} load single instance of class by id.<br>
  * Methods {@code loadAll(java.lang.Class, java.util.Collection)} load multiple instances of same class by ids.
  * Note that if an entity with id is not found it is simply omitted from the results.<br>
  * Methods {@code loadAll(java.lang.Class, org.neo4j.ogm.cypher.Filter)} queries multiple instances of class by

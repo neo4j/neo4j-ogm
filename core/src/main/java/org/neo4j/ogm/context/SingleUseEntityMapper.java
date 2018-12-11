@@ -74,7 +74,7 @@ public class SingleUseEntityMapper {
      * @param type        The {@link Class} denoting the type of object to create
      * @param columnNames The names of the columns in each row of the result
      * @param rowModel    The {@link org.neo4j.ogm.model.RowModel} containing the data to map
-     * @return A new instance of <tt>T</tt> populated with the data in the specified row model
+     * @return A new instance of {@code T} populated with the data in the specified row model
      */
     public <T> T map(Class<T> type, String[] columnNames, RowModel rowModel) {
         Map<String, Object> properties = new HashMap<>();

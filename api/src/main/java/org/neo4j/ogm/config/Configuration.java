@@ -15,7 +15,6 @@ package org.neo4j.ogm.config;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -26,7 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.neo4j.ogm.support.ResourceUtils;
@@ -212,7 +210,7 @@ public class Configuration {
         return basePackages;
     }
 
-    public String[] mergeBasePackagesWith(String...anotherSetOfBasePackages) {
+    public String[] mergeBasePackagesWith(String... anotherSetOfBasePackages) {
         String[] set1 = Optional.ofNullable(this.basePackages).orElseGet(() -> new String[0]);
         String[] set2 = Optional.ofNullable(anotherSetOfBasePackages).orElseGet(() -> new String[0]);
 
@@ -386,12 +384,13 @@ public class Configuration {
 
         private static String[] splitValue(Object value) {
 
-            if(!(value instanceof String)) {
-                throw new IllegalArgumentException("Cannot split values of type other than java.lang.String (was " + value.getClass() + ").");
+            if (!(value instanceof String)) {
+                throw new IllegalArgumentException(
+                    "Cannot split values of type other than java.lang.String (was " + value.getClass() + ").");
             }
 
             String stringValue = (String) value;
-            if(stringValue == null || stringValue.trim().isEmpty()) {
+            if (stringValue == null || stringValue.trim().isEmpty()) {
                 return new String[0];
             }
 
@@ -406,6 +405,7 @@ public class Configuration {
          * bolt for BoltDriver).
          *
          * @param uri uri of the database
+         * @return tbe changed builder
          */
         public Builder uri(String uri) {
             this.uri = uri;
@@ -417,6 +417,7 @@ public class Configuration {
          * (including one specified in uri property)
          *
          * @param uris uris
+         * @return tbe changed builder
          */
         public Builder uris(String[] uris) {
             this.uris = uris;
@@ -428,6 +429,7 @@ public class Configuration {
          * Valid only for http and bolt drivers
          *
          * @param connectionPoolSize number of connections to the database
+         * @return tbe changed builder
          */
         public Builder connectionPoolSize(Integer connectionPoolSize) {
             this.connectionPoolSize = connectionPoolSize;
@@ -439,6 +441,7 @@ public class Configuration {
          * See org.neo4j.driver.v1.Config.EncryptionLevel for possible values.
          *
          * @param encryptionLevel required encryption level
+         * @return tbe changed builder
          */
         public Builder encryptionLevel(String encryptionLevel) {
             this.encryptionLevel = encryptionLevel;
@@ -469,6 +472,7 @@ public class Configuration {
          * If set to false the driver will be created when first Session is requested from SessionFactory
          *
          * @param verifyConnection if the connection to the database should be verified, default is false
+         * @return tbe changed builder
          */
         public Builder verifyConnection(Boolean verifyConnection) {
             this.verifyConnection = verifyConnection;
@@ -479,6 +483,7 @@ public class Configuration {
          * Auto index config, for possible values see {@link org.neo4j.ogm.config.AutoIndexMode}
          *
          * @param autoIndex auto index config
+         * @return tbe changed builder
          */
         public Builder autoIndex(String autoIndex) {
             this.autoIndex = autoIndex;
@@ -513,16 +518,17 @@ public class Configuration {
         /**
          * Turns on the support for native types on the transport level. All types supported natively by Neo4j will either
          * be transported "as is" to the database or in a format that will be stored in the native form in the database.
-         * <br />
+         * <br>
          * Turning this on prevents implicit conversions of all <code>java.time.*</code> types, Neo4j spatial datatypes
          * (<code>point()</code>) and potentially others in the future.
-         * <br />
+         * <br>
          * Be aware that turning this on in an application that used the implicit conversion and stored nodes and properties
          * with it, will require a refactoring to the database for all <code>java.time.*</code>-properties stored through
          * Neo4j-OGM: They have been stored traditionally as a string in an ISO-8601 format and need to be converted in the
          * database to their native representation as well.
          *
          * @since 3.2
+         * @return tbe changed builder
          */
         public Builder useNativeTypes() {
             this.useNativeTypes = true;
@@ -534,8 +540,8 @@ public class Configuration {
          *
          * @param basePackages The new base backages.
          * @return The modified builder.
-         *
          * @since 3.2
+         * @return tbe changed builder
          */
         public Builder withBasePackages(String... basePackages) {
             this.basePackages = basePackages;
@@ -551,6 +557,7 @@ public class Configuration {
          *
          * @param username username
          * @param password password
+         * @return tbe changed builder
          */
         public Builder credentials(String username, String password) {
             this.username = username;

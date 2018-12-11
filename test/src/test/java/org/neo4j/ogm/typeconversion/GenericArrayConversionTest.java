@@ -13,11 +13,14 @@
 package org.neo4j.ogm.typeconversion;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assume.*;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.driver.internal.util.ServerVersion;
 import org.neo4j.driver.v1.Config;
+import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
@@ -26,7 +29,6 @@ import org.neo4j.ogm.domain.gh492.BaseUser.IntUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.IntegerUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.LongUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.StringUser;
-import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -41,16 +43,24 @@ public class GenericArrayConversionTest {
 
     protected static SessionFactory sessionFactory;
 
+    protected static boolean supportsBytePacking = false;
+
     @BeforeClass
     public static void startServer() {
+
         serverControls = TestServerBuilders.newInProcessBuilder().newServer();
-        Driver driver = new BoltDriver(
-            GraphDatabase.driver(serverControls.boltURI(), Config.build().withoutEncryption().toConfig()));
-        sessionFactory = new SessionFactory(driver, DOMAIN_PACKAGE);
+
+        Driver driver = GraphDatabase.driver(serverControls.boltURI(), Config.build().withoutEncryption().toConfig());
+
+        supportsBytePacking = ServerVersion.version(driver).greaterThanOrEqual(ServerVersion.v3_2_0);
+        sessionFactory = new SessionFactory(new BoltDriver(driver), DOMAIN_PACKAGE);
     }
 
     @Test // GH-492
     public void byteSampleTest() {
+
+        assumeTrue(supportsBytePacking);
+
         ByteUser byteUser = new ByteUser();
         byteUser.setLoginName("test-byteUser");
         byteUser.setGenericValue(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 });

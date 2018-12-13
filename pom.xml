@@ -179,19 +179,6 @@
         <url>https://github.com/neo4j/neo4j-ogm/issues</url>
     </issueManagement>
 
-    <distributionManagement>
-        <repository>
-            <id>jfrog-release</id>
-            <name>neo-releases</name>
-            <url>https://neo.jfrog.io/neo/ogm-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>jfrog-snapshots</id>
-            <name>neo-snapshots</name>
-            <url>https://neo.jfrog.io/neo/ogm-local</url>
-        </snapshotRepository>
-    </distributionManagement>
-
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -199,28 +186,31 @@
         <java-module-name></java-module-name> <!-- to be overridden in sub modules -->
         <java.version>1.8</java.version>
 
-        <!-- default for build, if no profiles invoked -->
-        <neo4j>3.4.9</neo4j>
-        <neo4j.edition>enterprise</neo4j.edition>
-
         <assertj.version>3.11.1</assertj.version>
         <caffeine.version>2.6.2</caffeine.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.8</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
+        <dropwizard-metrics.version>4.0.2</dropwizard-metrics.version>
         <fast.classpath.scanner>2.18.1</fast.classpath.scanner>
         <httpclient.version>4.5.2</httpclient.version>
         <httpcore.version>4.4.10</httpcore.version>
         <jackson.version>2.9.7</jackson.version>
+        <jline.version>2.14.3</jline.version>
         <junit.version>4.12</junit.version>
         <logback.version>1.2.3</logback.version>
         <lucene.version>5.5.5</lucene.version>
+        <neo4j.version>3.4.10</neo4j.version>
+        <neo4j.edition>enterprise</neo4j.edition>
         <neo4j-java-driver.version>1.7.1</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
         <maven-jar-plugin.version>3.0.1</maven-jar-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+        <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
         <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
-        <maven-source.plugin.version>3.0.1</maven-source.plugin.version>
+        <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
+        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M2</maven-surefire-plugin.version>
         <mockito.version>2.23.4</mockito.version>
         <scala.version>2.11.12</scala.version>
         <slf4j.version>1.7.25</slf4j.version>
@@ -299,7 +289,7 @@
             <dependency>
                 <groupId>org.neo4j.test</groupId>
                 <artifactId>neo4j-harness</artifactId>
-                <version>${neo4j}</version>
+                <version>${neo4j.version}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -341,7 +331,7 @@
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j</artifactId>
-                <version>${neo4j}</version>
+                <version>${neo4j.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -367,22 +357,35 @@
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-kernel</artifactId>
-                <version>${neo4j}</version>
+                <version>${neo4j.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-graphdb-api</artifactId>
-                <version>${neo4j}</version>
+                <version>${neo4j.version}</version>
             </dependency>
 
-            <!-- See https://github.com/neo-technology/neo4j/pull/1177 -->
+            <!-- Incorrectly exported by server -->
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
                 <version>${lucene.version}</version>
             </dependency>
 
+            <!-- Needed by enterprise server, but comes in different flavors, too. -->
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${dropwizard-metrics.version}</version>
+            </dependency>
+
+            <!-- Come in through server and cypher -->
+            <dependency>
+                <groupId>jline</groupId>
+                <artifactId>jline</artifactId>
+                <version>${jline.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -413,7 +416,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>${maven-source.plugin.version}</version>
+                <version>${maven-source-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -453,12 +456,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
+                <version>${maven-deploy-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -486,7 +484,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.7.1</version>
+                <version>${maven-site-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
@@ -538,21 +536,21 @@
         <profile>
             <id>neo4j-3.2</id>
             <properties>
-                <neo4j>3.2.13</neo4j>
+                <neo4j.version>3.2.13</neo4j.version>
             </properties>
         </profile>
 
         <profile>
             <id>neo4j-3.3</id>
             <properties>
-                <neo4j>3.3.9</neo4j>
+                <neo4j.version>3.3.9</neo4j.version>
             </properties>
         </profile>
 
         <profile>
             <id>neo4j-3.4</id>
             <properties>
-                <neo4j>3.4.10</neo4j>
+                <neo4j.version>3.4.10</neo4j.version>
             </properties>
             <modules>
                 <module>native-types-test</module>
@@ -564,7 +562,7 @@
         <profile>
             <id>neo4j-3.5</id>
             <properties>
-                <neo4j>3.5.0</neo4j>
+                <neo4j.version>3.5.0</neo4j.version>
             </properties>
             <modules>
                 <module>native-types-test</module>

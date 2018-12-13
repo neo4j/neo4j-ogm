@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.neo4j.app</groupId>
             <artifactId>neo4j-server</artifactId>
-            <version>${neo4j}</version>
+            <version>${neo4j.version}</version>
             <optional>true</optional>
         </dependency>
 
@@ -67,24 +67,26 @@
     <profiles>
         <profile>
             <id>neo4j-enterprise</id>
+
             <dependencies>
                 <dependency>
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-cluster</artifactId>
-                    <version>${neo4j}</version>
+                    <version>${neo4j.version}</version>
                     <scope>provided</scope>
                 </dependency>
 
                 <dependency>
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-enterprise</artifactId>
-                    <version>${neo4j}</version>
+                    <version>${neo4j.version}</version>
+                    <scope>provided</scope>
                 </dependency>
 
                 <dependency>
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-ha</artifactId>
-                    <version>${neo4j}</version>
+                    <version>${neo4j.version}</version>
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
@@ -96,7 +98,8 @@
                 <dependency>
                     <groupId>com.neo4j</groupId>
                     <artifactId>neo4j-enterprise</artifactId>
-                    <version>${neo4j}</version>
+                    <version>${neo4j.version}</version>
+                    <scope>provided</scope>
                 </dependency>
             </dependencies>
         </profile>

@@ -33,40 +33,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Michael J. Simons
  */
 final class SaveEventDelegate extends SessionDelegate {
 
     private static final Logger logger = LoggerFactory.getLogger(SaveEventDelegate.class);
 
-    private Set<Object> visited;
-    private Set<Object> preSaved;
-    private Set<MappedRelationship> registeredRelationships = new HashSet<>();
-    private Set<MappedRelationship> addedRelationships = new HashSet<>();
-    private Set<MappedRelationship> deletedRelationships = new HashSet<>();
+    private final Set<Object> visited;
+    private final Set<Object> preSaved;
+    private final Set<MappedRelationship> registeredRelationships;
+    private final Set<MappedRelationship> addedRelationships;
+    private final Set<MappedRelationship> deletedRelationships;
 
     SaveEventDelegate(Neo4jSession session) {
         super(session);
-        this.preSaved = new HashSet<>();
-        this.visited = new HashSet<>();
 
-        this.registeredRelationships.clear();
-        this.registeredRelationships.addAll(session.context().getRelationships());
+        this.visited = new HashSet<>();
+        this.preSaved = new HashSet<>();
+
+        this.registeredRelationships = new HashSet<>(session.context().getRelationships());
+        this.addedRelationships = new HashSet<>();
+        this.deletedRelationships = new HashSet<>();
     }
 
     void preSave(Object object) {
 
-        if (Collection.class.isAssignableFrom(object.getClass())) {
-            for (Object element : (Collection) object) {
-                preSaveCheck(element);
-            }
-        } else if (object.getClass().isArray()) {
-            for (Object element : (Collections.singletonList(object))) {
-                preSaveCheck(element);
-            }
-        } else {
-            preSaveCheck(object);
-        }
+        this.preSaveCheck(object);
 
         // now fire events for any objects whose relationships have been deleted from reachable ones
         // and which therefore have been possibly rendered unreachable from the object graph traversal
@@ -100,10 +93,9 @@ final class SaveEventDelegate extends SessionDelegate {
             if (!preSaveFired(object) && dirty(object)) {
                 firePreSave(object);
             }
-        } else {
+        } else if (logger.isDebugEnabled()) {
             logger.debug("already visited: {}", object);
         }
-
     }
 
     private void firePreSave(Object object) {
@@ -159,7 +151,7 @@ final class SaveEventDelegate extends SessionDelegate {
         Object entity = session.context().getNodeEntity(nodeId);
         if (entity != null) {
             unreachable.add(entity);
-        } else {
+        } else if (logger.isWarnEnabled()) {
             logger.warn("Relationship to/from entity id={} deleted, but entity is not " +
                 "in context - no events will be fired.", nodeId);
         }

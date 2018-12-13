@@ -91,7 +91,7 @@
         <dependency>
             <groupId>org.neo4j.test</groupId>
             <artifactId>neo4j-harness</artifactId>
-            <version>${neo4j}</version>
+            <version>${neo4j.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -104,7 +104,7 @@
                 <dependency>
                     <groupId>org.neo4j.test</groupId>
                     <artifactId>neo4j-harness-enterprise</artifactId>
-                    <version>${neo4j}</version>
+                    <version>${neo4j.version}</version>
                     <scope>compile</scope>
                 </dependency>
             </dependencies>
@@ -116,7 +116,7 @@
                 <dependency>
                     <groupId>org.neo4j.community</groupId>
                     <artifactId>it-test-support</artifactId>
-                    <version>${neo4j}</version>
+                    <version>${neo4j.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -127,7 +127,7 @@
                 <dependency>
                     <groupId>com.neo4j.test</groupId>
                     <artifactId>neo4j-harness-enterprise</artifactId>
-                    <version>${neo4j}</version>
+                    <version>${neo4j.version}</version>
                     <scope>compile</scope>
                 </dependency>
             </dependencies>

@@ -10,18 +10,21 @@ Consult the version table to determine which version of Neo4j-OGM to use with a 
 
 [frame="topbot",options="header"]
 |======================
-|Neo4j-OGM Version   |Neo4j Version       | Bolt Version^#^                 | Spring Data Neo4j Version       | Spring Boot Version
-|3.1.0+              |3.1.x, 3.2.x, 3.3.x | 1.5.0+ (compatible with 1.4.0+) | 5.1.0+ (compatible with 5.0.0+) | 2.0.0+
-|3.0.0+              |3.1.x, 3.2.x, 3.3.x | 1.4.0+                          | 5.0.0+                          | 2.0.0+
-|2.1.0+              |2.3.x, 3.0.x, 3.1.x | 1.1.0+                          | 4.2.0+                          | 1.5.0+
-|2.0.2+              |2.3.x, 3.0.x        | 1.0.0+                          | 4.1.2 - 4.1.6+                  | 1.4.x
-|2.0.1^*^            |2.2.x, 2.3.x        | 1.0.0-RC1                       | 4.1.0 - 4.1.1                   | 1.4.x
-|1.1.5^*^            |2.1.x, 2.2.x, 2.3.x | N/A                             | 4.0.0+                          | 1.4.x
+|Neo4j-OGM Version   |Neo4j Version^1^
+|3.2.x               |3.2.13, 3.3.9, 3.4.10, 3.5.0
+|3.1.x               |3.1.9, 3.2.13, 3.3.9, 3.4.10
+|3.0.x^2^            |3.1.9, 3.2.12, 3.3.4, 3.4.4
+|2.1.x^3^            |2.3.9, 3.0.11, 3.1.6
+|2.0.2^3^            |2.3.8, 3.0.7
+|2.0.1^3^            |2.2.x, 2.3.x
+|1.1.5^3^            |2.1.x, 2.2.x, 2.3.x
 |======================
 
-^*^ __These versions are no longer actively developed or supported.__ +
+^1^ __The latest supported bugfix versions.__ +
 
-^#^ __Not applicable to Embedded and HTTP drivers__
+^2^ __These versions are no longer actively developed.__ +
+
+^3^ __These versions are no longer actively developed or supported.__ +
 
 === Transitive dependencies
 
@@ -31,15 +34,13 @@ verify versions used (e.g through `mvn dependency:tree`) and report them as well
 
 [frame="topbot",options="header"]
 |======================
-|Spring Boot Version | Spring Data Neo4j Version            | Neo4j-OGM Version | Bolt Version
-|2.0.0               | 5.1.0                                | 3.1.0             | 1.5.0
-|2.0.0               | 5.0.0 (default for Spring Boot 2.0)  | 3.0.0             | 1.4.3
-|1.5.7               | 4.2.7                                | 2.1.3             | 1.2.3
-|1.4.6               | 4.1.7                                | 2.0.5             | 1.0.6
+|Spring Boot Version | Spring Data Release Train |Spring Data Neo4j Version | Neo4j-OGM Version
+//|2.2               | Moore                  |5.2                       | 3.2
+|2.1                 | Lovelace                  |5.1                       | 3.1
+|2.0                 | Kay                       |5.0                       | 3.0
+|1.5                 | Ingalls                   |4.2                       | 2.1
+|1.4                 | Hopper                    |4.1                       | 2.0
 |======================
-
-[NOTE]
-These versions can be overridden manually in `pom.xml` or `build.gradle` files.
 
 
 [[reference:getting-started:dependency-management]]
@@ -47,15 +48,12 @@ These versions can be overridden manually in `pom.xml` or `build.gradle` files.
 
 For building an application, your build automation tool needs to be configured to include the Neo4j-OGM dependencies.
 
-
 Neo4j-OGM dependencies consist of `neo4j-ogm-core`, together with the relevant dependency declarations on the driver you want to use.
-OGM provides support for connecting to Neo4j by configuring one of the following Drivers:
+Neo4j-OGM provides support for connecting to Neo4j by configuring one of the following Drivers:
 
-- `neo4j-ogm-http-driver` - Uses HTTP to communicate between Neo4j-OGM and a remote Neo4j instance.
-- `neo4j-ogm-embedded-driver` - Connects directly to the Neo4j database engine.
 - `neo4j-ogm-bolt-driver` - Uses native Bolt protocol to communicate between Neo4j-OGM and a remote Neo4j instance.
-
-If you're not using a particular driver, you don't need to declare it.
+- `neo4j-ogm-http-driver` - Uses HTTP to communicate between Neo4j-OGM and a remote Neo4j instance.
+- `neo4j-ogm-embedded-driver` - Creates an in-memory Neo4j instance and uses it.
 
 Neo4j-OGM projects can be built using Maven, Gradle or any other build system that utilises Maven's artifact repository structure.
 
@@ -74,6 +72,14 @@ In the `<dependencies>` section of your `pom.xml` add the following:
     <scope>compile</scope>
 </dependency>
 
+<!-- Only add if you're using the Bolt driver -->
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-bolt-driver</artifactId>
+    <version>{ogm-version}</version>
+    <scope>runtime</scope>
+</dependency>
+
 <!-- Only add if you're using the HTTP driver -->
 <dependency>
     <groupId>org.neo4j</groupId>
@@ -89,27 +95,12 @@ In the `<dependencies>` section of your `pom.xml` add the following:
     <version>{ogm-version}</version>
     <scope>runtime</scope>
 </dependency>
-
-<!-- Only add if you're using the Bolt driver -->
 <dependency>
     <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-bolt-driver</artifactId>
-    <version>{ogm-version}</version>
+    <artifactId>neo4j</artifactId>
+    <version>{neo4j-version}</version>
     <scope>runtime</scope>
 </dependency>
-----
-
-If you plan on using a development (i.e. `SNAPSHOT`) version of Neo4j-OGM you will need to add the following to the
-`<repositories>` section of your `pom.xml`:
-
-.Neo4j Snapshot Repository
-[source, xml, subs="attributes, specialcharacters"]
-----
-<repository>
-    <id>neo4j-snapshot-repository</id>
-    <name>Neo4j Maven 2 snapshot repository</name>
-    <url>http://m2.neo4j.org/content/repositories/snapshots</url>
-</repository>
 ----
 
 [[reference:getting-started:dependency-management:gradle]]
@@ -122,18 +113,10 @@ Ensure the following dependencies are added to you `build.gradle`:
 ----
 dependencies {
     compile 'org.neo4j:neo4j-ogm-core:{ogm-version}'
+    runtime 'org.neo4j:neo4j-ogm-bolt-driver:{ogm-version}' // Only add if you're using the Bolt driver
     runtime 'org.neo4j:neo4j-ogm-http-driver:{ogm-version}' // Only add if you're using the HTTP driver
     runtime 'org.neo4j:neo4j-ogm-embedded-driver:{ogm-version}' //  Only add if you're using the Embedded driver
-    runtime 'org.neo4j:neo4j-ogm-bolt-driver:{ogm-version}' // Only add if you're using the Bolt driver
+    runtime 'org.neo4j:neo4j:{neo4j-version}' //  Only add if you're using the Embedded driver
 }
 ----
 
-If you plan on using a development (i.e. `SNAPSHOT`) version of Neo4j-OGM you will need to add the following section of your `build.gradle`:
-
-.Neo4j Snapshot Repository
-[source, groovy, subs="attributes"]
-----
-repositories {
-    maven { url "http://m2.neo4j.org/content/repositories/snapshots" }
-}
-----

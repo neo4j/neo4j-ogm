@@ -231,7 +231,7 @@ public class MappingContext {
      * @return The snapshot or an empty optional if there's no such snapshot.
      */
     Optional<EntitySnapshot> getSnapshotOf(Object entity) {
-        return identityMap.getSnapshotFor(nativeId(entity));
+        return identityMap.getSnapshotOf(entity, nativeId(entity));
     }
 
     /**

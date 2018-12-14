@@ -42,14 +42,17 @@ class IdentityMap {
 
     private final Map<Long, Long> relEntityHash;
 
-    private final Map<Long, EntitySnapshot> snapshots;
+    private final Map<Long, EntitySnapshot> snapshotsOfNodeEntities;
+
+    private final Map<Long, EntitySnapshot> snapshotsOfRelationshipEntities;
 
     private final MetaData metaData;
 
     IdentityMap(MetaData metaData) {
         this.nodeHash = new HashMap<>();
         this.relEntityHash = new HashMap<>();
-        this.snapshots = new HashMap<>();
+        this.snapshotsOfNodeEntities = new HashMap<>();
+        this.snapshotsOfRelationshipEntities = new HashMap<>();
         this.metaData = metaData;
     }
 
@@ -63,12 +66,12 @@ class IdentityMap {
     void remember(Object object, Long entityId) {
         ClassInfo classInfo = metaData.classInfo(object);
         if (metaData.isRelationshipEntity(classInfo.name())) {
-            relEntityHash.put(entityId, hash(object, classInfo));
+            this.relEntityHash.put(entityId, hash(object, classInfo));
+            this.snapshotsOfRelationshipEntities.put(entityId, EntitySnapshot.basedOn(metaData).take(object));
         } else {
-            nodeHash.put(entityId, hash(object, classInfo));
+            this.nodeHash.put(entityId, hash(object, classInfo));
+            this.snapshotsOfNodeEntities.put(entityId, EntitySnapshot.basedOn(metaData).take(object));
         }
-
-        this.snapshots.put(entityId, EntitySnapshot.basedOn(metaData).take(object));
     }
 
     /**
@@ -107,18 +110,30 @@ class IdentityMap {
      * Returns the snapshot for the given id. The snapshot contains the corresponding entity's dynamic labels and properties
      * as stored during initial load of the entity.
      *
-     * @param entityId
+     * @param entity the entity whos snapshot should be retrieved
+     * @param entityId the native id of the entity
      * @return A snapshot of dynamic labels and properties or an empty optional.
      */
-    Optional<EntitySnapshot> getSnapshotFor(Long entityId) {
-        return Optional.ofNullable(snapshots.get(entityId));
+    Optional<EntitySnapshot> getSnapshotOf(Object entity, Long entityId) {
+
+        EntitySnapshot entitySnapshot = null;
+
+        ClassInfo classInfo = metaData.classInfo(entity);
+        if (metaData.isRelationshipEntity(classInfo.name())) {
+            entitySnapshot = this.snapshotsOfRelationshipEntities.get(entityId);
+        } else {
+            entitySnapshot = this.snapshotsOfNodeEntities.get(entityId);
+        }
+
+        return Optional.ofNullable(entitySnapshot);
     }
 
     void clear() {
 
-        nodeHash.clear();
-        relEntityHash.clear();
-        snapshots.clear();
+        this.nodeHash.clear();
+        this.relEntityHash.clear();
+        this.snapshotsOfNodeEntities.clear();
+        this.snapshotsOfRelationshipEntities.clear();
     }
 
     private long hash(Object object, ClassInfo classInfo) {

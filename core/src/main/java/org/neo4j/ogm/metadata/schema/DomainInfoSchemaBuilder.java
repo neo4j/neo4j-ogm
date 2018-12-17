@@ -110,6 +110,7 @@ public class DomainInfoSchemaBuilder {
         if (otherClassInfo.isRelationshipEntity()) {
 
             if (relFieldInfo.relationshipDirection().equals(Relationship.OUTGOING)) {
+                System.out.println(fromNode + " to " + otherClassInfo.name());
                 toNode = getNodeByFieldAndContainingClass(otherClassInfo, otherClassInfo.getEndNodeReader());
             } else {
                 // this will cover both incoming and UNDIRECTED
@@ -134,6 +135,7 @@ public class DomainInfoSchemaBuilder {
 
     private NodeImpl getNodeByFieldAndContainingClass(ClassInfo classInfo, FieldInfo fieldInfo) {
         NodeImpl toNode;
+        System.out.println(">>> " + classInfo.name()+ ", " + fieldInfo);
         Field endField = fieldInfo.getField();
         Class endType = GenericUtils.findFieldType(endField, classInfo.getUnderlyingClass());
         toNode = getNodeByTypeDescriptor(endType.getName());

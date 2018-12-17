@@ -20,7 +20,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.neo4j.ogm" level="warn"/>
+    <logger name="org.neo4j.ogm" level="debug"/>
 
     <root level="warn">
         <appender-ref ref="console"/>

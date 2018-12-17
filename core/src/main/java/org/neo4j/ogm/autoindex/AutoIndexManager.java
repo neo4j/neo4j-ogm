@@ -12,6 +12,8 @@
  */
 package org.neo4j.ogm.autoindex;
 
+import static java.util.Collections.*;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -44,7 +46,7 @@ public class AutoIndexManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
 
-    private static final Map<String, Object> EMPTY_MAP = Collections.emptyMap();
+    private static final Map<String, Object> EMPTY_MAP = emptyMap();
 
     private final List<AutoIndex> indexes;
     private Neo4jSession session;
@@ -177,13 +179,6 @@ public class AutoIndexManager {
         try (Transaction tx = session.beginTransaction()) {try (Response<RowModel> response = session.requestHandler().execute(indexRequests)) {
             RowModel rowModel;
             while ((rowModel = response.next()) != null) {
-                // Ignore index descriptions for constraints
-                // neo4j up to 3.3 returns 3 columns, type in column number 2
-                // neo4j 3.4 returns 6 columns, type in column number 4
-                if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property")||
-                    rowModel.getValues().length == 6 && rowModel.getValues()[4].equals("node_unique_property")) {
-                    continue;
-                }
                 // can replace this with a lookup of the Index by description but attaching DROP here is faster.
                 String statement = (String) rowModel.getValues()[0];
 
@@ -220,8 +215,10 @@ public class AutoIndexManager {
     private DefaultRequest buildProcedures() {
         List<Statement> procedures = new ArrayList<>();
 
-        procedures.add(new RowDataStatement("CALL db.constraints()", EMPTY_MAP));
-        procedures.add(new RowDataStatement("CALL db.indexes()", EMPTY_MAP));
+        procedures.add(new RowDataStatement("CALL db.constraints()", emptyMap()));
+        procedures.add(new RowDataStatement(
+            "CALL db.indexes() YIELD description, type WITH description, type WHERE type <> 'node_unique_property' RETURN description",
+            emptyMap()));
 
         DefaultRequest getIndexesRequest = new DefaultRequest();
         getIndexesRequest.setStatements(procedures);

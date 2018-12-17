@@ -81,6 +81,10 @@
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-shell</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -131,6 +135,12 @@
                     <artifactId>neo4j-harness-enterprise</artifactId>
                     <version>${neo4j.version}</version>
                     <scope>compile</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-nop</artifactId>
+                        </exclusion>
+                    </exclusions>
                 </dependency>
             </dependencies>
         </profile>
@@ -142,6 +152,12 @@
                     <groupId>org.neo4j.community</groupId>
                     <artifactId>it-test-support</artifactId>
                     <version>${neo4j.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-nop</artifactId>
+                        </exclusion>
+                    </exclusions>
                 </dependency>
             </dependencies>
         </profile>
@@ -154,6 +170,12 @@
                     <artifactId>neo4j-harness-enterprise</artifactId>
                     <version>${neo4j.version}</version>
                     <scope>compile</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-nop</artifactId>
+                        </exclusion>
+                    </exclusions>
                 </dependency>
             </dependencies>
         </profile>

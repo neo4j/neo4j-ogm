@@ -100,6 +100,12 @@
                     <artifactId>neo4j-enterprise</artifactId>
                     <version>${neo4j.version}</version>
                     <scope>provided</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-nop</artifactId>
+                        </exclusion>
+                    </exclusions>
                 </dependency>
             </dependencies>
         </profile>

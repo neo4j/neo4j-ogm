@@ -13,14 +13,24 @@
 package org.neo4j.ogm.driver;
 
 /**
- * Exception indicating that the selected driver does not support native types.
+ * Exception indicating problems with the native type system.
  *
  * @author Michael J. Simons
  * @since 3.2
  */
-public class NativeTypesNotSupportedException extends NativeTypesException {
+public abstract class NativeTypesException extends IllegalStateException {
 
-    NativeTypesNotSupportedException(String driverClassName) {
-        super(driverClassName, "Neo4j-OGM driver " + driverClassName + " doesn't support native types.");
+    /**
+     * The name of the driver that caused the exception.
+     */
+    protected final String driverClassName;
+
+    NativeTypesException(String driverClassName, String s) {
+        super(s);
+        this.driverClassName = driverClassName;
+    }
+
+    public String getDriverClassName() {
+        return driverClassName;
     }
 }

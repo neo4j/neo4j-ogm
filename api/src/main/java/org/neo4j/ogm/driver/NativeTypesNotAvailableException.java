@@ -18,12 +18,7 @@ package org.neo4j.ogm.driver;
  * @author Michael J. Simons
  * @since 3.2
  */
-public class NativeTypesNotAvailableException extends IllegalStateException {
-
-    /**
-     * The name of the driver that caused the exception.
-     */
-    private final String driverClassName;
+public class NativeTypesNotAvailableException extends NativeTypesException {
 
     /**
      * The name of the module containing the native types for the driver.
@@ -31,9 +26,9 @@ public class NativeTypesNotAvailableException extends IllegalStateException {
     private final String requiredModule;
 
     NativeTypesNotAvailableException(String driverClassName) {
-        super("Cannot use native types. Make sure you have the native module for your driver on the classpath.");
 
-        this.driverClassName = driverClassName;
+        super(driverClassName, "Cannot use native types. Make sure you have the native module for your driver on the classpath.");
+
         switch (this.driverClassName) {
             case "org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver":
                 this.requiredModule = "org.neo4j:neo4j-ogm-embedded-native-types";
@@ -44,10 +39,6 @@ public class NativeTypesNotAvailableException extends IllegalStateException {
             default:
                 this.requiredModule = "n/a";
         }
-    }
-
-    public String getDriverClassName() {
-        return driverClassName;
     }
 
     public String getRequiredModule() {

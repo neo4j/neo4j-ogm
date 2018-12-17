@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>neo4j-ogm-native-types-test</artifactId>
+    <packaging>pom</packaging>
 
     <dependencies>
 

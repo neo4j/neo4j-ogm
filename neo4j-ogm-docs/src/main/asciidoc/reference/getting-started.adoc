@@ -52,8 +52,10 @@ Neo4j-OGM dependencies consist of `neo4j-ogm-core`, together with the relevant d
 Neo4j-OGM provides support for connecting to Neo4j by configuring one of the following Drivers:
 
 - `neo4j-ogm-bolt-driver` - Uses native Bolt protocol to communicate between Neo4j-OGM and a remote Neo4j instance.
+- `neo4j-ogm-bolt-native-types` - Support for all of Neo4j's property types through the Bolt protocol.
 - `neo4j-ogm-http-driver` - Uses HTTP to communicate between Neo4j-OGM and a remote Neo4j instance.
 - `neo4j-ogm-embedded-driver` - Creates an in-memory Neo4j instance and uses it.
+- `neo4j-ogm-embedded-native-types` - Support for all of Neo4j's property types in an embedded scenario.
 
 Neo4j-OGM projects can be built using Maven, Gradle or any other build system that utilises Maven's artifact repository structure.
 
@@ -102,6 +104,9 @@ In the `<dependencies>` section of your `pom.xml` add the following:
     <scope>runtime</scope>
 </dependency>
 ----
+
+Please also have a look at <<reference:native-property-types:supported-drivers, the native type system>> to take advantage of Neo4j-OGM's support for native temporal and spatial types
+and how to use the modules `neo4j-ogm-bolt-native-types` and `neo4j-ogm-embedded-native-types`.
 
 [[reference:getting-started:dependency-management:gradle]]
 === Gradle

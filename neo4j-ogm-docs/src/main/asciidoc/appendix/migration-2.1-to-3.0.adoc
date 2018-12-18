@@ -86,6 +86,11 @@ Here are the things you (may) have to adapt :
   You may want to switch to more fine grained date types like `Instant`.
   See <<reference:type-conversion:built-in, conversions>>.
 
+* Since Neo4j-OGM 3.2 all native temporal and spatial types are supported on Neo4j 3.4 and higher.
+  You may want to disable all conversions to string or long based property types by <<reference:native-property-types:optin, opting in to the native type support>>.
+  and use Java 8 `java.time.*` types for temporal attributes and Neo4j-OGM build-in spatial datatypes for points.
+  Please note that you have to migrate your database as well if you have used Neo4j-OGM prior to 3.1 to write your data.
+
 * The query filters are now immutable.
   See <<reference:filters, Filters>>.
 

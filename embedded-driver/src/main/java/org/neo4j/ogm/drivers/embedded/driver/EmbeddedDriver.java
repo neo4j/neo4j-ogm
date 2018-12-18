@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
  * @author Michael J. Simons
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {

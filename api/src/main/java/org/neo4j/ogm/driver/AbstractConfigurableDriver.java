@@ -26,8 +26,6 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.ParameterConversion.DefaultParameterConversion;
 import org.neo4j.ogm.spi.CypherModificationProvider;
 import org.neo4j.ogm.transaction.TransactionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The AbstractConfigurableDriver is used by all drivers to register themselves.
@@ -157,10 +155,9 @@ public abstract class AbstractConfigurableDriver implements Driver {
                 this.typeSystem = loadNativeTypes(getTypeSystemName());
                 this.parameterConversion = new TypeSystemBasedParameterConversion(this.typeSystem);
             } catch (UnsupportedOperationException e) {
-                throw new IllegalStateException("Neo4j-OGM driver " + this.getClass().getName() + " doesn't support native types.");
+                throw new NativeTypesNotSupportedException(this.getClass().getName());
             } catch (ClassNotFoundException e) {
-                throw new IllegalStateException(
-                    "Cannot use native types. Make sure you have the native module for your driver on the classpath.");
+                throw new NativeTypesNotAvailableException(this.getClass().getName());
             }
         }
     }

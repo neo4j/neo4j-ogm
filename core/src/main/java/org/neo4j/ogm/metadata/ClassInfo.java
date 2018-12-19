@@ -94,11 +94,12 @@ public class ClassInfo {
     /**
      * This class was referenced as a superclass of the given subclass.
      *
-     * @param name     the name of the class
+     * @param cls     superclass of {@code subclass}
      * @param subclass {@link ClassInfo} of the subclass
      */
-    ClassInfo(String name, ClassInfo subclass) {
-        this.className = name;
+    ClassInfo(Class<?> cls, ClassInfo subclass) {
+        this.cls = cls;
+        this.className = cls.getName();
         this.hydrated = false;
         this.fieldsInfo = new FieldsInfo();
         this.methodsInfo = new MethodsInfo();
@@ -152,7 +153,6 @@ public class ClassInfo {
             this.isInterface = classInfoDetails.isInterface;
             this.isEnum = classInfoDetails.isEnum;
             this.directSuperclassName = classInfoDetails.directSuperclassName;
-            this.cls = classInfoDetails.cls;
 
             this.interfacesInfo.append(classInfoDetails.interfacesInfo());
 
@@ -192,6 +192,12 @@ public class ClassInfo {
     }
 
     String simpleName() {
+        return deriveSimpleName(this.cls);
+    }
+
+    public static String deriveSimpleName(Class<?> clazz) {
+
+        String className = clazz.getName();
         return className.substring(className.lastIndexOf('.') + 1);
     }
 

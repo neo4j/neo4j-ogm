@@ -12,6 +12,8 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import static org.neo4j.ogm.metadata.ClassInfo.*;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -132,7 +134,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         ResponseMapper mapper) {
 
         return session.<Iterable<T>>doInTransaction( () -> {
-            if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
+            if (type != null && session.metaData().classInfo(deriveSimpleName(type)) != null) {
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {
                     return new GraphEntityMapper(session.metaData(), session.context(), session.getEntityInstantiator()).map(type, response);

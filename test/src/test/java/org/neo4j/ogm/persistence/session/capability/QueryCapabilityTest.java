@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
@@ -30,6 +31,8 @@ import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.domain.restaurant.Restaurant;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.session.Session;
@@ -40,6 +43,7 @@ import org.neo4j.ogm.testutil.TestUtils;
 
 /**
  * @author Luanne Misquitta
+ * @author Gerrit Meier
  */
 public class QueryCapabilityTest extends MultiDriverTestClass {
 
@@ -708,6 +712,11 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         row = iterator.next();
         assertThat(row.get("names").getClass().isArray()).isTrue();
         assertThat(((Object[]) row.get("names")).length).isEqualTo(0);
+    }
+
+    @Test(expected = MappingException.class)
+    public void shouldThrowExceptionIfTypeMismatchesInQueryForObject() {
+        session.queryForObject(Restaurant.class, "MATCH (n:User) return count(n)", emptyMap());
     }
 
     private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {

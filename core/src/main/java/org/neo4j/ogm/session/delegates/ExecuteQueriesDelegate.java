@@ -30,6 +30,7 @@ import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRestModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
@@ -51,6 +52,7 @@ import org.neo4j.ogm.utils.ClassUtils;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Jasper Blues
+ * @author Gerrit Meier
  */
 public class ExecuteQueriesDelegate extends SessionDelegate {
 
@@ -73,7 +75,21 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
             throw new RuntimeException("Result not of expected size. Expected 1 row but found " + resultSize);
         }
 
-        return results.iterator().next();
+        T next = results.iterator().next();
+
+        if (!next.getClass().isAssignableFrom(type)) {
+
+            String typeOfResult = next.getClass().getName();
+            String wantedType = type.getName();
+            String message = String.format(
+                "Cannot map %s to %s. This can be caused by missing registration of %s.",
+                typeOfResult, wantedType, wantedType
+            );
+
+            throw new MappingException(message);
+        }
+
+        return next;
     }
 
     public Result query(String cypher, Map<String, ?> parameters) {

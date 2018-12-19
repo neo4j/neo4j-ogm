@@ -31,6 +31,6 @@ public class GeographicPoint3dTest {
 
         assertThat(geographicPoint.getLatitude()).isEqualTo(latitude);
         assertThat(geographicPoint.getLongitude()).isEqualTo(longitude);
-        assertThat(geographicPoint.getElevation()).isEqualTo(elevation);
+        assertThat(geographicPoint.getHeight()).isEqualTo(elevation);
     }
 }

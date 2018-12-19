@@ -20,8 +20,12 @@ import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.AttributeConverters;
@@ -29,8 +33,6 @@ import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;
 import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
-import org.neo4j.ogm.driver.TypeSystem;
-import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,59 +68,65 @@ public class DomainInfo {
             .strictWhitelist()
             .scan();
 
-        List<String> allClasses = scanResult.getNamesOfAllClasses();
-
         DomainInfo domainInfo = new DomainInfo(typeSystem);
 
-        for (String className : allClasses) {
-            Class<?> cls = null;
-            try {
-                cls = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
-            } catch (ClassNotFoundException e) {
-                LOGGER.warn("Could not load class {}", className);
-                continue;
-            }
+        Predicate<Class<?>> classCouldBeLoaded = clazz -> clazz != null;
+        Predicate<Class<?>> classIsMappable = clazz -> !(clazz.isAnnotation() || clazz.isAnonymousClass() || clazz
+            .equals(Object.class));
 
-            ClassInfo classInfo = new ClassInfo(cls, typeSystem);
+        Map<String, Class<?>> mappableClasses = scanResult.getNamesOfAllClasses()
+            .stream()
+            .map(DomainInfo::loadClass)
+            .filter(classCouldBeLoaded)
+            .filter(classIsMappable)
+            .collect(Collectors.toMap(Class::getName, Function.identity()));
 
-            String superclassName = classInfo.superclassName();
+        mappableClasses.forEach((className, cls) -> {
+            ClassInfo newClassInfo = new ClassInfo(cls, typeSystem);
+            String superclassName = newClassInfo.superclassName();
 
             LOGGER.debug("Processing: {} -> {}", className, superclassName);
 
-            if (className != null) {
-                if (cls.isAnnotation() || cls.isAnonymousClass() || cls.equals(Object.class)) {
-                    continue;
-                }
+            ClassInfo classInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> newClassInfo);
+            if (!classInfo.hydrated()) {
+                classInfo.hydrate(newClassInfo);
+            }
 
-                ClassInfo thisClassInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
+            if (superclassName != null) {
+                ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
+                if (superclassInfo != null) {
+                    superclassInfo.addSubclass(classInfo);
+                } else if (!"java.lang.Object".equals(superclassName) && !"java.lang.Enum".equals(superclassName)) {
 
-                if (!thisClassInfo.hydrated()) {
-
-                    thisClassInfo.hydrate(classInfo);
-
-                    ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
-                    if (superclassInfo == null) {
-
-                        if (superclassName != null && !superclassName.equals("java.lang.Object") && !superclassName
-                            .equals("java.lang.Enum")) {
-                            domainInfo.classNameToClassInfo
-                                .put(superclassName, new ClassInfo(superclassName, thisClassInfo));
-                        }
-                    } else {
-                        superclassInfo.addSubclass(thisClassInfo);
-                    }
-                }
-
-                if (thisClassInfo.isEnum()) {
-                    LOGGER.debug("Registering enum class: {}", thisClassInfo.name());
-                    domainInfo.enumTypes.add(thisClassInfo.getUnderlyingClass());
+                    Class<?> superClass = Optional.ofNullable(mappableClasses.get(superclassName))
+                        // This is the case when a class outside the scanned packages is refered to
+                        .orElseGet(() -> (Class) loadClass(superclassName));
+                    domainInfo.classNameToClassInfo.put(superclassName, new ClassInfo(superClass, classInfo));
                 }
             }
-        }
+
+            if (classInfo.isEnum()) {
+                LOGGER.debug("Registering enum class: {}", classInfo.name());
+                domainInfo.enumTypes.add(classInfo.getUnderlyingClass());
+            }
+        });
 
         domainInfo.finish();
 
         return domainInfo;
+    }
+
+    static Class<?> loadClass(String className) {
+
+        Class<?> loadedButNotInitalizedClass = null;
+        try {
+            loadedButNotInitalizedClass = Class
+                .forName(className, false, Thread.currentThread().getContextClassLoader());
+        } catch (ClassNotFoundException e) {
+            LOGGER.warn("Could not load class {}", className);
+
+        }
+        return loadedButNotInitalizedClass;
     }
 
     private void buildAnnotationNameToClassInfoMap() {

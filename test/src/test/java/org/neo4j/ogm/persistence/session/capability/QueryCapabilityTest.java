@@ -31,6 +31,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.domain.nested.NestingClass;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
@@ -51,7 +52,10 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated").openSession();
+        session = new SessionFactory(driver,
+            "org.neo4j.ogm.domain.cineasts.annotated",
+            "org.neo4j.ogm.domain.nested"
+        ).openSession();
         session.purgeDatabase();
         session.clear();
         importCineasts();
@@ -169,7 +173,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
-        Result result = session.query("MATCH (a:Actor) RETURN a.name", Collections.EMPTY_MAP, true);
+        Result result = session.query("MATCH (a:Actor) RETURN a.name", emptyMap(), true);
         assertThat(result).isNotNull();
         assertThat(result.queryStatistics()).isNull();
 
@@ -229,7 +233,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     public void shouldBeAbleToHandleNullValuesInQueryResults() {
         session.save(new Actor("Jeff"));
         Iterable<Map<String, Object>> results = session
-            .query("MATCH (a:Actor) return a.nonExistent as nonExistent", Collections.EMPTY_MAP);
+            .query("MATCH (a:Actor) return a.nonExistent as nonExistent", emptyMap());
         Map<String, Object> result = results.iterator().next();
         assertThat(result.get("nonExistent")).isNull();
     }
@@ -280,7 +284,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     public void shouldBeAbleToMapEntitiesAndScalarsMultipleRows() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User)-[r:RATED]->(m) RETURN m as movie, avg(r.stars) as average ORDER BY average DESC",
-                Collections.EMPTY_MAP).iterator();
+                emptyMap()).iterator();
         assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
         assertThat(result).isNotNull();
@@ -309,7 +313,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     public void shouldBeAbleToMapEntitiesAndScalarsMultipleRowsAndNoAlias() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User)-[r:RATED]->(m) RETURN m, avg(r.stars) ORDER BY avg(r.stars) DESC",
-                Collections.EMPTY_MAP).iterator();
+                emptyMap()).iterator();
         assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
         assertThat(result).isNotNull();
@@ -659,9 +663,9 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     public void shouldLoadNodesWithUnmappedOrNoLabels() {
         int movieCount = 0, userCount = 0, unmappedCount = 0, noLabelCount = 0;
 
-        session.query("CREATE (unknown), (m:Unmapped), (n:Movie), (n)-[:UNKNOWN]->(m)", Collections.EMPTY_MAP);
+        session.query("CREATE (unknown), (m:Unmapped), (n:Movie), (n)-[:UNKNOWN]->(m)", emptyMap());
 
-        Result result = session.query("MATCH (n) return n", Collections.EMPTY_MAP);
+        Result result = session.query("MATCH (n) return n", emptyMap());
         assertThat(result).isNotNull();
 
         Iterator<Map<String, Object>> resultIterator = result.iterator();
@@ -692,21 +696,21 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldMapCypherCollectionsToArrays() {
         Iterator<Map<String, Object>> iterator = session
-            .query("MATCH (n:User) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
+            .query("MATCH (n:User) return collect(n.name) as names", emptyMap()).iterator();
         assertThat(iterator.hasNext()).isTrue();
         Map<String, Object> row = iterator.next();
         assertThat(row.get("names").getClass().isArray()).isTrue();
         assertThat(((String[]) row.get("names")).length).isEqualTo(4);
 
         iterator = session
-            .query("MATCH (n:User {name:'Michal'}) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
+            .query("MATCH (n:User {name:'Michal'}) return collect(n.name) as names", emptyMap()).iterator();
         assertThat(iterator.hasNext()).isTrue();
         row = iterator.next();
         assertThat(row.get("names").getClass().isArray()).isTrue();
         assertThat(((String[]) row.get("names")).length).isEqualTo(1);
 
         iterator = session
-            .query("MATCH (n:User {name:'Does Not Exist'}) return collect(n.name) as names", Collections.EMPTY_MAP)
+            .query("MATCH (n:User {name:'Does Not Exist'}) return collect(n.name) as names", emptyMap())
             .iterator();
         assertThat(iterator.hasNext()).isTrue();
         row = iterator.next();
@@ -714,9 +718,24 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(((Object[]) row.get("names")).length).isEqualTo(0);
     }
 
-    @Test(expected = MappingException.class)
+    @Test
     public void shouldThrowExceptionIfTypeMismatchesInQueryForObject() {
-        session.queryForObject(Restaurant.class, "MATCH (n:User) return count(n)", emptyMap());
+
+        assertThatExceptionOfType(MappingException.class)
+            .isThrownBy(() -> session.queryForObject(Restaurant.class, "MATCH (n:User) return count(n)", emptyMap()))
+            .withMessage("Cannot map java.lang.Long to %s. This can be caused by missing registration of %1$s.",
+                Restaurant.class.getName());
+    }
+
+    @Test
+    public void queryForObjectFindsNestedClasses() {
+
+        session.query("CREATE (:`NestingClass$Something`{name:'Test'})", emptyMap());
+
+        NestingClass.Something something = session
+            .queryForObject(NestingClass.Something.class, "MATCH (n:`NestingClass$Something`) return n", emptyMap());
+
+        assertThat(something).isNotNull();
     }
 
     private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {

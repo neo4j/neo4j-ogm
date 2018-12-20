@@ -2,6 +2,7 @@
 = Type Conversion
 
 The object-graph mapping framework provides support for default and bespoke type conversions, which allow you to configure how certain data types are mapped to nodes or relationships in Neo4j.
+If you start with a new Neo4j project on Neo4j 3.4+, you should consider using the <<reference:native-property-types, native type support>> of OGM for all temporal types.
 
 [[reference:type-conversion:built-in]]
 == Built-in type conversions
@@ -110,6 +111,7 @@ public class Invoice {
 
 When more than one node property is to be mapped to a single field, use: `CompositeAttributeConverter`.
 
+[[reference:type-conversion:custom:using-composite-types]]
 .Example of mapping multiple node entity properties onto a single instance of a type
 [source,java]
 ----

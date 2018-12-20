@@ -23,6 +23,8 @@ include::session.adoc[leveloffset=+1]
 
 include::transactions.adoc[leveloffset=+1]
 
+include::nativetypes.adoc[leveloffset=+1]
+
 include::conversion.adoc[leveloffset=+1]
 
 include::filters.adoc[leveloffset=+1]

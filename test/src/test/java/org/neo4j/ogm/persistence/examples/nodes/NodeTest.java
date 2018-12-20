@@ -1,6 +1,7 @@
 package org.neo4j.ogm.persistence.examples.nodes;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.slf4j.LoggerFactory.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -23,6 +24,7 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.testutil.TestUtils;
+import org.slf4j.Logger;
 
 /**
  * Test class reproducing issue #576
@@ -31,11 +33,11 @@ import org.neo4j.ogm.testutil.TestUtils;
  */
 @RunWith(Parameterized.class)
 public class NodeTest extends MultiDriverTestClass {
+    private static final Logger LOGGER = getLogger(NodeTest.class);
 
     private static SessionFactory sessionFactory;
 
     private Session session;
-    private Integer additionalObjects;
 
     @BeforeClass
     public static void oneTimeSetUp() {
@@ -45,13 +47,12 @@ public class NodeTest extends MultiDriverTestClass {
     @Parameterized.Parameters
     public static List<Integer> data() {
         return IntStream
-            .range(0, 10) // change the number of pre stored objects here
+            .range(0, 10) // change the number of test additionallyData here
             .boxed()
             .collect(Collectors.toList());
     }
 
-    public NodeTest(Integer additionalObjects) {
-        this.additionalObjects = additionalObjects;
+    public NodeTest(@SuppressWarnings("unused") Integer iterations) {
     }
 
     @Before
@@ -59,10 +60,8 @@ public class NodeTest extends MultiDriverTestClass {
         session = sessionFactory.openSession();
         session.purgeDatabase();
         session.clear();
-        IntStream
-            .range(0, additionalObjects)
-            .forEach(i -> session.query("CREATE(:Foo)", Collections.emptyMap()));
-        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/nodes.cql").toString(), Collections.emptyMap());
+        String testData = TestUtils.readCQLFile("org/neo4j/ogm/cql/nodes.cql").toString();
+        session.query(testData , Collections.emptyMap());
     }
 
     @After
@@ -77,6 +76,7 @@ public class NodeTest extends MultiDriverTestClass {
 
         Filter filter = new Filter("nodeId", ComparisonOperator.EQUALS, "m1");
 
+        LOGGER.info("load data");
         dataItems = session.loadAll(DataItem.class, filter);
         assertThat(dataItems.size()).isEqualTo(1);
         formulaItem = (FormulaItem) dataItems.iterator().next();
@@ -85,8 +85,10 @@ public class NodeTest extends MultiDriverTestClass {
         formulaItem.getVariables()
             .removeIf(
                 variable -> variable.getVariable().equals("A") && variable.getDataItem().getNodeId().equals("m2"));
+        LOGGER.info("change data");
         session.save(formulaItem);
 
+        LOGGER.info("load data again");
         dataItems = session.loadAll(DataItem.class, filter);
         assertThat(dataItems.size()).isEqualTo(1);
         formulaItem = (FormulaItem) dataItems.iterator().next();

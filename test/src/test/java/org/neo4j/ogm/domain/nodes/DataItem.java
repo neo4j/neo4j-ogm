@@ -25,4 +25,9 @@ public class DataItem extends BaseEntity {
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" + nodeId + ")";
+    }
 }

@@ -7,38 +7,44 @@ import org.neo4j.ogm.annotation.StartNode;
 @RelationshipEntity(type = "USES")
 public class Variable extends BaseEntity {
 
-	@StartNode
-	private FormulaItem formulaItem;
+    @StartNode
+    private FormulaItem formulaItem;
 
-	@EndNode
-	private DataItem dataItem;
+    @EndNode
+    private DataItem dataItem;
 
-	private String variable;
+    private String variable;
 
-	public FormulaItem getFormulaItem() {
-		return formulaItem;
-	}
+    public FormulaItem getFormulaItem() {
+        return formulaItem;
+    }
 
-	public Variable setFormulaItem(FormulaItem formulaItem) {
-		this.formulaItem = formulaItem;
-		return this;
-	}
+    public Variable setFormulaItem(FormulaItem formulaItem) {
+        this.formulaItem = formulaItem;
+        return this;
+    }
 
-	public DataItem getDataItem() {
-		return dataItem;
-	}
+    public DataItem getDataItem() {
+        return dataItem;
+    }
 
-	public Variable setDataItem(DataItem dataItem) {
-		this.dataItem = dataItem;
-		return this;
-	}
+    public Variable setDataItem(DataItem dataItem) {
+        this.dataItem = dataItem;
+        return this;
+    }
 
-	public String getVariable() {
-		return variable;
-	}
+    public String getVariable() {
+        return variable;
+    }
 
-	public Variable setVariable(String variable) {
-		this.variable = variable;
-		return this;
-	}
+    public Variable setVariable(String variable) {
+        this.variable = variable;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + formulaItem.getNodeId() + ")-[:USES{variable: '" + variable + "'}]->(" + dataItem.getNodeId()
+            + ")";
+    }
 }

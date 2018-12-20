@@ -44,7 +44,7 @@ public class PointToEmbeddedValueAdapter implements Function<AbstractPoint, Poin
         } else if (object instanceof GeographicPoint3d) {
             GeographicPoint3d point = (GeographicPoint3d) object;
             return Values.pointValue(CoordinateReferenceSystem.WGS84_3D, point.getLongitude(), point.getLatitude(),
-                point.getElevation());
+                point.getHeight());
         } else {
             throw new IllegalArgumentException("Unsupported point implementation: " + object.getClass());
         }

@@ -49,7 +49,7 @@ public class EmbeddedValueToPointAdapterTest {
         Assertions.assertThat(point.getSrid()).isEqualTo(4979);
         Assertions.assertThat(((GeographicPoint3d) point).getLatitude()).isEqualTo(20.0);
         Assertions.assertThat(((GeographicPoint3d) point).getLongitude()).isEqualTo(10.0);
-        Assertions.assertThat(((GeographicPoint3d) point).getElevation()).isEqualTo(30.0);
+        Assertions.assertThat(((GeographicPoint3d) point).getHeight()).isEqualTo(30.0);
 
         point = adapter.apply(Values.pointValue(CoordinateReferenceSystem.Cartesian_3D, 10.0, 20.0, 30));
         Assertions.assertThat(point).isInstanceOf(CartesianPoint3d.class);

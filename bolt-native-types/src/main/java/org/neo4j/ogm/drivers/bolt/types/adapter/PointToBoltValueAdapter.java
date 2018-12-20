@@ -45,7 +45,7 @@ public class PointToBoltValueAdapter implements Function<AbstractPoint, Point> {
         } else if (object instanceof GeographicPoint3d) {
             GeographicPoint3d point = (GeographicPoint3d) object;
             value = Values.point(point.getSrid(), point.getLongitude(), point.getLatitude(),
-                point.getElevation());
+                point.getHeight());
         } else {
             throw new IllegalArgumentException("Unsupported point implementation: " + object.getClass());
         }

@@ -48,7 +48,11 @@ public final class TestUtils {
             Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFileName))) {
             scanner.useDelimiter(System.getProperty("line.separator"));
             while (scanner.hasNext()) {
-                cypher.append(scanner.next()).append(' ');
+                String statement = scanner.next();
+                if (statement.startsWith("//")) {
+                    continue;
+                }
+                cypher.append(statement).append(' ');
             }
         }
         return cypher;

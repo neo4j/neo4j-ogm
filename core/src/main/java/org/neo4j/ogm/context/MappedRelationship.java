@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.context;
 
+import java.util.Objects;
+
 /**
  * Light-weight record of a relationship mapped from the database
  * <code>startNodeId - relationshipId - relationshipType - endNodeId</code>
@@ -98,17 +100,13 @@ public class MappedRelationship implements Mappable {
 
         return startNodeId == that.startNodeId
             && endNodeId == that.endNodeId
-            && relationshipType.equals(that.relationshipType)
-            && !(relationshipId != null ? !relationshipId.equals(that.relationshipId) : that.relationshipId != null);
+            && Objects.equals(relationshipType, that.relationshipType)
+            && Objects.equals(relationshipId, that.relationshipId);
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (startNodeId ^ (startNodeId >>> 32));
-        result = 31 * result + relationshipType.hashCode();
-        result = 31 * result + (int) (endNodeId ^ (endNodeId >>> 32));
-        result = 31 * result + (relationshipId != null ? relationshipId.hashCode() : 0);
-        return result;
+        return Objects.hash(startNodeId, relationshipType, endNodeId, relationshipId);
     }
 
     public String toString() {

@@ -16,7 +16,6 @@ package org.neo4j.ogm.context;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +60,7 @@ class IdentityMap {
      * and maps the object to that hash. The object must not be null
      *
      * @param object   the object whose persistable properties we want to hash
-     * @param entityId
+     * @param entityId the native id of the entity
      */
     void remember(Object object, Long entityId) {
         ClassInfo classInfo = metaData.classInfo(object);
@@ -81,7 +80,7 @@ class IdentityMap {
      * is identical to a recalculation of its hash value.
      *
      * @param object   the object whose persistable properties we want to check
-     * @param entityId
+     * @param entityId the native id of the entity
      * @return true if the object hasn't changed since it was remembered, false otherwise
      */
     boolean remembered(Object object, Long entityId) {
@@ -110,13 +109,13 @@ class IdentityMap {
      * Returns the snapshot for the given id. The snapshot contains the corresponding entity's dynamic labels and properties
      * as stored during initial load of the entity.
      *
-     * @param entity the entity whos snapshot should be retrieved
+     * @param entity   the entity whos snapshot should be retrieved
      * @param entityId the native id of the entity
      * @return A snapshot of dynamic labels and properties or an empty optional.
      */
     Optional<EntitySnapshot> getSnapshotOf(Object entity, Long entityId) {
 
-        EntitySnapshot entitySnapshot = null;
+        EntitySnapshot entitySnapshot;
 
         ClassInfo classInfo = metaData.classInfo(entity);
         if (metaData.isRelationshipEntity(classInfo.name())) {
@@ -150,39 +149,30 @@ class IdentityMap {
             if (value != null) {
 
                 if (value.getClass().isArray()) {
-                    hash = hash * 31L + Arrays.hashCode(convertToObjectArray(value));
+                    hash = hash * 31L + hashArray(value);
                 } else if (value instanceof Iterable) {
                     hash = hash * 31L + value.hashCode();
                 } else {
-                    hash = hash * 31L + hash(value.toString());
+                    hash = hash * 31L + value.hashCode();
                 }
             }
         }
         return hash;
     }
 
-    private long hash(String string) {
-        long h = 1125899906842597L; // prime
-        int len = string.length();
-
-        for (int i = 0; i < len; i++) {
-            h = 31 * h + string.charAt(i);
-        }
-        return h;
-    }
-
     /**
-     * Convert an array or objects or primitives to an array of objects
+     * hashes an array of objects or primitives
      *
      * @param array array of unknown type
-     * @return array of objects
+     * @return the hash of the array
      */
-    private Object[] convertToObjectArray(Object array) {
+    private long hashArray(Object array) {
+        long result = 1;
         int len = Array.getLength(array);
-        Object[] out = new Object[len];
         for (int i = 0; i < len; i++) {
-            out[i] = Array.get(array, i);
+            Object element = Array.get(array, i);
+            result = 31L * result + (element == null ? 0 : element.hashCode());
         }
-        return Arrays.asList(out).toArray();
+        return result;
     }
 }

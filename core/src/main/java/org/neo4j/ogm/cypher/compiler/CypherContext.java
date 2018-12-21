@@ -143,18 +143,7 @@ public class CypherContext implements CompileContext {
             return true; //relationships not in the graph, okay, we can return
         }
 
-        //Check to see if the relationships were previously deleted, if so, restore them
-        iterator = cleared.iterator();
-        while (iterator.hasNext()) {
-            Mappable mappedRelationship = iterator.next();
-            if (isMappableAlreadyDeleted(mappedRelationship)) {
-                registerRelationship(mappedRelationship);
-                iterator.remove();
-            } else {
-                deletedRelationships.add(mappedRelationship);
-            }
-        }
-        return cleared.size() > 0;
+        return handleClearedRelations(cleared);
     }
 
     /**
@@ -194,19 +183,7 @@ public class CypherContext implements CompileContext {
         if (nothingToDelete) {
             return true; //relationships not in the graph, okay, we can return
         }
-
-        //Check to see if the relationships were previously deleted, if so, restore them
-        iterator = cleared.iterator();
-        while (iterator.hasNext()) {
-            Mappable mappedRelationship = iterator.next();
-            if (isMappableAlreadyDeleted(mappedRelationship)) {
-                registerRelationship(mappedRelationship);
-                iterator.remove();
-            } else {
-                deletedRelationships.add(mappedRelationship);
-            }
-        }
-        return cleared.size() > 0;
+        return handleClearedRelations(cleared);
     }
 
     public void visitRelationshipEntity(Long relationshipEntity) {
@@ -286,5 +263,21 @@ public class CypherContext implements CompileContext {
         public int getHorizon() {
             return horizon;
         }
+    }
+
+    private boolean handleClearedRelations(List<Mappable> cleared) {
+        Iterator<Mappable> iterator = cleared.iterator();
+        while (iterator.hasNext()) {
+            Mappable mappedRelationship = iterator.next();
+            // 1st check to see if the relationship was previously deleted
+            if (isMappableAlreadyDeleted(mappedRelationship)) {
+                // if so, restore it
+                registerRelationship(mappedRelationship);
+                iterator.remove();
+            }
+        }
+        // 2nd we add the relationships which are really to delete
+        deletedRelationships.addAll(cleared);
+        return cleared.size() > 0;
     }
 }

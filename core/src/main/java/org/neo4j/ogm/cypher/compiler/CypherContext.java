@@ -24,7 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
+import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.compiler.SrcTargetKey;
 import org.neo4j.ogm.context.Mappable;
 
@@ -125,25 +127,7 @@ public class CypherContext implements CompileContext {
      * @return true if the relationship was deleted or doesn't exist in the graph, false otherwise
      */
     public boolean deregisterOutgoingRelationships(Long src, String relationshipType, Class endNodeType) {
-        Iterator<Mappable> iterator = registeredRelationships.iterator();
-        boolean nothingToDelete = true;
-        List<Mappable> cleared = new ArrayList<>();
-        while (iterator.hasNext()) {
-            Mappable mappedRelationship = iterator.next();
-            if (mappedRelationship.getStartNodeId() == src &&
-                mappedRelationship.getRelationshipType().equals(relationshipType) &&
-                endNodeType.equals(mappedRelationship.getEndNodeType())) {
-
-                cleared.add(mappedRelationship);
-                iterator.remove();
-                nothingToDelete = false;
-            }
-        }
-        if (nothingToDelete) {
-            return true; //relationships not in the graph, okay, we can return
-        }
-
-        return handleClearedRelations(cleared);
+        return deregisterRelationships(src, true, relationshipType, endNodeType, true);
     }
 
     /**
@@ -157,33 +141,60 @@ public class CypherContext implements CompileContext {
      * also maintain a list of successfully deleted relationships, so that ff we try to delete an already-deleted
      * set of relationships we can signal the error and undelete it.
      *
-     * @param tgt              the identity of the node at the pointy end of the relationship
-     * @param relationshipType the type of the relationship
-     * @param endNodeType      the class type of the entity at the other end of the relationship
+     * @param tgt                the identity of the node at the pointy end of the relationship
+     * @param relationshipType   the type of the relationship
+     * @param endNodeType        the class type of the entity at the other end of the relationship
+     * @param relationshipEntity true if the entity is mapped via {@link RelationshipEntity}
      * @return true if the relationship was deleted or doesn't exist in the graph, false otherwise
      */
     public boolean deregisterIncomingRelationships(Long tgt, String relationshipType, Class endNodeType,
         boolean relationshipEntity) {
+        return deregisterRelationships(tgt, false, relationshipType, endNodeType, relationshipEntity);
+    }
+
+    /**
+     * @param entityId           the identity of the node at the pointy end of the relationship
+     * @param entityIsStartNode  true is entityId is the start node of a relationship
+     * @param relationshipType   the type of the relationship
+     * @param endNodeType        the class type of the entity at the other end of the relationship
+     * @param relationshipEntity true if the entity is mapped via {@link RelationshipEntity}
+     * @return true if the relationship was deleted or doesn't exist in the graph, false otherwise
+     */
+    private boolean deregisterRelationships(Long entityId, boolean entityIsStartNode, String relationshipType,
+        Class endNodeType, boolean relationshipEntity) {
         Iterator<Mappable> iterator = registeredRelationships.iterator();
-        List<Mappable> cleared = new ArrayList<>();
+        List<Mappable> boundForDeletion = null;
         boolean nothingToDelete = true;
         while (iterator.hasNext()) {
             Mappable mappedRelationship = iterator.next();
-            if (mappedRelationship.getEndNodeId() == tgt &&
+            long mappedNodeId = entityIsStartNode ?
+                mappedRelationship.getStartNodeId() :
+                mappedRelationship.getEndNodeId();
+            if (mappedNodeId == entityId &&
                 mappedRelationship.getRelationshipType().equals(relationshipType) &&
                 endNodeType.equals(
                     relationshipEntity ? mappedRelationship.getEndNodeType() : mappedRelationship.getStartNodeType())) {
-
-                cleared.add(mappedRelationship);
-                iterator.remove();
                 nothingToDelete = false;
+                if (isAlreadyDeleted(mappedRelationship)) {
+                    continue;
+                }
+                if (boundForDeletion == null) {
+                    boundForDeletion = new ArrayList<>();
+                }
+                boundForDeletion.add(mappedRelationship);
+                //
+                iterator.remove();
             }
         }
-
         if (nothingToDelete) {
             return true; //relationships not in the graph, okay, we can return
         }
-        return handleClearedRelations(cleared);
+        if (boundForDeletion == null || boundForDeletion.isEmpty()) {
+            return false;
+        }
+
+        this.deletedRelationships.addAll(boundForDeletion);
+        return true;
     }
 
     public void visitRelationshipEntity(Long relationshipEntity) {
@@ -235,15 +246,19 @@ public class CypherContext implements CompileContext {
         }
     }
 
-    private boolean isMappableAlreadyDeleted(Mappable mappedRelationship) {
-        for (Mappable deletedRelationship : deletedRelationships) {
-            if (deletedRelationship.getEndNodeId() == mappedRelationship.getEndNodeId() &&
-                deletedRelationship.getStartNodeId() == mappedRelationship.getStartNodeId() &&
-                deletedRelationship.getRelationshipType().equals(mappedRelationship.getRelationshipType())) {
-                return true;
-            }
-        }
-        return false;
+    /**
+     * Checks whether a mapped relationship is already marked as deleted. This is the case when one of the relationships
+     * marked as deleted contains a relationship starting and ending at the same nodes having the same relationship type.
+     *
+     * @param mappedRelationship The relationship that should be checked for being already marked as deleted or not
+     * @return True if {@code mappedRelationship} was already marked as deleted
+     */
+    private boolean isAlreadyDeleted(Mappable mappedRelationship) {
+        Predicate<Mappable> describesSameRelationship = r -> r.getStartNodeId() == mappedRelationship.getStartNodeId()
+            && r.getEndNodeId() == mappedRelationship.getEndNodeId()
+            && r.getRelationshipType().equals(mappedRelationship.getRelationshipType());
+
+        return deletedRelationships.stream().anyMatch(describesSameRelationship);
     }
 
     private static class NodeBuilderHorizonPair {
@@ -263,21 +278,5 @@ public class CypherContext implements CompileContext {
         public int getHorizon() {
             return horizon;
         }
-    }
-
-    private boolean handleClearedRelations(List<Mappable> cleared) {
-        Iterator<Mappable> iterator = cleared.iterator();
-        while (iterator.hasNext()) {
-            Mappable mappedRelationship = iterator.next();
-            // 1st check to see if the relationship was previously deleted
-            if (isMappableAlreadyDeleted(mappedRelationship)) {
-                // if so, restore it
-                registerRelationship(mappedRelationship);
-                iterator.remove();
-            }
-        }
-        // 2nd we add the relationships which are really to delete
-        deletedRelationships.addAll(cleared);
-        return cleared.size() > 0;
     }
 }

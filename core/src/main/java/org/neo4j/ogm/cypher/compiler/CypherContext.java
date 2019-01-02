@@ -182,7 +182,6 @@ public class CypherContext implements CompileContext {
                     boundForDeletion = new ArrayList<>();
                 }
                 boundForDeletion.add(mappedRelationship);
-                //
                 iterator.remove();
             }
         }

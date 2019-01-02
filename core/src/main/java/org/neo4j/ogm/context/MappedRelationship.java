@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018 "Neo Technology,"
+ * Copyright (c) 2002-2019 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.context;
 
+import java.util.Objects;
+
 /**
  * Light-weight record of a relationship mapped from the database
  * <code>startNodeId - relationshipId - relationshipType - endNodeId</code>
@@ -22,6 +24,8 @@ package org.neo4j.ogm.context;
  *
  * @author Adam George
  * @author Luanne Misquitta
+ * @author Andreas Berger
+ * @author Michael J. Simons
  */
 public class MappedRelationship implements Mappable {
 
@@ -98,17 +102,13 @@ public class MappedRelationship implements Mappable {
 
         return startNodeId == that.startNodeId
             && endNodeId == that.endNodeId
-            && relationshipType.equals(that.relationshipType)
-            && !(relationshipId != null ? !relationshipId.equals(that.relationshipId) : that.relationshipId != null);
+            && Objects.equals(relationshipType, that.relationshipType)
+            && Objects.equals(relationshipId, that.relationshipId);
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (startNodeId ^ (startNodeId >>> 32));
-        result = 31 * result + relationshipType.hashCode();
-        result = 31 * result + (int) (endNodeId ^ (endNodeId >>> 32));
-        result = 31 * result + (relationshipId != null ? relationshipId.hashCode() : 0);
-        return result;
+        return Objects.hash(startNodeId, relationshipType, endNodeId, relationshipId);
     }
 
     public String toString() {

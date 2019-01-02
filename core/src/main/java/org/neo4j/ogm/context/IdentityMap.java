@@ -14,9 +14,7 @@
 package org.neo4j.ogm.context;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,15 +30,16 @@ import org.neo4j.ogm.metadata.MetaData;
  * @author Vince Bickers
  * @author Mark Angrish
  * @author Michael J. Simons
+ * @author Andreas Berger
  */
 class IdentityMap {
 
     // objects with no properties will always hash to this value.
     private static final long SEED = 0xDEADBEEF / (11 * 257);
 
-    private final Map<Long, Long> nodeHash;
+    private final Map<Long, Long> nodeHashes;
 
-    private final Map<Long, Long> relEntityHash;
+    private final Map<Long, Long> relEntityHashes;
 
     private final Map<Long, EntitySnapshot> snapshotsOfNodeEntities;
 
@@ -49,8 +48,8 @@ class IdentityMap {
     private final MetaData metaData;
 
     IdentityMap(MetaData metaData) {
-        this.nodeHash = new HashMap<>();
-        this.relEntityHash = new HashMap<>();
+        this.nodeHashes = new HashMap<>();
+        this.relEntityHashes = new HashMap<>();
         this.snapshotsOfNodeEntities = new HashMap<>();
         this.snapshotsOfRelationshipEntities = new HashMap<>();
         this.metaData = metaData;
@@ -61,15 +60,15 @@ class IdentityMap {
      * and maps the object to that hash. The object must not be null
      *
      * @param object   the object whose persistable properties we want to hash
-     * @param entityId
+     * @param entityId the native id of the entity
      */
     void remember(Object object, Long entityId) {
         ClassInfo classInfo = metaData.classInfo(object);
         if (metaData.isRelationshipEntity(classInfo.name())) {
-            this.relEntityHash.put(entityId, hash(object, classInfo));
+            this.relEntityHashes.put(entityId, hash(object, classInfo));
             this.snapshotsOfRelationshipEntities.put(entityId, EntitySnapshot.basedOn(metaData).take(object));
         } else {
-            this.nodeHash.put(entityId, hash(object, classInfo));
+            this.nodeHashes.put(entityId, hash(object, classInfo));
             this.snapshotsOfNodeEntities.put(entityId, EntitySnapshot.basedOn(metaData).take(object));
         }
     }
@@ -81,42 +80,36 @@ class IdentityMap {
      * is identical to a recalculation of its hash value.
      *
      * @param object   the object whose persistable properties we want to check
-     * @param entityId
+     * @param entityId the native id of the entity
      * @return true if the object hasn't changed since it was remembered, false otherwise
      */
     boolean remembered(Object object, Long entityId) {
-        ClassInfo classInfo = metaData.classInfo(object);
-        boolean isRelEntity = false;
 
-        if (entityId != null) {
-            if (metaData.isRelationshipEntity(classInfo.name())) {
-                isRelEntity = true;
-            }
-
-            if ((!isRelEntity && !nodeHash.containsKey(entityId)) ||
-                (isRelEntity && !relEntityHash.containsKey(entityId))) {
-                return false;
-            }
-
-            long actual = hash(object, classInfo);
-            long expected = isRelEntity ? relEntityHash.get(entityId) : nodeHash.get(entityId);
-
-            return (actual == expected);
+        // Bail out early if the native id is null or neither the hashes of nodes nor relationships contain the entity id.
+        if (entityId == null || !(nodeHashes.containsKey(entityId) || relEntityHashes.containsKey(entityId))) {
+            return false;
         }
-        return false;
+
+        ClassInfo classInfo = metaData.classInfo(object);
+        boolean isRelEntity = metaData.isRelationshipEntity(classInfo.name());
+
+        long actual = hash(object, classInfo);
+        long expected = isRelEntity ? relEntityHashes.get(entityId) : nodeHashes.get(entityId);
+
+        return actual == expected;
     }
 
     /**
      * Returns the snapshot for the given id. The snapshot contains the corresponding entity's dynamic labels and properties
      * as stored during initial load of the entity.
      *
-     * @param entity the entity whos snapshot should be retrieved
+     * @param entity   the entity whos snapshot should be retrieved
      * @param entityId the native id of the entity
      * @return A snapshot of dynamic labels and properties or an empty optional.
      */
     Optional<EntitySnapshot> getSnapshotOf(Object entity, Long entityId) {
 
-        EntitySnapshot entitySnapshot = null;
+        EntitySnapshot entitySnapshot;
 
         ClassInfo classInfo = metaData.classInfo(entity);
         if (metaData.isRelationshipEntity(classInfo.name())) {
@@ -130,59 +123,47 @@ class IdentityMap {
 
     void clear() {
 
-        this.nodeHash.clear();
-        this.relEntityHash.clear();
+        this.nodeHashes.clear();
+        this.relEntityHashes.clear();
         this.snapshotsOfNodeEntities.clear();
         this.snapshotsOfRelationshipEntities.clear();
     }
 
-    private long hash(Object object, ClassInfo classInfo) {
-        long hash = SEED;
+    private static long hash(Object object, ClassInfo classInfo) {
 
         List<FieldInfo> hashFields = new ArrayList<>(classInfo.propertyFields());
         if (classInfo.labelFieldOrNull() != null) {
             hashFields.add(classInfo.labelFieldOrNull());
         }
 
+        long hash = SEED;
         for (FieldInfo fieldInfo : hashFields) {
-            Field field = classInfo.getField(fieldInfo);
-            Object value = FieldInfo.read(field, object);
-            if (value != null) {
 
+            Object value = fieldInfo.read(object);
+            if (value != null) {
                 if (value.getClass().isArray()) {
-                    hash = hash * 31L + Arrays.hashCode(convertToObjectArray(value));
-                } else if (value instanceof Iterable) {
-                    hash = hash * 31L + value.hashCode();
+                    hash = hash * 31L + hashArray(value);
                 } else {
-                    hash = hash * 31L + hash(value.toString());
+                    hash = hash * 31L + value.hashCode();
                 }
             }
         }
         return hash;
     }
 
-    private long hash(String string) {
-        long h = 1125899906842597L; // prime
-        int len = string.length();
-
-        for (int i = 0; i < len; i++) {
-            h = 31 * h + string.charAt(i);
-        }
-        return h;
-    }
-
     /**
-     * Convert an array or objects or primitives to an array of objects
+     * hashes an array of objects or primitives
      *
      * @param array array of unknown type
-     * @return array of objects
+     * @return the hash of the array
      */
-    private Object[] convertToObjectArray(Object array) {
+    private static long hashArray(Object array) {
+        long result = 1;
         int len = Array.getLength(array);
-        Object[] out = new Object[len];
         for (int i = 0; i < len; i++) {
-            out[i] = Array.get(array, i);
+            Object element = Array.get(array, i);
+            result = 31L * result + (element == null ? 0 : element.hashCode());
         }
-        return Arrays.asList(out).toArray();
+        return result;
     }
 }

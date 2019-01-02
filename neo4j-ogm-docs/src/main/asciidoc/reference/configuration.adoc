@@ -235,37 +235,8 @@ For Neo4j 3.4 those are `org.neo4j:neo4j-ha` and `org.neo4j:neo4j-enterprise`, f
 [[reference:configuration:driver:embedded:unmanaged]]
 ==== Configuration of an unmanaged extension
 
-When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set up Neo4j-OGM configuration slightly differently.
-Neo4j provides `PluginLifecycle` SPI that allows to initialize extensions.
-Extend `OgmPluginInitializer` and list the full class name in `META-INF/services/org.neo4j.server.plugins.PluginLifecycle`:
-
-
-[source, java]
-----
-public class MyApplicationPluginInitializer extends OGMPluginInitializer {
-
-    public MyApplicationPluginInitializer() {
-        super(MyDomain.class.getPackage().getName());
-    }
-}
-----
-
-This provides `SessionFactory` as injectable in your resources:
-
-[source, java]
-----
-@Path("/movies")
-public static class MovieService {
-
-    @Context
-    private SessionFactory sessionFactory;
-
-    ...
-}
-----
-[NOTE]
-Don't forget to list your resources in `dbms.unmanaged_extension_classes` property in Neo4j configuration file as you
-would with any other unmanaged extension.
+The `OgmPluginInitializer` class was deprecated in Neo4j-OGM 3.2 and will be removed in the next major version.
+To use Neo4j-OGM within an unmanaged extension you connect to the database the usual way you would do with an embedded driver.
 
 
 [[reference:configuration:driver:credentials]]

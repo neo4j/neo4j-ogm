@@ -40,7 +40,13 @@ import org.neo4j.server.plugins.PluginLifecycle;
  *
  * @author Frantisek Hartman
  * @since 3.0
+ * @deprecated 3.2.0 this class implements the {@code PluginLifecycle} that is part of the Neo4j server plugins.
+ * Those plugins are also deprecated for removal in future releases.
+ * If you plan to use this in an unmanaged extension in the future, please create the Neo4j-OGM embedded driver manually
+ * within your extension.
+ *
  */
+@Deprecated
 public abstract class OgmPluginInitializer implements PluginLifecycle {
 
     protected final String packages;

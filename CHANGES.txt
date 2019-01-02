@@ -12,6 +12,7 @@ o Removed deprecated `org.neo4j.ogm.exception.core.NotFoundException`. (#319)
 o Removed deprecated `org.neo4j.ogm.exception.core.ResultErrorsException`. (#319)
 o Introduced exception translator to unify exceptions of different transports into an OGM hierarchy. (#319)
 o Improved hashing in IdentityMap and MappedRelationship. (#579)
+o Deprecated OgmPluginInitializer.
 
 3.1.x
 o Improve documentation of type conversions. #501

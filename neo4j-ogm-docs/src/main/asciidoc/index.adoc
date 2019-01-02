@@ -14,7 +14,7 @@ endif::[]
 
 [abstract]
 --
-This is the Neo4j object-graph mapping (OGM) manual, authored by the Neo4j team.
+This is the manual of Neo4j object-graph mapping (OGM) v{ogm-doc-version}, authored by the Neo4j team.
 --
 
 The three parts of the manual are:

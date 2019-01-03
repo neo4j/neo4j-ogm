@@ -15,15 +15,7 @@ package org.neo4j.ogm.cypher.compiler;
 
 import static java.util.Collections.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -45,12 +37,13 @@ public class CypherContext implements CompileContext {
     private final Set<Long> visitedRelationshipEntities = new HashSet<>();
 
     private final Map<Long, Object> createdObjectsWithId = new HashMap<>();
-    private final Collection<Mappable> registeredRelationships = new HashSet<>();
-    private final Collection<Mappable> deletedRelationships = new HashSet<>();
     private final Map<Long, Long> newNodeIds = new HashMap<>();
 
-    private final Collection<Object> log = new HashSet<>();
-    private final Map<SrcTargetKey, Collection<Object>> transientRelsIndex = new HashMap<>();
+    private final Set<Mappable> registeredRelationships = new HashSet<>();
+    private final Set<Mappable> deletedRelationships = new HashSet<>();
+
+    private final Set<Object> registry = new HashSet<>();
+    private final Map<SrcTargetKey, Set<Object>> transientRelsIndex = new HashMap<>();
 
     private final Compiler compiler;
 
@@ -94,22 +87,22 @@ public class CypherContext implements CompileContext {
     }
 
     public void register(Object object) {
-        if (!log.contains(object)) {
-            log.add(object);
+        if (!registry.contains(object)) {
+            registry.add(object);
         }
     }
 
     @Override
     public void registerTransientRelationship(SrcTargetKey key, Object object) {
-        if (!log.contains(object)) {
-            log.add(object);
-            Collection<Object> collection = transientRelsIndex.computeIfAbsent(key, k -> new HashSet<>());
+        if (!registry.contains(object)) {
+            registry.add(object);
+            Set<Object> collection = transientRelsIndex.computeIfAbsent(key, k -> new HashSet<>());
             collection.add(object);
         }
     }
 
     public Collection<Object> registry() {
-        return log;
+        return Collections.unmodifiableSet(registry);
     }
 
     /**

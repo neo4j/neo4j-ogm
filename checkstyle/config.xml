@@ -15,5 +15,7 @@
         <property name="fileExtensions" value="java" />
     </module>
 
+    <module name="NewlineAtEndOfFile"/>
+
     <module name="SuppressWarningsFilter" />
 </module>

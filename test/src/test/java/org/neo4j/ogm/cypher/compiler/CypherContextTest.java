@@ -39,6 +39,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.testutil.TestUtils;
 
 /**
+ * This tests needs to run multiple times to increase the value of native ids used for the relationship entities.
+ * The deletion of relationship entities started to fail usually at the second or third iteration, probably depending
+ * on the Set and Iterator implementations of the JVM
+ * (See especially org.neo4j.ogm.cypher.compiler.CypherContext#deletedRelationships).
+ *
  * @author Andreas Berger
  * @author Michael J. Simons
  */

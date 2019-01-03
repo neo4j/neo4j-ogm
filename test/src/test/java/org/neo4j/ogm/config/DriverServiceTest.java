@@ -19,8 +19,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Period;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.junit.AfterClass;
@@ -31,6 +32,7 @@ import org.junit.Test;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.support.FileUtils;
 
 /**
  * @author vince
@@ -39,7 +41,6 @@ public class DriverServiceTest {
 
     private static final Path TMP_NEO4J = Paths.get(System.getProperty("java.io.tmpdir"), "neo4jDriverServiceTest.db");
     private static final Path TMP_NEO4J_DB = Paths.get(TMP_NEO4J.toFile().getAbsolutePath() + "/database");
-
 
     @BeforeClass
     public static void createEmbeddedStore() {
@@ -52,7 +53,7 @@ public class DriverServiceTest {
 
     @AfterClass
     public static void deleteEmbeddedStore() throws IOException {
-        FileUtils.deleteDirectory(TMP_NEO4J.toFile());
+        FileUtils.deleteDirectory(TMP_NEO4J);
     }
 
     @Test
@@ -88,7 +89,8 @@ public class DriverServiceTest {
     @Test
     @Ignore
     public void shouldDisableCertificateValidationIfIgnoreSSLHandshake() {
-
+        Duration.ofDays(2);
+        Period.ofDays(2);
         HttpPost request = new HttpPost("https://neo4j:password@localhost:7473/db/data/transaction/commit");
         request.setEntity(new StringEntity("{\n" +
             "  \"statements\" : [ {\n" +

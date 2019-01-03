@@ -48,7 +48,7 @@ public abstract class OgmPluginInitializer implements PluginLifecycle {
 
     @Override
     public Collection<Injectable<?>> start(GraphDatabaseService graphDatabaseService, Configuration config) {
-        EmbeddedDriver embeddedDriver = new EmbeddedDriver(graphDatabaseService);
+        EmbeddedDriver embeddedDriver = new EmbeddedDriver(graphDatabaseService, null);
         sessionFactory = createSessionFactory(embeddedDriver);
         return Arrays.asList(new OgmInjectable<>(sessionFactory, SessionFactory.class));
     }

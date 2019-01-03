@@ -12,7 +12,8 @@
  */
 package org.neo4j.ogm.domain.companies.annotated;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -21,7 +22,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 @NodeEntity
 public class Device {
-    @GraphId
+    @Id @GeneratedValue
     private Long id;
 
     @Relationship(type = "DEVICE", direction = Relationship.UNDIRECTED)

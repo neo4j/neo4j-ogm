@@ -24,7 +24,7 @@ import java.util.function.Function;
  * without notice.<br>
  * <br>
  * To add your custom modification, create a separate module, implement this interface and return an arbitrary
- * {@link Function<String, String>}. As an optional step, overwrite the {@link #getOrder()} method in case you have
+ * {@link java.util.function.Function}. As an optional step, overwrite the {@link #getOrder()} method in case you have
  * multiple modifications on the class path. The lower the value it returns, the higher it's priority. Higher priority
  * means modification is applied first.<br>
  * <br>

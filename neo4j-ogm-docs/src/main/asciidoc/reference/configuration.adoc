@@ -4,13 +4,14 @@
 [[reference:configuration:method]]
 == Configuration method
 
-There are several ways to supply configuration to the OGM:
+There are several ways to supply configuration to Neo4j-OGM:
 
 - using a properties file
 - programmatically using Java
 - by providing an already configured Neo4j Java driver instance
 
-These methods are described below. They are also available as code in the <<introduction:additional-resources:help, examples>>.
+These methods are described below.
+They are also available as code in the <<introduction:additional-resources:help, examples>>.
 
 [[reference:configuration:method:properties]]
 === Using a properties file
@@ -35,10 +36,10 @@ Configuration configuration = new Configuration.Builder(props).build();
 [[reference:configuration:method:java]]
 === Programmatically using Java
 
-In cases where you are not be able to provide configuration via a properties file you can configure the OGM programmatically instead.
+In cases where you are not be able to provide configuration via a properties file you can configure Neo4j-OGM programmatically instead.
 
-The `Configuration` object provides a fluent API to set various configuration options. This object then needs to be supplied to the
-`SessionFactory` constructor in order to be configured.
+The `Configuration` object provides a fluent API to set various configuration options.
+This object then needs to be supplied to the `SessionFactory` constructor in order to be configured.
 
 === By providing a Neo4j driver instance
 
@@ -46,11 +47,11 @@ Just configure the driver as you would do for direct access to the database, and
 
 This method allows the greatest flexibility and gives you access to the full range of low level configuration options.
 
-.Example providing a bolt driver instance to OGM
+.Example providing a bolt driver instance to Neo4j-OGM
 [source, java]
 ----
 org.neo4j.driver.v1.Driver nativeDriver = ...;
-Driver ogmDriver = new BoltDriver(nativeDriver);
+DriverNeo4j-OGMDriver = new BoltDriver(nativeDriver);
 new SessionFactory(ogmDriver, ...);
 ----
 
@@ -88,7 +89,8 @@ Configuration configuration = new Configuration.Builder()
 === Bolt Driver
 
 
-Note that for the `URI`, if no port is specified, the default Bolt port of `7687` is used. Otherwise, a port can be specified with `bolt://neo4j:password@localhost:1234`.
+Note that for the `URI`, if no port is specified, the default Bolt port of `7687` is used.
+Otherwise, a port can be specified with `bolt://neo4j:password@localhost:1234`.
 
 Also, the bolt driver allows you to define a connection pool size, which refers to the maximum number of sessions per URL.
 This property is optional and defaults to `50`.
@@ -115,8 +117,8 @@ Configuration configuration = new Configuration.Builder()
 ----
 |======================
 
-A timeout to the database with the Bolt driver can be set by updating your Database's `neo4j.conf`. The exact setting
-to change can be http://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.transaction.timeout[found here].
+A timeout to the database with the Bolt driver can be set by updating your Database's `neo4j.conf`.
+The exact setting to change can be http://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.transaction.timeout[found here].
 
 [[reference:configuration:driver:embedded]]
 === Embedded Driver
@@ -126,8 +128,9 @@ You should use the Embedded driver if you don't want to use a client-server mode
 You can specify a permanent data store location to provide durability of your data after your application shuts down, or you can use an impermanent data store, which will only exist while your application is running.
 
 [NOTE]
-As of 2.1.0 the Neo4j OGM embedded driver no longer ships with the Neo4j kernel.  Users are expected to provide this dependency through their
-dependency management system. See <<reference:getting-started, Getting Started>> for more details.
+As of 2.1.0 the Neo4j-OGM embedded driver no longer ships with the Neo4j kernel.
+Users are expected to provide this dependency through their dependency management system.
+See <<reference:getting-started, Getting Started>> for more details.
 
 .Permanent Data Store Embedded Driver Configuration
 [%autowidth.spread,frame="topbot",options="header"]
@@ -171,17 +174,75 @@ Configuration configuration = new Configuration.Builder().build()
 |======================
 
 
-[[reference:configuration:driver:embedded:unmanaged]]
-==== Configuration in an Unmanaged Extension
+[[reference:configuration:driver:embedded:neo4j-config]]
+==== Configuration of the embedded instance
 
-When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set up OGM configuration slightly differently.
-Neo4j provides `PluginLifecycle` SPI that allows to initialize extensions. Extend `OgmPluginInitializer` and list the full class name in
-`META-INF/services/org.neo4j.server.plugins.PluginLifecycle`:
+The embedded instance of Neo4j can be configured through a standard `neo4j.conf` file.
+A `neo4j.conf` file is a properties based configuration format.
+Neo4j's available configuration properties are listed in the http://neo4j.com/docs/operations-manual/current/reference/configuration-settings/[product manual].
+Not all of them are applicable to an embedded scenario.
+
+You can pass the location of a configuration file either through `ogm.properties` or programmatically.
+Both file and classpath-resources are supported.
+Resource location without a protocol prefix are assumed to be classpath resources.
+
+.Providing the location of a Neo4j configuration file
+[%autowidth.spread,frame="topbot",options="header"]
+|======================
+|ogm.properties   | Java Configuration
+
+a|
+[source, properties]
+----
+# Looks in the root of the classpath
+neo4j.conf.location=neo4j.conf
+
+# Explicitly in the classpath
+# neo4j.conf.location=classpath:neo4j.conf
+
+# Or as file URL
+# neo4j.conf.location=file:///config/neo4j.conf
+----
+
+a|
+[source, java, indent=0]
+----
+String neo4jConfLocation;
+
+​// Choose one:
+​// Looks in the root of the classpath
+neo4jConfLocation = "neo4j.conf"
+
+​// Explicitly in the classpath
+​// neo4jConfLocation = "classpath:neo4j.conf"
+
+​// Or as file URL
+​// neo4jConfLocation = "file:///config/neo4j.conf"
+
+Configuration configuration =
+    new Configuration.Builder()
+        .neo4jConfLocation(neo4jConfLocation)
+        .build();
+----
+|======================
+
+[WARNING]
+By setting `dbms.config=HA` in the configuration file for Neo4j, you can enable HA mode of the embedded instance.
+You need to have the required enterpris dependencies on the classpath.
+For Neo4j 3.4 those are `org.neo4j:neo4j-ha` and `org.neo4j:neo4j-enterprise`, for 3.5 it's only `com.neo4j:neo4j-enterprise`.
+
+
+[[reference:configuration:driver:embedded:unmanaged]]
+==== Configuration of an unmanaged extension
+
+When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set up Neo4j-OGM configuration slightly differently.
+Neo4j provides `PluginLifecycle` SPI that allows to initialize extensions.
+Extend `OgmPluginInitializer` and list the full class name in `META-INF/services/org.neo4j.server.plugins.PluginLifecycle`:
 
 
 [source, java]
 ----
-public class MyApplicationPluginInitializer extends OgmPluginInitializer {
+public class MyApplicationPluginInitializer extends OGMPluginInitializer {
 
     public MyApplicationPluginInitializer() {
         super(MyDomain.class.getPackage().getName());
@@ -242,19 +303,22 @@ Configuration configuration = new Configuration.Builder()
 ----
 |======================
 
-_Note: Currently only Basic Authentication is supported by the OGM. If you need to use more advanced authentication scheme, use the native driver configuration method._
+_Note: Currently only Basic Authentication is supported by Neo4j-OGM.
+If you need to use more advanced authentication scheme, use the native driver configuration method._
 
 [[reference:configuration:driver:tsl]]
 === Transport Layer Security (TLS/SSL)
 
-The Bolt and HTTP drivers also allow you to connect to Neo4j over a secure channel. These rely on Transport Layer Security (aka TLS/SSL) and require the installation of a signed certificate on the server.
+The Bolt and HTTP drivers also allow you to connect to Neo4j over a secure channel.
+These rely on Transport Layer Security (aka TLS/SSL) and require the installation of a signed certificate on the server.
 
 In certain situations (e.g. some cloud environments) it may not be possible to install a signed certificate even though you still want to use an encrypted connection.
 
 To support this, both drivers have configuration settings allowing you to bypass certificate checking, although they differ in their implementation.
 
 [NOTE]
-Both of these strategies leave you vulnerable to a MITM attack. You should probably not use them unless your servers are behind a secure firewall.
+Both of these strategies leave you vulnerable to a MITM attack.
+You should probably not use them unless your servers are behind a secure firewall.
 
 [[reference:configuration:driver:security:bolt]]
 ==== Bolt
@@ -291,7 +355,8 @@ Configuration config = new Configuration.Builder()
 |======================
 
 
-`TRUST_ON_FIRST_USE` means that the Bolt Driver will trust the first connection to a host to be safe and intentional. On subsequent connections, the driver will verify that the host is the same as on that first connection.
+`TRUST_ON_FIRST_USE` means that the Bolt Driver will trust the first connection to a host to be safe and intentional.
+On subsequent connections, the driver will verify that the host is the same as on that first connection.
 
 [[reference:configuration:driver:bolt]]
 ==== HTTP
@@ -362,6 +427,7 @@ This settings is valid only for Bolt and HTTP drivers.
 [[reference:configuration:logging]]
 == Logging
 
-Neo4j OGM uses SLF4J to log statements. In production, you can set the log level in a file called *logback.xml* to be found at the root of the classpath.
+Neo4j-OGM uses SLF4J to log statements.
+In production, you can set the log level in a file called *logback.xml* to be found at the root of the classpath.
 Please see the link:http://logback.qos.ch/manual/[Logback manual] for further details.
 

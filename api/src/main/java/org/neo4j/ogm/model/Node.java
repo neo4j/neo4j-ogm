@@ -14,19 +14,18 @@
 package org.neo4j.ogm.model;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public interface Node extends PropertyContainer {
 
     String[] getLabels();
 
-    String[] getRemovedLabels();
-
     Long getId();
-
 
     List<Property<String, Object>> getPropertyList();
 
@@ -49,4 +48,5 @@ public interface Node extends PropertyContainer {
      */
     Property<String, Long> getVersion();
 
+    Set<String> getPreviousDynamicLabels();
 }

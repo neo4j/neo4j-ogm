@@ -53,24 +53,6 @@ public class MethodsInfo {
         } while ((currentClass = currentClass.getSuperclass()) != null);
     }
 
-    /**
-     * @param methods
-     * @deprecated since 3.1.3, will be removed in 3.1.4 to reduce the public OGM surface
-     */
-    @Deprecated
-    public MethodsInfo(Map<String, MethodInfo> methods) {
-        this.methods = new HashSet<>(methods.values());
-    }
-
-    /**
-     * @deprecated since 3.1.3, will be removed in 3.1.4. Use {@link #findMethodInfoBy(Predicate)} if you need access to
-     * this internal API.
-     */
-    @Deprecated
-    public Collection<MethodInfo> methods() {
-        return Collections.unmodifiableCollection(methods);
-    }
-
     Collection<MethodInfo> findMethodInfoBy(Predicate<MethodInfo> predicate) {
         return this.methods.stream().filter(predicate).collect(toList());
     }

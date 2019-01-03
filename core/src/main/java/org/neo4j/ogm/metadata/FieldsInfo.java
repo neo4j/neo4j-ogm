@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.metadata;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -21,14 +20,18 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
+import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.metadata.reflect.GenericUtils;
 
 /**
  * @author Vince Bickers
@@ -42,10 +45,17 @@ public class FieldsInfo {
         this.fields = new HashMap<>();
     }
 
-    public FieldsInfo(ClassInfo classInfo, Class<?> cls) {
+    FieldsInfo(ClassInfo classInfo, Class<?> clazz, TypeSystem typeSystem) {
         this.fields = new HashMap<>();
 
-        for (Field field : cls.getDeclaredFields()) {
+        // Fields influenced by this class are all all declared fields plus
+        // all generics fields of possible superclasses that resolve to concrete
+        // types through this class.
+        List<Field> allFieldsInfluencedByThisClass = new ArrayList<>();
+        allFieldsInfluencedByThisClass.addAll(getGenericFieldsInHierarchyOf(clazz));
+        allFieldsInfluencedByThisClass.addAll(Arrays.asList(clazz.getDeclaredFields()));
+
+        for (Field field : allFieldsInfluencedByThisClass) {
             final int modifiers = field.getModifiers();
             if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
                 ObjectAnnotations objectAnnotations = ObjectAnnotations.of(field.getDeclaredAnnotations());
@@ -79,11 +89,28 @@ public class FieldsInfo {
                     if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
                         typeParameterDescriptor = field.getType().getTypeName();
                     }
+
+                    boolean isSupportedNativeType = typeSystem.supportsAsNativeType(field.getType());
                     fields.put(field.getName(),
-                        new FieldInfo(classInfo, field, typeParameterDescriptor, objectAnnotations));
+                        new FieldInfo(classInfo, field, typeParameterDescriptor, objectAnnotations,
+                            isSupportedNativeType));
                 }
             }
         }
+    }
+
+    private static List<Field> getGenericFieldsInHierarchyOf(Class<?> clazz) {
+
+        List<Field> genericFieldsInHierarchy = new ArrayList<>();
+        Class<?> currentClass = clazz.getSuperclass();
+        while(currentClass != null) {
+            Stream.of(currentClass.getDeclaredFields())
+                .filter(GenericUtils::isGenericField)
+                .forEach(genericFieldsInHierarchy::add);
+            currentClass = currentClass.getSuperclass();
+        }
+
+        return genericFieldsInHierarchy;
     }
 
     public Collection<FieldInfo> fields() {
@@ -101,13 +128,11 @@ public class FieldsInfo {
     }
 
     /**
-     * Should not be used directly as it doesn't take property fields into account.
+     * To be used only internally.
      * @param name
      * @return
-     * @deprecated since 3.1.1 use {@link ClassInfo#getFieldInfo(String)} instead.
      */
-    @Deprecated
-    public FieldInfo get(String name) {
+    FieldInfo get(String name) {
         return fields.get(name);
     }
 

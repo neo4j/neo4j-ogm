@@ -36,7 +36,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 public class EducationTest {
 
     private static MetaData metadata = new MetaData("org.neo4j.ogm.domain.education");
-    private static Neo4jSession session = new Neo4jSession(metadata, new TeacherRequest());
+    private static Neo4jSession session = new Neo4jSession(metadata, new EducationRequest());
 
     @Test
     public void testTeachers() throws Exception {
@@ -168,8 +168,6 @@ public class EducationTest {
     private Map<String, Teacher> loadTeachers() {
 
         Map<String, Teacher> teachers = new HashMap<>();
-
-        session.setDriver(new TeacherRequest());
         Collection<Teacher> teacherList = session.loadAll(Teacher.class);
 
         for (Teacher teacher : teacherList) {
@@ -181,8 +179,6 @@ public class EducationTest {
 
     private void hydrateCourses(Collection<Teacher> teachers) {
 
-        session.setDriver(new TeacherRequest());
-        session.setDriver(new CoursesRequest());
         session.loadAll(Course.class);
     }
 

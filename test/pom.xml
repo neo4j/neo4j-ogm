@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.neo4j</groupId>
         <artifactId>neo4j-ogm</artifactId>
-        <version>3.1.4-SNAPSHOT</version>
+        <version>3.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,32 +38,25 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-http-driver</artifactId>
-            <version>3.1.4-SNAPSHOT</version>
+            <version>3.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-core</artifactId>
-            <version>3.1.4-SNAPSHOT</version>
+            <version>3.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-embedded-driver</artifactId>
-            <version>3.1.4-SNAPSHOT</version>
+            <version>3.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-bolt-driver</artifactId>
-            <version>3.1.4-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback}</version>
-            <scope>compile</scope>
+            <version>3.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -81,8 +74,18 @@
         <dependency>
             <groupId>org.neo4j.test</groupId>
             <artifactId>neo4j-harness</artifactId>
-            <version>${neo4j}</version>
+            <version>${neo4j.version}</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-shell</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -107,9 +110,18 @@
         </dependency>
 
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.25</version>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
 
     </dependencies>
@@ -117,15 +129,53 @@
     <profiles>
         <profile>
             <id>neo4j-enterprise</id>
-            <!--
-            This will add Neo4j Enterprise on the class path.
-            TestServer will detect it and run tests against enterprise edition.
-            -->
             <dependencies>
                 <dependency>
                     <groupId>org.neo4j.test</groupId>
                     <artifactId>neo4j-harness-enterprise</artifactId>
+                    <version>${neo4j.version}</version>
                     <scope>compile</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-nop</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>neo4j-3.5</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.neo4j.community</groupId>
+                    <artifactId>it-test-support</artifactId>
+                    <version>${neo4j.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-nop</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>neo4j-3.5-enterprise</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.neo4j.test</groupId>
+                    <artifactId>neo4j-harness-enterprise</artifactId>
+                    <version>${neo4j.version}</version>
+                    <scope>compile</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-nop</artifactId>
+                        </exclusion>
+                    </exclusions>
                 </dependency>
             </dependencies>
         </profile>
@@ -136,7 +186,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <runOrder>alphabetical</runOrder>
                     <systemPropertyVariables>

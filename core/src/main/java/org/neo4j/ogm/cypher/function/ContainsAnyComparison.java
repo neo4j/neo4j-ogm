@@ -26,7 +26,7 @@ import org.neo4j.ogm.cypher.Filter;
  * For example
  * <pre>
  *  Filter f = new Filter("specialities", new ContainsAnyComparison(Arrays.asList("burger", "sushi")));
- *  Collection<Restaurant> all = session.loadAll(Restaurant.class, new Filters(f));
+ *  Collection&lt;Restaurant&gt; all = session.loadAll(Restaurant.class, new Filters(f));
  * </pre>
  * will match all restaurant having burger OR sushi as a speciality.
  */

@@ -16,6 +16,9 @@ package org.neo4j.ogm.persistence.types.properties;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -64,5 +67,41 @@ public class RelationshipEntityPropertiesTest extends MultiDriverTestClass {
 
         Visit loaded = session.load(Visit.class, visit.getId());
         assertThat(loaded.getProperties()).containsEntry("note", "some random note about a visit to a place");
+    }
+
+    @Test // GH-518
+    public void shouldBeAbleToDeletePropertiesOnRelationshipsAgain() {
+        User user = new User();
+        user.setName("James Bond");
+
+        Visit visit = new Visit();
+
+        Map<String, String> initialProperties = new HashMap<>();
+        initialProperties.put("a", "007");
+        initialProperties.put("b", "4711");
+
+        visit.setUser(user);
+        visit.setProperties(initialProperties);
+        visit.setPlace(new Place());
+
+        user.setVisits(Collections.singleton(visit));
+
+        session.save(user);
+        session.clear();
+
+        User loadedUser = session.load(User.class, user.getId());
+        assertThat(loadedUser.getVisits()).hasSize(1);
+
+        Visit loadedVisit = loadedUser.getVisits().stream().findFirst().get();
+        assertThat(loadedVisit.getProperties()).containsOnly(entry("a", "007"), entry("b", "4711"));
+
+        loadedVisit.getProperties().remove("b");
+
+        session.save(loadedUser);
+        session.clear();
+
+        loadedUser = session.load(User.class, user.getId());
+        loadedVisit = loadedUser.getVisits().stream().findFirst().get();
+        assertThat(loadedVisit.getProperties()).containsExactly(entry("a", "007"));
     }
 }

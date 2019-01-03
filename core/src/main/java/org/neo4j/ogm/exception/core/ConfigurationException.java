@@ -18,11 +18,7 @@ package org.neo4j.ogm.exception.core;
  *
  * @author Frantisek Hartman
  */
-public class ConfigurationException extends OgmException {
-
-    public ConfigurationException(String message) {
-        super(message);
-    }
+public class ConfigurationException extends RuntimeException {
 
     public ConfigurationException(String message, Throwable cause) {
         super(message, cause);

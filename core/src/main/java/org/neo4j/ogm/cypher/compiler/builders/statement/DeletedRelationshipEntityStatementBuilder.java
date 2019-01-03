@@ -47,8 +47,8 @@ public class DeletedRelationshipEntityStatementBuilder extends BaseBuilder imple
         final Map<String, Object> parameters = new HashMap<>();
         final StringBuilder queryBuilder = new StringBuilder();
 
-        Edge firstEdge = deletedEdges.iterator().next();
         if (deletedEdges != null && deletedEdges.size() > 0) {
+            Edge firstEdge = deletedEdges.iterator().next();
 
             queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]-() WHERE ID(r) = row.relId ");
 

@@ -1,6 +1,7 @@
 package org.neo4j.ogm.domain.autoindex.valid;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
@@ -11,7 +12,7 @@ import org.neo4j.ogm.annotation.Property;
 @NodeEntity
 public class Invoice {
 
-    @GraphId
+    @Id @GeneratedValue
     private Long id;
 
     @Index(unique = true, primary = true)

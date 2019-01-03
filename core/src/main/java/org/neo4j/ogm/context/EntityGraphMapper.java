@@ -321,25 +321,20 @@ public class EntityGraphMapper implements EntityMapper {
             nodeBuilder = compiler.newNode(id).addLabels(labels).setPrimaryIndex(primaryIndex);
             context.registerNewObject(id, entity);
         } else {
-            nodeBuilder = compiler.existingNode(Long.valueOf(id.toString()));
+            nodeBuilder = compiler.existingNode(id);
             nodeBuilder.addLabels(labels).setPrimaryIndex(primaryIndex);
-            removePreviousLabelsIfRequired(entity, classInfo, nodeBuilder);
+
+            this.mappingContext.getSnapshotOf(entity).ifPresent(snapshot ->
+                nodeBuilder
+                    .setPreviousDynamicLabels(snapshot.getDynamicLabels())
+                    .setPreviousCompositeProperties(snapshot.getDynamicCompositeProperties())
+            );
         }
 
         LOGGER.debug("visiting: {}", entity);
         context.visit(entity, nodeBuilder, horizon);
 
         return nodeBuilder;
-    }
-
-    private void removePreviousLabelsIfRequired(Object entity, ClassInfo classInfo, NodeBuilder nodeBuilder) {
-        FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
-        if (labelFieldInfo != null) {
-            Collection<String> labelDeltas = mappingContext.labelHistory(entity).getPreviousValues();
-            if (labelDeltas != null && labelDeltas.size() > 0) {
-                nodeBuilder.removeLabels(labelDeltas);
-            }
-        }
     }
 
     /**
@@ -526,16 +521,21 @@ public class EntityGraphMapper implements EntityMapper {
         if (isRelationshipEntity(entity)) {
             Long relId = mappingContext.nativeId(entity);
 
+            boolean relationshipIsNew = relId < 0;
             boolean relationshipEndsChanged = haveRelationEndsChanged(entity, relId);
 
-            if (relId < 0
-                || relationshipEndsChanged) { //if the RE itself is new, or it exists but has one of it's end nodes changed
+            if (relationshipIsNew || relationshipEndsChanged) {
                 relationshipBuilder = cypherBuilder.newRelationship(directedRelationship.type());
                 if (relationshipEndsChanged) {
                     EntityUtils.setIdentity(entity, null, metaData);
                 }
             } else {
                 relationshipBuilder = cypherBuilder.existingRelationship(relId, directedRelationship.type());
+
+                this.mappingContext.getSnapshotOf(entity).ifPresent(snapshot ->
+                    relationshipBuilder
+                        .setPreviousCompositeProperties(snapshot.getDynamicCompositeProperties())
+                );
             }
         } else {
             relationshipBuilder = cypherBuilder.newRelationship(directedRelationship.type(), mapBothDirections);
@@ -543,8 +543,8 @@ public class EntityGraphMapper implements EntityMapper {
 
         relationshipBuilder.direction(directedRelationship.direction());
         if (isRelationshipEntity(entity)) {
-            relationshipBuilder.setSingleton(
-                false);  // indicates that this relationship type can be mapped multiple times between 2 nodes
+            // indicates that this relationship type can be mapped multiple times between 2 nodes
+            relationshipBuilder.setSingleton(false);
             relationshipBuilder.setReference(mappingContext.nativeId(entity));
             relationshipBuilder.setRelationshipEntity(true);
 
@@ -691,7 +691,7 @@ public class EntityGraphMapper implements EntityMapper {
         for (FieldInfo fieldInfo : classInfo.propertyFields()) {
             if (fieldInfo.isComposite()) {
                 Map<String, ?> properties = fieldInfo.readComposite(entity);
-                builder.addProperties(properties);
+                builder.addCompositeProperties(properties);
             } else if (fieldInfo.isVersionField()) {
                 updateVersionField(entity, builder, fieldInfo);
             } else {
@@ -1002,7 +1002,7 @@ public class EntityGraphMapper implements EntityMapper {
         return mapBothWays;
     }
 
-    class RelationshipNodes {
+    static class RelationshipNodes {
 
         Long sourceId;
         Long targetId;
@@ -1011,14 +1011,14 @@ public class EntityGraphMapper implements EntityMapper {
         Object source;
         Object target;
 
-        public RelationshipNodes(Long sourceId, Long targetId, Class sourceType, Class targetType) {
+        RelationshipNodes(Long sourceId, Long targetId, Class sourceType, Class targetType) {
             this.sourceId = sourceId;
             this.targetId = targetId;
             this.sourceType = sourceType;
             this.targetType = targetType;
         }
 
-        public RelationshipNodes(Object source, Object target, Class sourceType, Class targetType) {
+        RelationshipNodes(Object source, Object target, Class sourceType, Class targetType) {
             this.sourceType = sourceType;
             this.targetType = targetType;
             this.source = source;

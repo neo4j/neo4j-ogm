@@ -20,8 +20,12 @@ import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.AttributeConverters;
@@ -42,6 +46,7 @@ import org.slf4j.LoggerFactory;
 public class DomainInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainInfo.class);
+    private final TypeSystem typeSystem;
 
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
@@ -49,65 +54,79 @@ public class DomainInfo {
     private final Set<Class> enumTypes = new HashSet<>();
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
+    public DomainInfo(TypeSystem typeSystem) {
+        this.typeSystem = typeSystem;
+    }
+
     public static DomainInfo create(String... packages) {
+        return create(NoNativeTypes.INSTANCE, packages);
+    }
+
+    public static DomainInfo create(TypeSystem typeSystem, String... packages) {
 
         ScanResult scanResult = new FastClasspathScanner(packages)
             .strictWhitelist()
             .scan();
 
-        List<String> allClasses = scanResult.getNamesOfAllClasses();
+        DomainInfo domainInfo = new DomainInfo(typeSystem);
 
-        DomainInfo domainInfo = new DomainInfo();
+        Predicate<Class<?>> classCouldBeLoaded = clazz -> clazz != null;
+        Predicate<Class<?>> classIsMappable = clazz -> !(clazz.isAnnotation() || clazz.isAnonymousClass() || clazz
+            .equals(Object.class));
 
-        for (String className : allClasses) {
-            Class<?> cls = null;
-            try {
-                cls = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
-            } catch (ClassNotFoundException e) {
-                LOGGER.warn("Could not load class {}", className);
-                continue;
-            }
+        Map<String, Class<?>> mappableClasses = scanResult.getNamesOfAllClasses()
+            .stream()
+            .map(DomainInfo::loadClass)
+            .filter(classCouldBeLoaded)
+            .filter(classIsMappable)
+            .collect(Collectors.toMap(Class::getName, Function.identity()));
 
-            ClassInfo classInfo = new ClassInfo(cls);
-
-            String superclassName = classInfo.superclassName();
+        mappableClasses.forEach((className, cls) -> {
+            ClassInfo newClassInfo = new ClassInfo(cls, typeSystem);
+            String superclassName = newClassInfo.superclassName();
 
             LOGGER.debug("Processing: {} -> {}", className, superclassName);
 
-            if (className != null) {
-                if (cls.isAnnotation() || cls.isAnonymousClass() || cls.equals(Object.class)) {
-                    continue;
-                }
+            ClassInfo classInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> newClassInfo);
+            if (!classInfo.hydrated()) {
+                classInfo.hydrate(newClassInfo);
+            }
 
-                ClassInfo thisClassInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
+            if (superclassName != null) {
+                ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
+                if (superclassInfo != null) {
+                    superclassInfo.addSubclass(classInfo);
+                } else if (!"java.lang.Object".equals(superclassName) && !"java.lang.Enum".equals(superclassName)) {
 
-                if (!thisClassInfo.hydrated()) {
-
-                    thisClassInfo.hydrate(classInfo);
-
-                    ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
-                    if (superclassInfo == null) {
-
-                        if (superclassName != null && !superclassName.equals("java.lang.Object") && !superclassName
-                            .equals("java.lang.Enum")) {
-                            domainInfo.classNameToClassInfo
-                                .put(superclassName, new ClassInfo(superclassName, thisClassInfo));
-                        }
-                    } else {
-                        superclassInfo.addSubclass(thisClassInfo);
-                    }
-                }
-
-                if (thisClassInfo.isEnum()) {
-                    LOGGER.debug("Registering enum class: {}", thisClassInfo.name());
-                    domainInfo.enumTypes.add(thisClassInfo.getUnderlyingClass());
+                    Class<?> superClass = Optional.ofNullable(mappableClasses.get(superclassName))
+                        // This is the case when a class outside the scanned packages is refered to
+                        .orElseGet(() -> (Class) loadClass(superclassName));
+                    domainInfo.classNameToClassInfo.put(superclassName, new ClassInfo(superClass, classInfo));
                 }
             }
-        }
+
+            if (classInfo.isEnum()) {
+                LOGGER.debug("Registering enum class: {}", classInfo.name());
+                domainInfo.enumTypes.add(classInfo.getUnderlyingClass());
+            }
+        });
 
         domainInfo.finish();
 
         return domainInfo;
+    }
+
+    static Class<?> loadClass(String className) {
+
+        Class<?> loadedButNotInitalizedClass = null;
+        try {
+            loadedButNotInitalizedClass = Class
+                .forName(className, false, Thread.currentThread().getContextClassLoader());
+        } catch (ClassNotFoundException e) {
+            LOGGER.warn("Could not load class {}", className);
+
+        }
+        return loadedButNotInitalizedClass;
     }
 
     private void buildAnnotationNameToClassInfoMap() {
@@ -197,6 +216,7 @@ public class DomainInfo {
         LOGGER.debug("Registering converters and deregistering transient fields and methods....");
         postProcessFields(transientClassesRemoved);
 
+        // TODO 🔥 the "lazy" initialization of the fields seems to be all in vain anyway.
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             classInfo.primaryIndexField();
             classInfo.getVersionField();
@@ -336,7 +356,7 @@ public class DomainInfo {
                     .flatMap(selectAttributeConverter);
 
             // We can use a registered converter
-            if (registeredAttributeConverter.isPresent()) {
+            if (registeredAttributeConverter.isPresent() && !typeSystem.supportsAsNativeType(fieldInfo.type())) {
                 fieldInfo.setPropertyConverter(registeredAttributeConverter.get());
             } else {
                 // Check if the user configured one through the convert annotation

@@ -328,7 +328,7 @@ public class RequestExecutor {
         }
     }
 
-    class ReferenceMapping {
+   static class ReferenceMapping {
 
         private Long ref;
         private Long id;

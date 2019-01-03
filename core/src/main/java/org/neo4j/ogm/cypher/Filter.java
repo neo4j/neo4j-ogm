@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
+import org.neo4j.ogm.cypher.function.NativeDistanceComparison;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
@@ -108,31 +109,28 @@ public class Filter implements FilterWithRelationship {
 
     private List<NestedPathSegment> nestedPath;
 
-    //Primary Constructor
     public Filter(FilterFunction function) {
-        this.index = 0;
-        this.function = function;
-        this.function.setFilter(this);
+        this(null, function, null);
+    }
+
+    public Filter(String propertyName, FilterFunction filterFunction) {
+        this(propertyName, filterFunction, null);
     }
 
     public Filter(DistanceComparison distanceComparisonFunction, ComparisonOperator comparisonOperator) {
+        this(null, distanceComparisonFunction, comparisonOperator);
+    }
+
+    public Filter(String propertyName, ComparisonOperator comparisonOperator, Object propertyValue) {
+        this(propertyName, new PropertyComparison(propertyValue), comparisonOperator);
+    }
+
+    public Filter(String propertyName, FilterFunction filterFunction, ComparisonOperator comparisonOperator) {
         this.index = 0;
-        this.function = distanceComparisonFunction;
+        this.propertyName = propertyName;
+        this.function = filterFunction;
         this.function.setFilter(this);
         this.comparisonOperator = comparisonOperator;
-    }
-
-    //Convenience Constructor
-    public Filter(String propertyName, ComparisonOperator comparisonOperator, Object propertyValue) {
-        this(new PropertyComparison(propertyValue));
-        this.comparisonOperator = comparisonOperator;
-        this.propertyName = propertyName;
-    }
-
-    //Convenience Constructor
-    public Filter(String propertyName, FilterFunction filterFunction) {
-        this(filterFunction);
-        this.propertyName = propertyName;
     }
 
     // TODO: Split Operators up into binary and unary.

@@ -16,7 +16,6 @@ package org.neo4j.ogm.metadata;
 import org.junit.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations;
-import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations.GraphIdAndIdWithInternalStrategy;
 import org.neo4j.ogm.exception.core.MetadataException;
 
 public class InvalidIdAnnotationTest {
@@ -26,11 +25,6 @@ public class InvalidIdAnnotationTest {
     @Test(expected = MetadataException.class)
     public void shouldRejectTwoIdsOnSameClass() throws Exception {
         createMetadataAndCheckIdentityField(InvalidAnnotations.TwoIdsOnSameClass.class.getName());
-    }
-
-    @Test(expected = MetadataException.class)
-    public void shouldRejectGraphIdAndIdWithInternalStrategy() throws Exception {
-        createMetadataAndCheckIdentityField(GraphIdAndIdWithInternalStrategy.class.getName());
     }
 
     @Test(expected = MetadataException.class)

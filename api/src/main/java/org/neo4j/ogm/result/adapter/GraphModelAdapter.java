@@ -92,8 +92,7 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
 
             nodeIdentities.add(nodeId(node));
 
-            NodeModel nodeModel = new NodeModel();
-            nodeModel.setId(nodeId(node));
+            NodeModel nodeModel = new NodeModel(nodeId(node));
             List<String> labelNames = labels(node);
 
             nodeModel.setLabels(labelNames.toArray(new String[] {}));

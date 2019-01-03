@@ -36,4 +36,5 @@ Transaction tx = session.beginTransaction(Transaction.Type.READ_ONLY);
 ...
 ----
 
-This is important for clustering where the type of transaction is used to route requests to servers. See <<reference:ha, the high availability section>>.
+This is important for clustering where the type of transaction is used to route requests to servers.
+See <<reference:ha, the high availability section>>.

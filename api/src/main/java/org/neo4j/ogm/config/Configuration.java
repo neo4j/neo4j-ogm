@@ -13,12 +13,21 @@
 
 package org.neo4j.ogm.config;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Stream;
 
+import org.neo4j.ogm.support.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class Configuration {
 
@@ -42,12 +52,21 @@ public class Configuration {
     private AutoIndexMode autoIndex;
     private String generatedIndexesOutputDir;
     private String generatedIndexesOutputFilename;
-    private String neo4jHaPropertiesFile;
+    /**
+     * The url of a neo4j.conf (properties) file to configure the embedded driver.
+     */
+    private String neo4jConfLocation;
     private String driverName;
     private Credentials credentials;
     private Integer connectionLivenessCheckTimeout;
     private Boolean verifyConnection;
+    private Boolean useNativeTypes;
     private Map<String, Object> customProperties;
+    /**
+     * Base packages to scan for annotated components. They will be merged into a unique list
+     * of packages with the programmatically registered packages to scan.
+     */
+    private String[] basePackages;
 
     /**
      * Protected constructor of the Configuration class.
@@ -68,8 +87,10 @@ public class Configuration {
         this.generatedIndexesOutputFilename = builder.generatedIndexesOutputFilename != null ?
             builder.generatedIndexesOutputFilename :
             "generated_indexes.cql";
-        this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
+        this.neo4jConfLocation = builder.neo4jConfLocation;
         this.customProperties = builder.customProperties;
+        this.useNativeTypes = builder.useNativeTypes;
+        this.basePackages = builder.basePackages;
 
         if (this.uri != null) {
             java.net.URI uri = null;
@@ -147,8 +168,30 @@ public class Configuration {
         return verifyConnection;
     }
 
-    public String getNeo4jHaPropertiesFile() {
-        return neo4jHaPropertiesFile;
+    public String getNeo4jConfLocation() {
+        return this.neo4jConfLocation;
+    }
+
+    /**
+     * @return True if current configuration is setup to use embedded HA.
+     */
+    public boolean isEmbeddedHA() {
+
+        boolean isEmbeddedHA = false;
+        if (this.neo4jConfLocation != null) {
+            try {
+                URL url = ResourceUtils.getResourceUrl(neo4jConfLocation);
+
+                Properties neo4Properties = new Properties();
+                neo4Properties.load(url.openStream());
+
+                isEmbeddedHA = "HA".equalsIgnoreCase(neo4Properties.getProperty("dbms.mode", "-"));
+            } catch (IOException e) {
+                throw new UncheckedIOException("Could not load neo4j.conf at location " + neo4jConfLocation, e);
+            }
+        }
+
+        return isEmbeddedHA;
     }
 
     public Credentials getCredentials() {
@@ -159,57 +202,56 @@ public class Configuration {
         return Collections.unmodifiableMap(customProperties);
     }
 
+    public Boolean getUseNativeTypes() {
+        return useNativeTypes;
+    }
+
+    public String[] getBasePackages() {
+        return basePackages;
+    }
+
+    public String[] mergeBasePackagesWith(String... anotherSetOfBasePackages) {
+        String[] set1 = Optional.ofNullable(this.basePackages).orElseGet(() -> new String[0]);
+        String[] set2 = Optional.ofNullable(anotherSetOfBasePackages).orElseGet(() -> new String[0]);
+
+        return Stream.concat(Arrays.stream(set1), Arrays.stream(set2))
+            .filter(s -> s != null)
+            .distinct()
+            .toArray(String[]::new);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof Configuration))
             return false;
-
         Configuration that = (Configuration) o;
-
-        if (connectionPoolSize != that.connectionPoolSize)
-            return false;
-        if (uri != null ? !uri.equals(that.uri) : that.uri != null)
-            return false;
-        if (encryptionLevel != null ? !encryptionLevel.equals(that.encryptionLevel) : that.encryptionLevel != null)
-            return false;
-        if (trustStrategy != null ? !trustStrategy.equals(that.trustStrategy) : that.trustStrategy != null)
-            return false;
-        if (trustCertFile != null ? !trustCertFile.equals(that.trustCertFile) : that.trustCertFile != null)
-            return false;
-        if (autoIndex != that.autoIndex)
-            return false;
-        if (generatedIndexesOutputDir != null ?
-            !generatedIndexesOutputDir.equals(that.generatedIndexesOutputDir) :
-            that.generatedIndexesOutputDir != null)
-            return false;
-        if (generatedIndexesOutputFilename != null ?
-            !generatedIndexesOutputFilename.equals(that.generatedIndexesOutputFilename) :
-            that.generatedIndexesOutputFilename != null)
-            return false;
-        if (neo4jHaPropertiesFile != null ?
-            !neo4jHaPropertiesFile.equals(that.neo4jHaPropertiesFile) :
-            that.neo4jHaPropertiesFile != null)
-            return false;
-        if (!driverName.equals(that.driverName))
-            return false;
-        return credentials != null ? credentials.equals(that.credentials) : that.credentials == null;
+        return connectionPoolSize == that.connectionPoolSize &&
+            Objects.equals(uri, that.uri) &&
+            Arrays.equals(uris, that.uris) &&
+            Objects.equals(encryptionLevel, that.encryptionLevel) &&
+            Objects.equals(trustStrategy, that.trustStrategy) &&
+            Objects.equals(trustCertFile, that.trustCertFile) &&
+            autoIndex == that.autoIndex &&
+            Objects.equals(generatedIndexesOutputDir, that.generatedIndexesOutputDir) &&
+            Objects.equals(generatedIndexesOutputFilename, that.generatedIndexesOutputFilename) &&
+            Objects.equals(neo4jConfLocation, that.neo4jConfLocation) &&
+            Objects.equals(driverName, that.driverName) &&
+            Objects.equals(credentials, that.credentials) &&
+            Objects.equals(connectionLivenessCheckTimeout, that.connectionLivenessCheckTimeout) &&
+            Objects.equals(verifyConnection, that.verifyConnection) &&
+            Objects.equals(useNativeTypes, that.useNativeTypes) &&
+            Arrays.equals(basePackages, that.basePackages);
     }
 
     @Override
     public int hashCode() {
-        int result = uri != null ? uri.hashCode() : 0;
-        result = 31 * result + connectionPoolSize;
-        result = 31 * result + (encryptionLevel != null ? encryptionLevel.hashCode() : 0);
-        result = 31 * result + (trustStrategy != null ? trustStrategy.hashCode() : 0);
-        result = 31 * result + (trustCertFile != null ? trustCertFile.hashCode() : 0);
-        result = 31 * result + (autoIndex != null ? autoIndex.hashCode() : 0);
-        result = 31 * result + (generatedIndexesOutputDir != null ? generatedIndexesOutputDir.hashCode() : 0);
-        result = 31 * result + (generatedIndexesOutputFilename != null ? generatedIndexesOutputFilename.hashCode() : 0);
-        result = 31 * result + (neo4jHaPropertiesFile != null ? neo4jHaPropertiesFile.hashCode() : 0);
-        result = 31 * result + driverName.hashCode();
-        result = 31 * result + (credentials != null ? credentials.hashCode() : 0);
+        int result = Objects.hash(uri, connectionPoolSize, encryptionLevel, trustStrategy, trustCertFile, autoIndex,
+            generatedIndexesOutputDir, generatedIndexesOutputFilename, neo4jConfLocation, driverName, credentials,
+            connectionLivenessCheckTimeout, verifyConnection, useNativeTypes);
+        result = 31 * result + Arrays.hashCode(uris);
+        result = 31 * result + Arrays.hashCode(basePackages);
         return result;
     }
 
@@ -230,11 +272,12 @@ public class Configuration {
                 .autoIndex(builder.autoIndex)
                 .generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
-                .neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
+                .neo4jConfLocation(builder.neo4jConfLocation)
                 .credentials(builder.username, builder.password)
                 .customProperties(new HashMap<>(builder.customProperties));
         }
 
+        // Those are the keys inside ogm.properties, not configuration values.
         private static final String URI = "URI";
         private static final String URIS = "URIS";
         private static final String USERNAME = "username";
@@ -248,7 +291,9 @@ public class Configuration {
         private static final String AUTO_INDEX = "indexes.auto";
         private static final String GENERATED_INDEXES_OUTPUT_DIR = "indexes.auto.dump.dir";
         private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
-        private static final String NEO4J_HA_PROPERTIES_FILE = "neo4j.ha.properties.file";
+        private static final String NEO4J_CONF_LOCATION = "neo4j.conf.location";
+        private static final String USE_NATIVE_TYPES = "use-native-types";
+        private static final String BASE_PACKAGES = "base-packages";
 
         private String uri;
         private String[] uris;
@@ -261,10 +306,12 @@ public class Configuration {
         private String autoIndex;
         private String generatedIndexesOutputDir;
         private String generatedIndexesOutputFilename;
-        private String neo4jHaPropertiesFile;
+        private String neo4jConfLocation;
         private String username;
         private String password;
+        private boolean useNativeTypes;
         private Map<String, Object> customProperties = new HashMap<>();
+        private String[] basePackages;
 
         /**
          * Creates new Configuration builder
@@ -291,7 +338,7 @@ public class Configuration {
                         this.password = (String) entry.getValue();
                         break;
                     case URIS:
-                        this.uris = ((String) entry.getValue()).split(",");
+                        this.uris = splitValue(entry.getValue());
                         break;
                     case CONNECTION_POOL_SIZE:
                         this.connectionPoolSize = Integer.parseInt((String) entry.getValue());
@@ -320,13 +367,35 @@ public class Configuration {
                     case GENERATED_INDEXES_OUTPUT_FILENAME:
                         this.generatedIndexesOutputFilename = (String) entry.getValue();
                         break;
-                    case NEO4J_HA_PROPERTIES_FILE:
-                        this.neo4jHaPropertiesFile = (String) entry.getValue();
+                    case NEO4J_CONF_LOCATION:
+                        this.neo4jConfLocation = (String) entry.getValue();
+                        break;
+                    case USE_NATIVE_TYPES:
+                        this.useNativeTypes = Boolean.valueOf((String) entry.getValue());
+                        break;
+                    case BASE_PACKAGES:
+                        this.basePackages = splitValue(entry.getValue());
                         break;
                     default:
                         LOGGER.warn("Could not process property with key: {}", entry.getKey());
                 }
             }
+        }
+
+        private static String[] splitValue(Object value) {
+
+            if (!(value instanceof String)) {
+                throw new IllegalArgumentException(
+                    "Cannot split values of type other than java.lang.String (was " + value.getClass() + ").");
+            }
+
+            String stringValue = (String) value;
+            if (stringValue == null || stringValue.trim().isEmpty()) {
+                return new String[0];
+            }
+
+            return Arrays.stream(stringValue.split(","))
+                .map(String::trim).toArray(String[]::new);
         }
 
         /**
@@ -336,6 +405,7 @@ public class Configuration {
          * bolt for BoltDriver).
          *
          * @param uri uri of the database
+         * @return tbe changed builder
          */
         public Builder uri(String uri) {
             this.uri = uri;
@@ -347,6 +417,7 @@ public class Configuration {
          * (including one specified in uri property)
          *
          * @param uris uris
+         * @return tbe changed builder
          */
         public Builder uris(String[] uris) {
             this.uris = uris;
@@ -358,6 +429,7 @@ public class Configuration {
          * Valid only for http and bolt drivers
          *
          * @param connectionPoolSize number of connections to the database
+         * @return tbe changed builder
          */
         public Builder connectionPoolSize(Integer connectionPoolSize) {
             this.connectionPoolSize = connectionPoolSize;
@@ -369,6 +441,7 @@ public class Configuration {
          * See org.neo4j.driver.v1.Config.EncryptionLevel for possible values.
          *
          * @param encryptionLevel required encryption level
+         * @return tbe changed builder
          */
         public Builder encryptionLevel(String encryptionLevel) {
             this.encryptionLevel = encryptionLevel;
@@ -399,6 +472,7 @@ public class Configuration {
          * If set to false the driver will be created when first Session is requested from SessionFactory
          *
          * @param verifyConnection if the connection to the database should be verified, default is false
+         * @return tbe changed builder
          */
         public Builder verifyConnection(Boolean verifyConnection) {
             this.verifyConnection = verifyConnection;
@@ -409,6 +483,7 @@ public class Configuration {
          * Auto index config, for possible values see {@link org.neo4j.ogm.config.AutoIndexMode}
          *
          * @param autoIndex auto index config
+         * @return tbe changed builder
          */
         public Builder autoIndex(String autoIndex) {
             this.autoIndex = autoIndex;
@@ -425,8 +500,8 @@ public class Configuration {
             return this;
         }
 
-        public Builder neo4jHaPropertiesFile(String neo4jHaPropertiesFile) {
-            this.neo4jHaPropertiesFile = neo4jHaPropertiesFile;
+        public Builder neo4jConfLocation(String neo4jConfLocation) {
+            this.neo4jConfLocation = neo4jConfLocation;
             return this;
         }
 
@@ -440,6 +515,39 @@ public class Configuration {
             return this;
         }
 
+        /**
+         * Turns on the support for native types on the transport level. All types supported natively by Neo4j will either
+         * be transported "as is" to the database or in a format that will be stored in the native form in the database.
+         * <br>
+         * Turning this on prevents implicit conversions of all <code>java.time.*</code> types, Neo4j spatial datatypes
+         * (<code>point()</code>) and potentially others in the future.
+         * <br>
+         * Be aware that turning this on in an application that used the implicit conversion and stored nodes and properties
+         * with it, will require a refactoring to the database for all <code>java.time.*</code>-properties stored through
+         * Neo4j-OGM: They have been stored traditionally as a string in an ISO-8601 format and need to be converted in the
+         * database to their native representation as well.
+         *
+         * @since 3.2
+         * @return tbe changed builder
+         */
+        public Builder useNativeTypes() {
+            this.useNativeTypes = true;
+            return this;
+        }
+
+        /**
+         * Creates a new builder with a list of base packages to scan.
+         *
+         * @param basePackages The new base backages.
+         * @return The modified builder.
+         * @since 3.2
+         * @return tbe changed builder
+         */
+        public Builder withBasePackages(String... basePackages) {
+            this.basePackages = basePackages;
+            return this;
+        }
+
         public Configuration build() {
             return new Configuration(this);
         }
@@ -449,6 +557,7 @@ public class Configuration {
          *
          * @param username username
          * @param password password
+         * @return tbe changed builder
          */
         public Builder credentials(String username, String password) {
             this.username = username;

@@ -13,28 +13,30 @@
 
 package org.neo4j.ogm.testutil;
 
-import java.io.FileWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import static org.neo4j.string.HexString.*;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilder;
-import org.neo4j.server.AbstractNeoServer;
-import org.neo4j.server.database.Database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class TestServer {
 
+    private static final String DIGEST_ALGO = "SHA-256";
     private static final Logger LOGGER = LoggerFactory.getLogger(TestServer.class);
 
     private final Integer port;
@@ -104,27 +106,38 @@ public class TestServer {
         try {
 
             if (enableBolt) {
-                controls = newInProcessBuilder()
+                this.controls = newInProcessBuilder()
                     .withConfig("dbms.connector.bolt.type", "BOLT")
                     .withConfig("dbms.connector.bolt.enabled", "true")
-                    .withConfig("dbms.connector.bolt.listen_address", "localhost:" + String.valueOf(port))
+                    .withConfig("dbms.connector.bolt.listen_address", "localhost:" + port)
                     .newServer();
+
+                this.uri = controls.boltURI().toString();
             } else {
-                controls = newInProcessBuilder()
+                TestServerBuilder builder = newInProcessBuilder()
                     .withConfig("dbms.connector.http.type", "HTTP")
                     .withConfig("dbms.connector.http.enabled", "true")
-                    .withConfig("dbms.connector.http.listen_address", "localhost:" + String.valueOf(port))
-                    .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication))
-                    .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
-                    .withConfig("org.neo4j.server.transaction.timeout", String.valueOf(transactionTimeoutSeconds))
-                    .withConfig("dbms.transaction_timeout", String.valueOf(transactionTimeoutSeconds))
-                    .withConfig("dbms.security.auth_store.location", createAuthStore())
-                    .withConfig("unsupported.dbms.security.auth_store.location", createAuthStore())
-                    .withConfig("remote_shell_enabled", "false")
-                    .newServer();
+                    .withConfig("dbms.connector.http.listen_address", "localhost:" + port)
+                    .withConfig("dbms.security.auth_enabled", Boolean.toString(enableAuthentication))
+                    .withConfig("dbms.security.auth_provider", "native")
+                    .withConfig("dbms.transaction_timeout", Integer.toString(transactionTimeoutSeconds))
+                    .withConfig("remote_shell_enabled", "false");
+
+                if (enableAuthentication) {
+                    this.username = "neo4j";
+                    this.password = "password";
+
+                    Path authStore = createAuthStore(this.username, this.password);
+                    builder = builder
+                        .withConfig("unsupported.dbms.security.auth_store.location",
+                            authStore.toAbsolutePath().toString());
+                }
+
+                this.controls = builder.newServer();
+                this.uri = controls.httpURI().toString();
             }
 
-            initialise(controls);
+            this.database = this.controls.graph();
 
             // ensure we shutdown this server when the JVM terminates, if its not been shutdown by user code
             Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
@@ -133,45 +146,38 @@ public class TestServer {
         }
     }
 
-    private String createAuthStore() {
-        // creates a temp auth store, with encrypted credentials "neo4j:password" if the server is authenticating connections
-        try {
-            Path authStore = Files.createTempFile("neo4j", "credentials");
-            authStore.toFile().deleteOnExit();
+    private static Path createAuthStore(String username, String password) throws IOException {
 
-            if (enableAuthentication) {
-                try (Writer authStoreWriter = new FileWriter(authStore.toFile())) {
-                    IOUtils.write(
-                        "neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A,819BDB957119F8DFFF65604C92980A91:",
-                        authStoreWriter);
-                }
-                this.username = "neo4j";
-                this.password = "password";
+        // Until 3.4 there's org.neo4j.kernel.impl.security.Credential for both CE and Enterprise.
+        // Since 3.5 there's a dedicated SystemGraphCredential for the enterprise edition.
+        // We should monitor this for further releasese.
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        byte[] saltedPassword = new byte[0];
+        byte[] salt = new byte[32];
+        random.nextBytes(salt);
+
+        try {
+            MessageDigest m = MessageDigest.getInstance(DIGEST_ALGO);
+            m.update(salt);
+            m.update(password.getBytes(StandardCharsets.UTF_8));
+            saltedPassword = m.digest();
+        } catch (NoSuchAlgorithmException e) {
+        }
+
+        String format = "%s:%s,%s,%s:"; // This is the record format from org.neo4j.server.security.auth.UserSerialization
+        String record = String
+            .format(format, username, DIGEST_ALGO, encodeHexString(saltedPassword), encodeHexString(salt));
+
+        Path authStore = Files
+            .write(Files.createTempFile("neo4j", "credentials"), record.getBytes(StandardCharsets.UTF_8));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Files.deleteIfExists(authStore);
+            } catch (IOException e) {
             }
-
-            return authStore.toAbsolutePath().toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void initialise(ServerControls controls) throws Exception {
-        setDatabase(controls);
-        this.uri = url();
-    }
-
-    private void setDatabase(ServerControls controls) throws Exception {
-        try {
-            Method method = controls.getClass().getMethod("graph");
-            database = (GraphDatabaseService) method.invoke(controls);
-        } catch (NoSuchMethodException nsme) {
-            Class clazz = Class.forName("org.neo4j.harness.internal.InProcessServerControls");
-            Field field = clazz.getDeclaredField("server");
-            field.setAccessible(true);
-            AbstractNeoServer server = (AbstractNeoServer) field.get(controls);
-            Database db = server.getDatabase();
-            database = db.getGraph();
-        }
+        }));
+        return authStore;
     }
 
     /**
@@ -185,36 +191,6 @@ public class TestServer {
             database = null;
         }
         controls.close();
-    }
-
-    /**
-     * Waits for a period of time and checks the database availability afterwards
-     *
-     * @return true if the database is available, false otherwise
-     */
-    boolean isRunning() {
-        return database.isAvailable((long) 1000);
-    }
-
-    /**
-     * Retrieves the base URL of the Neo4j database server used in the test.
-     *
-     * @return The URL of the Neo4j test server
-     */
-    private String url() {
-
-        Method method;
-        try {
-            if (enableBolt) {
-                method = controls.getClass().getMethod("boltURI");
-            } else {
-                method = controls.getClass().getMethod("httpURI");
-            }
-            Object url = method.invoke(controls);
-            return url.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**

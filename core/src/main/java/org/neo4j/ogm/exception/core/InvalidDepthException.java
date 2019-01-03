@@ -18,9 +18,6 @@ package org.neo4j.ogm.exception.core;
  */
 public class InvalidDepthException extends RuntimeException {
 
-    public InvalidDepthException() {
-    }
-
     public InvalidDepthException(String message) {
         super(message);
     }

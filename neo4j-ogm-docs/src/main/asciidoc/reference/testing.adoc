@@ -1,20 +1,20 @@
 [[reference:testing]]
 = Testing
 
-Doing integration testing with OGM requires a few basic steps :
+Doing integration testing with Neo4j-OGM requires a few basic steps :
 
 * Add the `neo4j-ogm-test` artifact in you maven / gradle configuration
 * Declare the `Neo4jRule` JUnit rule, to setup a Neo4j test server
-* Setup the OGM configuration and `SessionFactory`
+* Setup Neo4j-OGM configuration and `SessionFactory`
 
 An example of a full running configuration can be found in the https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template/blob/master/ogm-3.0/src/test/java/org/neo4j/ogm/test/OgmTestCase.java[issue templates]
 
 [[reference:testing:log-levels]]
 == Log levels
 
-When running unit tests, it can be useful to see what the OGM is doing, and in particular to see the Cypher requests being transferred between your application and the database.
-The OGM uses `slf4j` along with `Logback` as its logging framework and by default the log level for all the OGM components is set to WARN, which does not include any Cypher output.
-To change the OGM log level, create a file *logback-test.xml* in your test resources folder, configured as shown below:
+When running unit tests, it can be useful to see what Neo4j-OGM is doing, and in particular to see the Cypher requests being transferred between your application and the database.
+Neo4j-OGM uses `slf4j` along with `Logback` as its logging framework and by default the log level for all Neo4j-OGM components is set to WARN, which does not include any Cypher output.
+To change Neo4j-OGM log level, create a file *logback-test.xml* in your test resources folder, configured as shown below:
 
 .logback-test.xml
 [source, xml]
@@ -29,7 +29,7 @@ To change the OGM log level, create a file *logback-test.xml* in your test resou
     </appender>
 
     <!--
-      ~ Set the required log level for the OGM components here.
+      ~ Set the required log level for Neo4j-OGM components here.
       ~ To just see Cypher statements set the level to "info"
       ~ For finer-grained diagnostics, set the level to "debug".
     -->

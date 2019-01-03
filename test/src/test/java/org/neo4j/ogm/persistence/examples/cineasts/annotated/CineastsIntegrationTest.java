@@ -30,7 +30,6 @@ import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
-import org.neo4j.ogm.domain.cineasts.annotated.Hobby;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Pet;
 import org.neo4j.ogm.domain.cineasts.annotated.Plays;

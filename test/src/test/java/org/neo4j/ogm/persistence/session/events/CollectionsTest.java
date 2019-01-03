@@ -16,8 +16,11 @@ package org.neo4j.ogm.persistence.session.events;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
 
 import org.junit.Test;
+import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.session.event.Event;
 
@@ -103,5 +106,34 @@ public class CollectionsTest extends EventTestBaseClass {
         assertThat(eventListener.captured(bruce, Event.TYPE.POST_SAVE)).isTrue();
 
         assertThat(eventListener.count()).isEqualTo(14);
+    }
+
+    @Test // GH-473
+    public void shouldFireEventsOnSavingIterables() {
+
+        List<Actor> actors = Arrays.asList(new Actor("Arnold"), new Actor("Bruce"));
+
+        Iterable<Actor> iterableActors = actors.stream()::iterator;
+        session.save(iterableActors);
+
+        EnumSet<Event.TYPE> preAndPostSave = EnumSet.of(Event.TYPE.PRE_SAVE, Event.TYPE.POST_SAVE);
+        actors.forEach(actor ->
+            preAndPostSave.forEach(type -> assertThat(eventListener.captured(actor, type)))
+        );
+    }
+
+    @Test // GH-473
+    public void shouldFireEventsOnDeletingIterables() {
+
+        List<Actor> actors = Arrays.asList(new Actor("Sylvester"), new Actor("Chuck"));
+        actors.forEach(session::save);
+
+        Iterable<Actor> iterableActors = actors.stream()::iterator;
+        session.delete(iterableActors);
+
+        EnumSet<Event.TYPE> preAndPostDelete = EnumSet.of(Event.TYPE.PRE_DELETE, Event.TYPE.POST_DELETE);
+        actors.forEach(actor ->
+            preAndPostDelete.forEach(type -> assertThat(eventListener.captured(actor, type)))
+        );
     }
 }

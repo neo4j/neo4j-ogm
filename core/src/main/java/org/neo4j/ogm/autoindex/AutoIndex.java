@@ -174,7 +174,7 @@ class AutoIndex {
         return description;
     }
 
-    public static Optional<AutoIndex> parse(String description) {
+    static Optional<AutoIndex> parse(String description) {
 
         Pattern pattern;
         Matcher matcher;

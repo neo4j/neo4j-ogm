@@ -1,7 +1,8 @@
 [[tutorial:conclusion]]
 = Conclusion
 
-With not much effort, we've built all the services that tie together this application. All that is required is adding controllers and building the UI.
+With not much effort, we've built all the services that tie together this application.
+All that is required is adding controllers and building the UI.
 The fully functioning application is available at https://github.com/neo4j-examples/neo4j-ogm-university[Github].
 
 We encourage you to read the reference guide that follows and apply the concepts learned by forking the application and adding to it.

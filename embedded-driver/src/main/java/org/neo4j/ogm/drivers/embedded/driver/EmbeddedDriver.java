@@ -14,7 +14,7 @@
 package org.neo4j.ogm.drivers.embedded.driver;
 
 import static java.util.Objects.*;
-import static org.neo4j.ogm.driver.ParameterConversionMode.CONVERT_ALL;
+import static org.neo4j.ogm.support.FileUtils.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,50 +29,53 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
-import org.neo4j.ogm.driver.ParameterConversion;
-import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.support.ResourceUtils;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
  * @author Michael J. Simons
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {
 
-    private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
     private static final int TIMEOUT = 60_000;
+    private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
     private GraphDatabaseService graphDatabaseService;
 
     // required for service loader mechanism
-    public EmbeddedDriver() {}
+    public EmbeddedDriver() {
+    }
 
-    public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
-        this(graphDatabaseService, Collections::emptyMap);
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService, Configuration configuration) {
+        this(graphDatabaseService, configuration, Collections::emptyMap);
     }
 
     /**
      * Create OGM EmbeddedDriver with provided embedded instance.
      *
-     * @param graphDatabaseService            Preconfigured, embedded instance.
+     * @param graphDatabaseService     Preconfigured, embedded instance.
      * @param customPropertiesSupplier Hook to provide custom configuration properties, i.e. for Cypher modification providers
      */
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService,
-        Supplier<Map<String, Object>> customPropertiesSupplier) {
+        Configuration configuration,
+        Supplier<Map<String, Object>> customPropertiesSupplier
+    ) {
 
         super(customPropertiesSupplier);
+
+        super.configure(configuration);
 
         this.graphDatabaseService = requireNonNull(graphDatabaseService);
         boolean available = this.graphDatabaseService.isAvailable(TIMEOUT);
@@ -82,12 +85,12 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public synchronized void configure(Configuration config) {
+    public synchronized void configure(Configuration configuration) {
 
-        super.configure(config);
+        super.configure(configuration);
 
         try {
-            String fileStoreUri = config.getURI();
+            String fileStoreUri = configuration.getURI();
 
             // if no URI is set, create a temporary folder for the graph db
             // that will persist only for the duration of the JVM
@@ -103,26 +106,47 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                 throw new RuntimeException("Could not create/open filestore: " + fileStoreUri);
             }
 
-            // do we want to start a HA instance or a community instance?
-            String haPropertiesFileName = config.getNeo4jHaPropertiesFile();
-            if (haPropertiesFileName != null) {
-                setHAGraphDatabase(file,
-                    Thread.currentThread().getContextClassLoader().getResource(haPropertiesFileName));
-            } else {
-                setGraphDatabase(file);
+            GraphDatabaseBuilder graphDatabaseBuilder = getGraphDatabaseFactory(configuration)
+                .newEmbeddedDatabaseBuilder(file);
+
+            String neo4jConfLocation = configuration.getNeo4jConfLocation();
+            if (neo4jConfLocation != null) {
+                URL neo4ConfUrl = ResourceUtils.getResourceUrl(neo4jConfLocation);
+                graphDatabaseBuilder = graphDatabaseBuilder.loadPropertiesFromURL(neo4ConfUrl);
             }
+
+            this.graphDatabaseService = graphDatabaseBuilder.newGraphDatabase();
         } catch (Exception e) {
             throw new ConnectionException("Error connecting to embedded graph", e);
         }
     }
 
-    private void setHAGraphDatabase(File file, URL propertiesFileURL) {
-        graphDatabaseService = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(file)
-            .loadPropertiesFromURL(propertiesFileURL).newGraphDatabase();
+    /**
+     * Creates an instance of a {@code HighlyAvailableGraphDatabaseFactory} if requested by the config. Otherwise just
+     * a standard one.
+     *
+     * @param configuration
+     * @return
+     * @throws Exception all the exceptions that might happen during dynamic construction of things.
+     */
+    private static GraphDatabaseFactory getGraphDatabaseFactory(Configuration configuration) throws Exception {
+
+        GraphDatabaseFactory graphDatabaseFactory;
+        if (!configuration.isEmbeddedHA()) {
+            graphDatabaseFactory = new GraphDatabaseFactory();
+        } else {
+            String classnameOfHaFactory = "org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory";
+            Class<GraphDatabaseFactory> haFactoryClass = (Class<GraphDatabaseFactory>) Class
+                .forName(classnameOfHaFactory);
+            graphDatabaseFactory = haFactoryClass.getDeclaredConstructor().newInstance();
+        }
+
+        return graphDatabaseFactory;
     }
 
-    private void setGraphDatabase(File file) {
-        graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file);
+    @Override
+    protected String getTypeSystemName() {
+        return "org.neo4j.ogm.drivers.embedded.types.EmbeddedNativeTypes";
     }
 
     @Override
@@ -150,21 +174,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     @Override
     public Request request() {
         return new EmbeddedRequest(graphDatabaseService, transactionManager,
-            getParameterConversion(), getCypherModification());
-    }
-
-    private ParameterConversion getParameterConversion() {
-
-        ParameterConversionMode mode = (ParameterConversionMode) customPropertiesSupplier.get()
-            .getOrDefault(ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE, CONVERT_ALL);
-        switch (mode) {
-            case CONVERT_ALL:
-                return AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
-            case CONVERT_NON_NATIVE_ONLY:
-                return EmbeddedBasedParameterConversion.INSTANCE;
-            default:
-                throw new IllegalStateException("Unsupported conversion mode: " + mode.name() + " for Bolt-Transport.");
-        }
+            parameterConversion, new EmbeddedEntityAdapter(typeSystem), getCypherModification());
     }
 
     private org.neo4j.graphdb.Transaction nativeTransaction() {
@@ -199,7 +209,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                 close();
                 try {
                     logger.warn("Deleting temporary file store: " + databaseUriValue);
-                    FileUtils.deleteDirectory(path.toFile());
+                    deleteDirectory(path);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to delete temporary files in " + databaseUriValue, e);
                 }

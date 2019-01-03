@@ -20,8 +20,146 @@
 
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
+    <version>3.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <version>3.1.4-SNAPSHOT</version>
+
+    <name>Neo4j Object-Graph Mapper</name>
+    <description>Annotation based Object Graph Mapper for Neo4j Server with Repository and Conversion support
+    </description>
+    <url>https://neo4j.com/developer/neo4j-ogm</url>
+    <inceptionYear>2015</inceptionYear>
+    <organization>
+        <name>Neo Technology, Inc.</name>
+        <url>http://neotechnology.com/</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>gmeier</id>
+            <name>Gerrit Meier</name>
+            <email>gerrit.meier at neo4j.com</email>
+            <organization>Neo Technology</organization>
+            <organizationUrl>http://www.neotechnology.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>msimons</id>
+            <name>Michael Simons</name>
+            <email>michael.simons at neo4j.com</email>
+            <organization>Neo Technology</organization>
+            <organizationUrl>http://www.neotechnology.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>lwesthnielsen</id>
+            <name>Lasse Westh-Nielsen</name>
+            <email>lasse.westh-nielsen at neo4j.com</email>
+            <organization>Neo Technology</organization>
+            <organizationUrl>http://www.neotechnology.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>jjaderberg</id>
+            <name>Jonatan Jäderberg</name>
+            <email>jonatan.jaderberg at neo4j.com</email>
+            <organization>Neo Technology</organization>
+            <organizationUrl>http://www.neotechnology.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>vbickers</id>
+            <name>Vince Bickers</name>
+            <email>vince at graphaware.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>GMT</timezone>
+        </developer>
+        <developer>
+            <id>lmisquitta</id>
+            <name>Luanne Misquitta</name>
+            <email>luanne at graphaware.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+5:30</timezone>
+        </developer>
+        <developer>
+            <id>fhartman</id>
+            <name>František Hartman</name>
+            <email>frant.hartm at gmail.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>mangrish</id>
+            <name>Mark Angrish</name>
+            <email>mark at graphaware.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+11</timezone>
+        </developer>
+        <developer>
+            <id>nmervaillie</id>
+            <name>Nicolas Mervaillie</name>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>jasperblues</id>
+            <name>Jasper Blues</name>
+            <email>jasper at graphaware.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+        <developer>
+            <id>atg</id>
+            <name>Adam George</name>
+            <email>adam at graphaware.com</email>
+            <organization>GraphAware</organization>
+            <organizationUrl>http://www.graphaware.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>GMT</timezone>
+        </developer>
+    </developers>
 
     <modules>
         <module>api</module>
@@ -32,27 +170,54 @@
         <module>test</module>
     </modules>
 
+    <scm>
+        <url>http://github.com/neo4j/neo4j-ogm/</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/neo4j/neo4j-ogm/issues</url>
+    </issueManagement>
+
+
     <properties>
-        <!-- to be overridden in sub modules -->
-        <java-module-name></java-module-name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <commonslang>3.4</commonslang>
-        <commonsio>2.4</commonsio>
-        <jackson>2.7.1</jackson>
-        <httpclient>4.5.2</httpclient>
-        <junit>4.12</junit>
-        <assertj>3.8.0</assertj>
-        <slf4j>1.7.21</slf4j>
-        <logback>1.1.7</logback>
-        <mockito>2.2.29</mockito>
-        <!-- default for build, if no profiles invoked -->
-        <neo4j>3.4.8</neo4j>
-        <bolt>1.6.3</bolt>
+
+        <java-module-name></java-module-name> <!-- to be overridden in sub modules -->
+        <java.version>1.8</java.version>
+
+        <assertj.version>3.11.1</assertj.version>
+        <caffeine.version>2.6.2</caffeine.version>
+        <commons-codec.version>1.11</commons-codec.version>
+        <commons-lang3.version>3.8</commons-lang3.version>
+        <commons-logging.version>1.2</commons-logging.version>
+        <dropwizard-metrics.version>4.0.2</dropwizard-metrics.version>
         <fast.classpath.scanner>2.18.1</fast.classpath.scanner>
-        <ogm.properties>ogm-bolt.properties</ogm.properties>
+        <httpclient.version>4.5.2</httpclient.version>
+        <httpcore.version>4.4.10</httpcore.version>
+        <jackson.version>2.9.7</jackson.version>
+        <jline.version>2.14.3</jline.version>
+        <junit.version>4.12</junit.version>
+        <logback.version>1.2.3</logback.version>
+        <lucene.version>5.5.5</lucene.version>
+        <neo4j.version>3.4.11</neo4j.version>
         <neo4j.edition>enterprise</neo4j.edition>
+        <neo4j-java-driver.version>1.7.1</neo4j-java-driver.version>
+        <ogm.properties>ogm-bolt.properties</ogm.properties>
+        <maven-jar-plugin.version>3.0.1</maven-jar-plugin.version>
+        <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+        <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
+        <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
+        <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
+        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M2</maven-surefire-plugin.version>
+        <mockito.version>2.23.4</mockito.version>
+        <scala.version>2.11.12</scala.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <spotbugs.plugin.version>3.1.3</spotbugs.plugin.version>
+
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <dependencyManagement>
@@ -60,123 +225,113 @@
 
             <!--Compile and Runtime Dependencies -->
             <dependency>
-                <groupId>org.neo4j.driver</groupId>
-                <artifactId>neo4j-java-driver</artifactId>
-                <version>${bolt}</version>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson}</version>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jdk8</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>${httpclient}</version>
+                <version>${httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${httpcore.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4j}</version>
+                <version>${slf4j.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>${commonslang}</version>
+                <version>${commons-lang3.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commonsio}</version>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
             </dependency>
 
             <!--Testing  Dependencies -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>${junit}</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>${assertj}</version>
+                <version>${assertj.version}</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.neo4j.test</groupId>
                 <artifactId>neo4j-harness</artifactId>
-                <version>${neo4j}</version>
+                <version>${neo4j.version}</version>
                 <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.neo4j.test</groupId>
-                <artifactId>neo4j-harness-enterprise</artifactId>
-                <version>${neo4j}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-nop</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>${logback}</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback}</version>
+                <version>${logback.version}</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>${mockito}</version>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- Test harness pulls them in. -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons-logging.version}</version>
+            </dependency>
+
+            <!-- Used in Bolt-Transport and related. -->
+            <dependency>
+                <groupId>org.neo4j.driver</groupId>
+                <artifactId>neo4j-java-driver</artifactId>
+                <version>${neo4j-java-driver.version}</version>
             </dependency>
 
             <!-- Embedded Driver Dependencies -->
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j</artifactId>
-                <version>${neo4j}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.neo4j</groupId>
-                <artifactId>neo4j-cluster</artifactId>
-                <version>${neo4j}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.neo4j</groupId>
-                <artifactId>neo4j-ha</artifactId>
-                <version>${neo4j}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.neo4j</groupId>
-                <artifactId>neo4j-enterprise</artifactId>
-                <version>${neo4j}</version>
+                <version>${neo4j.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -187,6 +342,50 @@
                 <scope>compile</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-reflect</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.neo4j</groupId>
+                <artifactId>neo4j-kernel</artifactId>
+                <version>${neo4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.neo4j</groupId>
+                <artifactId>neo4j-graphdb-api</artifactId>
+                <version>${neo4j.version}</version>
+            </dependency>
+
+            <!-- Incorrectly exported by server -->
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-core</artifactId>
+                <version>${lucene.version}</version>
+            </dependency>
+
+            <!-- Needed by enterprise server, but comes in different flavors, too. -->
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${dropwizard-metrics.version}</version>
+            </dependency>
+
+            <!-- Come in through server and cypher -->
+            <dependency>
+                <groupId>jline</groupId>
+                <artifactId>jline</artifactId>
+                <version>${jline.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -194,8 +393,30 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <configuration>
+                            <rules>
+                                <DependencyConvergence/>
+                                <requireMavenVersion>
+                                    <version>3.5.4</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
+                <version>${maven-source-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -208,7 +429,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
+                <version>${maven-javadoc-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -222,24 +443,25 @@
                 See http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javadoc.html#BEJEFABE
                 -->
                 <configuration>
-                    <additionalparam>-Xdoclint:html</additionalparam>
-                    <additionalparam>-Xdoclint:syntax</additionalparam>
+                    <doclint>syntax</doclint>
+                    <doclint>html</doclint>
+                    <tags>
+                        <tag>
+                            <name>soundtrack</name>
+                            <placement>X</placement>
+                        </tag>
+                    </tags>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
+                <version>${maven-deploy-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <version>${maven-jar-plugin.version}</version>
                 <configuration>
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
@@ -259,7 +481,16 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven-site-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.plugin.version}</version>
+            </plugin>
         </plugins>
 
         <resources>
@@ -289,76 +520,55 @@
 
     </build>
 
-    <profiles>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.plugin.version}</version>
+            </plugin>
+        </plugins>
 
-        <profile>
-            <id>neo4j-3.1</id>
-            <properties>
-                <neo4j>3.1.9</neo4j>
-            </properties>
-        </profile>
+    </reporting>
+
+    <profiles>
 
         <profile>
             <id>neo4j-3.2</id>
             <properties>
-                <neo4j>3.2.12</neo4j>
+                <neo4j.version>3.2.13</neo4j.version>
             </properties>
         </profile>
 
         <profile>
             <id>neo4j-3.3</id>
             <properties>
-                <neo4j>3.3.7</neo4j>
+                <neo4j.version>3.3.9</neo4j.version>
             </properties>
         </profile>
 
         <profile>
             <id>neo4j-3.4</id>
             <properties>
-                <neo4j>3.4.8</neo4j>
+                <neo4j.version>3.4.11</neo4j.version>
             </properties>
+            <modules>
+                <module>native-types-test</module>
+                <module>embedded-native-types</module>
+                <module>bolt-native-types</module>
+            </modules>
         </profile>
 
         <profile>
             <id>neo4j-3.5</id>
             <properties>
-                <neo4j>3.5.0-beta01</neo4j>
+                <neo4j.version>3.5.1</neo4j.version>
             </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>org.neo4j.community</groupId>
-                    <artifactId>it-test-support</artifactId>
-                    <version>3.5.0-beta01</version>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>driver-1.4</id>
-            <properties>
-                <bolt>1.4.6</bolt>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>driver-1.5</id>
-            <properties>
-                <bolt>1.5.2</bolt>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>driver-1.6</id>
-            <properties>
-                <bolt>1.6.3</bolt>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>driver-1.7</id>
-            <properties>
-                <bolt>1.7.0-beta02</bolt>
-            </properties>
+            <modules>
+                <module>native-types-test</module>
+                <module>embedded-native-types</module>
+                <module>bolt-native-types</module>
+            </modules>
         </profile>
 
         <profile>
@@ -388,45 +598,6 @@
                 <ogm.properties>ogm-http.properties</ogm.properties>
             </properties>
         </profile>
-
     </profiles>
-
-    <!-- Stuff Maven Central needs -->
-    <name>Neo4j Object-Graph Mapper</name>
-    <description>Annotation based Object Graph Mapper for Neo4j Server with Repository and Conversion support
-    </description>
-    <organization>
-        <name>Neo Technology, Inc.</name>
-        <url>http://neotechnology.com/</url>
-    </organization>
-    <developers>
-        <developer>
-            <id>neo-technology</id>
-        </developer>
-    </developers>
-    <url>http://github.com/neo4j/neo4j-ogm/</url>
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <scm>
-        <url>http://github.com/neo4j/neo4j-ogm/</url>
-    </scm>
-
-    <distributionManagement>
-        <repository>
-            <id>jfrog-release</id>
-            <name>neo-releases</name>
-            <url>https://neo.jfrog.io/neo/ogm-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>jfrog-snapshots</id>
-            <name>neo-snapshots</name>
-            <url>https://neo.jfrog.io/neo/ogm-local</url>
-        </snapshotRepository>
-    </distributionManagement>
 
 </project>

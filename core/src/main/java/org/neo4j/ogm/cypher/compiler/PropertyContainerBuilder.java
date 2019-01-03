@@ -14,6 +14,7 @@
 package org.neo4j.ogm.cypher.compiler;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 
@@ -21,12 +22,17 @@ import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
  * Interface to abstract setting properties on nodes/relationship entities
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public interface PropertyContainerBuilder<T> {
 
+    Long reference();
+
     T addProperty(String key, Object value);
 
-    T addProperties(Map<String, ?> properties);
+    T addCompositeProperties(Map<String, ?> properties);
 
     T setVersionProperty(String name, Long version);
+
+    T setPreviousCompositeProperties(Set<String> previousCompositeProperties);
 }

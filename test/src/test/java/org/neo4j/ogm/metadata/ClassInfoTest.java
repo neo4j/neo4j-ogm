@@ -392,7 +392,7 @@ public class ClassInfoTest {
     public void testArrayFieldInfo() {
 
         ClassInfo classInfo = metaData.classInfo("Member");
-        FieldInfo fieldInfo = classInfo.fieldsInfo().get("nicknames");
+        FieldInfo fieldInfo = classInfo.getFieldInfo("nicknames");
         assertThat(fieldInfo.isScalar()).isFalse();
     }
 
@@ -400,32 +400,23 @@ public class ClassInfoTest {
     public void testScalarFieldInfo() {
 
         ClassInfo classInfo = metaData.classInfo("Member");
-        FieldInfo fieldInfo = classInfo.fieldsInfo().get("userName");
+        FieldInfo fieldInfo = classInfo.getFieldInfo("userName");
         assertThat(fieldInfo.isScalar()).isTrue();
     }
 
-    /**
-     * @see DATAGRAPH-615
-     */
-    @Test
+    @Test // see DATAGRAPH-615
     public void testDefaultLabelOfNodeEntities() {
         ClassInfo classInfo = metaData.classInfo("Forum");
         assertThat(classInfo.neo4jName()).isEqualTo("Forum");
     }
 
-    /**
-     * @see DATAGRAPH-615
-     */
-    @Test
+    @Test // see DATAGRAPH-615
     public void testDefaultLabelOfRelationshipEntities() {
         ClassInfo classInfo = metaData.classInfo("Nomination");
         assertThat(classInfo.neo4jName()).isEqualTo("NOMINATION");
     }
 
-    /**
-     * @see DATAGRAPH-690
-     */
-    @Test
+    @Test // see DATAGRAPH-690
     public void testTypeParameterDescriptorForRelationships() {
         ClassInfo classInfo = metaData.classInfo("Topic");
         assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", OUTGOING)).isEqualTo(Post.class);

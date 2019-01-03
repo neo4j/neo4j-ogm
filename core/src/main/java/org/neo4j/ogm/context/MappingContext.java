@@ -13,16 +13,11 @@
 
 package org.neo4j.ogm.context;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
@@ -93,7 +88,35 @@ public class MappingContext {
      * @return the entity or null if not found
      */
     public Object getNodeEntityById(ClassInfo classInfo, Object id) {
-        return primaryIndexNodeRegister.get(new LabelPrimaryId(classInfo, id));
+
+        // immediately return if the requests class cannot represent a node in the graph
+        if ((classInfo.isInterface() || classInfo.isAbstract())
+            && classInfo.annotationsInfo().get(NodeEntity.class) == null) {
+            return null;
+        }
+
+        // direct match
+        Object node = primaryIndexNodeRegister.get(new LabelPrimaryId(classInfo, id));
+        if (node != null) {
+            return node;
+        }
+
+        // the retrieved node is an implementation/extension of the abstract type / interface queried for.
+        Queue<ClassInfo> queue = new LinkedList<>(classInfo.directSubclasses());
+        while (!queue.isEmpty()) {
+
+            ClassInfo subClassInfo = queue.poll();
+
+            node = primaryIndexNodeRegister.get(new LabelPrimaryId(subClassInfo, id));
+            if (node != null) {
+                return node;
+            }
+
+            List<ClassInfo> deepSubClassInfos = subClassInfo.directSubclasses();
+            queue.addAll(deepSubClassInfos);
+        }
+
+        return null;
     }
 
     /**
@@ -117,25 +140,18 @@ public class MappingContext {
 
         ClassInfo classInfo = metaData.classInfo(entity);
 
-        if (nodeEntityRegister.putIfAbsent(id, entity) == null) {
-            remember(entity);
-            final FieldInfo primaryIndexField = classInfo
-                .primaryIndexField(); // also need to add the class to key to prevent collisions.
-            if (primaryIndexField != null) {
-                final Object primaryIndexValue = primaryIndexField.read(entity);
-                if (primaryIndexValue != null) {
-                    LabelPrimaryId key = new LabelPrimaryId(classInfo, primaryIndexValue);
-                    primaryIndexNodeRegister.putIfAbsent(key, entity);
-                    primaryIdToNativeId.put(key, id);
-                }
+        if (!nodeEntityRegister.containsKey(id)) {
+            nodeEntityRegister.put(id, entity);
+            final Object primaryIndexValue = classInfo.readPrimaryIndexValueOf(entity);
+            if (primaryIndexValue != null) {
+                LabelPrimaryId key = new LabelPrimaryId(classInfo, primaryIndexValue);
+                primaryIndexNodeRegister.putIfAbsent(key, entity);
+                primaryIdToNativeId.put(key, id);
             }
+            remember(entity, id);
         }
 
         return entity;
-    }
-
-    boolean removeRelationship(MappedRelationship mappedRelationship) {
-        return relationshipRegister.remove(mappedRelationship);
     }
 
     /**
@@ -151,14 +167,10 @@ public class MappingContext {
         Long id = nativeId(entity);
 
         nodeEntityRegister.remove(id);
-        final ClassInfo primaryIndexClassInfo = metaData.classInfo(entity);
-        final FieldInfo primaryIndexField = primaryIndexClassInfo
-            .primaryIndexField(); // also need to add the class to key to prevent collisions.
-        if (primaryIndexField != null) {
-            final Object primaryIndexValue = primaryIndexField.read(entity);
-            if (primaryIndexValue != null) {
-                primaryIndexNodeRegister.remove(new LabelPrimaryId(primaryIndexClassInfo, primaryIndexValue));
-            }
+        final ClassInfo classInfo = metaData.classInfo(entity);
+        final Object primaryIndexValue = classInfo.readPrimaryIndexValueOf(entity);
+        if (primaryIndexValue != null) {
+            primaryIndexNodeRegister.remove(new LabelPrimaryId(classInfo, primaryIndexValue));
         }
 
         if (deregisterDependentRelationshipEntity) {
@@ -171,7 +183,8 @@ public class MappingContext {
 
         ClassInfo classInfo = metaData.classInfo(entity);
         if (classInfo.hasPrimaryIndexField()) {
-            LabelPrimaryId key = new LabelPrimaryId(classInfo, classInfo.primaryIndexField().readProperty(entity));
+            final Object primaryIndexValue = classInfo.readPrimaryIndexValueOf(entity);
+            LabelPrimaryId key = new LabelPrimaryId(classInfo, primaryIndexValue);
             primaryIdToNativeId.put(key, identity);
         }
 
@@ -182,10 +195,9 @@ public class MappingContext {
     public void replaceRelationshipEntity(Object entity, Long id) {
         relationshipEntityRegister.remove(id);
         ClassInfo classInfo = metaData.classInfo(entity);
-        FieldInfo primaryIndexField = classInfo.primaryIndexField();
-        if (primaryIndexField != null) {
-            Object primaryId = primaryIndexField.read(entity);
-            LabelPrimaryId labelPrimaryId = new LabelPrimaryId(classInfo, primaryId);
+        if (classInfo.hasPrimaryIndexField()) {
+            final Object primaryIndexValue = classInfo.readPrimaryIndexValueOf(entity);
+            LabelPrimaryId labelPrimaryId = new LabelPrimaryId(classInfo, primaryIndexValue);
             primaryIdToRelationship.remove(labelPrimaryId);
             primaryIdToNativeId.remove(labelPrimaryId);
         }
@@ -223,14 +235,13 @@ public class MappingContext {
     }
 
     /**
-     * Return dynamic label information about the entity (@Labels). History contains a snapshot of labels the entity had
-     * when registered in the context, and the current labels.
+     * Gets the initial snapshot of the objects dynamic labels and properties as stored during initial load of the entity.
      *
-     * @param entity The entity to inspect
-     * @return The label information
+     * @param entity The entity for which a snapshot is to be retrieved
+     * @return The snapshot or an empty optional if there's no such snapshot.
      */
-    LabelHistory labelHistory(Object entity) {
-        return identityMap.labelHistory(entity, nativeId(entity));
+    Optional<EntitySnapshot> getSnapshotOf(Object entity) {
+        return identityMap.getSnapshotOf(entity, nativeId(entity));
     }
 
     /**
@@ -290,14 +301,13 @@ public class MappingContext {
 
         if (relationshipEntityRegister.putIfAbsent(id, relationshipEntity) == null) {
             relationshipEntity = relationshipEntityRegister.get(id);
-            remember(relationshipEntity);
+            remember(relationshipEntity, id);
 
             ClassInfo classInfo = metaData.classInfo(relationshipEntity);
-            FieldInfo primaryIdField = classInfo.primaryIndexField();
-            if (primaryIdField != null) {
-                Object primaryId = primaryIdField.read(relationshipEntity);
-                primaryIdToRelationship.put(new LabelPrimaryId(classInfo, primaryId), relationshipEntity);
-                primaryIdToNativeId.put(new LabelPrimaryId(classInfo, primaryId), id);
+            if (classInfo.hasPrimaryIndexField()) {
+                final Object primaryIndexValue = classInfo.readPrimaryIndexValueOf(relationshipEntity);
+                primaryIdToRelationship.put(new LabelPrimaryId(classInfo, primaryIndexValue), relationshipEntity);
+                primaryIdToNativeId.put(new LabelPrimaryId(classInfo, primaryIndexValue), id);
             }
         }
         return relationshipEntity;
@@ -488,8 +498,8 @@ public class MappingContext {
         }
     }
 
-    private void remember(Object entity) {
-        identityMap.remember(entity, nativeId(entity));
+    private void remember(Object entity, Long id) {
+        identityMap.remember(entity, id);
     }
 
     public Long nativeId(Object entity) {
@@ -504,13 +514,12 @@ public class MappingContext {
         if (classInfo.hasIdentityField()) {
             return EntityUtils.identity(entity, metaData);
         } else {
-            FieldInfo fieldInfo = classInfo.primaryIndexField();
-            Object primaryId = fieldInfo.readProperty(entity);
-
-            if (primaryId == null) {
+            final Object primaryIndexValue = classInfo.readPrimaryIndexValueOf(entity);
+            if (primaryIndexValue == null) {
                 throw new MappingException("Field with primary id is null for entity " + entity);
             }
-            LabelPrimaryId key = new LabelPrimaryId(classInfo, primaryId);
+
+            LabelPrimaryId key = new LabelPrimaryId(classInfo, primaryIndexValue);
             Long graphId = primaryIdToNativeId.get(key);
             if (graphId == null) {
                 graphId = EntityUtils.nextRef();
@@ -520,7 +529,7 @@ public class MappingContext {
         }
     }
 
-    private void generateIdIfNecessary(Object entity, ClassInfo classInfo) {
+    private static void generateIdIfNecessary(Object entity, ClassInfo classInfo) {
         if (classInfo.idStrategyClass() == null || InternalIdStrategy.class.equals(classInfo.idStrategyClass())) {
             return;
         }
@@ -531,7 +540,7 @@ public class MappingContext {
                 "with SessionFactory");
         }
         FieldInfo primaryIndexField = classInfo.primaryIndexField();
-        Object existingUuid = primaryIndexField.read(entity);
+        Object existingUuid = classInfo.readPrimaryIndexValueOf(entity);
         if (existingUuid == null) {
             IdStrategy strategy = classInfo.idStrategy();
             Object id = strategy.generateId(entity);

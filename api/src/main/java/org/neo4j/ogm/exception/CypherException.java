@@ -16,20 +16,30 @@ package org.neo4j.ogm.exception;
  * An exception raised when executing a Cypher query
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class CypherException extends RuntimeException {
 
     private final String code;
     private final String description;
 
-    public CypherException(String message, Throwable cause, String code, String description) {
-        super(message + "; Code: " + code + "; Description: " + description, cause);
-        this.code = code;
-        this.description = description;
+    /**
+     * @param code
+     * @param description
+     * @since 3.1.6
+     */
+    public CypherException(String code, String description) {
+        this(code, description, null);
     }
 
-    public CypherException(String message, String code, String description) {
-        super(message + "; Code: " + code + "; Description: " + description);
+    /**
+     * @param code        Error code / text as returned by the database.
+     * @param description Description as returned by the database.
+     * @param cause       The root cause.
+     * @since 3.1.6
+     */
+    public CypherException(String code, String description, Throwable cause) {
+        super(String.format("Cypher execution failed with code '%s': %s.", code, description), cause);
         this.code = code;
         this.description = description;
     }

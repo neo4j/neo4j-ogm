@@ -18,11 +18,15 @@
     <parent>
         <artifactId>neo4j-ogm</artifactId>
         <groupId>org.neo4j</groupId>
-        <version>3.1.4-SNAPSHOT</version>
+        <version>3.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>neo4j-ogm-embedded-driver</artifactId>
+
+    <name>Neo4j-OGM Embedded transport</name>
+    <description>Neo4j-OGM transport interacts with an embedded Neo4j instance.</description>
+    <url>https://neo4j.com/developer/neo4j-ogm</url>
 
     <properties>
         <java-module-name>org.neo4j.ogm.drivers.embedded</java-module-name>
@@ -32,13 +36,13 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-api</artifactId>
-            <version>3.1.4-SNAPSHOT</version>
+            <version>3.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-core</artifactId>
-            <version>3.1.4-SNAPSHOT</version>
+            <version>3.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -49,28 +53,8 @@
         <dependency>
             <groupId>org.neo4j.app</groupId>
             <artifactId>neo4j-server</artifactId>
-            <version>${neo4j}</version>
+            <version>${neo4j.version}</version>
             <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-cluster</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ha</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-enterprise</artifactId>
         </dependency>
 
         <dependency>
@@ -78,6 +62,52 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>neo4j-enterprise</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-cluster</artifactId>
+                    <version>${neo4j.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-enterprise</artifactId>
+                    <version>${neo4j.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-ha</artifactId>
+                    <version>${neo4j.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>neo4j-3.5-enterprise</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.neo4j</groupId>
+                    <artifactId>neo4j-enterprise</artifactId>
+                    <version>${neo4j.version}</version>
+                    <scope>provided</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-nop</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

@@ -16,16 +16,17 @@ package org.neo4j.ogm.config;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 /**
  * @author vince
+ * @author Michael J. Simons
  */
 public class ConfigurationTest {
 
@@ -85,6 +86,8 @@ public class ConfigurationTest {
         assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
         assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
+        assertThat(configuration.getBasePackages()).isEqualTo(new String[] {"org.neo4j.ogm.domain.bike"});
+        assertThat(configuration.getUseNativeTypes()).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -116,9 +119,8 @@ public class ConfigurationTest {
             // Copy ogm-simple to temp file - the file is only inside jar on TeamCity, we need regular file
 
             File tempFile = File.createTempFile("ogm-simple", ".properties");
-            try (InputStream in = ConfigurationTest.class.getResourceAsStream("/ogm-simple.properties");
-                OutputStream out = new FileOutputStream(tempFile)) {
-                IOUtils.copy(in, out);
+            try (InputStream in = ConfigurationTest.class.getResourceAsStream("/ogm-simple.properties")) {
+                Files.copy(in, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 tempFile.deleteOnExit();
             }
             return tempFile.getPath();
@@ -216,5 +218,65 @@ public class ConfigurationTest {
         assertThat(configuration.getDriverClassName())
             .isEqualTo("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
         assertThat(configuration.getURI()).isEqualTo("FILE:///somewhere");
+    }
+
+    @Test
+    public void shouldParseBaseBackagesWithEmtpyValue() {
+        Properties properties = new Properties();
+        properties.setProperty("base-packages", "");
+
+        Configuration configuration = new Configuration.Builder(() -> properties).build();
+        assertThat(configuration.getBasePackages())
+            .isNotNull()
+            .isEmpty();
+    }
+
+    @Test
+    public void shouldParseBaseBackages() {
+        Properties properties = new Properties();
+        properties.setProperty("base-packages", "a  ,b,c ");
+
+        Configuration configuration = new Configuration.Builder(() -> properties).build();
+        assertThat(configuration.getBasePackages())
+            .isNotNull()
+            .containsExactlyInAnyOrder("a", "b", "c");
+    }
+
+    @Test
+    public void mergeBasePackagesShouldWorkWithNullBase() {
+        Configuration configuration = new Configuration.Builder().build();
+
+        String[] basePackages = configuration.mergeBasePackagesWith("a", "b");
+        assertThat(basePackages).containsExactlyInAnyOrder("a", "b");
+    }
+
+    @Test
+    public void mergeBasePackagesShouldWorkWithEmptyAdditionalPackages() {
+        Configuration configuration = new Configuration.Builder()
+            .withBasePackages("a", "b")
+            .build();
+
+        String[] basePackages = configuration.mergeBasePackagesWith();
+        assertThat(basePackages).containsExactlyInAnyOrder("a", "b");
+    }
+
+    @Test
+    public void mergeBasePackagesShouldWorkDealWithNulls() {
+        Configuration configuration = new Configuration.Builder()
+            .withBasePackages("a", null, "b")
+            .build();
+
+        String[] basePackages = configuration.mergeBasePackagesWith(null, "c");
+        assertThat(basePackages).containsExactlyInAnyOrder("a", "b", "c");
+    }
+
+    @Test
+    public void mergeBasePackagesShouldRemoveDups() {
+        Configuration configuration = new Configuration.Builder()
+            .withBasePackages("a", "b")
+            .build();
+
+        String[] basePackages = configuration.mergeBasePackagesWith("A", "B", "a");
+        assertThat(basePackages).containsExactlyInAnyOrder("A", "B", "a", "b");
     }
 }

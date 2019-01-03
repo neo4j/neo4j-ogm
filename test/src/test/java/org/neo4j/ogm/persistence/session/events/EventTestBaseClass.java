@@ -132,9 +132,9 @@ public abstract class EventTestBaseClass extends MultiDriverTestClass {
 
     static class TestEventListener implements EventListener {
 
-        public List<Event> eventsCaptured;
+        List<Event> eventsCaptured;
 
-        public TestEventListener() {
+        TestEventListener() {
             eventsCaptured = new ArrayList<>();
         }
 

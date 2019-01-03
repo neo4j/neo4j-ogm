@@ -1,7 +1,7 @@
 [[reference:events]]
 = Events
 
-Neo4j OGM supports persistence events.
+Neo4j-OGM supports persistence events.
 This section describes how to intercept update and delete events.
 
 You may also check the `@PostLoad` annotation which is described <<reference:annotating-entities:postload, here>>.
@@ -160,7 +160,7 @@ If you're done with an EventListener you can stop it from firing any more events
 [NOTE]
 ====
 The process of collecting persistence events prior to dispatching them to any EventListeners adds a small performance overhead to the persistence layer.
-Consequently, the OGM is configured to suppress the event collection phase if there are no EventListeners registered with the Session.
+Consequently, Neo4j-OGM is configured to suppress the event collection phase if there are no EventListeners registered with the Session.
 Using `dispose()` when you're finished with an EventListener is good practice!
 ====
 
@@ -273,7 +273,8 @@ session.save(folder);
 session.delete(a);
 ----
 
-<1> Note that the `folder` events are `_SAVE` events, not `_DELETE` events. The `folder` was not deleted.
+<1> Note that the `folder` events are `_SAVE` events, not `_DELETE` events.
+The `folder` was not deleted.
 
 [WARNING]
 ====

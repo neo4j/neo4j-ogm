@@ -41,7 +41,7 @@ public class SingleIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestCla
     }
 
     @Test
-    public void testAutoIndexManagerUpdateConstraintChangedToIndex() throws Exception {
+    public void testAutoIndexManagerUpdateConstraintChangedToIndex() {
         executeCreate(CONSTRAINT);
 
         runAutoIndex("update");

@@ -22,6 +22,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.QueryExecutionException;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.driver.ParameterConversion;
+import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
 import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RestModelResponse;
@@ -55,18 +56,22 @@ public class EmbeddedRequest implements Request {
 
     private final GraphDatabaseService graphDatabaseService;
     private final TransactionManager transactionManager;
+
     private final ParameterConversion parameterConversion;
+
+    private final EmbeddedEntityAdapter entityAdapter;
 
     private final Function<String, String> cypherModification;
 
     public EmbeddedRequest(GraphDatabaseService graphDatabaseService,
         TransactionManager transactionManager,
-        ParameterConversion parameterConversion,
+        ParameterConversion parameterConversion, EmbeddedEntityAdapter entityAdapter,
         Function<String, String> cypherModification
     ) {
         this.graphDatabaseService = graphDatabaseService;
         this.transactionManager = transactionManager;
         this.parameterConversion = parameterConversion;
+        this.entityAdapter = entityAdapter;
         this.cypherModification = cypherModification;
     }
 
@@ -75,7 +80,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphModelResponse(executeRequest(request), transactionManager);
+        return new GraphModelResponse(executeRequest(request), transactionManager, entityAdapter);
     }
 
     @Override
@@ -83,7 +88,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RowModelResponse(executeRequest(request), transactionManager);
+        return new RowModelResponse(executeRequest(request), transactionManager, entityAdapter);
     }
 
     @Override
@@ -96,7 +101,7 @@ public class EmbeddedRequest implements Request {
             if (columns == null) {
                 columns = result.columns().toArray(new String[result.columns().size()]);
             }
-            RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager);
+            RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager, entityAdapter);
             RowModel model;
             while ((model = rowModelResponse.next()) != null) {
                 rowmodels.add(model);
@@ -135,7 +140,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphRowModelResponse(executeRequest(request), transactionManager);
+        return new GraphRowModelResponse(executeRequest(request), transactionManager, entityAdapter);
     }
 
     @Override
@@ -143,21 +148,21 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RestModelResponse(executeRequest(request), transactionManager);
+        return new RestModelResponse(executeRequest(request), transactionManager, entityAdapter);
     }
 
     private Result executeRequest(Statement request) {
 
         try {
-            Map<String, Object> parameterMap = parameterConversion.convertParameters(request.getParameters());
+            Map<String, Object> parameterMap = this.parameterConversion.convertParameters(request.getParameters());
             String cypher = cypherModification.apply(request.getStatement());
-            if(LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Request: {} with params {}", cypher, parameterMap);
             }
 
             return graphDatabaseService.execute(cypher, parameterMap);
         } catch (QueryExecutionException qee) {
-            throw new CypherException("Error executing Cypher", qee, qee.getStatusCode(), qee.getMessage());
+            throw new CypherException(qee.getStatusCode(), qee.getMessage(), qee);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

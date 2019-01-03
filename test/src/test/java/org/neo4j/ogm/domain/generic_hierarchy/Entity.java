@@ -79,4 +79,15 @@ public abstract class Entity {
         this.labels = labels;
     }
 
+    public void addLabel(Object... labels) {
+        for (Object label : labels) {
+            this.labels.add(label.toString());
+        }
+    }
+
+    public void removeLabel(Object... labels) {
+        for (Object label : labels) {
+            this.labels.remove(label.toString());
+        }
+    }
 }

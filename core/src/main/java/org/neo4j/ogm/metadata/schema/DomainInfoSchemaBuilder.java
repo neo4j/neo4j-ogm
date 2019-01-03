@@ -57,7 +57,7 @@ public class DomainInfoSchemaBuilder {
         for (ClassInfo classInfo : classInfoMap.values()) {
             if (!classInfo.isRelationshipEntity()) {
                 String label = classInfo.neo4jName();
-                NodeImpl node = new NodeImpl(classInfo.neo4jName(), classInfo.staticLabels());
+                NodeImpl node = new NodeImpl(label, classInfo.staticLabels());
 
                 schema.addNode(label, node);
             }

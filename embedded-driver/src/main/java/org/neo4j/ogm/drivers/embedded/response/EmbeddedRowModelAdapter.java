@@ -13,16 +13,22 @@
 
 package org.neo4j.ogm.drivers.embedded.response;
 
+import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
 import org.neo4j.ogm.result.adapter.RowModelAdapter;
 
 /**
  * This adapter will transform an embedded response into a json response
  *
  * @author vince
+ * @author Michael J. Simons
  */
 public class EmbeddedRowModelAdapter extends RowModelAdapter {
 
-    private EmbeddedEntityAdapter entityAdapter = new EmbeddedEntityAdapter();
+    private final EmbeddedEntityAdapter entityAdapter;
+
+    public EmbeddedRowModelAdapter(EmbeddedEntityAdapter entityAdapter) {
+        this.entityAdapter = entityAdapter;
+    }
 
     @Override
     public boolean isPath(Object value) {

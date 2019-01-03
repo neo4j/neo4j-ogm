@@ -15,9 +15,11 @@ package org.neo4j.ogm.autoindex;
 import static java.util.Collections.*;
 import static org.neo4j.ogm.transaction.Transaction.Type.*;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -67,20 +69,10 @@ public class AutoIndexManager {
     }
 
     /**
-     * @return The list of automatic indexes.
-     * @deprecated since 3.1.3, will be removed in 3.1.4 as the list of automatic indexes is not meant to be mutated.
+     * Runs the auto index manager. Depending on the configured mode it either asserts, updates, validates or dumps
+     * indexes. Does nothing in all other cases.
      */
-    @Deprecated
-    List<AutoIndex> getIndexes() {
-        return indexes;
-    }
-
-    /**
-     * Builds indexes according to the configured mode.
-     * @deprecated since 3.1.3, use {@link #run()}  instead.
-     */
-    @Deprecated
-    public void build() {
+    public void run() {
         switch (this.mode) {
             case ASSERT:
                 assertIndexes();
@@ -96,43 +88,26 @@ public class AutoIndexManager {
 
             case DUMP:
                 dumpIndexes();
+                break;
+
             default:
         }
     }
 
-    /**
-     * Runs the auto index manager. Depending on the configured mode it either asserts, updates, validates or dumps
-     * indexes. Does nothing in all other cases.
-     */
-    public void run() {
-        this.build();
-    }
-
     private void dumpIndexes() {
 
-        final String newLine = System.lineSeparator();
-
-        StringBuilder sb = new StringBuilder();
+        List<String> dumpContent = new ArrayList<>();
         for (AutoIndex index : indexes) {
-            sb.append(index.getCreateStatement().getStatement()).append(newLine);
+            dumpContent.add(index.getCreateStatement().getStatement());
         }
 
-        File file = new File(this.dumpDir, this.dumpFilename);
-        FileWriter writer = null;
-
-        LOGGER.debug("Dumping Indexes to: [{}]", file.toString());
+        Path dumpPath = Paths.get(this.dumpDir, this.dumpFilename);
+        LOGGER.debug("Dumping Indexes to: [{}]", dumpPath.toAbsolutePath());
 
         try {
-            writer = new FileWriter(file);
-            writer.write(sb.toString());
+            Files.write(dumpPath, dumpContent, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new RuntimeException("Could not write file to " + file.getAbsolutePath(), e);
-        } finally {
-            if (writer != null)
-                try {
-                    writer.close();
-                } catch (IOException ignore) {
-                }
+            throw new RuntimeException("Could not write file to " + dumpPath.toAbsolutePath(), e);
         }
     }
 
@@ -235,7 +210,9 @@ public class AutoIndexManager {
         List<Statement> procedures = new ArrayList<>();
 
         procedures.add(new RowDataStatement("CALL db.constraints()", emptyMap()));
-        procedures.add(new RowDataStatement("call db.indexes() yield description, type with description, type where type <> 'node_unique_property' return description" , emptyMap()));
+        procedures.add(new RowDataStatement(
+            "CALL db.indexes() YIELD description, type WITH description, type WHERE type <> 'node_unique_property' RETURN description",
+            emptyMap()));
 
         DefaultRequest getIndexesRequest = new DefaultRequest();
         getIndexesRequest.setStatements(procedures);
@@ -243,22 +220,20 @@ public class AutoIndexManager {
     }
 
     private void create() {
+
         // build indexes according to metadata
         List<Statement> statements = new ArrayList<>();
         for (AutoIndex index : indexes) {
             final Statement createStatement = index.getCreateStatement();
-            LOGGER.debug("[{}] added to create statements.", createStatement);
             statements.add(createStatement);
+
+            LOGGER.debug("[{}] added to create statements.", createStatement);
         }
+
+        LOGGER.debug("Creating indexes and constraints.");
         DefaultRequest request = new DefaultRequest();
         request.setStatements(statements);
-        LOGGER.debug("Creating indexes and constraints.");
-
-        session.doInTransaction(() -> {
-            try (Response<RowModel> response = session.requestHandler().execute(request)) {
-                // Success
-            }
-        }, READ_WRITE);
+        session.doInTransaction(() -> session.requestHandler().execute(request).close(), READ_WRITE);
     }
 
     private static List<AutoIndex> initialiseAutoIndex(MetaData metaData) {

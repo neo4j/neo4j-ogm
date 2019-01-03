@@ -57,12 +57,12 @@ public class ExistingNodeStatementBuilder extends BaseBuilder implements CypherS
                 appendVersionPropertyCheck(queryBuilder, firstNode, "n");
             }
 
-            String[] removedLabels = firstNode.getRemovedLabels();
-            if (removedLabels != null && removedLabels.length > 0) {
-                for (String label : removedLabels) {
-                    queryBuilder.append(String.format(" REMOVE n:`%s` ", label));
-                }
+            Set<String> previousDynamicLabels = firstNode.getPreviousDynamicLabels();
+            for (String label : previousDynamicLabels) {
+                queryBuilder.append(String.format(" REMOVE n:`%s` ", label));
             }
+
+            queryBuilder.append(firstNode.createPropertyRemovalFragment("n"));
 
             queryBuilder.append("SET n");
             for (String label : firstNode.getLabels()) {

@@ -14,13 +14,12 @@ package org.neo4j.ogm.session.delegates;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.WriteProtectionTarget;
-import org.neo4j.ogm.cypher.compiler.CompileContext;
-import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.WriteProtectionStrategy;
 import org.neo4j.ogm.session.request.RequestExecutor;
@@ -51,73 +50,61 @@ public class SaveDelegate extends SessionDelegate {
         SaveEventDelegate eventsDelegate = new SaveEventDelegate(session);
 
         EntityGraphMapper entityGraphMapper = new EntityGraphMapper(session.metaData(), session.context());
-        if(this.writeProtectionStrategy != null) {
+        if (this.writeProtectionStrategy != null) {
             entityGraphMapper.addWriteProtection(this.writeProtectionStrategy.get());
         }
 
-        if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
-            Iterable<T> objects;
-            if (object.getClass().isArray()) {
-                int length = Array.getLength(object);
-                List<T> copy = new ArrayList<>(length);
-                for (int i = 0; i < length; i++) {
-                    T arrayElement = (T) Array.get(object, i);
-                    copy.add(arrayElement);
-                }
-                objects = copy;
-            } else {
-                objects = (Iterable<T>) object;
+        Iterable<T> objects;
+        if (object.getClass().isArray()) {
+            int length = Array.getLength(object);
+            List<T> copy = new ArrayList<>(length);
+            for (int i = 0; i < length; i++) {
+                T arrayElement = (T) Array.get(object, i);
+                copy.add(arrayElement);
             }
-
-            for (Object element : objects) {
-                if (session.eventsEnabled()) {
-                    eventsDelegate.preSave(object);
-                }
-                entityGraphMapper.map(element, depth);
-            }
-            requestExecutor.executeSave(entityGraphMapper.compileContext());
-            if (session.eventsEnabled()) {
-                eventsDelegate.postSave();
-            }
+            objects = copy;
+        } else if (Iterable.class.isAssignableFrom(object.getClass())) {
+            objects = (Iterable<T>) object;
+        } else if (session.metaData().classInfo(object) != null) {
+            objects = Collections.singletonList(object);
         } else {
-            ClassInfo classInfo = session.metaData().classInfo(object);
-            if (classInfo != null) {
+            throw new IllegalArgumentException("Class " + object.getClass() + " is not a valid entity class. "
+                + "Please check the entity mapping.");
+        }
 
-                if (session.eventsEnabled()) {
-                    eventsDelegate.preSave(object);
-                }
-
-                CompileContext context = entityGraphMapper.map(object, depth);
-                requestExecutor.executeSave(context);
-
-                if (session.eventsEnabled()) {
-                    eventsDelegate.postSave();
-                }
-            } else {
-                throw new IllegalArgumentException("Class " + object.getClass() + " is not a valid entity class. "
-                    + "Please check the entity mapping.");
-            }
+        if (session.eventsEnabled()) {
+            objects.forEach(item -> {
+                eventsDelegate.preSave(item);
+                entityGraphMapper.map(item, depth);
+            });
+            requestExecutor.executeSave(entityGraphMapper.compileContext());
+            eventsDelegate.postSave();
+        } else {
+            objects.forEach(item -> entityGraphMapper.map(item, depth));
+            requestExecutor.executeSave(entityGraphMapper.compileContext());
         }
     }
 
     public void addWriteProtection(WriteProtectionTarget target, Predicate<Object> protection) {
-        if(this.writeProtectionStrategy == null) {
+        if (this.writeProtectionStrategy == null) {
             this.writeProtectionStrategy = new DefaultWriteProtectionStrategyImpl();
-        } else if(!(this.writeProtectionStrategy instanceof DefaultWriteProtectionStrategyImpl)) {
-            throw new IllegalStateException("Cannot register simple write protection for a mode on a custom strategy. Use #setWriteProtectionStrategy(null) to remove any custom strategy.");
+        } else if (!(this.writeProtectionStrategy instanceof DefaultWriteProtectionStrategyImpl)) {
+            throw new IllegalStateException(
+                "Cannot register simple write protection for a mode on a custom strategy. Use #setWriteProtectionStrategy(null) to remove any custom strategy.");
         }
 
-        ((DefaultWriteProtectionStrategyImpl)this.writeProtectionStrategy).addProtection(target, protection);
+        ((DefaultWriteProtectionStrategyImpl) this.writeProtectionStrategy).addProtection(target, protection);
     }
 
     public void removeWriteProtection(WriteProtectionTarget target) {
-        if(this.writeProtectionStrategy == null || !(this.writeProtectionStrategy instanceof DefaultWriteProtectionStrategyImpl)) {
+        if (this.writeProtectionStrategy == null
+            || !(this.writeProtectionStrategy instanceof DefaultWriteProtectionStrategyImpl)) {
             return;
         }
 
         final DefaultWriteProtectionStrategyImpl writeProtectionStrategy = (DefaultWriteProtectionStrategyImpl) this.writeProtectionStrategy;
         writeProtectionStrategy.removeProtection(target);
-        if(writeProtectionStrategy.isEmpty()) {
+        if (writeProtectionStrategy.isEmpty()) {
             this.writeProtectionStrategy = null;
         }
     }

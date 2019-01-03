@@ -44,6 +44,10 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
 
     protected abstract String[] getResponse();
 
+    protected String[] getResponse(String query) {
+        return getResponse();
+    }
+
     @Override
     public void close() {
         throw new RuntimeException("not implemented");
@@ -54,31 +58,39 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
         throw new RuntimeException("not implemented");
     }
 
+    static class Holder {
+        final String[] json;
+
+        private int count = 0;
+
+        public Holder(String[] json) {
+            this.json = json;
+        }
+
+        private String nextRecord() {
+            if (count < json.length) {
+                String r = json[count];
+                count++;
+                return r;
+            }
+            return null;
+        }
+    }
+
     @Override
     public Request request() {
 
         return new Request() {
 
-            private final String[] json = getResponse();
-            private int count = 0;
-
-            private String nextRecord() {
-                if (count < json.length) {
-                    String r = json[count];
-                    count++;
-                    return r;
-                }
-                return null;
-            }
-
             @Override
             public Response<GraphModel> execute(GraphModelRequest qry) {
 
+                Holder holder = new Holder(getResponse(qry.getStatement()));
                 return new Response<GraphModel>() {
 
                     @Override
                     public GraphModel next() {
-                        String r = nextRecord();
+                        String r = holder.nextRecord();
                         if (r != null) {
                             try {
                                 return mapper.readValue(r, ResultGraphModel.class).queryResults();
@@ -102,11 +114,13 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
 
             @Override
             public Response<RowModel> execute(RowModelRequest query) {
+
+                Holder holder = new Holder(getResponse(query.getStatement()));
                 return new Response<RowModel>() {
 
                     @Override
                     public RowModel next() {
-                        String r = nextRecord();
+                        String r = holder.nextRecord();
                         if (r != null) {
                             try {
                                 return new DefaultRowModel(mapper.readValue(r, ResultRowModel.class).queryResults(),
@@ -159,5 +173,10 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
                 return null; //TODO fix
             }
         };
+    }
+
+    @Override
+    protected String getTypeSystemName() {
+        throw new UnsupportedOperationException();
     }
 }

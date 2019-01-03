@@ -3,8 +3,8 @@
 
 [abstract]
 --
-This chapter is the reference documentation for Neo4j OGM.
-It covers the programming model, APIs, concepts, annotations and technical details of the Neo4j OGM.
+This chapter is the reference documentation for Neo4j-OGM.
+It covers the programming model, APIs, concepts, annotations and technical details of the Neo4j-OGM.
 --
 
 include::introduction.adoc[leveloffset=+1]
@@ -22,6 +22,8 @@ include::connecting.adoc[leveloffset=+1]
 include::session.adoc[leveloffset=+1]
 
 include::transactions.adoc[leveloffset=+1]
+
+include::nativetypes.adoc[leveloffset=+1]
 
 include::conversion.adoc[leveloffset=+1]
 

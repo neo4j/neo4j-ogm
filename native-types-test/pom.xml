@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2002-2018 "Neo Technology,"
+  ~ Network Engine for Objects in Lund AB [http://neotechnology.com]
+  ~
+  ~ This product is licensed to you under the Apache License, Version 2.0 (the "License").
+  ~ You may not use this product except in compliance with the License.
+  ~
+  ~ This product may include a number of subcomponents with
+  ~ separate copyright notices and license terms. Your use of the source
+  ~ code for these subcomponents is subject to the terms and
+  ~  conditions of the subcomponent's license, as noted in the LICENSE file.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>neo4j-ogm</artifactId>
+        <groupId>org.neo4j</groupId>
+        <version>3.2.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>neo4j-ogm-native-types-test</artifactId>
+    <packaging>pom</packaging>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-http-driver</artifactId>
+            <version>3.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-core</artifactId>
+            <version>3.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-embedded-driver</artifactId>
+            <version>3.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-embedded-native-types</artifactId>
+            <version>3.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-bolt-driver</artifactId>
+            <version>3.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-bolt-native-types</artifactId>
+            <version>3.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j.test</groupId>
+            <artifactId>neo4j-harness</artifactId>
+            <version>${neo4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>neo4j-enterprise</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.neo4j.test</groupId>
+                    <artifactId>neo4j-harness-enterprise</artifactId>
+                    <version>${neo4j.version}</version>
+                    <scope>compile</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>neo4j-3.5</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.neo4j.community</groupId>
+                    <artifactId>it-test-support</artifactId>
+                    <version>${neo4j.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>neo4j-3.5-enterprise</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.neo4j.test</groupId>
+                    <artifactId>neo4j-harness-enterprise</artifactId>
+                    <version>${neo4j.version}</version>
+                    <scope>compile</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+</project>

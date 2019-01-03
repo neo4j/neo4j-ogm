@@ -13,12 +13,17 @@
 
 package org.neo4j.ogm.metadata;
 
+import static org.neo4j.ogm.metadata.reflect.GenericUtils.*;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Map;
 
+import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.Labels;
@@ -27,6 +32,7 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Version;
 import org.neo4j.ogm.exception.core.MappingException;
+import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
@@ -70,6 +76,7 @@ public class FieldInfo {
     private final String typeParameterDescriptor;
     private final ObjectAnnotations annotations;
     private final boolean isArray;
+    private final boolean isSupportedNativeType;
     private final ClassInfo containingClassInfo;
     private final Field field;
     private final Class<?> fieldType;
@@ -90,15 +97,16 @@ public class FieldInfo {
      *                                if that's not appropriate
      * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
-    public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations) {
+    public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations, boolean isSupportedNativeType) {
         this.containingClassInfo = classInfo;
         this.field = field;
-        this.fieldType = field.getType();
-        this.isArray = field.getType().isArray();
+        this.fieldType = isGenericField(field) ? findFieldType(field, classInfo.getUnderlyingClass()) : field.getType();
+        this.isArray = fieldType.isArray();
         this.name = field.getName();
         this.descriptor = field.getType().getTypeName();
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
+        this.isSupportedNativeType = isSupportedNativeType;
         if (!this.annotations.isEmpty()) {
             Object converter = getAnnotations().getConverter(this.fieldType);
             if (converter instanceof AttributeConverter) {
@@ -182,6 +190,7 @@ public class FieldInfo {
     public boolean persistableAsProperty() {
 
         return PRIMITIVES.contains(descriptor)
+            || isSupportedNativeType
             || (AUTOBOXERS.contains(descriptor) && typeParameterDescriptor == null)
             || (typeParameterDescriptor != null && AUTOBOXERS.contains(typeParameterDescriptor))
             || propertyConverter != null
@@ -335,22 +344,29 @@ public class FieldInfo {
     // From FieldAccessor
     // =================================================================================================================
 
-    public static void write(Field field, Object instance, Object value) {
-        try {
-            field.setAccessible(true);
-            field.set(instance, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static void write(Field field, Object instance, final Object value) {
+
+        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+            try {
+                field.setAccessible(true);
+                field.set(instance, value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
     }
 
     public static Object read(Field field, Object instance) {
-        try {
-            field.setAccessible(true);
-            return field.get(instance);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+
+        return AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+            try {
+                field.setAccessible(true);
+                return field.get(instance);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void write(Object instance, Object value) {
@@ -465,6 +481,17 @@ public class FieldInfo {
     public boolean isVersionField() {
         return field.getAnnotation(Version.class) != null;
     }
+
+    /**
+     * @return True if this field info describes the internal identity field.
+     */
+    boolean isInternalIdentity() {
+        return this.getAnnotations().has(Id.class) &&
+            this.getAnnotations().has(GeneratedValue.class) &&
+            ((GeneratedValue) this.getAnnotations().get(GeneratedValue.class).getAnnotation())
+                .strategy().equals(InternalIdStrategy.class);
+    }
+
 
     private static boolean doesDescriptorMatchType(String descriptor, Class<?> type) {
 

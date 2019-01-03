@@ -17,7 +17,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
-import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -35,7 +34,7 @@ import org.neo4j.ogm.transaction.Transaction;
  * In a typical application scenario there should be a Session instance per thread.
  * A broader scope may be chosen, but the access to the Session must be synchronized externally.
  * <h2>Load methods</h2>
- * Methods {@code load(java.lang.Class, java.io.Serializable)} load single instance of class by id.<br/>
+ * Methods {@code load(java.lang.Class, java.io.Serializable)} load single instance of class by id.<br>
  * Methods {@code loadAll(java.lang.Class, java.util.Collection)} load multiple instances of same class by ids.
  * Note that if an entity with id is not found it is simply omitted from the results.<br>
  * Methods {@code loadAll(java.lang.Class, org.neo4j.ogm.cypher.Filter)} queries multiple instances of class by
@@ -498,8 +497,9 @@ public interface Session {
 
     /**
      * Save entity(or entities) into the database, up to specified depth
-     * The entities are either created or updated. See {@link GraphId} and {@link org.neo4j.ogm.annotation.Id}
-     * When new objects are saved the instances are modified - the graph id is set to respective field.
+     * The entities are either created or updated.
+     * When new objects are saved and the objects have a field that is mapped with {@link org.neo4j.ogm.annotation.Id}
+     * using the internal Id-generation-strategy, those fields are modified and set to the internal graph-id.
      *
      * @param object object to save, may be single entity, array of entities or {@link Iterable}
      */
@@ -507,8 +507,9 @@ public interface Session {
 
     /**
      * Save entity(or entities) into the database, up to specified depth
-     * The objects are either created or updated. See {@link GraphId} and {@link org.neo4j.ogm.annotation.Id}.
-     * When new objects are saved the instances are modified - the graph id is set to respective field.
+     * The objects are either created or updated.
+     * When new objects are saved and the objects have a field that is mapped with {@link org.neo4j.ogm.annotation.Id}
+     * using the internal Id-generation-strategy, those fields are modified and set to the internal graph-id.
      *
      * @param object object to save, may be single entity, array of entities or {@link Iterable}
      */
@@ -593,17 +594,6 @@ public interface Session {
     Transaction beginTransaction(Transaction.Type type, Iterable<String> bookmarks);
 
     /**
-     * Applies the {@link GraphCallback} in the scope of this {@link Session}, giving fine-grained control over
-     * behaviour.
-     *
-     * @param <T>           The type of object returned from applying this callback
-     * @param graphCallback The {@link GraphCallback} to execute
-     * @return The result of calling the {@link GraphCallback}
-     * @throws NullPointerException if invoked with <code>null</code>
-     */
-    @Deprecated <T> T doInTransaction(GraphCallback<T> graphCallback);
-
-    /**
      * a cypher statement this method will return a domain object that is hydrated to the
      * default level or a scalar (depending on the parametrized type).
      *
@@ -675,7 +665,8 @@ public interface Session {
      * Resolve the graph id for a possible entity.
      *
      * @param possibleEntity the possible entity
-     * @return the value of the {@link GraphId} or null if either the object is not an entity or the id is null.
+     * @return the value of the internal graph id for the possible entity. Returns null if either the
+     * object is not an entity or the id is null.
      */
     Long resolveGraphIdFor(Object possibleEntity);
 

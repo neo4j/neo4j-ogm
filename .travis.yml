@@ -12,4 +12,4 @@ sudo: false
 install: true
 
 script:
-  - mvn clean verify -Pneo4j-3.5
+  - ./mvnw clean verify -Pneo4j-3.5

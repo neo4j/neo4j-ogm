@@ -1,0 +1,15 @@
+language: java
+
+jdk:
+  - oraclejdk8
+
+cache:
+  directories:
+    - $HOME/.m2
+
+sudo: false
+
+install: true
+
+script:
+  - mvn clean verify -Pneo4j-3.5

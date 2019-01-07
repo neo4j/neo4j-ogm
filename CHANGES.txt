@@ -1,4 +1,4 @@
-3.1.x
+3.1.6
 o Improve documentation of type conversions. #501
 o Provide "neo4j.conf.location" in OGM configuration, pointing to a custom configuration file (url or classpath resource)
   that allows to configure the embedded Neo4j instance. #408

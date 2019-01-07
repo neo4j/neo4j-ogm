@@ -1,6 +1,6 @@
-:version: 3.1.4
-:dev_version: 3.1.5-SNAPSHOT
-:last_dev_version: 3.0.6-SNAPSHOT
+:version: 3.1.5
+:dev_version: 3.1.6-SNAPSHOT
+:last_dev_version: 3.2.0-alpha02
 
 image:https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg[Maven Central,link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.neo4j%22%20AND%20a%3A%22neo4j-ogm%22]
 image:https://rawgit.com/aleen42/badges/master/src/slack.svg[Slack,link=https://neo4j-users.slack.com/messages/neo4j-sdn-ogm/]
@@ -162,9 +162,9 @@ for(Actor actor : matrix.getActors()) {
 
 The http://neo4j.com/docs/ogm-manual/current/[reference guide] is the best place to get started.
 
-Feel free to chat with us on the https://neo4j-users.slack.com[OGM Slack channel], and have a look to some examples like https://github.com/neo4j-examples/neo4j-ogm-university[Neo4j-OGM University].
+Feel free to chat with us on the https://neo4j-users.slack.com[Neo4j-OGM Slack channel], and have a look to some examples like https://github.com/neo4j-examples/neo4j-ogm-university[Neo4j-OGM University].
 
-You can also post questions on http://stackoverflow.com/questions/tagged/neo4j-ogm[StackOverflow].
+You can also post questions in our https://community.neo4j.com/c/drivers-stacks/spring-data-neo4j-ogm[community forums] or on http://stackoverflow.com/questions/tagged/neo4j-ogm[StackOverflow].
 
 == Building locally
 

@@ -30,6 +30,7 @@ import java.util.stream.StreamSupport;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.ParameterConversion.DefaultParameterConversion;
 import org.neo4j.ogm.spi.CypherModificationProvider;
+import org.neo4j.ogm.support.ClassUtils;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
@@ -135,7 +136,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
 
         try {
             Class<TypeSystem> nativeTypesClass = (Class<TypeSystem>) Class
-                .forName(nativeTypesImplementation, true, AbstractConfigurableDriver.class.getClassLoader());
+                .forName(nativeTypesImplementation, true, ClassUtils.getDefaultClassLoader());
 
             Constructor<TypeSystem> ctor = nativeTypesClass.getDeclaredConstructor();
             ctor.setAccessible(true);

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.neo4j.ogm.annotation.typeconversion.DateString;
+import org.neo4j.ogm.support.ClassUtils;
 
 /**
  * @author Vince Bickers
@@ -59,7 +60,7 @@ public abstract class ConvertibleTypes {
     public static AttributeConverter<?, ?> getDateCollectionConverter(String collectionType) {
         try {
             Class collectionClazz = Class
-                .forName(collectionType, false, Thread.currentThread().getContextClassLoader());
+                .forName(collectionType, false, ClassUtils.getDefaultClassLoader());
             return new DateCollectionStringConverter(DateString.ISO_8601, collectionClazz);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -77,7 +78,7 @@ public abstract class ConvertibleTypes {
     public static AttributeConverter<?, ?> getEnumCollectionConverter(Class enumClass, String collectionType) {
         try {
             Class collectionClazz = Class
-                .forName(collectionType, false, Thread.currentThread().getContextClassLoader());
+                .forName(collectionType, false, ClassUtils.getDefaultClassLoader());
             return new EnumCollectionStringConverter(enumClass, collectionClazz);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -95,7 +96,7 @@ public abstract class ConvertibleTypes {
     public static AttributeConverter<?, ?> getBigIntegerCollectionConverter(String collectionType) {
         try {
             Class collectionClazz = Class
-                .forName(collectionType, false, Thread.currentThread().getContextClassLoader());
+                .forName(collectionType, false, ClassUtils.getDefaultClassLoader());
             return new NumberCollectionStringConverter(BigInteger.class, collectionClazz);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -113,7 +114,7 @@ public abstract class ConvertibleTypes {
     public static AttributeConverter<?, ?> getBigDecimalCollectionConverter(String collectionType) {
         try {
             Class collectionClazz = Class
-                .forName(collectionType, false, Thread.currentThread().getContextClassLoader());
+                .forName(collectionType, false, ClassUtils.getDefaultClassLoader());
             return new NumberCollectionStringConverter(BigDecimal.class, collectionClazz);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -148,7 +149,7 @@ public abstract class ConvertibleTypes {
         String collectionType) {
         try {
             Class collectionClazz = Class
-                .forName(collectionType, false, Thread.currentThread().getContextClassLoader());
+                .forName(collectionType, false, ClassUtils.getDefaultClassLoader());
             return new ConverterBasedCollectionConverter<>(collectionClazz, converter);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);

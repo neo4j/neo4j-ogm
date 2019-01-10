@@ -95,7 +95,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
         super.configure(newConfiguration);
 
-        this.driverConfig = buildDriverConfig(this.configuration);
+        this.driverConfig = buildDriverConfig();
         this.credentials = this.configuration.getCredentials();
 
         if (this.configuration.getVerifyConnection()) {
@@ -135,10 +135,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
             if (credentials != null) {
                 UsernamePasswordCredentials usernameAndPassword = (UsernamePasswordCredentials) this.credentials;
                 AuthToken authToken = AuthTokens.basic(usernameAndPassword.getUsername(), usernameAndPassword.getPassword());
-                boltDriver = createDriver(configuration, driverConfig, authToken);
+                boltDriver = createDriver(configuration, authToken);
             } else {
                 try {
-                    boltDriver = createDriver(configuration, driverConfig, AuthTokens.none());
+                    boltDriver = createDriver(configuration, AuthTokens.none());
                 } catch (ServiceUnavailableException e) {
                     throw new ConnectionException(serviceUnavailableMessage, e);
                 }
@@ -216,7 +216,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return nativeTransaction;
     }
 
-    private BoltConfig getBoltConfiguration(Configuration configuration) {
+    private BoltConfig getBoltConfiguration() {
         BoltConfig boltConfig = new BoltConfig();
 
         if (configuration.getEncryptionLevel() != null) {
@@ -255,7 +255,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private Config buildDriverConfig() {
         try {
-            BoltConfig boltConfig = getBoltConfiguration(driverConfig);
+            BoltConfig boltConfig = getBoltConfiguration();
             Config.ConfigBuilder configBuilder = Config.build();
             configBuilder.withMaxSessions(boltConfig.sessionPoolSize);
             if (boltConfig.encryptionLevel.equals(Config.EncryptionLevel.REQUIRED)) {

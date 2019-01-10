@@ -113,11 +113,11 @@ public class EntityFactory {
 
         if (fqn == null) {
             ClassInfo classInfo = metadata.resolve(taxa);
-            if (classInfo != null) {
-                taxaLeafClass.put(Arrays.toString(taxa), fqn = classInfo.name());
-            } else {
+            if (classInfo == null) {
                 throw new BaseClassNotFoundException(Arrays.toString(taxa));
             }
+            fqn = classInfo.name();
+            taxaLeafClass.put(Arrays.toString(taxa), fqn);
         }
         return fqn;
     }

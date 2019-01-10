@@ -84,7 +84,7 @@ public class AnnotationInfo {
         }
     }
 
-    private Object getAttributeValue(Annotation annotation, Method element) {
+    private static Object getAttributeValue(Annotation annotation, Method element) {
         Object value;
         try {
             value = element.invoke(annotation);

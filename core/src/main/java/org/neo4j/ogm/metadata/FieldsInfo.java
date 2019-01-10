@@ -61,47 +61,58 @@ public class FieldsInfo {
         allFieldsInfluencedByThisClass.addAll(Arrays.asList(clazz.getDeclaredFields()));
 
         for (Field field : allFieldsInfluencedByThisClass) {
+
             final int modifiers = field.getModifiers();
             if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
+
                 ObjectAnnotations objectAnnotations = ObjectAnnotations.of(field.getDeclaredAnnotations());
                 if (!objectAnnotations.has(Transient.class)) {
-                    String typeParameterDescriptor = null;
-                    final Type genericType = field.getGenericType();
-                    if (genericType instanceof ParameterizedType) {
-                        ParameterizedType parameterizedType = (ParameterizedType) genericType;
-                        final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-                        if (actualTypeArguments.length > 0) {
-                            for (Type typeArgument : actualTypeArguments) {
-                                if (typeArgument instanceof ParameterizedType) {
-                                    ParameterizedType parameterizedTypeArgument = (ParameterizedType) typeArgument;
-                                    typeParameterDescriptor = parameterizedTypeArgument.getRawType().getTypeName();
-                                    break;
-                                } else if ((typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType)
-                                    // The type parameter descriptor doesn't matter if we're dealing with an explicit relationship
-                                    // We must not try to persist it as a property if the user explicitly asked for storing it as a node.
-                                    && !objectAnnotations.has(Relationship.class))  {
-                                    typeParameterDescriptor = Object.class.getName();
-                                    break;
-                                } else if (typeArgument instanceof Class) {
-                                    typeParameterDescriptor = ((Class) typeArgument).getName();
-                                }
-                            }
-                        }
-                        if (typeParameterDescriptor == null) {
-                            typeParameterDescriptor = parameterizedType.getRawType().getTypeName();
-                        }
-                    }
-                    if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
-                        typeParameterDescriptor = field.getType().getTypeName();
-                    }
 
+                    String typeParameterDescriptor = findTypeParameterDescriptor(field, objectAnnotations);
                     boolean isSupportedNativeType = typeSystem.supportsAsNativeType(field.getType());
+
                     fields.put(field.getName(),
                         new FieldInfo(classInfo, field, typeParameterDescriptor, objectAnnotations,
                             isSupportedNativeType));
                 }
             }
         }
+    }
+
+    private static String findTypeParameterDescriptor(Field field, ObjectAnnotations objectAnnotations) {
+
+        String typeParameterDescriptor = null;
+
+        final Type genericType = field.getGenericType();
+        if (genericType instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) genericType;
+            final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+            if (actualTypeArguments.length > 0) {
+                for (Type typeArgument : actualTypeArguments) {
+                    if (typeArgument instanceof ParameterizedType) {
+                        ParameterizedType parameterizedTypeArgument = (ParameterizedType) typeArgument;
+                        typeParameterDescriptor = parameterizedTypeArgument.getRawType().getTypeName();
+                        break;
+                    } else if ((typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType)
+                        // The type parameter descriptor doesn't matter if we're dealing with an explicit relationship
+                        // We must not try to persist it as a property if the user explicitly asked for storing it as a node.
+                        && !objectAnnotations.has(Relationship.class)) {
+                        typeParameterDescriptor = Object.class.getName();
+                        break;
+                    } else if (typeArgument instanceof Class) {
+                        typeParameterDescriptor = ((Class) typeArgument).getName();
+                    }
+                }
+            }
+            if (typeParameterDescriptor == null) {
+                typeParameterDescriptor = parameterizedType.getRawType().getTypeName();
+            }
+        }
+
+        if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
+            typeParameterDescriptor = field.getType().getTypeName();
+        }
+        return typeParameterDescriptor;
     }
 
     private static List<Field> getGenericFieldsInHierarchyOf(Class<?> clazz) {
@@ -123,17 +134,19 @@ public class FieldsInfo {
     }
 
     public Collection<FieldInfo> compositeFields() {
-        List<FieldInfo> fields = new ArrayList<>();
+
+        List<FieldInfo> compositeFields = new ArrayList<>();
         for (FieldInfo field : fields()) {
             if (field.hasCompositeConverter()) {
-                fields.add(field);
+                compositeFields.add(field);
             }
         }
-        return Collections.unmodifiableList(fields);
+        return Collections.unmodifiableList(compositeFields);
     }
 
     /**
      * To be used only internally.
+     *
      * @param name
      * @return
      */

@@ -25,8 +25,6 @@ public final class PointBuilder {
 
     private final int srid;
 
-    private Coordinate coordinate;
-
     public static PointBuilder withSrid(int srid) {
         return new PointBuilder(srid);
     }

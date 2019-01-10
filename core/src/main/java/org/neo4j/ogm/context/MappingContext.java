@@ -390,34 +390,34 @@ public class MappingContext {
      */
     public Set<Object> neighbours(Object entity) {
 
-        Set<Object> neighbours = new HashSet<>();
-
-        Class<?> type = entity.getClass();
         Long id = nativeId(entity);
+        if (id < 0) {
+            return Collections.emptySet();
+        }
 
-        if (id >= 0) {
-            if (!metaData.isRelationshipEntity(type.getName())) {
-                if (getNodeEntity(id) != null) {
-                    // todo: this will be very slow for many objects
-                    // todo: refactor to create a list of mappedRelationships from a nodeEntity id.
-                    for (MappedRelationship mappedRelationship : relationshipRegister) {
-                        if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
-                            Object affectedObject = mappedRelationship.getEndNodeId() == id ?
-                                getNodeEntity(mappedRelationship.getStartNodeId()) :
-                                getNodeEntity(mappedRelationship.getEndNodeId());
-                            if (affectedObject != null) {
-                                neighbours.add(affectedObject);
-                            }
+        Set<Object> neighbours = new HashSet<>();
+        Class<?> type = entity.getClass();
+        if (!metaData.isRelationshipEntity(type.getName())) {
+            if (getNodeEntity(id) != null) {
+                // todo: this will be very slow for many objects
+                // todo: refactor to create a list of mappedRelationships from a nodeEntity id.
+                for (MappedRelationship mappedRelationship : relationshipRegister) {
+                    if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
+                        Object affectedObject = mappedRelationship.getEndNodeId() == id ?
+                            getNodeEntity(mappedRelationship.getStartNodeId()) :
+                            getNodeEntity(mappedRelationship.getEndNodeId());
+                        if (affectedObject != null) {
+                            neighbours.add(affectedObject);
                         }
                     }
                 }
-            } else if (relationshipEntityRegister.containsKey(id)) {
-                ClassInfo classInfo = metaData.classInfo(type.getName());
-                FieldInfo startNodeReader = classInfo.getStartNodeReader();
-                FieldInfo endNodeReader = classInfo.getEndNodeReader();
-                neighbours.add(startNodeReader.read(entity));
-                neighbours.add(endNodeReader.read(entity));
             }
+        } else if (relationshipEntityRegister.containsKey(id)) {
+            ClassInfo classInfo = metaData.classInfo(type.getName());
+            FieldInfo startNodeReader = classInfo.getStartNodeReader();
+            FieldInfo endNodeReader = classInfo.getEndNodeReader();
+            neighbours.add(startNodeReader.read(entity));
+            neighbours.add(endNodeReader.read(entity));
         }
 
         return neighbours;
@@ -444,52 +444,57 @@ public class MappingContext {
     }
 
     private void purge(Object entity, Class type) {
-        Long id = nativeId(entity);
-        Set<Object> relEntitiesToPurge = new HashSet<>();
-        if (id >= 0) {
-            // remove a NodeEntity
-            if (!metaData.isRelationshipEntity(type.getName())) {
-                if (getNodeEntity(id) != null) {
-                    // remove the object from the node register
-                    removeNodeEntity(entity, false);
-                    // remove all relationship mappings to/from this object
-                    Iterator<MappedRelationship> mappedRelationshipIterator = relationshipRegister.iterator();
-                    while (mappedRelationshipIterator.hasNext()) {
-                        MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
-                        if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
 
-                            // first purge any RE mappings (if its a RE)
-                            if (mappedRelationship.getRelationshipId() != null) {
-                                Object relEntity = relationshipEntityRegister
-                                    .get(mappedRelationship.getRelationshipId());
-                                if (relEntity != null) {
-                                    // TODO : extract the "remove a RelationshipEntity" block below in a method
-                                    // and call it here instead of going recursive ?
-                                    relEntitiesToPurge.add(relEntity);
-                                }
-                            }
-                            // finally remove the mapped relationship
-                            mappedRelationshipIterator.remove();
-                        }
+        Long id = nativeId(entity);
+        if (id < 0) {
+            return;
+        }
+
+        boolean isNotARelationshipEntity = !metaData.isRelationshipEntity(type.getName());
+        boolean isInMappingContext = getNodeEntity(id) != null;
+
+        if (isNotARelationshipEntity && isInMappingContext) {
+            // remove the object from the node register
+            removeNodeEntity(entity, false);
+            // and also remove all in and outgoing stuff
+            removeAllInAndOutcomingRelationshipsOf(id);
+        } else if (relationshipEntityRegister.containsKey(id)) {
+            relationshipEntityRegister.remove(id);
+            final ClassInfo classInfo = metaData.classInfo(entity);
+            FieldInfo startNodeReader = classInfo.getStartNodeReader();
+            Object startNode = startNodeReader.read(entity);
+            removeEntity(startNode);
+            FieldInfo endNodeReader = classInfo.getEndNodeReader();
+            Object endNode = endNodeReader.read(entity);
+            removeEntity(endNode);
+        }
+    }
+
+    private void removeAllInAndOutcomingRelationshipsOf(Long id) {
+
+        Set<Object> relEntitiesToPurge = new HashSet<>();
+        Iterator<MappedRelationship> mappedRelationshipIterator = relationshipRegister.iterator();
+        while (mappedRelationshipIterator.hasNext()) {
+            MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
+            if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
+
+                // first purge any RE mappings (if its a RE)
+                if (mappedRelationship.getRelationshipId() != null) {
+                    Object relEntity = relationshipEntityRegister
+                        .get(mappedRelationship.getRelationshipId());
+                    if (relEntity != null) {
+                        relEntitiesToPurge.add(relEntity);
                     }
                 }
-            } else {
-                // remove a RelationshipEntity
-                if (relationshipEntityRegister.containsKey(id)) {
-                    relationshipEntityRegister.remove(id);
-                    final ClassInfo classInfo = metaData.classInfo(entity);
-                    FieldInfo startNodeReader = classInfo.getStartNodeReader();
-                    Object startNode = startNodeReader.read(entity);
-                    removeEntity(startNode);
-                    FieldInfo endNodeReader = classInfo.getEndNodeReader();
-                    Object endNode = endNodeReader.read(entity);
-                    removeEntity(endNode);
-                }
+                // finally remove the mapped relationship
+                mappedRelationshipIterator.remove();
             }
-            for (Object relEntity : relEntitiesToPurge) {
-                ClassInfo relClassInfo = metaData.classInfo(relEntity);
-                purge(relEntity, relClassInfo.getUnderlyingClass());
-            }
+        }
+
+        // Purge the relationship entities.
+        for (Object relEntity : relEntitiesToPurge) {
+            ClassInfo relClassInfo = metaData.classInfo(relEntity);
+            purge(relEntity, relClassInfo.getUnderlyingClass());
         }
     }
 

@@ -67,7 +67,7 @@ class AutoIndex {
         this.description = createDescription(type, owningType, properties);
     }
 
-    private String createDescription(IndexType type, String owningType, String[] properties) {
+    private static String createDescription(IndexType type, String owningType, String[] properties) {
 
         String name = owningType.toLowerCase();
 

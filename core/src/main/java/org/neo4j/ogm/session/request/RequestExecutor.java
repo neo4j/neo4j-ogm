@@ -34,7 +34,6 @@ import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.utils.EntityUtils;
@@ -73,8 +72,10 @@ public class RequestExecutor {
         List<ReferenceMapping> entityReferenceMappings = new ArrayList<>();
         List<ReferenceMapping> relReferenceMappings = new ArrayList<>();
 
-        boolean forceTx = compiler.updateNodesStatements().stream().anyMatch(st -> st.optimisticLockingConfig().isPresent())
-            || compiler.updateRelationshipStatements().stream().anyMatch(st -> st.optimisticLockingConfig().isPresent());
+        boolean forceTx =
+            compiler.updateNodesStatements().stream().anyMatch(st -> st.optimisticLockingConfig().isPresent())
+                || compiler.updateRelationshipStatements().stream()
+                .anyMatch(st -> st.optimisticLockingConfig().isPresent());
 
         session.doInTransaction(() -> {
 
@@ -102,9 +103,9 @@ public class RequestExecutor {
         }, forceTx, Transaction.Type.READ_WRITE);
 
         //Update the mapping context now that the request is successful
-        updateNodeEntities(context, session, entityReferenceMappings);
-        updateRelationshipEntities(context, session, relReferenceMappings);
-        updateRelationships(context, session, relReferenceMappings);
+        updateNodeEntities(context, entityReferenceMappings);
+        updateRelationshipEntities(context, relReferenceMappings);
+        updateRelationships(context, relReferenceMappings);
     }
 
     private void executeStatements(CompileContext context, List<ReferenceMapping> entityReferenceMappings,
@@ -192,11 +193,9 @@ public class RequestExecutor {
      * Update the mapping context with entity ids for new/existing nodes created or updated in the request.
      *
      * @param context           the compile context
-     * @param session           the Session
      * @param entityRefMappings mapping of entity reference used in the compile context and the entity id from the database
      */
-    private void updateNodeEntities(CompileContext context, Neo4jSession session,
-        List<ReferenceMapping> entityRefMappings) {
+    private void updateNodeEntities(CompileContext context, List<ReferenceMapping> entityRefMappings) {
 
         // Ensures the last saved version of existing nodes is current in the cache
         for (Object obj : context.registry()) {
@@ -221,7 +220,7 @@ public class RequestExecutor {
             if (!(referenceMapping.ref.equals(referenceMapping.id))) {
                 Object newEntity = context.getNewObject(referenceMapping.ref);
                 LOGGER.debug("creating new node id: {}, {}, {}", referenceMapping.ref, referenceMapping.id, newEntity);
-                initialiseNewEntity(referenceMapping.id, newEntity, session);
+                initialiseNewEntity(referenceMapping.id, newEntity);
             }
         }
     }
@@ -230,10 +229,9 @@ public class RequestExecutor {
      * Update the mapping context with entity ids for new/existing relationship entities created in a request.
      *
      * @param context                       the compile context
-     * @param session                       the Session
      * @param relationshipEntityRefMappings mapping of relationship entity reference used in the compile context and the entity id from the database
      */
-    private void updateRelationshipEntities(CompileContext context, Neo4jSession session,
+    private void updateRelationshipEntities(CompileContext context,
         List<ReferenceMapping> relationshipEntityRefMappings) {
         for (ReferenceMapping referenceMapping : relationshipEntityRefMappings) {
             if (referenceMapping.ref.equals(referenceMapping.id)) {
@@ -249,7 +247,7 @@ public class RequestExecutor {
                 // not all relationship ids represent relationship entities
                 if (newRelationshipEntity != null) {
                     LOGGER.debug("creating new relationship entity id: {}", referenceMapping.id);
-                    initialiseNewEntity(referenceMapping.id, newRelationshipEntity, session);
+                    initialiseNewEntity(referenceMapping.id, newRelationshipEntity);
                 }
             }
         }
@@ -259,11 +257,9 @@ public class RequestExecutor {
      * Update the mapping context with new relationships created in a request.
      *
      * @param context        the compile context
-     * @param session        the Session
      * @param relRefMappings mapping of relationship reference used in the compile context and the relationship id from the database
      */
-    private void updateRelationships(CompileContext context, Neo4jSession session,
-        List<ReferenceMapping> relRefMappings) {
+    private void updateRelationships(CompileContext context, List<ReferenceMapping> relRefMappings) {
         final Map<Long, TransientRelationship> registeredTransientRelationshipIndex = buildRegisteredTransientRelationshipIndex(
             context);
         for (ReferenceMapping referenceMapping : relRefMappings) {
@@ -305,9 +301,8 @@ public class RequestExecutor {
      * Register entities in the {@link MappingContext}
      *
      * @param persisted entity created as part of the request
-     * @param session   the {@link Session}
      */
-    private void initialiseNewEntity(Long identity, Object persisted, Neo4jSession session) {
+    private void initialiseNewEntity(Long identity, Object persisted) {
         MappingContext mappingContext = session.context();
         Transaction tx = session.getTransaction();
         if (persisted != null) {  // it will be null if the variable represents a simple relationship.
@@ -333,7 +328,7 @@ public class RequestExecutor {
         }
     }
 
-   static class ReferenceMapping {
+    static class ReferenceMapping {
 
         private Long ref;
         private Long id;

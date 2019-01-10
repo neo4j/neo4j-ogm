@@ -82,7 +82,7 @@ class AutoIndex {
                     + "` IS UNIQUE";
 
             case COMPOSITE_INDEX:
-                return buildNodeKeyConstraint(name, owningType, properties);
+                return buildCompositeIndex(name, owningType, properties);
 
             case NODE_KEY_CONSTRAINT:
                 return buildNodeKeyConstraint(name, owningType, properties);

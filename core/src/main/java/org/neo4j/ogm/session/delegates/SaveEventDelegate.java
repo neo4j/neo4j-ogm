@@ -30,10 +30,10 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.PersistenceEvent;
-import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -234,7 +234,7 @@ final class SaveEventDelegate extends SessionDelegate {
 
         Long id = session.context().nativeId(parent);
         String type = reader.relationshipType();
-        Class endNodeType = ClassUtils.getType(reader.typeDescriptor());
+        Class endNodeType = DescriptorMappings.getType(reader.typeDescriptor());
 
         if (reader.relationshipDirection().equals(Relationship.INCOMING)) {
             deregisterIncomingRelationship(id, type, endNodeType);

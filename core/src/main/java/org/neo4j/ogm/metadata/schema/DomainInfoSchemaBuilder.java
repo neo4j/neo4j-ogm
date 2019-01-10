@@ -26,8 +26,8 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.reflect.GenericUtils;
-import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,17 +35,16 @@ import org.slf4j.LoggerFactory;
  * Builder of {@link Schema} which takes {@link DomainInfo} as input
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class DomainInfoSchemaBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(DomainInfoSchemaBuilder.class);
 
-    private DomainInfo domainInfo;
     private Map<String, ClassInfo> classInfoMap;
     private SchemaImpl schema;
 
     public DomainInfoSchemaBuilder(DomainInfo domainInfo) {
-        this.domainInfo = domainInfo;
         this.classInfoMap = domainInfo.getClassInfoMap();
         this.schema = new SchemaImpl();
     }
@@ -101,7 +100,7 @@ public class DomainInfoSchemaBuilder {
     }
 
     private void createRelationship(NodeImpl fromNode, FieldInfo relFieldInfo) {
-        Class<?> otherClass = ClassUtils.getType(relFieldInfo.getTypeDescriptor());
+        Class<?> otherClass = DescriptorMappings.getType(relFieldInfo.getTypeDescriptor());
         String otherType = otherClass.getName();
         ClassInfo otherClassInfo = classInfoMap.get(otherType);
 

@@ -37,7 +37,6 @@ import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.id.UuidStrategy;
-import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -784,13 +783,13 @@ public class ClassInfo {
         try {
             FieldInfo fieldInfo = relationshipField(relationshipType, relationshipDirection, STRICT_MODE);
             if (fieldInfo != null && fieldInfo.getTypeDescriptor() != null) {
-                return ClassUtils.getType(fieldInfo.getTypeDescriptor());
+                return DescriptorMappings.getType(fieldInfo.getTypeDescriptor());
             }
 
             if (!relationshipDirection.equals(Relationship.INCOMING)) { //we always expect an annotation for INCOMING
                 fieldInfo = relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
                 if (fieldInfo != null && fieldInfo.getTypeDescriptor() != null) {
-                    return ClassUtils.getType(fieldInfo.getTypeDescriptor());
+                    return DescriptorMappings.getType(fieldInfo.getTypeDescriptor());
                 }
             }
         } catch (RuntimeException e) {

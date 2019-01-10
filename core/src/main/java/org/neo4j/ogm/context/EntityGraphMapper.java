@@ -39,7 +39,7 @@ import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.utils.ClassUtils;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -361,7 +361,7 @@ public class EntityGraphMapper implements EntityMapper {
             String relationshipType = reader.relationshipType();
             String relationshipDirection = reader.relationshipDirection();
             Class startNodeType = srcInfo.getUnderlyingClass();
-            Class endNodeType = ClassUtils.getType(reader.typeDescriptor());
+            Class endNodeType = DescriptorMappings.getType(reader.typeDescriptor());
 
             DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,
                 relationshipDirection);
@@ -879,7 +879,7 @@ public class EntityGraphMapper implements EntityMapper {
             if (metaData.isRelationshipEntity(tgtClass.getName())) {
                 srcClass = tgtClass;
                 String start = metaData.classInfo(tgtClass.getName()).getStartNodeReader().typeDescriptor();
-                tgtClass = ClassUtils.getType(start);
+                tgtClass = DescriptorMappings.getType(start);
             }
             reallyCreateRelationship(context, tgt, relationshipBuilder, src, tgtClass, srcClass);
         } else {

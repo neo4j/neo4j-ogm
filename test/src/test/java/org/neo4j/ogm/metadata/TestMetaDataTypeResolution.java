@@ -20,12 +20,9 @@ package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.neo4j.ogm.utils.ClassUtils;
-
 /**
- * @author vince
+ * @author Vince Bickers
  */
-
 public class TestMetaDataTypeResolution {
 
     private MetaData metaData = new MetaData("org.neo4j.ogm.metadata");
@@ -35,7 +32,7 @@ public class TestMetaDataTypeResolution {
         FieldInfo fieldInfo = classInfo.getFieldInfo(name);
         String fieldDescriptor = fieldInfo.getTypeDescriptor();
         assertThat(fieldDescriptor).isEqualTo(expectedDescriptor);
-        Class clazz = ClassUtils.getType(fieldDescriptor);
+        Class clazz = DescriptorMappings.getType(fieldDescriptor);
         assertThat(clazz).isEqualTo(expectedPersistableType);
     }
 }

@@ -28,11 +28,11 @@ import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.EntityFactory;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.session.EntityInstantiator;
-import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,7 +154,7 @@ public class SingleUseEntityMapper {
     private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
         FieldInfo fieldInfo = classInfo.propertyField(propertyName);
         if (fieldInfo != null) {
-            return ClassUtils.getType(fieldInfo.getTypeDescriptor());
+            return DescriptorMappings.getType(fieldInfo.getTypeDescriptor());
         }
         return classInfo.getUnderlyingClass();
     }

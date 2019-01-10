@@ -38,7 +38,6 @@ import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;
 import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
-import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -244,7 +243,7 @@ public class DomainInfo {
                 if (!fieldInfo.persistableAsProperty()) {
                     Class fieldClass = null;
                     try {
-                        fieldClass = ClassUtils.getType(fieldInfo.getTypeDescriptor());
+                        fieldClass = DescriptorMappings.getType(fieldInfo.getTypeDescriptor());
                     } catch (Exception e) {
                         LOGGER.debug(
                             "Unable to compute class type for " + classInfo.name() + ", field: " + fieldInfo.getName());
@@ -370,7 +369,7 @@ public class DomainInfo {
                 // Check if the user configured one through the convert annotation
                 if (fieldInfo.getAnnotations().get(Convert.class) != null) {
                     // no converter's been set but this method is annotated with @Convert so we need to proxy it
-                    Class<?> entityAttributeType = ClassUtils.getType(typeDescriptor);
+                    Class<?> entityAttributeType = DescriptorMappings.getType(typeDescriptor);
                     String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.class)
                         .get(Convert.GRAPH_TYPE, null);
                     if (graphTypeDescriptor == null) {
@@ -381,11 +380,11 @@ public class DomainInfo {
                             + " but no target graph property type or specific AttributeConverter have been specified.");
                     }
                     fieldInfo.setPropertyConverter(
-                        new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor),
+                        new ProxyAttributeConverter(entityAttributeType, DescriptorMappings.getType(graphTypeDescriptor),
                             this.conversionCallbackRegistry));
                 }
 
-                Class fieldType = ClassUtils.getType(typeDescriptor);
+                Class fieldType = DescriptorMappings.getType(typeDescriptor);
 
                 if (fieldType == null) {
                     throw new RuntimeException(

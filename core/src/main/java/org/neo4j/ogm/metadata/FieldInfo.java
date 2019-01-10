@@ -42,7 +42,6 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.typeconversion.MapCompositeConverter;
-import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.RelationshipUtils;
 
 /**
@@ -52,29 +51,6 @@ import org.neo4j.ogm.utils.RelationshipUtils;
  * @author Michael J. Simons
  */
 public class FieldInfo {
-
-    private static final String PRIMITIVES = "char,byte,short,int,long,float,double,boolean,char[],byte[],short[],int[],long[],float[],double[],boolean[]";
-    private static final String AUTOBOXERS =
-        "java.lang.Object" +
-            "java.lang.Character" +
-            "java.lang.Byte" +
-            "java.lang.Short" +
-            "java.lang.Integer" +
-            "java.lang.Long" +
-            "java.lang.Float" +
-            "java.lang.Double" +
-            "java.lang.Boolean" +
-            "java.lang.String" +
-            "java.lang.Object[]" +
-            "java.lang.Character[]" +
-            "java.lang.Byte[]" +
-            "java.lang.Short[]" +
-            "java.lang.Integer[]" +
-            "java.lang.Long[]" +
-            "java.lang.Float[]" +
-            "java.lang.Double[]" +
-            "java.lang.Boolean[]" +
-            "java.lang.String[]";
 
     private final String name;
     private final String descriptor;
@@ -102,7 +78,8 @@ public class FieldInfo {
      *                                if that's not appropriate
      * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
-    public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations, boolean isSupportedNativeType) {
+    public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations,
+        boolean isSupportedNativeType) {
         this.containingClassInfo = classInfo;
         this.field = field;
         this.fieldType = isGenericField(field) ? findFieldType(field, classInfo.getUnderlyingClass()) : field.getType();
@@ -194,10 +171,10 @@ public class FieldInfo {
     // see #347
     public boolean persistableAsProperty() {
 
-        return PRIMITIVES.contains(descriptor)
+        return DescriptorMappings.describesPrimitve(descriptor)
             || isSupportedNativeType
-            || (AUTOBOXERS.contains(descriptor) && typeParameterDescriptor == null)
-            || (typeParameterDescriptor != null && AUTOBOXERS.contains(typeParameterDescriptor))
+            || (DescriptorMappings.describesWrapper(descriptor) && typeParameterDescriptor == null)
+            || (typeParameterDescriptor != null && DescriptorMappings.describesWrapper((typeParameterDescriptor)))
             || propertyConverter != null
             || compositeConverter != null;
     }
@@ -382,7 +359,7 @@ public class FieldInfo {
         } else {
             if (isScalar()) {
                 String actualTypeDescriptor = getTypeDescriptor();
-                value = Utils.coerceTypes(ClassUtils.getType(actualTypeDescriptor), value);
+                value = Utils.coerceTypes(DescriptorMappings.getType(actualTypeDescriptor), value);
             }
             write(field, instance, value);
         }

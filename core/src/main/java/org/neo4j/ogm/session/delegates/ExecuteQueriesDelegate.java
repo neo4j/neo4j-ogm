@@ -41,6 +41,7 @@ import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.Result;
@@ -54,7 +55,6 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.strategy.impl.CountStatements;
 import org.neo4j.ogm.transaction.Transaction;
-import org.neo4j.ogm.utils.ClassUtils;
 
 /**
  * @author Vince Bickers
@@ -171,10 +171,10 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
             for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
                 if (fieldInfo.hasAnnotation(StartNode.class)) {
                     startNodeInfo = session.metaData()
-                        .classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
+                        .classInfo(DescriptorMappings.getType(fieldInfo.getTypeDescriptor()).getName());
                 } else if (fieldInfo.hasAnnotation(EndNode.class)) {
                     endNodeInfo = session.metaData()
-                        .classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
+                        .classInfo(DescriptorMappings.getType(fieldInfo.getTypeDescriptor()).getName());
                 }
                 if (endNodeInfo != null && startNodeInfo != null) {
                     break;

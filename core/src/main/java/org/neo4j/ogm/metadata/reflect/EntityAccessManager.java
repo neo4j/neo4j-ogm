@@ -27,8 +27,8 @@ import org.neo4j.ogm.context.DirectedRelationshipForType;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Adam George
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class EntityAccessManager {
 
@@ -514,7 +515,7 @@ public class EntityAccessManager {
         if (fieldInfo.isParameterisedTypeOf(parameterType)) {
             //Cache the writer for the superclass used in the type param
             directedRelationshipForType = new DirectedRelationshipForType(relationshipType, relationshipDirection,
-                ClassUtils.getType(fieldInfo.getTypeDescriptor()));
+                DescriptorMappings.getType(fieldInfo.getTypeDescriptor()));
         }
         iterableWriterCache.get(classInfo).put(directedRelationshipForType, fieldAccessor);
     }

@@ -74,10 +74,12 @@ public class MethodInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof MethodInfo))
+        }
+        if (!(o instanceof MethodInfo)) {
             return false;
+        }
         MethodInfo that = (MethodInfo) o;
         return Objects.equals(method, that.method);
     }

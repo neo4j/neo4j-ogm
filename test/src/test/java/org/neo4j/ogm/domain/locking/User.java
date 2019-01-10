@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.domain.locking;
 
-import static org.neo4j.ogm.annotation.Relationship.UNDIRECTED;
+import static org.neo4j.ogm.annotation.Relationship.*;
 
 import java.util.HashSet;
 import java.util.Set;

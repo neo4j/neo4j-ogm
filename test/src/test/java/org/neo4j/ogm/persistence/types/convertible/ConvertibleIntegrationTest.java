@@ -251,7 +251,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldSaveListOfLocalDateTime() throws Exception {
+    public void shouldSaveListOfLocalDateTime() {
 
         Java8DatesMemo memo = new Java8DatesMemo();
 
@@ -273,7 +273,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldSaveOffsetDateTime() throws Exception {
+    public void shouldSaveOffsetDateTime() {
 
         Java8DatesMemo memo = new Java8DatesMemo();
 
@@ -293,7 +293,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldSaveOffsetDateTimeList() throws Exception {
+    public void shouldSaveOffsetDateTimeList() {
         Java8DatesMemo memo = new Java8DatesMemo();
 
         LocalDateTime dateTime = LocalDateTime.of(2017, 7, 23, 1, 2, 3);
@@ -314,10 +314,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         assertThat(loaded.getOffsetDateTimeList()).isEqualTo(offsetDateTimeList);
     }
 
-    /**
-     * @see DATAGRAPH-550
-     */
-    @Test
+    @Test // DATAGRAPH-550
     public void shouldSaveAndRetrieveNumbers() {
 
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
@@ -342,10 +339,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         assertThat(loadedAccount.getDeposits()).isEqualTo(deposits);
     }
 
-    /**
-     * @see issue #72
-     */
-    @Test
+    @Test // GH-72
     public void shouldSaveAndRetrieveIntegerDates() {
         Memo memo = new Memo();
         memo.setClosed(new Date(0));
@@ -355,10 +349,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         assertThat(memo.getClosed().getTime()).isEqualTo(new Date(0).getTime());
     }
 
-    /**
-     * @see Issue #77
-     */
-    @Test
+    @Test // GH-77
     public void shouldSaveAndRetrieveIntegerFloats() {
         Account account = new Account();
         account.setLimit(10f);
@@ -375,10 +366,12 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
     public void assertSameArray(Object[] as, Object[] bs) {
 
-        if (as == null || bs == null)
+        if (as == null || bs == null) {
             fail("null arrays not allowed");
-        if (as.length != bs.length)
+        }
+        if (as.length != bs.length) {
             fail("arrays are not same length");
+        }
 
         for (Object a : as) {
             boolean found = false;
@@ -388,8 +381,9 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
                     break;
                 }
             }
-            if (!found)
+            if (!found) {
                 fail("array contents are not the same: " + as + ", " + bs);
+            }
         }
     }
 }

@@ -211,8 +211,9 @@ public class IdentityTest extends MultiDriverTestClass {
         @Override
         public boolean equals(Object o) {
 
-            if (this == o)
+            if (this == o) {
                 return true;
+            }
 
             return !(o == null || getClass() != o.getClass());
         }
@@ -244,8 +245,9 @@ public class IdentityTest extends MultiDriverTestClass {
         @Override
         public boolean equals(Object o) {
 
-            if (this == o)
+            if (this == o) {
                 return true;
+            }
 
             return !(o == null || getClass() != o.getClass());
         }

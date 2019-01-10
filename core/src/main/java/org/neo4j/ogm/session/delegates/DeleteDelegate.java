@@ -139,7 +139,7 @@ public class DeleteDelegate extends SessionDelegate {
             objectCollection = Arrays.asList(objectsAsArray);
         } else if (Iterable.class.isAssignableFrom(object.getClass())) {
             objectCollection = new ArrayList<>();
-            ((Iterable<T>)object).forEach(objectCollection::add);
+            ((Iterable<T>) object).forEach(objectCollection::add);
         } else {
             objectCollection = Collections.singletonList(object);
         }

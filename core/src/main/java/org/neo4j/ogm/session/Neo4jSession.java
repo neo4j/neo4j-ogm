@@ -71,6 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author Luanne Misquitta
  * @author Mihai Raulea
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class Neo4jSession implements Session {
 
@@ -535,14 +536,14 @@ public class Neo4jSession implements Session {
      * @param txType Transaction type, readonly or not.
      */
     public void doInTransaction(TransactionalUnitOfWorkWithoutResult function, Transaction.Type txType) {
-        doInTransaction( () -> {
+        doInTransaction(() -> {
             function.doInTransaction();
             return null;
         }, txType);
     }
 
     public void doInTransaction(TransactionalUnitOfWorkWithoutResult function, boolean forceTx, Transaction.Type txType) {
-        doInTransaction( () -> {
+        doInTransaction(() -> {
             function.doInTransaction();
             return null;
         }, forceTx, txType);

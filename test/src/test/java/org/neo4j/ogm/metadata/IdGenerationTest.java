@@ -44,8 +44,8 @@ public class IdGenerationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids"
-            , "org.neo4j.ogm.domain.annotations.invalid.ids");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids",
+            "org.neo4j.ogm.domain.annotations.invalid.ids");
     }
 
     @Before
@@ -170,7 +170,7 @@ public class IdGenerationTest extends MultiDriverTestClass {
 
         // Assert it's gone.
         assertThat(session2.queryForObject(Long.class, cypher, parameters))
-            .isEqualTo(0l);
+            .isEqualTo(0L);
     }
 
     @Test

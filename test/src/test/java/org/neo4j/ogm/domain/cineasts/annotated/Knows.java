@@ -75,15 +75,18 @@ public class Knows {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         Knows knows = (Knows) o;
 
-        if (!firstActor.equals(knows.firstActor))
+        if (!firstActor.equals(knows.firstActor)) {
             return false;
+        }
         return secondActor.equals(knows.secondActor);
     }
 

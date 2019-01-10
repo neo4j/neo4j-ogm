@@ -33,15 +33,17 @@ public class DateLongConverter implements AttributeConverter<Date, Number> {
 
     @Override
     public Long toGraphProperty(Date value) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         return value.getTime();
     }
 
     @Override
     public Date toEntityAttribute(Number value) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         return new Date(value.longValue());
     }
 }

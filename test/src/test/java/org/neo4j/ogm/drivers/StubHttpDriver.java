@@ -68,7 +68,7 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
 
         private int count = 0;
 
-        public Holder(String[] json) {
+        Holder(String[] json) {
             this.json = json;
         }
 

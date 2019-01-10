@@ -50,8 +50,9 @@ public class EnumStringConverter implements AttributeConverter<Enum, String> {
 
     @Override
     public String toGraphProperty(Enum value) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         return value.name();
     }
 

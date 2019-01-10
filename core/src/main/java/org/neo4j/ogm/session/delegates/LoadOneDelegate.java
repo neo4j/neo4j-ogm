@@ -79,7 +79,7 @@ public class LoadOneDelegate extends SessionDelegate {
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
 
-        return session.doInTransaction( () -> {
+        return session.doInTransaction(() -> {
             try (Response<GraphModel> response = session.requestHandler().execute(request)) {
                 new GraphEntityMapper(session.metaData(), session.context(), session.getEntityInstantiator())
                     .map(type, response);

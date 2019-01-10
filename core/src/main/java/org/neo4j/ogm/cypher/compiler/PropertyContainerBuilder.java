@@ -21,8 +21,6 @@ package org.neo4j.ogm.cypher.compiler;
 import java.util.Map;
 import java.util.Set;
 
-import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
-
 /**
  * Interface to abstract setting properties on nodes/relationship entities
  *

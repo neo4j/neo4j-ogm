@@ -29,6 +29,7 @@ import org.neo4j.ogm.utils.RelationshipUtils;
  * Node represents nodes in the schema
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 class NodeImpl implements Node {
 
@@ -36,7 +37,7 @@ class NodeImpl implements Node {
     private final Collection<String> labels;
     private final Map<String, Relationship> relationships = new HashMap<>();
 
-    public NodeImpl(String label, Collection<String> labels) {
+    NodeImpl(String label, Collection<String> labels) {
         this.label = label;
         this.labels = labels;
     }

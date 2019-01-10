@@ -118,7 +118,7 @@ public class JsonRestResponseTest {
     static class TestRestHttpResponse extends AbstractHttpResponse<ResultRestModel>
         implements Response<DefaultRestModel> {
 
-        public TestRestHttpResponse() {
+        TestRestHttpResponse() {
             super(response, ResultRestModel.class);
         }
 

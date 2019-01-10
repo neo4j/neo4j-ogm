@@ -73,57 +73,27 @@ class AutoIndex {
 
         switch (type) {
             case SINGLE_INDEX:
-                if (properties.length != 1) {
-                    throw new IllegalArgumentException(SINGLE_INDEX + " must have exactly one property, got " +
-                        Arrays.toString(properties));
-                }
+                validatePropertiesLength(properties, SINGLE_INDEX);
                 return "INDEX ON :`" + owningType + "`(`" + properties[0] + "`)";
 
             case UNIQUE_CONSTRAINT:
-                if (properties.length != 1) {
-                    throw new IllegalArgumentException(UNIQUE_CONSTRAINT + " must have exactly one property, got " +
-                        Arrays.toString(properties));
-                }
+                validatePropertiesLength(properties, UNIQUE_CONSTRAINT);
                 return "CONSTRAINT ON (`" + name + "`:`" + owningType + "`) ASSERT `" + name + "`.`" + properties[0]
                     + "` IS UNIQUE";
 
-            case COMPOSITE_INDEX: {
-                StringBuilder sb = new StringBuilder();
-                sb.append("INDEX ON :`")
-                    .append(owningType)
-                    .append("`(");
-                appendProperties(sb, properties);
-                sb.append(")");
-                return sb.toString();
-            }
+            case COMPOSITE_INDEX:
+                return buildNodeKeyConstraint(name, owningType, properties);
 
-            case NODE_KEY_CONSTRAINT: {
-                StringBuilder sb = new StringBuilder();
-                sb.append("CONSTRAINT ON (`")
-                    .append(name)
-                    .append("`:`")
-                    .append(owningType)
-                    .append("`) ASSERT (");
-                appendPropertiesWithNode(sb, name, properties);
-                sb.append(") IS NODE KEY");
-                return sb.toString();
-            }
+            case NODE_KEY_CONSTRAINT:
+                return buildNodeKeyConstraint(name, owningType, properties);
 
             case NODE_PROP_EXISTENCE_CONSTRAINT:
-                if (properties.length != 1) {
-                    throw new IllegalArgumentException(
-                        NODE_PROP_EXISTENCE_CONSTRAINT + " must have exactly one property, got " +
-                            Arrays.toString(properties));
-                }
+                validatePropertiesLength(properties, NODE_PROP_EXISTENCE_CONSTRAINT);
                 return "CONSTRAINT ON (`" + name + "`:`" + owningType + "`) ASSERT exists(`" + name + "`.`"
                     + properties[0] + "`)";
 
             case REL_PROP_EXISTENCE_CONSTRAINT:
-                if (properties.length != 1) {
-                    throw new IllegalArgumentException(
-                        NODE_PROP_EXISTENCE_CONSTRAINT + " must have exactly one property, got " +
-                            Arrays.toString(properties));
-                }
+                validatePropertiesLength(properties, NODE_PROP_EXISTENCE_CONSTRAINT);
                 return "CONSTRAINT ON ()-[`" + name + "`:`" + owningType + "`]-() ASSERT exists(`" + name + "`.`"
                     + properties[0] + "`)";
 
@@ -132,7 +102,40 @@ class AutoIndex {
         }
     }
 
-    private void appendProperties(StringBuilder sb, String[] properties) {
+    private static void validatePropertiesLength(String[] properties, IndexType violatedIndexType) {
+
+        if (properties.length != 1) {
+            throw new IllegalArgumentException(
+                violatedIndexType + " must have exactly one property, got " +
+                    Arrays.toString(properties));
+        }
+    }
+
+    private static String buildCompositeIndex(String name, String owningType, String[] properties) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("INDEX ON :`")
+            .append(owningType)
+            .append("`(");
+        appendProperties(sb, properties);
+        sb.append(")");
+        return sb.toString();
+    }
+
+    private static String buildNodeKeyConstraint(String name, String owningType, String[] properties) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("CONSTRAINT ON (`")
+            .append(name)
+            .append("`:`")
+            .append(owningType)
+            .append("`) ASSERT (");
+        appendPropertiesWithNode(sb, name, properties);
+        sb.append(") IS NODE KEY");
+        return sb.toString();
+    }
+
+    private static void appendProperties(StringBuilder sb, String[] properties) {
         for (int i = 0; i < properties.length; i++) {
             sb.append('`');
             sb.append(properties[i]);
@@ -143,7 +146,7 @@ class AutoIndex {
         }
     }
 
-    private void appendPropertiesWithNode(StringBuilder sb, String nodeName, String[] properties) {
+    private static void appendPropertiesWithNode(StringBuilder sb, String nodeName, String[] properties) {
         for (int i = 0; i < properties.length; i++) {
             sb.append('`');
             sb.append(nodeName);
@@ -247,18 +250,22 @@ class AutoIndex {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         AutoIndex autoIndex = (AutoIndex) o;
 
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(properties, autoIndex.properties))
+        if (!Arrays.equals(properties, autoIndex.properties)) {
             return false;
-        if (!owningType.equals(autoIndex.owningType))
+        }
+        if (!owningType.equals(autoIndex.owningType)) {
             return false;
+        }
         return type == autoIndex.type;
     }
 

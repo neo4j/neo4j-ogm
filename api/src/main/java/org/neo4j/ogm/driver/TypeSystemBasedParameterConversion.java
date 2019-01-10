@@ -22,9 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.driver.ParameterConversion;
-import org.neo4j.ogm.driver.TypeSystem;
-
 /**
  * This conversion mode first tries to map all parameters to a FOOBAR  and uses them directly. For all non supported
  * object types, it falls back to the default object mapper based conversion.

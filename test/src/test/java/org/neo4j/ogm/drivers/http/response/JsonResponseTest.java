@@ -88,8 +88,9 @@ public class JsonResponseTest {
 
     private void parseResponse(Response<DefaultRowModel> rsp) {
         //noinspection StatementWithEmptyBody
-        while (rsp.next() != null)
+        while (rsp.next() != null) {
             ;
+        }
     }
 
     private InputStream resultsAndErrors() {
@@ -152,7 +153,7 @@ public class JsonResponseTest {
 
     static class TestRowHttpResponse extends AbstractHttpResponse<ResultRowModel> implements Response<DefaultRowModel> {
 
-        public TestRowHttpResponse() {
+        TestRowHttpResponse() {
             super(response, ResultRowModel.class);
         }
 

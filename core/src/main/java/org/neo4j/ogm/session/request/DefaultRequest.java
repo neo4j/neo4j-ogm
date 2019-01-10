@@ -21,8 +21,6 @@ package org.neo4j.ogm.session.request;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.plaf.nimbus.State;
-
 import org.neo4j.ogm.request.Statement;
 
 /**

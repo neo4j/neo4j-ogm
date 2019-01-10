@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.drivers;
 
-import java.util.regex.Pattern;
-
 import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

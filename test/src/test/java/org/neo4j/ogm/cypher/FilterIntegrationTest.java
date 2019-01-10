@@ -18,6 +18,10 @@
  */
 package org.neo4j.ogm.cypher;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -26,10 +30,6 @@ import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for the generated filter fragments.

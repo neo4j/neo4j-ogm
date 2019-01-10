@@ -18,7 +18,6 @@
  */
 package org.neo4j.ogm.drivers.bolt.response;
 
-import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.result.adapter.RowModelAdapter;
 

@@ -84,7 +84,7 @@ public class TransactionSerialisationTest extends MultiDriverTestClass {
         private final String query;
         private final SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.tree");
 
-        public QueryRunner(CountDownLatch latch, String query) {
+        QueryRunner(CountDownLatch latch, String query) {
             this.query = query;
             this.latch = latch;
         }

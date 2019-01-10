@@ -28,13 +28,13 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.exception.core.InvalidPropertyFieldException;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.id.UuidStrategy;
-import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -319,7 +319,7 @@ public class ClassInfo {
      */
     public FieldInfo identityField() {
         initIdentityField();
-        return identityField.orElseThrow(() ->new MetadataException("No internal identity field found for class: " + this.className));
+        return identityField.orElseThrow(() -> new MetadataException("No internal identity field found for class: " + this.className));
     }
 
     private synchronized void initIdentityField() {
@@ -436,20 +436,21 @@ public class ClassInfo {
                 && !fieldInfo.hasAnnotation(StartNode.class)
                 && !fieldInfo.hasAnnotation(EndNode.class)) {
 
-                // If a field is not marked explicitly as a property but is persistable as such, add it.
                 if (!fieldInfo.getAnnotations().has(Property.class)) {
+
+                    // If a field is not marked explicitly as a property but is persistable as such, add it.
                     if (fieldInfo.persistableAsProperty()) {
                         fieldInfos.add(fieldInfo);
                         propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
                     }
-                }
-                // If it is marked as a property, than it should be persistable as such
-                else if (fieldInfo.persistableAsProperty()) {
+                } else if (fieldInfo.persistableAsProperty()) {
+
+                    // If it is marked as a property, than it should be persistable as such
                     fieldInfos.add(fieldInfo);
                     propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
-                }
-                // Otherwise throw a fitting exception
-                else {
+                } else {
+
+                    // Otherwise throw a fitting exception
                     throw new InvalidPropertyFieldException(fieldInfo);
                 }
             }
@@ -984,12 +985,12 @@ public class ClassInfo {
     }
 
     private synchronized void initPostLoadMethod() {
-        if(isPostLoadMethodMapped) {
+        if (isPostLoadMethodMapped) {
             return;
         }
 
         Collection<MethodInfo> possiblePostLoadMethods = methodsInfo.findMethodInfoBy(methodInfo -> methodInfo.hasAnnotation(PostLoad.class));
-        if(possiblePostLoadMethods.size() > 1) {
+        if (possiblePostLoadMethods.size() > 1) {
             throw new MetadataException(String.format("Cannot have more than one post load method annotated with @PostLoad for class '%s'", this.className));
         }
 

@@ -87,24 +87,27 @@ public final class GenericUtils {
                 && ((ParameterizedType) genericType).getRawType() instanceof Class
                 ? (Class<?>) ((ParameterizedType) genericType).getRawType()
                 : genericType instanceof Class ? (Class<?>) genericType : null;
-            if (fi != null && fi.isInterface())
+            if (fi != null && fi.isInterface()) {
                 functionalInterface = fi;
+            }
         }
 
         if (genericType instanceof ParameterizedType) {
             ParameterizedType paramType = (ParameterizedType) genericType;
             Type[] arguments = paramType.getActualTypeArguments();
             result = new Class[arguments.length];
-            for (int i = 0; i < arguments.length; i++)
+            for (int i = 0; i < arguments.length; i++) {
                 result[i] = resolveRawClass(arguments[i], subType, functionalInterface);
+            }
         } else if (genericType instanceof TypeVariable) {
             result = new Class[1];
             result[0] = resolveRawClass(genericType, subType, functionalInterface);
         } else if (genericType instanceof Class) {
             TypeVariable<?>[] typeParams = ((Class<?>) genericType).getTypeParameters();
             result = new Class[typeParams.length];
-            for (int i = 0; i < typeParams.length; i++)
+            for (int i = 0; i < typeParams.length; i++) {
                 result[i] = resolveRawClass(typeParams[i], subType, functionalInterface);
+            }
         }
 
         return result;
@@ -140,8 +143,9 @@ public final class GenericUtils {
         Type genericType = targetType.getGenericSuperclass();
         Class<?> type = targetType.getSuperclass();
         while (type != null && !Object.class.equals(type)) {
-            if (genericType instanceof ParameterizedType)
+            if (genericType instanceof ParameterizedType) {
                 populateTypeArgs((ParameterizedType) genericType, map, false);
+            }
             populateSuperTypeArgs(type.getGenericInterfaces(), map, false);
 
             genericType = type.getGenericSuperclass();
@@ -152,8 +156,9 @@ public final class GenericUtils {
         type = targetType;
         while (type.isMemberClass()) {
             genericType = type.getGenericSuperclass();
-            if (genericType instanceof ParameterizedType)
+            if (genericType instanceof ParameterizedType) {
                 populateTypeArgs((ParameterizedType) genericType, map, functionalInterface != null);
+            }
 
             type = type.getEnclosingClass();
         }
@@ -169,13 +174,16 @@ public final class GenericUtils {
         for (Type type : types) {
             if (type instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) type;
-                if (!depthFirst)
+                if (!depthFirst) {
                     populateTypeArgs(parameterizedType, map, depthFirst);
+                }
                 Type rawType = parameterizedType.getRawType();
-                if (rawType instanceof Class)
+                if (rawType instanceof Class) {
                     populateSuperTypeArgs(((Class<?>) rawType).getGenericInterfaces(), map, depthFirst);
-                if (depthFirst)
+                }
+                if (depthFirst) {
                     populateTypeArgs(parameterizedType, map, depthFirst);
+                }
             } else if (type instanceof Class) {
                 populateSuperTypeArgs(((Class<?>) type).getGenericInterfaces(), map, depthFirst);
             }
@@ -192,8 +200,9 @@ public final class GenericUtils {
 
             if (type.getOwnerType() != null) {
                 Type owner = type.getOwnerType();
-                if (owner instanceof ParameterizedType)
+                if (owner instanceof ParameterizedType) {
                     populateTypeArgs((ParameterizedType) owner, map, depthFirst);
+                }
             }
 
             for (int i = 0; i < typeArguments.length; i++) {
@@ -217,8 +226,9 @@ public final class GenericUtils {
                     }
 
                     Type resolvedType = map.get(typeVariableArgument);
-                    if (resolvedType == null)
+                    if (resolvedType == null) {
                         resolvedType = resolveBound(typeVariableArgument);
+                    }
                     map.put(variable, resolvedType);
                 }
             }
@@ -230,12 +240,14 @@ public final class GenericUtils {
      */
     private static Type resolveBound(TypeVariable<?> typeVariable) {
         Type[] bounds = typeVariable.getBounds();
-        if (bounds.length == 0)
+        if (bounds.length == 0) {
             return Unknown.class;
+        }
 
         Type bound = bounds[0];
-        if (bound instanceof TypeVariable)
+        if (bound instanceof TypeVariable) {
             bound = resolveBound((TypeVariable<?>) bound);
+        }
 
         return bound == Object.class ? Unknown.class : bound;
     }

@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Labels;
-import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.PostLoad;
 
 /**
@@ -55,10 +54,12 @@ public abstract class Entity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         Entity entity = (Entity) o;
         return Objects.equals(uuid, entity.uuid);
     }

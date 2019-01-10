@@ -18,11 +18,10 @@
  */
 package org.neo4j.ogm.config;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.neo4j.ogm.testutil.MultiDriverTestClass.*;
+
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import static org.neo4j.ogm.testutil.MultiDriverTestClass.getBaseConfiguration;
 
 /**
  * @author Frantisek Hartman

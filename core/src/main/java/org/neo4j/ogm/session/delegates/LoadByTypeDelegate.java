@@ -91,7 +91,7 @@ public class LoadByTypeDelegate extends SessionDelegate {
         query.setSortOrder(sortOrderWithResolvedProperties)
             .setPagination(pagination);
 
-        return session.doInTransaction( () -> {
+        return session.doInTransaction(() -> {
             if (query.needsRowResult()) {
                 DefaultGraphRowListModelRequest graphRowListModelRequest = new DefaultGraphRowListModelRequest(
                     query.getStatement(), query.getParameters());
@@ -103,8 +103,8 @@ public class LoadByTypeDelegate extends SessionDelegate {
             } else {
                 GraphModelRequest request = new DefaultGraphModelRequest(query.getStatement(), query.getParameters());
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                    return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()
-                        , session.getEntityInstantiator()).map(type, response);
+                    return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context(),
+                        session.getEntityInstantiator()).map(type, response);
                 }
             }
         }, Transaction.Type.READ_WRITE);

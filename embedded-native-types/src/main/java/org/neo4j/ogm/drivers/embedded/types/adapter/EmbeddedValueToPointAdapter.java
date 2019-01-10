@@ -21,10 +21,10 @@ package org.neo4j.ogm.drivers.embedded.types.adapter;
 import java.util.List;
 import java.util.function.Function;
 
-import org.neo4j.ogm.types.spatial.PointBuilder;
-import org.neo4j.values.storable.PointValue;
 import org.neo4j.ogm.types.spatial.AbstractPoint;
 import org.neo4j.ogm.types.spatial.Coordinate;
+import org.neo4j.ogm.types.spatial.PointBuilder;
+import org.neo4j.values.storable.PointValue;
 
 /**
  * @author Michael J. Simons

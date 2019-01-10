@@ -40,10 +40,12 @@ public class DomainObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof DomainObject))
+        }
+        if (!(o instanceof DomainObject)) {
             return false;
+        }
 
         DomainObject that = (DomainObject) o;
 

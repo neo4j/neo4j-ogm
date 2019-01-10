@@ -116,8 +116,9 @@ public class NodeModel extends AbstractPropertyContainer implements Node {
 
     public Object property(String key) {
         for (Property property : properties) {
-            if (property.getKey().equals(key))
+            if (property.getKey().equals(key)) {
                 return property.getValue();
+            }
         }
         return null;
     }
@@ -132,10 +133,12 @@ public class NodeModel extends AbstractPropertyContainer implements Node {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof NodeModel))
+        }
+        if (!(o instanceof NodeModel)) {
             return false;
+        }
         NodeModel nodeModel = (NodeModel) o;
         return id.equals(nodeModel.id);
     }

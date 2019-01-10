@@ -26,7 +26,6 @@ import org.neo4j.driver.v1.types.Point;
 import org.neo4j.ogm.types.spatial.AbstractPoint;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
-import org.neo4j.ogm.types.spatial.Coordinate;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 

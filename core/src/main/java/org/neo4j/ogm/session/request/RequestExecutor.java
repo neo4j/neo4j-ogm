@@ -76,7 +76,7 @@ public class RequestExecutor {
         boolean forceTx = compiler.updateNodesStatements().stream().anyMatch(st -> st.optimisticLockingConfig().isPresent())
             || compiler.updateRelationshipStatements().stream().anyMatch(st -> st.optimisticLockingConfig().isPresent());
 
-        session.doInTransaction( () -> {
+        session.doInTransaction(() -> {
 
             //If there are statements that depend on new nodes i.e. relationships created between new nodes,
             //we must create the new nodes first, and then use their node IDs when creating relationships between them

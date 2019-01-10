@@ -109,15 +109,18 @@ public class Actor {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         Actor actor = (Actor) o;
 
-        if (name == null || ((Actor) o).getName() == null)
+        if (name == null || ((Actor) o).getName() == null) {
             return false;
+        }
 
         return name.equals(actor.name);
     }

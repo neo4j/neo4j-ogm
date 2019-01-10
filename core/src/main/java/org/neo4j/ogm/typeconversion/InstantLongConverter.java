@@ -34,15 +34,17 @@ public class InstantLongConverter implements AttributeConverter<Instant, Number>
 
     @Override
     public Long toGraphProperty(Instant value) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         return value.toEpochMilli();
     }
 
     @Override
     public Instant toEntityAttribute(Number value) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         return Instant.ofEpochMilli(value.longValue());
     }
 }

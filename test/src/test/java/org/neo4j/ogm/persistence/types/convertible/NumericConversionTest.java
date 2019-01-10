@@ -155,19 +155,13 @@ public class NumericConversionTest extends MultiDriverTestClass {
         session.loadAll(Individual.class).iterator().next();
     }
 
-    /**
-     * @see DATAGRAPH-600
-     */
-    @Test(expected = MappingException.class)
+    @Test(expected = MappingException.class) // DATAGRAPH-600
     public void shouldFailForByteAsFloat() {
         session.query("CREATE (i:Individual {name: 'Gary', numberOfShoes: 3.5})", Collections.EMPTY_MAP);
         session.loadAll(Individual.class).iterator().next();
     }
 
-    /**
-     * @see DATAGRAPH-658
-     */
-    @Test
+    @Test // DATAGRAPH-658
     public void shouldLoadDoubleWhenDecimalIsMissing() {
         session.query("CREATE (i:Individual {name: 'Gary', maxTemp: 31})", Collections.EMPTY_MAP);
         Individual i = session.loadAll(Individual.class).iterator().next();
@@ -175,12 +169,12 @@ public class NumericConversionTest extends MultiDriverTestClass {
     }
 
     /**
-     * @see DATAGRAPH-840
+     * @see
      */
-    @Test
+    @Test // DATAGRAPH-840
     public void shouldConvertToLongInsteadOfCasting() {
         Individual individual = new Individual();
-        individual.setLongCollection(Arrays.<Long>asList(1l, 2l, 3l));
+        individual.setLongCollection(Arrays.<Long>asList(1L, 2L, 3L));
         session.save(individual);
 
         session.clear();

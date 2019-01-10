@@ -19,7 +19,6 @@
 package org.neo4j.ogm.cypher.compiler;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 import org.neo4j.ogm.model.Node;

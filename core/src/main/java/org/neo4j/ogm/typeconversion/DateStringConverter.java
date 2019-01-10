@@ -54,8 +54,9 @@ public class DateStringConverter implements AttributeConverter<Date, String> {
 
     @Override
     public String toGraphProperty(Date value) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return simpleDateFormat.format(value);

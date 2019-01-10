@@ -27,10 +27,7 @@ import org.junit.Test;
  */
 public class UtilsTest {
 
-    /**
-     * @see Issue #68
-     */
-    @Test
+    @Test // GH-68
     public void nullInputObjectsShouldReturnNull() {
         assertThat(Utils.coerceTypes(Integer.class, null)).isNull();
         assertThat(Utils.coerceTypes(Float.class, null)).isNull();
@@ -39,16 +36,13 @@ public class UtilsTest {
         assertThat(Utils.coerceTypes(Long.class, null)).isNull();
     }
 
-    /**
-     * @see Issue #69
-     */
-    @Test
+    @Test // GH-69
     public void nullInputPrimitivesShouldReturnDefaults() {
         assertThat(Utils.coerceTypes(int.class, null)).isEqualTo(0);
         assertThat(Utils.coerceTypes(float.class, null)).isEqualTo(0f);
         assertThat(Utils.coerceTypes(byte.class, null)).isEqualTo(0);
         assertThat(Utils.coerceTypes(double.class, null)).isEqualTo(0.0d);
-        assertThat(Utils.coerceTypes(long.class, null)).isEqualTo(0l);
+        assertThat(Utils.coerceTypes(long.class, null)).isEqualTo(0L);
         assertThat(Utils.coerceTypes(short.class, null)).isEqualTo(0);
     }
 }

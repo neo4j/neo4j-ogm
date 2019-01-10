@@ -22,7 +22,6 @@ import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.StreamSupport;
@@ -199,12 +198,12 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
 
         final String[] propertyKeys;
 
-        public IndexDescription(String label, String... propertyKeys) {
+        IndexDescription(String label, String... propertyKeys) {
             this.label = label;
             this.propertyKeys = propertyKeys;
         }
 
-        public IndexDescription(IndexDefinition indexDefinition) {
+        IndexDescription(IndexDefinition indexDefinition) {
             this.label = indexDefinition.getLabel().name();
             this.propertyKeys = StreamSupport.stream(indexDefinition.getPropertyKeys().spliterator(), false)
                 .toArray(String[]::new);
@@ -212,10 +211,12 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (!(o instanceof IndexDescription))
+            }
+            if (!(o instanceof IndexDescription)) {
                 return false;
+            }
             IndexDescription that = (IndexDescription) o;
             return Objects.equals(label, that.label) &&
                 Arrays.equals(propertyKeys, that.propertyKeys);

@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import static java.util.Arrays.asList;
+import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.cypher.ComparisonOperator.*;
 

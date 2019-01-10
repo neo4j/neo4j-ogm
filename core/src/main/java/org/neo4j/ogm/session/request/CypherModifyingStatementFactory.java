@@ -32,7 +32,7 @@ import org.neo4j.ogm.request.StatementFactory;
 class CypherModifyingStatementFactory implements StatementFactory {
     private final RowStatementFactory delegate;
 
-    public CypherModifyingStatementFactory(RowStatementFactory delegate) {
+    CypherModifyingStatementFactory(RowStatementFactory delegate) {
         this.delegate = delegate;
     }
 

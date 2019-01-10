@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.cypher.query;
 
-import java.util.List;
-
 /**
  * @author Luanne Misquitta
  */

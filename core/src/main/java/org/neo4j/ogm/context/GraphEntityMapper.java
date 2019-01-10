@@ -82,7 +82,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
         List<T> objects = new ArrayList<>();
         Set<Long> objectIds = new HashSet<>();
-          /*
+        /*
          * these two lists will contain the node ids and edge ids from the response, in the order
          * they were presented to us.
          */
@@ -193,11 +193,11 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         if (postLoadMethod != null) {
             final Method method = classInfo.getMethod(postLoadMethod);
             try {
-                if(!method.isAccessible()) {
+                if (!method.isAccessible()) {
                     method.setAccessible(true);
                 }
                 method.invoke(instance);
-            } catch(SecurityException e) {
+            } catch (SecurityException e) {
                 logger.warn("Cannot call PostLoad annotated method {} on class {}, "
                     + "security manager denied access.", method.getName(), classInfo.name(), e);
             } catch (IllegalAccessException | InvocationTargetException e) {
@@ -230,7 +230,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                         continue;
                     }
                     Map<String, Object> allProps = new HashMap<>(toMap(node.getPropertyList()));
-                    getCompositeProperties(node.getPropertyList(), clsi).forEach( (k, v) -> {
+                    getCompositeProperties(node.getPropertyList(), clsi).forEach((k, v) -> {
                         allProps.put(k.getName(), v);
                     });
 
@@ -249,10 +249,11 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
      * Finds the composite properties of an entity type and build their values using a property list.
      *
      * @param propertyList The properties to convert from.
-     * @param classInfo The class to inspect for composite attributes.
+     * @param classInfo    The class to inspect for composite attributes.
      * @return a map containing the values of the converted attributes, indexed by field object. Never null.
      */
-    private Map<FieldInfo, Object> getCompositeProperties(List<Property<String, Object>> propertyList, ClassInfo classInfo) {
+    private Map<FieldInfo, Object> getCompositeProperties(List<Property<String, Object>> propertyList,
+        ClassInfo classInfo) {
 
         Map<FieldInfo, Object> compositeValues = new HashMap<>();
 
@@ -271,7 +272,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     private void setProperties(List<Property<String, Object>> propertyList, Object instance) {
         ClassInfo classInfo = metadata.classInfo(instance);
 
-        getCompositeProperties(propertyList, classInfo).forEach( (field, v) -> field.write(instance, v));
+        getCompositeProperties(propertyList, classInfo).forEach((field, v) -> field.write(instance, v));
 
         for (Property<?, ?> property : propertyList) {
             writeProperty(classInfo, instance, property);
@@ -402,7 +403,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         }
 
         Map<String, Object> allProps = new HashMap<>(toMap(edge.getPropertyList()));
-        getCompositeProperties(edge.getPropertyList(), relationClassInfo).forEach( (k, v) -> {
+        getCompositeProperties(edge.getPropertyList(), relationClassInfo).forEach((k, v) -> {
             allProps.put(k.getName(), v);
         });
         // also add start and end node as valid constructor values

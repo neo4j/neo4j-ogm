@@ -105,17 +105,21 @@ public class World {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         World world = (World) o;
 
-        if (moons != world.moons)
+        if (moons != world.moons) {
             return false;
-        if (id != null ? !id.equals(world.id) : world.id != null)
+        }
+        if (id != null ? !id.equals(world.id) : world.id != null) {
             return false;
+        }
         return !(name != null ? !name.equals(world.name) : world.name != null);
     }
 

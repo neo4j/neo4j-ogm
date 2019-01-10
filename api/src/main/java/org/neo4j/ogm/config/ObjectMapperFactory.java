@@ -56,7 +56,7 @@ public final class ObjectMapperFactory {
 
     abstract static class NodeModelMixin {
         @JsonCreator
-        public NodeModelMixin(@JsonProperty("id") Long id) {
+        NodeModelMixin(@JsonProperty("id") Long id) {
         }
     }
 

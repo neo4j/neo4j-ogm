@@ -56,7 +56,7 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
 
     @Override
     public PagingAndSortingQuery findOne(ID id, int depth) {
-        if (depth> 0) {
+        if (depth > 0) {
             String matchClause = idMatchClauseBuilder.build("");
             String returnClause = loadClauseBuilder.build("r0", "", depth);
             return new PagingAndSortingQuery(matchClause, returnClause, Utils.map("id", id), true, true, "r0");

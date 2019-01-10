@@ -63,7 +63,7 @@ public class CanonicalTest extends MultiDriverTestClass {
         mappable.setPrimitiveDouble(123.4);
         mappable.setPrimitiveFloat(567.8f);
         mappable.setPrimitiveInt(5);
-        mappable.setPrimitiveLong(8l);
+        mappable.setPrimitiveLong(8L);
         mappable.setPrimitiveShort((short) 200);
 
         mappable.setPrimitiveBooleanArray(new boolean[] { true, false });
@@ -80,7 +80,7 @@ public class CanonicalTest extends MultiDriverTestClass {
         mappable.setObjectDouble(567.8);
         mappable.setObjectFloat(123.4f);
         mappable.setObjectInteger(99);
-        mappable.setObjectLong(1000l);
+        mappable.setObjectLong(1_000L);
         mappable.setObjectShort(Short.valueOf("100"));
         mappable.setObjectString("abc");
         mappable.setObjectCharacter('d');
@@ -91,7 +91,7 @@ public class CanonicalTest extends MultiDriverTestClass {
         mappable.setObjectDoubleArray(new Double[] { 34.5, 67.8 });
         mappable.setObjectFloatArray(new Float[] { 1.2f, 3.4f });
         mappable.setObjectIntegerArray(new Integer[] { 6, 7 });
-        mappable.setObjectLongArray(new Long[] { 9l, 10l });
+        mappable.setObjectLongArray(new Long[] { 9L, 10L });
         mappable.setObjectShortArray(new Short[] { (short) 30, (short) 300 });
         mappable.setObjectStringArray(new String[] { "abc", "xyz" });
 

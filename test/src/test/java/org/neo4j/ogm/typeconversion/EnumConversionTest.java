@@ -28,7 +28,6 @@ import org.neo4j.ogm.domain.convertible.enums.Algebra;
 import org.neo4j.ogm.domain.convertible.enums.Education;
 import org.neo4j.ogm.domain.convertible.enums.Gender;
 import org.neo4j.ogm.domain.convertible.enums.NumberSystem;
-import org.neo4j.ogm.domain.convertible.enums.Operation;
 import org.neo4j.ogm.domain.convertible.enums.Person;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;

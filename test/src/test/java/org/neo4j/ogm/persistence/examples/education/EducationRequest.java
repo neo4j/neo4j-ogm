@@ -39,8 +39,7 @@ public class EducationRequest extends StubHttpDriver {
             "\"relationships\": [" +
             "{\"id\":\"202\",\"type\":\"TEACHES\",\"startNode\":\"20\",\"endNode\":\"2\",\"properties\":{}}" +
             "] " +
-            "} }"
-        ,
+            "} }",
         "{\"graph\": { " +
             "\"nodes\" :[ " +
             "{\"id\" : \"20\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mr Thomas\" } }, " +
@@ -49,8 +48,7 @@ public class EducationRequest extends StubHttpDriver {
             "\"relationships\": [" +
             "{\"id\":\"203\",\"type\":\"TEACHES\",\"startNode\":\"20\",\"endNode\":\"3\",\"properties\":{}}" +
             "] " +
-            "} }"
-        ,
+            "} }",
         "{\"graph\": { " +
             "\"nodes\" :[ " +
             "{\"id\" : \"20\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mr Thomas\" } }, " +
@@ -59,11 +57,9 @@ public class EducationRequest extends StubHttpDriver {
             "\"relationships\": [" +
             "{\"id\":\"204\",\"type\":\"TEACHES\",\"startNode\":\"20\",\"endNode\":\"4\",\"properties\":{}} " +
             "] " +
-            "} }"
+            "} }",
 
-        ,
         // mrs roberts results
-
         "{\"graph\": { " +
             "\"nodes\" :[ " +
             "{\"id\" : \"21\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mrs Roberts\" } }, " +
@@ -184,8 +180,7 @@ public class EducationRequest extends StubHttpDriver {
             "{\"id\":\"2125\",\"type\":\"ENROLLED\",\"startNode\":\"2\",\"endNode\":\"125\",\"properties\":{}}," +
             "{\"id\":\"2126\",\"type\":\"ENROLLED\",\"startNode\":\"2\",\"endNode\":\"126\",\"properties\":{}} " +
             "] " +
-            "} }"
-        ,
+            "} }",
         // Maths set : all
         "{\"graph\": { " +
             "\"nodes\" :[ " +
@@ -247,8 +242,7 @@ public class EducationRequest extends StubHttpDriver {
             "{\"id\":\"3125\",\"type\":\"ENROLLED\",\"startNode\":\"3\",\"endNode\":\"125\",\"properties\":{}}," +
             "{\"id\":\"3126\",\"type\":\"ENROLLED\",\"startNode\":\"3\",\"endNode\":\"126\",\"properties\":{}} " +
             "] " +
-            "} }"
-        ,
+            "} }",
         // Physics set : odd(id)
         "{\"graph\": { " +
             "\"nodes\" :[ " +
@@ -284,9 +278,7 @@ public class EducationRequest extends StubHttpDriver {
             "{\"id\":\"4123\",\"type\":\"ENROLLED\",\"startNode\":\"4\",\"endNode\":\"123\",\"properties\":{}}," +
             "{\"id\":\"4125\",\"type\":\"ENROLLED\",\"startNode\":\"4\",\"endNode\":\"125\",\"properties\":{}}" +
             "] " +
-            "} }"
-
-        ,
+            "} }",
         // Philosophy and Ethics set: all
         "{\"graph\": { " +
             "\"nodes\" :[ " +
@@ -348,8 +340,7 @@ public class EducationRequest extends StubHttpDriver {
             "{\"id\":\"5125\",\"type\":\"ENROLLED\",\"startNode\":\"5\",\"endNode\":\"125\",\"properties\":{}}," +
             "{\"id\":\"5126\",\"type\":\"ENROLLED\",\"startNode\":\"5\",\"endNode\":\"126\",\"properties\":{}} " +
             "] " +
-            "} }"
-        ,
+            "} }",
         // PE set: isInteger((id modulo 100) / 3)
         "{\"graph\": { " +
             "\"nodes\" :[ " +
@@ -375,9 +366,7 @@ public class EducationRequest extends StubHttpDriver {
             "{\"id\":\"6121\",\"type\":\"ENROLLED\",\"startNode\":\"6\",\"endNode\":\"121\",\"properties\":{}}," +
             "{\"id\":\"6124\",\"type\":\"ENROLLED\",\"startNode\":\"6\",\"endNode\":\"124\",\"properties\":{}}" +
             "] " +
-            "} }"
-
-        ,
+            "} }",
         // History set even(id)
         "{\"graph\": { " +
             "\"nodes\" :[ " +
@@ -413,8 +402,7 @@ public class EducationRequest extends StubHttpDriver {
             "{\"id\":\"7124\",\"type\":\"ENROLLED\",\"startNode\":\"7\",\"endNode\":\"124\",\"properties\":{}}," +
             "{\"id\":\"7126\",\"type\":\"ENROLLED\",\"startNode\":\"7\",\"endNode\":\"126\",\"properties\":{}} " +
             "] " +
-            "} }"
-        ,
+            "} }",
         // Geography set : isPrime(id modulo 100)
         "{\"graph\": { " +
             "\"nodes\" :[ " +

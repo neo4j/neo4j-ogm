@@ -20,7 +20,7 @@ package org.neo4j.ogm.metadata;
 
 import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.rules.ExpectedException.none;
+import static org.junit.rules.ExpectedException.*;
 import static org.neo4j.ogm.annotation.Relationship.*;
 
 import java.util.Collection;
@@ -96,8 +96,9 @@ public class ClassInfoTest {
         int count = 1;
         assertThat(fieldInfos.size()).isEqualTo(count);
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("fees"))
+            if (fieldInfo.getName().equals("fees")) {
                 count--;
+            }
         }
         assertThat(count).isEqualTo(0);
     }
@@ -123,8 +124,9 @@ public class ClassInfoTest {
         int count = 1;
         assertThat(fieldInfos.size()).isEqualTo(count);
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("userName"))
+            if (fieldInfo.getName().equals("userName")) {
                 count--;
+            }
         }
         assertThat(count).isEqualTo(0);
 
@@ -186,14 +188,18 @@ public class ClassInfoTest {
         int count = 4;
         assertThat(fieldInfos.size()).isEqualTo(count);
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("activityList"))
+            if (fieldInfo.getName().equals("activityList")) {
                 count--;
-            if (fieldInfo.getName().equals("followees"))
+            }
+            if (fieldInfo.getName().equals("followees")) {
                 count--;
-            if (fieldInfo.getName().equals("memberShip"))
+            }
+            if (fieldInfo.getName().equals("memberShip")) {
                 count--;
-            if (fieldInfo.getName().equals("followers"))
+            }
+            if (fieldInfo.getName().equals("followers")) {
                 count--;
+            }
         }
         assertThat(count).isEqualTo(0);
     }
@@ -207,8 +213,9 @@ public class ClassInfoTest {
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
 
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("posts"))
+            if (fieldInfo.getName().equals("posts")) {
                 assertThat(fieldInfo.relationship()).isEqualTo("HAS_POSTS");
+            }
         }
     }
 
@@ -221,8 +228,9 @@ public class ClassInfoTest {
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
 
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("posts"))
+            if (fieldInfo.getName().equals("posts")) {
                 assertThat(fieldInfo.relationship()).isEqualTo("HAS_POSTS");
+            }
         }
     }
 
@@ -266,14 +274,18 @@ public class ClassInfoTest {
         int count = 4;
         assertThat(relationshipFields.size()).isEqualTo(count);
         for (FieldInfo relationshipField : relationshipFields) {
-            if (relationshipField.getName().equals("activityList"))
+            if (relationshipField.getName().equals("activityList")) {
                 count--;
-            if (relationshipField.getName().equals("followees"))
+            }
+            if (relationshipField.getName().equals("followees")) {
                 count--;
-            if (relationshipField.getName().equals("memberShip"))
+            }
+            if (relationshipField.getName().equals("memberShip")) {
                 count--;
-            if (relationshipField.getName().equals("followers"))
+            }
+            if (relationshipField.getName().equals("followers")) {
                 count--;
+            }
         }
         assertThat(count).isEqualTo(0);
     }
@@ -288,16 +300,21 @@ public class ClassInfoTest {
         int count = 5;
         assertThat(propertyFields.size()).isEqualTo(count);
         for (FieldInfo propertyField : propertyFields) {
-            if (propertyField.getName().equals("renewalDate"))
+            if (propertyField.getName().equals("renewalDate")) {
                 count--;
-            if (propertyField.getName().equals("userName"))
+            }
+            if (propertyField.getName().equals("userName")) {
                 count--;
-            if (propertyField.getName().equals("password"))
+            }
+            if (propertyField.getName().equals("password")) {
                 count--;
-            if (propertyField.getName().equals("membershipNumber"))
+            }
+            if (propertyField.getName().equals("membershipNumber")) {
                 count--;
-            if (propertyField.getName().equals("nicknames"))
+            }
+            if (propertyField.getName().equals("nicknames")) {
                 count--;
+            }
         }
         assertThat(count).isEqualTo(0);
     }
@@ -325,14 +342,18 @@ public class ClassInfoTest {
         int count = 4;
         assertThat(fieldInfos.size()).isEqualTo(count);
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("followees"))
+            if (fieldInfo.getName().equals("followees")) {
                 count--;
-            if (fieldInfo.getName().equals("followers"))
+            }
+            if (fieldInfo.getName().equals("followers")) {
                 count--;
-            if (fieldInfo.getName().equals("activityList"))
+            }
+            if (fieldInfo.getName().equals("activityList")) {
                 count--;
-            if (fieldInfo.getName().equals("nicknames"))
+            }
+            if (fieldInfo.getName().equals("nicknames")) {
                 count--;
+            }
         }
         assertThat(count).isEqualTo(0);
     }

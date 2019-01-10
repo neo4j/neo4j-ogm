@@ -112,9 +112,9 @@ public abstract class AbstractConfigurableDriver implements Driver {
     public final Function<String, String> getCypherModification() {
 
         Function<String, String> loadedCypherModification = this.cypherModification;
-        if(loadedCypherModification == null) {
+        if (loadedCypherModification == null) {
             synchronized (this) {
-                if(this.cypherModification == null) {
+                if (this.cypherModification == null) {
                     loadedCypherModification = this.cypherModification = loadCypherModifications();
                 }
             }
@@ -180,7 +180,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
 
     private Map<String, Object> getConfigurationProperties() {
 
-        if(this.configuration == null) {
+        if (this.configuration == null) {
             throw new IllegalStateException("Driver is not configured and cannot load Cypher modifications.");
         }
 

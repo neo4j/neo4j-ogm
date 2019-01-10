@@ -29,7 +29,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.generic_hierarchy.ConcreteChild;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.typed_relationships.SomeEntity;
 import org.neo4j.ogm.domain.typed_relationships.TypedEntity;

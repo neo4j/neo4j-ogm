@@ -443,7 +443,7 @@ public class JsonGraphRowResponseTest {
     static class TestGraphRowHttpResponse extends AbstractHttpResponse<ResultGraphRowListModel>
         implements Response<GraphRowListModel> {
 
-        public TestGraphRowHttpResponse() {
+        TestGraphRowHttpResponse() {
             super(response, ResultGraphRowListModel.class);
         }
 

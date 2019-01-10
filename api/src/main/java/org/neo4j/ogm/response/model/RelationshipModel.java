@@ -19,12 +19,8 @@
 package org.neo4j.ogm.response.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Property;
@@ -115,10 +111,12 @@ public class RelationshipModel extends AbstractPropertyContainer implements Edge
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         RelationshipModel that = (RelationshipModel) o;
 

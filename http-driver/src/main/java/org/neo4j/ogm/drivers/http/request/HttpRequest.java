@@ -171,7 +171,7 @@ public class HttpRequest implements Request {
         request.setEntity(new StringEntity(cypher, "UTF-8"));
         request.setHeader("X-WRITE", readOnly ? "0" : "1");
 
-        if(LOGGER.isDebugEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Thread: {}, url: {}, request: {}", Thread.currentThread().getId(), url, cypher);
         }
 
@@ -216,10 +216,8 @@ public class HttpRequest implements Request {
                 }
 
                 return response; // don't close response yet, it is not consumed!
-            }
-
-            // if we didn't get a response at all, try again
-            catch (NoHttpResponseException nhre) {
+            } catch (NoHttpResponseException nhre) {
+                // if we didn't get a response at all, try again
                 LOGGER.warn("Thread: {}, No response from server:  Retrying in {} milliseconds, retries left: {}",
                     Thread.currentThread().getId(), retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
                 retryStrategy.errorOccurred();
@@ -229,12 +227,10 @@ public class HttpRequest implements Request {
                 throw new ConnectionException(request.getURI().toString(), uhe);
             } catch (IOException ioe) {
                 throw new HttpRequestException(request, ioe);
-            }
-
-            // here we catch any exception we throw above (plus any we didn't throw ourselves),
-            // log the problem, close any connection held by the request
-            // and then rethrow the exception to the caller.
-            catch (Exception exception) {
+            } catch (Exception exception) {
+                // here we catch any exception we throw above (plus any we didn't throw ourselves),
+                // log the problem, close any connection held by the request
+                // and then rethrow the exception to the caller.
                 LOGGER.warn("Thread: {}, exception: {}", Thread.currentThread().getId(),
                     exception.getCause().getLocalizedMessage());
                 request.releaseConnection();
@@ -253,11 +249,11 @@ public class HttpRequest implements Request {
         private int numberOfTriesLeft;
         private long timeToWait;
 
-        public RetryOnExceptionStrategy() {
+        RetryOnExceptionStrategy() {
             this(DEFAULT_RETRIES, DEFAULT_WAIT_TIME_IN_MILLI);
         }
 
-        public RetryOnExceptionStrategy(int numberOfRetries, long timeToWait) {
+        RetryOnExceptionStrategy(int numberOfRetries, long timeToWait) {
             this.numberOfRetries = numberOfRetries;
             numberOfTriesLeft = numberOfRetries;
             this.timeToWait = timeToWait;
@@ -314,7 +310,7 @@ public class HttpRequest implements Request {
 
     static class RetryException extends RuntimeException {
 
-        public RetryException(String msg) {
+        RetryException(String msg) {
             super(msg);
         }
     }

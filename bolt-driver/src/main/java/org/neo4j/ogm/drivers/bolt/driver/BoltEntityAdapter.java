@@ -27,7 +27,6 @@ import org.neo4j.driver.v1.types.Entity;
 import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
 import org.neo4j.driver.v1.types.Relationship;
-import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.driver.TypeSystem;
 
 /**

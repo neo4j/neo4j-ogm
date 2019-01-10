@@ -21,7 +21,6 @@ package org.neo4j.ogm.drivers.bolt.response;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.result.adapter.GraphModelAdapter;
 

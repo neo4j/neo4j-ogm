@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -109,7 +108,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
 
         try {
             ((Neo4jSession) session).addWriteProtection(
-                WriteProtectionTarget.PROPERTIES, object -> (object instanceof User) && bilbo.getId().equals(((User) object).getId()));
+                WriteProtectionTarget.PROPERTIES,
+                object -> (object instanceof User) && bilbo.getId().equals(((User) object).getId()));
             User frodo = new User("Frodo Beutlin");
             bilbo.befriend(frodo);
             bilbo.setName("The wrong name");
@@ -144,7 +144,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
         try {
             // save only Avon's properties, protect neighboring nodes from writes
             ((Neo4jSession) session).addWriteProtection(
-                WriteProtectionTarget.PROPERTIES, object -> (object instanceof User) && !avon.getId().equals(((User) object).getId()));
+                WriteProtectionTarget.PROPERTIES,
+                object -> (object instanceof User) && !avon.getId().equals(((User) object).getId()));
             stringer.setName("Marlo");
             avon.befriend(stringer);
 
@@ -163,16 +164,16 @@ public class BasicDriverTest extends MultiDriverTestClass {
     @Test
     public void customWriteProtectionStrategyShouldBeApplied() {
         Predicate<Object> alwaysWriteProtect = o -> true;
-        Predicate<Object> protectAvon = o -> ((User)o).getName().startsWith("Avon");
+        Predicate<Object> protectAvon = o -> ((User) o).getName().startsWith("Avon");
 
         WriteProtectionStrategy customStrategy = () -> (target, clazz) -> {
             // Mode ignored
 
             // If you need only protection for some Classes, this is the way to go.
             // You than can omit the class check  in the predicate
-            if(clazz == Immortal.class) {
+            if (clazz == Immortal.class) {
                 return alwaysWriteProtect;
-            } else if(clazz  == User.class) {
+            } else if (clazz == User.class) {
                 return protectAvon;
             } else { // if no predicate is return, we assume no write protection
                 // Person.class in the example

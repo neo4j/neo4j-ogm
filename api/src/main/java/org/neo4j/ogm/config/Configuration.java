@@ -227,10 +227,12 @@ public class Configuration {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Configuration))
+        }
+        if (!(o instanceof Configuration)) {
             return false;
+        }
         Configuration that = (Configuration) o;
         return connectionPoolSize == that.connectionPoolSize &&
             Objects.equals(uri, that.uri) &&

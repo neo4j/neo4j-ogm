@@ -23,7 +23,6 @@ import java.util.Collection;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.request.Statement;
 
 /**
  * @author Vince Bickers

@@ -25,7 +25,6 @@ import static org.mockito.Mockito.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -337,7 +336,7 @@ public class JsonGraphResponseTest {
 
     static class TestGraphHttpResponse extends AbstractHttpResponse<ResultGraphModel> implements Response<GraphModel> {
 
-        public TestGraphHttpResponse() {
+        TestGraphHttpResponse() {
             super(response, ResultGraphModel.class);
         }
 

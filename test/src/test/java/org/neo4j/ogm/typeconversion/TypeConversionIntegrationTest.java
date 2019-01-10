@@ -77,7 +77,7 @@ public class TypeConversionIntegrationTest extends MultiDriverTestClass {
 
         session.save(album);
         session.clear();
-        
+
         final Date latestReleases = session.queryForObject(Date.class, "MATCH (n:`l'album`) RETURN MAX(n.releasedAt)", new HashMap<>());
         Assertions.assertThat(latestReleases).isEqualTo(queen2ReleaseDate);
     }

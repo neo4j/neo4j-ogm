@@ -23,6 +23,7 @@ import static org.neo4j.ogm.annotation.Relationship.*;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 class RelationshipImpl implements Relationship {
 
@@ -34,7 +35,7 @@ class RelationshipImpl implements Relationship {
     private final NodeImpl start;
     private final NodeImpl end;
 
-    public RelationshipImpl(String type, String direction, NodeImpl start, NodeImpl end) {
+    RelationshipImpl(String type, String direction, NodeImpl start, NodeImpl end) {
         this.type = requireNonNull(type);
         this.direction = requireNonNull(direction);
         this.start = requireNonNull(start);

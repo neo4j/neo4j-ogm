@@ -138,7 +138,7 @@ public class CypherModificationSPITest {
     }
 
     private static class TestServiceLoaderClassLoader extends ClassLoader {
-        public TestServiceLoaderClassLoader(ClassLoader originalClassLoader) {
+        TestServiceLoaderClassLoader(ClassLoader originalClassLoader) {
             super(originalClassLoader);
         }
 

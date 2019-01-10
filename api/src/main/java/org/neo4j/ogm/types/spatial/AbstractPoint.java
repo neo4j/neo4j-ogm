@@ -46,10 +46,12 @@ public abstract class AbstractPoint {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof AbstractPoint))
+        }
+        if (!(o instanceof AbstractPoint)) {
             return false;
+        }
         AbstractPoint that = (AbstractPoint) o;
         return Objects.equals(coordinate, that.coordinate) &&
             Objects.equals(srid, that.srid);

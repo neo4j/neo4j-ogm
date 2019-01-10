@@ -75,10 +75,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void shouldQueryForArbitraryDataUsingBespokeParameterisedCypherQuery() {
         session.save(new Actor("Helen Mirren"));
         Actor alec = new Actor("Alec Baldwin");
@@ -99,19 +96,13 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.iterator().next().get("name")).isEqualTo("Alec Baldwin");
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test(expected = RuntimeException.class)
+    @Test(expected = RuntimeException.class) // DATAGRAPH-697
     public void readOnlyQueryMustBeReadOnly() {
         session.save(new Actor("Jeff"));
         session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), true);
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void modifyingQueryShouldReturnStatistics() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
@@ -127,10 +118,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(3);
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void modifyingQueryShouldReturnResultsWithStatistics() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
@@ -161,7 +149,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         while (namesIterator.hasNext()) {
             Map<String, Object> row = namesIterator.next();
             names.add((String) row.get("a.name"));
-            assertThat(((Number) row.get("a.age")).longValue()).isEqualTo(5l);
+            assertThat(((Number) row.get("a.age")).longValue()).isEqualTo(5L);
         }
 
         assertThat(names).hasSize(3);
@@ -170,10 +158,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(names.contains("Colin")).isTrue();
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void readOnlyQueryShouldNotReturnStatistics() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
@@ -195,10 +180,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(names.contains("Colin")).isTrue();
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void modifyingQueryShouldBePermittedWhenQueryingForObject() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
@@ -209,10 +191,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(jeff.getName()).isEqualTo("Jeff");
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void modifyingQueryShouldBePermittedWhenQueryingForObjects() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));

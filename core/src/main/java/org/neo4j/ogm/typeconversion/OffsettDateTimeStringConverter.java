@@ -32,15 +32,17 @@ public class OffsettDateTimeStringConverter implements AttributeConverter<Offset
 
     @Override
     public String toGraphProperty(OffsetDateTime value) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         return value.toString();
     }
 
     @Override
     public OffsetDateTime toEntityAttribute(String value) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         return OffsetDateTime.parse(value);
     }
 }

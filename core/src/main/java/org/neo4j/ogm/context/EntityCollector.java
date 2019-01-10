@@ -122,13 +122,13 @@ class EntityCollector {
         private final long targetGraphId;
         private final Object target;
 
-        public TargetTriple(long targetGraphId, Object target) {
+        TargetTriple(long targetGraphId, Object target) {
             this.relationshipId = -1;
             this.targetGraphId = targetGraphId;
             this.target = target;
         }
 
-        public TargetTriple(long relationshipId, long targetGraphId, Object target) {
+        TargetTriple(long relationshipId, long targetGraphId, Object target) {
             this.relationshipId = relationshipId;
             this.targetGraphId = targetGraphId;
             this.target = requireNonNull(target);
@@ -138,25 +138,24 @@ class EntityCollector {
             return relationshipId;
         }
 
-        public long getTargetGraphId() {
-            return targetGraphId;
-        }
-
         public Object getTarget() {
             return target;
         }
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if (o == null || getClass() != o.getClass()) {
                 return false;
+            }
 
             TargetTriple that = (TargetTriple) o;
 
-            if (relationshipId != that.relationshipId)
+            if (relationshipId != that.relationshipId) {
                 return false;
+            }
             return targetGraphId == that.targetGraphId;
         }
 

@@ -47,15 +47,17 @@ public class NumberStringConverter implements AttributeConverter<Number, String>
 
     @Override
     public String toGraphProperty(Number value) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         return value.toString();
     }
 
     @Override
     public Number toEntityAttribute(String value) {
-        if (value == null || (lenient && StringUtils.isBlank(value)))
+        if (value == null || (lenient && StringUtils.isBlank(value))) {
             return null;
+        }
         try {
             return numberClass.getDeclaredConstructor(String.class).newInstance(value);
         } catch (Exception e) {

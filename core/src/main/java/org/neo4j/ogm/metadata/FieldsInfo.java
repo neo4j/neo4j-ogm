@@ -108,7 +108,7 @@ public class FieldsInfo {
 
         List<Field> genericFieldsInHierarchy = new ArrayList<>();
         Class<?> currentClass = clazz.getSuperclass();
-        while(currentClass != null) {
+        while (currentClass != null) {
             Stream.of(currentClass.getDeclaredFields())
                 .filter(GenericUtils::isGenericField)
                 .forEach(genericFieldsInHierarchy::add);

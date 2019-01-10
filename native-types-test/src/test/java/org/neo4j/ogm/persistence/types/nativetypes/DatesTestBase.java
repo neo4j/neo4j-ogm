@@ -284,7 +284,7 @@ public abstract class DatesTestBase {
         @EndNode
         private Some someEnd = new Some();
 
-        public SometimeRelationship() {
+        SometimeRelationship() {
             this.sometimeStart.rels.add(this);
             this.someEnd.rels.add(this);
         }

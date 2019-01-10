@@ -20,8 +20,6 @@ package org.neo4j.ogm.driver;
 
 import java.util.function.Function;
 
-import org.neo4j.ogm.driver.ParameterConversion.DefaultParameterConversion;
-
 /**
  * This interface describes a type system with a set of native type a driver can handle.
  *

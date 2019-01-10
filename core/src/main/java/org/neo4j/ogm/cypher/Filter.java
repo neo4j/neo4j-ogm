@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.cypher;
 
+import static org.neo4j.ogm.cypher.ComparisonOperator.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -26,13 +28,10 @@ import java.util.Map;
 
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
-import org.neo4j.ogm.cypher.function.NativeDistanceComparison;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
-
-import static org.neo4j.ogm.cypher.ComparisonOperator.EQUALS;
 
 /**
  * A parameter along with filter information to be added to a query.

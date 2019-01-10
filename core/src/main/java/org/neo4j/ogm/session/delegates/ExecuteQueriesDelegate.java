@@ -117,11 +117,11 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         validateQuery(cypher, parameters, readOnly);
 
         RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
-        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()
-            , session.getEntityInstantiator()),
+        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context(),
+            session.getEntityInstantiator()),
             session.metaData());
 
-        return session.doInTransaction( () -> {
+        return session.doInTransaction(() -> {
 
             try (Response<RestModel> response = session.requestHandler().execute(request)) {
                 Iterable<RestStatisticsModel> mappedModel = mapper.map(null, response);
@@ -139,11 +139,12 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
     private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters,
         ResponseMapper mapper) {
 
-        return session.<Iterable<T>>doInTransaction( () -> {
+        return session.<Iterable<T>>doInTransaction(() -> {
             if (type != null && session.metaData().classInfo(deriveSimpleName(type)) != null) {
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                    return new GraphEntityMapper(session.metaData(), session.context(), session.getEntityInstantiator()).map(type, response);
+                    return new GraphEntityMapper(session.metaData(), session.context(), session.getEntityInstantiator())
+                        .map(type, response);
                 }
             } else {
                 RowModelRequest request = new DefaultRowModelRequest(cypher, parameters);
@@ -191,7 +192,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
             }
             countStatement = new CountStatements().countNodes(labels);
         }
-        return session.doInTransaction( () -> {
+        return session.doInTransaction(() -> {
             try (Response<RowModel> response = session.requestHandler().execute((RowModelRequest) countStatement)) {
                 RowModel queryResult = response.next();
                 return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();

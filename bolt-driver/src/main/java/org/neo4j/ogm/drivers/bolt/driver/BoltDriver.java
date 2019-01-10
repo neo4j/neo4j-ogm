@@ -43,7 +43,6 @@ import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.driver.ExceptionTranslator;
-import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.request.BoltRequest;
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;
 import org.neo4j.ogm.exception.ConnectionException;

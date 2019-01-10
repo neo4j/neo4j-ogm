@@ -71,14 +71,14 @@ public class Pizza {
         this.toppings = toppings;
     }
 
-    public void addLabel(Object... labels) {
-        for (Object label : labels) {
+    public void addLabel(Object... additionalLabels) {
+        for (Object label : additionalLabels) {
             this.labels.add(label.toString());
         }
     }
 
-    public void removeLabel(Object... labels) {
-        for (Object label : labels) {
+    public void removeLabel(Object... labelsToRemove) {
+        for (Object label : labelsToRemove) {
             this.labels.remove(label.toString());
         }
     }

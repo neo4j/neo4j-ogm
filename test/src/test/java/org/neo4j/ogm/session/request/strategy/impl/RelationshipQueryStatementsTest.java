@@ -73,15 +73,15 @@ public class RelationshipQueryStatementsTest {
 
     @Test
     public void testFindOneByTypePrimaryIndex() throws Exception {
-        PagingAndSortingQuery query = primaryQuery.findOneByType("ORBITS", "test-uuid", 2);
-        assertThat(query.getStatement())
+        PagingAndSortingQuery pagingAndSortingQuery = primaryQuery.findOneByType("ORBITS", "test-uuid", 2);
+        assertThat(pagingAndSortingQuery.getStatement())
             .isEqualTo("MATCH ()-[r0:`ORBITS`]->() WHERE r0.`uuid`={id}  " +
                 "WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
                 "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
 
-        assertThat(query.getParameters()).contains(entry("id", "test-uuid"));
+        assertThat(pagingAndSortingQuery.getParameters()).contains(entry("id", "test-uuid"));
     }
 
     @Test
@@ -111,10 +111,10 @@ public class RelationshipQueryStatementsTest {
 
     @Test
     public void testFindAllByTypePrimaryIndex() throws Exception {
-        PagingAndSortingQuery query = primaryQuery
+        PagingAndSortingQuery pagingAndSortingQuery = primaryQuery
             .findAllByType("ORBITS", Arrays.asList("test-uuid-1", "test-uuid-2"), 2);
 
-        assertThat(query.getStatement())
+        assertThat(pagingAndSortingQuery.getStatement())
             .isEqualTo("MATCH ()-[r0:`ORBITS`]-() WHERE r0.`uuid` IN {ids}  " +
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
@@ -122,7 +122,7 @@ public class RelationshipQueryStatementsTest {
                 "WITH r0,startPaths + endPaths  AS paths " +
                 "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
 
-        assertThat(query.getParameters()).contains(entry("ids", Arrays.asList("test-uuid-1", "test-uuid-2")));
+        assertThat(pagingAndSortingQuery.getParameters()).contains(entry("ids", Arrays.asList("test-uuid-1", "test-uuid-2")));
     }
 
     @Test

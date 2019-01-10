@@ -102,7 +102,7 @@ public class Filter implements FilterWithRelationship {
 
     private AttributeConverter propertyConverter;
 
-    private CompositeAttributeConverter compositeAttributeConverter;
+    private CompositeAttributeConverter compositeConverter;
 
     /**
      * Whether the nested property is backed by a relationship entity
@@ -371,11 +371,11 @@ public class Filter implements FilterWithRelationship {
     }
 
     public CompositeAttributeConverter getCompositeAttributeConverter() {
-        return compositeAttributeConverter;
+        return compositeConverter;
     }
 
     public void setCompositeConverter(CompositeAttributeConverter compositeAttributeConverter) {
-        this.compositeAttributeConverter = compositeAttributeConverter;
+        this.compositeConverter = compositeAttributeConverter;
     }
 
     /**

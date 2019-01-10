@@ -79,10 +79,10 @@ public final class HttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public void configure(Configuration configuration) {
-        super.configure(configuration);
+    public void configure(Configuration newConfiguration) {
+        super.configure(newConfiguration);
 
-        if (configuration.getVerifyConnection()) {
+        if (newConfiguration.getVerifyConnection()) {
             httpClient();
 
             HttpRequest request = new HttpRequest(httpClient(), requestUrl(), this.configuration.getCredentials(), true);

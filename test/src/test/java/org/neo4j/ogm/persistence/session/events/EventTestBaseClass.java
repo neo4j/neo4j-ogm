@@ -54,7 +54,10 @@ public abstract class EventTestBaseClass extends MultiDriverTestClass {
     protected Document e;
     protected Folder folder;
 
-    Actor jim, bruce, lee, stan;
+    Actor jim;
+    Actor bruce;
+    Actor lee;
+    Actor stan;
     Knows knowsJB;
     private Knows knowsLS;
     Knows knowsJL;

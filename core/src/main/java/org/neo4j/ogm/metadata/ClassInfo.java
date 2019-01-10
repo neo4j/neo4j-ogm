@@ -99,7 +99,7 @@ public class ClassInfo {
     /**
      * This class was referenced as a superclass of the given subclass.
      *
-     * @param cls     superclass of {@code subclass}
+     * @param cls      superclass of {@code subclass}
      * @param subclass {@link ClassInfo} of the subclass
      */
     ClassInfo(Class<?> cls, ClassInfo subclass) {
@@ -319,7 +319,8 @@ public class ClassInfo {
      */
     public FieldInfo identityField() {
         initIdentityField();
-        return identityField.orElseThrow(() -> new MetadataException("No internal identity field found for class: " + this.className));
+        return identityField
+            .orElseThrow(() -> new MetadataException("No internal identity field found for class: " + this.className));
     }
 
     private synchronized void initIdentityField() {
@@ -420,6 +421,7 @@ public class ClassInfo {
         return propertyName == null ? null : propertyFields.get(propertyName.toLowerCase());
     }
 
+    @SuppressWarnings("HiddenField")
     private synchronized void initPropertyFields() {
         if (fieldInfos != null) {
             return;
@@ -427,12 +429,12 @@ public class ClassInfo {
 
         Collection<FieldInfo> fields = fieldsInfo().fields();
 
-        FieldInfo identityField = identityFieldOrNull();
+        FieldInfo optionalIdentityField = identityFieldOrNull();
         Set<FieldInfo> fieldInfos = new HashSet<>(fields.size());
         Map<String, FieldInfo> propertyFields = new HashMap<>(fields.size());
 
         for (FieldInfo fieldInfo : fields) {
-            if (fieldInfo != identityField && !fieldInfo.isLabelField()
+            if (fieldInfo != optionalIdentityField && !fieldInfo.isLabelField()
                 && !fieldInfo.hasAnnotation(StartNode.class)
                 && !fieldInfo.hasAnnotation(EndNode.class)) {
 
@@ -482,20 +484,21 @@ public class ClassInfo {
      * @return A Collection of FieldInfo objects describing the classInfo's relationship fields
      */
     public Collection<FieldInfo> relationshipFields() {
-        FieldInfo identityField = identityFieldOrNull();
-        Set<FieldInfo> fieldInfos = new HashSet<>();
+
+        FieldInfo optionalIdentityField = identityFieldOrNull();
+        Set<FieldInfo> relationshipFields = new HashSet<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            if (fieldInfo != identityField) {
+            if (fieldInfo != optionalIdentityField) {
                 if (!fieldInfo.getAnnotations().has(Relationship.class)) {
                     if (!fieldInfo.persistableAsProperty()) {
-                        fieldInfos.add(fieldInfo);
+                        relationshipFields.add(fieldInfo);
                     }
                 } else {
-                    fieldInfos.add(fieldInfo);
+                    relationshipFields.add(fieldInfo);
                 }
             }
         }
-        return fieldInfos;
+        return relationshipFields;
     }
 
     /**
@@ -616,14 +619,10 @@ public class ClassInfo {
      * @return A {@link List} of {@link FieldInfo} objects that are of the given type, never <code>null</code>
      */
     public List<FieldInfo> findFields(Class<?> fieldType) {
+
         String fieldSignature = fieldType.getName();
-        List<FieldInfo> fieldInfos = new ArrayList<>();
-        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            if (fieldInfo.getTypeDescriptor().equals(fieldSignature)) {
-                fieldInfos.add(fieldInfo);
-            }
-        }
-        return fieldInfos;
+        Predicate<FieldInfo> matchesType = f -> f.getTypeDescriptor().equals(fieldSignature);
+        return fieldsInfo().fields().stream().filter(matchesType).collect(Collectors.toList());
     }
 
     /**
@@ -633,13 +632,9 @@ public class ClassInfo {
      * @return A {@link List} of {@link FieldInfo} objects that are of the given type, never <code>null</code>
      */
     public List<FieldInfo> findFields(String annotation) {
-        List<FieldInfo> fieldInfos = new ArrayList<>();
-        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            if (fieldInfo.hasAnnotation(annotation)) {
-                fieldInfos.add(fieldInfo);
-            }
-        }
-        return fieldInfos;
+
+        Predicate<FieldInfo> hasAnnotation = f -> f.hasAnnotation(annotation);
+        return fieldsInfo().fields().stream().filter(hasAnnotation).collect(Collectors.toList());
     }
 
     /**
@@ -649,15 +644,16 @@ public class ClassInfo {
      * @return {@link List} of {@link FieldInfo}
      */
     public List<FieldInfo> findIterableFields() {
-        List<FieldInfo> fieldInfos = new ArrayList<>();
+
+        List<FieldInfo> iterableFields = new ArrayList<>();
         try {
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 Class type = getField(fieldInfo).getType();
                 if (type.isArray() || Iterable.class.isAssignableFrom(type)) {
-                    fieldInfos.add(fieldInfo);
+                    iterableFields.add(fieldInfo);
                 }
             }
-            return fieldInfos;
+            return iterableFields;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -671,10 +667,11 @@ public class ClassInfo {
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<FieldInfo> findIterableFields(Class iteratedType) {
+
         if (iterableFieldsForType.containsKey(iteratedType)) {
             return iterableFieldsForType.get(iteratedType);
         }
-        List<FieldInfo> fieldInfos = new ArrayList<>();
+        List<FieldInfo> iterableFields = new ArrayList<>();
         String typeSignature = iteratedType.getName();
         String arrayOfTypeSignature = typeSignature + "[]";
         try {
@@ -682,14 +679,14 @@ public class ClassInfo {
                 String fieldType = fieldInfo.getTypeDescriptor();
                 if (fieldInfo.isArray() && (fieldType.equals(arrayOfTypeSignature) || fieldInfo
                     .isParameterisedTypeOf(iteratedType))) {
-                    fieldInfos.add(fieldInfo);
+                    iterableFields.add(fieldInfo);
                 } else if (fieldInfo.isIterable() && (fieldType.equals(typeSignature) || fieldInfo
                     .isParameterisedTypeOf(iteratedType))) {
-                    fieldInfos.add(fieldInfo);
+                    iterableFields.add(fieldInfo);
                 }
             }
-            iterableFieldsForType.put(iteratedType, fieldInfos);
-            return fieldInfos;
+            iterableFieldsForType.put(iteratedType, iterableFields);
+            return iterableFields;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -707,7 +704,8 @@ public class ClassInfo {
      */
     public List<FieldInfo> findIterableFields(Class iteratedType, String relationshipType, String relationshipDirection,
         boolean strict) {
-        List<FieldInfo> fieldInfos = new ArrayList<>();
+
+        List<FieldInfo> iterableFields = new ArrayList<>();
         for (FieldInfo fieldInfo : findIterableFields(iteratedType)) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
             if (relationshipType.equals(relationship)) {
@@ -716,11 +714,11 @@ public class ClassInfo {
                     && relationshipDirection.equals(Relationship.INCOMING))
                     || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo
                     .relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
-                    fieldInfos.add(fieldInfo);
+                    iterableFields.add(fieldInfo);
                 }
             }
         }
-        return fieldInfos;
+        return iterableFields;
     }
 
     public boolean isTransient() {
@@ -989,9 +987,12 @@ public class ClassInfo {
             return;
         }
 
-        Collection<MethodInfo> possiblePostLoadMethods = methodsInfo.findMethodInfoBy(methodInfo -> methodInfo.hasAnnotation(PostLoad.class));
+        Collection<MethodInfo> possiblePostLoadMethods = methodsInfo
+            .findMethodInfoBy(methodInfo -> methodInfo.hasAnnotation(PostLoad.class));
         if (possiblePostLoadMethods.size() > 1) {
-            throw new MetadataException(String.format("Cannot have more than one post load method annotated with @PostLoad for class '%s'", this.className));
+            throw new MetadataException(String
+                .format("Cannot have more than one post load method annotated with @PostLoad for class '%s'",
+                    this.className));
         }
 
         postLoadMethod = possiblePostLoadMethods.stream().findFirst().orElse(null);
@@ -1001,9 +1002,9 @@ public class ClassInfo {
     public FieldInfo getFieldInfo(String propertyName) {
 
         // fall back to the field if method cannot be found
-        FieldInfo labelField = labelFieldOrNull();
-        if (labelField != null && labelField.getName().equals(propertyName)) {
-            return labelField;
+        FieldInfo optionalLabelField = labelFieldOrNull();
+        if (optionalLabelField != null && optionalLabelField.getName().equals(propertyName)) {
+            return optionalLabelField;
         }
         FieldInfo propertyField = propertyField(propertyName);
         if (propertyField != null) {
@@ -1130,8 +1131,7 @@ public class ClassInfo {
         if (this.hasPrimaryIndexField()) {
             reader = t -> Optional.ofNullable(this.readPrimaryIndexValueOf(t));
         } else {
-            final FieldInfo identityField = this.identityField();
-            reader = t -> Optional.ofNullable(identityField.read(t));
+            reader = t -> Optional.ofNullable(this.identityField().read(t));
         }
 
         return reader;

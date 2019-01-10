@@ -43,8 +43,8 @@ abstract class AbstractPropertyContainer implements PropertyContainer {
     private Set<String> previousDynamicCompositeProperties = Collections.emptySet();
 
     @Override
-    public void addCurrentDynamicCompositeProperties(Set<String> currentDynamicCompositeProperties) {
-        this.currentDynamicCompositeProperties.addAll(currentDynamicCompositeProperties);
+    public void addCurrentDynamicCompositeProperties(Set<String> additionalDynamicCompositeProperties) {
+        this.currentDynamicCompositeProperties.addAll(additionalDynamicCompositeProperties);
     }
 
     @Override

@@ -37,7 +37,7 @@ public interface PropertyContainer {
 
     void setPreviousDynamicCompositeProperties(Set<String> previousDynamicCompositeProperties);
 
-    void addCurrentDynamicCompositeProperties(Set<String> currentDynamicCompositeProperties);
+    void addCurrentDynamicCompositeProperties(Set<String> additionalDynamicCompositeProperties);
 
     /**
      * Should create the Cypher fragment that removes previous composite properties that aren't in the container anymore.

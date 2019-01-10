@@ -30,7 +30,7 @@ public class ConversionCallbackRegistry {
         return this.conversionCallback;
     }
 
-    public void registerConversionCallback(ConversionCallback conversionCallback) {
-        this.conversionCallback = conversionCallback;
+    public void registerConversionCallback(ConversionCallback newConversionCallback) {
+        this.conversionCallback = newConversionCallback;
     }
 }

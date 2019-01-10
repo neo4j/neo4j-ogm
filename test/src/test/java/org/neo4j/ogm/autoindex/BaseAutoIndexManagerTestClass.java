@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Frantisek Hartman
  * @author Michael J. Simons
  */
+@SuppressWarnings("HiddenField")
 public abstract class BaseAutoIndexManagerTestClass extends MultiDriverTestClass {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseAutoIndexManagerTestClass.class);

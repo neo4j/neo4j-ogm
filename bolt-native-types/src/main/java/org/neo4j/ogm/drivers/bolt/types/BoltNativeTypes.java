@@ -61,15 +61,15 @@ class BoltNativeTypes implements TypeSystem {
 
     BoltNativeTypes() {
 
-        Map<Class<?>, Function> nativeToMappedAdapter = new HashMap<>();
-        Map<Class<?>, Function> mappedToNativeAdapter = new HashMap<>();
+        Map<Class<?>, Function> mapOfNativeToMappedAdapter = new HashMap<>();
+        Map<Class<?>, Function> mapOfMappedToNativeAdapter = new HashMap<>();
 
-        addSpatialFeatures(nativeToMappedAdapter, mappedToNativeAdapter);
-        addJavaTimeFeature(nativeToMappedAdapter, mappedToNativeAdapter);
-        addPassthroughForBuildInTypes(mappedToNativeAdapter);
+        addSpatialFeatures(mapOfNativeToMappedAdapter, mapOfMappedToNativeAdapter);
+        addJavaTimeFeature(mapOfNativeToMappedAdapter, mapOfMappedToNativeAdapter);
+        addPassthroughForBuildInTypes(mapOfMappedToNativeAdapter);
 
-        this.nativeToMappedAdapter = new TypeAdapterLookupDelegate(nativeToMappedAdapter);
-        this.mappedToNativeAdapter = new TypeAdapterLookupDelegate(mappedToNativeAdapter);
+        this.nativeToMappedAdapter = new TypeAdapterLookupDelegate(mapOfNativeToMappedAdapter);
+        this.mappedToNativeAdapter = new TypeAdapterLookupDelegate(mapOfMappedToNativeAdapter);
     }
 
     private static void addSpatialFeatures(Map<Class<?>, Function> nativeToMappedAdapter,

@@ -334,7 +334,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
     @Test // See #159
     public void shouldRaiseExceptionWhenAmbiguousClassLabelApplied() {
 
-        Session session = new SessionFactory(driver, "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.domain.music")
+        Session sessionWithAmbiguousDomain = new SessionFactory(driver, "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.domain.music")
             .openSession();
 
         Pizza pizza = new Pizza();
@@ -344,11 +344,11 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         labels.add("Studio");
         pizza.setLabels(labels);
 
-        session.save(pizza);
-        session.clear();
+        sessionWithAmbiguousDomain.save(pizza);
+        sessionWithAmbiguousDomain.clear();
 
         try {
-            session.load(Pizza.class, pizza.getId());
+            sessionWithAmbiguousDomain.load(Pizza.class, pizza.getId());
         } catch (MappingException e) {
             assertThat(e.getMessage())
                 .isEqualTo("Multiple classes found in type hierarchy that map to: [Pizza, Studio]");

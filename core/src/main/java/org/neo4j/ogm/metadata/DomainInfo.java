@@ -141,7 +141,8 @@ public class DomainInfo {
             for (AnnotationInfo annotation : classInfo.annotations()) {
                 ArrayList<ClassInfo> classInfoList = annotationNameToClassInfo.get(annotation.getName());
                 if (classInfoList == null) {
-                    annotationNameToClassInfo.put(annotation.getName(), classInfoList = new ArrayList<>());
+                    classInfoList = new ArrayList<>();
+                    annotationNameToClassInfo.put(annotation.getName(), classInfoList);
                 }
                 classInfoList.add(classInfo);
             }
@@ -156,7 +157,8 @@ public class DomainInfo {
             for (InterfaceInfo iface : classInfo.interfacesInfo().list()) {
                 ArrayList<ClassInfo> classInfoList = interfaceNameToClassInfo.get(iface.name());
                 if (classInfoList == null) {
-                    interfaceNameToClassInfo.put(iface.name(), classInfoList = new ArrayList<>());
+                    classInfoList = new ArrayList<>();
+                    interfaceNameToClassInfo.put(iface.name(), classInfoList);
                 }
                 LOGGER.debug("   - {}", iface.name());
                 classInfoList.add(classInfo);

@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class PagingAndSortingQuery implements PagingAndSorting {
 
-    private Pagination paging;
+    private Pagination pagination;
     private SortOrder sortOrder = new SortOrder();
 
     private String matchClause;
@@ -69,8 +69,8 @@ public class PagingAndSortingQuery implements PagingAndSorting {
         if (!sorting.isEmpty()) {
             sb.append(sorting.replace("$", variable));
         }
-        if (paging != null) {
-            sb.append(paging.toString());
+        if (pagination != null) {
+            sb.append(pagination.toString());
         }
         sb.append(this.returnClause);
         if (needsRowResult()) {
@@ -80,12 +80,12 @@ public class PagingAndSortingQuery implements PagingAndSorting {
     }
 
     public boolean needsRowResult() {
-        return (sortOrder.hasSortClauses() || (paging != null) || hasPredicate) && returnsPath;
+        return (sortOrder.hasSortClauses() || (pagination != null) || hasPredicate) && returnsPath;
     }
 
     @Override
-    public PagingAndSortingQuery setPagination(Pagination paging) {
-        this.paging = paging;
+    public PagingAndSortingQuery setPagination(Pagination pagination) {
+        this.pagination = pagination;
         return this;
     }
 
@@ -97,10 +97,6 @@ public class PagingAndSortingQuery implements PagingAndSorting {
 
     public void setReturnsPath(boolean returnsPath) {
         this.returnsPath = returnsPath;
-    }
-
-    private Pagination page() {
-        return paging;
     }
 
     private SortOrder sortOrder() {

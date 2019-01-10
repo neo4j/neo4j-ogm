@@ -184,10 +184,10 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test(expected = IllegalArgumentException.class)
     public void exceptionRaisedWhenLookupIsDoneWithGraphIdAndThereIsAPrimaryIndexPresent() {
 
-        final Session session = sessionFactory.openSession();
+        final Session session1 = sessionFactory.openSession();
 
         User user1 = new User("login1", "Name 1", "password");
-        session.save(user1);
+        session1.save(user1);
 
         final Session session2 = sessionFactory.openSession();
 

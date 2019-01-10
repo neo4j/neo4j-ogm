@@ -88,12 +88,12 @@ public abstract class AbstractConfigurableDriver implements Driver {
      * Stores the configuration locally and loads the native type system for this driver if applicable. Be sure to call
      * this method in case you opt to overwrite it in an implementation.
      *
-     * @param configuration The new configuration
+     * @param newConfiguration The new configuration
      */
     @Override
-    public void configure(Configuration configuration) {
+    public void configure(Configuration newConfiguration) {
 
-        this.configuration = configuration;
+        this.configuration = newConfiguration;
         initializeTypeSystem();
     }
 
@@ -115,7 +115,8 @@ public abstract class AbstractConfigurableDriver implements Driver {
         if (loadedCypherModification == null) {
             synchronized (this) {
                 if (this.cypherModification == null) {
-                    loadedCypherModification = this.cypherModification = loadCypherModifications();
+                    this.cypherModification = loadCypherModifications();
+                    loadedCypherModification = this.cypherModification;
                 }
             }
         }

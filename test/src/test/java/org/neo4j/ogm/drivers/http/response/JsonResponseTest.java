@@ -87,10 +87,11 @@ public class JsonResponseTest {
     }
 
     private void parseResponse(Response<DefaultRowModel> rsp) {
-        //noinspection StatementWithEmptyBody
+
+        //CHECKSTYLE:OFF
         while (rsp.next() != null) {
-            ;
         }
+        //CHECKSTYLE:ON
     }
 
     private InputStream resultsAndErrors() {

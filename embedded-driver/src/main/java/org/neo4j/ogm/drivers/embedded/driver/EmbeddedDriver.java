@@ -90,12 +90,12 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public synchronized void configure(Configuration configuration) {
+    public synchronized void configure(Configuration newConfiguration) {
 
-        super.configure(configuration);
+        super.configure(newConfiguration);
 
         try {
-            String fileStoreUri = configuration.getURI();
+            String fileStoreUri = newConfiguration.getURI();
 
             // if no URI is set, create a temporary folder for the graph db
             // that will persist only for the duration of the JVM
@@ -111,10 +111,10 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                 throw new RuntimeException("Could not create/open filestore: " + fileStoreUri);
             }
 
-            GraphDatabaseBuilder graphDatabaseBuilder = getGraphDatabaseFactory(configuration)
+            GraphDatabaseBuilder graphDatabaseBuilder = getGraphDatabaseFactory(newConfiguration)
                 .newEmbeddedDatabaseBuilder(file);
 
-            String neo4jConfLocation = configuration.getNeo4jConfLocation();
+            String neo4jConfLocation = newConfiguration.getNeo4jConfLocation();
             if (neo4jConfLocation != null) {
                 URL neo4ConfUrl = ResourceUtils.getResourceUrl(neo4jConfLocation);
                 graphDatabaseBuilder = graphDatabaseBuilder.loadPropertiesFromURL(neo4ConfUrl);

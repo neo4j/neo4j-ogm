@@ -381,8 +381,8 @@ public class FieldInfo {
             write(field, instance, value);
         } else {
             if (isScalar()) {
-                String descriptor = getTypeDescriptor();
-                value = Utils.coerceTypes(ClassUtils.getType(descriptor), value);
+                String actualTypeDescriptor = getTypeDescriptor();
+                value = Utils.coerceTypes(ClassUtils.getType(actualTypeDescriptor), value);
             }
             write(field, instance, value);
         }
@@ -456,9 +456,10 @@ public class FieldInfo {
     }
 
     public String relationshipDirection() {
-        ObjectAnnotations annotations = getAnnotations();
-        if (annotations != null) {
-            AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
+
+        ObjectAnnotations annotationOfField = getAnnotations();
+        if (annotationOfField != null) {
+            AnnotationInfo relationshipAnnotation = annotationOfField.get(Relationship.class);
             if (relationshipAnnotation != null) {
                 return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
             }

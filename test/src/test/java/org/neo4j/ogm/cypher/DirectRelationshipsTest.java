@@ -326,7 +326,8 @@ public class DirectRelationshipsTest {
         assertThat(createRelStatements.contains(
             "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`ARCHIVED`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type"))
             .isTrue();
-        boolean archivedType = false, containsType = false;
+        boolean archivedType = false;
+        boolean containsType = false;
         for (Statement statement : statements) {
             if (statement.getStatement().contains("ARCHIVED")) {
                 archivedType = true;

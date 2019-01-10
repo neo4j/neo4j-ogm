@@ -89,11 +89,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public void configure(Configuration configuration) {
+    public void configure(Configuration newConfiguration) {
 
         close();
 
-        super.configure(configuration);
+        super.configure(newConfiguration);
 
         this.driverConfig = buildDriverConfig(this.configuration);
         this.credentials = this.configuration.getCredentials();
@@ -133,8 +133,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
         final String serviceUnavailableMessage = "Could not create driver instance";
         try {
             if (credentials != null) {
-                UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) this.credentials;
-                AuthToken authToken = AuthTokens.basic(credentials.getUsername(), credentials.getPassword());
+                UsernamePasswordCredentials usernameAndPassword = (UsernamePasswordCredentials) this.credentials;
+                AuthToken authToken = AuthTokens.basic(usernameAndPassword.getUsername(), usernameAndPassword.getPassword());
                 boltDriver = createDriver(configuration, driverConfig, authToken);
             } else {
                 try {
@@ -149,7 +149,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
         }
     }
 
-    private Driver createDriver(Configuration config, Config driverConfig, AuthToken authToken) {
+    private Driver createDriver(Configuration config, AuthToken authToken) {
+
         if (config.getURIS() == null) {
             return GraphDatabase.driver(config.getURI(), authToken, driverConfig);
         } else {
@@ -252,7 +253,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return boltConfig;
     }
 
-    private Config buildDriverConfig(Configuration driverConfig) {
+    private Config buildDriverConfig() {
         try {
             BoltConfig boltConfig = getBoltConfiguration(driverConfig);
             Config.ConfigBuilder configBuilder = Config.build();

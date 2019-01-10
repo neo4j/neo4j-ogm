@@ -145,8 +145,8 @@ public class NumberConversionTest {
 
     @Test
     public void assertHasCompositeConverter() {
-        MetaData metaData = new MetaData("org.neo4j.ogm.domain.restaurant");
-        ClassInfo restaurantInfo = metaData.classInfo("Restaurant");
+        MetaData restaurantMetadata = new MetaData("org.neo4j.ogm.domain.restaurant");
+        ClassInfo restaurantInfo = restaurantMetadata.classInfo("Restaurant");
         assertThat(restaurantInfo.propertyField("location").hasCompositeConverter()).isTrue();
     }
 

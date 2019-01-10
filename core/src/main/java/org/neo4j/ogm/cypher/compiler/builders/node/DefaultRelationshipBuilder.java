@@ -77,6 +77,7 @@ public class DefaultRelationshipBuilder extends AbstractPropertyContainerBuilder
     }
 
     @Override
+    @SuppressWarnings("HiddenField")
     public boolean hasDirection(String direction) {
         return this.direction != null && this.direction.equals(direction);
     }
@@ -107,6 +108,7 @@ public class DefaultRelationshipBuilder extends AbstractPropertyContainerBuilder
     }
 
     @Override
+    @SuppressWarnings("HiddenField")
     public RelationshipBuilder direction(String direction) {
         this.direction = direction;
         return this;

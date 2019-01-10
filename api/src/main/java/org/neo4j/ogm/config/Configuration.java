@@ -98,20 +98,20 @@ public class Configuration {
         this.basePackages = builder.basePackages;
 
         if (this.uri != null) {
-            java.net.URI uri = null;
+            java.net.URI parsedUri = null;
             try {
-                uri = new URI(this.uri);
+                parsedUri = new URI(this.uri);
             } catch (URISyntaxException e) {
                 throw new RuntimeException("Could not configure supplied URI in Configuration", e);
             }
-            String userInfo = uri.getUserInfo();
+            String userInfo = parsedUri.getUserInfo();
             if (userInfo != null) {
                 String[] userPass = userInfo.split(":");
                 credentials = new UsernamePasswordCredentials(userPass[0], userPass[1]);
-                this.uri = uri.toString().replace(uri.getUserInfo() + "@", "");
+                this.uri = parsedUri.toString().replace(parsedUri.getUserInfo() + "@", "");
             }
             if (getDriverClassName() == null) {
-                this.driverName = Drivers.getDriverFor(uri.getScheme()).driverClassName();
+                this.driverName = Drivers.getDriverFor(parsedUri.getScheme()).driverClassName();
             }
         } else {
             this.driverName = Drivers.EMBEDDED.driverClassName();
@@ -265,6 +265,7 @@ public class Configuration {
     /**
      * Builder for {@link Configuration} class
      */
+    @SuppressWarnings("HiddenField")
     public static class Builder {
 
         public static Builder copy(Builder builder) {

@@ -64,7 +64,6 @@ public class CompilerTest {
 
     private static MetaData mappingMetadata;
     private static MappingContext mappingContext;
-    private EntityMapper mapper;
 
     @BeforeClass
     public static void setUpTestDatabase() {
@@ -92,7 +91,7 @@ public class CompilerTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
-        this.mapper.map(null);
+        new EntityGraphMapper(mappingMetadata, mappingContext).map(null);
     }
 
     @Test

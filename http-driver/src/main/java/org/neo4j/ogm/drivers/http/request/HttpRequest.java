@@ -162,8 +162,6 @@ public class HttpRequest implements Request {
 
     private CloseableHttpResponse executeRequest(String cypher) throws HttpRequestException {
 
-        String url = this.url;
-
         assert (url != null);
 
         HttpPost request = new HttpPost(url);

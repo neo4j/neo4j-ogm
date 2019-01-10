@@ -132,18 +132,19 @@ public class MetaData {
     }
 
     private Set<ClassInfo> _classInfos(String name, String nodeEntityAnnotation) {
-        Set<ClassInfo> classInfos = new HashSet<>();
+
+        Set<ClassInfo> newClassInfos = new HashSet<>();
         List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
         if (labelledClasses != null) {
             for (ClassInfo labelledClass : labelledClasses) {
                 AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(nodeEntityAnnotation);
                 String value = annotationInfo.get("type", labelledClass.neo4jName());
                 if (value.equals(name)) {
-                    classInfos.add(labelledClass);
+                    newClassInfos.add(labelledClass);
                 }
             }
         }
-        return classInfos;
+        return newClassInfos;
     }
 
     /**
@@ -229,25 +230,24 @@ public class MetaData {
      */
     public Set<ClassInfo> classInfoByLabelOrType(String name) {
 
-        Set<ClassInfo> classInfos = new HashSet<>();
+        Set<ClassInfo> matchingClassInfos = new HashSet<>();
 
         ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), NodeEntity.LABEL);
         if (classInfo != null) {
-            classInfos.add(classInfo);
+            matchingClassInfos.add(classInfo);
         }
 
         //Potentially many relationship entities annotated with the same type
         for (ClassInfo info : _classInfos(name, RelationshipEntity.class.getName())) {
-            classInfos.add(info);
+            matchingClassInfos.add(info);
         }
 
         classInfo = domainInfo.getClassSimpleName(name);
         if (classInfo != null) {
-            classInfos.add(classInfo);
+            matchingClassInfos.add(classInfo);
         }
 
-        // not found
-        return classInfos;
+        return matchingClassInfos;
     }
 
     private ClassInfo findFirstSingleConcreteClass(ClassInfo root, List<ClassInfo> classInfoList) {

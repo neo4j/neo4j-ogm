@@ -41,6 +41,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
+@SuppressWarnings({"HiddenField", "MultipleVariableDeclarations", "RequireThis"})
 public class AABBTest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;

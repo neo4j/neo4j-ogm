@@ -49,6 +49,7 @@ import org.parboiled.common.StringUtils;
  * @author Michal Bachman
  * @author Mark Angrish
  */
+@SuppressWarnings("HiddenField")
 public final class GraphTestUtils {
 
     private static GraphDatabaseService otherDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
@@ -318,7 +319,8 @@ public final class GraphTestUtils {
     }
 
     public static boolean haveSameProperties(PropertyContainer pc1, PropertyContainer pc2) {
-        int pc1KeyCount = 0, pc2KeyCount = 0;
+        int pc1KeyCount = 0;
+        int pc2KeyCount = 0;
         for (String key : pc1.getPropertyKeys()) {
             pc1KeyCount++;
             if (!pc2.hasProperty(key)) {

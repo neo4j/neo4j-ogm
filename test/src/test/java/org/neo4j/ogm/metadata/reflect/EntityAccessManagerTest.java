@@ -448,12 +448,12 @@ public class EntityAccessManagerTest {
             throw new UnsupportedOperationException("Shouldn't be calling the setter with: " + registeredMember);
         }
 
-        public Topic getTopic() {
+        public Topic getFavouriteTopic() {
             this.topicAccessorWasCalled = true;
             return favouriteTopic;
         }
 
-        public void setTopic(Topic favouriteTopic) {
+        public void setFavouriteTopic(Topic favouriteTopic) {
             this.topicAccessorWasCalled = true;
             this.favouriteTopic = favouriteTopic;
         }
@@ -471,12 +471,12 @@ public class EntityAccessManagerTest {
         }
 
         @JsonIgnore //we've used @JsonIgnore but it could be any other annotation
-        public String getDifferentAnnotationOnGetter() {
+        public String getPropertyWithDifferentAnnotatedGetter() {
             return propertyWithDifferentAnnotatedGetter;
         }
 
         @JsonIgnore
-        public void setDifferentAnnotationOnGetter(String propertyWithDifferentAnnotatedGetter) {
+        public void setPropertyWithDifferentAnnotatedGetter(String propertyWithDifferentAnnotatedGetter) {
             this.propertyWithDifferentAnnotatedGetter = propertyWithDifferentAnnotatedGetter;
         }
     }

@@ -43,17 +43,15 @@ public class Filters implements Iterable<Filter> {
         add(filters);
     }
 
-    public Filters add(Filter... filters) {
-        for (Filter filter : filters) {
+    public Filters add(Filter... additionalFilters) {
+        for (Filter filter : additionalFilters) {
             this.add(filter);
         }
         return this;
     }
 
-    public Filters add(Iterable<Filter> filters) {
-        for (Filter filter : filters) {
-            this.add(filter);
-        }
+    public Filters add(Iterable<Filter> additionalFilters) {
+        additionalFilters.forEach(this::add);
         return this;
     }
 
@@ -70,6 +68,7 @@ public class Filters implements Iterable<Filter> {
 
     /**
      * Convenience method to add a filter using {@link BooleanOperator#AND}.
+     *
      * @param filter to be chained.
      * @return current {@link Filters} object with chained {@link Filter}.
      */
@@ -80,6 +79,7 @@ public class Filters implements Iterable<Filter> {
 
     /**
      * Convenience method to add a filter using {@link BooleanOperator#OR}.
+     *
      * @param filter to be chained.
      * @return current {@link Filters} object with chained {@link Filter}.
      */

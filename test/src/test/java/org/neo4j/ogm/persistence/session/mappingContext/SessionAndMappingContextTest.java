@@ -49,13 +49,16 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     // i need a Neo4jSession because the session interface does not define the context() method
     private Neo4jSession session;
 
-    private Album album1, album2, album3;
+    private Album album1;
+    private Album album2;
+    private Album album3;
     private Artist artist1;
     private ReleaseFormat releaseFormat;
 
     private Actor actor1;
     private Actor actor2;
-    private Knows knows, knows2;
+    private Knows knows;
+    private Knows knows2;
 
     @Before
     public void init() throws IOException {

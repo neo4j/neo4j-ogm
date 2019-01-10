@@ -645,7 +645,10 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldLoadNodesWithUnmappedOrNoLabels() {
-        int movieCount = 0, userCount = 0, unmappedCount = 0, noLabelCount = 0;
+        int movieCount = 0;
+        int userCount = 0;
+        int unmappedCount = 0;
+        int noLabelCount = 0;
 
         session.query("CREATE (unknown), (m:Unmapped), (n:Movie), (n)-[:UNKNOWN]->(m)", emptyMap());
 

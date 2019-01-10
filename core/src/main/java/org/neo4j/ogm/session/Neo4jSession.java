@@ -678,6 +678,7 @@ public class Neo4jSession implements Session {
     }
 
     @Override
+    @SuppressWarnings("HiddenField")
     public void withBookmark(String bookmark) {
         this.bookmark = bookmark;
     }

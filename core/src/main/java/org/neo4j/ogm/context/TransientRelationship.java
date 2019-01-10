@@ -57,24 +57,24 @@ public class TransientRelationship {
         this.tgtClass = tgtClass;
     }
 
-    public boolean equals(Long src, RelationshipBuilder builder, Long tgt) {
+    public boolean equals(Long otherSrc, RelationshipBuilder builder, Long otherTgt) {
         Boolean singleton = builder.isSingleton();
         if (this.rel.equals(builder.type())) {
             if (singleton) {
                 if (builder.hasDirection(Relationship.OUTGOING)) {
-                    if (this.src.equals(src) && this.tgt.equals(tgt)) {
+                    if (this.src.equals(otherSrc) && this.tgt.equals(otherTgt)) {
                         return true;
                     }
                 } else if (builder.hasDirection(Relationship.INCOMING)) {
-                    if (this.src.equals(tgt) && this.tgt.equals(src)) {
+                    if (this.src.equals(otherTgt) && this.tgt.equals(otherSrc)) {
                         return true;
                     }
                 } else {
                     // Implies outgoing so the direction is ignored
-                    if (this.src.equals(src) && this.tgt.equals(tgt)) {
+                    if (this.src.equals(otherSrc) && this.tgt.equals(otherTgt)) {
                         return true;
                     }
-                    if (this.src.equals(tgt) && this.tgt.equals(src)) {
+                    if (this.src.equals(otherTgt) && this.tgt.equals(otherSrc)) {
                         return true;
                     }
                 }

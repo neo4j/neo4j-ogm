@@ -751,14 +751,14 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
     @Test
     public void loadAllByInstancesShouldLoadAllClasses() {
         SessionFactory sf = new SessionFactory(driver, "org.neo4j.ogm.domain.education");
-        Session session = sf.openSession();
+        Session sessionWithEducationDomain = sf.openSession();
 
         School school = new School();
         Student student = new Student();
-        session.save(school);
-        session.save(student);
+        sessionWithEducationDomain.save(school);
+        sessionWithEducationDomain.save(student);
 
-        Collection<DomainObject> loaded = session.loadAll(Arrays.asList(school, student));
+        Collection<DomainObject> loaded = sessionWithEducationDomain.loadAll(Arrays.asList(school, student));
         assertThat(loaded).contains(school, student);
     }
 }

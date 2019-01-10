@@ -267,8 +267,8 @@ public class MultiStatementCypherCompiler implements Compiler {
     }
 
     @Override
-    public void useStatementFactory(StatementFactory statementFactory) {
-        this.statementFactory = statementFactory;
+    public void useStatementFactory(StatementFactory newStatementFactory) {
+        this.statementFactory = newStatementFactory;
     }
 
     private boolean unmap(RelationshipBuilder relationshipBuilder) {

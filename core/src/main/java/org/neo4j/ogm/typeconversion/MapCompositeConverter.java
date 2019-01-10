@@ -97,18 +97,18 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
         return graphProperties;
     }
 
-    private void addMapToProperties(Map<?, ?> fieldValue, Map<String, Object> graphProperties, String prefix) {
+    private void addMapToProperties(Map<?, ?> fieldValue, Map<String, Object> graphProperties, String entryPrefix) {
         for (Map.Entry<?, ?> entry : fieldValue.entrySet()) {
             Object entryValue = entry.getValue();
             if (entryValue instanceof Map) {
-                addMapToProperties((Map<?, ?>) entryValue, graphProperties, prefix + entry.getKey() + delimiter);
+                addMapToProperties((Map<?, ?>) entryValue, graphProperties, entryPrefix + entry.getKey() + delimiter);
             } else {
                 if (isCypherType(entryValue) ||
                     (allowCast && canCastType(entryValue))) {
 
-                    graphProperties.put(prefix + entry.getKey(), entryValue);
+                    graphProperties.put(entryPrefix + entry.getKey(), entryValue);
                 } else {
-                    throw new MappingException("Could not map key=" + prefix + entry.getKey() + ", " +
+                    throw new MappingException("Could not map key=" + entryPrefix + entry.getKey() + ", " +
                         "value=" + entryValue + " (type = " + entryValue.getClass() + ") " +
                         "because it is not a supported type.");
                 }

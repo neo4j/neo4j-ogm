@@ -40,12 +40,4 @@ public abstract class Activity {
     public void setDate(Date date) {
         this.date = date;
     }
-
-    public Long getActivityId() {
-        return id;
-    }
-
-    public void setActivityId(Long id) {
-        this.id = id;
-    }
 }

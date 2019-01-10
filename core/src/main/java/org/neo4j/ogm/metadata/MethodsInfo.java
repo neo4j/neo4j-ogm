@@ -53,7 +53,8 @@ public class MethodsInfo {
 
             // Prioritize annotated methods from concrete classes respectively classes lower in the hierarchy.
             methods.addAll(methodInfoOfCurrentClass);
-        } while ((currentClass = currentClass.getSuperclass()) != null);
+            currentClass = currentClass.getSuperclass();
+        } while (currentClass != null);
     }
 
     Collection<MethodInfo> findMethodInfoBy(Predicate<MethodInfo> predicate) {

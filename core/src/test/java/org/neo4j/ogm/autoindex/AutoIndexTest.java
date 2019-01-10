@@ -33,53 +33,58 @@ import org.junit.Test;
 public class AutoIndexTest {
 
     @Test
-    public void parseIndex() throws Exception {
+    public void parseIndex() {
         AutoIndex index = AutoIndex.parse("INDEX ON :Person(name)").get();
         assertThat(index.getOwningType()).isEqualTo("Person");
         assertThat(index.getProperties()).containsOnly("name");
         assertThat(index.getType()).isEqualTo(IndexType.SINGLE_INDEX);
+        assertThat(index.getDescription()).isEqualTo("INDEX ON :`Person`(`name`)");
     }
 
     @Test
-    public void parseCompositeIndex() throws Exception {
+    public void parseCompositeIndex() {
         AutoIndex index = AutoIndex.parse("INDEX ON :Person(name,id)").get();
         assertThat(index.getOwningType()).isEqualTo("Person");
         assertThat(index.getProperties()).containsOnly("name", "id");
         assertThat(index.getType()).isEqualTo(IndexType.COMPOSITE_INDEX);
+        assertThat(index.getDescription()).isEqualTo("INDEX ON :`Person`(`name`,`id`)");
     }
 
     @Test
-    public void parseUniqueConstraint() throws Exception {
+    public void parseUniqueConstraint() {
         AutoIndex index = AutoIndex.parse("CONSTRAINT ON ( person:Person ) ASSERT person.name IS UNIQUE").get();
         assertThat(index.getOwningType()).isEqualTo("Person");
         assertThat(index.getProperties()).containsOnly("name");
         assertThat(index.getType()).isEqualTo(IndexType.UNIQUE_CONSTRAINT);
+        assertThat(index.getDescription()).isEqualTo("CONSTRAINT ON (`person`:`Person`) ASSERT `person`.`name` IS UNIQUE");
     }
 
     @Test
-    public void parseNodeKeyConstraint() throws Exception {
+    public void parseNodeKeyConstraint() {
         AutoIndex index = AutoIndex
             .parse("CONSTRAINT ON ( person:Person ) ASSERT (person.name, person.id) IS NODE KEY").get();
         assertThat(index.getOwningType()).isEqualTo("Person");
         assertThat(index.getProperties()).containsOnly("name", "id");
         assertThat(index.getType()).isEqualTo(IndexType.NODE_KEY_CONSTRAINT);
-
+        assertThat(index.getDescription()).isEqualTo("CONSTRAINT ON (`person`:`Person`) ASSERT (`person`.`name`,`person`.`id`) IS NODE KEY");
     }
 
     @Test
-    public void parseNodePropertyExistenceConstraint() throws Exception {
+    public void parseNodePropertyExistenceConstraint() {
         AutoIndex index = AutoIndex.parse("CONSTRAINT ON ( person:Person ) ASSERT exists(person.name)").get();
         assertThat(index.getOwningType()).isEqualTo("Person");
         assertThat(index.getProperties()).containsOnly("name");
         assertThat(index.getType()).isEqualTo(IndexType.NODE_PROP_EXISTENCE_CONSTRAINT);
+        assertThat(index.getDescription()).isEqualTo("CONSTRAINT ON (`person`:`Person`) ASSERT exists(`person`.`name`)");
     }
 
     @Test
-    public void shouldRelationshipPropertyExistenceConstraint() throws Exception {
+    public void shouldRelationshipPropertyExistenceConstraint() {
         AutoIndex index = AutoIndex.parse("CONSTRAINT ON ()-[like:LIKED]-() ASSERT exists(like.stars)").get();
         assertThat(index.getOwningType()).isEqualTo("LIKED");
         assertThat(index.getProperties()).containsOnly("stars");
         assertThat(index.getType()).isEqualTo(IndexType.REL_PROP_EXISTENCE_CONSTRAINT);
+        assertThat(index.getDescription()).isEqualTo("CONSTRAINT ON ()-[`liked`:`LIKED`]-() ASSERT exists(`liked`.`stars`)");
     }
 
     @Test
@@ -92,6 +97,7 @@ public class AutoIndexTest {
                 .isEqualTo("CREATE CONSTRAINT ON (`x`:`X`) ASSERT `x`.`objId` IS UNIQUE");
             assertThat(index.getDropStatement().getStatement())
                 .isEqualTo("DROP CONSTRAINT ON (`x`:`X`) ASSERT `x`.`objId` IS UNIQUE");
+            assertThat(index.getDescription()).isEqualTo("CONSTRAINT ON (`x`:`X`) ASSERT `x`.`objId` IS UNIQUE");
         });
     }
 
@@ -102,6 +108,7 @@ public class AutoIndexTest {
         assertThat(optionalAutoIndex).hasValueSatisfying(index -> {
             assertThat(index.getCreateStatement().getStatement()).isEqualTo("CREATE INDEX ON :`X`(`deprecated`)");
             assertThat(index.getDropStatement().getStatement()).isEqualTo("DROP INDEX ON :`X`(`deprecated`)");
+            assertThat(index.getDescription()).isEqualTo("INDEX ON :`X`(`deprecated`)");
         });
     }
 }

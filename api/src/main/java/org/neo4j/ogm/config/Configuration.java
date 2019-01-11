@@ -98,7 +98,7 @@ public class Configuration {
         this.basePackages = builder.basePackages;
 
         if (this.uri != null) {
-            java.net.URI parsedUri = null;
+            URI parsedUri = null;
             try {
                 parsedUri = new URI(this.uri);
             } catch (URISyntaxException e) {

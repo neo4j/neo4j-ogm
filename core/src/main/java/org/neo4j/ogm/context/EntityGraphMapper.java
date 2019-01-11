@@ -994,7 +994,7 @@ public class EntityGraphMapper implements EntityMapper {
      * @param srcObject
      * @return True if the target object or any contained object equals the source object.
      */
-    static boolean targetEqualsSource(Object target, Object srcObject) {
+    private static boolean targetEqualsSource(Object target, Object srcObject) {
 
         if (target == null) {
             return false;

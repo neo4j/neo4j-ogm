@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.metadata;
 
+import static java.util.stream.Collectors.*;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -622,7 +624,7 @@ public class ClassInfo {
 
         String fieldSignature = fieldType.getName();
         Predicate<FieldInfo> matchesType = f -> f.getTypeDescriptor().equals(fieldSignature);
-        return fieldsInfo().fields().stream().filter(matchesType).collect(Collectors.toList());
+        return fieldsInfo().fields().stream().filter(matchesType).collect(toList());
     }
 
     /**
@@ -634,7 +636,7 @@ public class ClassInfo {
     public List<FieldInfo> findFields(String annotation) {
 
         Predicate<FieldInfo> hasAnnotation = f -> f.hasAnnotation(annotation);
-        return fieldsInfo().fields().stream().filter(hasAnnotation).collect(Collectors.toList());
+        return fieldsInfo().fields().stream().filter(hasAnnotation).collect(toList());
     }
 
     /**
@@ -645,15 +647,20 @@ public class ClassInfo {
      */
     public List<FieldInfo> findIterableFields() {
 
-        List<FieldInfo> iterableFields = new ArrayList<>();
+        Predicate<FieldInfo> isIterable = f -> {
+            // The actual call to getField might throw an exception.
+            // While FieldInfo#type() should also return the type,
+            // ClassInfo#getField has side-effects which I cannot judge
+            // atm, so better keep it here
+            // and wrap the predicate in an exception below.
+            Class type = getField(f).getType();
+            return type.isArray() || Iterable.class.isAssignableFrom(type);
+        };
+
+        // See comment inside predicate regarding this exception.
         try {
-            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                Class type = getField(fieldInfo).getType();
-                if (type.isArray() || Iterable.class.isAssignableFrom(type)) {
-                    iterableFields.add(fieldInfo);
-                }
-            }
-            return iterableFields;
+            return fieldsInfo().fields().stream()
+                .filter(isIterable).collect(toList());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -671,25 +678,23 @@ public class ClassInfo {
         if (iterableFieldsForType.containsKey(iteratedType)) {
             return iterableFieldsForType.get(iteratedType);
         }
-        List<FieldInfo> iterableFields = new ArrayList<>();
+
         String typeSignature = iteratedType.getName();
         String arrayOfTypeSignature = typeSignature + "[]";
-        try {
-            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                String fieldType = fieldInfo.getTypeDescriptor();
-                if (fieldInfo.isArray() && (fieldType.equals(arrayOfTypeSignature) || fieldInfo
-                    .isParameterisedTypeOf(iteratedType))) {
-                    iterableFields.add(fieldInfo);
-                } else if (fieldInfo.isIterable() && (fieldType.equals(typeSignature) || fieldInfo
-                    .isParameterisedTypeOf(iteratedType))) {
-                    iterableFields.add(fieldInfo);
-                }
-            }
-            iterableFieldsForType.put(iteratedType, iterableFields);
-            return iterableFields;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
+        Predicate<FieldInfo> isIterableOfType = f -> {
+            String fieldType = f.getTypeDescriptor();
+
+            boolean isMatchingArray =
+                f.isArray() && (fieldType.equals(arrayOfTypeSignature) || f.isParameterisedTypeOf(iteratedType));
+            boolean isMatchingIterable =
+                f.isIterable() && (fieldType.equals(typeSignature) || f.isParameterisedTypeOf(iteratedType));
+
+            return isMatchingArray || isMatchingIterable;
+        };
+
+        return fieldsInfo().fields().stream()
+            .filter(isIterableOfType).collect(toList());
     }
 
     /**

@@ -83,10 +83,10 @@ public class FieldsInfo {
 
         String typeParameterDescriptor = null;
 
-        final Type genericType = field.getGenericType();
+        Type genericType = field.getGenericType();
         if (genericType instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) genericType;
-            final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
             if (actualTypeArguments.length > 0) {
                 for (Type typeArgument : actualTypeArguments) {
                     if (typeArgument instanceof ParameterizedType) {

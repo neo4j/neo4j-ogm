@@ -451,13 +451,15 @@ public class MappingContext {
         }
 
         boolean isNotARelationshipEntity = !metaData.isRelationshipEntity(type.getName());
-        boolean isInMappingContext = getNodeEntity(id) != null;
 
-        if (isNotARelationshipEntity && isInMappingContext) {
-            // remove the object from the node register
-            removeNodeEntity(entity, false);
-            // and also remove all in and outgoing stuff
-            removeAllInAndOutcomingRelationshipsOf(id);
+        if (isNotARelationshipEntity) {
+            boolean isInMappingContext = getNodeEntity(id) != null;
+            if (isInMappingContext) {
+                // remove the object from the node register
+                removeNodeEntity(entity, false);
+                // and also remove all in and outgoing stuff
+                removeAllInAndOutcomingRelationshipsOf(id);
+            }
         } else if (relationshipEntityRegister.containsKey(id)) {
             relationshipEntityRegister.remove(id);
             final ClassInfo classInfo = metaData.classInfo(entity);

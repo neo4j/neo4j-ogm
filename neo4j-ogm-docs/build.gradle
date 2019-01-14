@@ -54,19 +54,21 @@ ext {
     copyrightYear = "${new Date().format('yyyy')}"
     docsBaseUri = "https://neo4j.com/docs"
     docsCrossReferenceBaseUris = [
-            'operations-manual-base-uri' : "${docsBaseUri}/operations-manual/${neo4jDocVersion}",
-            'developer-manual-base-uri'  : "${docsBaseUri}/developer-manual/${neo4jDocVersion}",
-            'java-reference-base-uri'    : "${docsBaseUri}/java-reference/${neo4jDocVersion}",
-            'rest-docs-base-uri'         : "${docsBaseUri}/rest-docs/${neo4jDocVersion}",
+            'operations-manual-base-uri' : "${docsBaseUri}/operations-manual/current",
+            'cypher-manual-base-uri'     : "${docsBaseUri}/cypher-manual/current",
+            'driver-manual-base-uri'     : "${docsBaseUri}/driver-manual/current",
+            'java-reference-base-uri'    : "${docsBaseUri}/java-reference/current",
+            'rest-docs-base-uri'         : "${docsBaseUri}/rest-docs/current",
             'ogm-manual-base-uri'        : "${docsBaseUri}/ogm-manual/${ogmDocVersion}",
-            'graph-algorithms-base-uri'  : "${docsBaseUri}/graph-algorithms/${graphAlgoDocVersion}",
-            'kerberos-add-on-base-uri'   : "${docsBaseUri}/add-on/kerberos/${kerberosAddonVersion}"
+            'graph-algorithms-base-uri'  : "${docsBaseUri}/graph-algorithms/current",
+            'kerberos-add-on-base-uri'   : "${docsBaseUri}/add-on/kerberos/current"
     ]
     docsCrossReferenceBaseUris['neo4j-javadoc-base-uri'] = "${docsCrossReferenceBaseUris['java-reference-base-uri']}/javadocs"
     docsLibraryHeaderConfig =
             """
             Operations_Manual=${docsCrossReferenceBaseUris['operations-manual-base-uri']}/
-            Developer_Manual=${docsCrossReferenceBaseUris['developer-manual-base-uri']}/
+            Cypher_Manual=${docsCrossReferenceBaseUris['cypher-manual-base-uri']}/
+            Driver_Manual=${docsCrossReferenceBaseUris['driver-manual-base-uri']}/
             OGM_Manual=${docsCrossReferenceBaseUris['ogm-manual-base-uri']}/
             Graph_Algorithms=${docsCrossReferenceBaseUris['graph-algorithms-base-uri']}/
             Java_Reference=${docsCrossReferenceBaseUris['java-reference-base-uri']}/

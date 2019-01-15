@@ -40,7 +40,6 @@ import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
-import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.PropertyModel;
 import org.neo4j.ogm.session.EntityInstantiator;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
@@ -53,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
-public class GraphEntityMapper implements ResponseMapper<GraphModel> {
+public class GraphEntityMapper  {
 
     private static final Logger logger = LoggerFactory.getLogger(GraphEntityMapper.class);
 
@@ -78,9 +77,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         this.mappingContext = mappingContext;
     }
 
-    @Override
-    public <T> Iterable<T> map(Class<T> type, Response<GraphModel> model) {
-
+    <T> Collection<T>  poef(Class<T> type, List<GraphModel> listOfGraphModels) {
         Map<Long, T> objects = new LinkedHashMap<>();
 
         // these two lists will contain the node ids and edge ids from the response, in the order
@@ -88,17 +85,15 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         Set<Long> nodeIds = new LinkedHashSet<>();
         Set<Long> edgeIds = new LinkedHashSet<>();
 
-        GraphModel graphModel;
-        while ((graphModel = model.next()) != null) {
+        listOfGraphModels.forEach(graphModel -> {
             List<T> mappedEntities = map(type, graphModel, nodeIds, edgeIds);
             for (T entity : mappedEntities) {
                 Long nativeId = mappingContext.nativeId(entity);
                 objects.putIfAbsent(nativeId, entity);
             }
-        }
+        });
 
         executePostLoad(nodeIds, edgeIds);
-        model.close();
 
         return objects.values();
     }

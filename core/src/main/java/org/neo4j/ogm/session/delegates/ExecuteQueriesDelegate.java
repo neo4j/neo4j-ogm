@@ -30,6 +30,7 @@ import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.EntityRowModelMapper;
 import org.neo4j.ogm.context.GraphEntityMapper;
+import org.neo4j.ogm.context.GraphRowModelMapper;
 import org.neo4j.ogm.context.ResponseMapper;
 import org.neo4j.ogm.context.RestModelMapper;
 import org.neo4j.ogm.context.RestStatisticsModel;
@@ -61,6 +62,7 @@ import org.neo4j.ogm.transaction.Transaction;
  * @author Luanne Misquitta
  * @author Jasper Blues
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 public class ExecuteQueriesDelegate extends SessionDelegate {
 
@@ -143,7 +145,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
             if (type != null && session.metaData().classInfo(deriveSimpleName(type)) != null) {
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                    return new GraphEntityMapper(session.metaData(), session.context(), session.getEntityInstantiator())
+                    return new GraphRowModelMapper(session.metaData(), session.context(), session.getEntityInstantiator())
                         .map(type, response);
                 }
             } else {

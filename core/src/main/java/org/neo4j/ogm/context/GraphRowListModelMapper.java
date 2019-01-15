@@ -18,71 +18,67 @@
  */
 package org.neo4j.ogm.context;
 
+import static java.util.stream.Collectors.*;
+
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.EntityInstantiator;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel> {
 
-    private final MetaData metaData;
     private final MappingContext mappingContext;
-    private EntityInstantiator entityInstantiator;
+    private final GraphEntityMapper delegate;
 
     public GraphRowListModelMapper(MetaData metaData, MappingContext mappingContext,
         EntityInstantiator entityInstantiator) {
-        this.metaData = metaData;
         this.mappingContext = mappingContext;
-        this.entityInstantiator = entityInstantiator;
+
+        this.delegate = new GraphEntityMapper(metaData, mappingContext, entityInstantiator);
     }
 
     public <T> Iterable<T> map(Class<T> type, Response<GraphRowListModel> response) {
 
-        List<T> result = new ArrayList<>();
-        Set<Long> resultEntityIds = new LinkedHashSet<>();
-        ClassInfo classInfo = metaData.classInfo(type.getName());
+        // Retrieve all the row models
+        List<GraphRowModel> listOfRowModels = response.toList()
+            .stream()
+            .flatMap(rowsModel -> rowsModel.model().stream())
+            .collect(toList());
 
-        Set<Long> nodeIds = new LinkedHashSet<>();
-        Set<Long> edgeIds = new LinkedHashSet<>();
-        GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext, entityInstantiator);
+        response.close();
 
-        GraphRowListModel graphRowsModel;
+        // Extract the graph models and the ids of all result entities
+        // I guess those are the entities that are clearly identified by
+        // something in the return clause.
+        List<GraphModel> listOfGraphModels = new ArrayList<>();
+        Set<Long> idsOfResultEntities = new HashSet<>();
 
-        while ((graphRowsModel = response.next()) != null) {
-            for (GraphRowModel graphRowModel : graphRowsModel.model()) {
-                //Load the GraphModel into the ogm
-                ogm.map(type, graphRowModel.getGraph(), nodeIds, edgeIds);
-                //Extract the id's of filtered nodes from the rowData and return them
-                Object[] rowData = graphRowModel.getRow();
-                for (Object data : rowData) {
-                    if (data instanceof Number) {
-                        resultEntityIds.add(((Number) data).longValue());
-                    }
-                }
-            }
-        }
-        ogm.executePostLoad(nodeIds, edgeIds);
+        listOfRowModels.forEach(graphRowModel -> {
 
-        if (classInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
-            for (Long resultEntityId : resultEntityIds) {
-                result.add((T) mappingContext.getNodeEntity(resultEntityId));
-            }
-        } else {
-            for (Long resultEntityId : resultEntityIds) {
-                result.add((T) mappingContext.getRelationshipEntity(resultEntityId));
-            }
-        }
-        return result;
+            Set<Long> idsInCurrentRow = Arrays.stream(graphRowModel.getRow())
+                .filter(Number.class::isInstance)
+                .map(Number.class::cast)
+                .map(Number::longValue)
+                .collect(toSet());
+
+            listOfGraphModels.add(graphRowModel.getGraph());
+            idsOfResultEntities.addAll(idsInCurrentRow);
+        });
+
+        Predicate<Object> isRootEntity = entity -> idsOfResultEntities.contains(mappingContext.nativeId(entity));
+        return delegate.poef(type, listOfGraphModels).stream().filter(isRootEntity).collect(toList());
     }
 }

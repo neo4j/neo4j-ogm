@@ -21,7 +21,7 @@ package org.neo4j.ogm.session.delegates;
 import java.io.Serializable;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.context.GraphEntityMapper;
+import org.neo4j.ogm.context.GraphRowModelMapper;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class LoadOneDelegate extends SessionDelegate {
 
@@ -81,7 +82,7 @@ public class LoadOneDelegate extends SessionDelegate {
 
         return session.doInTransaction(() -> {
             try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                new GraphEntityMapper(session.metaData(), session.context(), session.getEntityInstantiator())
+                new GraphRowModelMapper(session.metaData(), session.context(), session.getEntityInstantiator())
                     .map(type, response);
                 return lookup(type, id);
             }

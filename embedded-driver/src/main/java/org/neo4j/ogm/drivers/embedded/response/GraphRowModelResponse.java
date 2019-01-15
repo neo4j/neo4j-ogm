@@ -22,6 +22,7 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
+import org.neo4j.ogm.result.adapter.GraphRowModelAdapter;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
@@ -30,13 +31,13 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public class GraphRowModelResponse extends EmbeddedResponse<GraphRowListModel> {
 
-    private final EmbeddedGraphRowModelAdapter adapter;
+    private final GraphRowModelAdapter adapter;
 
     public GraphRowModelResponse(Result result, TransactionManager transactionManager, EmbeddedEntityAdapter entityAdapter) {
 
         super(result, transactionManager);
 
-        this.adapter = new EmbeddedGraphRowModelAdapter(new EmbeddedGraphModelAdapter(entityAdapter));
+        this.adapter = new GraphRowModelAdapter(new EmbeddedGraphModelAdapter(entityAdapter));
         this.adapter.setColumns(result.columns());
     }
 

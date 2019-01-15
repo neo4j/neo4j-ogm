@@ -37,9 +37,10 @@ import org.neo4j.ogm.response.model.DefaultRowModel;
 /**
  * This adapter will transform an embedded response into a json response
  *
- * @author vince
+ * @author Vince Bickers
+ * @author Michael J. Simons
  */
-public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, GraphRowModel> {
+public class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, GraphRowModel> {
 
     private final GraphModelAdapter graphModelAdapter;
     private List<String> columns = new ArrayList<>();

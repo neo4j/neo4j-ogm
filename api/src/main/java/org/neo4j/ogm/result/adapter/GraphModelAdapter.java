@@ -76,7 +76,7 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
         }
     }
 
-    public void buildPath(Object path, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities) {
+    void buildPath(Object path, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities) {
         Iterator<Object> relIterator = relsInPath(path).iterator();
         Iterator<Object> nodeIterator = nodesInPath(path).iterator();
 
@@ -89,37 +89,38 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
         }
     }
 
-    public void buildNode(Object node, GraphModel graphModel, Set<Long> nodeIdentities) {
-        if (!nodeIdentities.contains(nodeId(node))) {
-
-            nodeIdentities.add(nodeId(node));
-
-            NodeModel nodeModel = new NodeModel(nodeId(node));
-            List<String> labelNames = labels(node);
-
-            nodeModel.setLabels(labelNames.toArray(new String[] {}));
-
-            nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
-
-            graphModel.getNodes().add(nodeModel);
+    void buildNode(Object node, GraphModel graphModel, Set<Long> nodeIdentities) {
+        if (nodeIdentities.contains(nodeId(node))) {
+            return;
         }
+
+        nodeIdentities.add(nodeId(node));
+
+        NodeModel nodeModel = new NodeModel(nodeId(node));
+        List<String> labels = labels(node);
+
+        nodeModel.setLabels(labels.toArray(new String[] {}));
+        nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
+
+        graphModel.getNodes().add(nodeModel);
     }
 
-    public void buildRelationship(Object relationship, GraphModel graphModel, Set<Long> edgeIdentities) {
-
-        if (!edgeIdentities.contains(relationshipId(relationship))) {
-
-            edgeIdentities.add(relationshipId(relationship));
-
-            RelationshipModel edgeModel = new RelationshipModel();
-            edgeModel.setId(relationshipId(relationship));
-            edgeModel.setType(relationshipType(relationship));
-            edgeModel.setStartNode(startNodeId(relationship));
-            edgeModel.setEndNode(endNodeId(relationship));
-
-            edgeModel.setProperties(convertArrayPropertiesToIterable(properties(relationship)));
-            graphModel.getRelationships().add(edgeModel);
+    void buildRelationship(Object relationship, GraphModel graphModel, Set<Long> edgeIdentities) {
+        if (edgeIdentities.contains(relationshipId(relationship))) {
+            return;
         }
+
+        edgeIdentities.add(relationshipId(relationship));
+
+        RelationshipModel edgeModel = new RelationshipModel();
+        edgeModel.setId(relationshipId(relationship));
+        edgeModel.setType(relationshipType(relationship));
+        edgeModel.setStartNode(startNodeId(relationship));
+        edgeModel.setEndNode(endNodeId(relationship));
+
+        edgeModel.setProperties(convertArrayPropertiesToIterable(properties(relationship)));
+
+        graphModel.getRelationships().add(edgeModel);
     }
 
     public abstract boolean isPath(Object value);

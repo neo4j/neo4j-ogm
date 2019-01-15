@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
+import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -31,7 +32,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
-public class RestModelResponse extends EmbeddedResponse<DefaultRestModel> {
+public class RestModelResponse extends EmbeddedResponse<RestModel> {
 
     private final EmbeddedRestModelAdapter restModelAdapter;
     private final QueryStatisticsModel statisticsModel;
@@ -45,7 +46,7 @@ public class RestModelResponse extends EmbeddedResponse<DefaultRestModel> {
     }
 
     @Override
-    public DefaultRestModel next() {
+    public RestModel next() {
         DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
         defaultRestModel.setStats(statisticsModel);
         return defaultRestModel;

@@ -25,6 +25,7 @@ import java.util.Map;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
+import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -33,7 +34,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
-public class RestModelResponse extends BoltResponse<DefaultRestModel> {
+public class RestModelResponse extends BoltResponse<RestModel> {
 
     private BoltRestModelAdapter restModelAdapter;
     private final QueryStatisticsModel statisticsModel;
@@ -49,7 +50,7 @@ public class RestModelResponse extends BoltResponse<DefaultRestModel> {
     }
 
     @Override
-    public DefaultRestModel fetchNext() {
+    public RestModel fetchNext() {
         DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
         defaultRestModel.setStats(statisticsModel);
         return defaultRestModel;

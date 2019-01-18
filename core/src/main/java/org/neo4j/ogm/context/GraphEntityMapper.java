@@ -25,15 +25,16 @@ import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Predicate;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.MethodInfo;
-import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.EntityFactory;
 import org.neo4j.ogm.model.Edge;
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
-public class GraphEntityMapper  {
+public class GraphEntityMapper {
 
     private static final Logger logger = LoggerFactory.getLogger(GraphEntityMapper.class);
 
@@ -77,82 +78,43 @@ public class GraphEntityMapper  {
         this.mappingContext = mappingContext;
     }
 
-    <T> Collection<T>  poef(Class<T> type, List<GraphModel> listOfGraphModels) {
-        Map<Long, T> objects = new LinkedHashMap<>();
+    <T> List<T> map(Class<T> type, List<GraphModel> listOfGraphModels) {
 
-        // these two lists will contain the node ids and edge ids from the response, in the order
-        // they were presented to us.
-        Set<Long> nodeIds = new LinkedHashSet<>();
-        Set<Long> edgeIds = new LinkedHashSet<>();
+        Set<Long> mappedNodeIs = new LinkedHashSet<>();
+        Set<Long> mappedRelationshipIds = new LinkedHashSet<>();
 
+        // Execute mapping for each individual model
         listOfGraphModels.forEach(graphModel -> {
-            List<T> mappedEntities = map(type, graphModel, nodeIds, edgeIds);
-            for (T entity : mappedEntities) {
-                Long nativeId = mappingContext.nativeId(entity);
-                objects.putIfAbsent(nativeId, entity);
+                try {
+                    mappedNodeIs.addAll(mapNodes(graphModel));
+                    mappedRelationshipIds.addAll(mapRelationships(graphModel));
+                } catch (MappingException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
+                }
             }
-        });
+        );
 
-        executePostLoad(nodeIds, edgeIds);
+        // Execute postload after all models
+        executePostLoad(mappedNodeIs, mappedRelationshipIds);
 
-        return objects.values();
-    }
-
-    Map<Long, Object> mapRelationships(GraphModel model) {
-        Map<Long, Object> results = new HashMap<>();
-        Set<Long> edgeIds = new LinkedHashSet<>();
-        mapRelationships(model, edgeIds);
-        for (Long id : edgeIds) {
-            Object o = mappingContext.getRelationshipEntity(id);
-            if (o != null) {
-                results.put(id, o);
-            }
-        }
-        return results;
-    }
-
-    /**
-     * Map graph model and return found entities of given type type
-     * This method doesn't execute @PostLoad, call this method after processing whole request while accumulating
-     * nodeIds and edgeIds.
-     *
-     * @param type       class of entities to return
-     * @param graphModel graph model to map
-     * @param nodeIds    accumulator for mapped nodeIds
-     * @param edgeIds    accumulator for mapped edgeIds
-     * @param <T>        type
-     * @return list of entities matching given type
-     */
-    <T> List<T> map(Class<T> type, GraphModel graphModel, Set<Long> nodeIds, Set<Long> edgeIds) {
-
-        Set<Long> modelNodeIds = new LinkedHashSet<>();
-        Set<Long> modelEdgeIds = new LinkedHashSet<>();
-
-        mapEntities(type, graphModel, modelNodeIds, modelEdgeIds);
-
-        List<T> results = new ArrayList<>();
-
-        for (Long id : modelNodeIds) {
-            Object o = mappingContext.getNodeEntity(id);
-
-            nodeIds.add(id);
-
-            if (o != null && type.isAssignableFrom(o.getClass())) {
-                results.add(type.cast(o));
-            }
-        }
+        // Collect result
+        Predicate<Object> includeInResult = entity -> entity != null && type.isAssignableFrom(entity.getClass());
+        List<T> results = mappedNodeIs.stream()
+            .map(mappingContext::getNodeEntity)
+            .filter(includeInResult)
+            .map(type::cast)
+            .collect(toList());
 
         // only look for REs if no node entities were found
         if (results.isEmpty()) {
-            for (Long id : modelEdgeIds) {
-                Object o = mappingContext.getRelationshipEntity(id);
 
-                edgeIds.add(id);
-
-                if (o != null && type.isAssignableFrom(o.getClass())) {
-                    results.add(type.cast(o));
-                }
-            }
+            results = mappedRelationshipIds.stream()
+                .map(mappingContext::getRelationshipEntity)
+                .filter(includeInResult)
+                .map(type::cast)
+                .collect(toList());
         }
 
         return results;
@@ -167,7 +129,7 @@ public class GraphEntityMapper  {
      * @param nodeIds nodeIds
      * @param edgeIds edgeIds
      */
-    void executePostLoad(Set<Long> nodeIds, Set<Long> edgeIds) {
+    private void executePostLoad(Set<Long> nodeIds, Set<Long> edgeIds) {
         for (Long id : nodeIds) {
             Object o = mappingContext.getNodeEntity(id);
             executePostLoad(o);
@@ -182,6 +144,7 @@ public class GraphEntityMapper  {
     }
 
     private void executePostLoad(Object instance) {
+
         ClassInfo classInfo = metadata.classInfo(instance);
         MethodInfo postLoadMethod = classInfo.postLoadMethodOrNull();
         if (postLoadMethod != null) {
@@ -201,42 +164,32 @@ public class GraphEntityMapper  {
         }
     }
 
-    private <T> void mapEntities(Class<T> type, GraphModel graphModel, Set<Long> nodeIds, Set<Long> edgeIds) {
-        try {
-            mapNodes(graphModel, nodeIds);
-            mapRelationships(graphModel, edgeIds);
-        } catch (MappingException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
-        }
-    }
+    private Set<Long> mapNodes(GraphModel graphModel) {
 
-    private void mapNodes(GraphModel graphModel, Set<Long> nodeIds) {
-
+        Set<Long> mappedNodeIds = new HashSet<>();
         for (Node node : graphModel.getNodes()) {
-            if (!nodeIds.contains(node.getId())) {
-                Object entity = mappingContext.getNodeEntity(node.getId());
-                if (entity == null) {
-                    ClassInfo clsi = metadata.resolve(node.getLabels());
-                    if (clsi == null) {
-                        logger.debug("Could not find a class to map for labels " + Arrays.toString(node.getLabels()));
-                        continue;
-                    }
-                    Map<String, Object> allProps = new HashMap<>(toMap(node.getPropertyList()));
-                    getCompositeProperties(node.getPropertyList(), clsi).forEach((k, v) -> {
-                        allProps.put(k.getName(), v);
-                    });
-
-                    entity = entityFactory.newObject(clsi.getUnderlyingClass(), allProps);
-                    EntityUtils.setIdentity(entity, node.getId(), metadata);
-                    setProperties(node.getPropertyList(), entity);
-                    setLabels(node, entity);
-                    mappingContext.addNodeEntity(entity, node.getId());
+            Object entity = mappingContext.getNodeEntity(node.getId());
+            if (entity == null) {
+                ClassInfo clsi = metadata.resolve(node.getLabels());
+                if (clsi == null) {
+                    logger.debug("Could not find a class to map for labels " + Arrays.toString(node.getLabels()));
+                    continue;
                 }
-                nodeIds.add(node.getId());
+                Map<String, Object> allProps = new HashMap<>(toMap(node.getPropertyList()));
+                getCompositeProperties(node.getPropertyList(), clsi).forEach((k, v) -> {
+                    allProps.put(k.getName(), v);
+                });
+
+                entity = entityFactory.newObject(clsi.getUnderlyingClass(), allProps);
+                EntityUtils.setIdentity(entity, node.getId(), metadata);
+                setProperties(node.getPropertyList(), entity);
+                setLabels(node, entity);
+                mappingContext.addNodeEntity(entity, node.getId());
             }
+            mappedNodeIds.add(node.getId());
         }
+
+        return mappedNodeIds;
     }
 
     /**
@@ -313,19 +266,17 @@ public class GraphEntityMapper  {
         }
     }
 
-    private void mapRelationships(GraphModel graphModel, Set<Long> edgeIds) {
+    private Set<Long> mapRelationships(GraphModel graphModel) {
 
-        final List<Edge> oneToMany = new ArrayList<>();
+        Set<Long> mappedRelationshipIds = new HashSet<>();
+        List<Edge> oneToMany = new ArrayList<>();
 
         for (Edge edge : graphModel.getRelationships()) {
-            if (edgeIds.contains(edge.getId())) {
-                continue;
-            }
 
             Object source = mappingContext.getNodeEntity(edge.getStartNode());
             Object target = mappingContext.getNodeEntity(edge.getEndNode());
 
-            edgeIds.add(edge.getId());
+            mappedRelationshipIds.add(edge.getId());
 
             if (source != null && target != null) {
                 // check whether this edge should in fact be handled as a relationship entity
@@ -346,6 +297,8 @@ public class GraphEntityMapper  {
         if (!oneToMany.isEmpty()) {
             mapOneToMany(oneToMany);
         }
+
+        return mappedRelationshipIds;
     }
 
     private void mapRelationshipEntity(List<Edge> oneToMany, Edge edge, Object source, Object target,
@@ -482,7 +435,8 @@ public class GraphEntityMapper  {
                 if (outgoingWriter != null) {
                     if (!outgoingWriter.forScalar()) {
                         entityCollector.collectRelationship(edge.getStartNode(),
-                            DescriptorMappings.getType(outgoingWriter.typeParameterDescriptor()), edge.getType(), OUTGOING,
+                            DescriptorMappings.getType(outgoingWriter.typeParameterDescriptor()), edge.getType(),
+                            OUTGOING,
                             edge.getEndNode(), parameter);
                     } else {
                         outgoingWriter.write(instance, parameter);
@@ -497,7 +451,8 @@ public class GraphEntityMapper  {
                 if (incomingWriter != null) {
                     if (!incomingWriter.forScalar()) {
                         entityCollector.collectRelationship(edge.getEndNode(),
-                            DescriptorMappings.getType(incomingWriter.typeParameterDescriptor()), edge.getType(), INCOMING,
+                            DescriptorMappings.getType(incomingWriter.typeParameterDescriptor()), edge.getType(),
+                            INCOMING,
                             edge.getStartNode(), instance);
                     } else {
                         incomingWriter.write(parameter, instance);

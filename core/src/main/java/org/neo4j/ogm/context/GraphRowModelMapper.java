@@ -44,6 +44,6 @@ public class GraphRowModelMapper implements ResponseMapper<GraphModel> {
         List<GraphModel> listOfGraphModels = model.toList();
         model.close();
 
-        return delegate.poef(type, listOfGraphModels);
+        return delegate.map(type, listOfGraphModels);
     }
 }

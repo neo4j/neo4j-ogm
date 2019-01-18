@@ -29,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.EntityRowModelMapper;
-import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.GraphRowModelMapper;
 import org.neo4j.ogm.context.ResponseMapper;
 import org.neo4j.ogm.context.RestModelMapper;
@@ -41,8 +40,8 @@ import org.neo4j.ogm.cypher.query.DefaultRestModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.Result;
@@ -119,9 +118,8 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         validateQuery(cypher, parameters, readOnly);
 
         RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
-        RestModelMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context(),
-            session.getEntityInstantiator()),
-            session.metaData());
+        RestModelMapper mapper = new RestModelMapper(session.metaData(), session.context(),
+            session.getEntityInstantiator());
 
         return session.doInTransaction(() -> {
 

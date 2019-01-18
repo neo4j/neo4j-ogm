@@ -18,8 +18,13 @@
  */
 package org.neo4j.ogm.response.model;
 
+import static java.util.stream.Collectors.*;
+
 import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.GraphModel;
@@ -56,5 +61,14 @@ public class DefaultGraphModel implements GraphModel {
         for (RelationshipModel relationship : relationships) {
             this.relationships.add(relationship);
         }
+    }
+
+    public Optional<Node> findNode(Long nodeId) {
+
+        // This has a lot of optimization potential if we just store
+        // the nodes as set here, but the getters seem to be used
+        // to modify the underlying state as well... :(
+        Map<Long, Node> nodeMap = this.nodes.stream().collect(toMap(Node::getId, Function.identity()));
+        return Optional.ofNullable(nodeMap.get(nodeId));
     }
 }

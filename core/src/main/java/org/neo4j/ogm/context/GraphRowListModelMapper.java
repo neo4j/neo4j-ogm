@@ -79,6 +79,6 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
         });
 
         Predicate<Object> isRootEntity = entity -> idsOfResultEntities.contains(mappingContext.nativeId(entity));
-        return delegate.poef(type, listOfGraphModels).stream().filter(isRootEntity).collect(toList());
+        return delegate.map(type, listOfGraphModels).stream().filter(isRootEntity).collect(toList());
     }
 }

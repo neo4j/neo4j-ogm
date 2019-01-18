@@ -119,15 +119,14 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         validateQuery(cypher, parameters, readOnly);
 
         RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
-        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context(),
+        RestModelMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context(),
             session.getEntityInstantiator()),
             session.metaData());
 
         return session.doInTransaction(() -> {
 
             try (Response<RestModel> response = session.requestHandler().execute(request)) {
-                Iterable<RestStatisticsModel> mappedModel = mapper.map(null, response);
-                RestStatisticsModel restStatisticsModel = mappedModel.iterator().next();
+                RestStatisticsModel restStatisticsModel = mapper.map(response);
 
                 if (readOnly) {
                     return new QueryResultModel(restStatisticsModel.getResult(), null);

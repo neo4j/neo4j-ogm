@@ -41,8 +41,9 @@ import org.neo4j.ogm.session.Utils;
  * Map NodeModels and RelationshipModels obtained from cypher queries to domain entities
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
-public class RestModelMapper implements ResponseMapper<RestModel> {
+public class RestModelMapper {
 
     final GraphEntityMapper graphEntityMapper;
     final MetaData metaData;
@@ -52,8 +53,7 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
         this.metaData = metaData;
     }
 
-    @Override
-    public <T> Iterable<T> map(Class<T> type, Response<RestModel> response) {
+    public RestStatisticsModel map(Response<RestModel> response) {
         RestStatisticsModel restStatisticsModel = new RestStatisticsModel();
 
         Collection<Map<String, Object>> result = new ArrayList<>();
@@ -120,7 +120,7 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
         graphEntityMapper.executePostLoad(nodeIds, edgeIds);
 
         restStatisticsModel.setResult(result);
-        return (Iterable<T>) Collections.singletonList(restStatisticsModel);
+        return restStatisticsModel;
     }
 
     private static Object convertListValueToArray(List entityList) {

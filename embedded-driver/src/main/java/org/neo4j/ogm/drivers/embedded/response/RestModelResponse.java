@@ -20,9 +20,11 @@ package org.neo4j.ogm.drivers.embedded.response;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
@@ -47,9 +49,8 @@ public class RestModelResponse extends EmbeddedResponse<RestModel> {
 
     @Override
     public RestModel next() {
-        DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
-        defaultRestModel.setStats(statisticsModel);
-        return defaultRestModel;
+        return DefaultRestModel.basedOn(buildModel())
+            .orElse(null);
     }
 
     private Map<String, Object> buildModel() {
@@ -60,5 +61,10 @@ public class RestModelResponse extends EmbeddedResponse<RestModel> {
         }
 
         return row;
+    }
+
+    @Override
+    public Optional<QueryStatistics> getStatistics() {
+        return Optional.of(statisticsModel);
     }
 }

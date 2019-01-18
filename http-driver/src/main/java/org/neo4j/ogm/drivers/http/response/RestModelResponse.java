@@ -20,8 +20,10 @@ package org.neo4j.ogm.drivers.http.response;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRestModel;
@@ -41,9 +43,9 @@ public class RestModelResponse extends AbstractHttpResponse<ResultRestModel> imp
 
     @Override
     public RestModel next() {
-        DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
-        defaultRestModel.setStats(statistics());
-        return defaultRestModel;
+
+        return DefaultRestModel.basedOn(buildModel())
+            .orElse(null);
     }
 
     @Override
@@ -59,5 +61,10 @@ public class RestModelResponse extends AbstractHttpResponse<ResultRestModel> imp
         }
 
         return row;
+    }
+
+    @Override
+    public Optional<QueryStatistics> getStatistics() {
+        return Optional.of(statistics());
     }
 }

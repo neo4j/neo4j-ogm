@@ -19,34 +19,43 @@
 package org.neo4j.ogm.response.model;
 
 import java.util.Map;
+import java.util.Optional;
 
-import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;
 
 /**
  * The results of a query, modelled as rest response data.
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class DefaultRestModel implements RestModel {
 
     private final Map<String, Object> row;
-    private QueryStatistics stats = new QueryStatisticsModel();
 
-    public DefaultRestModel(Map<String, Object> row) {
+    /**
+     * Creates a new {@link RestModel} based on the given row. If the row is empty or {@literal null}, then
+     * the no model is returned but an empty {@link java.util.Optional}.
+     *
+     * @param row The row this model is based on, maybe {@literal null}
+     * @return An optional {@link RestModel}
+     */
+    public static Optional<DefaultRestModel> basedOn(Map<String, Object> row) {
+
+        if (row == null || row.isEmpty()) {
+            return Optional.empty();
+        }
+
+        DefaultRestModel restModel = new DefaultRestModel(row);
+        return Optional.of(restModel);
+    }
+
+    private DefaultRestModel(Map<String, Object> row) {
         this.row = row;
     }
 
     @Override
     public Map<String, Object> getRow() {
         return row;
-    }
-
-    public QueryStatistics getStats() {
-        return stats;
-    }
-
-    public void setStats(QueryStatistics stats) {
-        this.stats = stats;
     }
 }

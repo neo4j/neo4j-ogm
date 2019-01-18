@@ -21,10 +21,12 @@ package org.neo4j.ogm.drivers.bolt.response;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
@@ -40,7 +42,8 @@ public class RestModelResponse extends BoltResponse<RestModel> {
     private final QueryStatisticsModel statisticsModel;
     private final Iterator<Record> resultProjection;
 
-    public RestModelResponse(StatementResult result, TransactionManager transactionManager, BoltEntityAdapter entityAdapter) {
+    public RestModelResponse(StatementResult result, TransactionManager transactionManager,
+        BoltEntityAdapter entityAdapter) {
 
         super(result, transactionManager);
 
@@ -51,9 +54,8 @@ public class RestModelResponse extends BoltResponse<RestModel> {
 
     @Override
     public RestModel fetchNext() {
-        DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
-        defaultRestModel.setStats(statisticsModel);
-        return defaultRestModel;
+        return DefaultRestModel.basedOn(buildModel())
+            .orElse(null);
     }
 
     private Map<String, Object> buildModel() {
@@ -63,5 +65,10 @@ public class RestModelResponse extends BoltResponse<RestModel> {
         }
 
         return row;
+    }
+
+    @Override
+    public Optional<QueryStatistics> getStatistics() {
+        return Optional.of(statisticsModel);
     }
 }

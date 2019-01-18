@@ -55,15 +55,17 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
     @Override
     public <T> Iterable<T> map(Class<T> type, Response<RestModel> response) {
         RestStatisticsModel restStatisticsModel = new RestStatisticsModel();
-        RestModel model = response.next();
+
         Collection<Map<String, Object>> result = new ArrayList<>();
         Map<Long, String> relationshipEntityColumns = new HashMap<>(); //Relationship ID to column name
 
-        restStatisticsModel.setStatistics(model.getStats());
+        response.getStatistics().ifPresent(restStatisticsModel::setStatistics);
 
         Set<Long> nodeIds = new LinkedHashSet<>();
         Set<Long> edgeIds = new LinkedHashSet<>();
-        while (model.getRow().entrySet().size() > 0) {
+
+        RestModel model = null;
+        while ((model = response.next()) != null) {
             Map<String, Object> row = model.getRow();
             List<RelationshipModel> relationshipModels = new ArrayList<>();
             for (Map.Entry<String, Object> entry : row.entrySet()) {
@@ -113,7 +115,6 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
             }
 
             result.add(row);
-            model = response.next();
         }
 
         graphEntityMapper.executePostLoad(nodeIds, edgeIds);

@@ -22,10 +22,9 @@ import java.util.Map;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public interface RestModel {
 
     Map<String, Object> getRow();
-
-    QueryStatistics getStats();
 }

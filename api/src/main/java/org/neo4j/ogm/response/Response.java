@@ -20,6 +20,9 @@ package org.neo4j.ogm.response;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import org.neo4j.ogm.model.QueryStatistics;
 
 /**
  * @author Vince Bickers
@@ -30,10 +33,8 @@ public interface Response<T> extends AutoCloseable {
 
     /**
      * Convert remaining items in this response to list
-     *
      * This might be used to materialize whole response for checking number of results, allowing to close transaction
      * etc.
-     *
      * Doesn't call {@link #close()}.
      */
     default List<T> toList() {
@@ -48,4 +49,14 @@ public interface Response<T> extends AutoCloseable {
     void close();
 
     String[] columns();
+
+    /**
+     * Responses that contain statistics can hook into here to return.
+     *
+     * @return An empty optional containing no statistics.
+     * @since 3.2
+     */
+    default Optional<QueryStatistics> getStatistics() {
+        return Optional.empty();
+    }
 }

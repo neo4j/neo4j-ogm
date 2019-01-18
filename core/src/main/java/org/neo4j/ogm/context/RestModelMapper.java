@@ -80,7 +80,7 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
                             }
                         }
                     } else {
-                        convertListValueToArray(entityList, entry);
+                        entry.setValue(convertListValueToArray(entityList));
                     }
                 } else {
                     if (isMappable(Collections.singletonList(value))) {
@@ -122,7 +122,7 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
         return (Iterable<T>) Collections.singletonList(restStatisticsModel);
     }
 
-    private void convertListValueToArray(List entityList, Map.Entry<String, Object> entry) {
+    private static Object convertListValueToArray(List entityList) {
         Class arrayClass = null;
         for (Object element : entityList) {
             Class clazz = element.getClass();
@@ -135,15 +135,17 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
                 }
             }
         }
+
+        Object array;
         if (arrayClass == null) {
-            entry.setValue(entityList.toArray());
+            array = entityList.toArray();
         } else {
-            Object array = Array.newInstance(arrayClass, entityList.size());
+            array = Array.newInstance(arrayClass, entityList.size());
             for (int j = 0; j < entityList.size(); j++) {
                 Array.set(array, j, Utils.coerceTypes(arrayClass, entityList.get(j)));
             }
-            entry.setValue(array);
         }
+        return array;
     }
 
     private boolean isMappable(List entityList) {

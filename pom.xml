@@ -205,7 +205,7 @@
         <junit.version>4.12</junit.version>
         <logback.version>1.2.3</logback.version>
         <lucene.version>5.5.5</lucene.version>
-        <neo4j.version>3.4.11</neo4j.version>
+        <neo4j.version>3.4.12</neo4j.version>
         <neo4j.edition>enterprise</neo4j.edition>
         <neo4j-java-driver.version>1.7.1</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
@@ -598,7 +598,7 @@
         <profile>
             <id>neo4j-3.4</id>
             <properties>
-                <neo4j.version>3.4.11</neo4j.version>
+                <neo4j.version>3.4.12</neo4j.version>
             </properties>
             <modules>
                 <module>native-types-test</module>

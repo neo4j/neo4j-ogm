@@ -43,6 +43,7 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
      * @param data the data to transform, given as a map
      * @return the data transformed to an {@link GraphModel}
      */
+    @Override
     public GraphModel adapt(Map<String, Object> data) {
 
         // These two sets keep track of which nodes and edges have already been built, so we don't redundantly

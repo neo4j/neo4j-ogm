@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
@@ -40,6 +41,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.domain.nested.NestingClass;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.NodeModel;
@@ -687,6 +689,8 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Test // GH-496
     public void testQueryWithProjection() {
+        Assume.assumeFalse(driver instanceof HttpDriver);
+
         Iterable<User> results = session
             .query(User.class,
                 "MATCH (u:User) where u.name={name} return u "
@@ -701,6 +705,8 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Test // GH-496
     public void testQueryWithExplicitRelationship() {
+        Assume.assumeFalse(driver instanceof HttpDriver);
+
         Iterable<User> results = session
             .query(User.class,
                 "MATCH (u:User) -[r:EXTENDED_FRIEND] ->(e)  where u.name={name} RETURN u, r, e",
@@ -711,6 +717,8 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Test // GH-496
     public void shouldMaintainTheTraversalOrderFromMatchClause() {
+        Assume.assumeFalse(driver instanceof HttpDriver);
+
         Iterable<Item> result = session
             .query(Item.class, "MATCH (i:Item)-[:NEXT*0..]->(n:Item) WHERE i.name={name} return n ,"
                     + "[ [ (n)-[r:BELONGS_TO]->(c:Item) | [r, c] ] ]",

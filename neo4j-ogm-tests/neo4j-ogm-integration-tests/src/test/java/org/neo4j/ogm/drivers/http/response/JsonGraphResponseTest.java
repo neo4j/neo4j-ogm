@@ -25,8 +25,8 @@ import static org.mockito.Mockito.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -79,7 +79,7 @@ public class JsonGraphResponseTest {
         try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
             GraphModel graphModel = rsp.next();
             assertThat(graphModel).isNotNull();
-            Set<Node> nodes = graphModel.getNodes();
+            Collection<Node> nodes = graphModel.getNodes();
             assertThat(nodes).hasSize(1);
             assertThat(nodes.iterator().next().getPropertyList().get(0).getValue()).isEqualTo("adam");
             assertThat(graphModel.getRelationships()).isEmpty();

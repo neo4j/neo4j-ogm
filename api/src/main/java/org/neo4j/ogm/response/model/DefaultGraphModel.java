@@ -18,13 +18,10 @@
  */
 package org.neo4j.ogm.response.model;
 
-import static java.util.stream.Collectors.*;
-
-import java.util.LinkedHashSet;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
 
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.GraphModel;
@@ -38,37 +35,41 @@ import org.neo4j.ogm.model.Node;
  */
 public class DefaultGraphModel implements GraphModel {
 
-    private final Set<Node> nodes = new LinkedHashSet<>();
-    private final Set<Edge> relationships = new LinkedHashSet<>();
+    private final Map<Long, Node> nodes = new LinkedHashMap<>();
+    private final Map<Long, Edge> relationships = new LinkedHashMap<>();
 
-    public Set<Node> getNodes() {
-        return nodes;
+    public Collection<Node> getNodes() {
+        return nodes.values();
+    }
+
+    public void addNode(NodeModel node) {
+        this.nodes.put(node.getId(), node);
+    }
+
+    public void addRelationship(RelationshipModel edge) {
+        this.relationships.put(edge.getId(), edge);
     }
 
     public void setNodes(NodeModel[] nodes) {
 
         for (NodeModel node : nodes) {
-            this.nodes.add(node);
+            this.nodes.put(node.getId(), node);
         }
     }
 
-    public Set<Edge> getRelationships() {
-        return relationships;
+    public Collection<Edge> getRelationships() {
+        return relationships.values();
     }
 
     public void setRelationships(RelationshipModel[] relationships) {
 
         for (RelationshipModel relationship : relationships) {
-            this.relationships.add(relationship);
+            this.relationships.put(relationship.getId(), relationship);
         }
     }
 
     public Optional<Node> findNode(Long nodeId) {
 
-        // This has a lot of optimization potential if we just store
-        // the nodes as set here, but the getters seem to be used
-        // to modify the underlying state as well... :(
-        Map<Long, Node> nodeMap = this.nodes.stream().collect(toMap(Node::getId, Function.identity()));
-        return Optional.ofNullable(nodeMap.get(nodeId));
+        return Optional.ofNullable(nodes.get(nodeId));
     }
 }

@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.neo4j.ogm.exception.ResultProcessingException;
-import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
@@ -64,7 +63,7 @@ public class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, 
         Set<Long> nodeIdentities = new HashSet<>();
         Set<Long> edgeIdentities = new HashSet<>();
 
-        GraphModel graphModel = new DefaultGraphModel();
+        DefaultGraphModel graphModel = new DefaultGraphModel();
         List<String> variables = new ArrayList<>();
         List<Object> values = new ArrayList<>();
 
@@ -80,7 +79,7 @@ public class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, 
         return new DefaultGraphRowModel(graphModel, rowModel.getValues());
     }
 
-    private void adapt(Iterator<String> iterator, Map<String, Object> data, GraphModel graphModel,
+    private void adapt(Iterator<String> iterator, Map<String, Object> data, DefaultGraphModel graphModel,
         List<String> variables, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
 
         while (iterator.hasNext()) {
@@ -101,7 +100,7 @@ public class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, 
         }
     }
 
-    protected void adapt(Object element, GraphModel graphModel, List<Object> values, Set<Long> nodeIdentities,
+    private void adapt(Object element, DefaultGraphModel graphModel, List<Object> values, Set<Long> nodeIdentities,
         Set<Long> edgeIdentities) {
         if (graphModelAdapter.isPath(element)) {
             graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities);

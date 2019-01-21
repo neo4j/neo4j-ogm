@@ -30,8 +30,6 @@ public interface Node extends PropertyContainer {
 
     String[] getLabels();
 
-    Long getId();
-
     List<Property<String, Object>> getPropertyList();
 
     String getPrimaryIndex();

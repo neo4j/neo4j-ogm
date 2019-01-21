@@ -22,18 +22,19 @@ import static java.util.stream.Collectors.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.PropertyContainer;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
@@ -60,36 +61,179 @@ public class RestModelMapper {
         this.delegate = new GraphEntityMapper(metaData, mappingContext, entityInstantiator);
     }
 
+    public RestStatisticsModel map(Response<RestModel> response) {
+
+        // Build a list of result row builders, that are able to recreate the result structure from
+        // the result of executing the graph to entity mapping
+        List<ResultRowBuilder> resultRowBuilders = response.toList().stream()
+            .map(model -> {
+                ResultRowBuilder resultRowBuilder = new ResultRowBuilder(
+                    this::getEntityOrNodeModel,
+                    mappingContext::getRelationshipEntity
+                );
+
+                model.getRow().forEach(resultRowBuilder::handle);
+                return resultRowBuilder;
+            }).collect(toList());
+
+        // Build and collect all the graph models.
+        List<GraphModel> graphModels = resultRowBuilders.stream()
+            .map(ResultRowBuilder::buildGraphModel).collect(toList());
+
+        // Run the actuall mapping
+        delegate.map(Object.class, graphModels);
+
+        // Recreate the original structure
+        RestStatisticsModel restStatisticsModel = new RestStatisticsModel();
+        response.getStatistics().ifPresent(restStatisticsModel::setStatistics);
+        restStatisticsModel.setResult(resultRowBuilders.stream().map(ResultRowBuilder::finish).collect(toList()));
+        return restStatisticsModel;
+    }
+
+    /**
+     * Retrieves a mapped entity from this sessions mapping context after a call to {@link GraphEntityMapper#map(Class, List)}.
+     * If there's no mapped entity, this method tries to find the {@link NodeModel} with the same id in the {@link GraphModel} which
+     * has been the base of the mapping process.
+     *
+     * @param id         The id of the entity to retrieve
+     * @param graphModel The graph model that has been used for mapping
+     * @return An entity or a NodeModel
+     * @throws RuntimeException When neither entity nor {@link NodeModel} can be found
+     */
+    private Object getEntityOrNodeModel(Long id, DefaultGraphModel graphModel) {
+
+        return Optional.ofNullable(mappingContext.getNodeEntity(id)).orElseGet(() ->
+            graphModel.findNode(id).orElseThrow(() -> new RuntimeException("Lost NodeModel for id " + id))
+        );
+    }
+
     static class ResultRowBuilder {
 
-        private final Function<Long, Object> resolveNodeId;
+        /**
+         * Stores all nodes extracted from result.
+         */
+        private final List<NodeModel> nodeModels = new ArrayList<>();
+
+        /**
+         * Stores all relationships extracted from result.
+         */
+        private final List<RelationshipModel> relationshipModels = new ArrayList<>();
+
+        /**
+         * The graph model build from the above.
+         */
+        private DefaultGraphModel graphModel;
+
+        /**
+         * Used to resolve mapped entities.
+         */
+        private final BiFunction<Long, DefaultGraphModel, Object> resolveNodeId;
+
+        /**
+         * Used to resolved mapped relationship entities.
+         */
         private final Function<Long, Object> resolveRelationshipId;
 
-        Map<String, List<Long>> aliasToIdMapping1 = new HashMap<>();
-        Map<String, List<Long>> aliasToIdMapping2 = new HashMap<>();
-        Set<String> listEntries1 = new HashSet<>();
-        Map<String, Object> resultRow = new HashMap<>();
+        /**
+         * Contains the aliases mapped to one or more node entities.
+         */
+        private Map<String, List<Long>> aliasToNodeIdMapping = new HashMap<>();
 
-        ResultRowBuilder(Function<Long, Object> resolveNodeId,
+        /**
+         * Contains the aliases mapped to one or more relationship entities.
+         */
+        private Map<String, List<Long>> aliasToRelationshipIdMapping = new HashMap<>();
+
+        /**
+         * Contains the the aliases mapped to lists of things.
+         */
+        private Set<String> aliasesOfListResults = new HashSet<>();
+
+        /**
+         * The result row being build.
+         */
+        private Map<String, Object> resultRow = new HashMap<>();
+
+        ResultRowBuilder(BiFunction<Long, DefaultGraphModel, Object> resolveNodeId,
             Function<Long, Object> resolveRelationshipId) {
             this.resolveNodeId = resolveNodeId;
             this.resolveRelationshipId = resolveRelationshipId;
         }
 
+        /**
+         * Handles one result object.
+         *
+         * @param alias        The alias in the result set
+         * @param resultObject The result object
+         */
+        void handle(String alias, Object resultObject) {
+
+            if (!canBeMapped(resultObject)) {
+                // The entity mapper can only deal with models
+                this.resultRow.put(alias, convertToTargetContainer(resultObject));
+            } else if (resultObject instanceof List) {
+                // Mark that result object as list, as it needs to be reconstructed later
+                this.aliasesOfListResults.add(alias);
+                ((List) resultObject).forEach(item -> this.addToGraphModel(alias, item));
+            } else {
+                // Just add the model as is to the graph model
+                this.addToGraphModel(alias, resultObject);
+            }
+        }
+
+        /**
+         * Adds an individual result object to the nodes and relationship of the graph model being build
+         *
+         * @param alias The alias inside the original response
+         * @param item  The individual object being handled.
+         */
+        private void addToGraphModel(String alias, Object item) {
+            List<Long> ids;
+
+            if (item instanceof NodeModel) {
+                ids = aliasToNodeIdMapping.computeIfAbsent(alias, key -> new ArrayList<>());
+                this.nodeModels.add((NodeModel) item);
+            } else if (item instanceof RelationshipModel) {
+                ids = aliasToRelationshipIdMapping.computeIfAbsent(alias, key -> new ArrayList<>());
+                this.relationshipModels.add((RelationshipModel) item);
+            } else {
+                throw new IllegalArgumentException(item + " is not a mappable object!");
+            }
+
+            // Both model types are property containers
+            ids.add(((PropertyContainer) item).getId());
+        }
+
+        DefaultGraphModel buildGraphModel() {
+
+            if (this.graphModel != null) {
+                throw new IllegalStateException("GraphModel already built!");
+            }
+
+            this.graphModel = new DefaultGraphModel();
+            graphModel.setNodes(nodeModels.toArray(new NodeModel[0]));
+            graphModel.setRelationships(relationshipModels.toArray(new RelationshipModel[0]));
+            return graphModel;
+        }
+
         Map<String, Object> finish() {
 
-            aliasToIdMapping1.forEach((k, v) -> {
+            if (this.graphModel == null) {
+                throw new IllegalStateException("GraphModel not built yet!");
+            }
+
+            aliasToNodeIdMapping.forEach((k, v) -> {
                 Object entity;
-                if (!listEntries1.contains(k) && v.size() == 1) {
-                    entity = resolveNodeId.apply(v.get(0));
+                if (!aliasesOfListResults.contains(k) && v.size() == 1) {
+                    entity = resolveNodeId.apply(v.get(0), graphModel);
                 } else {
-                    entity = v.stream().map(resolveNodeId).collect(toList());
+                    entity = v.stream().map(id -> resolveNodeId.apply(id, graphModel)).collect(toList());
                 }
                 resultRow.put(k, entity);
             });
-            aliasToIdMapping2.forEach((k, v) -> {
+            aliasToRelationshipIdMapping.forEach((k, v) -> {
                 Object entity;
-                if (!listEntries1.contains(k) && v.size() == 1) {
+                if (!aliasesOfListResults.contains(k) && v.size() == 1) {
                     entity = resolveRelationshipId.apply(v.get(0));
                 } else {
                     entity = v.stream().map(resolveRelationshipId).collect(toList());
@@ -99,113 +243,68 @@ public class RestModelMapper {
 
             return resultRow;
         }
-    }
 
-    public RestStatisticsModel map(Response<RestModel> response) {
+        /**
+         * Checks whether {@code resultObject} can be mapped. This is the case if its a {@link NodeModel node-} or
+         * {@link RelationshipModel relationshipmodels} or a list of thereof.
+         *
+         * @param resultObject The result object to check.
+         * @return True, if all elements are a model type.
+         */
+        private static boolean canBeMapped(Object resultObject) {
 
-        List<GraphModel> graphModels = new ArrayList<>();
-        List<ResultRowBuilder> resultRowBuilders = new ArrayList<>();
+            Predicate<Object> isNodeModel = NodeModel.class::isInstance;
+            Predicate<Object> isRelationshipModel = RelationshipModel.class::isInstance;
+            Predicate<Object> isNodeOrRelationshipModel = isNodeModel.or(isRelationshipModel);
 
-        // TODO WiP code, runs fine, needs polishing ;)
-        RestModel model = null;
-        while ((model = response.next()) != null) {
-            List<NodeModel> nodes = new ArrayList<>();
-            List<RelationshipModel> relationships = new ArrayList<>();
-
-            DefaultGraphModel graphModel = new DefaultGraphModel();
-            ResultRowBuilder resultRowBuilder = new ResultRowBuilder(
-                id -> getEntityOrNodeModel(id, graphModel),
-                mappingContext::getRelationshipEntity
-            );
-
-            model.getRow().forEach((key, rawValue) -> {
-                List values;
-
-                List<Long> idsOfAlias1 = new ArrayList<>();
-                List<Long> idsOfAlias2 = new ArrayList<>();
-
-                if (rawValue instanceof List) {
-                    resultRowBuilder.listEntries1.add(key);
-                    values = (List) rawValue;
-                    if (!allElementsAreMappable(values)) {
-                        resultRowBuilder.resultRow.put(key, convertListValueToArray(values));
-                        values = Collections.emptyList();
-                    }
-                } else {
-                    values = Collections.singletonList(rawValue);
-                }
-
-                for (Object thing : values) {
-                    if (thing instanceof NodeModel) {
-                        idsOfAlias1.add(((NodeModel) thing).getId());
-                        nodes.add((NodeModel) thing);
-                    } else if (thing instanceof RelationshipModel) {
-                        idsOfAlias2.add(((RelationshipModel) thing).getId());
-                        relationships.add((RelationshipModel) thing);
-                    } else {
-                        resultRowBuilder.resultRow.put(key, rawValue);
-                    }
-                }
-
-                graphModel.setNodes(nodes.toArray(new NodeModel[0]));
-                graphModel.setRelationships(relationships.toArray(new RelationshipModel[0]));
-
-                if (!idsOfAlias1.isEmpty()) {
-                    resultRowBuilder.aliasToIdMapping1.put(key, idsOfAlias1);
-                }
-                if (!idsOfAlias2.isEmpty()) {
-                    resultRowBuilder.aliasToIdMapping2.put(key, idsOfAlias2);
-                }
-            });
-
-            graphModels.add(graphModel);
-            resultRowBuilders.add(resultRowBuilder);
+            if (isNodeOrRelationshipModel.test(resultObject)) {
+                return true;
+            } else if (resultObject instanceof List) {
+                List listOfResultObjects = (List) resultObject;
+                return listOfResultObjects.size() > 0 && listOfResultObjects.stream()
+                    .allMatch(isNodeOrRelationshipModel);
+            } else {
+                return false;
+            }
         }
 
-        delegate.map(Object.class, graphModels);
+        /**
+         * Converts an unmappable object into a target container. Returns the {@code resultObject} itself it the object is a single values,
+         * otherwise returns an {@link Object} array if result object is a list containing a mixed set of things,
+         * otherwise an array of the one elements class.
+         *
+         * @param resultObject The object to convert
+         * @return The original object or an array.
+         */
+        private static Object convertToTargetContainer(Object resultObject) {
 
-        RestStatisticsModel restStatisticsModel = new RestStatisticsModel();
-        response.getStatistics().ifPresent(restStatisticsModel::setStatistics);
-        restStatisticsModel.setResult(resultRowBuilders.stream().map(ResultRowBuilder::finish).collect(toList()));
-        return restStatisticsModel;
-    }
+            if (!(resultObject instanceof List)) {
+                return resultObject;
+            }
 
+            List entityList = (List) resultObject;
 
-    private Object getEntityOrNodeModel(Long id, DefaultGraphModel graphModel) {
+            Class arrayClass = null;
+            for (Object element : entityList) {
+                Class clazz = element.getClass();
+                if (arrayClass == null) {
+                    arrayClass = clazz;
+                } else if (arrayClass != clazz) {
+                    arrayClass = null;
+                    break;
+                }
+            }
 
-        return Optional.ofNullable(mappingContext.getNodeEntity(id)).orElseGet(() ->
-            graphModel.findNode(id).orElseThrow(() -> new RuntimeException("Lost NodeModel for id " + id))
-        );
-    }
-
-    private static Object convertListValueToArray(List entityList) {
-        Class arrayClass = null;
-        for (Object element : entityList) {
-            Class clazz = element.getClass();
+            Object array;
             if (arrayClass == null) {
-                arrayClass = clazz;
-            } else if (arrayClass != clazz) {
-                arrayClass = null;
-                break;
+                array = entityList.toArray();
+            } else {
+                array = Array.newInstance(arrayClass, entityList.size());
+                for (int j = 0; j < entityList.size(); j++) {
+                    Array.set(array, j, Utils.coerceTypes(arrayClass, entityList.get(j)));
+                }
             }
+            return array;
         }
-
-        Object array;
-        if (arrayClass == null) {
-            array = entityList.toArray();
-        } else {
-            array = Array.newInstance(arrayClass, entityList.size());
-            for (int j = 0; j < entityList.size(); j++) {
-                Array.set(array, j, Utils.coerceTypes(arrayClass, entityList.get(j)));
-            }
-        }
-        return array;
-    }
-
-    private static boolean allElementsAreMappable(List entityList) {
-
-        Predicate<Object> isNodeModel = NodeModel.class::isInstance;
-        Predicate<Object> isRelationshipModel = RelationshipModel.class::isInstance;
-        return entityList.size() > 0 && entityList.stream().allMatch(isNodeModel.or(isRelationshipModel));
     }
 }

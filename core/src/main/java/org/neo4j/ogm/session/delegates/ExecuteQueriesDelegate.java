@@ -30,7 +30,6 @@ import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.EntityRowModelMapper;
 import org.neo4j.ogm.context.GraphRowModelMapper;
-import org.neo4j.ogm.context.ResponseMapper;
 import org.neo4j.ogm.context.RestModelMapper;
 import org.neo4j.ogm.context.RestStatisticsModel;
 import org.neo4j.ogm.cypher.Filter;
@@ -110,7 +109,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         if (type == null || type.equals(Void.class)) {
             throw new RuntimeException("Supplied type must not be null or void.");
         }
-        return executeAndMap(type, cypher, parameters, new EntityRowModelMapper());
+        return executeAndMap(type, cypher, parameters);
     }
 
     public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
@@ -135,20 +134,22 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         }, Transaction.Type.READ_WRITE);
     }
 
-    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters,
-        ResponseMapper mapper) {
+    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters) {
 
         return session.<Iterable<T>>doInTransaction(() -> {
             if (type != null && session.metaData().classInfo(deriveSimpleName(type)) != null) {
+                // Things that can be mapped to entities
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                    return new GraphRowModelMapper(session.metaData(), session.context(), session.getEntityInstantiator())
+                    return new GraphRowModelMapper(session.metaData(), session.context(),
+                        session.getEntityInstantiator())
                         .map(type, response);
                 }
             } else {
+                // Scalar mappings
                 RowModelRequest request = new DefaultRowModelRequest(cypher, parameters);
                 try (Response<RowModel> response = session.requestHandler().execute(request)) {
-                    return mapper.map(type, response);
+                    return new EntityRowModelMapper().map(type, response);
                 }
             }
         }, Transaction.Type.READ_WRITE);

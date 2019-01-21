@@ -54,29 +54,35 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
 
         for (Map.Entry<String, Object> mapEntry : data.entrySet()) {
             final Object value = mapEntry.getValue();
-            adaptInternal(nodeIdentities, edgeIdentities, graphModel, value);
+
+            String resultKey = mapEntry.getKey();
+            boolean generatedNodes = AdapterUtils.matchesPatternComprehension(resultKey);
+
+            adaptInternal(nodeIdentities, edgeIdentities, graphModel, value, generatedNodes);
         }
 
         return graphModel;
     }
 
     private void adaptInternal(Set<Long> nodeIdentities, Set<Long> edgeIdentities, DefaultGraphModel graphModel,
-        Object value) {
+        Object value, boolean generatedNodes) {
         if (isPath(value)) {
-            buildPath(value, graphModel, nodeIdentities, edgeIdentities);
+            buildPath(value, graphModel, nodeIdentities, edgeIdentities, generatedNodes);
         } else if (isNode(value)) {
-            buildNode(value, graphModel, nodeIdentities);
+            buildNode(value, graphModel, nodeIdentities, generatedNodes);
         } else if (isRelationship(value)) {
             buildRelationship(value, graphModel, edgeIdentities);
         } else if (value instanceof Iterable) {
             Iterable collection = (Iterable) value;
             for (Object element : collection) {
-                adaptInternal(nodeIdentities, edgeIdentities, graphModel, element);
+                adaptInternal(nodeIdentities, edgeIdentities, graphModel, element, generatedNodes);
             }
         }
     }
 
-    void buildPath(Object path, DefaultGraphModel graphModel, Set nodeIdentities, Set edgeIdentities) {
+    void buildPath(Object path, DefaultGraphModel graphModel, Set nodeIdentities, Set edgeIdentities,
+        boolean generatedNodes) {
+
         Iterator<Object> relIterator = relsInPath(path).iterator();
         Iterator<Object> nodeIterator = nodesInPath(path).iterator();
 
@@ -85,22 +91,25 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
         }
 
         while (nodeIterator.hasNext()) {
-            buildNode(nodeIterator.next(), graphModel, nodeIdentities);
+            buildNode(nodeIterator.next(), graphModel, nodeIdentities, generatedNodes);
         }
     }
 
-    void buildNode(Object node, DefaultGraphModel graphModel, Set<Long> nodeIdentities) {
-        if (nodeIdentities.contains(nodeId(node))) {
+    void buildNode(Object node, DefaultGraphModel graphModel, Set<Long> nodeIdentities, boolean generatedNodes) {
+
+        long nativeId = nodeId(node);
+        if (nodeIdentities.contains(nativeId)) {
             return;
         }
 
-        nodeIdentities.add(nodeId(node));
+        nodeIdentities.add(nativeId);
 
-        NodeModel nodeModel = new NodeModel(nodeId(node));
+        NodeModel nodeModel = new NodeModel(nativeId);
         List<String> labels = labels(node);
 
-        nodeModel.setLabels(labels.toArray(new String[] {}));
+        nodeModel.setLabels(labels.toArray(new String[0]));
         nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
+        nodeModel.setGeneratedNode(generatedNodes);
 
         graphModel.addNode(nodeModel);
     }

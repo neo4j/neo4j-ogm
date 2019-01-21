@@ -30,7 +30,6 @@ import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
@@ -63,7 +62,8 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.linkedlist").openSession();
+        session = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated",
+            "org.neo4j.ogm.domain.linkedlist").openSession();
         session = new SessionFactory(driver,
             "org.neo4j.ogm.domain.cineasts.annotated",
             "org.neo4j.ogm.domain.nested",
@@ -686,7 +686,6 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     }
 
     @Test // GH-496
-    @Ignore
     public void testQueryWithProjection() {
         Iterable<User> results = session
             .query(User.class,
@@ -701,7 +700,16 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     }
 
     @Test // GH-496
-    @Ignore
+    public void testQueryWithExplicitRelationship() {
+        Iterable<User> results = session
+            .query(User.class,
+                "MATCH (u:User) -[r:EXTENDED_FRIEND] ->(e)  where u.name={name} RETURN u, r, e",
+                Collections.singletonMap("name", "Vince"));
+
+        assertThat(results).extracting(User::getName).containsExactlyInAnyOrder("Vince", "extended");
+    }
+
+    @Test // GH-496
     public void shouldMaintainTheTraversalOrderFromMatchClause() {
         Iterable<Item> result = session
             .query(Item.class, "MATCH (i:Item)-[:NEXT*0..]->(n:Item) WHERE i.name={name} return n ,"

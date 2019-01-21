@@ -19,10 +19,15 @@
 package org.neo4j.ogm.context;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
 
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.response.model.DefaultGraphModel;
+import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.session.EntityInstantiator;
 
 /**
@@ -44,6 +49,13 @@ public class GraphRowModelMapper implements ResponseMapper<GraphModel> {
         List<GraphModel> listOfGraphModels = model.toList();
         model.close();
 
-        return delegate.map(type, listOfGraphModels);
+        BiFunction<GraphModel, Long, Boolean> isNotGeneratedNode = (graphModel, nativeId) -> {
+            Optional<Node> node = ((DefaultGraphModel) graphModel).findNode(nativeId);
+            if (!node.isPresent()) {
+                return true; // Native id describes a relationship
+            }
+            return node.map(n -> !((NodeModel) n).isGeneratedNode()).get();
+        };
+        return delegate.map(type, listOfGraphModels, isNotGeneratedNode);
     }
 }

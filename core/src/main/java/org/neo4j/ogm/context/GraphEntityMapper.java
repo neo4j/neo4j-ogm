@@ -25,6 +25,7 @@ import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.annotation.EndNode;
@@ -79,15 +80,30 @@ public class GraphEntityMapper {
     }
 
     <T> List<T> map(Class<T> type, List<GraphModel> listOfGraphModels) {
+        return map(type, listOfGraphModels, (m, n) -> true);
+    }
 
-        Set<Long> mappedNodeIs = new LinkedHashSet<>();
+    <T> List<T> map(Class<T> type, List<GraphModel> listOfGraphModels, BiFunction<GraphModel, Long, Boolean> additionalNodeFilter) {
+
+        // Those are the ids of all mapped nodes.
+        Set<Long> mappedNodeIds = new LinkedHashSet<>();
+        // Those are the ids of the returned nodes
+        Set<Long> returnedNodeIds = new LinkedHashSet<>();
         Set<Long> mappedRelationshipIds = new LinkedHashSet<>();
+        Set<Long> returnedRelationshipIds = new LinkedHashSet<>();
 
         // Execute mapping for each individual model
         listOfGraphModels.forEach(graphModel -> {
+
+                Predicate<Long> includeInResult = id -> additionalNodeFilter.apply(graphModel, id);
                 try {
-                    mappedNodeIs.addAll(mapNodes(graphModel));
-                    mappedRelationshipIds.addAll(mapRelationships(graphModel));
+                    Set<Long> newNodeIds = mapNodes(graphModel);
+                    returnedNodeIds.addAll(newNodeIds.stream().filter(includeInResult).collect(toList()));
+                    mappedNodeIds.addAll(newNodeIds);
+
+                    newNodeIds = mapRelationships(graphModel);
+                    returnedRelationshipIds.addAll(newNodeIds.stream().filter(includeInResult).collect(toList()));
+                    mappedRelationshipIds.addAll(newNodeIds);
                 } catch (MappingException e) {
                     throw e;
                 } catch (Exception e) {
@@ -97,22 +113,22 @@ public class GraphEntityMapper {
         );
 
         // Execute postload after all models
-        executePostLoad(mappedNodeIs, mappedRelationshipIds);
+        executePostLoad(mappedNodeIds, mappedRelationshipIds);
 
         // Collect result
-        Predicate<Object> includeInResult = entity -> entity != null && type.isAssignableFrom(entity.getClass());
-        List<T> results = mappedNodeIs.stream()
+        Predicate<Object> entityPresentAndCompatible = entity -> entity != null && type.isAssignableFrom(entity.getClass());
+        List<T> results = returnedNodeIds.stream()
             .map(mappingContext::getNodeEntity)
-            .filter(includeInResult)
+            .filter(entityPresentAndCompatible)
             .map(type::cast)
             .collect(toList());
 
         // only look for REs if no node entities were found
         if (results.isEmpty()) {
 
-            results = mappedRelationshipIds.stream()
+            results = returnedRelationshipIds.stream()
                 .map(mappingContext::getRelationshipEntity)
-                .filter(includeInResult)
+                .filter(entityPresentAndCompatible)
                 .map(type::cast)
                 .collect(toList());
         }

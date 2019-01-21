@@ -88,30 +88,31 @@ public class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, 
             variables.add(key);
 
             Object value = data.get(key);
+            boolean generatedNodes = AdapterUtils.matchesPatternComprehension(key);
 
             if (value != null && value.getClass().isArray()) {
                 Iterable<Object> collection = AdapterUtils.convertToIterable(value);
                 for (Object element : collection) {
-                    adapt(element, graphModel, values, nodeIdentities, edgeIdentities);
+                    adapt(element, graphModel, values, nodeIdentities, edgeIdentities, generatedNodes);
                 }
             } else {
-                adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
+                adapt(value, graphModel, values, nodeIdentities, edgeIdentities, generatedNodes);
             }
         }
     }
 
     private void adapt(Object element, DefaultGraphModel graphModel, List<Object> values, Set<Long> nodeIdentities,
-        Set<Long> edgeIdentities) {
+        Set<Long> edgeIdentities, boolean generatedNodes) {
         if (graphModelAdapter.isPath(element)) {
-            graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities);
+            graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities, generatedNodes);
         } else if (graphModelAdapter.isNode(element)) {
-            graphModelAdapter.buildNode(element, graphModel, nodeIdentities);
+            graphModelAdapter.buildNode(element, graphModel, nodeIdentities, generatedNodes);
         } else if (graphModelAdapter.isRelationship(element)) {
             graphModelAdapter.buildRelationship(element, graphModel, edgeIdentities);
         } else if (Collection.class.isAssignableFrom(element.getClass())) {
             Collection collection = (Collection) element;
             for (Object value : collection) {
-                adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
+                adapt(value, graphModel, values, nodeIdentities, edgeIdentities, generatedNodes);
             }
         } else {
             values.add(element);

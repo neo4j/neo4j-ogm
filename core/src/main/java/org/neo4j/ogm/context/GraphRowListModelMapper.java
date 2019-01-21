@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.function.BiFunction;
 
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.GraphModel;
@@ -40,12 +40,10 @@ import org.neo4j.ogm.session.EntityInstantiator;
  */
 public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel> {
 
-    private final MappingContext mappingContext;
     private final GraphEntityMapper delegate;
 
     public GraphRowListModelMapper(MetaData metaData, MappingContext mappingContext,
         EntityInstantiator entityInstantiator) {
-        this.mappingContext = mappingContext;
 
         this.delegate = new GraphEntityMapper(metaData, mappingContext, entityInstantiator);
     }
@@ -78,7 +76,8 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
             idsOfResultEntities.addAll(idsInCurrentRow);
         });
 
-        Predicate<Object> isRootEntity = entity -> idsOfResultEntities.contains(mappingContext.nativeId(entity));
-        return delegate.map(type, listOfGraphModels).stream().filter(isRootEntity).collect(toList());
+        BiFunction<GraphModel, Long, Boolean> includeModelObject =
+            (graphModel, nativeId) -> idsOfResultEntities.contains(nativeId);
+        return delegate.map(type, listOfGraphModels, includeModelObject);
     }
 }

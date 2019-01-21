@@ -18,10 +18,13 @@
  */
 package org.neo4j.ogm.config;
 
+import org.neo4j.ogm.response.model.DefaultGraphModel;
 import org.neo4j.ogm.response.model.NodeModel;
+import org.neo4j.ogm.response.model.RelationshipModel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,6 +63,16 @@ public final class ObjectMapperFactory {
         }
     }
 
+    abstract static class DefaultGraphModelMixin {
+        @JsonSetter("nodes")
+        public void addNodes(NodeModel[] additionalNodes) {
+        }
+
+        @JsonSetter("relationships")
+        public void addRelationships(RelationshipModel[] additionalRelationships) {
+        }
+    }
+
     static class Neo4jOgmJacksonModule extends SimpleModule {
 
         Neo4jOgmJacksonModule() {
@@ -68,6 +81,7 @@ public final class ObjectMapperFactory {
         @Override
         public void setupModule(SetupContext context) {
             context.setMixInAnnotations(NodeModel.class, NodeModelMixin.class);
+            context.setMixInAnnotations(DefaultGraphModel.class, DefaultGraphModelMixin.class);
         }
     }
 

@@ -211,8 +211,8 @@ public class RestModelMapper {
             }
 
             this.graphModel = new DefaultGraphModel();
-            graphModel.setNodes(nodeModels.toArray(new NodeModel[0]));
-            graphModel.setRelationships(relationshipModels.toArray(new RelationshipModel[0]));
+            graphModel.addNodes(nodeModels.toArray(new NodeModel[0]));
+            graphModel.addRelationships(relationshipModels.toArray(new RelationshipModel[0]));
             return graphModel;
         }
 

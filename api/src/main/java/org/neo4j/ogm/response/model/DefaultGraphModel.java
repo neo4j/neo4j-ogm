@@ -50,9 +50,9 @@ public class DefaultGraphModel implements GraphModel {
         this.relationships.put(edge.getId(), edge);
     }
 
-    public void setNodes(NodeModel[] nodes) {
+    public void addNodes(NodeModel[] additionalNodes) {
 
-        for (NodeModel node : nodes) {
+        for (NodeModel node : additionalNodes) {
             this.nodes.put(node.getId(), node);
         }
     }
@@ -61,9 +61,9 @@ public class DefaultGraphModel implements GraphModel {
         return relationships.values();
     }
 
-    public void setRelationships(RelationshipModel[] relationships) {
+    public void addRelationships(RelationshipModel[] additionalRelationships) {
 
-        for (RelationshipModel relationship : relationships) {
+        for (RelationshipModel relationship : additionalRelationships) {
             this.relationships.put(relationship.getId(), relationship);
         }
     }

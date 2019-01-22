@@ -26,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.annotation.EndNode;
@@ -83,7 +84,8 @@ public class GraphEntityMapper {
         return map(type, listOfGraphModels, (m, n) -> true);
     }
 
-    <T> List<T> map(Class<T> type, List<GraphModel> listOfGraphModels, BiFunction<GraphModel, Long, Boolean> additionalNodeFilter) {
+    <T> List<T> map(Class<T> type, List<GraphModel> listOfGraphModels,
+        BiFunction<GraphModel, Long, Boolean> additionalNodeFilter) {
 
         // Those are the ids of all mapped nodes.
         Set<Long> mappedNodeIds = new LinkedHashSet<>();
@@ -93,30 +95,17 @@ public class GraphEntityMapper {
         Set<Long> returnedRelationshipIds = new LinkedHashSet<>();
 
         // Execute mapping for each individual model
-        listOfGraphModels.forEach(graphModel -> {
+        Consumer<GraphModel> mapContentOfIndividualModel =
+            graphModel -> mapContentOf(graphModel, additionalNodeFilter, returnedNodeIds, mappedRelationshipIds,
+                returnedRelationshipIds, mappedNodeIds);
+        listOfGraphModels.forEach(mapContentOfIndividualModel);
 
-                Predicate<Long> includeInResult = id -> additionalNodeFilter.apply(graphModel, id);
-                try {
-                    Set<Long> newNodeIds = mapNodes(graphModel);
-                    returnedNodeIds.addAll(newNodeIds.stream().filter(includeInResult).collect(toList()));
-                    mappedNodeIds.addAll(newNodeIds);
-
-                    newNodeIds = mapRelationships(graphModel);
-                    returnedRelationshipIds.addAll(newNodeIds.stream().filter(includeInResult).collect(toList()));
-                    mappedRelationshipIds.addAll(newNodeIds);
-                } catch (MappingException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
-                }
-            }
-        );
-
-        // Execute postload after all models
+        // Execute postload after all models and only for new ids
         executePostLoad(mappedNodeIds, mappedRelationshipIds);
 
         // Collect result
-        Predicate<Object> entityPresentAndCompatible = entity -> entity != null && type.isAssignableFrom(entity.getClass());
+        Predicate<Object> entityPresentAndCompatible = entity -> entity != null && type
+            .isAssignableFrom(entity.getClass());
         List<T> results = returnedNodeIds.stream()
             .map(mappingContext::getNodeEntity)
             .filter(entityPresentAndCompatible)
@@ -134,6 +123,30 @@ public class GraphEntityMapper {
         }
 
         return results;
+    }
+
+    private void mapContentOf(
+        GraphModel graphModel,
+        BiFunction<GraphModel, Long, Boolean> additionalNodeFilter,
+        Set<Long> returnedNodeIds,
+        Set<Long> mappedRelationshipIds,
+        Set<Long> returnedRelationshipIds,
+        Set<Long> mappedNodeIds
+    ) {
+        Predicate<Long> includeInResult = id -> additionalNodeFilter.apply(graphModel, id);
+        try {
+            Set<Long> newNodeIds = mapNodes(graphModel);
+            returnedNodeIds.addAll(newNodeIds.stream().filter(includeInResult).collect(toList()));
+            mappedNodeIds.addAll(newNodeIds);
+
+            newNodeIds = mapRelationships(graphModel);
+            returnedRelationshipIds.addAll(newNodeIds.stream().filter(includeInResult).collect(toList()));
+            mappedRelationshipIds.addAll(newNodeIds);
+        } catch (MappingException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new MappingException("Error mapping GraphModel", e);
+        }
     }
 
     /**
@@ -292,9 +305,13 @@ public class GraphEntityMapper {
             Object source = mappingContext.getNodeEntity(edge.getStartNode());
             Object target = mappingContext.getNodeEntity(edge.getEndNode());
 
-            mappedRelationshipIds.add(edge.getId());
+            if (source == null || target == null) {
+                String messageFormat
+                    = "Relationship {} cannot be hydrated because one or more required node types are not mapped to entity classes";
+                logger.debug(messageFormat, edge);
+            } else {
+                mappedRelationshipIds.add(edge.getId());
 
-            if (source != null && target != null) {
                 // check whether this edge should in fact be handled as a relationship entity
                 ClassInfo relationshipEntityClassInfo = getRelationshipEntity(edge);
 
@@ -303,10 +320,6 @@ public class GraphEntityMapper {
                 } else {
                     oneToMany.add(edge);
                 }
-            } else {
-                logger.debug(
-                    "Relationship {} cannot be hydrated because one or more required node types are not mapped to entity classes",
-                    edge);
             }
         }
 

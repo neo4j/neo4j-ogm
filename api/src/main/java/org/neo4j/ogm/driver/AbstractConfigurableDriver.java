@@ -67,7 +67,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
      */
     protected final Supplier<Map<String, Object>> customPropertiesSupplier;
     /**
-     * Final Cypher modififcation loaded from all present providers.
+     * Final Cypher modification loaded from all present providers.
      */
     private volatile Function<String, String> cypherModification;
 
@@ -115,7 +115,8 @@ public abstract class AbstractConfigurableDriver implements Driver {
         Function<String, String> loadedCypherModification = this.cypherModification;
         if (loadedCypherModification == null) {
             synchronized (this) {
-                if (this.cypherModification == null) {
+                loadedCypherModification = this.cypherModification;
+                if (loadedCypherModification == null) {
                     this.cypherModification = loadCypherModifications();
                     loadedCypherModification = this.cypherModification;
                 }

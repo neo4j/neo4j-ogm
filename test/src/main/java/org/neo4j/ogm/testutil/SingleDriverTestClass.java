@@ -73,7 +73,8 @@ public abstract class SingleDriverTestClass {
         ServerVersion rv = serverVersion;
         if (rv == null) {
             synchronized (this) {
-                if (serverVersion == null) {
+                rv = serverVersion;
+                if (rv == null) {
                     try (Driver driver = getDriver()) {
                         rv = serverVersion = ServerVersion.version(driver);
                     }

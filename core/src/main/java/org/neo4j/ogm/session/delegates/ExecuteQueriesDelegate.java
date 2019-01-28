@@ -29,8 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.EntityRowModelMapper;
-import org.neo4j.ogm.context.GraphEntityMapper;
-import org.neo4j.ogm.context.ResponseMapper;
+import org.neo4j.ogm.context.GraphRowModelMapper;
 import org.neo4j.ogm.context.RestModelMapper;
 import org.neo4j.ogm.context.RestStatisticsModel;
 import org.neo4j.ogm.cypher.Filter;
@@ -40,8 +39,8 @@ import org.neo4j.ogm.cypher.query.DefaultRestModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.Result;
@@ -61,6 +60,7 @@ import org.neo4j.ogm.transaction.Transaction;
  * @author Luanne Misquitta
  * @author Jasper Blues
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 public class ExecuteQueriesDelegate extends SessionDelegate {
 
@@ -109,7 +109,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         if (type == null || type.equals(Void.class)) {
             throw new RuntimeException("Supplied type must not be null or void.");
         }
-        return executeAndMap(type, cypher, parameters, new EntityRowModelMapper());
+        return executeAndMap(type, cypher, parameters);
     }
 
     public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
@@ -117,15 +117,13 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         validateQuery(cypher, parameters, readOnly);
 
         RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
-        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context(),
-            session.getEntityInstantiator()),
-            session.metaData());
+        RestModelMapper mapper = new RestModelMapper(session.metaData(), session.context(),
+            session.getEntityInstantiator());
 
         return session.doInTransaction(() -> {
 
             try (Response<RestModel> response = session.requestHandler().execute(request)) {
-                Iterable<RestStatisticsModel> mappedModel = mapper.map(null, response);
-                RestStatisticsModel restStatisticsModel = mappedModel.iterator().next();
+                RestStatisticsModel restStatisticsModel = mapper.map(response);
 
                 if (readOnly) {
                     return new QueryResultModel(restStatisticsModel.getResult(), null);
@@ -136,20 +134,22 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         }, Transaction.Type.READ_WRITE);
     }
 
-    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters,
-        ResponseMapper mapper) {
+    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters) {
 
         return session.<Iterable<T>>doInTransaction(() -> {
             if (type != null && session.metaData().classInfo(deriveSimpleName(type)) != null) {
+                // Things that can be mapped to entities
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                    return new GraphEntityMapper(session.metaData(), session.context(), session.getEntityInstantiator())
+                    return new GraphRowModelMapper(session.metaData(), session.context(),
+                        session.getEntityInstantiator())
                         .map(type, response);
                 }
             } else {
+                // Scalar mappings
                 RowModelRequest request = new DefaultRowModelRequest(cypher, parameters);
                 try (Response<RowModel> response = session.requestHandler().execute(request)) {
-                    return mapper.map(type, response);
+                    return new EntityRowModelMapper().map(type, response);
                 }
             }
         }, Transaction.Type.READ_WRITE);

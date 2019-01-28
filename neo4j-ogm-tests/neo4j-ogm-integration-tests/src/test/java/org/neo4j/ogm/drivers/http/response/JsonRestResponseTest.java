@@ -127,9 +127,8 @@ public class JsonRestResponseTest {
         @Override
         public DefaultRestModel next() {
             restModelAdapter.setColumns(columns());
-            DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
-            defaultRestModel.setStats(statistics());
-            return defaultRestModel;
+            return DefaultRestModel.basedOn(buildModel())
+                .orElse(null);
         }
 
         @Override

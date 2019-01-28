@@ -58,6 +58,9 @@ public class User {
 
     Set<User> friends;
 
+    @Relationship(type = "EXTENDED_FRIEND")
+    Set<User> extendedFriends;
+
     @Convert(SecurityRoleConverter.class)
     SecurityRole[] securityRoles;
 
@@ -131,6 +134,14 @@ public class User {
 
     public void setFriends(Set<User> friends) {
         this.friends = friends;
+    }
+
+    public Set<User> getExtendedFriends() {
+        return extendedFriends;
+    }
+
+    public void setExtendedFriends(Set<User> extendedFriends) {
+        this.extendedFriends = extendedFriends;
     }
 
     public SecurityRole[] getSecurityRoles() {

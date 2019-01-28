@@ -18,14 +18,14 @@
  */
 package org.neo4j.ogm.model;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * @author vince
  */
 public interface GraphModel {
 
-    Set<Node> getNodes();
+    Collection<Node> getNodes();
 
-    Set<Edge> getRelationships();
+    Collection<Edge> getRelationships();
 }

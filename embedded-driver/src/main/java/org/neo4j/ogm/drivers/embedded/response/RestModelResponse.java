@@ -20,9 +20,12 @@ package org.neo4j.ogm.drivers.embedded.response;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
+import org.neo4j.ogm.model.QueryStatistics;
+import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -31,7 +34,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
-public class RestModelResponse extends EmbeddedResponse<DefaultRestModel> {
+public class RestModelResponse extends EmbeddedResponse<RestModel> {
 
     private final EmbeddedRestModelAdapter restModelAdapter;
     private final QueryStatisticsModel statisticsModel;
@@ -45,10 +48,9 @@ public class RestModelResponse extends EmbeddedResponse<DefaultRestModel> {
     }
 
     @Override
-    public DefaultRestModel next() {
-        DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
-        defaultRestModel.setStats(statisticsModel);
-        return defaultRestModel;
+    public RestModel next() {
+        return DefaultRestModel.basedOn(buildModel())
+            .orElse(null);
     }
 
     private Map<String, Object> buildModel() {
@@ -59,5 +61,10 @@ public class RestModelResponse extends EmbeddedResponse<DefaultRestModel> {
         }
 
         return row;
+    }
+
+    @Override
+    public Optional<QueryStatistics> getStatistics() {
+        return Optional.of(statisticsModel);
     }
 }

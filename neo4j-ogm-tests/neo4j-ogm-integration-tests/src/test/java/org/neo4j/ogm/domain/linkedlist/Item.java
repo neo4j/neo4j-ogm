@@ -18,17 +18,23 @@
  */
 package org.neo4j.ogm.domain.linkedlist;
 
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Vince Bickers
  */
+@NodeEntity
 public class Item {
 
     @Relationship(type = "NEXT", direction = Relationship.OUTGOING)
     public Item next;
     @Relationship(type = "NEXT", direction = Relationship.INCOMING)
     public Item previous;
+
+    @Relationship(type = "BELONGS_TO", direction = Relationship.OUTGOING)
+    public Item belongsTo;
+
     private Long id;
     private String name;
 
@@ -45,5 +51,11 @@ public class Item {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override public String toString() {
+        return "Item{" +
+            "name='" + name + '\'' +
+            '}';
     }
 }

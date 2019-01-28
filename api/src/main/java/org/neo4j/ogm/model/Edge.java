@@ -31,8 +31,6 @@ public interface Edge extends PropertyContainer {
 
     Long getEndNode();
 
-    Long getId();
-
     List<Property<String, Object>> getPropertyList();
 
     /**

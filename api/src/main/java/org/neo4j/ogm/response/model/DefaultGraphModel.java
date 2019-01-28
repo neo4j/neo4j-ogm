@@ -18,10 +18,10 @@
  */
 package org.neo4j.ogm.response.model;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.GraphModel;
@@ -31,34 +31,45 @@ import org.neo4j.ogm.model.Node;
  * The results of a query, modelled as graph data.
  *
  * @author Michal Bachman
+ * @author Michael J. Simons
  */
 public class DefaultGraphModel implements GraphModel {
 
-    private final Map<Long, NodeModel> nodeMap = new HashMap<>();
-    private final Map<Long, RelationshipModel> relationshipMap = new HashMap<>();
+    private final Map<Long, Node> nodes = new LinkedHashMap<>();
+    private final Map<Long, Edge> relationships = new LinkedHashMap<>();
 
-    private final Set<Node> nodes = new LinkedHashSet<>();
-    private final Set<Edge> relationships = new LinkedHashSet<>();
-
-    public Set<Node> getNodes() {
-        return nodes;
+    public Collection<Node> getNodes() {
+        return nodes.values();
     }
 
-    public void setNodes(NodeModel[] nodes) {
-        for (NodeModel node : nodes) {
-            this.nodes.add(node);
-            nodeMap.put(node.getId(), node);
+    public void addNode(NodeModel node) {
+        this.nodes.put(node.getId(), node);
+    }
+
+    public void addRelationship(RelationshipModel edge) {
+        this.relationships.put(edge.getId(), edge);
+    }
+
+    public void addNodes(NodeModel[] additionalNodes) {
+
+        for (NodeModel node : additionalNodes) {
+            this.nodes.put(node.getId(), node);
         }
     }
 
-    public Set<Edge> getRelationships() {
-        return relationships;
+    public Collection<Edge> getRelationships() {
+        return relationships.values();
     }
 
-    public void setRelationships(RelationshipModel[] relationships) {
-        for (RelationshipModel relationship : relationships) {
-            this.relationships.add(relationship);
-            relationshipMap.put(relationship.getId(), relationship);
+    public void addRelationships(RelationshipModel[] additionalRelationships) {
+
+        for (RelationshipModel relationship : additionalRelationships) {
+            this.relationships.put(relationship.getId(), relationship);
         }
+    }
+
+    public Optional<Node> findNode(Long nodeId) {
+
+        return Optional.ofNullable(nodes.get(nodeId));
     }
 }

@@ -28,6 +28,8 @@ import java.util.Set;
  */
 public interface PropertyContainer {
 
+    Long getId();
+
     /**
      * Return current version of the node, null if the relationship entity is new
      *

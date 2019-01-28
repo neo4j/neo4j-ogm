@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.neo4j.ogm.exception.ResultProcessingException;
-import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
@@ -37,9 +36,10 @@ import org.neo4j.ogm.response.model.DefaultRowModel;
 /**
  * This adapter will transform an embedded response into a json response
  *
- * @author vince
+ * @author Vince Bickers
+ * @author Michael J. Simons
  */
-public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, GraphRowModel> {
+public class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, GraphRowModel> {
 
     private final GraphModelAdapter graphModelAdapter;
     private List<String> columns = new ArrayList<>();
@@ -63,7 +63,7 @@ public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, 
         Set<Long> nodeIdentities = new HashSet<>();
         Set<Long> edgeIdentities = new HashSet<>();
 
-        GraphModel graphModel = new DefaultGraphModel();
+        DefaultGraphModel graphModel = new DefaultGraphModel();
         List<String> variables = new ArrayList<>();
         List<Object> values = new ArrayList<>();
 
@@ -79,7 +79,7 @@ public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, 
         return new DefaultGraphRowModel(graphModel, rowModel.getValues());
     }
 
-    private void adapt(Iterator<String> iterator, Map<String, Object> data, GraphModel graphModel,
+    private void adapt(Iterator<String> iterator, Map<String, Object> data, DefaultGraphModel graphModel,
         List<String> variables, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
 
         while (iterator.hasNext()) {
@@ -88,30 +88,31 @@ public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, 
             variables.add(key);
 
             Object value = data.get(key);
+            boolean generatedNodes = AdapterUtils.describesGeneratedNode(key);
 
             if (value != null && value.getClass().isArray()) {
                 Iterable<Object> collection = AdapterUtils.convertToIterable(value);
                 for (Object element : collection) {
-                    adapt(element, graphModel, values, nodeIdentities, edgeIdentities);
+                    adapt(element, graphModel, values, nodeIdentities, edgeIdentities, generatedNodes);
                 }
             } else {
-                adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
+                adapt(value, graphModel, values, nodeIdentities, edgeIdentities, generatedNodes);
             }
         }
     }
 
-    protected void adapt(Object element, GraphModel graphModel, List<Object> values, Set<Long> nodeIdentities,
-        Set<Long> edgeIdentities) {
+    private void adapt(Object element, DefaultGraphModel graphModel, List<Object> values, Set<Long> nodeIdentities,
+        Set<Long> edgeIdentities, boolean generatedNodes) {
         if (graphModelAdapter.isPath(element)) {
-            graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities);
+            graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities, generatedNodes);
         } else if (graphModelAdapter.isNode(element)) {
-            graphModelAdapter.buildNode(element, graphModel, nodeIdentities);
+            graphModelAdapter.buildNode(element, graphModel, nodeIdentities, generatedNodes);
         } else if (graphModelAdapter.isRelationship(element)) {
             graphModelAdapter.buildRelationship(element, graphModel, edgeIdentities);
         } else if (Collection.class.isAssignableFrom(element.getClass())) {
             Collection collection = (Collection) element;
             for (Object value : collection) {
-                adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
+                adapt(value, graphModel, values, nodeIdentities, edgeIdentities, generatedNodes);
             }
         } else {
             values.add(element);

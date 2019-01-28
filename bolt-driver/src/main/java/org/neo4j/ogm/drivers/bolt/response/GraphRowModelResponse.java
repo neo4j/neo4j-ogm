@@ -24,6 +24,7 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
+import org.neo4j.ogm.result.adapter.GraphRowModelAdapter;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
@@ -32,13 +33,13 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public class GraphRowModelResponse extends BoltResponse<GraphRowListModel> {
 
-    private final BoltGraphRowModelAdapter adapter;
+    private final GraphRowModelAdapter adapter;
 
     public GraphRowModelResponse(StatementResult result, TransactionManager transactionManager, BoltEntityAdapter entityAdapter) {
 
         super(result, transactionManager);
 
-        this.adapter = new BoltGraphRowModelAdapter(new BoltGraphModelAdapter(entityAdapter));
+        this.adapter = new GraphRowModelAdapter(new BoltGraphModelAdapter(entityAdapter));
         this.adapter.setColumns(Arrays.asList(columns()));
     }
 

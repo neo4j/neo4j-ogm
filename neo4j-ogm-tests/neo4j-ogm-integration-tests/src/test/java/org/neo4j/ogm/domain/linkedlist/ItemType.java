@@ -16,15 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.model;
+package org.neo4j.ogm.domain.linkedlist;
 
-import java.util.Map;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
- * @author Luanne Misquitta
- * @author Michael J. Simons
+ * @author Atul Mahind
  */
-public interface RestModel {
+@NodeEntity
+public class ItemType {
 
-    Map<String, Object> getRow();
+    private Long id;
+
+    private String type;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Long getId() {
+        return id;
+    }
 }

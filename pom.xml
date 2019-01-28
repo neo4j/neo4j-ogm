@@ -17,9 +17,7 @@
  | See the License for the specific language governing permissions and
  | limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.neo4j</groupId>
@@ -27,7 +25,7 @@
     <version>3.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Neo4j Object-Graph Mapper</name>
+    <name>Neo4j-OGM</name>
     <description>Annotation based Object Graph Mapper for Neo4j Server with Repository and Conversion support
     </description>
     <url>https://neo4j.com/developer/neo4j-ogm</url>
@@ -167,22 +165,21 @@
 
     <modules>
         <module>api</module>
+        <module>core</module>
         <module>http-driver</module>
         <module>embedded-driver</module>
         <module>bolt-driver</module>
-        <module>core</module>
-        <module>test</module>
+        <module>neo4j-ogm-tests/neo4j-ogm-integration-tests</module>
+        <module>neo4j-ogm-tests/neo4j-ogm-tests-report</module>
     </modules>
 
     <scm>
         <url>http://github.com/neo4j/neo4j-ogm/</url>
     </scm>
-
     <issueManagement>
         <system>GitHub Issues</system>
         <url>https://github.com/neo4j/neo4j-ogm/issues</url>
     </issueManagement>
-
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -213,7 +210,9 @@
         <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
+        <maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
         <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
+        <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
         <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M2</maven-surefire-plugin.version>
@@ -396,6 +395,29 @@
     </dependencyManagement>
 
     <build>
+        <resources>
+
+            <resource>
+                <directory>${project.basedir}</directory>
+                <includes>
+                    <include>CHANGES.txt</include>
+                    <include>README.md</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+            </resource>
+
+            <resource>
+                <directory>src/main/resources/META-INF/services</directory>
+                <targetPath>META-INF/services</targetPath>
+            </resource>
+
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -419,8 +441,17 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>${maven-enforcer-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${maven-install-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -437,6 +468,18 @@
                         <phase>validate</phase>
                         <goals>
                             <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -540,32 +583,6 @@
                 <version>${spotbugs.plugin.version}</version>
             </plugin>
         </plugins>
-
-        <resources>
-
-            <resource>
-                <directory>${project.basedir}</directory>
-                <includes>
-                    <include>CHANGES.txt</include>
-                    <include>README.md</include>
-                </includes>
-                <targetPath>META-INF</targetPath>
-            </resource>
-
-            <resource>
-                <directory>src/main/resources/META-INF/services</directory>
-                <targetPath>META-INF/services</targetPath>
-            </resource>
-
-        </resources>
-
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
-
     </build>
 
     <reporting>
@@ -601,9 +618,9 @@
                 <neo4j.version>3.4.12</neo4j.version>
             </properties>
             <modules>
-                <module>native-types-test</module>
                 <module>embedded-native-types</module>
                 <module>bolt-native-types</module>
+                <module>neo4j-ogm-tests/neo4j-ogm-native-types-tests</module>
             </modules>
         </profile>
 
@@ -613,9 +630,9 @@
                 <neo4j.version>3.5.2</neo4j.version>
             </properties>
             <modules>
-                <module>native-types-test</module>
                 <module>embedded-native-types</module>
                 <module>bolt-native-types</module>
+                <module>neo4j-ogm-tests/neo4j-ogm-native-types-tests</module>
             </modules>
         </profile>
 
@@ -647,5 +664,4 @@
             </properties>
         </profile>
     </profiles>
-
 </project>

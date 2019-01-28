@@ -17,21 +17,20 @@
  | See the License for the specific language governing permissions and
  | limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.neo4j</groupId>
         <artifactId>neo4j-ogm</artifactId>
         <version>3.2.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>neo4j-ogm-test</artifactId>
+    <artifactId>neo4j-ogm-integration-tests</artifactId>
 
-    <properties>
-        <java-module-name>org.neo4j.ogm.testutil</java-module-name>
-    </properties>
+    <name>Neo4j-OGM Integration tests</name>
+    <description>Integration tests of Neo4j-OGM Core and API across different transports.</description>
 
     <dependencies>
 
@@ -131,6 +130,60 @@
 
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>local-test-repo</id>
+            <url>file://${basedir}/src/test/lib</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <runOrder>alphabetical</runOrder>
+                    <systemPropertyVariables>
+                        <neo4j.edition>${neo4j.edition}</neo4j.edition>
+                    </systemPropertyVariables>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>test-different-encoding</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <!--
+                            Using argLine because file.encoding can't be specified by a system property when using
+                            Surefire plugin.
+
+                            Any Oracle JVM should support this encoding.
+                            https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
+                            Note that this can't be simulated in code by using System.setProperty, because
+                            java.nio.charset.Charset reads "file.encoding" property only once at startup
+                            -->
+                            <argLine>-Dfile.encoding=ISO-8859-1</argLine>
+                            <includes>
+                                <include>org.neo4j.ogm.persistence.examples.cineasts.annotated.CineastsIntegrationTest
+                                </include>
+                                <include>org.neo4j.ogm.config.ConfigurationTest</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <profiles>
         <profile>
             <id>neo4j-enterprise</id>
@@ -185,51 +238,4 @@
             </dependencies>
         </profile>
     </profiles>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <runOrder>alphabetical</runOrder>
-                    <systemPropertyVariables>
-                        <neo4j.edition>${neo4j.edition}</neo4j.edition>
-                    </systemPropertyVariables>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <id>test-different-encoding</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <!--
-                            Using argLine because file.encoding can't be specified by a system property when using
-                            Surefire plugin.
-
-                            Any Oracle JVM should support this encoding.
-                            https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
-                            Note that this can't be simulated in code by using System.setProperty, because
-                            java.nio.charset.Charset reads "file.encoding" property only once at startup
-                            -->
-                            <argLine>-Dfile.encoding=ISO-8859-1</argLine>
-                            <includes>
-                                <include>org.neo4j.ogm.persistence.examples.cineasts.annotated.CineastsIntegrationTest
-                                </include>
-                                <include>org.neo4j.ogm.config.ConfigurationTest</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <repositories>
-        <repository>
-            <id>local-test-repo</id>
-            <url>file://${basedir}/src/test/lib</url>
-        </repository>
-    </repositories>
 </project>

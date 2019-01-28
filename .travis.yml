@@ -13,3 +13,6 @@ install: true
 
 script:
   - ./mvnw clean verify -Pneo4j-3.5
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

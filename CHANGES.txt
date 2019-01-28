@@ -13,6 +13,7 @@ o Removed deprecated `org.neo4j.ogm.exception.core.ResultErrorsException`. (#319
 o Introduced exception translator to unify exceptions of different transports into an OGM hierarchy. (#319)
 o Improved hashing in IdentityMap and MappedRelationship. (#579)
 o Deprecated OgmPluginInitializer.
+o Don't deploy `org.neo4j:neo4j-ogm-test` any longer. This module and the included utilities is not meant to be used outside Neo4j-OGM.
 
 3.1.x
 o Improve documentation of type conversions. #501

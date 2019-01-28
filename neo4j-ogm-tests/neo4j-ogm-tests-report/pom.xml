@@ -32,6 +32,10 @@
     <name>Neo4j-OGM Tests Report</name>
     <description>The purpose of this module is to aggregate the test coverage result for all modules through the various testing modules.</description>
 
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>
@@ -70,20 +74,9 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
-    <properties>
-        <checkstyle.skip>true</checkstyle.skip>
-    </properties>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

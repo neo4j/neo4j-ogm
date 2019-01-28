@@ -80,7 +80,7 @@ public class RestModelMapper {
         List<GraphModel> graphModels = resultRowBuilders.stream()
             .map(ResultRowBuilder::buildGraphModel).collect(toList());
 
-        // Run the actuall mapping
+        // Run the actual mapping
         delegate.map(Object.class, graphModels);
 
         // Recreate the original structure

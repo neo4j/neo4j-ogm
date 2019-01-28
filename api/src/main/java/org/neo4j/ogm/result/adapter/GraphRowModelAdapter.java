@@ -88,7 +88,7 @@ public class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, 
             variables.add(key);
 
             Object value = data.get(key);
-            boolean generatedNodes = AdapterUtils.matchesPatternComprehension(key);
+            boolean generatedNodes = AdapterUtils.describesGeneratedNode(key);
 
             if (value != null && value.getClass().isArray()) {
                 Iterable<Object> collection = AdapterUtils.convertToIterable(value);

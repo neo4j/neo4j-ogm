@@ -57,7 +57,7 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
             final Object value = mapEntry.getValue();
 
             String resultKey = mapEntry.getKey();
-            boolean generatedNodes = AdapterUtils.matchesPatternComprehension(resultKey);
+            boolean generatedNodes = AdapterUtils.describesGeneratedNode(resultKey);
 
             adaptInternal(nodeIdentities, edgeIdentities, graphModel, value, generatedNodes);
         }
@@ -96,7 +96,7 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
         }
     }
 
-    void buildNode(Object node, DefaultGraphModel graphModel, Set<Long> nodeIdentities, boolean generatedNodes) {
+    void buildNode(Object node, DefaultGraphModel graphModel, Set<Long> nodeIdentities, boolean generatedNode) {
 
         long nativeId = nodeId(node);
         if (nodeIdentities.contains(nativeId)) {
@@ -110,7 +110,7 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
 
         nodeModel.setLabels(labels.toArray(new String[0]));
         nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
-        nodeModel.setGeneratedNode(generatedNodes);
+        nodeModel.setGeneratedNode(generatedNode);
 
         graphModel.addNode(nodeModel);
     }

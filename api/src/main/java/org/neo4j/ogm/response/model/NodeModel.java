@@ -46,7 +46,7 @@ public class NodeModel extends AbstractPropertyContainer implements Node {
     private String[] labels;
     private List<Property<String, Object>> properties = new ArrayList<>();
     private String primaryIndex;
-    /** Flag is this node has been generated through pattern comprehension. */
+    /** Flag, if this node has been generated through pattern comprehension. */
     private boolean generatedNode = false;
 
     /**

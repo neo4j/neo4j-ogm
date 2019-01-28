@@ -222,6 +222,8 @@
 
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        
+        <checkstyle.skip>true</checkstyle.skip>
     </properties>
 
     <dependencyManagement>

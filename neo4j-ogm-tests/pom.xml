@@ -37,6 +37,10 @@
         <module>neo4j-ogm-tests-report</module>
     </modules>
 
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+    </properties>
+
     <profiles>
         <profile>
             <id>neo4j-3.4</id>

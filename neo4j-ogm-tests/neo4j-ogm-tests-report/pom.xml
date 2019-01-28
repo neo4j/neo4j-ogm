@@ -70,6 +70,10 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+    </properties>
 
     <build>
         <plugins>

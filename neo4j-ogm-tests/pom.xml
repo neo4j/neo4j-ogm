@@ -26,34 +26,30 @@
         <version>3.2.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>neo4j-ogm-embedded-native-types</artifactId>
+    <artifactId>neo4j-ogm-tests</artifactId>
+    <packaging>pom</packaging>
 
-    <name>Neo4j-OGM Embedded native types</name>
-    <description>Support for native Neo4j types in embedded transport mode.</description>
-    <url>https://neo4j.com/developer/neo4j-ogm</url>
+    <name>Neo4j-OGM Tests</name>
+    <description>Aggregator for the test related submodules.</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm-embedded-driver</artifactId>
-            <version>3.2.0-SNAPSHOT</version>
-        </dependency>
+    <modules>
+        <module>neo4j-ogm-integration-tests</module>
+        <module>neo4j-ogm-tests-report</module>
+    </modules>
 
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j</artifactId>
-        </dependency>
+    <profiles>
+        <profile>
+            <id>neo4j-3.4</id>
+            <modules>
+                <module>neo4j-ogm-native-types-tests</module>
+            </modules>
+        </profile>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+        <profile>
+            <id>neo4j-3.5</id>
+            <modules>
+                <module>neo4j-ogm-native-types-tests</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

@@ -46,7 +46,7 @@ public class Utils {
             : size(iterable.iterator());
     }
 
-    public static int size(Iterator<?> iterator) {
+    private static int size(Iterator<?> iterator) {
         int count = 0;
         while (iterator.hasNext()) {
             iterator.next();

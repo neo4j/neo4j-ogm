@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.assertj.core.util.Files;
 import org.junit.BeforeClass;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.session.Session;
@@ -87,7 +88,7 @@ public class DatesEmbeddedTest extends DatesTestBase {
         parameters.put("b", localDateTime);
         session.query("CREATE (n:Test {a: $a, b: $b})", parameters);
 
-        Map<String, Object> result = embeddedOgmDriver.getGraphDatabaseService()
+        Map<String, Object> result = sessionFactory.unwrap(GraphDatabaseService.class)
             .execute("MATCH (n:Test) RETURN n.a, n.b").next();
 
         Object a = result.get("n.a");
@@ -103,7 +104,7 @@ public class DatesEmbeddedTest extends DatesTestBase {
     public void shouldObeyExplicitConversionOfNativeTypes() {
 
         Map<String, Object> params = createSometimeWithConvertedLocalDate();
-        Map<String, Object> result = embeddedOgmDriver.getGraphDatabaseService()
+        Map<String, Object> result = sessionFactory.unwrap(GraphDatabaseService.class)
             .execute(
                 "MATCH (n:`DatesTestBase$Sometime`) WHERE id(n) = $id RETURN n.convertedLocalDate AS convertedLocalDate",
                 params).next();

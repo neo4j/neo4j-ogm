@@ -104,9 +104,9 @@ public class MultiDriverTestClass {
         // if using an embedded config, return the db from the driver
         if (baseConfiguration.build().getURI().startsWith("file")) {
             if (driver != null) {
-                return ((EmbeddedDriver) driver).getGraphDatabaseService();
+                return driver.unwrap(GraphDatabaseService.class);
             } else if (sessionFactory != null) {
-                return ((EmbeddedDriver) sessionFactory.getDriver()).getGraphDatabaseService();
+                return sessionFactory.unwrap(GraphDatabaseService.class);
             }
         }
         // else (bolt, http), return just a test server (not really used except for indices ?)

@@ -40,7 +40,8 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.support.FileUtils;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class DriverServiceTest {
 
@@ -68,7 +69,7 @@ public class DriverServiceTest {
             .build();
 
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
-        Driver driver = sf.getDriver();
+        Driver driver = sf.unwrap(Driver.class);
         assertThat(driver).isNotNull();
         sf.close();
     }
@@ -78,7 +79,7 @@ public class DriverServiceTest {
         Configuration driverConfiguration = new Configuration.Builder().uri(TMP_NEO4J_DB.toUri().toString()).build();
 
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
-        Driver driver = sf.getDriver();
+        Driver driver = sf.unwrap(Driver.class);
         assertThat(driver).isNotNull();
         driver.close();
         sf.close();
@@ -109,7 +110,7 @@ public class DriverServiceTest {
             .trustStrategy("ACCEPT_UNSIGNED").build();
 
         SessionFactory sf = new SessionFactory(configuration, "org.neo4j.ogm.domain.social.User");
-        try (HttpDriver driver = (HttpDriver) sf.getDriver()) {
+        try (HttpDriver driver = sf.unwrap(HttpDriver.class)) {
             driver.configure(configuration);
             driver.executeHttpRequest(request);
             Assert.fail("Should have thrown security exception");
@@ -119,7 +120,7 @@ public class DriverServiceTest {
         sf.close();
 
         sf = new SessionFactory(configuration, "org.neo4j.ogm.domain.social.User");
-        try (HttpDriver driver = (HttpDriver) sf.getDriver()) {
+        try (HttpDriver driver = sf.unwrap(HttpDriver.class);) {
             driver.configure(configuration);
             driver.executeHttpRequest(request);
         } catch (Exception e) {

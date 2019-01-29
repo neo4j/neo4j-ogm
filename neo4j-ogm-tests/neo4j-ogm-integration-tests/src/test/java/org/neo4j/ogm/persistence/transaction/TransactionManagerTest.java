@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.core.TransactionManagerException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -44,6 +45,7 @@ import org.neo4j.ogm.transaction.Transaction;
  *
  * @author Michal Bachman
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class TransactionManagerTest extends MultiDriverTestClass {
 
@@ -66,8 +68,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {
-        DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
-            sessionFactory.getDriver());
+        DefaultTransactionManager transactionManager = new DefaultTransactionManager(session, driver);
         assertThat(session.getLastBookmark()).isNull();
         try (Transaction tx = transactionManager.openTransaction()) {
             assertThat(tx.status()).isEqualTo(Transaction.Status.OPEN);
@@ -75,27 +76,24 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     }
 
     @Test(expected = TransactionManagerException.class)
-    @Ignore("What's the rationale of this test ? Actually leaves tx in an inconsistent state")
     public void shouldFailCommitFreeTransactionInManagedContext() {
-        DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, sessionFactory.getDriver());
-        try (Transaction tx = sessionFactory.getDriver().newTransaction(Transaction.Type.READ_WRITE, null)) {
+        DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, driver);
+        try (Transaction tx = driver.newTransaction(Transaction.Type.READ_WRITE, null)) {
             transactionManager.commit(tx);
         }
     }
 
     @Test(expected = TransactionManagerException.class)
-    @Ignore("What's the rationale of this test ? Actually leaves tx in an inconsistent state")
     public void shouldFailRollbackFreeTransactionInManagedContext() {
-        DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, sessionFactory.getDriver());
-        try (Transaction tx = sessionFactory.getDriver().newTransaction(Transaction.Type.READ_WRITE, null)) {
+        DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, driver);
+        try (Transaction tx = driver.newTransaction(Transaction.Type.READ_WRITE, null)) {
             transactionManager.rollback(tx);
         }
     }
 
     @Test
     public void shouldRollbackManagedTransaction() {
-        DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
-            sessionFactory.getDriver());
+        DefaultTransactionManager transactionManager = new DefaultTransactionManager(session, driver);
         assertThat(session.getLastBookmark()).isNull();
 
         try (Transaction tx = transactionManager.openTransaction()) {

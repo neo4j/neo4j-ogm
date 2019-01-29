@@ -87,4 +87,19 @@ public interface Driver extends AutoCloseable {
     default ExceptionTranslator getExceptionTranslator() {
         return e -> e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
     }
+
+    /**
+     * Unwraps this Neo4j-OGM specific driver into it's underlying physical driver of type {@code T} if the concrete driver's
+     * transport is compatible with the speficied class.
+     *
+     * @param clazz The class into which the driver should be unwrapped
+     * @param <T>   Type of the class
+     * @return The unwrapped driver
+     * @throws IllegalArgumentException if this driver cannot be unwrapped into the given class.
+     */
+    default <T> T unwrap(Class<T> clazz) {
+
+        String message = String.format("Cannot unwrap '%s' into '%s'", this.getClass().getName(), clazz.getName());
+        throw new IllegalArgumentException(message);
+    }
 }

@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.config;
+package org.neo4j.ogm.drivers.bolt.driver;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
@@ -34,7 +34,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 public class BoltDriverServiceTest extends MultiDriverTestClass {
 
     @BeforeClass
-    public static void setUp() throws Exception {
+    public static void setUp() {
         assumeTrue(getBaseConfiguration().build().getDriverClassName().equals(BoltDriver.class.getName()));
     }
 
@@ -43,7 +43,7 @@ public class BoltDriverServiceTest extends MultiDriverTestClass {
         String uri = getBaseConfiguration().build().getURI();
         Configuration driverConfiguration = new Configuration.Builder().uri(uri).build();
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
-        Driver driver = sf.getDriver();
+        Driver driver = sf.unwrap(Driver.class);
         assertThat(driver).isNotNull();
         sf.close();
     }

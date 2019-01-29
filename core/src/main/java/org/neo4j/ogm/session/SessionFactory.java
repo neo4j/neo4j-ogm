@@ -186,15 +186,6 @@ public class SessionFactory {
     }
 
     /**
-     * Returns driver used by this SessionFactory
-     *
-     * @return driver
-     */
-    public Driver getDriver() {
-        return driver;
-    }
-
-    /**
      * Closes this session factory
      * Also closes any underlying resources, like driver etc.
      */
@@ -216,6 +207,37 @@ public class SessionFactory {
                 classInfo.registerIdGenerationStrategy(strategy);
             }
         }
+    }
+
+    /**
+     * Method allows to unwrap either the OGM Driver ("Transport") by passing in one of
+     *
+     * <ul>
+     * <li>{@code org.neo4j.ogm.drivers.bolt.driver.BoltDriver}</li>
+     * <li>{@code org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver}</li>
+     * <li>{@code org.neo4j.ogm.drivers.http.driver.HttpDriver}</li>
+     * </ul>
+     *
+     * It also allows access to the underlying Neo4j Java Driver ("Bolt driver") or the embedded database instance.
+     *
+     * @param clazz The class of the object to unwrap
+     * @param <T> The type of the object to unwrap
+     * @return The unwrapped, underlying object
+     * @throws IllegalArgumentException when an object of the given class cannot be unwrapped.
+     */
+    public <T> T unwrap(Class<T> clazz) {
+
+        T unwrappedInstance;
+
+        if (clazz.isInstance(this.driver)) {
+            // Unwraps the Neo4j-OGM driver
+            unwrappedInstance = clazz.cast(this.driver);
+        } else {
+            // Try to unwrap the underlying driver itself.
+            unwrappedInstance = this.driver.unwrap(clazz);
+        }
+
+        return unwrappedInstance;
     }
 
     private static Driver newConfiguredDriverInstance(Configuration configuration) {

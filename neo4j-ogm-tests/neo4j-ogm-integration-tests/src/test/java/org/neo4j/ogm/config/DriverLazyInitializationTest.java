@@ -23,6 +23,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.simple.User;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -41,15 +42,15 @@ public abstract class DriverLazyInitializationTest {
     protected Configuration.Builder configBuilder;
 
     @Test
-    public void shouldCreateSessionFactoryWhenServerIsOffline() throws Exception {
+    public void shouldCreateSessionFactoryWhenServerIsOffline() {
         Configuration configuration = configBuilder.build();
 
         SessionFactory sessionFactory = new SessionFactory(configuration, User.class.getPackage().getName());
-        assertThat(sessionFactory.getDriver()).isNotNull();
+        assertThat(sessionFactory.unwrap(Driver.class)).isNotNull();
     }
 
     @Test(expected = ConnectionException.class)
-    public void shouldThrowServiceUnavailableWhenServerIsOfflineAndVerifyIsTrue() throws Exception {
+    public void shouldThrowServiceUnavailableWhenServerIsOfflineAndVerifyIsTrue() {
         Configuration configuration = configBuilder.verifyConnection(true)
             .build();
 
@@ -57,7 +58,7 @@ public abstract class DriverLazyInitializationTest {
     }
 
     @Test
-    public void shouldInitialiseDriverAfterServerComesOnline() throws Exception {
+    public void shouldInitialiseDriverAfterServerComesOnline() {
         TestServer testServer = new TestServer(true, true, 5);
         String uri = testServer.getUri();
         testServer.shutdown();

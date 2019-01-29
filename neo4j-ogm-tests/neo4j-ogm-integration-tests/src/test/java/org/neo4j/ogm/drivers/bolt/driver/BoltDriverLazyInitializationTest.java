@@ -16,9 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.config;
+package org.neo4j.ogm.drivers.bolt.driver;
 
 import org.junit.Before;
+import org.neo4j.ogm.config.ClasspathConfigurationSource;
+import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.config.DriverLazyInitializationTest;
 import org.neo4j.ogm.testutil.TestUtils;
 
 /**

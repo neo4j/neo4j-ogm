@@ -36,11 +36,11 @@ import org.neo4j.ogm.transaction.Transaction;
  * the different scenarios of commit, rollback and close.
  *
  * @author vince
+ * @author Michael J. Simons
  */
 public class ClosedTransactionTest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;
-    private Session session;
     private DefaultTransactionManager transactionManager;
 
     private Transaction tx;
@@ -52,8 +52,7 @@ public class ClosedTransactionTest extends MultiDriverTestClass {
 
     @Before
     public void init() {
-        transactionManager = new DefaultTransactionManager(session, sessionFactory.getDriver());
-        session = sessionFactory.openSession();
+        transactionManager = new DefaultTransactionManager(sessionFactory.openSession(), driver);
     }
 
     @Before

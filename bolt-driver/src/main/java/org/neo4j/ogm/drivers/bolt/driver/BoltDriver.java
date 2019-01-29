@@ -186,6 +186,16 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return this.exceptionTranslator;
     }
 
+    public <T> T unwrap(Class<T> clazz) {
+
+        if (clazz == Driver.class) {
+            checkDriverInitialized();
+            return (T) boltDriver;
+        } else {
+            return super.unwrap(clazz);
+        }
+    }
+
     private Session newSession(Transaction.Type type, Iterable<String> bookmarks) {
         Session boltSession;
         try {

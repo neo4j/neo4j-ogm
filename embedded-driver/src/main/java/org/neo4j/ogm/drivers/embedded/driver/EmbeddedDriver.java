@@ -172,8 +172,13 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         }
     }
 
-    public GraphDatabaseService getGraphDatabaseService() {
-        return graphDatabaseService;
+    public <T> T unwrap(Class<T> clazz) {
+
+        if (clazz == GraphDatabaseService.class) {
+            return (T) graphDatabaseService;
+        } else {
+            return super.unwrap(clazz);
+        }
     }
 
     @Override

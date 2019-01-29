@@ -668,10 +668,6 @@ public class Neo4jSession implements Session {
         logger.warn("Thread {}: {}", Thread.currentThread().getId(), msg);
     }
 
-    public void debug(String msg) {
-        logger.debug("Thread {}: {}", Thread.currentThread().getId(), msg);
-    }
-
     @Override
     public String getLastBookmark() {
         return bookmark;

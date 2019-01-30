@@ -18,31 +18,25 @@
  */
 package org.neo4j.ogm.response.model;
 
-import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowModel;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Represents a single row in a query response which returns both graph and row data.
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class DefaultGraphRowModel implements GraphRowModel {
-
-    public DefaultGraphRowModel() {
-    }
 
     private DefaultGraphModel graph;
     private Object[] row;
 
-    public DefaultGraphRowModel(GraphModel graph, Object[] row) {
-        this.graph = (DefaultGraphModel) graph;
+    public DefaultGraphRowModel(DefaultGraphModel graph, Object[] row) {
+        this.graph = graph;
         this.row = row;
     }
 
-    public org.neo4j.ogm.model.GraphModel getGraph() {
+    public DefaultGraphModel getGraph() {
         return graph;
     }
 

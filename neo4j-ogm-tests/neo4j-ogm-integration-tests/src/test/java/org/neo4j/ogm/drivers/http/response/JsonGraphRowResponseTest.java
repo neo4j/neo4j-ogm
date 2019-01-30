@@ -36,8 +36,6 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
-import org.neo4j.ogm.result.ResultGraphRowListModel;
 
 /**
  * @author Luanne Misquitta
@@ -56,7 +54,7 @@ public class JsonGraphRowResponseTest {
     public void shouldParseDataInFilterGraphResponseCorrectly() throws IOException {
         when(entity.getContent()).thenReturn(filterQueryGraphRowResponse());
 
-        try (Response<GraphRowListModel> rsp = new TestGraphRowHttpResponse()) {
+        try (Response<GraphRowListModel> rsp = new GraphRowsModelResponse(response)) {
             GraphRowListModel graphRowListModel = rsp.next();
             assertThat(graphRowListModel).isNotNull();
 
@@ -438,32 +436,5 @@ public class JsonGraphRowResponseTest {
             "  \"errors\": []\n" +
             "}";
         return new ByteArrayInputStream(s.getBytes(UTF_8));
-    }
-
-    static class TestGraphRowHttpResponse extends AbstractHttpResponse<ResultGraphRowListModel>
-        implements Response<GraphRowListModel> {
-
-        TestGraphRowHttpResponse() {
-            super(response, ResultGraphRowListModel.class);
-        }
-
-        @Override
-        public GraphRowListModel next() {
-            ResultGraphRowListModel graphRowModel = nextDataRecord("data");
-
-            if (graphRowModel != null) {
-                DefaultGraphRowListModel graphRowListModel = new DefaultGraphRowListModel();
-                for (GraphRowModel model : graphRowModel.getData()) {
-                    graphRowListModel.add(model);
-                }
-                return graphRowListModel;
-            }
-            return null;
-        }
-
-        @Override
-        public void close() {
-            //Nothing to do, the response has been closed already
-        }
     }
 }

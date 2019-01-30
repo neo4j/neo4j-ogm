@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.result.ResultGraphModel;
 
 /**
  * @author Luanne Misquitta
@@ -55,7 +54,7 @@ public class JsonGraphResponseTest {
 
         when(entity.getContent()).thenReturn(graphResultsAndNoErrors());
 
-        try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
+        try (Response<GraphModel> rsp = new GraphModelResponse(response)) {
             assertThat(rsp.columns().length).isEqualTo(1);
             assertThat(rsp.columns()[0]).isEqualTo("_0");
         }
@@ -65,7 +64,7 @@ public class JsonGraphResponseTest {
     public void shouldParseColumnsInGraphResponseWithNoColumnsCorrectly() throws IOException {
         when(entity.getContent()).thenReturn(noGraphResultsAndNoErrors());
 
-        try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
+        try (Response<GraphModel> rsp = new GraphModelResponse(response)) {
             assertThat(rsp.columns().length).isEqualTo(1);
             assertThat(rsp.columns()[0]).isEqualTo("_0");
         }
@@ -76,7 +75,7 @@ public class JsonGraphResponseTest {
 
         when(entity.getContent()).thenReturn(loadByIdsGraphResults());
 
-        try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
+        try (Response<GraphModel> rsp = new GraphModelResponse(response)) {
             GraphModel graphModel = rsp.next();
             assertThat(graphModel).isNotNull();
             Collection<Node> nodes = graphModel.getNodes();
@@ -333,27 +332,4 @@ public class JsonGraphResponseTest {
             "}";
         return new ByteArrayInputStream(s.getBytes(UTF_8));
     }
-
-    static class TestGraphHttpResponse extends AbstractHttpResponse<ResultGraphModel> implements Response<GraphModel> {
-
-        TestGraphHttpResponse() {
-            super(response, ResultGraphModel.class);
-        }
-
-        @Override
-        public GraphModel next() {
-            ResultGraphModel graphModel = nextDataRecord("graph");
-
-            if (graphModel != null) {
-                return graphModel.queryResults();
-            }
-            return null;
-        }
-
-        @Override
-        public void close() {
-            //Nothing to do, the response has been closed already
-        }
-    }
-    //
 }

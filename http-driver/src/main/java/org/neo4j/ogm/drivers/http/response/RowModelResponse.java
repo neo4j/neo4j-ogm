@@ -22,30 +22,24 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowModel;
-import org.neo4j.ogm.result.ResultRowModel;
 
 /**
- * @author vince
+ * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
-public class RowModelResponse extends AbstractHttpResponse<ResultRowModel> implements Response<RowModel> {
+public class RowModelResponse extends AbstractHttpResponse<Object[]> implements Response<RowModel> {
 
     public RowModelResponse(CloseableHttpResponse httpResponse) {
-        super(httpResponse, ResultRowModel.class);
+        super(httpResponse, Object[].class);
     }
 
     @Override
     public RowModel next() {
-        ResultRowModel rowModel = nextDataRecord("row");
-
-        if (rowModel != null) {
-            return new DefaultRowModel(rowModel.queryResults(), columns());
+        Object[] row = nextDataRecord("row");
+        if (row != null) {
+            return new DefaultRowModel(row, columns());
         }
         return null;
-    }
-
-    @Override
-    public void close() {
-        //Nothing to do, the response has been closed already
     }
 }

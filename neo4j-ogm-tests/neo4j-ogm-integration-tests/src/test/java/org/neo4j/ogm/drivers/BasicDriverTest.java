@@ -324,7 +324,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         Result result = session
             .query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit'", Utils.map());
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(2);
-        assertThat(result.queryResults().iterator().hasNext()).isFalse();
+        assertThat(result.iterator().hasNext()).isFalse();
     }
 
     @Test
@@ -335,7 +335,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         Result result = session
             .query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit' RETURN u.name", Utils.map());
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(2);
-        assertThat(result.queryResults().iterator().hasNext()).isTrue();
+        assertThat(result.iterator().hasNext()).isTrue();
     }
 
     @Test

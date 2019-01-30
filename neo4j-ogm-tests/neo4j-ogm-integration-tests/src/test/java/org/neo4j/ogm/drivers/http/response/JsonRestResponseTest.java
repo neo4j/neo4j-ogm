@@ -25,17 +25,15 @@ import static org.mockito.Mockito.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.NodeModel;
-import org.neo4j.ogm.result.ResultRestModel;
 
 /**
  * @author Luanne Misquitta
@@ -55,7 +53,7 @@ public class JsonRestResponseTest {
 
         when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
 
-        try (Response<DefaultRestModel> rsp = new TestRestHttpResponse()) {
+        try (Response<RestModel> rsp = new RestModelResponse(response)) {
             assertThat(rsp.columns().length).isEqualTo(3);
             assertThat(rsp.columns()[0]).isEqualTo("count");
         }
@@ -66,7 +64,7 @@ public class JsonRestResponseTest {
 
         when(entity.getContent()).thenReturn(noRowResultsAndNoErrors());
 
-        try (Response<DefaultRestModel> rsp = new TestRestHttpResponse()) {
+        try (Response<RestModel> rsp = new RestModelResponse(response)) {
             assertThat(rsp.columns().length).isEqualTo(3);
             assertThat(rsp.columns()[1]).isEqualTo("director");
         }
@@ -77,8 +75,8 @@ public class JsonRestResponseTest {
 
         when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
 
-        try (Response<DefaultRestModel> rsp = new TestRestHttpResponse()) {
-            DefaultRestModel restModel = rsp.next();
+        try (Response<RestModel> rsp = new RestModelResponse(response)) {
+            RestModel restModel = rsp.next();
             assertThat(restModel).isNotNull();
             Map<String, Object> rows = restModel.getRow();
             assertThat(rows.entrySet()).hasSize(3);
@@ -113,37 +111,5 @@ public class JsonRestResponseTest {
         final String s = "{\"results\":[{\"columns\":[\"count\",\"director\",\"movie\"],\"data\":[]}],\"errors\":[]}";
 
         return new ByteArrayInputStream(s.getBytes(UTF_8));
-    }
-
-    static class TestRestHttpResponse extends AbstractHttpResponse<ResultRestModel>
-        implements Response<DefaultRestModel> {
-
-        TestRestHttpResponse() {
-            super(response, ResultRestModel.class);
-        }
-
-        private RestModelAdapter restModelAdapter = new RestModelAdapter();
-
-        @Override
-        public DefaultRestModel next() {
-            restModelAdapter.setColumns(columns());
-            return DefaultRestModel.basedOn(buildModel())
-                .orElse(null);
-        }
-
-        @Override
-        public void close() {
-            //Nothing to do, the response has been closed already
-        }
-
-        private Map<String, Object> buildModel() {
-            ResultRestModel result = nextDataRecord("rest");
-            Map<String, Object> row = new LinkedHashMap<>();
-            if (result != null) {
-                row = restModelAdapter.adapt(result.queryResults());
-            }
-
-            return row;
-        }
     }
 }

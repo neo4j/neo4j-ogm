@@ -26,17 +26,18 @@ import java.util.Map;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class Utils {
 
     public static Map<String, Object> map(final Object... keysAndValues) {
-        return new HashMap<String, Object>() {
-            {
-                for (int i = 0; i < keysAndValues.length; i += 2) {
-                    put(String.valueOf(keysAndValues[i]), keysAndValues[i + 1]);
-                }
-            }
-        };
+
+        Map<String, Object> newMap = new HashMap<>();
+        for (int i = 0; i < keysAndValues.length; i += 2) {
+            newMap.put(String.valueOf(keysAndValues[i]), keysAndValues[i + 1]);
+        }
+
+        return newMap;
     }
 
     public static int size(Iterable<?> iterable) {
@@ -45,7 +46,7 @@ public class Utils {
             : size(iterable.iterator());
     }
 
-    public static int size(Iterator<?> iterator) {
+    private static int size(Iterator<?> iterator) {
         int count = 0;
         while (iterator.hasNext()) {
             iterator.next();

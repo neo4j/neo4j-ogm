@@ -32,8 +32,6 @@ import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -53,7 +51,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public abstract class AbstractHttpResponse<T> implements AutoCloseable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractHttpResponse.class);
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
     private final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
@@ -83,9 +80,7 @@ public abstract class AbstractHttpResponse<T> implements AutoCloseable {
 
             // Find result node and check if it's an array.
             JsonParser unbufferedResults = findNextObject(bufferedResponse.asParserOnFirstToken(), "results");
-            if (unbufferedResults == null || !JsonToken.START_ARRAY.equals(unbufferedResults.currentToken())) {
-                throw new IOException("Current result object is not an array!");
-            }
+            throwExceptionOnIncorrectResultEntry(unbufferedResults);
 
             // Initialize columns and statistics eagerly to be at least clear that those are only the first one
             TokenBuffer resultBuffer = createTokenBuffer(unbufferedResults);
@@ -146,6 +141,17 @@ public abstract class AbstractHttpResponse<T> implements AutoCloseable {
         }
     }
 
+    private static void throwExceptionOnIncorrectResultEntry(JsonParser pointingToResults) throws IOException {
+
+        if (pointingToResults == null) {
+            throw new IOException("Response doesn't contain any results.");
+        }
+
+        if (!JsonToken.START_ARRAY.equals(pointingToResults.currentToken())) {
+            throw new IOException("Current result object is not an array!");
+        }
+    }
+
     private String[] readColumns(TokenBuffer bufferedResults) throws IOException {
 
         JsonParser parser = bufferedResults.asParserOnFirstToken();
@@ -172,7 +178,7 @@ public abstract class AbstractHttpResponse<T> implements AutoCloseable {
 
     public T nextDataRecord(String key) {
         try {
-            while (results.hasNext()) {
+            if (results.hasNext()) {
                 JsonNode dataNode = results.next();
                 T t = dataNode.has(key) ? mapper.treeToValue(dataNode.get(key), resultClass) : null;
                 return t;
@@ -234,7 +240,7 @@ public abstract class AbstractHttpResponse<T> implements AutoCloseable {
 
             boolean moreDataNodes = this.currentDataNodes != null && this.currentDataNodes.hasNext();
             try {
-                // This loop is necessary results of multiplestatements where
+                // This loop is necessary results of multiple statements where
                 // some statements may have entries in the data node and others may not
                 while (!moreDataNodes && results.nextToken() != JsonToken.END_ARRAY) {
                     JsonNode resultNode = objectMapper.readTree(results);

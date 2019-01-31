@@ -54,7 +54,7 @@ public final class ObjectMapperFactory {
     }
 
     /**
-     * Mixin needed to specifiy the required constructor argument of the {@link NodeModel NodeModel} class.
+     * Mixin needed to specify the required constructor argument of the {@link NodeModel NodeModel} class.
      */
     abstract static class NodeModelMixin {
         @JsonCreator NodeModelMixin(@JsonProperty("id") Long id) {
@@ -63,7 +63,7 @@ public final class ObjectMapperFactory {
 
     /**
      * The {@link DefaultGraphModel DefaultGraphModels} setter are actually methods that add the the list of existing
-     * nodes- and relationshipmodules. They are used when the model is manually build. Without this mixin, they would
+     * nodes- and relationshipmodels. They are used when the model is manually build. Without this mixin, they would
      * need to be called {@code setXXX}, which is totally misleading.
      */
     @JsonIgnoreProperties(ignoreUnknown = true)

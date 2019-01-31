@@ -61,11 +61,11 @@ public abstract class AbstractHttpResponse<T> implements AutoCloseable {
 
     private final ResultNodeIterator results;
 
-    public AbstractHttpResponse(CloseableHttpResponse httpResponse, Class<T> resultClass) {
+    AbstractHttpResponse(CloseableHttpResponse httpResponse, Class<T> resultClass) {
         this(httpResponse, resultClass, true);
     }
 
-    public AbstractHttpResponse(CloseableHttpResponse httpResponse, Class<T> resultClass, boolean flatMapData) {
+    AbstractHttpResponse(CloseableHttpResponse httpResponse, Class<T> resultClass, boolean flatMapData) {
 
         this.resultClass = resultClass;
 
@@ -176,7 +176,7 @@ public abstract class AbstractHttpResponse<T> implements AutoCloseable {
         return null;
     }
 
-    public T nextDataRecord(String key) {
+    T nextDataRecord(String key) {
         try {
             if (results.hasNext()) {
                 JsonNode dataNode = results.next();
@@ -205,7 +205,7 @@ public abstract class AbstractHttpResponse<T> implements AutoCloseable {
      *
      * @return queryStatistics or null if the response does not contain it
      */
-    public QueryStatistics statistics() {
+    QueryStatistics statistics() {
         return queryStatistics;
     }
 
@@ -225,14 +225,14 @@ public abstract class AbstractHttpResponse<T> implements AutoCloseable {
         /**
          * A flag if the the data node of one result row should be flat mapped or not.
          */
-        private final boolean flatpMapData;
+        private final boolean flatMapData;
 
         private Iterator<JsonNode> currentDataNodes;
 
         ResultNodeIterator(ObjectMapper objectMapper, JsonParser results, boolean flatMapData) {
             this.objectMapper = objectMapper;
             this.results = results;
-            this.flatpMapData = flatMapData;
+            this.flatMapData = flatMapData;
         }
 
         @Override
@@ -244,7 +244,7 @@ public abstract class AbstractHttpResponse<T> implements AutoCloseable {
                 // some statements may have entries in the data node and others may not
                 while (!moreDataNodes && results.nextToken() != JsonToken.END_ARRAY) {
                     JsonNode resultNode = objectMapper.readTree(results);
-                    if (!flatpMapData) {
+                    if (!flatMapData) {
                         currentDataNodes = Collections.singletonList(resultNode).iterator();
                     } else {
                         JsonNode dataArrayNode = resultNode.get("data");

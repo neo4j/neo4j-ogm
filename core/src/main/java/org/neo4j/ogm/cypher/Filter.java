@@ -215,9 +215,10 @@ public class Filter implements FilterWithRelationship {
     public Filter ignoreCase() {
         if (!(this.function instanceof PropertyComparison)) {
             throw new IllegalStateException("ignoreCase is only supported for a filter based on property comparison");
-        } else if (this.getComparisonOperator() != EQUALS) {
+        } else if (!this.getComparisonOperator().isOneOf(EQUALS, CONTAINING)) {
             throw new IllegalStateException(
-                String.format("ignoreCase is only supported for %s comparison", ComparisonOperator.EQUALS.name()));
+                String.format("ignoreCase is only supported for %s or %s comparison", EQUALS.name(), CONTAINING.name())
+            );
         }
         this.function = new CaseInsensitiveEqualsComparison((PropertyComparison) this.function);
         return this;
@@ -455,7 +456,7 @@ public class Filter implements FilterWithRelationship {
     }
 
     /**
-     * Internal class for modifying an EQUALS comparison to ignore the case of both attribute and parameter.
+     * Internal class for modifying an EQUALS or CONTAINS comparison to ignore the case of both attribute and parameter.
      */
     static final class CaseInsensitiveEqualsComparison extends PropertyComparison {
         private CaseInsensitiveEqualsComparison(final PropertyComparison propertyComparison) {
@@ -467,7 +468,7 @@ public class Filter implements FilterWithRelationship {
         public String expression(final String nodeIdentifier) {
             final Filter filter = this.getFilter();
             return String.format("toLower(%s.`%s`) %s toLower({ `%s` }) ", nodeIdentifier, filter.getPropertyName(),
-                ComparisonOperator.EQUALS.getValue(), filter.uniqueParameterName());
+                filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
         }
     }
 }

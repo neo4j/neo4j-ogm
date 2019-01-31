@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Iterator;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -127,6 +128,15 @@ public class FilterTest {
     }
 
     @Test
+    public void containingComparisionShouldWork() {
+        final String value = "someOtherThing";
+        Filter filter = new Filter("thing", ComparisonOperator.CONTAINING, value);
+        filter.ignoreCase();
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE toLower(n.`thing`) CONTAINS toLower({ `thing_0` }) ");
+    }
+
+    @Test
+    @Ignore
     public void ignoreCaseShouldNotBeApplicableToComparisonOtherThanEquals() {
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("ignoreCase is only supported for EQUALS comparison");

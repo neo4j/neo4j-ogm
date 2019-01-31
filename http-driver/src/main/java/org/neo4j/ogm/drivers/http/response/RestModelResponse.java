@@ -27,17 +27,17 @@ import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRestModel;
-import org.neo4j.ogm.result.ResultRestModel;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
-public class RestModelResponse extends AbstractHttpResponse<ResultRestModel> implements Response<RestModel> {
+public class RestModelResponse extends AbstractHttpResponse<Object[]> implements Response<RestModel> {
 
     private RestModelAdapter restModelAdapter = new RestModelAdapter();
 
     public RestModelResponse(CloseableHttpResponse httpResponse) {
-        super(httpResponse, ResultRestModel.class);
+        super(httpResponse, Object[].class);
         restModelAdapter.setColumns(columns());
     }
 
@@ -48,16 +48,11 @@ public class RestModelResponse extends AbstractHttpResponse<ResultRestModel> imp
             .orElse(null);
     }
 
-    @Override
-    public void close() {
-        //Nothing to do, the response has been closed already
-    }
-
     private Map<String, Object> buildModel() {
-        ResultRestModel result = nextDataRecord("rest");
+        Object[] result = nextDataRecord("rest");
         Map<String, Object> row = new LinkedHashMap<>();
         if (result != null) {
-            row = restModelAdapter.adapt(result.queryResults());
+            row = restModelAdapter.adapt(result);
         }
 
         return row;

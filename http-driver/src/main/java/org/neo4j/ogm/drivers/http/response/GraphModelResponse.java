@@ -21,30 +21,21 @@ package org.neo4j.ogm.drivers.http.response;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.result.ResultGraphModel;
+import org.neo4j.ogm.response.model.DefaultGraphModel;
 
 /**
- * @author vince
+ * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
-public class GraphModelResponse extends AbstractHttpResponse<ResultGraphModel> implements Response<GraphModel> {
+public class GraphModelResponse extends AbstractHttpResponse<DefaultGraphModel> implements Response<GraphModel> {
 
     public GraphModelResponse(CloseableHttpResponse httpResponse) {
-        super(httpResponse, ResultGraphModel.class);
+        super(httpResponse, DefaultGraphModel.class);
     }
 
     @Override
     public GraphModel next() {
-        ResultGraphModel graphModel = nextDataRecord("graph");
-
-        if (graphModel != null) {
-            return graphModel.queryResults();
-        }
-        return null;
-    }
-
-    @Override
-    public void close() {
-        // nothing to do here
+        return nextDataRecord("graph");
     }
 }

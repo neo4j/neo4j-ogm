@@ -30,12 +30,12 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.exception.CypherException;
+import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowModel;
-import org.neo4j.ogm.result.ResultRowModel;
 
 /**
- * @author vince
+ * @author Vince Bickers
  */
 public class JsonResponseTest {
 
@@ -51,7 +51,7 @@ public class JsonResponseTest {
     public void shouldHandleNoResultsAndErrors() throws IOException {
         when(entity.getContent()).thenReturn(noResultsAndErrors());
 
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
+        try (Response<RowModel> rsp = new RowModelResponse(response)) {
             parseResponse(rsp);
         }
     }
@@ -61,7 +61,7 @@ public class JsonResponseTest {
 
         when(entity.getContent()).thenReturn(resultsAndErrors());
 
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
+        try (Response<RowModel> rsp = new RowModelResponse(response)) {
             parseResponse(rsp);
         }
     }
@@ -71,7 +71,7 @@ public class JsonResponseTest {
 
         when(entity.getContent()).thenReturn(noRowResultsAndNoErrors());
 
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
+        try (Response<RowModel> rsp = new RowModelResponse(response)) {
             parseResponse(rsp);
         }
     }
@@ -81,12 +81,12 @@ public class JsonResponseTest {
 
         when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
 
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
+        try (Response<RowModel> rsp = new RowModelResponse(response)) {
             parseResponse(rsp);
         }
     }
 
-    private void parseResponse(Response<DefaultRowModel> rsp) {
+    private void parseResponse(Response<RowModel> rsp) {
 
         //CHECKSTYLE:OFF
         while (rsp.next() != null) {
@@ -150,27 +150,5 @@ public class JsonResponseTest {
         final String s = "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[]]}]}],\"errors\": []}";
 
         return new ByteArrayInputStream(s.getBytes(UTF_8));
-    }
-
-    static class TestRowHttpResponse extends AbstractHttpResponse<ResultRowModel> implements Response<DefaultRowModel> {
-
-        TestRowHttpResponse() {
-            super(response, ResultRowModel.class);
-        }
-
-        @Override
-        public DefaultRowModel next() {
-            ResultRowModel rowModel = nextDataRecord("row");
-
-            if (rowModel != null) {
-                return new DefaultRowModel(rowModel.queryResults(), columns());
-            }
-            return null;
-        }
-
-        @Override
-        public void close() {
-            //Nothing to do, the response has been closed already
-        }
     }
 }

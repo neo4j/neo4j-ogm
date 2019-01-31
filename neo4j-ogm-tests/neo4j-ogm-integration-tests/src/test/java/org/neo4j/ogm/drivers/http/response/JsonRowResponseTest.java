@@ -32,9 +32,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.response.model.DefaultRowModel;
-import org.neo4j.ogm.result.ResultRowModel;
 
 /**
  * @author Luanne Misquitta
@@ -54,7 +53,7 @@ public class JsonRowResponseTest {
 
         when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
 
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
+        try (Response<RowModel> rsp = new RowModelResponse(response)) {
             assertThat(rsp.columns().length).isEqualTo(1);
             assertThat(rsp.columns()[0]).isEqualTo("collect(p)");
         }
@@ -65,7 +64,7 @@ public class JsonRowResponseTest {
 
         when(entity.getContent()).thenReturn(noRowResultsAndNoErrors());
 
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
+        try (Response<RowModel> rsp = new RowModelResponse(response)) {
             assertThat(rsp.columns().length).isEqualTo(1);
             assertThat(rsp.columns()[0]).isEqualTo("collect(p)");
         }
@@ -76,8 +75,8 @@ public class JsonRowResponseTest {
 
         when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
 
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
-            DefaultRowModel rowModel = rsp.next();
+        try (Response<RowModel> rsp = new RowModelResponse(response)) {
+            RowModel rowModel = rsp.next();
             assertThat(rowModel).isNotNull();
             Object[] rows = rowModel.getValues();
             assertThat(rows.length).isEqualTo(1);
@@ -91,8 +90,8 @@ public class JsonRowResponseTest {
 
         when(entity.getContent()).thenReturn(createRowResults());
 
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
-            DefaultRowModel rowModel = rsp.next();
+        try (Response<RowModel> rsp = new RowModelResponse(response)) {
+            RowModel rowModel = rsp.next();
             assertThat(rowModel).isNotNull();
             Object[] rows = rowModel.getValues();
             assertThat(rows.length).isEqualTo(4);
@@ -108,8 +107,8 @@ public class JsonRowResponseTest {
 
         when(entity.getContent()).thenReturn(customQueryRowResults());
 
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
-            DefaultRowModel rowModel = rsp.next();
+        try (Response<RowModel> rsp = new RowModelResponse(response)) {
+            RowModel rowModel = rsp.next();
             assertThat(rowModel).isNotNull();
             Object[] rows = rowModel.getValues();
             assertThat(rows.length).isEqualTo(3);
@@ -204,27 +203,5 @@ public class JsonRowResponseTest {
             "  \"errors\": []\n" +
             "}";
         return new ByteArrayInputStream(s.getBytes(UTF_8));
-    }
-
-    static class TestRowHttpResponse extends AbstractHttpResponse<ResultRowModel> implements Response<DefaultRowModel> {
-
-        TestRowHttpResponse() {
-            super(response, ResultRowModel.class);
-        }
-
-        @Override
-        public DefaultRowModel next() {
-            ResultRowModel rowModel = nextDataRecord("row");
-
-            if (rowModel != null) {
-                return new DefaultRowModel(rowModel.queryResults(), columns());
-            }
-            return null;
-        }
-
-        @Override
-        public void close() {
-            //Nothing to do, the response has been closed already
-        }
     }
 }

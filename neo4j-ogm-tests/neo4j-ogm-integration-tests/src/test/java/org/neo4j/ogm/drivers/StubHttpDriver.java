@@ -32,12 +32,12 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.request.RestModelRequest;
 import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.response.model.DefaultGraphModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
-import org.neo4j.ogm.result.ResultGraphModel;
-import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.transaction.Transaction;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -98,7 +98,8 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
                         String r = holder.nextRecord();
                         if (r != null) {
                             try {
-                                return mapper.readValue(r, ResultGraphModel.class).queryResults();
+                                JsonNode dataNode = mapper.readTree(r);
+                                return mapper.treeToValue(dataNode.get("graph"), DefaultGraphModel.class);
                             } catch (Exception e) {
                                 throw new ResultProcessingException("Could not parse response", e);
                             }
@@ -128,7 +129,7 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
                         String r = holder.nextRecord();
                         if (r != null) {
                             try {
-                                return new DefaultRowModel(mapper.readValue(r, ResultRowModel.class).queryResults(),
+                                return new DefaultRowModel(mapper.readValue(r, Object[].class),
                                     columns());
                             } catch (Exception e) {
                                 throw new ResultProcessingException("Could not parse response", e);

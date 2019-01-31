@@ -19,13 +19,14 @@
 package org.neo4j.ogm.config;
 
 import org.neo4j.ogm.response.model.DefaultGraphModel;
+import org.neo4j.ogm.response.model.DefaultGraphRowModel;
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -41,8 +42,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  */
 public final class ObjectMapperFactory {
 
-    private static final JsonFactory jsonFactory = new JsonFactory();
-    private static final ObjectMapper mapper = new ObjectMapper(jsonFactory)
+    private static final ObjectMapper mapper = new ObjectMapper()
         .registerModule(new Neo4jOgmJacksonModule())
         .registerModule(new Jdk8Module())
         .registerModule(new JavaTimeModule())
@@ -53,12 +53,8 @@ public final class ObjectMapperFactory {
         return mapper;
     }
 
-    public static JsonFactory jsonFactory() {
-        return jsonFactory;
-    }
-
     /**
-     * Mixin needed to specifiy the required constructor argument of the {@link NodeModel NodeModel} class.
+     * Mixin needed to specify the required constructor argument of the {@link NodeModel NodeModel} class.
      */
     abstract static class NodeModelMixin {
         @JsonCreator NodeModelMixin(@JsonProperty("id") Long id) {
@@ -67,9 +63,10 @@ public final class ObjectMapperFactory {
 
     /**
      * The {@link DefaultGraphModel DefaultGraphModels} setter are actually methods that add the the list of existing
-     * nodes- and relationshipmodules. They are used when the model is manually build. Without this mixin, they would
+     * nodes- and relationshipmodels. They are used when the model is manually build. Without this mixin, they would
      * need to be called {@code setXXX}, which is totally misleading.
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     abstract static class DefaultGraphModelMixin {
         @JsonSetter("nodes")
         public void addNodes(NodeModel[] additionalNodes) {
@@ -77,6 +74,13 @@ public final class ObjectMapperFactory {
 
         @JsonSetter("relationships")
         public void addRelationships(RelationshipModel[] additionalRelationships) {
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    abstract static class DefaultGraphRowModelMixin {
+        @JsonCreator DefaultGraphRowModelMixin(@JsonProperty("graph") DefaultGraphModel graph,
+            @JsonProperty("row") Object[] row) {
         }
     }
 
@@ -89,6 +93,7 @@ public final class ObjectMapperFactory {
         public void setupModule(SetupContext context) {
             context.setMixInAnnotations(NodeModel.class, NodeModelMixin.class);
             context.setMixInAnnotations(DefaultGraphModel.class, DefaultGraphModelMixin.class);
+            context.setMixInAnnotations(DefaultGraphRowModel.class, DefaultGraphRowModelMixin.class);
         }
     }
 

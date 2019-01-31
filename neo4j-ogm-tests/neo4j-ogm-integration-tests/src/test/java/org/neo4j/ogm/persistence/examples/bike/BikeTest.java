@@ -37,7 +37,7 @@ public class BikeTest {
     private static Neo4jSession session = new Neo4jSession(metadata, new BikeRequest());
 
     @Test
-    public void testDeserialiseBikeModel() throws Exception {
+    public void testDeserialiseBikeModel() {
 
         Collection<Bike> bikes = session.loadAll(Bike.class);
 

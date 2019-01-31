@@ -20,8 +20,11 @@ package org.neo4j.ogm.drivers.http.response;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.UncheckedIOException;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.config.ObjectMapperFactory;
@@ -29,84 +32,161 @@ import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
- * @author vince
+ * NOTE: Both columns and statistics only work on the <strong>FIRST</strong> entry of the results array. That has been
+ * the case at least since OGM 3.0.
+ * Queries that contain multiple statements with possible a distinct set of columns and statistic, won't work correctly.
+ *
+ * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
-public abstract class AbstractHttpResponse<T> {
+public abstract class AbstractHttpResponse<T> implements AutoCloseable {
 
-    private final InputStream results;
-    private final JsonParser bufferParser;
+    private static final JsonFactory JSON_FACTORY = new JsonFactory();
+
     private final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
-    private final TokenBuffer buffer;
+
     private final Class<T> resultClass;
-    private final CloseableHttpResponse httpResponse;
+    private final String[] columns;
+    private final QueryStatistics queryStatistics;
 
-    private String[] columns;
-    private QueryStatistics queryStatistics;
-    private JsonNode responseNode;
+    private final ResultNodeIterator results;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractHttpResponse.class);
+    AbstractHttpResponse(CloseableHttpResponse httpResponse, Class<T> resultClass) {
+        this(httpResponse, resultClass, true);
+    }
 
-    public AbstractHttpResponse(CloseableHttpResponse httpResponse, Class<T> resultClass) {
+    AbstractHttpResponse(CloseableHttpResponse httpResponse, Class<T> resultClass, boolean flatMapData) {
 
         this.resultClass = resultClass;
-        try {
-            this.httpResponse = httpResponse;
-            this.results = httpResponse.getEntity().getContent();
-            try (JsonParser parser = ObjectMapperFactory.jsonFactory().createParser(results)) {
-                buffer = new TokenBuffer(parser);
-                //Copy the contents of the response into the token buffer.
-                //This is so that we do not have to serialize the response to textual json while we get to the end of the stream to check for errors
+
+        try (
+            CloseableHttpResponse httpResponseToClose = httpResponse;
+            InputStream inputStreamOfResponse = httpResponseToClose.getEntity().getContent();
+            TokenBuffer bufferedResponse = createTokenBuffer(inputStreamOfResponse);
+        ) {
+            // First find the errors node without parsing all the other token and throw an exception if necessary
+            JsonParser pointingOnErrors = findNextObject(bufferedResponse.asParserOnFirstToken(), "errors");
+            throwExceptionOnErrorEntry(pointingOnErrors);
+
+            // Find result node and check if it's an array.
+            JsonParser unbufferedResults = findNextObject(bufferedResponse.asParserOnFirstToken(), "results");
+            throwExceptionOnIncorrectResultEntry(unbufferedResults);
+
+            // Initialize columns and statistics eagerly to be at least clear that those are only the first one
+            TokenBuffer resultBuffer = createTokenBuffer(unbufferedResults);
+            this.columns = readColumns(resultBuffer);
+            this.queryStatistics = readQueryStatistics(resultBuffer);
+            this.results = new ResultNodeIterator(this.mapper, resultBuffer.asParserOnFirstToken(), flatMapData);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private TokenBuffer createTokenBuffer(InputStream inputStream) throws IOException {
+
+        // That parser is copied over as a whole to the buffer.
+        // We need to parse the whole result into buffer, there's no way around it anyway.
+        try (JsonParser jsonParser = JSON_FACTORY.createParser(inputStream)) {
+
+            // First start parsing
+            jsonParser.nextToken();
+            // Then copy the whole thing
+            return createTokenBuffer(jsonParser);
+        }
+    }
+
+    private TokenBuffer createTokenBuffer(JsonParser jsonParser) throws IOException {
+
+        TokenBuffer tokenBuffer = new TokenBuffer(mapper, true);
+        tokenBuffer.copyCurrentStructure(jsonParser);
+
+        return tokenBuffer;
+    }
+
+    private static JsonParser findNextObject(JsonParser parser, String nodeName) throws IOException {
+
+        JsonToken jsonToken;
+        while ((jsonToken = parser.nextToken()) != null) {
+            parser.skipChildren();
+            if (JsonToken.FIELD_NAME.equals(jsonToken) && parser.getCurrentName().equals(nodeName)) {
                 parser.nextToken();
-                buffer.copyCurrentStructure(parser);
+                return parser;
             }
-            bufferParser = buffer.asParser();
-        } catch (IOException ioException) {
-            throw new RuntimeException(ioException);
-        } finally {
-            close(); //We are done with the InputStream
         }
-        initialise();
+        return null;
     }
 
-    private void initialise() {
+    private void throwExceptionOnErrorEntry(JsonParser pointingToErrors) throws IOException {
+
+        if (pointingToErrors == null) {
+            return;
+        }
+
+        JsonNode errorsNode = mapper.readTree(pointingToErrors);
+        Optional<JsonNode> optionalErrorNode = StreamSupport.stream(errorsNode.spliterator(), false)
+            .findFirst();
+        if (optionalErrorNode.isPresent()) {
+            JsonNode errorNode = optionalErrorNode.get();
+            throw new CypherException(errorNode.findValue("code").asText(), errorNode.findValue("message").asText());
+        }
+    }
+
+    private static void throwExceptionOnIncorrectResultEntry(JsonParser pointingToResults) throws IOException {
+
+        if (pointingToResults == null) {
+            throw new IOException("Response doesn't contain any results.");
+        }
+
+        if (!JsonToken.START_ARRAY.equals(pointingToResults.currentToken())) {
+            throw new IOException("Current result object is not an array!");
+        }
+    }
+
+    private String[] readColumns(TokenBuffer bufferedResults) throws IOException {
+
+        JsonParser parser = bufferedResults.asParserOnFirstToken();
+        parser.nextToken();
+        parser = findNextObject(parser, "columns");
+        if (parser == null) {
+            return new String[0];
+        } else {
+            return mapper.readValue(parser, String[].class);
+        }
+    }
+
+    private QueryStatistics readQueryStatistics(TokenBuffer bufferedResults) throws IOException {
+
+        JsonParser parser = bufferedResults.asParserOnFirstToken();
+        parser.nextToken();
+        parser = findNextObject(parser, "stats");
+        if (parser != null) {
+            return mapper.readValue(parser, QueryStatisticsModel.class);
+        }
+
+        return null;
+    }
+
+    T nextDataRecord(String key) {
         try {
-            responseNode = mapper.readTree(buffer.asParser());
-            LOGGER.debug("Response: {}", responseNode);
-            JsonNode errors = responseNode.findValue("errors");
-            if (errors.elements().hasNext()) {
-                JsonNode errorNode = errors.elements().next();
-                throw new CypherException(errorNode.findValue("code").asText(), errorNode.findValue("message").asText());
+            if (results.hasNext()) {
+                JsonNode dataNode = results.next();
+                T t = dataNode.has(key) ? mapper.treeToValue(dataNode.get(key), resultClass) : null;
+                return t;
             }
         } catch (IOException e) {
             throw new ResultProcessingException("Error processing results", e);
         }
-    }
 
-    public T nextDataRecord(String key) {
-        JsonToken token;
-        try {
-            while ((token = bufferParser.nextToken()) != null) {
-                if (JsonToken.FIELD_NAME.equals(token)) {
-                    if (key.equals(bufferParser.getCurrentName())) {
-                        return mapper.readValue(bufferParser, resultClass);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new ResultProcessingException("Error processing results", e);
-        }
         return null;
     }
 
@@ -117,18 +197,6 @@ public abstract class AbstractHttpResponse<T> {
      * @return the first set of columns from a JSON response
      */
     public String[] columns() {
-        if (columns == null) {
-            List<String> columnsList = new ArrayList<>();
-            List<JsonNode> columnsNodes = responseNode.findValues("columns");
-            if (columnsNodes != null && columnsNodes.size() > 0) {
-                JsonNode firstColumnsNode = columnsNodes.get(0);
-                for (JsonNode columnNode : firstColumnsNode) {
-                    columnsList.add(columnNode.asText());
-                }
-                columns = new String[columnsList.size()];
-                columns = columnsList.toArray(columns);
-            }
-        }
         return columns;
     }
 
@@ -137,27 +205,70 @@ public abstract class AbstractHttpResponse<T> {
      *
      * @return queryStatistics or null if the response does not contain it
      */
-    public QueryStatistics statistics() {
-        if (queryStatistics == null) {
-            List<JsonNode> statsNodes = responseNode.findValues("stats");
-            try {
-                if (statsNodes != null && statsNodes.size() > 0) {
-                    queryStatistics = mapper.treeToValue(statsNodes.get(0), QueryStatisticsModel.class);
-                }
-            } catch (JsonProcessingException jsonException) {
-                throw new RuntimeException(jsonException);
-            }
-        }
+    QueryStatistics statistics() {
         return queryStatistics;
     }
 
-    private void close() {
+    @Override
+    public void close() {
         try {
-            LOGGER.debug("Thread {}: Releasing HttpResponse", Thread.currentThread().getId());
-            results.close();
-            httpResponse.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            this.results.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    static class ResultNodeIterator implements Iterator<JsonNode>, AutoCloseable {
+
+        private final ObjectMapper objectMapper;
+        private final JsonParser results;
+        /**
+         * A flag if the the data node of one result row should be flat mapped or not.
+         */
+        private final boolean flatMapData;
+
+        private Iterator<JsonNode> currentDataNodes;
+
+        ResultNodeIterator(ObjectMapper objectMapper, JsonParser results, boolean flatMapData) {
+            this.objectMapper = objectMapper;
+            this.results = results;
+            this.flatMapData = flatMapData;
+        }
+
+        @Override
+        public boolean hasNext() {
+
+            boolean moreDataNodes = this.currentDataNodes != null && this.currentDataNodes.hasNext();
+            try {
+                // This loop is necessary results of multiple statements where
+                // some statements may have entries in the data node and others may not
+                while (!moreDataNodes && results.nextToken() != JsonToken.END_ARRAY) {
+                    JsonNode resultNode = objectMapper.readTree(results);
+                    if (!flatMapData) {
+                        currentDataNodes = Collections.singletonList(resultNode).iterator();
+                    } else {
+                        JsonNode dataArrayNode = resultNode.get("data");
+                        if (dataArrayNode != null && dataArrayNode.isArray()) {
+                            currentDataNodes = dataArrayNode.iterator();
+                        }
+                    }
+                    moreDataNodes = currentDataNodes.hasNext();
+                }
+            } catch (IOException e) {
+                moreDataNodes = false;
+            }
+
+            return moreDataNodes;
+        }
+
+        @Override
+        public JsonNode next() {
+            return currentDataNodes.next();
+        }
+
+        @Override
+        public void close() throws IOException {
+            this.results.close();
         }
     }
 }

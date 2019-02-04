@@ -20,3 +20,14 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - |
+    curl -X "POST" "https://api.travis-ci.com/repo/michael-simons%2Fneo4j-spring-boot-integration-tests/requests" \
+         -H "Authorization: token $SDN_BOOT_INTEGRATION_TESTS_TOKEN" \
+         -H 'Travis-API-Version: 3' \
+         -H 'Content-Type: application/json; charset=utf-8' \
+         -d $'{
+      "request": {
+        "branch": "master"
+      }
+    }'
+

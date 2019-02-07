@@ -53,8 +53,8 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public abstract class AbstractConfigurableDriver implements Driver {
 
-    private final ServiceLoader<CypherModificationProvider> cypherModificationProviderLoader =
-        ServiceLoader.load(CypherModificationProvider.class);
+    private final ThreadLocal<ServiceLoader<CypherModificationProvider>> cypherModificationProviderLoader =
+        ThreadLocal.withInitial(() -> ServiceLoader.load(CypherModificationProvider.class));
 
     protected Configuration configuration;
     protected TypeSystem typeSystem = Driver.super.getTypeSystem();
@@ -193,9 +193,10 @@ public abstract class AbstractConfigurableDriver implements Driver {
     private Function<String, String> loadCypherModifications() {
 
         Map<String, Object> configurationProperties = this.customPropertiesSupplier.get();
-        this.cypherModificationProviderLoader.reload();
+        ServiceLoader<CypherModificationProvider> currentProviderLoader = this.cypherModificationProviderLoader.get();
+        currentProviderLoader.reload();
 
-        return StreamSupport.stream(this.cypherModificationProviderLoader.spliterator(), false)
+        return StreamSupport.stream(currentProviderLoader.spliterator(), false)
             .sorted(Comparator.comparing(CypherModificationProvider::getOrder))
             .map(provider -> provider.getCypherModification(configurationProperties))
             .reduce(Function.identity(), Function::andThen, Function::andThen);

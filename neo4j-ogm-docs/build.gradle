@@ -1,6 +1,8 @@
 import org.asciidoctor.Asciidoctor
 import org.asciidoctor.OptionsBuilder
 import org.asciidoctor.SafeMode
+import org.neo4j.doc.build.xslt.XsltTask
+import org.neo4j.doc.build.docbook.DocBookPlugin
 
 //
 // Object-Graph Mapping (OGM) Manual
@@ -22,6 +24,8 @@ buildscript {
         classpath 'net.sf.docbook:docbook-xsl:1.79.1:ns-resources@zip'
         classpath fileTree(dir: "${rootProject.projectDir}/lib", include: '*.jar')
         classpath files("src/main/resources/docbook/catalog/")
+        classpath "org.dom4j:dom4j:2.1.1"
+        classpath "jaxen:jaxen:1.1.6"
     }
 }
 
@@ -258,6 +262,63 @@ html {
     finalizedBy { copyHtmlResources }
 }
 
+task makeToc(type: XsltTask, dependsOn: {toDocbook}) {
+    description 'Create a table of contents.'
+
+    doFirst {
+        def sourceFile = "${buildDir}/docbook/${ogmDocVersion}/index.xml"
+        def outputFile = "${buildDir}/docbook/${ogmDocVersion}/toc.xml"
+        def outputDir = "${buildDir}/docbook/${ogmDocVersion}/_trash"
+        def toolsDir = "${rootProject.projectDir}/docbook"
+
+        def url = DocBookPlugin.getClassLoader().getResource("xsl/create-toc/xhtml/maketoc.xsl")
+        stylesheet url
+        input sourceFile
+        outFile outputFile
+
+        sourceSaxParser "org.apache.xml.resolver.tools.ResolvingXMLReader"
+        stylesheetSaxParser "org.apache.xml.resolver.tools.ResolvingXMLReader"
+        uriResolver "org.apache.xml.resolver.tools.CatalogResolver"
+
+        usingUrls true
+        usingClasspathUrls true
+        if (hasProperty('traceDocbook')) { verbose true }
+
+        parameters([
+            "base.dir": "${outputDir}",
+            "chunk.section.depth": "1",
+            "chunk.first.sections": "1",
+            "use.id.as.dirname": "1",
+        ])
+    }
+}
+
+
+task sitemap() {
+    ext.contentMapXml = file("${projectDir}/docbook/content-map.xml")
+    def siteMapDir = "$buildDir/sitemap/$ogmDocVersion"
+    outputs.dir siteMapDir
+
+    doLast {
+        def siteMap = org.dom4j.DocumentHelper.createDocument()
+        def urlset = siteMap.addElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9")
+        def contentMap = new org.dom4j.io.SAXReader().read(contentMapXml)
+        contentMap.selectNodes('//processing-instruction("dbhtml")')
+            .collect { pi ->
+              pi.getText()                    // filename="installation/index.html"
+              .replaceAll("filename=|\"", "") // installation/index.html
+        }.each { filename ->
+               def url = "${docsBaseUri}/ogm-manual/current" + "/" + filename
+               urlset.addElement("url").addElement("loc").addText(url)
+        }
+        mkdir(siteMapDir)
+        new org.dom4j.io.XMLWriter(
+            new FileOutputStream(file("$siteMapDir/sitemap.xml")),
+            org.dom4j.io.OutputFormat.createPrettyPrint()
+        ).write(siteMap)
+    }
+}
+
 task copyHtmlResources(type: Copy) {
     description 'Copy resources for the multi-page Neo4j Object-Graph Mapping (OGM) Manual'
     inputs.dir "${projectDir}/css"
@@ -287,7 +348,7 @@ task copyHtmlResources(type: Copy) {
     into "${buildDir}/html/${ogmDocVersion}"
 }
 
-task packageHtml(type: Tar, dependsOn: html) {
+task packageHtml(type: Tar, dependsOn: [html, sitemap]) {
     baseName "ogm-manual"
     version ogmDocVersion
     extension 'tar.gz'
@@ -295,6 +356,7 @@ task packageHtml(type: Tar, dependsOn: html) {
     from {
         "${buildDir}/html/${ogmDocVersion}"
     }
+    from { sitemap }
     into {
         "${baseName}/${ogmDocVersion}"
     }

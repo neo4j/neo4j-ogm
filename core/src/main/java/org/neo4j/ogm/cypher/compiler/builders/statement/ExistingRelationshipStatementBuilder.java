@@ -53,7 +53,7 @@ public class ExistingRelationshipStatementBuilder extends BaseBuilder implements
 
         Edge firstEdge = edges.iterator().next();
         if (edges.size() > 0) {
-            queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]-() WHERE ID(r) = row.relId ");
+            queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]->() WHERE ID(r) = row.relId ");
 
             if (firstEdge.hasVersionProperty()) {
                 appendVersionPropertyCheck(queryBuilder, firstEdge, "r");

@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Collection;
 import java.util.Date;
 
+import org.apache.commons.lang3.builder.ToStringExclude;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

@@ -97,22 +97,8 @@ public class Configuration {
         this.useNativeTypes = builder.useNativeTypes;
         this.basePackages = builder.basePackages;
 
-        if (this.uri != null) {
-            URI parsedUri = null;
-            try {
-                parsedUri = new URI(this.uri);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException("Could not configure supplied URI in Configuration", e);
-            }
-            String userInfo = parsedUri.getUserInfo();
-            if (userInfo != null) {
-                String[] userPass = userInfo.split(":");
-                credentials = new UsernamePasswordCredentials(userPass[0], userPass[1]);
-                this.uri = parsedUri.toString().replace(parsedUri.getUserInfo() + "@", "");
-            }
-            if (getDriverClassName() == null) {
-                this.driverName = Drivers.getDriverFor(parsedUri.getScheme()).driverClassName();
-            }
+        if (this.uri != null || (this.uris != null && uris.length >= 1)) {
+            parseAndSetParametersFromURI();
         } else {
             this.driverName = Drivers.EMBEDDED.driverClassName();
         }
@@ -123,6 +109,38 @@ public class Configuration {
             }
             credentials = new UsernamePasswordCredentials(builder.username, builder.password);
         }
+    }
+
+    private void parseAndSetParametersFromURI() {
+        URI parsedUri;
+        try {
+            parsedUri = getSingleURI();
+            if (parsedUri == null) {
+                return;
+            }
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Could not configure supplied URI in Configuration", e);
+        }
+        String userInfo = parsedUri.getUserInfo();
+        if (userInfo != null) {
+            String[] userPass = userInfo.split(":");
+            credentials = new UsernamePasswordCredentials(userPass[0], userPass[1]);
+            this.uri = parsedUri.toString().replace(parsedUri.getUserInfo() + "@", "");
+        }
+        if (getDriverClassName() == null) {
+            this.driverName = Drivers.getDriverFor(parsedUri.getScheme()).driverClassName();
+        }
+    }
+
+    private URI getSingleURI() throws URISyntaxException {
+
+        if (uri != null) {
+            return new URI(uri);
+        }
+        if (uris != null && uris.length >= 1) {
+            return new URI(uris[0]);
+        }
+        return null;
     }
 
     public AutoIndexMode getAutoIndex() {

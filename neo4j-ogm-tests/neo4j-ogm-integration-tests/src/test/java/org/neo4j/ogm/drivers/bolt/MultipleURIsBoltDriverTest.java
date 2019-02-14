@@ -20,10 +20,8 @@ package org.neo4j.ogm.drivers.bolt;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
-import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.SessionFactory;
 
@@ -33,7 +31,7 @@ import org.neo4j.ogm.session.SessionFactory;
 public class MultipleURIsBoltDriverTest {
 
     @Test
-    public void throwCorrectExceptionOnUnavailableCluster() throws Exception {
+    public void throwCorrectExceptionOnUnavailableCluster() {
 
         Configuration configuration = new Configuration.Builder()
             .uri("bolt+routing://localhost:1022")
@@ -48,29 +46,5 @@ public class MultipleURIsBoltDriverTest {
             assertThat(cause).isInstanceOf(ServiceUnavailableException.class);
             assertThat(cause).hasMessage("Failed to discover an available server");
         }
-    }
-
-    @Test
-    @Ignore("this needs local causal cluster running")
-    public void connectToCCUsingConfiguration() throws Exception {
-        Configuration configuration = new Configuration.Builder()
-            .uri("bolt+routing://localhost:1023")
-            .uris(new String[] { "bolt+routing://localhost:7688",
-                "bolt+routing://localhost:7687",
-                "bolt+routing://localhost:7689" })
-            .verifyConnection(true)
-            .build();
-
-        new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
-    }
-
-    @Test
-    @Ignore("this needs local causal cluster running")
-    public void connectToCCUsingProperties() throws Exception {
-        Configuration configuration = new Configuration.Builder(
-            new ClasspathConfigurationSource("ogm-bolt-uris.properties"))
-            .build();
-
-        new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
     }
 }

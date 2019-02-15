@@ -120,6 +120,26 @@ public class BoltDriverConfigurationTest {
     }
 
     @Test
+    public void shouldCallDefaultGraphDatabaseInstantiationWithOneUri() {
+
+        String uriValue ="bolt+routing://somewhere1";
+        URI uri = URI.create(uriValue);
+
+        Configuration configuration = new Configuration.Builder()
+            .uri(uriValue)
+            .verifyConnection(true)
+            .build();
+
+        // trigger bolt driver creation
+        new SessionFactory(configuration, "non.existing.package");
+
+        assertThat(configuration.getURI()).isEqualTo(uriValue);
+
+        PowerMockito.verifyStatic(GraphDatabase.class);
+        GraphDatabase.driver(Mockito.eq(uri), Mockito.any(), Mockito.any());
+    }
+
+    @Test
     public void boltDriverJavaDriverInitializationShouldFailIfNoUriOrUrisAreSupplied() {
 
         assertThatThrownBy(() -> new BoltDriver().configure(new Configuration.Builder().verifyConnection(true).build()))

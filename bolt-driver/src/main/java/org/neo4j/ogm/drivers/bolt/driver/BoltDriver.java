@@ -158,8 +158,17 @@ public class BoltDriver extends AbstractConfigurableDriver {
         }
     }
 
+    /**
+     * It is a routing config if at least two URIs are defined.
+     * Either URI and at least one value in URIS or two URIS.
+     *
+     * @return true, if more than one URI are defined in all URI related properties. Otherwise false.
+     */
     private boolean isRoutingConfig() {
-        return configuration.getURIS() != null && (configuration.getURIS().length > 1 || configuration.getURI() != null);
+        String[] uris = configuration.getURIS();
+        String uri = configuration.getURI();
+
+        return uris != null && (uri == null && uris.length > 1 || uri != null && uris.length >= 1);
     }
 
     private List<URI> getMergedURIs() {

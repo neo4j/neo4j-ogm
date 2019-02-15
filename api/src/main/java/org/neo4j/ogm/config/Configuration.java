@@ -97,8 +97,10 @@ public class Configuration {
         this.useNativeTypes = builder.useNativeTypes;
         this.basePackages = builder.basePackages;
 
-        if (this.uri != null || (this.uris != null && uris.length >= 1)) {
-            parseAndSetParametersFromURI();
+        URI parsedUri = getSingleURI();
+
+        if (parsedUri != null) {
+            parseAndSetParametersFromURI(parsedUri);
         } else {
             this.driverName = Drivers.EMBEDDED.driverClassName();
         }
@@ -111,16 +113,7 @@ public class Configuration {
         }
     }
 
-    private void parseAndSetParametersFromURI() {
-        URI parsedUri;
-        try {
-            parsedUri = getSingleURI();
-            if (parsedUri == null) {
-                return;
-            }
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Could not configure supplied URI in Configuration", e);
-        }
+    private void parseAndSetParametersFromURI(URI parsedUri) {
         String userInfo = parsedUri.getUserInfo();
         if (userInfo != null) {
             String[] userPass = userInfo.split(":");
@@ -132,13 +125,17 @@ public class Configuration {
         }
     }
 
-    private URI getSingleURI() throws URISyntaxException {
+    private URI getSingleURI() {
+        try {
 
-        if (uri != null) {
-            return new URI(uri);
-        }
-        if (uris != null && uris.length >= 1) {
-            return new URI(uris[0]);
+            if (uri != null) {
+                return new URI(uri);
+            }
+            if (uris != null && uris.length >= 1) {
+                return new URI(uris[0]);
+            }
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Could not configure supplied URI in Configuration", e);
         }
         return null;
     }
@@ -286,23 +283,6 @@ public class Configuration {
     @SuppressWarnings("HiddenField")
     public static class Builder {
 
-        public static Builder copy(Builder builder) {
-            return new Builder()
-                .uri(builder.uri)
-                .connectionPoolSize(builder.connectionPoolSize)
-                .encryptionLevel(builder.encryptionLevel)
-                .trustStrategy(builder.trustStrategy)
-                .trustCertFile(builder.trustCertFile)
-                .connectionLivenessCheckTimeout(builder.connectionLivenessCheckTimeout)
-                .verifyConnection(builder.verifyConnection)
-                .autoIndex(builder.autoIndex)
-                .generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
-                .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
-                .neo4jConfLocation(builder.neo4jConfLocation)
-                .credentials(builder.username, builder.password)
-                .customProperties(new HashMap<>(builder.customProperties));
-        }
-
         // Those are the keys inside ogm.properties, not configuration values.
         private static final String URI = "URI";
         private static final String URIS = "URIS";
@@ -320,7 +300,6 @@ public class Configuration {
         private static final String NEO4J_CONF_LOCATION = "neo4j.conf.location";
         private static final String USE_NATIVE_TYPES = "use-native-types";
         private static final String BASE_PACKAGES = "base-packages";
-
         private String uri;
         private String[] uris;
         private Integer connectionPoolSize;
@@ -338,7 +317,6 @@ public class Configuration {
         private boolean useNativeTypes;
         private Map<String, Object> customProperties = new HashMap<>();
         private String[] basePackages;
-
         /**
          * Creates new Configuration builder
          * Use for Java configuration.
@@ -406,6 +384,23 @@ public class Configuration {
                         LOGGER.warn("Could not process property with key: {}", entry.getKey());
                 }
             }
+        }
+
+        public static Builder copy(Builder builder) {
+            return new Builder()
+                .uri(builder.uri)
+                .connectionPoolSize(builder.connectionPoolSize)
+                .encryptionLevel(builder.encryptionLevel)
+                .trustStrategy(builder.trustStrategy)
+                .trustCertFile(builder.trustCertFile)
+                .connectionLivenessCheckTimeout(builder.connectionLivenessCheckTimeout)
+                .verifyConnection(builder.verifyConnection)
+                .autoIndex(builder.autoIndex)
+                .generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
+                .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
+                .neo4jConfLocation(builder.neo4jConfLocation)
+                .credentials(builder.username, builder.password)
+                .customProperties(new HashMap<>(builder.customProperties));
         }
 
         private static String[] splitValue(Object value) {
@@ -553,8 +548,8 @@ public class Configuration {
          * Neo4j-OGM: They have been stored traditionally as a string in an ISO-8601 format and need to be converted in the
          * database to their native representation as well.
          *
-         * @since 3.2
          * @return tbe changed builder
+         * @since 3.2
          */
         public Builder useNativeTypes() {
             this.useNativeTypes = true;
@@ -565,9 +560,8 @@ public class Configuration {
          * Creates a new builder with a list of base packages to scan.
          *
          * @param basePackages The new base backages.
-         * @return The modified builder.
-         * @since 3.2
          * @return tbe changed builder
+         * @since 3.2
          */
         public Builder withBasePackages(String... basePackages) {
             this.basePackages = basePackages;

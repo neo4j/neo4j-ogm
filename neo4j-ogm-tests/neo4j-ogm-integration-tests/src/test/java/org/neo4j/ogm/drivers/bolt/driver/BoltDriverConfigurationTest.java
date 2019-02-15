@@ -27,8 +27,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mockito;
-import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.SessionFactory;
@@ -46,8 +46,9 @@ public class BoltDriverConfigurationTest {
     @Before
     public void setup() {
         PowerMockito.mockStatic(GraphDatabase.class);
-        Driver driverMock = Mockito.mock(Driver.class);
-        Mockito.when(GraphDatabase.routingDriver(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(driverMock);
+        Mockito
+            .when(GraphDatabase.routingDriver(Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenAnswer(Answers.RETURNS_MOCKS);
     }
 
     @Test

@@ -37,6 +37,11 @@ To use clustering, simply configure your Bolt URI to use the bolt routing protoc
 ----
 URI=bolt+routing://instance0 <1>
 ----
+or
+[source, configs]
+----
+URIS=bolt+routing://instance0 <1>
+----
 <1> `instance0` must be one of your core cluster group (that accepts reads and writes).
 
 
@@ -50,20 +55,14 @@ In this section we go through important points to be aware of when using causal 
 * Use bookmarks to read your own writes
 * Plan for failure
 
-=== Hardware and cluster configuration
+=== Cluster configuration
 
-Hardware, and particularly network, can have a great impact on cluster stability.
-The deployment scenario also plays a critical role.
-It has to be carefully chosen, each configuration having it strengths and weaknesses.
+Please read the https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/[causal cluster reference] to plan the best topology according to your needs.
 
-Please read carefully the https://neo4j.com/docs/operations-manual/current/clustering/causal-clustering/[causal cluster reference] to plan the best topology according to your needs.
-
-// ideally we should link to clustering recommandations on the Neo4j website for network sizing
-
-You can also provide additional core instances in `URIS` property, separated by a comma.
-The `URI` property still needs to be set and will be tried first, followed by entries from `URIS` property.
+You can provide additional core instances in `URIS` property, separated by a comma.
+The `URI` property is optional as long as all URIs are provided in the `URIS` property.
 Same credentials are used for all instances.
-All listed instances must be core servers.
+Please keep in mind that all listed instances must be core servers.
 
 [source, configs]
 ----

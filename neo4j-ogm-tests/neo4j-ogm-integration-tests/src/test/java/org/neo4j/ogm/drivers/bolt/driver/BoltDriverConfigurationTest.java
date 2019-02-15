@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.config;
+package org.neo4j.ogm.drivers.bolt.driver;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.SessionFactory;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -41,7 +41,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(GraphDatabase.class)
-public class DriverConfigurationTest {
+public class BoltDriverConfigurationTest {
 
     @Before
     public void setup() {

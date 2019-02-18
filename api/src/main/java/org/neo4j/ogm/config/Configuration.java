@@ -426,7 +426,7 @@ public class Configuration {
          * bolt for BoltDriver).
          *
          * @param uri uri of the database
-         * @return tbe changed builder
+         * @return the changed builder
          */
         public Builder uri(String uri) {
             this.uri = uri;
@@ -438,7 +438,7 @@ public class Configuration {
          * (including one specified in uri property)
          *
          * @param uris uris
-         * @return tbe changed builder
+         * @return the changed builder
          */
         public Builder uris(String[] uris) {
             this.uris = uris;
@@ -450,7 +450,7 @@ public class Configuration {
          * Valid only for http and bolt drivers
          *
          * @param connectionPoolSize number of connections to the database
-         * @return tbe changed builder
+         * @return the changed builder
          */
         public Builder connectionPoolSize(Integer connectionPoolSize) {
             this.connectionPoolSize = connectionPoolSize;
@@ -462,7 +462,7 @@ public class Configuration {
          * See org.neo4j.driver.v1.Config.EncryptionLevel for possible values.
          *
          * @param encryptionLevel required encryption level
-         * @return tbe changed builder
+         * @return the changed builder
          */
         public Builder encryptionLevel(String encryptionLevel) {
             this.encryptionLevel = encryptionLevel;
@@ -493,7 +493,7 @@ public class Configuration {
          * If set to false the driver will be created when first Session is requested from SessionFactory
          *
          * @param verifyConnection if the connection to the database should be verified, default is false
-         * @return tbe changed builder
+         * @return the changed builder
          */
         public Builder verifyConnection(Boolean verifyConnection) {
             this.verifyConnection = verifyConnection;
@@ -504,7 +504,7 @@ public class Configuration {
          * Auto index config, for possible values see {@link org.neo4j.ogm.config.AutoIndexMode}
          *
          * @param autoIndex auto index config
-         * @return tbe changed builder
+         * @return the changed builder
          */
         public Builder autoIndex(String autoIndex) {
             this.autoIndex = autoIndex;
@@ -548,7 +548,7 @@ public class Configuration {
          * Neo4j-OGM: They have been stored traditionally as a string in an ISO-8601 format and need to be converted in the
          * database to their native representation as well.
          *
-         * @return tbe changed builder
+         * @return the changed builder
          * @since 3.2
          */
         public Builder useNativeTypes() {
@@ -560,7 +560,7 @@ public class Configuration {
          * Creates a new builder with a list of base packages to scan.
          *
          * @param basePackages The new base backages.
-         * @return tbe changed builder
+         * @return the changed builder
          * @since 3.2
          */
         public Builder withBasePackages(String... basePackages) {
@@ -577,7 +577,7 @@ public class Configuration {
          *
          * @param username username
          * @param password password
-         * @return tbe changed builder
+         * @return the changed builder
          */
         public Builder credentials(String username, String password) {
             this.username = username;

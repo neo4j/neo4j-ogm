@@ -20,18 +20,14 @@ package org.neo4j.ogm.config;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
 import org.junit.Test;
 
 /**
- * @author vince
+ * @author Vince Bickers
  * @author Michael J. Simons
+ * @author Gerrit Meier
  */
 public class ConfigurationTest {
 
@@ -82,90 +78,12 @@ public class ConfigurationTest {
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("ZnJhbnRpxaFlazpQYXNzMTIz");
     }
 
-    @Test
-    public void shouldConfigureFromSimplePropertiesFile() {
-        Configuration configuration = new Configuration.Builder(
-            new ClasspathConfigurationSource("ogm-simple.properties")).build();
 
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
-        assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
-        assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
-        assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
-        assertThat(configuration.getBasePackages()).isEqualTo(new String[] {"org.neo4j.ogm.domain.bike"});
-        assertThat(configuration.getUseNativeTypes()).isEqualTo(Boolean.TRUE);
-    }
-
-    @Test
-    public void shouldConfigureFromFilesystemPropertiesFilePath() throws Exception {
-        File file = new File(getConfigFileAsRelativePath());
-        FileConfigurationSource source = new FileConfigurationSource(file.getAbsolutePath());
-        Configuration configuration = new Configuration.Builder(source).build();
-
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
-        assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
-        assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
-        assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
-    }
-
-    @Test
-    public void shouldConfigureFromFilesystemPropertiesFileURI() throws Exception {
-        File file = new File(getConfigFileAsRelativePath());
-        FileConfigurationSource source = new FileConfigurationSource(file.toURI().toString());
-        Configuration configuration = new Configuration.Builder(source).build();
-
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
-        assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
-        assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
-        assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
-    }
-
-    private String getConfigFileAsRelativePath() {
-        try {
-            // Copy ogm-simple to temp file - the file is only inside jar on TeamCity, we need regular file
-
-            File tempFile = File.createTempFile("ogm-simple", ".properties");
-            try (InputStream in = ConfigurationTest.class.getResourceAsStream("/ogm-simple.properties")) {
-                Files.copy(in, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                tempFile.deleteOnExit();
-            }
-            return tempFile.getPath();
-        } catch (IOException e) {
-            throw new RuntimeException("Could not create temp ogm-simple.properties", e);
-        }
-    }
 
     @Test(expected = RuntimeException.class)
     public void uriWithNoScheme() {
         Configuration configuration = new Configuration.Builder().uri("target/noe4j/my.db").build();
         fail("Should have thrown a runtime exception about a missing URI Scheme");
-    }
-
-    @Test
-    public void shouldConfigureFromNameSpacePropertiesFile() {
-
-        Configuration configuration = new Configuration.Builder(
-            new ClasspathConfigurationSource("ogm-namespace.properties")).build();
-
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.DUMP);
-        assertThat(configuration.getDumpDir()).isEqualTo("hello");
-        assertThat(configuration.getDumpFilename()).isEqualTo("generated-indexes2.cql");
-        assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
-        assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
-        assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
-        assertThat(configuration.getConnectionPoolSize()).isEqualTo(100);
-        assertThat(configuration.getEncryptionLevel()).isEqualTo("NONE");
-        assertThat(configuration.getTrustStrategy()).isEqualTo("TRUST_ON_FIRST_USE");
-        assertThat(configuration.getTrustCertFile()).isEqualTo("/tmp/cert");
-    }
-
-    @Test
-    public void shouldConfigureFromUsernamePasswordProperties() {
-
-        Configuration configuration = new Configuration.Builder(
-            new ClasspathConfigurationSource("ogm-password.properties")).build();
-
-        assertThat(((UsernamePasswordCredentials) configuration.getCredentials()).getUsername()).isEqualTo("azerty");
-        assertThat(((UsernamePasswordCredentials) configuration.getCredentials()).getPassword()).isEqualTo("uiop");
     }
 
     @Test
@@ -179,18 +97,6 @@ public class ConfigurationTest {
         assertThat(basic).isNotNull();
         assertThat(basic.getUsername()).isEqualTo(username);
         assertThat(basic.getPassword()).isEqualTo(password);
-    }
-
-    @Test
-    public void shouldConfigureFromSpringBootPropertiesFile() {
-
-        Configuration configuration = new Configuration.Builder(
-            new ClasspathConfigurationSource("application.properties")).build();
-
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
-        assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
-        assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
-        assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
     }
 
     @Test

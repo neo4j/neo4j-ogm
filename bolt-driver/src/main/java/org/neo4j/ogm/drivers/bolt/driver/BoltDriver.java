@@ -135,10 +135,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
             if (credentials != null) {
                 UsernamePasswordCredentials usernameAndPassword = (UsernamePasswordCredentials) this.credentials;
                 AuthToken authToken = AuthTokens.basic(usernameAndPassword.getUsername(), usernameAndPassword.getPassword());
-                boltDriver = createDriver(configuration, authToken);
+                boltDriver = createDriver(authToken);
             } else {
                 try {
-                    boltDriver = createDriver(configuration, AuthTokens.none());
+                    boltDriver = createDriver(AuthTokens.none());
                 } catch (ServiceUnavailableException e) {
                     throw new ConnectionException(serviceUnavailableMessage, e);
                 }
@@ -149,19 +149,59 @@ public class BoltDriver extends AbstractConfigurableDriver {
         }
     }
 
-    private Driver createDriver(Configuration config, AuthToken authToken) {
+    private Driver createDriver(AuthToken authToken) {
 
-        if (config.getURIS() == null) {
-            return GraphDatabase.driver(config.getURI(), authToken, driverConfig);
+        if (isRoutingConfig()) {
+            return GraphDatabase.routingDriver(getMergedURIs(), authToken, driverConfig);
         } else {
-            List<URI> uris = new ArrayList<>();
-            uris.add(URI.create(config.getURI()));
-            for (String additionalURI : config.getURIS()) {
-                uris.add(URI.create(additionalURI));
-            }
-
-            return GraphDatabase.routingDriver(uris, authToken, driverConfig);
+            return GraphDatabase.driver(getSingleURI(), authToken, driverConfig);
         }
+    }
+
+    /**
+     * It is a routing config if at least two URIs are defined.
+     * Either URI and at least one value in URIS or two URIS.
+     *
+     * @return true, if more than one URI are defined in all URI related properties. Otherwise false.
+     */
+    private boolean isRoutingConfig() {
+        String[] uris = configuration.getURIS();
+        String uri = configuration.getURI();
+
+        return uris != null && (uri == null && uris.length > 1 || uri != null && uris.length >= 1);
+    }
+
+    private List<URI> getMergedURIs() {
+        List<URI> mergedUris = new ArrayList<>();
+        String uri = configuration.getURI();
+        String[] uris = configuration.getURIS();
+
+        if (uri != null) {
+            mergedUris.add(URI.create(uri));
+        }
+        if (uris != null) {
+            for (String routingUri : uris) {
+                mergedUris.add(URI.create(routingUri));
+            }
+        }
+
+        return mergedUris;
+    }
+
+    private URI getSingleURI() {
+
+        if (configuration.getURI() != null) {
+            return URI.create(configuration.getURI());
+        }
+
+        // if no URI was provided take the first argument from the URI list
+        String[] uris = configuration.getURIS();
+        if (uris == null || configuration.getURIS().length == 0) {
+            throw new IllegalArgumentException(
+                "You must provide either an URI or at least one URI in the URIS parameter.");
+        }
+
+        return URI.create(configuration.getURIS()[0]);
     }
 
     @Override

@@ -96,22 +96,11 @@ public class Configuration {
         this.neo4jConfLocation = builder.neo4jConfLocation;
         this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
         this.customProperties = builder.customProperties;
-        if (this.uri != null) {
-            java.net.URI uri = null;
-            try {
-                uri = new URI(this.uri);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException("Could not configure supplied URI in Configuration", e);
-            }
-            String userInfo = uri.getUserInfo();
-            if (userInfo != null) {
-                String[] userPass = userInfo.split(":");
-                credentials = new UsernamePasswordCredentials(userPass[0], userPass[1]);
-                this.uri = uri.toString().replace(uri.getUserInfo() + "@", "");
-            }
-            if (getDriverClassName() == null) {
-                this.driverName = Drivers.getDriverFor(uri.getScheme()).driverClassName();
-            }
+
+        URI parsedUri = getSingleURI();
+
+        if (parsedUri != null) {
+            parseAndSetParametersFromURI(parsedUri);
         } else {
             this.driverName = Drivers.EMBEDDED.driverClassName();
         }
@@ -122,6 +111,33 @@ public class Configuration {
             }
             credentials = new UsernamePasswordCredentials(builder.username, builder.password);
         }
+    }
+
+    private void parseAndSetParametersFromURI(URI parsedUri) {
+        String userInfo = parsedUri.getUserInfo();
+        if (userInfo != null) {
+            String[] userPass = userInfo.split(":");
+            credentials = new UsernamePasswordCredentials(userPass[0], userPass[1]);
+            this.uri = parsedUri.toString().replace(parsedUri.getUserInfo() + "@", "");
+        }
+        if (getDriverClassName() == null) {
+            this.driverName = Drivers.getDriverFor(parsedUri.getScheme()).driverClassName();
+        }
+    }
+
+    private URI getSingleURI() {
+        try {
+
+            if (uri != null) {
+                return new URI(uri);
+            }
+            if (uris != null && uris.length >= 1) {
+                return new URI(uris[0]);
+            }
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Could not configure supplied URI in Configuration", e);
+        }
+        return null;
     }
 
     public AutoIndexMode getAutoIndex() {

@@ -30,7 +30,7 @@ import org.neo4j.ogm.config.UsernamePasswordCredentials;
  * @author vince
  * @author Michael J. Simons
  */
-public class DriverConfigurationTest {
+public class DriverPropertiesFileConfigurationTest {
 
     @Test
     public void shouldLoadHttpDriverConfigFromPropertiesFile() {
@@ -57,23 +57,4 @@ public class DriverConfigurationTest {
         assertThat(driverConfig.getTrustCertFile()).isEqualTo("/tmp/cert");
     }
 
-    @Test
-    public void shouldSetUsernameAndPasswordCredentialsForBoltProtocol() {
-        String username = "neo4j";
-        String password = "password";
-        Configuration dbConfig = new Configuration.Builder().uri("bolt://" + username + ":" + password + "@localhost")
-            .build();
-        Credentials credentials = dbConfig.getCredentials();
-        UsernamePasswordCredentials basic = (UsernamePasswordCredentials) credentials;
-        assertThat(basic).isNotNull();
-        assertThat(basic.getUsername()).isEqualTo(username);
-        assertThat(basic.getPassword()).isEqualTo(password);
-    }
-
-    @Test
-    public void shouldGetNeo4jHaPropertiesFileFromDriverConfiguration() {
-        Configuration config = new Configuration.Builder(
-            new ClasspathConfigurationSource("embedded.ha.driver.properties")).build();
-        assertThat(config.getNeo4jConfLocation()).isEqualTo("neo4j-ha.properties");
-    }
 }

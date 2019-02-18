@@ -165,6 +165,19 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void shouldSetUsernameAndPasswordCredentialsForBoltProtocol() {
+        String username = "neo4j";
+        String password = "password";
+        Configuration dbConfig = new Configuration.Builder().uri("bolt://" + username + ":" + password + "@localhost")
+            .build();
+        Credentials credentials = dbConfig.getCredentials();
+        UsernamePasswordCredentials basic = (UsernamePasswordCredentials) credentials;
+        assertThat(basic).isNotNull();
+        assertThat(basic.getUsername()).isEqualTo(username);
+        assertThat(basic.getPassword()).isEqualTo(password);
+    }
+
+    @Test
     public void shouldConfigureFromSpringBootPropertiesFile() {
 
         Configuration configuration = new Configuration.Builder(

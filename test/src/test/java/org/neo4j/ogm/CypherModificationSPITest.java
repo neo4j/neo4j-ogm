@@ -35,6 +35,7 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.spi.CypherModificationProvider;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Michael J. Simons
@@ -119,7 +120,7 @@ public class CypherModificationSPITest {
     private static class TestDriver extends AbstractConfigurableDriver {
         // Not interested in any of those.
         @Override
-        public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+        public Transaction newTransaction(TransactionManager transactionManager, Transaction.Type type, Iterable<String> bookmarks) {
             return null;
         }
 
@@ -127,7 +128,7 @@ public class CypherModificationSPITest {
         public void close() {
         }
 
-        @Override public Request request() {
+        @Override public Request request(TransactionManager transactionManager) {
             return null;
         }
     }

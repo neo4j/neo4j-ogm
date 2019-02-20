@@ -37,6 +37,7 @@ import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultGraphModel;
 import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -55,12 +56,12 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+    public Transaction newTransaction(TransactionManager transactionManager, Transaction.Type type, Iterable<String> bookmarks) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public Request request() {
+    public Request request(TransactionManager transactionManager) {
 
         return new Request() {
 

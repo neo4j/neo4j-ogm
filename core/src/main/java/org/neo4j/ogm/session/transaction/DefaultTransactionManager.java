@@ -37,14 +37,11 @@ public class DefaultTransactionManager implements TransactionManager {
     private final Driver driver;
     private final Session session;
 
-    private static final ThreadLocal<Transaction> TRANSACTION_THREAD_LOCAL = new ThreadLocal<>();
+    private final ThreadLocal<Transaction> threadLocalTransaction = new ThreadLocal<>();
 
     public DefaultTransactionManager(Session session, Driver driver) {
         this.driver = driver;
-        this.driver.setTransactionManager(this);
         this.session = session;
-
-        TRANSACTION_THREAD_LOCAL.remove();
     }
 
     /**
@@ -54,7 +51,7 @@ public class DefaultTransactionManager implements TransactionManager {
      * @return a new {@link Transaction}
      */
     public Transaction openTransaction() {
-        AbstractTransaction tx = ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get());
+        AbstractTransaction tx = ((AbstractTransaction) threadLocalTransaction.get());
         if (tx == null) {
             return openTransaction(Transaction.Type.READ_WRITE, emptySet());
         } else {
@@ -69,12 +66,12 @@ public class DefaultTransactionManager implements TransactionManager {
      * @return a new {@link Transaction}
      */
     public Transaction openTransaction(Transaction.Type type, Iterable<String> bookmarks) {
-        if (TRANSACTION_THREAD_LOCAL.get() == null) {
-            TRANSACTION_THREAD_LOCAL.set(driver.newTransaction(type, bookmarks));
+        if (threadLocalTransaction.get() == null) {
+            threadLocalTransaction.set(driver.newTransaction(this, type, bookmarks));
         } else {
-            ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get()).extend(type);
+            ((AbstractTransaction) threadLocalTransaction.get()).extend(type);
         }
-        return TRANSACTION_THREAD_LOCAL.get();
+        return threadLocalTransaction.get();
     }
 
     /**
@@ -95,7 +92,7 @@ public class DefaultTransactionManager implements TransactionManager {
             ((Neo4jSession) session).context().reset(object);
         }
 
-        TRANSACTION_THREAD_LOCAL.remove();
+        threadLocalTransaction.remove();
     }
 
     /**
@@ -110,7 +107,7 @@ public class DefaultTransactionManager implements TransactionManager {
         if (tx != getCurrentTransaction()) {
             throw new TransactionManagerException("Transaction is not current for this thread");
         }
-        TRANSACTION_THREAD_LOCAL.remove();
+        threadLocalTransaction.remove();
     }
 
     /**
@@ -119,16 +116,16 @@ public class DefaultTransactionManager implements TransactionManager {
      * @return this thread's TRANSACTION_THREAD_LOCAL
      */
     public Transaction getCurrentTransaction() {
-        return TRANSACTION_THREAD_LOCAL.get();
+        return threadLocalTransaction.get();
     }
 
     public boolean canCommit() {
 
-        if (getCurrentTransaction() == null) {
+        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
+
+        if (tx == null) {
             return false;
         }
-
-        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
 
         if (tx.extensions() == 0) {
             if (tx.status() == Transaction.Status.COMMIT_PENDING || tx.status() == Transaction.Status.OPEN
@@ -141,11 +138,11 @@ public class DefaultTransactionManager implements TransactionManager {
 
     public boolean canRollback() {
 
-        if (getCurrentTransaction() == null) {
+        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
+
+        if (tx == null) {
             return false;
         }
-
-        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
 
         if (tx.extensions() == 0) {
             if (tx.status() == Transaction.Status.ROLLBACK_PENDING || tx.status() == Transaction.Status.COMMIT_PENDING
@@ -166,10 +163,10 @@ public class DefaultTransactionManager implements TransactionManager {
     // this is for testing purposes only
     public void reinstate(AbstractTransaction tx) {
         tx.reOpen();
-        TRANSACTION_THREAD_LOCAL.set(tx);
+        threadLocalTransaction.set(tx);
     }
 
     public void clear() {
-        TRANSACTION_THREAD_LOCAL.remove();
+        threadLocalTransaction.remove();
     }
 }

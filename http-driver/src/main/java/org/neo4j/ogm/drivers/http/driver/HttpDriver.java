@@ -54,6 +54,7 @@ import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +86,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
         if (config.getVerifyConnection()) {
             httpClient();
 
-            HttpRequest request = new HttpRequest(httpClient(), requestUrl(), configuration.getCredentials(), true);
+            HttpRequest request = new HttpRequest(httpClient(), requestUrl(null), configuration.getCredentials(), true);
             request.execute(new VerifyRequest());
         }
     }
@@ -103,17 +104,17 @@ public final class HttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Request request() {
+    public Request request(TransactionManager transactionManager) {
         Transaction tx = transactionManager.getCurrentTransaction();
         if (tx == null) {
-            return new HttpRequest(httpClient(), requestUrl(), configuration.getCredentials());
+            return new HttpRequest(httpClient(), requestUrl(transactionManager), configuration.getCredentials());
         } else {
-            return new HttpRequest(httpClient(), requestUrl(), configuration.getCredentials(), tx.isReadOnly());
+            return new HttpRequest(httpClient(), requestUrl(transactionManager), configuration.getCredentials(), tx.isReadOnly());
         }
     }
 
     @Override
-    public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+    public Transaction newTransaction(TransactionManager transactionManager, Transaction.Type type, Iterable<String> bookmarks) {
         if (bookmarks != null && bookmarks.iterator().hasNext()) {
             LOGGER.warn("Passing bookmarks {} to HttpDriver. This is not currently supported.", bookmarks);
         }
@@ -175,7 +176,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
         return url + "db/data/transaction";
     }
 
-    private String requestUrl() {
+    private String requestUrl(TransactionManager transactionManager) {
         if (transactionManager != null) {
             Transaction tx = transactionManager.getCurrentTransaction();
             if (tx != null) {
@@ -193,7 +194,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
         return autoCommitUrl();
     }
 
-    public boolean readOnly() {
+    public boolean readOnly(TransactionManager transactionManager) {
         if (transactionManager != null) {
             Transaction tx = transactionManager.getCurrentTransaction();
             if (tx != null) {

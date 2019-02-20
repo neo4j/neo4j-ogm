@@ -50,6 +50,7 @@ import org.neo4j.ogm.driver.ParameterConversion;
 import org.neo4j.ogm.driver.ParameterConversionMode;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,11 +108,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+    public Transaction newTransaction(TransactionManager transactionManager, Transaction.Type type, Iterable<String> bookmarks) {
         checkDriverInitialized();
         Session session = newSession(type,
             bookmarks); //A bolt session can have at most one transaction running at a time
-        return new BoltTransaction(transactionManager, nativeTransaction(session), session, type);
+        return new BoltTransaction(transactionManager, nativeTransaction(transactionManager, session), session, type);
     }
 
     private void checkDriverInitialized() {
@@ -215,7 +216,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Request request() {
+    public Request request(TransactionManager transactionManager) {
         return new BoltRequest(transactionManager, getParameterConversion(), getCypherModification());
     }
 
@@ -247,7 +248,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return boltSession;
     }
 
-    private org.neo4j.driver.v1.Transaction nativeTransaction(Session session) {
+    private org.neo4j.driver.v1.Transaction nativeTransaction(TransactionManager transactionManager, Session session) {
 
         org.neo4j.driver.v1.Transaction nativeTransaction;
 

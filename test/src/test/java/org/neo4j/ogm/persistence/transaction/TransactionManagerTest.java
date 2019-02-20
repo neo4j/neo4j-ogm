@@ -78,7 +78,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Ignore("What's the rationale of this test ? Actually leaves tx in an inconsistent state")
     public void shouldFailCommitFreeTransactionInManagedContext() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, sessionFactory.getDriver());
-        try (Transaction tx = sessionFactory.getDriver().newTransaction(Transaction.Type.READ_WRITE, null)) {
+        try (Transaction tx = sessionFactory.getDriver().newTransaction(transactionManager, Transaction.Type.READ_WRITE, null)) {
             transactionManager.commit(tx);
         }
     }
@@ -87,7 +87,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Ignore("What's the rationale of this test ? Actually leaves tx in an inconsistent state")
     public void shouldFailRollbackFreeTransactionInManagedContext() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, sessionFactory.getDriver());
-        try (Transaction tx = sessionFactory.getDriver().newTransaction(Transaction.Type.READ_WRITE, null)) {
+        try (Transaction tx = sessionFactory.getDriver().newTransaction(transactionManager, Transaction.Type.READ_WRITE, null)) {
             transactionManager.rollback(tx);
         }
     }

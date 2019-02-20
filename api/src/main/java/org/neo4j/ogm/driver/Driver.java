@@ -41,13 +41,11 @@ public interface Driver extends AutoCloseable {
      *                  by bolt driver
      * @return new transaction
      */
-    Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks);
+    Transaction newTransaction(TransactionManager transactionManager, Transaction.Type type, Iterable<String> bookmarks);
 
     void close();
 
-    Request request();
-
-    void setTransactionManager(TransactionManager tx);
+    Request request(TransactionManager transactionManager);
 
     Configuration getConfiguration();
 

@@ -50,6 +50,7 @@ import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.support.ResourceUtils;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,11 +172,11 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+    public Transaction newTransaction(TransactionManager transactionManager, Transaction.Type type, Iterable<String> bookmarks) {
         if (bookmarks != null && bookmarks.iterator().hasNext()) {
             logger.warn("Passing bookmarks {} to EmbeddedDriver. This is not currently supported.", bookmarks);
         }
-        return new EmbeddedTransaction(transactionManager, nativeTransaction(), type);
+        return new EmbeddedTransaction(transactionManager, nativeTransaction(transactionManager), type);
     }
 
     @Override
@@ -193,7 +194,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Request request() {
+    public Request request(TransactionManager transactionManager) {
         return new EmbeddedRequest(graphDatabaseService, transactionManager,
             getParameterConversion(), getCypherModification());
     }
@@ -212,7 +213,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         }
     }
 
-    private org.neo4j.graphdb.Transaction nativeTransaction() {
+    private org.neo4j.graphdb.Transaction nativeTransaction(TransactionManager transactionManager) {
 
         org.neo4j.graphdb.Transaction nativeTransaction;
 

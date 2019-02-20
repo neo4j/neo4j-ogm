@@ -667,7 +667,7 @@ public class Neo4jSession implements Session {
     }
 
     public Request requestHandler() {
-        return driver.request();
+        return driver.request(this.transactionManager());
     }
 
     public DefaultTransactionManager transactionManager() {

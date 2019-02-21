@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QueryStatisticsTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
     private static final Logger logger = LoggerFactory.getLogger(QueryStatisticsTest.class);
 
     private Session session;

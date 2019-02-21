@@ -18,15 +18,9 @@
  */
 package org.neo4j.ogm.testutil;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
@@ -36,20 +30,17 @@ import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.exception.core.ConfigurationException;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.support.FileUtils;
 
 /**
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class MultiDriverTestClass {
 
-    private static TestServer testServer;
-    private static File graphStore;
-    private static Configuration.Builder baseConfiguration;
-    protected static SessionFactory sessionFactory;
-    protected static Driver driver;
+    private final static TestServer testServer;
+    private final static Configuration.Builder baseConfiguration;
+    protected final static Driver driver;
 
     static {
 
@@ -67,24 +58,18 @@ public class MultiDriverTestClass {
         } else if (baseConfiguration.build().getDriverClassName().equals(BoltDriver.class.getCanonicalName())) {
             testServer = new TestServer(true, true, 5);
         } else {
-            graphStore = createTemporaryGraphStore();
+            testServer = null;
         }
-    }
-
-    @BeforeClass
-    public static void setupMultiDriverTestEnvironment() {
 
         if (baseConfiguration.build().getDriverClassName().equals(EmbeddedDriver.class.getCanonicalName())) {
-            baseConfiguration.uri(graphStore.toURI().toString()).build();
+            baseConfiguration.uri(null).build();
         } else {
             baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
         }
 
-        if (driver == null) {
-            Configuration configuration = getBaseConfiguration().build();
-            driver = newDriverInstance(configuration.getDriverClassName());
-            driver.configure(configuration);
-        }
+        Configuration configuration = getBaseConfiguration().build();
+        driver = newDriverInstance(configuration.getDriverClassName());
+        driver.configure(configuration);
     }
 
     private static Driver newDriverInstance(String driverClassName) {
@@ -102,34 +87,14 @@ public class MultiDriverTestClass {
 
     public static GraphDatabaseService getGraphDatabaseService() {
         // if using an embedded config, return the db from the driver
-        if (baseConfiguration.build().getURI().startsWith("file")) {
+        String uri = baseConfiguration.build().getURI();
+        if (uri == null || uri.startsWith("file")) {
             if (driver != null) {
                 return driver.unwrap(GraphDatabaseService.class);
-            } else if (sessionFactory != null) {
-                return sessionFactory.unwrap(GraphDatabaseService.class);
             }
         }
         // else (bolt, http), return just a test server (not really used except for indices ?)
         return testServer.getGraphDatabaseService();
-    }
-
-    private static File createTemporaryGraphStore() {
-        try {
-            Path path = Files.createTempDirectory("graph.db");
-            Path databaseDirectory = Paths.get(path.toFile().getAbsolutePath() + "/database");
-            Files.createDirectories(databaseDirectory);
-
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                try {
-                    FileUtils.deleteDirectory(path);
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to delete temporary files in " + path, e);
-                }
-            }));
-            return databaseDirectory.toFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**

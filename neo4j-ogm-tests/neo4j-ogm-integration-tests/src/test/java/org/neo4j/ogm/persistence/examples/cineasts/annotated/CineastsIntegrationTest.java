@@ -57,6 +57,7 @@ import org.neo4j.ogm.testutil.TestUtils;
  */
 public class CineastsIntegrationTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass

@@ -39,6 +39,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class EnumsScannedTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass

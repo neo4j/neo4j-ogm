@@ -58,6 +58,7 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class BasicDriverTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass

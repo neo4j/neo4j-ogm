@@ -38,6 +38,8 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class GenericCollectionRelationshipsTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     @BeforeClass
     public static void initSesssionFactory() {
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.gh385");

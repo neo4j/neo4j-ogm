@@ -64,6 +64,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class EntityGraphMapperTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
     private EntityMapper mapper;
 
     private static MetaData mappingMetadata;

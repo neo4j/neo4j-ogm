@@ -33,8 +33,8 @@ public class BoltTransactionTest {
     @Test
     public void commitShouldCloseTransactionAndSession() {
         Transaction nativeTx = openTransactionMock();
-        Session nativeSession = openSessionMock();
-        BoltTransaction boltTx = new BoltTransaction(committingTxManager(), nativeTx, nativeSession, READ_ONLY);
+        Session nativeSession = openSessionMock(nativeTx);
+        BoltTransaction boltTx = new BoltTransaction(committingTxManager(),  nativeSession, READ_ONLY);
 
         boltTx.commit();
 
@@ -46,8 +46,8 @@ public class BoltTransactionTest {
     @Test
     public void commitShouldCloseSessionWhenTransactionIsClosed() {
         Transaction nativeTx = closedTransactionMock();
-        Session nativeSession = openSessionMock();
-        BoltTransaction boltTx = new BoltTransaction(committingTxManager(), nativeTx, nativeSession, READ_ONLY);
+        Session nativeSession = openSessionMock(nativeTx);
+        BoltTransaction boltTx = new BoltTransaction(committingTxManager(),  nativeSession, READ_ONLY);
 
         try {
             boltTx.commit();
@@ -63,8 +63,8 @@ public class BoltTransactionTest {
     public void commitShouldCloseSessionWhenTransactionCloseThrows() {
         Transaction nativeTx = openTransactionMock();
         doThrow(new RuntimeException("Close failed")).when(nativeTx).close();
-        Session nativeSession = openSessionMock();
-        BoltTransaction boltTx = new BoltTransaction(committingTxManager(), nativeTx, nativeSession, READ_ONLY);
+        Session nativeSession = openSessionMock(nativeTx);
+        BoltTransaction boltTx = new BoltTransaction(committingTxManager(), nativeSession, READ_ONLY);
 
         try {
             boltTx.commit();
@@ -79,8 +79,8 @@ public class BoltTransactionTest {
     @Test
     public void rollbackShouldCloseTransactionAndSession() {
         Transaction nativeTx = openTransactionMock();
-        Session nativeSession = openSessionMock();
-        BoltTransaction boltTx = new BoltTransaction(rollingBackTxManager(), nativeTx, nativeSession, READ_ONLY);
+        Session nativeSession = openSessionMock(nativeTx);
+        BoltTransaction boltTx = new BoltTransaction(rollingBackTxManager(), nativeSession, READ_ONLY);
 
         boltTx.rollback();
 
@@ -92,8 +92,8 @@ public class BoltTransactionTest {
     @Test
     public void rollbackShouldCloseSessionWhenTransactionIsClosed() {
         Transaction nativeTx = closedTransactionMock();
-        Session nativeSession = openSessionMock();
-        BoltTransaction boltTx = new BoltTransaction(rollingBackTxManager(), nativeTx, nativeSession, READ_ONLY);
+        Session nativeSession = openSessionMock(nativeTx);
+        BoltTransaction boltTx = new BoltTransaction(rollingBackTxManager(), nativeSession, READ_ONLY);
 
         boltTx.rollback();
 
@@ -105,8 +105,8 @@ public class BoltTransactionTest {
     public void rollbackShouldCloseSessionWhenTransactionCloseThrows() {
         Transaction nativeTx = openTransactionMock();
         doThrow(new RuntimeException("Close failed")).when(nativeTx).close();
-        Session nativeSession = openSessionMock();
-        BoltTransaction boltTx = new BoltTransaction(rollingBackTxManager(), nativeTx, nativeSession, READ_ONLY);
+        Session nativeSession = openSessionMock(nativeTx);
+        BoltTransaction boltTx = new BoltTransaction(rollingBackTxManager(), nativeSession, READ_ONLY);
 
         try {
             boltTx.rollback();
@@ -118,9 +118,10 @@ public class BoltTransactionTest {
         verify(nativeSession).close();
     }
 
-    private static Session openSessionMock() {
+    private static Session openSessionMock(Transaction nativeTx) {
         Session session = mock(Session.class);
         when(session.isOpen()).thenReturn(true);
+        when(session.beginTransaction()).thenReturn(nativeTx);
         return session;
     }
 

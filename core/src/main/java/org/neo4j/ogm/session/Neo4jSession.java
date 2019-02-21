@@ -104,7 +104,7 @@ public class Neo4jSession implements Session {
         this.driver = driver;
 
         this.mappingContext = new MappingContext(metaData);
-        this.txManager = new DefaultTransactionManager(this, driver);
+        this.txManager = new DefaultTransactionManager(this, driver.getTransactionFactorySupplier());
         this.loadStrategy = LoadStrategy.PATH_LOAD_STRATEGY;
         this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
     }
@@ -661,7 +661,7 @@ public class Neo4jSession implements Session {
     }
 
     public Request requestHandler() {
-        return driver.request();
+        return driver.request(this.txManager.getCurrentTransaction());
     }
 
     public void warn(String msg) {

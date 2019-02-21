@@ -28,7 +28,6 @@ import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
@@ -39,9 +38,9 @@ public class RestModelResponse extends EmbeddedResponse<RestModel> {
     private final EmbeddedRestModelAdapter restModelAdapter;
     private final QueryStatisticsModel statisticsModel;
 
-    public RestModelResponse(Result result, TransactionManager transactionManager, EmbeddedEntityAdapter entityAdapter) {
+    public RestModelResponse(Result result, EmbeddedEntityAdapter entityAdapter) {
 
-        super(result, transactionManager);
+        super(result);
 
         this.restModelAdapter = new EmbeddedRestModelAdapter(entityAdapter);
         this.statisticsModel = new StatisticsModelAdapter().adapt(result);

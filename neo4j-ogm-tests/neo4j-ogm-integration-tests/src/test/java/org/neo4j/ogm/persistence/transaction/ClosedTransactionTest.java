@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.persistence.transaction;
 
+import java.lang.reflect.Field;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -29,13 +31,14 @@ import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * This test class defines the behaviour of a transaction which is open
  * on the client, but closed on the server (for whatever reason), under
  * the different scenarios of commit, rollback and close.
  *
- * @author vince
+ * @author Vince Bickers
  * @author Michael J. Simons
  */
 public class ClosedTransactionTest extends MultiDriverTestClass {
@@ -52,19 +55,24 @@ public class ClosedTransactionTest extends MultiDriverTestClass {
 
     @Before
     public void init() {
-        transactionManager = new DefaultTransactionManager(sessionFactory.openSession(), driver);
+        Session session = sessionFactory.openSession();
+        // The session actually has it's own transaction manager, which is btw tied to thread locally to the driver.
+        // We could force get the sessions transaction manager or just create a new one here and tie it to the driver.
+        // Both feel broken, this here a little less painfull, though.
+        transactionManager = new DefaultTransactionManager(session, driver.getTransactionFactorySupplier());
     }
 
     @Before
     public void createTransactionAndCloseOnServerButNotOnClient() {
         tx = transactionManager.openTransaction();
         tx.close();
-        transactionManager.reinstate((AbstractTransaction) tx);
+
+        reOpen(transactionManager, tx);
     }
 
     @After
     public void clearTransactionManager() {
-        transactionManager.clear();
+        getTransactionThreadLocal(transactionManager).remove();
     }
 
     @Test
@@ -80,5 +88,28 @@ public class ClosedTransactionTest extends MultiDriverTestClass {
     @Test(expected = TransactionException.class)
     public void shouldThrowExceptionWhenCommittingAClosedTransaction() {
         tx.commit();
+    }
+
+    private static void reOpen(TransactionManager transactionManager, Transaction transaction) {
+
+        try {
+            Field statusField = AbstractTransaction.class.getDeclaredField("status");
+            statusField.setAccessible(true);
+            statusField.set(transaction, Transaction.Status.OPEN);
+
+            getTransactionThreadLocal(transactionManager).set(transaction);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ThreadLocal<Transaction> getTransactionThreadLocal(TransactionManager transactionManager) {
+        try {
+            Field transactionField = DefaultTransactionManager.class.getDeclaredField("currentThreadLocalTransaction");
+            transactionField.setAccessible(true);
+            return (ThreadLocal<Transaction>) transactionField.get(transactionManager);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

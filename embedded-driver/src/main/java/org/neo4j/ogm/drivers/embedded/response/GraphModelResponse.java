@@ -21,18 +21,17 @@ package org.neo4j.ogm.drivers.embedded.response;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedEntityAdapter;
 import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
- * @author vince
+ * @author Vince Bickers
  */
 public class GraphModelResponse extends EmbeddedResponse<GraphModel> {
 
     private final EmbeddedGraphModelAdapter adapter;
 
-    public GraphModelResponse(Result result, TransactionManager transactionManager, EmbeddedEntityAdapter entityAdapter) {
+    public GraphModelResponse(Result result, EmbeddedEntityAdapter entityAdapter) {
 
-        super(result, transactionManager);
+        super(result);
 
         this.adapter = new EmbeddedGraphModelAdapter(entityAdapter);
     }

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.junit.Test;
@@ -35,6 +36,7 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.spi.CypherModificationProvider;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Michael J. Simons
@@ -117,9 +119,9 @@ public class CypherModificationSPITest {
     }
 
     private static class TestDriver extends AbstractConfigurableDriver {
-        // Not interested in any of those.
+
         @Override
-        public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+        public Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier() {
             return null;
         }
 
@@ -127,7 +129,8 @@ public class CypherModificationSPITest {
         public void close() {
         }
 
-        @Override public Request request() {
+        @Override
+        public Request request(Transaction transaction) {
             return null;
         }
 

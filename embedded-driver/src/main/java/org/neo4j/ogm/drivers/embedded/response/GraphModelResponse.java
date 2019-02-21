@@ -26,14 +26,14 @@ import org.neo4j.ogm.result.adapter.ResultAdapter;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
- * @author vince
+ * @author Vince Bickers
  */
 public class GraphModelResponse extends EmbeddedResponse<GraphModel> {
 
     private final ResultAdapter<Map<String, Object>, GraphModel> adapter = new EmbeddedGraphModelAdapter();
 
-    public GraphModelResponse(Result result, TransactionManager transactionManager) {
-        super(result, transactionManager);
+    public GraphModelResponse(Result result) {
+        super(result);
     }
 
     @Override

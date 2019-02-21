@@ -45,12 +45,11 @@ import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
@@ -59,18 +58,14 @@ public class EmbeddedRequest implements Request {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedRequest.class);
 
     private final GraphDatabaseService graphDatabaseService;
-    private final TransactionManager transactionManager;
     private final ParameterConversion parameterConversion;
 
     private final Function<String, String> cypherModification;
 
-    public EmbeddedRequest(GraphDatabaseService graphDatabaseService,
-        TransactionManager transactionManager,
-        ParameterConversion parameterConversion,
+    public EmbeddedRequest(GraphDatabaseService graphDatabaseService, ParameterConversion parameterConversion,
         Function<String, String> cypherModification
     ) {
         this.graphDatabaseService = graphDatabaseService;
-        this.transactionManager = transactionManager;
         this.parameterConversion = parameterConversion;
         this.cypherModification = cypherModification;
     }
@@ -80,7 +75,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphModelResponse(executeRequest(request), transactionManager);
+        return new GraphModelResponse(executeRequest(request));
     }
 
     @Override
@@ -88,7 +83,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RowModelResponse(executeRequest(request), transactionManager);
+        return new RowModelResponse(executeRequest(request));
     }
 
     @Override
@@ -101,7 +96,7 @@ public class EmbeddedRequest implements Request {
             if (columns == null) {
                 columns = result.columns().toArray(new String[result.columns().size()]);
             }
-            RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager);
+            RowModelResponse rowModelResponse = new RowModelResponse(result);
             RowModel model;
             while ((model = rowModelResponse.next()) != null) {
                 rowmodels.add(model);
@@ -123,9 +118,6 @@ public class EmbeddedRequest implements Request {
 
             @Override
             public void close() {
-                if (transactionManager.getCurrentTransaction() != null) {
-                    LOGGER.debug("Response closed: {}", this);
-                }
             }
 
             @Override
@@ -140,7 +132,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphRowModelResponse(executeRequest(request), transactionManager);
+        return new GraphRowModelResponse(executeRequest(request));
     }
 
     @Override
@@ -148,7 +140,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RestModelResponse(executeRequest(request), transactionManager);
+        return new RestModelResponse(executeRequest(request));
     }
 
     private Result executeRequest(Statement request) {

@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.driver;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.neo4j.ogm.config.Configuration;
@@ -28,6 +29,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
 /**
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public interface Driver extends AutoCloseable {
 
@@ -36,18 +38,49 @@ public interface Driver extends AutoCloseable {
     /**
      * Begins new transaction
      *
+     * @deprecated Since 3.1.8 as it was faulty. Will be removed in 3.2
      * @param type      type of the transaction, see {@link org.neo4j.ogm.transaction.Transaction.Type}
      * @param bookmarks bookmarks to pass to the driver when transaction is started, NOTE: currently supported only
      *                  by bolt driver
      * @return new transaction
      */
-    Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks);
+    @Deprecated
+    default Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @return A factory method for creating suppliers of transactions for a given transaction manager
+     */
+    default Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier() {
+        return transactionManager -> (type, bookmarks) -> null;
+    }
 
     void close();
 
-    Request request();
+    /**
+     * @return A new request handler
+     * @deprecated Since 3.1.8 as it was faulty. Will be removed in 3.2
+     */
+    @Deprecated
+    default Request request() {
+        throw new UnsupportedOperationException();
+    }
 
-    void setTransactionManager(TransactionManager tx);
+    /**
+     * @param transaction Current transaction, may be null, depending on the driver
+     * @return A new request handler
+     */
+    Request request(Transaction transaction);
+
+    /**
+     * @param tx new transaction manager
+     * @deprecated Since 3.1.8 as it was faulty. Will be removed in 3.2
+     */
+    @Deprecated
+    default void setTransactionManager(TransactionManager tx) {
+        throw new UnsupportedOperationException();
+    }
 
     Configuration getConfiguration();
 

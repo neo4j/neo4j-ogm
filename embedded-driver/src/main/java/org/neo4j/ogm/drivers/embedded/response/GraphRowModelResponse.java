@@ -21,17 +21,16 @@ package org.neo4j.ogm.drivers.embedded.response;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
- * @author vince
+ * @author Vince Bickers
  */
 public class GraphRowModelResponse extends EmbeddedResponse<GraphRowListModel> {
 
     private EmbeddedGraphRowModelAdapter adapter = new EmbeddedGraphRowModelAdapter(new EmbeddedGraphModelAdapter());
 
-    public GraphRowModelResponse(Result result, TransactionManager transactionManager) {
-        super(result, transactionManager);
+    public GraphRowModelResponse(Result result) {
+        super(result);
         adapter.setColumns(result.columns());
     }
 

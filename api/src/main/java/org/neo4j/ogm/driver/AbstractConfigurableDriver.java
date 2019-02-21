@@ -55,7 +55,6 @@ public abstract class AbstractConfigurableDriver implements Driver {
         ThreadLocal.withInitial(() -> ServiceLoader.load(CypherModificationProvider.class));
 
     protected Configuration configuration;
-    protected TransactionManager transactionManager;
 
     /**
      * Used for configuring the cypher modification providers. Defaults to {@link #getConfiguration()} and reads the
@@ -84,12 +83,6 @@ public abstract class AbstractConfigurableDriver implements Driver {
     @Override
     public void configure(Configuration config) {
         this.configuration = config;
-    }
-
-    @Override
-    public void setTransactionManager(TransactionManager transactionManager) {
-        assert (transactionManager != null);
-        this.transactionManager = transactionManager;
     }
 
     @Override

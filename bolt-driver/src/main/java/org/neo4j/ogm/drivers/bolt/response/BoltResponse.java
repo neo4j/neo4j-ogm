@@ -25,7 +25,6 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,13 +34,11 @@ import org.slf4j.LoggerFactory;
 public abstract class BoltResponse<T> implements Response {
 
     final StatementResult result;
-    private final TransactionManager transactionManager;
 
     private final Logger LOGGER = LoggerFactory.getLogger(BoltResponse.class);
 
-    BoltResponse(StatementResult result, TransactionManager transactionManager) {
+    BoltResponse(StatementResult result) {
         this.result = result;
-        this.transactionManager = transactionManager;
     }
 
     @Override
@@ -58,11 +55,8 @@ public abstract class BoltResponse<T> implements Response {
 
     @Override
     public void close() {
-        // if there is no current transaction available, the response is already closed.
-        if (transactionManager.getCurrentTransaction() != null) {
-            // release the response resource
-            result.consume();
-        }
+        // Consume the rest of the result and thus closing underlying resources.
+        result.consume();
     }
 
     @Override

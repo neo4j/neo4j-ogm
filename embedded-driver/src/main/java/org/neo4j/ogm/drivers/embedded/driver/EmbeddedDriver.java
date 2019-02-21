@@ -35,6 +35,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -50,11 +52,12 @@ import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.support.ResourceUtils;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
  * @author Michael J. Simons
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {
@@ -171,11 +174,15 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
-        if (bookmarks != null && bookmarks.iterator().hasNext()) {
-            logger.warn("Passing bookmarks {} to EmbeddedDriver. This is not currently supported.", bookmarks);
-        }
-        return new EmbeddedTransaction(transactionManager, nativeTransaction(), type);
+    public Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier() {
+        return transactionManager -> (type, bookmarks) -> {
+            if (bookmarks != null && bookmarks.iterator().hasNext()) {
+                logger.warn("Passing bookmarks {} to EmbeddedDriver. This is not currently supported.", bookmarks);
+            }
+
+            Transaction currentOGMTransaction = transactionManager.getCurrentTransaction();
+            return new EmbeddedTransaction(transactionManager, nativeTransaction(currentOGMTransaction), type);
+        };
     }
 
     @Override
@@ -193,9 +200,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Request request() {
-        return new EmbeddedRequest(graphDatabaseService, transactionManager,
-            getParameterConversion(), getCypherModification());
+    public Request request(Transaction transaction) {
+        return new EmbeddedRequest(graphDatabaseService, getParameterConversion(), getCypherModification());
     }
 
     private ParameterConversion getParameterConversion() {
@@ -212,14 +218,13 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         }
     }
 
-    private org.neo4j.graphdb.Transaction nativeTransaction() {
+    private org.neo4j.graphdb.Transaction nativeTransaction(Transaction currentOGMTransaction) {
 
         org.neo4j.graphdb.Transaction nativeTransaction;
 
-        Transaction tx = transactionManager.getCurrentTransaction();
-        if (tx != null) {
-            logger.debug("Using current transaction: {}", tx);
-            nativeTransaction = ((EmbeddedTransaction) tx).getNativeTransaction();
+        if (currentOGMTransaction != null) {
+            logger.debug("Using current transaction: {}", currentOGMTransaction);
+            nativeTransaction = ((EmbeddedTransaction) currentOGMTransaction).getNativeTransaction();
         } else {
             logger.debug("No current transaction, starting a new one");
             nativeTransaction = graphDatabaseService.beginTx();

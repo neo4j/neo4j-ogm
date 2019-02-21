@@ -47,12 +47,12 @@ import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.transaction.TransactionManager;
+import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
@@ -60,15 +60,15 @@ public class BoltRequest implements Request {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BoltRequest.class);
 
-    private final TransactionManager transactionManager;
+    private final Transaction transaction;
 
     private final ParameterConversion parameterConversion;
 
     private final Function<String, String> cypherModification;
 
-    public BoltRequest(TransactionManager transactionManager, ParameterConversion parameterConversion,
+    public BoltRequest(Transaction transaction, ParameterConversion parameterConversion,
         Function<String, String> cypherModification) {
-        this.transactionManager = transactionManager;
+        this.transaction = transaction;
         this.parameterConversion = parameterConversion;
         this.cypherModification = cypherModification;
     }
@@ -78,7 +78,7 @@ public class BoltRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphModelResponse(executeRequest(request), transactionManager);
+        return new GraphModelResponse(executeRequest(request));
     }
 
     @Override
@@ -87,7 +87,7 @@ public class BoltRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RowModelResponse(executeRequest(request), transactionManager);
+        return new RowModelResponse(executeRequest(request));
     }
 
     @Override
@@ -106,7 +106,7 @@ public class BoltRequest implements Request {
                     throw new CypherException(e.code(), e.getMessage(), e);
                 }
             }
-            try (RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager)) {
+            try (RowModelResponse rowModelResponse = new RowModelResponse(result)) {
                 RowModel model;
                 while ((model = rowModelResponse.next()) != null) {
                     rowModels.add(model);
@@ -155,7 +155,7 @@ public class BoltRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphRowModelResponse(executeRequest(request), transactionManager);
+        return new GraphRowModelResponse(executeRequest(request));
     }
 
     @Override
@@ -163,7 +163,7 @@ public class BoltRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RestModelResponse(executeRequest(request), transactionManager);
+        return new RestModelResponse(executeRequest(request));
     }
 
     private StatementResult executeRequest(Statement request) {
@@ -174,7 +174,7 @@ public class BoltRequest implements Request {
                 LOGGER.debug("Request: {} with params {}", cypher, parameterMap);
             }
 
-            BoltTransaction tx = (BoltTransaction) transactionManager.getCurrentTransaction();
+            BoltTransaction tx = (BoltTransaction) transaction;
             return tx.nativeBoltTransaction().run(cypher, parameterMap);
         } catch (ClientException | DatabaseException | TransientException ce) {
             throw new CypherException(ce.code(), ce.getMessage(), ce);

@@ -24,7 +24,6 @@ import java.util.Map;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
@@ -34,8 +33,8 @@ public class RestModelResponse extends EmbeddedResponse<DefaultRestModel> {
     private EmbeddedRestModelAdapter restModelAdapter = new EmbeddedRestModelAdapter();
     private final QueryStatisticsModel statisticsModel;
 
-    public RestModelResponse(Result result, TransactionManager transactionManager) {
-        super(result, transactionManager);
+    public RestModelResponse(Result result) {
+        super(result);
         statisticsModel = new StatisticsModelAdapter().adapt(result);
     }
 

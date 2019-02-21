@@ -23,17 +23,16 @@ import java.util.Map;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.result.adapter.ResultAdapter;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
- * @author vince
+ * @author Vince Bickers
  */
 public class RowModelResponse extends EmbeddedResponse<RowModel> {
 
     private final ResultAdapter<Map<String, Object>, RowModel> adapter = new EmbeddedRowModelAdapter();
 
-    public RowModelResponse(Result result, TransactionManager transactionManager) {
-        super(result, transactionManager);
+    public RowModelResponse(Result result) {
+        super(result);
         ((EmbeddedRowModelAdapter) adapter).setColumns(result.columns());
     }
 

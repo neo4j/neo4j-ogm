@@ -39,11 +39,25 @@ public class BoltTransaction extends AbstractTransaction {
     private final Session nativeSession;
     private final Logger LOGGER = LoggerFactory.getLogger(BoltTransaction.class);
 
-    public BoltTransaction(TransactionManager transactionManager, Transaction transaction, Session session, Type type) {
+    public BoltTransaction(TransactionManager transactionManager, Session session, Type type) {
         super(transactionManager);
-        this.nativeTransaction = transaction;
         this.nativeSession = session;
+        this.nativeTransaction = newOrExistingNativeTransaction(transactionManager.getCurrentTransaction());
         this.type = type;
+    }
+
+    private Transaction newOrExistingNativeTransaction(org.neo4j.ogm.transaction.Transaction currentOGMTransaction) {
+
+        Transaction nativeTransaction;
+        if (currentOGMTransaction != null) {
+            LOGGER.debug("Using current transaction: {}", currentOGMTransaction);
+            nativeTransaction = ((BoltTransaction) currentOGMTransaction).nativeBoltTransaction();
+        } else {
+            LOGGER.debug("No current transaction, starting a new one");
+            nativeTransaction = nativeSession.beginTransaction();
+        }
+        LOGGER.debug("Native transaction: {}", nativeTransaction);
+        return nativeTransaction;
     }
 
     @Override

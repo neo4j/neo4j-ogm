@@ -26,7 +26,6 @@ import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
@@ -37,8 +36,8 @@ public class RestModelResponse extends BoltResponse<DefaultRestModel> {
     private final QueryStatisticsModel statisticsModel;
     private final Iterator<Record> resultProjection;
 
-    public RestModelResponse(StatementResult result, TransactionManager transactionManager) {
-        super(result, transactionManager);
+    public RestModelResponse(StatementResult result) {
+        super(result);
         this.restModelAdapter = new BoltRestModelAdapter();
         resultProjection = result.list().iterator();
         statisticsModel = new StatisticsModelAdapter().adapt(result);

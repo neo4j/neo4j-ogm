@@ -20,7 +20,9 @@ package org.neo4j.ogm.session.transaction;
 
 import static java.util.Collections.*;
 
-import org.neo4j.ogm.driver.Driver;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import org.neo4j.ogm.exception.core.TransactionManagerException;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
@@ -31,30 +33,28 @@ import org.neo4j.ogm.transaction.TransactionManager;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class DefaultTransactionManager implements TransactionManager {
 
-    private final Driver driver;
     private final Session session;
+    private final BiFunction<Transaction.Type, Iterable<String>, Transaction> transactionFactory;
+    private final ThreadLocal<Transaction> currentThreadLocalTransaction = new ThreadLocal<>();
 
-    private static final ThreadLocal<Transaction> TRANSACTION_THREAD_LOCAL = new ThreadLocal<>();
-
-    public DefaultTransactionManager(Session session, Driver driver) {
-        this.driver = driver;
-        this.driver.setTransactionManager(this);
+    public DefaultTransactionManager(Session session,
+        Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> transactionFactorySupplier) {
         this.session = session;
-
-        TRANSACTION_THREAD_LOCAL.remove();
+        this.transactionFactory = transactionFactorySupplier.apply(this);
     }
 
     /**
-     * Opens a new TRANSACTION_THREAD_LOCAL against a database instance.
-     * Instantiation of the TRANSACTION_THREAD_LOCAL is left to the driver
+     * Opens a new transaction against a database instance.
+     * Instantiation of the transaction is left to the driver
      *
      * @return a new {@link Transaction}
      */
     public Transaction openTransaction() {
-        AbstractTransaction tx = ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get());
+        Transaction tx = currentThreadLocalTransaction.get();
         if (tx == null) {
             return openTransaction(Transaction.Type.READ_WRITE, emptySet());
         } else {
@@ -63,28 +63,28 @@ public class DefaultTransactionManager implements TransactionManager {
     }
 
     /**
-     * Opens a new TRANSACTION_THREAD_LOCAL against a database instance.
-     * Instantiation of the TRANSACTION_THREAD_LOCAL is left to the driver
+     * Opens a new transaction against a database instance.
+     * Instantiation of the transaction is left to the driver
      *
      * @return a new {@link Transaction}
      */
     public Transaction openTransaction(Transaction.Type type, Iterable<String> bookmarks) {
-        if (TRANSACTION_THREAD_LOCAL.get() == null) {
-            TRANSACTION_THREAD_LOCAL.set(driver.newTransaction(type, bookmarks));
+        if (currentThreadLocalTransaction.get() == null) {
+            currentThreadLocalTransaction.set(transactionFactory.apply(type, bookmarks));
         } else {
-            ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get()).extend(type);
+            ((AbstractTransaction) currentThreadLocalTransaction.get()).extend(type);
         }
-        return TRANSACTION_THREAD_LOCAL.get();
+        return currentThreadLocalTransaction.get();
     }
 
     /**
-     * Rolls back the specified TRANSACTION_THREAD_LOCAL.
-     * The actual job of rolling back the TRANSACTION_THREAD_LOCAL is left to the relevant driver. if
-     * this is successful, the TRANSACTION_THREAD_LOCAL is detached from this thread. Any new objects
+     * Rolls back the specified transaction.
+     * The actual job of rolling back the transaction is left to the relevant driver. if
+     * this is successful, the transaction is detached from this thread. Any new objects
      * are reset in the session, so that their ids are reset to null.
-     * If the specified TRANSACTION_THREAD_LOCAL is not the correct one for this thread, throws an exception
+     * If the specified transaction is not the correct one for this thread, throws an exception
      *
-     * @param transaction the TRANSACTION_THREAD_LOCAL to rollback
+     * @param transaction the transaction to rollback
      */
     public void rollback(Transaction transaction) {
         if (transaction != getCurrentTransaction()) {
@@ -95,40 +95,40 @@ public class DefaultTransactionManager implements TransactionManager {
             ((Neo4jSession) session).context().reset(object);
         }
 
-        TRANSACTION_THREAD_LOCAL.remove();
+        currentThreadLocalTransaction.remove();
     }
 
     /**
-     * Commits the specified TRANSACTION_THREAD_LOCAL.
-     * The actual job of committing the TRANSACTION_THREAD_LOCAL is left to the relevant driver. if
-     * this is successful, the TRANSACTION_THREAD_LOCAL is detached from this thread.
-     * If the specified TRANSACTION_THREAD_LOCAL is not the correct one for this thread, throws an exception
+     * Commits the specified transaction.
+     * The actual job of committing the transaction is left to the relevant driver. if
+     * this is successful, the transaction is detached from this thread.
+     * If the specified transaction is not the correct one for this thread, throws an exception
      *
-     * @param tx the TRANSACTION_THREAD_LOCAL to commit
+     * @param tx the transaction to commit
      */
     public void commit(Transaction tx) {
         if (tx != getCurrentTransaction()) {
             throw new TransactionManagerException("Transaction is not current for this thread");
         }
-        TRANSACTION_THREAD_LOCAL.remove();
+        currentThreadLocalTransaction.remove();
     }
 
     /**
-     * Returns the current TRANSACTION_THREAD_LOCAL for this thread, or null if none exists
+     * Returns the current transaction for this thread, or null if none exists
      *
-     * @return this thread's TRANSACTION_THREAD_LOCAL
+     * @return this thread's transaction
      */
     public Transaction getCurrentTransaction() {
-        return TRANSACTION_THREAD_LOCAL.get();
+        return currentThreadLocalTransaction.get();
     }
 
     public boolean canCommit() {
 
-        if (getCurrentTransaction() == null) {
+        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
+
+        if (tx == null) {
             return false;
         }
-
-        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
 
         if (tx.extensions() == 0) {
             if (tx.status() == Transaction.Status.COMMIT_PENDING || tx.status() == Transaction.Status.OPEN
@@ -141,11 +141,11 @@ public class DefaultTransactionManager implements TransactionManager {
 
     public boolean canRollback() {
 
-        if (getCurrentTransaction() == null) {
+        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
+
+        if (tx == null) {
             return false;
         }
-
-        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
 
         if (tx.extensions() == 0) {
             if (tx.status() == Transaction.Status.ROLLBACK_PENDING || tx.status() == Transaction.Status.COMMIT_PENDING
@@ -161,15 +161,5 @@ public class DefaultTransactionManager implements TransactionManager {
         if (session != null) {
             session.withBookmark(bookmark);
         }
-    }
-
-    // this is for testing purposes only
-    public void reinstate(AbstractTransaction tx) {
-        tx.reOpen();
-        TRANSACTION_THREAD_LOCAL.set(tx);
-    }
-
-    public void clear() {
-        TRANSACTION_THREAD_LOCAL.remove();
     }
 }

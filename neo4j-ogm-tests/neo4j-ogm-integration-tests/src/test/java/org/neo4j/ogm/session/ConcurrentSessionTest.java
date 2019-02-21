@@ -48,15 +48,12 @@ public class ConcurrentSessionTest extends MultiDriverTestClass {
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.concurrency");
     }
 
-    @Before
-    public void init() {
-        session = sessionFactory.openSession();
-    }
 
     @Test
     public void multipleThreadsResultsGetMixedUp() throws Exception {
 
         World world1 = new World("world 1", 1);
+        Session session = sessionFactory.openSession();
         session.save(world1, 0);
 
         World world2 = new World("world 2", 2);
@@ -70,7 +67,8 @@ public class ConcurrentSessionTest extends MultiDriverTestClass {
         for (int i = 0; i < iterations; i++) {
 
             service.execute(() -> {
-                World world = session.loadAll(World.class, new Filter("name", ComparisonOperator.EQUALS, "world 1"))
+                Session session1 = sessionFactory.openSession();
+                World world = session1.loadAll(World.class, new Filter("name", ComparisonOperator.EQUALS, "world 1"))
                     .iterator().next();
 
                 if (!"world 1".equals(world.getName())) {
@@ -81,7 +79,8 @@ public class ConcurrentSessionTest extends MultiDriverTestClass {
 
             service.execute(() -> {
 
-                World world = session.loadAll(World.class, new Filter("name", ComparisonOperator.EQUALS, "world 2"))
+                Session session2 = sessionFactory.openSession();
+                World world = session2.loadAll(World.class, new Filter("name", ComparisonOperator.EQUALS, "world 2"))
                     .iterator().next();
 
                 if (!"world 2".equals(world.getName())) {

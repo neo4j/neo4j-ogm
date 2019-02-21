@@ -18,6 +18,9 @@
  */
 package org.neo4j.ogm.drivers;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.exception.ResultProcessingException;
@@ -36,6 +39,7 @@ import org.neo4j.ogm.response.model.DefaultGraphModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,8 +63,8 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
-        throw new RuntimeException("not implemented");
+    public Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier() {
+        return transactionManager -> (type, bookmarks) -> null;
     }
 
     static class Holder {
@@ -83,7 +87,7 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Request request() {
+    public Request request(Transaction transaction) {
 
         return new Request() {
 

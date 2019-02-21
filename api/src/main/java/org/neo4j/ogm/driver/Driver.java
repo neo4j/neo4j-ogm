@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.driver;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.neo4j.ogm.config.Configuration;
@@ -36,20 +37,17 @@ public interface Driver extends AutoCloseable {
     void configure(Configuration config);
 
     /**
-     * Begins new transaction
-     *
-     * @param type      type of the transaction, see {@link org.neo4j.ogm.transaction.Transaction.Type}
-     * @param bookmarks bookmarks to pass to the driver when transaction is started, NOTE: currently supported only
-     *                  by bolt driver
-     * @return new transaction
+     * @return A factory method for creating suppliers of transactions for a given transaction manager
      */
-    Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks);
+    Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier();
 
     void close();
 
-    Request request();
-
-    void setTransactionManager(TransactionManager tx);
+    /**
+     * @param transaction Current transaction, may be null, depending on the driver
+     * @return A new request handler
+     */
+    Request request(Transaction transaction);
 
     Configuration getConfiguration();
 

@@ -20,22 +20,19 @@ package org.neo4j.ogm.drivers.embedded.response;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
  */
-public abstract class EmbeddedResponse<T> implements Response {
+abstract class EmbeddedResponse<T> implements Response {
 
-    protected final Result result;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedResponse.class);
-    private final TransactionManager transactionManager;
+    protected final Result result;
 
-    public EmbeddedResponse(Result result, TransactionManager transactionManager) {
+    EmbeddedResponse(Result result) {
         logger.debug("Response opened: {}", this);
-        this.transactionManager = transactionManager;
         this.result = result;
     }
 
@@ -45,14 +42,9 @@ public abstract class EmbeddedResponse<T> implements Response {
     @Override
     public void close() {
 
-        // if there is no current transaction available, the response is already closed.
-        // it is not an error to call close() multiple times, and in certain circumstances
-        // it may be unavoidable.
-        if (transactionManager.getCurrentTransaction() != null) {
-            // release the response resource
-            result.close();
-            logger.debug("Response closed: {}", this);
-        }
+        // release the response resource, this might closed implicit transaction in the GraphDatabaseService.
+        result.close();
+        logger.debug("Response closed: {}", this);
     }
 
     @Override

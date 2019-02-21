@@ -30,7 +30,6 @@ import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
@@ -42,10 +41,9 @@ public class RestModelResponse extends BoltResponse<RestModel> {
     private final QueryStatisticsModel statisticsModel;
     private final Iterator<Record> resultProjection;
 
-    public RestModelResponse(StatementResult result, TransactionManager transactionManager,
-        BoltEntityAdapter entityAdapter) {
+    public RestModelResponse(StatementResult result, BoltEntityAdapter entityAdapter) {
 
-        super(result, transactionManager);
+        super(result);
 
         this.restModelAdapter = new BoltRestModelAdapter(entityAdapter);
         this.resultProjection = result.list().iterator();

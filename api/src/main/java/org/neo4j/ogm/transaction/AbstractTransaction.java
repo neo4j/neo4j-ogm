@@ -166,9 +166,4 @@ public abstract class AbstractTransaction implements Transaction {
     public List<Object> registeredNew() {
         return registeredNew;
     }
-
-    // for testing
-    public void reOpen() {
-        status = Status.OPEN;
-    }
 }

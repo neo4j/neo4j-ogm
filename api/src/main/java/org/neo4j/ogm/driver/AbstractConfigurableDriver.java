@@ -31,7 +31,6 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.ParameterConversion.DefaultParameterConversion;
 import org.neo4j.ogm.spi.CypherModificationProvider;
 import org.neo4j.ogm.support.ClassUtils;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * The AbstractConfigurableDriver is used by all drivers to register themselves.
@@ -59,7 +58,6 @@ public abstract class AbstractConfigurableDriver implements Driver {
     protected Configuration configuration;
     protected TypeSystem typeSystem = Driver.super.getTypeSystem();
     protected ParameterConversion parameterConversion = DefaultParameterConversion.INSTANCE;
-    protected TransactionManager transactionManager;
 
     /**
      * Used for configuring the cypher modification providers. Defaults to {@link #getConfiguration()} and reads the
@@ -96,12 +94,6 @@ public abstract class AbstractConfigurableDriver implements Driver {
 
         this.configuration = newConfiguration;
         initializeTypeSystem();
-    }
-
-    @Override
-    public void setTransactionManager(TransactionManager transactionManager) {
-        assert (transactionManager != null);
-        this.transactionManager = transactionManager;
     }
 
     @Override

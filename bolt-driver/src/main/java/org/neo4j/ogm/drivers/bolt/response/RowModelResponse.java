@@ -23,7 +23,6 @@ import java.util.Arrays;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
@@ -33,9 +32,9 @@ public class RowModelResponse extends BoltResponse<RowModel> {
 
     private final BoltRowModelAdapter adapter;
 
-    public RowModelResponse(StatementResult result, TransactionManager transactionManager, BoltEntityAdapter entityAdapter) {
+    public RowModelResponse(StatementResult result, BoltEntityAdapter entityAdapter) {
 
-        super(result, transactionManager);
+        super(result);
 
         this.adapter = new BoltRowModelAdapter(entityAdapter);
         this.adapter.setColumns(Arrays.asList(columns()));

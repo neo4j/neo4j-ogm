@@ -23,7 +23,6 @@ import java.util.Arrays;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
@@ -32,8 +31,8 @@ public class GraphRowModelResponse extends BoltResponse<GraphRowListModel> {
 
     private BoltGraphRowModelAdapter adapter = new BoltGraphRowModelAdapter(new BoltGraphModelAdapter());
 
-    public GraphRowModelResponse(StatementResult result, TransactionManager transactionManager) {
-        super(result, transactionManager);
+    public GraphRowModelResponse(StatementResult result) {
+        super(result);
         adapter.setColumns(Arrays.asList(columns()));
     }
 

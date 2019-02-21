@@ -55,12 +55,7 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public Request request() {
+    public Request request(Transaction transaction) {
 
         return new Request() {
 

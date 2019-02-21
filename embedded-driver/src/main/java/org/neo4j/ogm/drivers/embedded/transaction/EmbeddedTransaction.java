@@ -29,13 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
  */
 public class EmbeddedTransaction extends AbstractTransaction {
 
     private final org.neo4j.graphdb.Transaction nativeTransaction;
     private final Logger LOGGER = LoggerFactory.getLogger(EmbeddedTransaction.class);
-    private boolean autoCommit;
 
     /**
      * Request a new transaction.
@@ -95,14 +94,6 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
     public org.neo4j.graphdb.Transaction getNativeTransaction() {
         return nativeTransaction;
-    }
-
-    public void enableAutoCommit() {
-        this.autoCommit = true;
-    }
-
-    public boolean isAutoCommit() {
-        return autoCommit;
     }
 
     public boolean transactionIsOpen() {

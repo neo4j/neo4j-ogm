@@ -67,7 +67,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
-            sessionFactory.getDriver());
+            sessionFactory.getDriver().getTransactionFactorySupplier());
         assertThat(session.getLastBookmark()).isNull();
         try (Transaction tx = transactionManager.openTransaction()) {
             assertThat(tx.status()).isEqualTo(Transaction.Status.OPEN);
@@ -77,7 +77,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Test(expected = TransactionManagerException.class)
     @Ignore("What's the rationale of this test ? Actually leaves tx in an inconsistent state")
     public void shouldFailCommitFreeTransactionInManagedContext() {
-        DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, sessionFactory.getDriver());
+        DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, sessionFactory.getDriver().getTransactionFactorySupplier());
         try (Transaction tx = sessionFactory.getDriver().newTransaction(Transaction.Type.READ_WRITE, null)) {
             transactionManager.commit(tx);
         }
@@ -86,7 +86,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Test(expected = TransactionManagerException.class)
     @Ignore("What's the rationale of this test ? Actually leaves tx in an inconsistent state")
     public void shouldFailRollbackFreeTransactionInManagedContext() {
-        DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, sessionFactory.getDriver());
+        DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, sessionFactory.getDriver().getTransactionFactorySupplier());
         try (Transaction tx = sessionFactory.getDriver().newTransaction(Transaction.Type.READ_WRITE, null)) {
             transactionManager.rollback(tx);
         }
@@ -95,7 +95,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Test
     public void shouldRollbackManagedTransaction() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
-            sessionFactory.getDriver());
+            sessionFactory.getDriver().getTransactionFactorySupplier());
         assertThat(session.getLastBookmark()).isNull();
 
         try (Transaction tx = transactionManager.openTransaction()) {

@@ -117,19 +117,16 @@ public class CypherModificationSPITest {
     }
 
     private static class TestDriver extends AbstractConfigurableDriver {
-        // Not interested in any of those.
-        @Override
-        public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
-            return null;
-        }
 
         @Override
         public void close() {
         }
 
-        @Override public Request request() {
+        @Override
+        public Request request(Transaction transaction) {
             return null;
         }
+
     }
 
     private static class TestServiceLoaderClassLoader extends ClassLoader {

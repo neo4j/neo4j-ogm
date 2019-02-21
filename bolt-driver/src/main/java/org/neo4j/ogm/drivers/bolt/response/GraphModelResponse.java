@@ -23,7 +23,6 @@ import java.util.Map;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.result.adapter.ResultAdapter;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
@@ -32,8 +31,8 @@ public class GraphModelResponse extends BoltResponse<GraphModel> {
 
     private final ResultAdapter<Map<String, Object>, GraphModel> adapter = new BoltGraphModelAdapter();
 
-    public GraphModelResponse(StatementResult result, TransactionManager transactionManager) {
-        super(result, transactionManager);
+    public GraphModelResponse(StatementResult result) {
+        super(result);
     }
 
     @Override

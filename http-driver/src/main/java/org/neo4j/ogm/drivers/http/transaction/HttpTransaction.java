@@ -31,7 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class HttpTransaction extends AbstractTransaction {
 
@@ -54,7 +55,7 @@ public class HttpTransaction extends AbstractTransaction {
         try {
             if (transactionManager.canRollback()) {
                 HttpDelete request = new HttpDelete(url);
-                request.setHeader(new BasicHeader("X-WRITE", driver.readOnly() ? "0" : "1"));
+                request.setHeader(new BasicHeader("X-WRITE", readOnly() ? "0" : "1"));
                 driver.executeHttpRequest(request);
             }
         } catch (Exception e) {
@@ -71,7 +72,7 @@ public class HttpTransaction extends AbstractTransaction {
             if (transactionManager.canCommit()) {
                 HttpPost request = new HttpPost(url + "/commit");
                 request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
-                request.setHeader(new BasicHeader("X-WRITE", driver.readOnly() ? "0" : "1"));
+                request.setHeader(new BasicHeader("X-WRITE", readOnly() ? "0" : "1"));
                 driver.executeHttpRequest(request);
             }
         } catch (Exception e) {
@@ -79,6 +80,16 @@ public class HttpTransaction extends AbstractTransaction {
         } finally {
             super.commit(); // must always be done to keep extension depth correct
         }
+    }
+
+    private boolean readOnly() {
+        if (transactionManager != null) {
+            Transaction tx = transactionManager.getCurrentTransaction();
+            if (tx != null) {
+                return tx.isReadOnly();
+            }
+        }
+        return false; // its read-write by default
     }
 
     public String url() {

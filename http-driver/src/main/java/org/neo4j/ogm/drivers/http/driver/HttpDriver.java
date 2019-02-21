@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -54,6 +56,7 @@ import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +88,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
         if (config.getVerifyConnection()) {
             httpClient();
 
-            HttpRequest request = new HttpRequest(httpClient(), requestUrl(), configuration.getCredentials(), true);
+            HttpRequest request = new HttpRequest(httpClient(), requestUrl(null), configuration.getCredentials(), true);
             request.execute(new VerifyRequest());
         }
     }
@@ -103,21 +106,24 @@ public final class HttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Request request() {
-        Transaction tx = transactionManager.getCurrentTransaction();
-        if (tx == null) {
-            return new HttpRequest(httpClient(), requestUrl(), configuration.getCredentials());
+    public Request request(Transaction transaction) {
+        if (transaction == null) {
+            return new HttpRequest(httpClient(), requestUrl(transaction), configuration.getCredentials());
         } else {
-            return new HttpRequest(httpClient(), requestUrl(), configuration.getCredentials(), tx.isReadOnly());
+            return new HttpRequest(httpClient(), requestUrl(transaction), configuration.getCredentials(),
+                transaction.isReadOnly());
         }
     }
 
     @Override
-    public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
-        if (bookmarks != null && bookmarks.iterator().hasNext()) {
-            LOGGER.warn("Passing bookmarks {} to HttpDriver. This is not currently supported.", bookmarks);
-        }
-        return new HttpTransaction(transactionManager, this, newTransactionUrl(type), type);
+    public Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier() {
+        return transactionManager -> (type, bookmarks) -> {
+            if (bookmarks != null && bookmarks.iterator().hasNext()) {
+                LOGGER.warn("Passing bookmarks {} to EmbeddedDriver. This is not currently supported.", bookmarks);
+            }
+
+            return new HttpTransaction(transactionManager, this, newTransactionUrl(type), type);
+        };
     }
 
     public CloseableHttpResponse executeHttpRequest(HttpRequestBase request) throws HttpRequestException {
@@ -175,32 +181,19 @@ public final class HttpDriver extends AbstractConfigurableDriver {
         return url + "db/data/transaction";
     }
 
-    private String requestUrl() {
-        if (transactionManager != null) {
-            Transaction tx = transactionManager.getCurrentTransaction();
-            if (tx != null) {
-                LOGGER
-                    .debug("Thread: {}, request url {}", Thread.currentThread().getId(), ((HttpTransaction) tx).url());
-                return ((HttpTransaction) tx).url();
-            } else {
-                LOGGER.debug("Thread: {}, No current transaction, using auto-commit", Thread.currentThread().getId());
-            }
-        } else {
-            LOGGER.debug("Thread: {}, No transaction manager available, using auto-commit",
-                Thread.currentThread().getId());
-        }
-        LOGGER.debug("Thread: {}, request url {}", Thread.currentThread().getId(), autoCommitUrl());
-        return autoCommitUrl();
-    }
+    private String requestUrl(Transaction tx) {
+        long threadId = Thread.currentThread().getId();
 
-    public boolean readOnly() {
-        if (transactionManager != null) {
-            Transaction tx = transactionManager.getCurrentTransaction();
-            if (tx != null) {
-                return tx.isReadOnly();
-            }
+        String url;
+        if (tx != null) {
+            url = ((HttpTransaction) tx).url();
+        } else {
+            LOGGER.debug("Thread: {}, No current transaction, using auto-commit", threadId);
+            url = autoCommitUrl();
         }
-        return false; // its read-write by default
+
+        LOGGER.debug("Thread: {}, request url {}", threadId, autoCommitUrl());
+        return url;
     }
 
     @Override

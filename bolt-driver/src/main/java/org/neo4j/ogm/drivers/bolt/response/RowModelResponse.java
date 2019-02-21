@@ -24,7 +24,6 @@ import java.util.Map;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.result.adapter.ResultAdapter;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Luanne Misquitta
@@ -33,8 +32,8 @@ public class RowModelResponse extends BoltResponse<RowModel> {
 
     private final ResultAdapter<Map<String, Object>, RowModel> adapter = new BoltRowModelAdapter();
 
-    public RowModelResponse(StatementResult result, TransactionManager transactionManager) {
-        super(result, transactionManager);
+    public RowModelResponse(StatementResult result) {
+        super(result);
         ((BoltRowModelAdapter) adapter).setColumns(Arrays.asList(columns()));
     }
 

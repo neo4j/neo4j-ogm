@@ -37,6 +37,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class BlogTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass

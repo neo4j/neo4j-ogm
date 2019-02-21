@@ -49,6 +49,7 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class TransactionManagerTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass

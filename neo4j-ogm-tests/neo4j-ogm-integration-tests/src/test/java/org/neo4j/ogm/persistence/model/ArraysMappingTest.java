@@ -36,6 +36,8 @@ import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 public class ArraysMappingTest extends MultiDriverTestClass {
+
+    private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass

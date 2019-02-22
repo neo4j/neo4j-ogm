@@ -48,6 +48,8 @@ public interface TransactionManager {
      * this is successful, the transaction is detached from this thread.
      * If the specified transaction is not the correct one for this thread, throws an exception
      *
+     * <strong>Warning</strong>: This method is meant to be called from actual transactions only!!!
+     *
      * @param transaction the transaction to rollback
      */
     void rollback(Transaction transaction);
@@ -57,6 +59,8 @@ public interface TransactionManager {
      * The actual job of committing the transaction is left to the relevant driver. if
      * this is successful, the transaction is detached from this thread.
      * If the specified transaction is not the correct one for this thread, throws an exception
+     *
+     * <strong>Warning</strong>: This method is meant to be called from actual transactions only!!!
      *
      * @param transaction the transaction to commit
      */

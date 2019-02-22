@@ -1,3 +1,9 @@
+3.1.8
+o Fix bug in optimistic locking with Neo4j 3.5.3.
+o Fix bug in transaction management and bookmark functionality.
+o Support single uri in uris properties. #605
+o Stabilize CypherModificationProvider for threading.
+
 3.1.7
 o Fix bug when index fields contain camelCase properties.
 o Fix initialization of Cypher modification. #595

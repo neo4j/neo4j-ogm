@@ -20,4 +20,10 @@ public class Label extends BaseEntity {
         this.key = key;
         return this;
     }
+
+    @Override public String toString() {
+        return "Label{" +
+            "key='" + key + '\'' +
+            '}';
+    }
 }

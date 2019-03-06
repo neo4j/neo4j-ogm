@@ -78,4 +78,10 @@ public class Node extends BaseEntity {
         this.labels = labels;
         return this;
     }
+
+    @Override public String toString() {
+        return "Node{" +
+            "nodeId='" + nodeId + '\'' +
+            '}';
+    }
 }

@@ -19,9 +19,11 @@
 package org.neo4j.ogm.context;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -167,7 +169,7 @@ public class EntityGraphMapper implements EntityMapper {
      */
     private void deleteObsoleteRelationships(Compiler compiler) {
         CompileContext context = compiler.context();
-
+        Set<MappedRelationship> staleRelationships = new HashSet<>();
         Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.getRelationships().iterator();
         while (mappedRelationshipIterator.hasNext()) {
             MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
@@ -196,18 +198,21 @@ public class EntityGraphMapper implements EntityMapper {
 
                 // remove all nodes that are referenced by this relationship in the mapping context
                 // this will ensure that stale versions of these objects don't exist
-                clearRelatedObjects(mappedRelationship.getStartNodeId());
-                clearRelatedObjects(mappedRelationship.getEndNodeId());
+                clearRelatedObjects(mappedRelationship.getStartNodeId(), staleRelationships);
+                clearRelatedObjects(mappedRelationship.getEndNodeId(), staleRelationships);
 
                 // finally remove the relationship from the mapping context
-                //mappingContext.removeRelationship(mappedRelationship);
                 mappedRelationshipIterator.remove();
             }
         }
+        if (!staleRelationships.isEmpty()) {
+            // remove also the stale relations from the mapping context, since their referencing entities were also
+            // removed from the mapping context
+            mappingContext.getRelationships().removeAll(staleRelationships);
+        }
     }
 
-    private void clearRelatedObjects(Long node) {
-
+    private void clearRelatedObjects(Long node, Set<MappedRelationship> staleRelationships) {
         for (MappedRelationship mappedRelationship : mappingContext.getRelationships()) {
             if (mappedRelationship.getStartNodeId() == node || mappedRelationship.getEndNodeId() == node) {
 
@@ -216,6 +221,7 @@ public class EntityGraphMapper implements EntityMapper {
                     LOGGER.debug("flushing end node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(),
                         mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                     mappingContext.removeNodeEntity(dirty, true);
+                    staleRelationships.add(mappedRelationship);
                 }
 
                 dirty = mappingContext.getNodeEntity(mappedRelationship.getStartNodeId());
@@ -223,6 +229,7 @@ public class EntityGraphMapper implements EntityMapper {
                     LOGGER.debug("flushing start node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(),
                         mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                     mappingContext.removeNodeEntity(dirty, true);
+                    staleRelationships.add(mappedRelationship);
                 }
             }
         }

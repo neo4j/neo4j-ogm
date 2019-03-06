@@ -18,6 +18,10 @@
  */
 package org.neo4j.ogm.driver;
 
+import static java.util.stream.Collectors.*;
+
+import java.lang.reflect.Array;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,10 +45,7 @@ class TypeSystemBasedParameterConversion implements ParameterConversion {
 
     @Override
     public Map<String, Object> convertParameters(Map<String, Object> originalParameter) {
-        return convertParametersImpl(originalParameter);
-    }
 
-    private Map<String, Object> convertParametersImpl(Map<String, Object> originalParameter) {
         final Map<String, Object> convertedParameter = new HashMap<>(originalParameter.size());
         final Map<String, Object> unconvertedParameter = new HashMap<>(originalParameter.size());
 
@@ -53,29 +54,47 @@ class TypeSystemBasedParameterConversion implements ParameterConversion {
             if (unconvertedValue == null) {
                 convertedParameter.put(parameterKey, null);
             } else if (unconvertedValue instanceof List) {
-                for (Object value : (List<Object>) unconvertedValue) {
-                    if (value instanceof Map) {
-                        convertedParameter.put(parameterKey, convertParametersImpl((Map<String, Object>) value));
-                    } else if (typeSystem.supportsAsNativeType(unconvertedValue.getClass())) {
-                        Object convertedValue = typeSystem.getMappedToNativeTypeAdapter(unconvertedValue.getClass())
-                            .apply(unconvertedValue);
-                        convertedParameter.put(parameterKey, convertedValue);
-                    } else {
-                        unconvertedParameter.put(parameterKey, unconvertedValue);
-                    }
-                }
+                convertedParameter.put(parameterKey, convertListItems((List) unconvertedValue));
+            } else if (unconvertedValue.getClass().isArray()) {
+                convertedParameter.put(parameterKey, convertArrayItems(unconvertedValue));
             } else if (unconvertedValue instanceof Map) {
-                convertedParameter.put(parameterKey, convertParametersImpl((Map<String, Object>) unconvertedValue));
+                convertedParameter.put(parameterKey, convertParameters((Map<String, Object>) unconvertedValue));
             } else if (typeSystem.supportsAsNativeType(unconvertedValue.getClass())) {
                 Object convertedValue = typeSystem.getMappedToNativeTypeAdapter(unconvertedValue.getClass())
                     .apply(unconvertedValue);
                 convertedParameter.put(parameterKey, convertedValue);
             } else {
-            unconvertedParameter.put(parameterKey, unconvertedValue);
+                unconvertedParameter.put(parameterKey, unconvertedValue);
             }
         });
 
         convertedParameter.putAll(fallback.convertParameters(unconvertedParameter));
         return convertedParameter;
+    }
+
+    List<?> convertListItems(List<?> unconvertedValues) {
+
+        return unconvertedValues.stream().map(this::convertSingle).collect(toList());
+    }
+
+    Object[] convertArrayItems(Object unconvertedValues) {
+
+        int length = Array.getLength(unconvertedValues);
+        Object[] convertedValues = new Object[length];
+
+        for (int i = 0; i < length; ++i) {
+            convertedValues[i] = convertSingle(Array.get(unconvertedValues, i));
+        }
+
+        return convertedValues;
+    }
+
+    Object convertSingle(Object value) {
+        if (typeSystem.supportsAsNativeType(value.getClass())) {
+            return typeSystem.getMappedToNativeTypeAdapter(value.getClass()).apply(value);
+        } else {
+            Map<String, Object> help = convertParameters(Collections.singletonMap("u", value));
+            return help.get("u");
+        }
     }
 }

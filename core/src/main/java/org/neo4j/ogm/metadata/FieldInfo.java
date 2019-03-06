@@ -183,7 +183,7 @@ public class FieldInfo {
         return propertyConverter;
     }
 
-    void setPropertyConverter(AttributeConverter<?, ?> propertyConverter) {
+    public void setPropertyConverter(AttributeConverter<?, ?> propertyConverter) {
         if (this.propertyConverter == null && this.compositeConverter == null && propertyConverter != null) {
             this.propertyConverter = propertyConverter;
         } // we maybe set an annotated converter when object was constructed, so don't override with a default one

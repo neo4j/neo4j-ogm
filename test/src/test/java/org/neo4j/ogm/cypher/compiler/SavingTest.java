@@ -11,12 +11,11 @@ import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.domain.gh613.Label;
 import org.neo4j.ogm.domain.gh613.Node;
-import org.neo4j.ogm.domain.gh613.NodeType;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestUtils;
 
 /**
  * @author Andreas Berger
@@ -33,19 +32,10 @@ public class SavingTest extends MultiDriverTestClass {
     @Before
     public void init() {
         session = sessionFactory.openSession();
-
-        NodeType nodeType = new NodeType("nt");
-        Node l1 = new Node("l1").setNodeType(nodeType);
-        Node l2 = new Node("l2")
-            .setNodeType(nodeType)
-            .setLabels(Collections.singleton(new Label().setKey("label1")))
-            .setChildOf(l1);
-
-        l1.setChildNodes(Collections.singleton(l2));
-
-        session.save(l1);
-        session.save(l2);
+        session.purgeDatabase();
         session.clear();
+
+        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/gh613.cql").toString(), Collections.emptyMap());
     }
 
     /**
@@ -54,18 +44,37 @@ public class SavingTest extends MultiDriverTestClass {
     @Test
     public void testSaveParentAfterChild() {
 
-        Node l2 = queryNode("l2");
-        assertThat(l2.getNodeType()).isNotNull();
-        l2.setLabels(null);
-        session.save(l2);
+        Node loc1_1 = queryNode("loc1_1");
+        assertThat(loc1_1.getNodeType()).isNotNull();
+        loc1_1.setLabels(null);
+        session.save(loc1_1);
 
-        Node l1 = queryNode("l1");
-        assertThat(l1.getChildNodes()).hasSize(1);
-        assertThat(l1.getNodeType()).isNotNull();
-        session.save(l1);
+        Node loc1 = queryNode("loc1");
+        assertThat(loc1.getChildNodes()).hasSize(3);
+        assertThat(loc1.getNodeType()).isNotNull();
+        session.save(loc1);
 
-        l2 = queryNode("l2");
-        assertThat(l2.getNodeType()).isNotNull();
+        loc1_1 = queryNode("loc1_1");
+        assertThat(loc1_1.getNodeType()).isNotNull();
+    }
+
+    @Test
+    public void testChangeParent() {
+
+        Node loc2 = queryNode("loc2");
+        Node loc1_1 = queryNode("loc1_1");
+        Node loc1_2 = queryNode("loc1_2");
+
+        loc1_1.setChildOfBidirectional(loc2);
+        session.save(loc1_1);
+        loc1_2.setChildOfBidirectional(loc2);
+        session.save(loc1_2);
+
+        Node loc1 = queryNode("loc1");
+        assertThat(loc1.getChildNodes()).hasSize(1);
+
+        loc2 = queryNode("loc2");
+        assertThat(loc2.getChildNodes()).hasSize(2);
     }
 
     private Node queryNode(String nodeId) {

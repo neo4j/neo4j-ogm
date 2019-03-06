@@ -1,5 +1,7 @@
 package org.neo4j.ogm.domain.gh613;
 
+import java.util.Objects;
+
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -21,7 +23,25 @@ public class Label extends BaseEntity {
         return this;
     }
 
-    @Override public String toString() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Label label = (Label) o;
+        return Objects.equals(key, label.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
+    }
+
+    @Override
+    public String toString() {
         return "Label{" +
             "key='" + key + '\'' +
             '}';

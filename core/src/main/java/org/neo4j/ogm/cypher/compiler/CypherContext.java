@@ -92,9 +92,7 @@ public class CypherContext implements CompileContext {
     }
 
     public void register(Object object) {
-        if (!registry.contains(object)) {
-            registry.add(object);
-        }
+        registry.add(object);
     }
 
     @Override
@@ -242,8 +240,8 @@ public class CypherContext implements CompileContext {
     }
 
     @Override
-    public Object getVisitedObject(Long reference) {
-        return visitedObjects.get(reference);
+    public Collection<Object> visitedObjects() {
+        return Collections.unmodifiableSet(visitedObjects.keySet());
     }
 
     @Override

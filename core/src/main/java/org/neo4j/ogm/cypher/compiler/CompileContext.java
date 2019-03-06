@@ -74,7 +74,7 @@ public interface CompileContext {
 
     Collection<Mappable> getDeletedRelationships();
 
-    Object getVisitedObject(Long reference);
+    Collection<Object> visitedObjects();
 
     Collection<Object> getTransientRelationships(SrcTargetKey key);
 }

@@ -1,5 +1,7 @@
 package org.neo4j.ogm.domain.gh613;
 
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.Index;
@@ -52,6 +54,28 @@ public class Node extends BaseEntity {
         return this;
     }
 
+    public Node setChildOfBidirectional(Node newParent) {
+        Node currentParent = this.getChildOf();
+        if (newParent == currentParent) {
+            return this;
+        }
+        if (currentParent != null
+            && currentParent.getChildNodes() != null
+            && !currentParent.getChildNodes().isEmpty()) {
+            // updating both sides of the bidirectional mapping
+            // this is to workaround this issue https://github.com/neo4j/neo4j-ogm/issues/591
+            currentParent.getChildNodes().remove(this);
+        }
+        if (newParent != null) {
+            if (newParent.getChildNodes() == null) {
+                newParent.setChildNodes(new HashSet<>());
+            }
+            newParent.getChildNodes().add(this);
+        }
+        this.childOf = newParent;
+        return this;
+    }
+
     public Set<Node> getChildNodes() {
         return childNodes;
     }
@@ -79,7 +103,25 @@ public class Node extends BaseEntity {
         return this;
     }
 
-    @Override public String toString() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Node)) {
+            return false;
+        }
+        Node that = (Node) o;
+        return Objects.equals(nodeId, that.nodeId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nodeId);
+    }
+
+    @Override
+    public String toString() {
         return "Node{" +
             "nodeId='" + nodeId + '\'' +
             '}';

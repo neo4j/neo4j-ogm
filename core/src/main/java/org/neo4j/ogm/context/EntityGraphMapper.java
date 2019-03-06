@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -64,7 +65,8 @@ public class EntityGraphMapper implements EntityMapper {
     /**
      * Default supplier for write protection: Always write all the stuff.
      */
-    private Optional<BiFunction<WriteProtectionTarget, Class<?>, Predicate<Object>>> optionalWriteProtectionSupplier = Optional.empty();
+    private Optional<BiFunction<WriteProtectionTarget, Class<?>, Predicate<Object>>> optionalWriteProtectionSupplier = Optional
+        .empty();
 
     /**
      * Constructs a new {@link EntityGraphMapper} that uses the given {@link MetaData}.
@@ -77,7 +79,8 @@ public class EntityGraphMapper implements EntityMapper {
         this.mappingContext = mappingContext;
     }
 
-    public void addWriteProtection(BiFunction<WriteProtectionTarget, Class<?>, Predicate<Object>> writeProtectionSupplier) {
+    public void addWriteProtection(
+        BiFunction<WriteProtectionTarget, Class<?>, Predicate<Object>> writeProtectionSupplier) {
 
         this.optionalWriteProtectionSupplier = Optional.ofNullable(writeProtectionSupplier);
     }
@@ -208,7 +211,17 @@ public class EntityGraphMapper implements EntityMapper {
         if (!staleRelationships.isEmpty()) {
             // remove also the stale relations from the mapping context, since their referencing entities were also
             // removed from the mapping context
-            mappingContext.getRelationships().removeAll(staleRelationships);
+            Set<Long> visitedIds = context.visitedObjects()
+                .stream()
+                .map(mappingContext::nativeId)
+                .collect(Collectors.toSet());
+            // only remove the mapping whose both sides where handled by the compiler
+            for (MappedRelationship staleRelationship : staleRelationships) {
+                if (visitedIds.contains(staleRelationship.getEndNodeId())
+                    && visitedIds.contains(staleRelationship.getStartNodeId())) {
+                    mappingContext.getRelationships().remove(staleRelationship);
+                }
+            }
         }
     }
 

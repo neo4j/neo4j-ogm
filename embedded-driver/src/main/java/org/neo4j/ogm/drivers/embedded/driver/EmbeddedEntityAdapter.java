@@ -18,10 +18,12 @@
  */
 package org.neo4j.ogm.drivers.embedded.driver;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -118,7 +120,24 @@ public class EmbeddedEntityAdapter {
             return null;
         }
 
-        return this.typeSystem.getNativeToMappedTypeAdapter(value.getClass())
-            .apply(value);
+        if (value.getClass().isArray()) {
+            return arrayToMapped(value);
+        } else {
+            return this.typeSystem.getNativeToMappedTypeAdapter(value.getClass()).apply(value);
+        }
+    }
+
+    private Object arrayToMapped(Object array) {
+
+        Function<Object, Object> nativeToMappedTypeAdapter = this.typeSystem
+            .getNativeToMappedTypeAdapter(array.getClass().getComponentType());
+
+        int length = Array.getLength(array);
+        Object[] newArray = new Object[length];
+        for (int i = 0; i < length; ++i) {
+            Object object = Array.get(array, i);
+            newArray[i] = nativeToMappedTypeAdapter.apply(object);
+        }
+        return newArray;
     }
 }

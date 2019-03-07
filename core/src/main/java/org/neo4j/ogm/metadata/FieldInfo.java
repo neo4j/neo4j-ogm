@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
@@ -79,7 +80,7 @@ public class FieldInfo {
      * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
     public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations,
-        boolean isSupportedNativeType) {
+        Predicate<Class<?>> isSupportedNativeType) {
         this.containingClassInfo = classInfo;
         this.field = field;
         this.fieldType = isGenericField(field) ? findFieldType(field, classInfo.getUnderlyingClass()) : field.getType();
@@ -88,7 +89,7 @@ public class FieldInfo {
         this.descriptor = field.getType().getTypeName();
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
-        this.isSupportedNativeType = isSupportedNativeType;
+        this.isSupportedNativeType = isSupportedNativeType.test(DescriptorMappings.getType(getTypeDescriptor()));
         if (!this.annotations.isEmpty()) {
             Object converter = getAnnotations().getConverter(this.fieldType);
             if (converter instanceof AttributeConverter) {
@@ -183,7 +184,7 @@ public class FieldInfo {
         return propertyConverter;
     }
 
-    void setPropertyConverter(AttributeConverter<?, ?> propertyConverter) {
+    public void setPropertyConverter(AttributeConverter<?, ?> propertyConverter) {
         if (this.propertyConverter == null && this.compositeConverter == null && propertyConverter != null) {
             this.propertyConverter = propertyConverter;
         } // we maybe set an annotated converter when object was constructed, so don't override with a default one

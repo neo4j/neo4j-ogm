@@ -27,10 +27,12 @@ import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -43,6 +45,7 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.typeconversion.LocalDateStringConverter;
+import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 
 /**
  * @author Gerrit Meier
@@ -204,6 +207,24 @@ public abstract class DatesTestBase {
     }
 
     @Test
+    public void collectionsOfDatesShouldWork() {
+        Session session = sessionFactory.openSession();
+        Sometime sometime = new Sometime();
+        Duration d1 = Duration.ofMinutes(1);
+        Duration d2 = Duration.ofMinutes(2);
+
+        sometime.setArrayOfDates(new Duration[] { d1, d2 });
+        sometime.setListOfDates(Arrays.asList(d1, d2));
+
+        session.save(sometime);
+        session.clear();
+
+        Sometime loaded = session.load(Sometime.class, sometime.id);
+        assertThat(loaded.getArrayOfDates()).hasSize(2).containsExactlyInAnyOrder(d1, d2);
+        assertThat(loaded.getListOfDates()).hasSize(2).containsExactlyInAnyOrder(d1, d2);
+    }
+
+    @Test
     public abstract void shouldUseNativeDateTimeTypesInParameterMaps();
 
     @NodeEntity
@@ -222,6 +243,10 @@ public abstract class DatesTestBase {
 
         @Relationship(value = "REL")
         private Collection<SometimeRelationship> rels = new ArrayList<>();
+
+        private List<Duration> listOfDates;
+
+        private Duration[] arrayOfDates;
 
         public Long getId() {
             return id;
@@ -253,6 +278,22 @@ public abstract class DatesTestBase {
 
         public void setConvertedLocalDate(LocalDate convertedLocalDate) {
             this.convertedLocalDate = convertedLocalDate;
+        }
+
+        public List<Duration> getListOfDates() {
+            return listOfDates;
+        }
+
+        public void setListOfDates(List<Duration> listOfDates) {
+            this.listOfDates = listOfDates;
+        }
+
+        public Duration[] getArrayOfDates() {
+            return arrayOfDates;
+        }
+
+        public void setArrayOfDates(Duration[] arrayOfDates) {
+            this.arrayOfDates = arrayOfDates;
         }
     }
 

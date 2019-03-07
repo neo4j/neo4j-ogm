@@ -69,11 +69,10 @@ public class FieldsInfo {
                 if (!objectAnnotations.has(Transient.class)) {
 
                     String typeParameterDescriptor = findTypeParameterDescriptor(field, objectAnnotations);
-                    boolean isSupportedNativeType = typeSystem.supportsAsNativeType(field.getType());
 
                     fields.put(field.getName(),
                         new FieldInfo(classInfo, field, typeParameterDescriptor, objectAnnotations,
-                            isSupportedNativeType));
+                            typeSystem::supportsAsNativeType));
                 }
             }
         }

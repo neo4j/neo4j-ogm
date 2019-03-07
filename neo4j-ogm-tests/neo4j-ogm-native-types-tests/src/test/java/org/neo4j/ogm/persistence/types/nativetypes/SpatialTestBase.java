@@ -20,6 +20,8 @@ package org.neo4j.ogm.persistence.types.nativetypes;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Arrays;
+
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.neo4j.ogm.session.Session;
@@ -146,4 +148,22 @@ public abstract class SpatialTestBase {
         assertThat(loaded.getCartesianPoint3d()).isEqualTo(point);
     }
 
+    @Test
+    public void collectionsOfPointsShouldWork() {
+        Session session = sessionFactory.openSession();
+
+        SomethingSpatial spatial = new SomethingSpatial();
+        spatial.setArrayOfPoints(
+            new GeographicPoint2d[] { new GeographicPoint2d(55.0, 13), new GeographicPoint2d(56.0, 14.0) });
+        spatial.setListOfPoints(Arrays.asList(new GeographicPoint2d(50.0, 6.0), new GeographicPoint2d(51, 7.0)));
+
+        session.save(spatial);
+
+        session.clear();
+        SomethingSpatial loaded = session.load(SomethingSpatial.class, spatial.getId());
+        assertThat(loaded.getArrayOfPoints()).hasSize(2).extracting(GeographicPoint2d::getLatitude)
+            .containsExactlyInAnyOrder(55.0, 56.0);
+        assertThat(loaded.getListOfPoints()).hasSize(2).extracting(GeographicPoint2d::getLatitude)
+            .containsExactlyInAnyOrder(50.0, 51.0);
+    }
 }

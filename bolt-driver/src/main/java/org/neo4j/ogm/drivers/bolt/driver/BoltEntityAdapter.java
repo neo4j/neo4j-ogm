@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.driver.internal.value.ListValue;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.types.Entity;
 import org.neo4j.driver.v1.types.Node;
@@ -114,8 +115,12 @@ public class BoltEntityAdapter {
             return null;
         }
 
-        Object object = value.asObject();
-        return this.typeSystem.getNativeToMappedTypeAdapter(object.getClass())
-            .apply(object);
+        if (value instanceof ListValue) {
+            return value.asList(this::toMapped);
+        } else {
+            Object object = value.asObject();
+            return this.typeSystem.getNativeToMappedTypeAdapter(object.getClass())
+                .apply(object);
+        }
     }
 }

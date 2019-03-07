@@ -72,12 +72,12 @@ class TypeSystemBasedParameterConversion implements ParameterConversion {
         return convertedParameter;
     }
 
-    List<?> convertListItems(List<?> unconvertedValues) {
+    private List<?> convertListItems(List<?> unconvertedValues) {
 
         return unconvertedValues.stream().map(this::convertSingle).collect(toList());
     }
 
-    Object[] convertArrayItems(Object unconvertedValues) {
+    private Object[] convertArrayItems(Object unconvertedValues) {
 
         int length = Array.getLength(unconvertedValues);
         Object[] convertedValues = new Object[length];
@@ -89,12 +89,12 @@ class TypeSystemBasedParameterConversion implements ParameterConversion {
         return convertedValues;
     }
 
-    Object convertSingle(Object value) {
+    private Object convertSingle(Object value) {
         if (typeSystem.supportsAsNativeType(value.getClass())) {
             return typeSystem.getMappedToNativeTypeAdapter(value.getClass()).apply(value);
         } else {
-            Map<String, Object> help = convertParameters(Collections.singletonMap("u", value));
-            return help.get("u");
+            String fixedKey = "u";
+            return convertParameters(Collections.singletonMap(fixedKey, value)).get(fixedKey);
         }
     }
 }

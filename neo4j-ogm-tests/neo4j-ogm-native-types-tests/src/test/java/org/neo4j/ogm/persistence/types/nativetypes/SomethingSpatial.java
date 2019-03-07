@@ -53,6 +53,10 @@ public class SomethingSpatial {
     @Relationship("REF")
     private Collection<SomethingRelationship> rels = new ArrayList<>();
 
+    private List<GeographicPoint2d> listOfPoints;
+
+    private GeographicPoint2d[] arrayOfPoints;
+
     public SomethingSpatial() {
         stringList.add("a");
         stringList.add("b");
@@ -120,5 +124,21 @@ public class SomethingSpatial {
     public void setRels(
         Collection<SomethingRelationship> rels) {
         this.rels = rels;
+    }
+
+    public List<GeographicPoint2d> getListOfPoints() {
+        return listOfPoints;
+    }
+
+    public void setListOfPoints(List<GeographicPoint2d> listOfPoints) {
+        this.listOfPoints = listOfPoints;
+    }
+
+    public GeographicPoint2d[] getArrayOfPoints() {
+        return arrayOfPoints;
+    }
+
+    public void setArrayOfPoints(GeographicPoint2d[] arrayOfPoints) {
+        this.arrayOfPoints = arrayOfPoints;
     }
 }

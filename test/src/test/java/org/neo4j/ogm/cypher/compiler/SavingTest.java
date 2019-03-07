@@ -77,6 +77,25 @@ public class SavingTest extends MultiDriverTestClass {
         assertThat(loc2.getChildNodes()).hasSize(2);
     }
 
+    @Test
+    public void testClearRelationship() {
+        Node loc1 = queryNode("loc1");
+        assertThat(loc1.getNodeType()).isNotNull();
+
+        Node loc1_1 = queryNode("loc1_1");
+        assertThat(loc1_1.getLabels()).hasSize(1);
+
+        loc1_1.setLabels(null);
+        session.save(loc1_1);
+
+        Node root = queryNode("root");
+        assertThat(root.getChildNodes()).hasSize(2);
+        session.save(root);
+
+        loc1 = queryNode("loc1");
+        assertThat(loc1.getNodeType()).isNotNull();
+    }
+
     private Node queryNode(String nodeId) {
         Collection<Node> nodeTypes = session
             .loadAll(Node.class, new Filters(new Filter("nodeId", ComparisonOperator.EQUALS, nodeId)));

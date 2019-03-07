@@ -3,13 +3,14 @@ CREATE
 CREATE
   (l1:Label {key: 'l1'})
 CREATE
-  (loc1:Node:BaseNodeEntity {nodeId: 'loc1'})-[:HAS_TYPE]->(location),
-  (loc2:Node:BaseNodeEntity {nodeId: 'loc2'})-[:HAS_TYPE]->(location),
-  (loc1_1:Node:BaseNodeEntity {nodeId: 'loc1_1'})-[:HAS_TYPE]->(location),
-  (loc1_2:Node:BaseNodeEntity {nodeId: 'loc1_2'})-[:HAS_TYPE]->(location),
-  (loc1_3:Node:BaseNodeEntity {nodeId: 'loc1_3'})-[:HAS_TYPE]->(location),
-  (c1)<-[:CHILD_OF]-(loc1),
-  (c1)<-[:CHILD_OF]-(loc2),
+  (root:Node {nodeId: 'root'})-[:HAS_TYPE]->(location),
+  (loc1:Node {nodeId: 'loc1'})-[:HAS_TYPE]->(location),
+  (loc2:Node {nodeId: 'loc2'})-[:HAS_TYPE]->(location),
+  (loc1_1:Node {nodeId: 'loc1_1'})-[:HAS_TYPE]->(location),
+  (loc1_2:Node {nodeId: 'loc1_2'})-[:HAS_TYPE]->(location),
+  (loc1_3:Node {nodeId: 'loc1_3'})-[:HAS_TYPE]->(location),
+  (root)<-[:CHILD_OF]-(loc1),
+  (root)<-[:CHILD_OF]-(loc2),
   (loc1)<-[:CHILD_OF]-(loc1_1),
   (loc1)<-[:CHILD_OF]-(loc1_2),
   (loc1)<-[:CHILD_OF]-(loc1_3),

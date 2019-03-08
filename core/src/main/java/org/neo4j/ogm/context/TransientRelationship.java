@@ -45,10 +45,10 @@ public class TransientRelationship {
     private final Long tgt;
     private final Long ref;
     private final String rel;
-    private final Class srcClass;
-    private final Class tgtClass;
+    private final Class<?> srcClass;
+    private final Class<?> tgtClass;
 
-    public TransientRelationship(Long src, Long ref, String rel, Long tgt, Class srcClass, Class tgtClass) {
+    public TransientRelationship(Long src, Long ref, String rel, Long tgt, Class<?> srcClass, Class<?> tgtClass) {
         this.src = src;
         this.tgt = tgt;
         this.ref = ref;
@@ -58,29 +58,23 @@ public class TransientRelationship {
     }
 
     public boolean equals(Long src, RelationshipBuilder builder, Long tgt) {
-        Boolean singleton = builder.isSingleton();
-        if (this.rel.equals(builder.type())) {
-            if (singleton) {
-                if (builder.hasDirection(Relationship.OUTGOING)) {
-                    if (this.src.equals(src) && this.tgt.equals(tgt)) {
-                        return true;
-                    }
-                } else if (builder.hasDirection(Relationship.INCOMING)) {
-                    if (this.src.equals(tgt) && this.tgt.equals(src)) {
-                        return true;
-                    }
-                } else {
-                    // Implies outgoing so the direction is ignored
-                    if (this.src.equals(src) && this.tgt.equals(tgt)) {
-                        return true;
-                    }
-                    if (this.src.equals(tgt) && this.tgt.equals(src)) {
-                        return true;
-                    }
-                }
-            }
+        if (!this.rel.equals(builder.type())) {
+            return false;
         }
-        return false;
+        if (!builder.isSingleton()) {
+            return false;
+        }
+        if (builder.hasDirection(Relationship.OUTGOING)) {
+            return this.src.equals(src) && this.tgt.equals(tgt);
+        } else if (builder.hasDirection(Relationship.INCOMING)) {
+            return this.src.equals(tgt) && this.tgt.equals(src);
+        } else {
+            // Implies outgoing so the direction is ignored
+            if (this.src.equals(src) && this.tgt.equals(tgt)) {
+                return true;
+            }
+            return this.src.equals(tgt) && this.tgt.equals(src);
+        }
     }
 
     public Long getSrc() {
@@ -99,11 +93,11 @@ public class TransientRelationship {
         return rel;
     }
 
-    public Class getSrcClass() {
+    public Class<?> getSrcClass() {
         return srcClass;
     }
 
-    public Class getTgtClass() {
+    public Class<?> getTgtClass() {
         return tgtClass;
     }
 

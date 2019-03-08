@@ -94,6 +94,7 @@ public class Neo4jSession implements Session {
 
     private Driver driver;
     private String bookmark;
+    private boolean updateOtherSideOfRelationships;
 
     private List<EventListener> registeredEventListeners = new LinkedList<>();
 
@@ -399,10 +400,10 @@ public class Neo4jSession implements Session {
     }
 
     /*
-    *----------------------------------------------------------------------------------------------------------
-    * ExecuteQueriesDelegate
-    *----------------------------------------------------------------------------------------------------------
-    */
+     *----------------------------------------------------------------------------------------------------------
+     * ExecuteQueriesDelegate
+     *----------------------------------------------------------------------------------------------------------
+     */
     @Override
     public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.queryForObject(type, cypher, parameters);
@@ -434,10 +435,10 @@ public class Neo4jSession implements Session {
     }
 
     /*
-    *----------------------------------------------------------------------------------------------------------
-    * DeleteDelegate
-    *----------------------------------------------------------------------------------------------------------
-    */
+     *----------------------------------------------------------------------------------------------------------
+     * DeleteDelegate
+     *----------------------------------------------------------------------------------------------------------
+     */
     @Override
     public void purgeDatabase() {
         deleteDelegate.purgeDatabase();
@@ -459,10 +460,10 @@ public class Neo4jSession implements Session {
     }
 
     /*
-    *----------------------------------------------------------------------------------------------------------
-    * SaveDelegate
-    *----------------------------------------------------------------------------------------------------------
-    */
+     *----------------------------------------------------------------------------------------------------------
+     * SaveDelegate
+     *----------------------------------------------------------------------------------------------------------
+     */
     @Override
     public <T> void save(T object) {
         saveDelegate.save(object);
@@ -484,7 +485,7 @@ public class Neo4jSession implements Session {
      * to be used with {@literal null} again to remove the custom write protection strategy before applying the simple
      * one here.
      *
-     * @param target The target to which  the write protection should be applied
+     * @param target     The target to which  the write protection should be applied
      * @param protection A predicate determines per entity if write protection has to be applied or node.
      */
     public void addWriteProtection(WriteProtectionTarget target, Predicate<Object> protection) {
@@ -510,10 +511,10 @@ public class Neo4jSession implements Session {
     }
 
     /*
-    *----------------------------------------------------------------------------------------------------------
-    * TransactionsDelegate
-    *----------------------------------------------------------------------------------------------------------
-    */
+     *----------------------------------------------------------------------------------------------------------
+     * TransactionsDelegate
+     *----------------------------------------------------------------------------------------------------------
+     */
     @Override
     public Transaction beginTransaction() {
         return txManager.openTransaction();
@@ -536,19 +537,20 @@ public class Neo4jSession implements Session {
     }
 
     /**
-     * @see Neo4jSession#doInTransaction(TransactionalUnitOfWork, org.neo4j.ogm.transaction.Transaction.Type)
      * @param function The code to execute.
-     * @param txType Transaction type, readonly or not.
+     * @param txType   Transaction type, readonly or not.
+     * @see Neo4jSession#doInTransaction(TransactionalUnitOfWork, org.neo4j.ogm.transaction.Transaction.Type)
      */
     public void doInTransaction(TransactionalUnitOfWorkWithoutResult function, Transaction.Type txType) {
-        doInTransaction( () -> {
+        doInTransaction(() -> {
             function.doInTransaction();
             return null;
         }, txType);
     }
 
-    public void doInTransaction(TransactionalUnitOfWorkWithoutResult function, boolean forceTx, Transaction.Type txType) {
-        doInTransaction( () -> {
+    public void doInTransaction(TransactionalUnitOfWorkWithoutResult function, boolean forceTx,
+        Transaction.Type txType) {
+        doInTransaction(() -> {
             function.doInTransaction();
             return null;
         }, forceTx, txType);
@@ -562,9 +564,10 @@ public class Neo4jSession implements Session {
      * For internal use only. Opens a new transaction if necessary before running statements
      * in case an explicit transaction does not exist. It is designed to be the central point
      * for handling exceptions coming from the DB and apply commit / rollback rules.
+     *
      * @param function The callback to execute.
-     * @param <T> The result type.
-     * @param txType Transaction type, readonly or not.
+     * @param <T>      The result type.
+     * @param txType   Transaction type, readonly or not.
      * @return The result of the transaction function.
      */
     public <T> T doInTransaction(TransactionalUnitOfWork<T> function, boolean forceTx, Transaction.Type txType) {
@@ -589,7 +592,7 @@ public class Neo4jSession implements Session {
             throw e;
         } catch (Throwable e) {
             logger.warn("Error executing query : {}. Rolling back transaction.", e.getMessage());
-            if(transactionManager().canRollback()) {
+            if (transactionManager().canRollback()) {
                 transaction.rollback();
             }
             throw e;
@@ -609,7 +612,7 @@ public class Neo4jSession implements Session {
      *----------------------------------------------------------------------------------------------------------
      * GraphIdDelegate
      *----------------------------------------------------------------------------------------------------------
-    */
+     */
     @Override
     public Long resolveGraphIdFor(Object possibleEntity) {
         return graphIdDelegate.resolveGraphIdFor(possibleEntity);
@@ -704,6 +707,20 @@ public class Neo4jSession implements Session {
     @Override
     public void setLoadStrategy(LoadStrategy loadStrategy) {
         this.loadStrategy = loadStrategy;
+    }
+
+    /**
+     * @return true, if changing one side of the relationship should also update the opposite side
+     */
+    public boolean isUpdateOtherSideOfRelationships() {
+        return updateOtherSideOfRelationships;
+    }
+
+    /**
+     * @param updateOtherSideOfRelationships true if changing one side of the relationship should also update the opposite side
+     */
+    public void setUpdateOtherSideOfRelationships(boolean updateOtherSideOfRelationships) {
+        this.updateOtherSideOfRelationships = updateOtherSideOfRelationships;
     }
 
     private LoadClauseBuilder loadNodeClauseBuilder(int depth) {

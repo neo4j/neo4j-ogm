@@ -129,13 +129,13 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         // check that objects with references to the deleted object have been cleared
         // check for TransientRelationship, where the object connected to the deleted object holds ref in a Set
         Album retrievedAlbum1 = (Album) mappingContext.getNodeEntity(album1.getId());
-        assertThat(retrievedAlbum1.getArtist() == null).isTrue();
+        assertThat(retrievedAlbum1.getArtist()).isNull();
 
         Album retrievedAlbum2 = (Album) mappingContext.getNodeEntity(album2.getId());
-        assertThat(retrievedAlbum2.getArtist() == null).isTrue();
+        assertThat(retrievedAlbum2.getArtist()).isNull();
 
         Album retrievedAlbum3 = (Album) mappingContext.getNodeEntity(album3.getId());
-        assertThat(retrievedAlbum3.getArtist() == null).isTrue();
+        assertThat(retrievedAlbum3.getArtist()).isNull();
     }
 
     @Test

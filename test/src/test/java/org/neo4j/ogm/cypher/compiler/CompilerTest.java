@@ -901,7 +901,7 @@ public class CompilerTest {
     }
 
     private Compiler mapAndCompile(Object object) {
-        EntityMapper mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
+        EntityMapper mapper = new EntityGraphMapper(mappingMetadata, mappingContext, false);
         CompileContext context = mapper.map(object);
         Compiler compiler = context.getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());

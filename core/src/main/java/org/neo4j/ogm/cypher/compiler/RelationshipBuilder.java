@@ -51,8 +51,6 @@ public interface RelationshipBuilder extends PropertyContainerBuilder<Relationsh
 
     void setRelationshipEntity(boolean relationshipEntity);
 
-    boolean isNew();
-
     Edge edge();
 
     void setPrimaryIdName(String primaryIdName);

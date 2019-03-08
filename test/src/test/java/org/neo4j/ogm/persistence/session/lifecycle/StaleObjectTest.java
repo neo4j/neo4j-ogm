@@ -106,11 +106,11 @@ public class StaleObjectTest extends MultiDriverTestClass {
         // directly after a save all objects in the save tree are guaranteed to not be dirty
         // directly after a load, all objects in the load tree are guaranteed to not be dirty
 
-        assertThat(p.getDocuments().iterator().next() == b).isFalse();
+        assertThat(p.getDocuments().iterator().next()).isNotSameAs(b);
 
         assertThat(a.toString()).isEqualTo("Document{folder=null, name='a'}");
         assertThat(b.toString()).isEqualTo(
-            "Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}");   // b is attached to f, which hasn't been saved or reloaded, so is unchanged
+            "Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}"); // b is attached to f, which hasn't been saved or reloaded, so is unchanged
 
         assertThat(p.getDocuments().iterator().next().toString())
             .isEqualTo("Document{folder=Folder{name='f', documents=1, archived=0}, name='b'}");

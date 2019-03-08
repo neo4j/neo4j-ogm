@@ -19,7 +19,7 @@
 package org.neo4j.ogm.context;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -64,8 +64,8 @@ public class SingleUseEntityMapper {
     /**
      * Constructs a new {@link SingleUseEntityMapper} based on the given mapping {@link MetaData}.
      *
-     * @param mappingMetaData The {@link MetaData} to use for performing mappings
-     * @param entityInstantiator   The entity factory to use.
+     * @param mappingMetaData    The {@link MetaData} to use for performing mappings
+     * @param entityInstantiator The entity factory to use.
      */
     public SingleUseEntityMapper(MetaData mappingMetaData, EntityInstantiator entityInstantiator) {
         this.metadata = mappingMetaData;
@@ -142,8 +142,8 @@ public class SingleUseEntityMapper {
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
                 Class elementType = underlyingElementType(classInfo, property.getKey());
                 value = writer.type().isArray()
-                    ? EntityAccessManager.merge(writer.type(), value, new Object[] {}, elementType)
-                    : EntityAccessManager.merge(writer.type(), value, Collections.EMPTY_LIST, elementType);
+                    ? EntityAccessManager.merge(writer.type(), value, (Object[]) null, elementType)
+                    : EntityAccessManager.merge(writer.type(), value, (Collection<?>) null, elementType);
             }
             writer.write(instance, value);
         } else {

@@ -23,7 +23,15 @@ import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
@@ -308,9 +316,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                     Class<?> paramType = writer.type();
                     Class elementType = underlyingElementType(classInfo, property.getKey().toString());
                     if (paramType.isArray()) {
-                        value = EntityAccessManager.merge(paramType, value, new Object[] {}, elementType);
+                        value = EntityAccessManager.merge(paramType, value, (Object[]) null, elementType);
                     } else {
-                        value = EntityAccessManager.merge(paramType, value, Collections.emptyList(), elementType);
+                        value = EntityAccessManager.merge(paramType, value, (Collection<?>) null, elementType);
                     }
                 }
             }

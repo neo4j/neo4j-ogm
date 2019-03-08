@@ -27,6 +27,7 @@ public class SavingTest extends MultiDriverTestClass {
     @BeforeClass
     public static void initSesssionFactory() {
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.gh613");
+        sessionFactory.setUpdateOtherSideOfRelationships(true);
     }
 
     @Before

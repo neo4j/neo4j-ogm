@@ -50,12 +50,11 @@ public class EntityAccessManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityAccessManager.class);
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Object merge(Class<?> parameterType, Object newValues, Object[] currentValues, Class elementType) {
+    public static Object merge(Class<?> parameterType, Object newValues, Object[] currentValues, Class<?> elementType) {
         if (currentValues != null) {
             return merge(parameterType, newValues, Arrays.asList(currentValues), elementType);
         } else {
-            return merge(parameterType, newValues, new ArrayList(), elementType);
+            return merge(parameterType, newValues, new ArrayList<>(), elementType);
         }
     }
 
@@ -70,8 +69,8 @@ public class EntityAccessManager {
      * @param elementType   The type of the element in the array or collection
      * @return The result of the merge, as an instance of the specified parameter type
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Object merge(Class<?> parameterType, Object newValues, Collection currentValues, Class elementType) {
+    public static Object merge(Class<?> parameterType, Object newValues, Collection<?> currentValues,
+        Class<?> elementType) {
 
         //While we expect newValues to be an iterable, there are a couple of exceptions
 
@@ -81,11 +80,14 @@ public class EntityAccessManager {
 
             //2. A char[] may come in as a String or an array of String[]
             newValues = stringToCharacterIterable(newValues, parameterType, elementType);
+        } else {
+            return currentValues;
         }
+        Collection<?> newValuesCollection = (Collection<?>) newValues;
 
         if (parameterType.isArray()) {
-            Class type = parameterType.getComponentType();
-            List<Object> objects = new ArrayList<>(union((Collection) newValues, currentValues, elementType));
+            Class<?> type = parameterType.getComponentType();
+            List<Object> objects = new ArrayList<>(union(newValuesCollection, currentValues, elementType));
 
             Object array = Array.newInstance(type, objects.size());
             for (int i = 0; i < objects.size(); i++) {
@@ -93,9 +95,12 @@ public class EntityAccessManager {
             }
             return array;
         }
+        if (currentValues != null && currentValues.containsAll(newValuesCollection)) {
+            return currentValues;
+        }
 
         // create the desired type of collection and use it for the merge
-        Collection newCollection = createCollection(parameterType, (Collection) newValues, currentValues, elementType);
+        Collection<?> newCollection = createCollection(parameterType, newValuesCollection, currentValues, elementType);
         if (newCollection != null) {
             return newCollection;
         }

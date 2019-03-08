@@ -34,11 +34,11 @@ public class MappedRelationship implements Mappable {
     private final String relationshipType;
     private final long endNodeId;
     private Long relationshipId;
-    private Class startNodeType;
-    private Class endNodeType;
+    private Class<?> startNodeType;
+    private Class<?> endNodeType;
 
-    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Class startNodeType,
-        Class endNodeType) {
+    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Class<?> startNodeType,
+        Class<?> endNodeType) {
         this.startNodeId = startNodeId;
         this.relationshipType = relationshipType;
         this.endNodeId = endNodeId;
@@ -47,7 +47,7 @@ public class MappedRelationship implements Mappable {
     }
 
     public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Long relationshipId,
-        Class startNodeType, Class endNodeType) {
+        Class<?> startNodeType, Class<?> endNodeType) {
         this.startNodeId = startNodeId;
         this.relationshipType = relationshipType;
         this.endNodeId = endNodeId;
@@ -84,11 +84,11 @@ public class MappedRelationship implements Mappable {
     public void activate() {
     }
 
-    public Class getEndNodeType() {
+    public Class<?> getEndNodeType() {
         return endNodeType;
     }
 
-    public Class getStartNodeType() {
+    public Class<?> getStartNodeType() {
         return startNodeType;
     }
 

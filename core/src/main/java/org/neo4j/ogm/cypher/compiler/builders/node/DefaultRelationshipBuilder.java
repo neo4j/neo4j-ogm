@@ -87,11 +87,6 @@ public class DefaultRelationshipBuilder extends AbstractPropertyContainerBuilder
     }
 
     @Override
-    public boolean isNew() {
-        return true;
-    }
-
-    @Override
     public void setSingleton(boolean b) {
         this.singleton = b;
     }

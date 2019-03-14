@@ -18,7 +18,10 @@
  */
 package org.neo4j.ogm.context;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +42,7 @@ import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
@@ -51,6 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  * @author Michael J. Simons
+ * @author Andreas Berger
  */
 public class EntityGraphMapper implements EntityMapper {
 
@@ -59,6 +64,7 @@ public class EntityGraphMapper implements EntityMapper {
     private final MetaData metaData;
     private final MappingContext mappingContext;
     private final Compiler compiler = new MultiStatementCypherCompiler();
+    private boolean updateOtherSideOfRelationships;
     /**
      * Default supplier for write protection: Always write all the stuff.
      */
@@ -70,9 +76,10 @@ public class EntityGraphMapper implements EntityMapper {
      * @param metaData       The {@link MetaData} containing the mapping information
      * @param mappingContext The {@link MappingContext} for the current session
      */
-    public EntityGraphMapper(MetaData metaData, MappingContext mappingContext) {
+    public EntityGraphMapper(MetaData metaData, MappingContext mappingContext, boolean updateOtherSideOfRelationships) {
         this.metaData = metaData;
         this.mappingContext = mappingContext;
+        this.updateOtherSideOfRelationships = updateOtherSideOfRelationships;
     }
 
     public void addWriteProtection(BiFunction<WriteProtectionTarget, Class<?>, Predicate<Object>> writeProtectionSupplier) {
@@ -194,13 +201,17 @@ public class EntityGraphMapper implements EntityMapper {
                     }
                 }
 
-                // remove all nodes that are referenced by this relationship in the mapping context
-                // this will ensure that stale versions of these objects don't exist
-                clearRelatedObjects(mappedRelationship.getStartNodeId());
-                clearRelatedObjects(mappedRelationship.getEndNodeId());
+                if (updateOtherSideOfRelationships) {
+                    // update all entities related by this change
+                    removeOtherSideOfRelationship(mappedRelationship);
+                } else {
+                    // remove all nodes that are referenced by this relationship in the mapping context
+                    // this will ensure that stale versions of these objects don't exist
+                    clearRelatedObjects(mappedRelationship.getStartNodeId());
+                    clearRelatedObjects(mappedRelationship.getEndNodeId());
+                }
 
                 // finally remove the relationship from the mapping context
-                //mappingContext.removeRelationship(mappedRelationship);
                 mappedRelationshipIterator.remove();
             }
         }
@@ -829,13 +840,11 @@ public class EntityGraphMapper implements EntityMapper {
         RelationshipBuilder relationshipBuilder, RelationshipNodes relNodes) {
 
         if (relNodes.targetId == null || relNodes.sourceId == null) {
-            maybeCreateRelationship(context, srcNodeBuilder.reference(), relationshipBuilder,
-                tgtNodeBuilder.reference(), relNodes.sourceType, relNodes.targetType);
+            maybeCreateRelationship(context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, relNodes);
         } else {
             MappedRelationship mappedRelationship = createMappedRelationship(relationshipBuilder, relNodes);
             if (!mappingContext.containsRelationship(mappedRelationship)) {
-                maybeCreateRelationship(context, srcNodeBuilder.reference(), relationshipBuilder,
-                    tgtNodeBuilder.reference(), relNodes.sourceType, relNodes.targetType);
+                maybeCreateRelationship(context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, relNodes);
             } else {
                 LOGGER.debug("context-add: ({})-[{}:{}]->({})", mappedRelationship.getStartNodeId(),
                     relationshipBuilder.reference(), mappedRelationship.getRelationshipType(),
@@ -858,12 +867,18 @@ public class EntityGraphMapper implements EntityMapper {
      * once from one of the participating nodes (rather than from both ends).
      *
      * @param context             the current compiler {@link CompileContext}
-     * @param src                 the compiler's reference to the domain object representing the start node
+     * @param srcNodeBuilder      a {@link NodeBuilder} that knows how to create cypher phrases about nodes
+     * @param tgtNodeBuilder      a {@link NodeBuilder} that knows how to create cypher phrases about nodes
      * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
-     * @param tgt                 the compiler's reference to the domain object representing the end node
+     * @param relNodes            {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the ends of this relationship
      */
-    private void maybeCreateRelationship(CompileContext context, Long src, RelationshipBuilder relationshipBuilder,
-        Long tgt, Class srcClass, Class tgtClass) {
+    private void maybeCreateRelationship(CompileContext context, NodeBuilder srcNodeBuilder, NodeBuilder tgtNodeBuilder,
+        RelationshipBuilder relationshipBuilder, RelationshipNodes relNodes) {
+
+        Long src = srcNodeBuilder.reference();
+        Long tgt = tgtNodeBuilder.reference();
+        Class<?> srcClass = relNodes.sourceType;
+        Class<?> tgtClass = relNodes.targetType;
 
         //if (hasTransientRelationship(context, src, relationshipBuilder.type(), tgt)) {
         if (hasTransientRelationship(context, src, relationshipBuilder, tgt)) {
@@ -890,6 +905,10 @@ public class EntityGraphMapper implements EntityMapper {
         } else {
             reallyCreateRelationship(context, src, relationshipBuilder, tgt, srcClass, tgtClass);
         }
+
+        if (updateOtherSideOfRelationships) {
+            updateSidesOfRelationship(relationshipBuilder, relNodes);
+        }
     }
 
     /**
@@ -905,11 +924,9 @@ public class EntityGraphMapper implements EntityMapper {
      */
     private boolean hasTransientRelationship(CompileContext ctx, Long src, RelationshipBuilder relationshipBuilder,
         Long tgt) {
-        for (Object object : ctx.getTransientRelationships(new SrcTargetKey(src, tgt))) {
-            if (object instanceof TransientRelationship) {
-                if (((TransientRelationship) object).equals(src, relationshipBuilder, tgt)) {
-                    return true;
-                }
+        for (TransientRelationship relationship : ctx.getTransientRelationships(new SrcTargetKey(src, tgt))) {
+            if (relationship.equals(src, relationshipBuilder, tgt)) {
+                return true;
             }
         }
         return false;
@@ -930,11 +947,11 @@ public class EntityGraphMapper implements EntityMapper {
         relBuilder.relate(src, tgt);
         LOGGER.debug("context-new: ({})-[{}:{}]->({})", src, relBuilder.reference(), relBuilder.type(), tgt);
 
-        if (relBuilder.isNew()) {  //We only want to create or log new relationships
-            ctx.registerTransientRelationship(new SrcTargetKey(src, tgt),
-                new TransientRelationship(src, relBuilder.reference(), relBuilder.type(), tgt, srcClass,
-                    tgtClass)); // we log the new relationship as part of the transaction context.
-        }
+        // we log the new relationship as part of the transaction context.
+        ctx.registerTransientRelationship(
+            new SrcTargetKey(src, tgt),
+            new TransientRelationship(src, relBuilder.reference(), relBuilder.type(), tgt, srcClass, tgtClass)
+        );
     }
 
     /**
@@ -1005,6 +1022,160 @@ public class EntityGraphMapper implements EntityMapper {
             }
         }
         return mapBothWays;
+    }
+
+    private Object getEntity(long id) {
+        if (id < 0) {
+            return compileContext().getNewObject(id);
+        }
+        return Optional.ofNullable(mappingContext.getNodeEntity(id))
+            .orElseGet(() -> mappingContext.getRelationshipEntity(id));
+    }
+
+    private FieldInfo getFieldInfoForRelationship(Object entity, String relationshipType, Class<?> nodeType,
+        String direction) {
+        if (entity == null) {
+            return null;
+        }
+        ClassInfo classInfo = metaData.classInfo(entity);
+        if (classInfo == null) {
+            throw new IllegalStateException("cannot find classInfo for entity " + entity);
+        }
+        FieldInfo relatedField = EntityAccessManager
+            .getRelationalWriter(classInfo, relationshipType, direction, nodeType);
+        if (relatedField == null) {
+            return null;
+        }
+        return relatedField;
+    }
+
+    private void updateSidesOfRelationship(RelationshipBuilder relationshipBuilder, RelationshipNodes relNodes) {
+        Class<?> startCls;
+        Class<?> endCls;
+        Object startEntity;
+        Object endEntity;
+        String relationshipType = relationshipBuilder.type();
+
+        if (relationshipBuilder.hasDirection(Relationship.INCOMING)) {
+            startCls = relNodes.targetType;
+            endCls = relNodes.sourceType;
+            startEntity = relNodes.target == null ? getEntity(relNodes.targetId) : relNodes.target;
+            endEntity = relNodes.source == null ? getEntity(relNodes.sourceId) : relNodes.source;
+        } else {
+            startCls = relNodes.sourceType;
+            endCls = relNodes.targetType;
+            startEntity = relNodes.source == null ? getEntity(relNodes.sourceId) : relNodes.source;
+            endEntity = relNodes.target == null ? getEntity(relNodes.targetId) : relNodes.target;
+        }
+        if (startEntity == null || endEntity == null) {
+            return;
+        }
+        if (relationshipBuilder.isRelationshipEntity()) {
+            Object relationshipEntity = getEntity(relationshipBuilder.reference());
+            Class<?> relationshipCls;
+            if (relationshipEntity != null) {
+                relationshipCls = relationshipEntity.getClass();
+                updateSideOfRelationship(startEntity, relationshipEntity, relationshipType, relationshipCls, Relationship.OUTGOING);
+                updateSideOfRelationship(endEntity, relationshipEntity, relationshipType, relationshipCls, Relationship.INCOMING);
+            } else {
+                ClassInfo relationshipClassInfo = metaData.classInfo(relationshipType);
+                relationshipCls = relationshipClassInfo.getUnderlyingClass();
+            }
+            if (startCls.isAssignableFrom(relationshipCls)) {
+                startCls = endEntity.getClass();
+            } else if (endCls.isAssignableFrom(relationshipCls)) {
+                endCls = endEntity.getClass();
+            }
+        }
+
+        updateSideOfRelationship(startEntity, endEntity, relationshipType, endCls, Relationship.OUTGOING);
+        updateSideOfRelationship(endEntity, startEntity, relationshipType, startCls, Relationship.INCOMING);
+    }
+
+    private void updateSideOfRelationship(Object entity, Object otherSideEntity, String relationshipType,
+        Class<?> nodeType,
+        String direction) {
+        FieldInfo relatedField = getFieldInfoForRelationship(entity, relationshipType, nodeType, direction);
+        if (relatedField == null) {
+            return;
+        }
+        Object val = relatedField.read(entity);
+        if (Iterable.class.isAssignableFrom(relatedField.type())) {
+            val = EntityAccessManager.merge(
+                relatedField.type(),
+                new ArrayList<>(Collections.singleton(otherSideEntity)),
+                (Collection<?>) val,
+                ClassUtils.getType(relatedField.typeParameterDescriptor()));
+        } else if (relatedField.type().isArray()) {
+            val = EntityAccessManager.merge(
+                relatedField.type(),
+                Collections.singleton(otherSideEntity),
+                (Object[]) val,
+                ClassUtils.getType(relatedField.typeParameterDescriptor()));
+        } else {
+            if (val == otherSideEntity) {
+                return;
+            }
+            val = otherSideEntity;
+        }
+        relatedField.write(entity, val);
+    }
+
+    private void removeOtherSideOfRelationship(MappedRelationship mappedRelationship) {
+
+        Class<?> startCls = mappedRelationship.getStartNodeType();
+        Class<?> endCls = mappedRelationship.getEndNodeType();
+        String relationshipType = mappedRelationship.getRelationshipType();
+
+        Object startEntity = mappingContext.getNodeEntity(mappedRelationship.getStartNodeId());
+        Object endEntity = mappingContext.getNodeEntity(mappedRelationship.getEndNodeId());
+        Object relationshipEntity = mappingContext.getRelationshipEntity(mappedRelationship.getRelationshipId());
+
+        if (startEntity != null && endEntity != null) {
+            removeOtherSideFromEntity(startEntity, endEntity, relationshipType, endCls, Relationship.OUTGOING);
+            removeOtherSideFromEntity(endEntity, startEntity, relationshipType, startCls, Relationship.INCOMING);
+        }
+
+        if (relationshipEntity != null) {
+            if (startCls.isAssignableFrom(relationshipEntity.getClass())) {
+                removeOtherSideFromEntity(startEntity, relationshipEntity, relationshipType, startCls, Relationship.OUTGOING);
+            } else if (endCls.isAssignableFrom(relationshipEntity.getClass())) {
+                removeOtherSideFromEntity(endEntity, relationshipEntity, relationshipType, endCls, Relationship.INCOMING);
+            }
+        }
+    }
+
+    private void removeOtherSideFromEntity(Object entity, Object otherSideEntity, String relationshipType,
+        Class<?> nodeType,
+        String direction) {
+        FieldInfo relatedField = getFieldInfoForRelationship(entity, relationshipType, nodeType, direction);
+        if (relatedField == null) {
+            return;
+        }
+        Object currentValue = relatedField.read(entity);
+        if (currentValue == null) {
+            return;
+        }
+        if (currentValue instanceof Collection) {
+            ((Collection<?>) currentValue).remove(otherSideEntity);
+        } else if (currentValue.getClass().isArray()) {
+            int i, j;
+            Object[] array = (Object[]) currentValue;
+            for (i = j = 0; j < array.length; ++j) {
+                if (array[j] != otherSideEntity)
+                    array[i++] = array[j];
+            }
+            array = Arrays.copyOf(array, i);
+            relatedField.write(entity, array);
+        } else {
+            Long currentSetId = mappingContext.nativeId(currentValue);
+            Long otherSideId = mappingContext.nativeId(otherSideEntity);
+            if (!currentSetId.equals(otherSideId)) {
+                // ok the field was already changed by the user
+                return;
+            }
+            relatedField.write(entity, null);
+        }
     }
 
     static class RelationshipNodes {

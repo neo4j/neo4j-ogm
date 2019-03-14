@@ -26,6 +26,7 @@ import java.util.function.Predicate;
 
 import org.neo4j.ogm.compiler.SrcTargetKey;
 import org.neo4j.ogm.context.Mappable;
+import org.neo4j.ogm.context.TransientRelationship;
 
 /**
  * Maintains contextual information throughout the process of compiling Cypher statements to persist a graph of objects.
@@ -48,7 +49,7 @@ public class CypherContext implements CompileContext {
     private final Set<Mappable> deletedRelationships = new HashSet<>();
 
     private final Set<Object> registry = new HashSet<>();
-    private final Map<SrcTargetKey, Set<Object>> transientRelsIndex = new HashMap<>();
+    private final Map<SrcTargetKey, Set<TransientRelationship>> transientRelsIndex = new HashMap<>();
 
     private final Compiler compiler;
 
@@ -98,11 +99,11 @@ public class CypherContext implements CompileContext {
     }
 
     @Override
-    public void registerTransientRelationship(SrcTargetKey key, Object object) {
-        if (!registry.contains(object)) {
-            registry.add(object);
-            Set<Object> collection = transientRelsIndex.computeIfAbsent(key, k -> new HashSet<>());
-            collection.add(object);
+    public void registerTransientRelationship(SrcTargetKey key, TransientRelationship object) {
+        if (registry.add(object)) {
+            transientRelsIndex
+                .computeIfAbsent(key, k -> new HashSet<>())
+                .add(object);
         }
     }
 
@@ -247,8 +248,8 @@ public class CypherContext implements CompileContext {
     }
 
     @Override
-    public Collection<Object> getTransientRelationships(SrcTargetKey srcTargetKey) {
-        Collection<Object> objects = transientRelsIndex.get(srcTargetKey);
+    public Collection<TransientRelationship> getTransientRelationships(SrcTargetKey srcTargetKey) {
+        Collection<TransientRelationship> objects = transientRelsIndex.get(srcTargetKey);
         if (objects != null) {
             return objects;
         } else {

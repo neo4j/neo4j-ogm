@@ -144,28 +144,28 @@ public class SaveCapabilityTest extends MultiDriverTestClass {
         lost.setArtist(bonJovi);
         lost.setGuestArtist(leann);
 
-        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(lost, depth);
+        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context(), false).map(lost, depth);
         assertThat(context.registry()).as("Should save 3 nodes and 2 relations (5 items)").hasSize(5);
 
         session.save(lost);
 
-        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(lost, depth);
+        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context(), false).map(lost, depth);
         assertThat(context.registry()).as("Should have nothing to save").isEmpty();
 
         session.clear();
 
         Artist loadedLeann = session.load(Artist.class, leann.getId(), depth);
 
-        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(loadedLeann, depth);
+        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context(), false).map(loadedLeann, depth);
         assertThat(context.registry()).as("Should have nothing to save").isEmpty();
 
         loadedLeann.setName("New name");
-        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(loadedLeann, depth);
+        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context(), false).map(loadedLeann, depth);
         assertThat(context.registry()).as("Should have one node to save").hasSize(1);
 
         loadedLeann.getGuestAlbums().iterator().next().setName("New Album Name");
 
-        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(loadedLeann, depth);
+        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context(), false).map(loadedLeann, depth);
         assertThat(context.registry()).as("Should have two node to save").hasSize(2);
     }
 

@@ -94,6 +94,7 @@ public class Neo4jSession implements Session {
 
     private Driver driver;
     private String bookmark;
+    private boolean updateOtherSideOfRelationships;
 
     private List<EventListener> registeredEventListeners = new LinkedList<>();
 
@@ -704,6 +705,20 @@ public class Neo4jSession implements Session {
     @Override
     public void setLoadStrategy(LoadStrategy loadStrategy) {
         this.loadStrategy = loadStrategy;
+    }
+
+    /**
+     * @return true, if changing one side of the relationship should also update the opposite side
+     */
+    public boolean isUpdateOtherSideOfRelationships() {
+        return updateOtherSideOfRelationships;
+    }
+
+    /**
+     * @param updateOtherSideOfRelationships true if changing one side of the relationship should also update the opposite side
+     */
+    public void setUpdateOtherSideOfRelationships(boolean updateOtherSideOfRelationships) {
+        this.updateOtherSideOfRelationships = updateOtherSideOfRelationships;
     }
 
     private LoadClauseBuilder loadNodeClauseBuilder(int depth) {

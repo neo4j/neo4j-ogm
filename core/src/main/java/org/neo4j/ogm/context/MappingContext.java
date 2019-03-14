@@ -182,6 +182,31 @@ public class MappingContext {
         }
     }
 
+    Set<Long> removeStaleRelationships(Set<Long> staleNodeIds) {
+
+        Set<Long> newStaleNodeIds = new HashSet<>();
+        Iterator<MappedRelationship> it = this.relationshipRegister.iterator();
+        while (it.hasNext()) {
+            MappedRelationship r = it.next();
+
+            // Not touched by a stale node
+            if (!staleNodeIds.contains(r.getStartNodeId()) && !staleNodeIds.contains(r.getEndNodeId())) {
+                continue;
+            }
+
+            // Possible further stale nodes
+            newStaleNodeIds.add(r.getStartNodeId());
+            newStaleNodeIds.add(r.getEndNodeId());
+
+            // Remove the stale relationship in one go
+            it.remove();
+        }
+
+        // Remove possible duplicate stale nodes upfront
+        newStaleNodeIds.removeAll(staleNodeIds);
+        return newStaleNodeIds;
+    }
+
     public void replaceNodeEntity(Object entity, Long identity) {
         removeNodeEntity(entity, false);
 

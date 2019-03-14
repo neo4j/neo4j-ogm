@@ -19,9 +19,10 @@
 package org.neo4j.ogm.context;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -37,9 +38,9 @@ import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,10 +169,9 @@ public class EntityGraphMapper implements EntityMapper {
     private void deleteObsoleteRelationships() {
         CompileContext context = compiler.context();
 
-        Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.getRelationships().iterator();
-        while (mappedRelationshipIterator.hasNext()) {
-            MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
+        Set<Long> staleNodeIds = new HashSet<>();
 
+        for (MappedRelationship mappedRelationship : mappingContext.getRelationships()) {
             // if we cannot remove this relationship from the compile context, it
             // means the user has deleted the relationship
             if (!context.removeRegisteredRelationship(mappedRelationship)) {
@@ -196,35 +196,22 @@ public class EntityGraphMapper implements EntityMapper {
 
                 // remove all nodes that are referenced by this relationship in the mapping context
                 // this will ensure that stale versions of these objects don't exist
-                clearRelatedObjects(mappedRelationship.getStartNodeId());
-                clearRelatedObjects(mappedRelationship.getEndNodeId());
-
-                // finally remove the relationship from the mapping context
-                //mappingContext.removeRelationship(mappedRelationship);
-                mappedRelationshipIterator.remove();
+                staleNodeIds.add(mappedRelationship.getStartNodeId());
+                staleNodeIds.add(mappedRelationship.getEndNodeId());
             }
         }
-    }
 
-    private void clearRelatedObjects(Long node) {
+        while (!staleNodeIds.isEmpty()) {
 
-        for (MappedRelationship mappedRelationship : mappingContext.getRelationships()) {
-            if (mappedRelationship.getStartNodeId() == node || mappedRelationship.getEndNodeId() == node) {
+            // Remove all the stale nodes
+            staleNodeIds.stream()
+                .filter(nodeId -> nodeId != null)
+                .map(mappingContext::getNodeEntity)
+                .filter(node -> node != null)
+                .forEach(node -> mappingContext.removeNodeEntity(node, true));
 
-                Object dirty = mappingContext.getNodeEntity(mappedRelationship.getEndNodeId());
-                if (dirty != null) {
-                    LOGGER.debug("flushing end node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(),
-                        mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-                    mappingContext.removeNodeEntity(dirty, true);
-                }
-
-                dirty = mappingContext.getNodeEntity(mappedRelationship.getStartNodeId());
-                if (dirty != null) {
-                    LOGGER.debug("flushing start node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(),
-                        mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-                    mappingContext.removeNodeEntity(dirty, true);
-                }
-            }
+            // Remove now stale relationship and possibly creating new stale nodes
+            staleNodeIds = mappingContext.removeStaleRelationships(staleNodeIds);
         }
     }
 

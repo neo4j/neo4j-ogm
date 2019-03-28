@@ -201,7 +201,7 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
     public void metaDataFromParentPackageShouldWork() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh619");
-        Collection labels = EntityUtils.labels(new RealNode(), metaData);
+        Collection<String> labels = EntityUtils.labels(new RealNode(), metaData);
 
         assertThat(labels).hasSize(1).containsExactly("real");
     }
@@ -211,8 +211,8 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh619.base",
             "org.neo4j.ogm.domain.gh619.model");
+        Collection<String> labels = EntityUtils.labels(new RealNode(), metaData);
 
-        Collection labels = EntityUtils.labels(new RealNode(), metaData);
         assertThat(labels).hasSize(1).containsExactly("real");
     }
 
@@ -220,7 +220,7 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
     public void metaDataWithImplicitParentPackageShouldWork() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh619.model");
-        Collection labels = EntityUtils.labels(new RealNode(), metaData);
+        Collection<String> labels = EntityUtils.labels(new RealNode(), metaData);
 
         assertThat(labels).hasSize(1).containsExactly("real");
     }

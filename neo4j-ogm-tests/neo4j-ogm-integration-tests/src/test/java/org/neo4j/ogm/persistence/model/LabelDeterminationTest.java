@@ -22,6 +22,7 @@ import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.StreamSupport;
@@ -39,9 +40,12 @@ import org.neo4j.ogm.domain.generic_hierarchy.ChildB;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildC;
 import org.neo4j.ogm.domain.generic_hierarchy.Entity;
 import org.neo4j.ogm.domain.generic_hierarchy.EntityWithImplicitPlusAdditionalLabels;
+import org.neo4j.ogm.domain.gh619.model.RealNode;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.utils.EntityUtils;
 
 /**
  * Tests for label determination, especially in the context of class hierarchies with several abstract base classes
@@ -135,7 +139,7 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
         }
     }
 
-    @Test // See #488
+    @Test // GH-488
     public void shouldUpdateLabelWhenLoadingEntityInSameSession() {
         ChildA a = new ChildA();
         a.addLabel("A0");
@@ -155,7 +159,7 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
         assertThat(dbA.getLabels()).contains("A1");
     }
 
-    @Test // See #488
+    @Test // GH-488
     public void shouldUpdateLabelWhenLoadingEntityInNewSession() {
         ChildA a = new ChildA();
         a.addLabel("A0");
@@ -175,7 +179,7 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
         assertThat(dbA.getLabels()).contains("A1");
     }
 
-    @Test // See #539
+    @Test // GH-539
     public void labelsShouldBeDeleted() {
         Session throwAwaySession = sessionFactory.openSession();
         throwAwaySession.query("CREATE (a:EntityWithImplicitPlusAdditionalLabels:Label1:Label2 {id: 'myId'}) RETURN a", emptyMap());
@@ -191,6 +195,34 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
         throwAwaySession = sessionFactory.openSession();
         entity = session.load(EntityWithImplicitPlusAdditionalLabels.class, "myId");
         assertThat(entity.getLabels()).containsExactlyInAnyOrder("Label2");
+    }
+
+    @Test // GH-619
+    public void metaDataFromParentPackageShouldWork() {
+
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh619");
+        Collection labels = EntityUtils.labels(new RealNode(), metaData);
+
+        assertThat(labels).hasSize(1).containsExactly("real");
+    }
+
+    @Test // GH-619
+    public void metaDataWithExplicitPackagesShouldWork() {
+
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh619.base",
+            "org.neo4j.ogm.domain.gh619.model");
+
+        Collection labels = EntityUtils.labels(new RealNode(), metaData);
+        assertThat(labels).hasSize(1).containsExactly("real");
+    }
+
+    @Test // GH-619
+    public void metaDataWithImplicitParentPackageShouldWork() {
+
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh619.model");
+        Collection labels = EntityUtils.labels(new RealNode(), metaData);
+
+        assertThat(labels).hasSize(1).containsExactly("real");
     }
 
     static class IndexDescription {

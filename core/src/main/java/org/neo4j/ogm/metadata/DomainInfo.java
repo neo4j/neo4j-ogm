@@ -64,55 +64,55 @@ public class DomainInfo {
 
         DomainInfo domainInfo = new DomainInfo();
 
-        for (String className : allClasses) {
-            Class<?> cls = null;
-            try {
-                cls = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
-            } catch (ClassNotFoundException e) {
-                LOGGER.warn("Could not load class {}", className);
-                continue;
-            }
-
-            ClassInfo classInfo = new ClassInfo(cls);
-
-            String superclassName = classInfo.superclassName();
-
-            LOGGER.debug("Processing: {} -> {}", className, superclassName);
-
-            if (className != null) {
-                if (cls.isAnnotation() || cls.isAnonymousClass() || cls.equals(Object.class)) {
-                    continue;
-                }
-
-                ClassInfo thisClassInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
-
-                if (!thisClassInfo.hydrated()) {
-
-                    thisClassInfo.hydrate(classInfo);
-
-                    ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
-                    if (superclassInfo == null) {
-
-                        if (superclassName != null && !superclassName.equals("java.lang.Object") && !superclassName
-                            .equals("java.lang.Enum")) {
-                            domainInfo.classNameToClassInfo
-                                .put(superclassName, new ClassInfo(superclassName, thisClassInfo));
-                        }
-                    } else {
-                        superclassInfo.addSubclass(thisClassInfo);
-                    }
-                }
-
-                if (thisClassInfo.isEnum()) {
-                    LOGGER.debug("Registering enum class: {}", thisClassInfo.name());
-                    domainInfo.enumTypes.add(thisClassInfo.getUnderlyingClass());
-                }
-            }
-        }
+        allClasses.forEach(className -> prepareClass(domainInfo, className));
 
         domainInfo.finish();
 
         return domainInfo;
+    }
+
+    private static void prepareClass(DomainInfo domainInfo, String className) {
+        Class<?> cls = null;
+        try {
+            cls = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+        } catch (ClassNotFoundException e) {
+            LOGGER.warn("Could not load class {}", className);
+        }
+
+        ClassInfo classInfo = new ClassInfo(cls);
+
+        String superclassName = classInfo.superclassName();
+
+        LOGGER.debug("Processing: {} -> {}", className, superclassName);
+
+        if (className != null && !(cls.isAnnotation() || cls.isAnonymousClass() || cls.equals(Object.class))) {
+
+            ClassInfo thisClassInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
+
+            if (!thisClassInfo.hydrated()) {
+
+                thisClassInfo.hydrate(classInfo);
+
+                ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
+                if (superclassInfo == null) {
+
+                    if (superclassName != null && !superclassName.equals("java.lang.Object") && !superclassName
+                        .equals("java.lang.Enum")) {
+                        domainInfo.classNameToClassInfo
+                            .put(superclassName, new ClassInfo(superclassName, thisClassInfo));
+
+                        prepareClass(domainInfo, superclassName);
+                    }
+                } else {
+                    superclassInfo.addSubclass(thisClassInfo);
+                }
+            }
+
+            if (thisClassInfo.isEnum()) {
+                LOGGER.debug("Registering enum class: {}", thisClassInfo.name());
+                domainInfo.enumTypes.add(thisClassInfo.getUnderlyingClass());
+            }
+        }
     }
 
     private void buildAnnotationNameToClassInfoMap() {

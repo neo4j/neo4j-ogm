@@ -91,7 +91,7 @@ public class CompilerTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
-        new EntityGraphMapper(mappingMetadata, mappingContext).map(null);
+        new EntityGraphMapper(mappingMetadata, mappingContext, false).map(null);
     }
 
     @Test
@@ -900,7 +900,7 @@ public class CompilerTest {
     }
 
     private Compiler mapAndCompile(Object object) {
-        EntityMapper mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
+        EntityMapper mapper = new EntityGraphMapper(mappingMetadata, mappingContext, false);
         CompileContext context = mapper.map(object);
         Compiler compiler = context.getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());

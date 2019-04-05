@@ -89,7 +89,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
             "org.neo4j.ogm.domain.election", "org.neo4j.ogm.domain.forum",
             "org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.types");
         mappingContext.clear();
-        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
+        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext, false);
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }

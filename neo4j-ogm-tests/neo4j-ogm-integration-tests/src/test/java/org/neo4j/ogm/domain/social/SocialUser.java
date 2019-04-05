@@ -81,36 +81,4 @@ public class SocialUser {
     public void setName(String name) {
         this.name = name;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        SocialUser that = (SocialUser) o;
-
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (friends != null ? !friends.equals(that.friends) : that.friends != null) {
-            return false;
-        }
-        if (following != null ? !following.equals(that.following) : that.following != null) {
-            return false;
-        }
-        return !(followers != null ? !followers.equals(that.followers) : that.followers != null);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 31 + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (friends != null ? friends.hashCode() : 0);
-        result = 31 * result + (following != null ? following.hashCode() : 0);
-        result = 31 * result + (followers != null ? followers.hashCode() : 0);
-        return result;
-    }
 }

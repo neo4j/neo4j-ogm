@@ -82,11 +82,14 @@ public class EntityAccessManager {
 
             //2. A char[] may come in as a String or an array of String[]
             newValues = stringToCharacterIterable(newValues, parameterType, elementType);
+        } else {
+            return currentValues;
         }
+        Collection<?> newValuesCollection = (Collection<?>) newValues;
 
         if (parameterType.isArray()) {
-            Class type = parameterType.getComponentType();
-            List<Object> objects = new ArrayList<>(union((Collection) newValues, currentValues, elementType));
+            Class<?> type = parameterType.getComponentType();
+            List<Object> objects = new ArrayList<>(union(newValuesCollection, currentValues, elementType));
 
             Object array = Array.newInstance(type, objects.size());
             for (int i = 0; i < objects.size(); i++) {
@@ -94,9 +97,12 @@ public class EntityAccessManager {
             }
             return array;
         }
+        if (currentValues != null && currentValues.containsAll(newValuesCollection)) {
+            return currentValues;
+        }
 
         // create the desired type of collection and use it for the merge
-        Collection newCollection = createCollection(parameterType, (Collection) newValues, currentValues, elementType);
+        Collection<?> newCollection = createCollection(parameterType, newValuesCollection, currentValues, elementType);
         if (newCollection != null) {
             return newCollection;
         }

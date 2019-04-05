@@ -411,7 +411,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         movies = session.loadAll(Movie.class,
             new Filter("title", ComparisonOperator.EQUALS, "Harry Potter and the Order of the Phoenix"));
         phoenix = movies.iterator().next();
-        assertThat(phoenix.getRatings()).isNull();
+        assertThat(phoenix.getRatings()).isNullOrEmpty();
 
         movies = session.loadAll(Movie.class,
             new Filter("title", ComparisonOperator.EQUALS, "Harry Potter and the Goblet of Fire"));

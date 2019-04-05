@@ -22,6 +22,7 @@ import java.util.Collection;
 
 import org.neo4j.ogm.compiler.SrcTargetKey;
 import org.neo4j.ogm.context.Mappable;
+import org.neo4j.ogm.context.TransientRelationship;
 
 /**
  * Maintains contextual information throughout the process of compiling Cypher statements to persist a graph of objects.
@@ -41,7 +42,7 @@ public interface CompileContext {
 
     void register(Object entity);
 
-    void registerTransientRelationship(SrcTargetKey key, Object object);
+    void registerTransientRelationship(SrcTargetKey key, TransientRelationship object);
 
     void registerNewObject(Long reference, Object relationshipEntity);
 
@@ -76,5 +77,5 @@ public interface CompileContext {
 
     Object getVisitedObject(Long reference);
 
-    Collection<Object> getTransientRelationships(SrcTargetKey key);
+    Collection<TransientRelationship> getTransientRelationships(SrcTargetKey key);
 }

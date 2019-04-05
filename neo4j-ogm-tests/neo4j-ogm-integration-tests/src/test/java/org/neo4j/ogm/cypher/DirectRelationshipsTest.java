@@ -60,7 +60,7 @@ public class DirectRelationshipsTest {
 
     @Before
     public void setUpMapper() {
-        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
+        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext, false);
     }
 
     @After
@@ -519,7 +519,7 @@ public class DirectRelationshipsTest {
         assertThat(statements.get(0).getStatement()).isEqualTo(
             "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`CONTAINS`]->(endNode) DELETE rel");
 
-        mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
+        mapper = new EntityGraphMapper(mappingMetadata, mappingContext, false);
         //There are no more changes to the graph
         compiler = mapper.map(doc1).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());

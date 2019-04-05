@@ -53,7 +53,7 @@ public class MergeWithPrimaryIndexTests {
     @Before
     public void setUpMapper() {
         mappingContext = new MappingContext(mappingMetadata);
-        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
+        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext, false);
     }
 
     @After

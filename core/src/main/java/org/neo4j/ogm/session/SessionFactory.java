@@ -52,6 +52,7 @@ public class SessionFactory {
 
     private LoadStrategy loadStrategy = LoadStrategy.SCHEMA_LOAD_STRATEGY;
     private EntityInstantiator entityInstantiator;
+    private boolean updateOtherSideOfRelationships;
 
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
@@ -137,7 +138,9 @@ public class SessionFactory {
      * @return A new {@link Session}
      */
     public Session openSession() {
-        return new Neo4jSession(metaData, driver, eventListeners, loadStrategy, entityInstantiator);
+        Neo4jSession session = new Neo4jSession(metaData, driver, eventListeners, loadStrategy, entityInstantiator);
+        session.setUpdateOtherSideOfRelationships(updateOtherSideOfRelationships);
+        return session;
     }
 
     /**
@@ -183,6 +186,20 @@ public class SessionFactory {
 
     public void setEntityInstantiator(EntityInstantiator entityInstantiator) {
         this.entityInstantiator = entityInstantiator;
+    }
+
+    /**
+     * @return true, if changing one side of the relationship should also update the opposite side
+     */
+    public boolean isUpdateOtherSideOfRelationships() {
+        return updateOtherSideOfRelationships;
+    }
+
+    /**
+     * @param updateOtherSideOfRelationships true if changing one side of the relationship should also update the opposite side
+     */
+    public void setUpdateOtherSideOfRelationships(boolean updateOtherSideOfRelationships) {
+        this.updateOtherSideOfRelationships = updateOtherSideOfRelationships;
     }
 
     /**

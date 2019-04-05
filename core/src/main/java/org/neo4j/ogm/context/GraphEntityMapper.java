@@ -285,9 +285,9 @@ public class GraphEntityMapper {
                     Class<?> paramType = writer.type();
                     Class elementType = underlyingElementType(classInfo, property.getKey().toString());
                     if (paramType.isArray()) {
-                        value = EntityAccessManager.merge(paramType, value, new Object[] {}, elementType);
+                        value = EntityAccessManager.merge(paramType, value, (Object[]) null, elementType);
                     } else {
-                        value = EntityAccessManager.merge(paramType, value, Collections.emptyList(), elementType);
+                        value = EntityAccessManager.merge(paramType, value, (Collection<?>) null, elementType);
                     }
                 }
             }

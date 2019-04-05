@@ -97,6 +97,32 @@ public class SavingTest extends MultiDriverTestClass {
         assertThat(loc1.getNodeType()).isNotNull();
     }
 
+
+    @Test
+    public void moveNode() {
+        Node m1 = queryNode("m1");
+        Node company2 = queryNode("company2");
+        Node loc2 = queryNode("loc2");
+
+        m1.setChildOfBidirectional(loc2);
+        session.save(m1);
+        m1.setBelongsTo(company2);
+        session.save(m1);
+
+        Iterable<Node> belongsTo;
+        belongsTo = getNodesBelongingToOtherNode("company2");
+        assertThat(belongsTo).hasSize(1);
+
+        belongsTo = getNodesBelongingToOtherNode("company1");
+        assertThat(belongsTo).hasSize(0);
+    }
+
+    private Iterable<Node> getNodesBelongingToOtherNode(String otherNodeId) {
+        return session
+            .query(Node.class, "MATCH (c:Node)<-[:BELONGS_TO]-(m:Node) WHERE c.nodeId = {c} RETURN m",
+                Collections.singletonMap("c", otherNodeId));
+    }
+
     private Node queryNode(String nodeId) {
         Collection<Node> nodeTypes = session
             .loadAll(Node.class, new Filters(new Filter("nodeId", ComparisonOperator.EQUALS, nodeId)));

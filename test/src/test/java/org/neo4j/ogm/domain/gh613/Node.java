@@ -29,6 +29,9 @@ public class Node extends BaseEntity {
     @Relationship(type = "LABELED", direction = Relationship.OUTGOING)
     private Set<Label> labels;
 
+    @Relationship(type = "BELONGS_TO")
+    protected Node belongsTo;
+
     public Node() {
     }
 
@@ -91,6 +94,15 @@ public class Node extends BaseEntity {
 
     public Node setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
+        return this;
+    }
+
+    public Node getBelongsTo() {
+        return belongsTo;
+    }
+
+    public Node setBelongsTo(Node belongsTo) {
+        this.belongsTo = belongsTo;
         return this;
     }
 

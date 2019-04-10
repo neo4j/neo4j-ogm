@@ -20,6 +20,8 @@ package org.neo4j.ogm.cypher.compiler;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +42,8 @@ import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.domain.forum.Forum;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Topic;
+import org.neo4j.ogm.domain.gh609.CyclicNodeType;
+import org.neo4j.ogm.domain.gh609.RefField;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.restaurant.Branch;
@@ -99,7 +103,7 @@ public class CompilerTest {
 
         Student newStudent = new Student("Gary");
         assertThat(newStudent.getId()).isNull();
-        Compiler compiler = mapAndCompile(newStudent);
+        Compiler compiler = mapAndCompile(newStudent, -1);
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
         assertThat(compiler.createNodesStatements()).extracting(Statement::getStatement).containsOnly(
             "UNWIND {rows} as row CREATE (n:`DomainObject`:`Student`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
@@ -121,7 +125,7 @@ public class CompilerTest {
         franchise.addBranch(new Branch(new Location(0.0, 0.0), franchise, r1));
         franchise.addBranch(new Branch(new Location(0.0, 0.0), franchise, r2));
 
-        Compiler compiler = mapAndCompile(franchise);
+        Compiler compiler = mapAndCompile(franchise, -1);
         assertThat(compiler.createNodesStatements()).extracting(Statement::getStatement).containsOnly(
             "UNWIND {rows} as row CREATE (n:`Franchise`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type",
             // the order of labels here does not matter
@@ -142,7 +146,7 @@ public class CompilerTest {
         // now update the object's properties locally
         sheila.setName("Sheila Smythe-Jones");
 
-        Compiler compiler = mapAndCompile(sheila);
+        Compiler compiler = mapAndCompile(sheila, -1);
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
         compiler.useStatementFactory(new RowStatementFactory());
         assertThat(compiler.createNodesStatements()).isEmpty();
@@ -160,7 +164,7 @@ public class CompilerTest {
         sheila.setName("Sheila Smythe");
         mappingContext.addNodeEntity(sheila);
 
-        Compiler compiler = mapAndCompile(sheila);
+        Compiler compiler = mapAndCompile(sheila, -1);
         compiler.useStatementFactory(new RowStatementFactory());
         assertThat(compiler.createNodesStatements()).isEmpty();
         assertThat(compiler.updateNodesStatements()).isEmpty();
@@ -175,7 +179,7 @@ public class CompilerTest {
         mary.setSchool(waller);
         waller.getTeachers().add(mary);
 
-        Compiler compiler = mapAndCompile(waller);
+        Compiler compiler = mapAndCompile(waller, -1);
         compiler.useStatementFactory(new RowStatementFactory());
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isTrue();
 
@@ -219,7 +223,7 @@ public class CompilerTest {
         mappingContext
             .addRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
 
-        Compiler compiler = mapAndCompile(waller);
+        Compiler compiler = mapAndCompile(waller, -1);
         compiler.useStatementFactory(new RowStatementFactory());
 
         assertThat(compiler.createNodesStatements()).isEmpty();
@@ -227,7 +231,7 @@ public class CompilerTest {
         assertThat(compiler.createRelationshipsStatements()).isEmpty();
         assertThat(compiler.updateRelationshipStatements()).isEmpty();
 
-        compiler = mapAndCompile(mary);
+        compiler = mapAndCompile(mary, -1);
         assertThat(compiler.createNodesStatements()).isEmpty();
         assertThat(compiler.updateNodesStatements()).isEmpty();
         assertThat(compiler.createRelationshipsStatements()).isEmpty();
@@ -270,7 +274,7 @@ public class CompilerTest {
         assertThat(jim.getSchool()).isEqualTo(waller);
 
         //Save jim
-        Compiler compiler = mapAndCompile(jim);
+        Compiler compiler = mapAndCompile(jim, -1);
 
         List<Statement> createNodesStatements = compiler.createNodesStatements();
         assertThat(createNodesStatements).extracting(Statement::getStatement).containsOnly(
@@ -290,7 +294,7 @@ public class CompilerTest {
         );
 
         //Save waller
-        compiler = mapAndCompile(waller);
+        compiler = mapAndCompile(waller, -1);
 
         createNodesStatements = compiler.createNodesStatements();
         assertThat(createNodesStatements).extracting(Statement::getStatement).containsOnly(
@@ -308,7 +312,7 @@ public class CompilerTest {
         );
 
         //Save mary
-        compiler = mapAndCompile(mary);
+        compiler = mapAndCompile(mary, -1);
 
         createNodesStatements = compiler.createNodesStatements();
         assertThat(createNodesStatements).extracting(Statement::getStatement).containsOnly(
@@ -347,7 +351,7 @@ public class CompilerTest {
         teacher.setName("Mrs Kapoor");
         teacher.setCourses(Arrays.asList(physics, maths));
         //Save teacher
-        Compiler compiler = mapAndCompile(teacher);
+        Compiler compiler = mapAndCompile(teacher, -1);
 
         List<Statement> createNodesStatements = compiler.createNodesStatements();
         assertThat(createNodesStatements).extracting(Statement::getStatement).containsOnly(
@@ -423,7 +427,7 @@ public class CompilerTest {
         music.setStudents(Arrays.asList(yvonne));
 
         //Save music
-        Compiler compiler = mapAndCompile(music);
+        Compiler compiler = mapAndCompile(music, -1);
 
         assertThat(compiler.createNodesStatements()).isEmpty();
 
@@ -476,7 +480,7 @@ public class CompilerTest {
 
         //Save msThomson
         // we expect a new relationship to be created, and an old one deleted
-        Compiler compiler = mapAndCompile(msThompson);
+        Compiler compiler = mapAndCompile(msThompson, -1);
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).isEmpty();
@@ -560,7 +564,7 @@ public class CompilerTest {
         // this is because MrWhite is not "visited" during the traversal of
         // hillsRoad - his reference is now inaccessible. this looks like a FIXME
 
-        Compiler compiler = mapAndCompile(hillsRoad);
+        Compiler compiler = mapAndCompile(hillsRoad, -1);
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).isEmpty();
@@ -578,7 +582,7 @@ public class CompilerTest {
         // but the change to hillsRoad's relationship with MrWhite is not detected
         // this is because hillsRoad object is no longer directly accessible from MrWhite
         // looks like a FIXME (infer symmetric deletions)
-        compiler = mapAndCompile(mrWhite);
+        compiler = mapAndCompile(mrWhite, -1);
 
         statements = compiler.createNodesStatements();
         assertThat(statements).isEmpty();
@@ -616,7 +620,7 @@ public class CompilerTest {
         // the entire object tree is accessible from the forum
         // Note that a relationshipEntity has a direction by default (srcNode -> tgtNode)
         // because it has an annotation, so we should not create an inverse relationship.
-        Compiler compiler = mapAndCompile(forum);
+        Compiler compiler = mapAndCompile(forum, -1);
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
@@ -638,7 +642,7 @@ public class CompilerTest {
         }
 
         // the entire object tree is accessible from the link
-        compiler = mapAndCompile(link);
+        compiler = mapAndCompile(link, -1);
 
         statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
@@ -660,7 +664,7 @@ public class CompilerTest {
         }
 
         // the related entity is not visible from the Topic object.
-        compiler = mapAndCompile(topic);
+        compiler = mapAndCompile(topic, -1);
 
         statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
@@ -681,7 +685,7 @@ public class CompilerTest {
         Place scotland = new Place("Scotland");
         Visit visit = frantisek.addVisit(scotland, "Holiday");
 
-        Compiler compiler = mapAndCompile(frantisek);
+        Compiler compiler = mapAndCompile(frantisek, -1);
 
         List<Statement> statements = compiler.createRelationshipsStatements();
 
@@ -728,7 +732,7 @@ public class CompilerTest {
         link.setTimestamp(327790L);
 
         // expect the property on the relationship entity to be updated on the graph relationship
-        Compiler compiler = mapAndCompile(link);
+        Compiler compiler = mapAndCompile(link, -1);
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).isEmpty();
@@ -774,7 +778,7 @@ public class CompilerTest {
         link.setTopic(null);
 
         // expect the delete to be recognised when the forum is saved
-        Compiler compiler = mapAndCompile(forum);
+        Compiler compiler = mapAndCompile(forum, -1);
 
         List<Statement> statements = compiler.createRelationshipsStatements();
         assertThat(statements).isEmpty();
@@ -796,10 +800,7 @@ public class CompilerTest {
 
     }
 
-    /**
-     * @see DATAGRAPH-589
-     */
-    @Test
+    @Test // DATAGRAPH-589
     public void createSimpleRelationshipWithIllegalCharactersBetweenObjects() {
 
         Artist theBeatles = new Artist("The Beatles");
@@ -807,7 +808,7 @@ public class CompilerTest {
         theBeatles.getAlbums().add(please);
         please.setArtist(theBeatles);
 
-        Compiler compiler = mapAndCompile(theBeatles);
+        Compiler compiler = mapAndCompile(theBeatles, -1);
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
@@ -829,10 +830,7 @@ public class CompilerTest {
         }
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void createOutgoingRelationWhenUnmarkedRelationIsSpecified() {
 
         Individual adam = new Individual();
@@ -843,7 +841,7 @@ public class CompilerTest {
 
         adam.setFriends(Collections.singletonList(vince));
 
-        Compiler compiler = mapAndCompile(adam);
+        Compiler compiler = mapAndCompile(adam, -1);
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
@@ -866,17 +864,14 @@ public class CompilerTest {
         assertThat(row.get("endNodeId")).isEqualTo(mappingContext.nativeId(vince));
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void createIncomingRelationWhenSpecified() {
         Mortal adam = new Mortal("Adam");
         Mortal vince = new Mortal("Vince");
 
         adam.getKnownBy().add(vince);
 
-        Compiler compiler = mapAndCompile(adam);
+        Compiler compiler = mapAndCompile(adam, -1);
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
@@ -899,12 +894,11 @@ public class CompilerTest {
         assertThat(row.get("endNodeId")).isEqualTo(mappingContext.nativeId(adam));
     }
 
-    private Compiler mapAndCompile(Object object) {
+    private static Compiler mapAndCompile(Object object, int depth) {
         EntityMapper mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
-        CompileContext context = mapper.map(object);
+        CompileContext context = mapper.map(object, depth);
         Compiler compiler = context.getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
         return compiler;
     }
-
 }

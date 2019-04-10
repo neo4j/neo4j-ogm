@@ -58,7 +58,7 @@ public class CypherContext implements CompileContext {
 
     public boolean visited(Object entity, int horizon) {
         NodeBuilderHorizonPair pair = visitedObjects.get(entity);
-        return pair != null && pair.getHorizon() > horizon;
+        return pair != null && (horizon < 0 || pair.getHorizon() > horizon);
     }
 
     @Override

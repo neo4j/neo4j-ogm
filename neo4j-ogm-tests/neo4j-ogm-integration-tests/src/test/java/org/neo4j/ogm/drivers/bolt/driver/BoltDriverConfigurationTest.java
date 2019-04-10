@@ -33,14 +33,17 @@ import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.SessionFactory;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(GraphDatabase.class)
+@PowerMockIgnore({ "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "org.w3c.*" })
 public class BoltDriverConfigurationTest {
 
     @Before

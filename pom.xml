@@ -214,7 +214,7 @@
         <objenesis.version>3.0.1</objenesis.version>
         <powermock.version>2.0.0</powermock.version>
         <!-- default for build, if no profiles invoked -->
-        <neo4j>3.4.12</neo4j>
+        <neo4j>3.4.13</neo4j>
         <bolt>1.6.3</bolt>
         <fast.classpath.scanner>2.18.1</fast.classpath.scanner>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
@@ -521,7 +521,7 @@
         <profile>
             <id>neo4j-3.4</id>
             <properties>
-                <neo4j>3.4.12</neo4j>
+                <neo4j>3.4.13</neo4j>
             </properties>
         </profile>
 

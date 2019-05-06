@@ -1,3 +1,13 @@
+3.1.9
+o Fix determination of visited nodes. (#609)
+o Prepare additionally loaded superclasses as well. (#619)
+o Upgrade Neo4j 3.5 to 3.5.5.
+o Upgrade Neo4j 3.4 to 3.4.13.
+o Upgrade Neo4j 3.2 to 3.2.14.
+o Remove temporary class.
+o Upgrade docbook plugin to alpha10
+o Upgrade Checkstyle Maven plugin.
+
 3.1.8
 o Fix bug in optimistic locking with Neo4j 3.5.3.
 o Fix bug in transaction management and bookmark functionality.

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -37,6 +38,7 @@ import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.Config;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.v1.Logging;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
@@ -62,7 +64,8 @@ import org.slf4j.LoggerFactory;
  */
 public class BoltDriver extends AbstractConfigurableDriver {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
+    public static final String CONFIG_PARAMETER_BOLT_LOGGING = "Bolt_Logging";
 
     private final ExceptionTranslator exceptionTranslator = new BoltDriverExceptionTranslator();
 
@@ -255,85 +258,78 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return boltSession;
     }
 
-    private BoltConfig getBoltConfiguration() {
-        BoltConfig boltConfig = new BoltConfig();
+    private Optional<Logging> getBoltLogging() throws Exception {
 
-        if (configuration.getEncryptionLevel() != null) {
-            try {
-                boltConfig.encryptionLevel = Config.EncryptionLevel
-                    .valueOf(configuration.getEncryptionLevel().toUpperCase());
-            } catch (IllegalArgumentException iae) {
-                LOGGER.debug("Invalid configuration for the Bolt Driver Encryption Level: {}",
-                    configuration.getEncryptionLevel());
-                throw iae;
-            }
+        Object possibleLogging = customPropertiesSupplier.get().get(CONFIG_PARAMETER_BOLT_LOGGING);
+        if (possibleLogging != null && !(possibleLogging instanceof Logging)) {
+            LOGGER.warn("Invalid object of type {} for {}, not changing log.", possibleLogging.getClass(),
+                CONFIG_PARAMETER_BOLT_LOGGING);
+            possibleLogging = null;
         }
 
-        boltConfig.sessionPoolSize = configuration.getConnectionPoolSize();
+        LOGGER.debug("Using {} for bolt logging.", possibleLogging == null ? "default" : possibleLogging.getClass());
 
-        if (configuration.getTrustStrategy() != null) {
-            try {
-                boltConfig.trustStrategy = Config.TrustStrategy.Strategy.valueOf(configuration.getTrustStrategy());
-            } catch (IllegalArgumentException iae) {
-                LOGGER.debug("Invalid configuration for the Bolt Driver Trust Strategy: {}",
-                    configuration.getTrustStrategy());
-                throw iae;
-            }
-        }
-
-        if (configuration.getTrustCertFile() != null) {
-            boltConfig.trustCertFile = configuration.getTrustCertFile();
-        }
-
-        if (configuration.getConnectionLivenessCheckTimeout() != null) {
-            boltConfig.connectionLivenessCheckTimeout = configuration.getConnectionLivenessCheckTimeout();
-        }
-
-        return boltConfig;
+        return Optional.ofNullable((Logging) possibleLogging);
     }
 
     private Config buildDriverConfig() {
         try {
-            BoltConfig boltConfig = getBoltConfiguration();
             Config.ConfigBuilder configBuilder = Config.build();
-            configBuilder.withMaxSessions(boltConfig.sessionPoolSize);
-            if (boltConfig.encryptionLevel.equals(Config.EncryptionLevel.REQUIRED)) {
+            configBuilder.withMaxSessions(configuration.getConnectionPoolSize());
+
+            Config.EncryptionLevel encryptionLevel = Config.EncryptionLevel.REQUIRED;
+
+            if (configuration.getEncryptionLevel() != null) {
+                try {
+                    encryptionLevel = Config.EncryptionLevel
+                        .valueOf(configuration.getEncryptionLevel().toUpperCase());
+                } catch (IllegalArgumentException iae) {
+                    LOGGER.debug("Invalid configuration for the Bolt Driver Encryption Level: {}",
+                        configuration.getEncryptionLevel());
+                    throw iae;
+                }
+            }
+
+            if (encryptionLevel == Config.EncryptionLevel.REQUIRED) {
                 configBuilder.withEncryption();
             } else {
                 configBuilder.withoutEncryption();
             }
-            if (boltConfig.trustStrategy != null) {
-                if (boltConfig.trustCertFile == null) {
+
+            Config.TrustStrategy.Strategy trustStrategy;
+            if (configuration.getTrustStrategy() != null) {
+                try {
+                    trustStrategy = Config.TrustStrategy.Strategy.valueOf(configuration.getTrustStrategy());
+                } catch (IllegalArgumentException iae) {
+                    LOGGER.debug("Invalid configuration for the Bolt Driver Trust Strategy: {}",
+                        configuration.getTrustStrategy());
+                    throw iae;
+                }
+
+                if (configuration.getTrustCertFile() == null) {
                     throw new IllegalArgumentException("Missing configuration value for trust.certificate.file");
                 }
-                if (boltConfig.trustStrategy.equals(Config.TrustStrategy.Strategy.TRUST_ON_FIRST_USE)) {
+
+                File knownHostsFile = new File(new URI(configuration.getTrustCertFile()));
+                if (trustStrategy == Config.TrustStrategy.Strategy.TRUST_ON_FIRST_USE) {
                     configBuilder.withTrustStrategy(
-                        Config.TrustStrategy.trustOnFirstUse(new File(new URI(boltConfig.trustCertFile))));
+                        Config.TrustStrategy.trustOnFirstUse(knownHostsFile));
                 }
-                if (boltConfig.trustStrategy.equals(Config.TrustStrategy.Strategy.TRUST_SIGNED_CERTIFICATES)) {
+                if (trustStrategy == Config.TrustStrategy.Strategy.TRUST_SIGNED_CERTIFICATES) {
                     configBuilder.withTrustStrategy(
-                        Config.TrustStrategy.trustSignedBy(new File(new URI(boltConfig.trustCertFile))));
+                        Config.TrustStrategy.trustSignedBy(knownHostsFile));
                 }
             }
-            if (boltConfig.connectionLivenessCheckTimeout != null) {
-                configBuilder.withConnectionLivenessCheckTimeout(boltConfig.connectionLivenessCheckTimeout,
+            if (configuration.getConnectionLivenessCheckTimeout() != null) {
+                configBuilder.withConnectionLivenessCheckTimeout(configuration.getConnectionLivenessCheckTimeout(),
                     TimeUnit.MILLISECONDS);
             }
+
+            getBoltLogging().ifPresent(configBuilder::withLogging);
 
             return configBuilder.toConfig();
         } catch (Exception e) {
             throw new ConnectionException("Unable to build driver configuration", e);
         }
     }
-
-    class BoltConfig {
-
-        public static final int DEFAULT_SESSION_POOL_SIZE = 50;
-        Config.EncryptionLevel encryptionLevel = Config.EncryptionLevel.REQUIRED;
-        int sessionPoolSize = DEFAULT_SESSION_POOL_SIZE;
-        Config.TrustStrategy.Strategy trustStrategy;
-        String trustCertFile;
-        Integer connectionLivenessCheckTimeout;
-    }
-
 }

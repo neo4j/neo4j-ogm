@@ -204,7 +204,7 @@
         <lucene.version>5.5.5</lucene.version>
         <neo4j.version>3.4.13</neo4j.version>
         <neo4j.edition>enterprise</neo4j.edition>
-        <neo4j-java-driver.version>1.7.1</neo4j-java-driver.version>
+        <neo4j-java-driver.version>1.7.5</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
         <maven-jar-plugin.version>3.0.1</maven-jar-plugin.version>
         <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
@@ -651,7 +651,7 @@
         <profile>
             <id>neo4j-3.5</id>
             <properties>
-                <neo4j.version>3.5.5</neo4j.version>
+                <neo4j.version>3.5.4</neo4j.version>
             </properties>
             <modules>
                 <module>embedded-native-types</module>

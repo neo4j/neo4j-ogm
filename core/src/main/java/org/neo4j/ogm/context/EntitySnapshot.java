@@ -63,7 +63,7 @@ class EntitySnapshot {
     }
 
     /**
-     * @return Immutable snapshotted set of cynamic, composite properties.
+     * @return Immutable snapshotted set of dynamic, composite properties.
      */
     public Set<String> getDynamicCompositeProperties() {
         return dynamicCompositeProperties;

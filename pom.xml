@@ -24,7 +24,7 @@
 
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
-    <version>3.1.10-SNAPSHOT</version>
+    <version>3.1.11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neo4j Object-Graph Mapper</name>

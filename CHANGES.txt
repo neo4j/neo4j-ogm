@@ -19,7 +19,30 @@ o `SessionFactory.getDriver()` has been replaced with `SessionFactory.unwrap(Cla
 o Wrap CypherModificationProvider in a ThreadLocal.
 o Add support for containing filter in combination with ignore case.
 
-3.1.x
+3.1.10
+o Provide hooks to configure native Bolt driver logging.
+
+3.1.9
+o Fix determination of visited nodes. (#609)
+o Prepare additionally loaded superclasses as well. (#619)
+o Upgrade Neo4j 3.5 to 3.5.5.
+o Upgrade Neo4j 3.4 to 3.4.13.
+o Upgrade Neo4j 3.2 to 3.2.14.
+o Remove temporary class.
+o Upgrade docbook plugin to alpha10
+o Upgrade Checkstyle Maven plugin.
+
+3.1.8
+o Fix bug in optimistic locking with Neo4j 3.5.3.
+o Fix bug in transaction management and bookmark functionality.
+o Support single uri in uris properties. #605
+o Stabilize CypherModificationProvider for threading.
+
+3.1.7
+o Fix bug when index fields contain camelCase properties.
+o Fix initialization of Cypher modification. #595
+
+3.1.6
 o Improve documentation of type conversions. #501
 o Provide "neo4j.conf.location" in OGM configuration, pointing to a custom configuration file (url or classpath resource)
   that allows to configure the embedded Neo4j instance. #408

@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 public class Configuration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+    private static final int DEFAULT_SESSION_POOL_SIZE = 50;
 
     private String uri;
     private String[] uris;
@@ -81,7 +82,7 @@ public class Configuration {
     Configuration(Builder builder) {
         this.uri = builder.uri;
         this.uris = builder.uris;
-        this.connectionPoolSize = builder.connectionPoolSize != null ? builder.connectionPoolSize : 50;
+        this.connectionPoolSize = builder.connectionPoolSize != null ? builder.connectionPoolSize : DEFAULT_SESSION_POOL_SIZE;
         this.encryptionLevel = builder.encryptionLevel;
         this.trustStrategy = builder.trustStrategy;
         this.trustCertFile = builder.trustCertFile;

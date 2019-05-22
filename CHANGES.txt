@@ -1,3 +1,6 @@
+3.1.10
+o Provide hooks to configure native Bolt driver logging.
+
 3.1.9
 o Fix determination of visited nodes. (#609)
 o Prepare additionally loaded superclasses as well. (#619)

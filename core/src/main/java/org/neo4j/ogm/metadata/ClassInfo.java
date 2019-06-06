@@ -926,17 +926,16 @@ public class ClassInfo {
     }
 
     private boolean isPrimaryIndexField(FieldInfo fieldInfo) {
-        // primary index field is either
-        // field with @Id or @Id @GeneratedValue(strategy=..) where strategy != InternalIdStrategy
-        return (fieldInfo.getAnnotations().has(Id.class) &&
-            !(fieldInfo.getAnnotations().has(GeneratedValue.class) &&
-                ((GeneratedValue) fieldInfo.getAnnotations().get(GeneratedValue.class).getAnnotation()).strategy()
-                    .equals(InternalIdStrategy.class)
 
-            )) ||
-            // or @Index(primary=true) - backward compatibility
-            fieldInfo.getAnnotations().has(Index.class) &&
-                ((Index) fieldInfo.getAnnotations().get(Index.class).getAnnotation()).primary();
+        boolean hasIdAnnotation = fieldInfo.hasAnnotation(Id.class);
+        boolean hasStrategyOtherThanInternal = !fieldInfo.hasAnnotation(GeneratedValue.class)
+            || !((GeneratedValue) fieldInfo.getAnnotations().get(GeneratedValue.class).getAnnotation()).strategy()
+            .equals(InternalIdStrategy.class);
+        boolean hasPrimaryIndexAnnotation =
+            fieldInfo.hasAnnotation(Index.class) && ((Index) fieldInfo.getAnnotations().get(Index.class)
+                .getAnnotation()).primary();
+
+        return hasIdAnnotation && hasStrategyOtherThanInternal || hasPrimaryIndexAnnotation;
     }
 
     private void instantiateIdStrategy() {

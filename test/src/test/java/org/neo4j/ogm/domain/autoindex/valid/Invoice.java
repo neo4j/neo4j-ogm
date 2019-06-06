@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.domain.autoindex.valid;
 
+import java.util.Objects;
+
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Index;
@@ -66,5 +68,19 @@ public class Invoice {
 
     public Long getAmountInCents() {
         return amountInCents;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Invoice))
+            return false;
+        Invoice invoice = (Invoice) o;
+        return Objects.equals(number, invoice.number);
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(number);
     }
 }

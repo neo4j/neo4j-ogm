@@ -100,10 +100,6 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         return next;
     }
 
-    public Result query(String cypher, Map<String, ?> parameters) {
-        return query(cypher, parameters, isReadOnly(cypher));
-    }
-
     public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {
         validateQuery(cypher, parameters, false); //we'll allow modifying statements
         if (type == null || type.equals(Void.class)) {
@@ -131,7 +127,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
                     return new QueryResultModel(restStatisticsModel.getResult(), restStatisticsModel.getStatistics());
                 }
             }
-        }, Transaction.Type.READ_WRITE);
+        }, readOnly ? Transaction.Type.READ_ONLY : Transaction.Type.READ_WRITE);
     }
 
     private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters) {
@@ -236,15 +232,16 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         return Long.parseLong(resultMap.get(resultKey).toString());
     }
 
-    private boolean isReadOnly(String cypher) {
+    private static boolean mayBeReadWrite(String cypher) {
         Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
-        return !matcher.find();
+        return matcher.find();
     }
 
     private void validateQuery(String cypher, Map<String, ?> parameters, boolean readOnly) {
 
-        if (readOnly && !isReadOnly(cypher)) {
-            throw new RuntimeException("Cypher query must not modify the graph if readOnly=true");
+        if (readOnly && mayBeReadWrite(cypher)) {
+            session.warn(
+                "Cypher query contains keywords that indicate a writing query but OGM is going to use a read only transaction as requested, so the query might fail.");
         }
 
         if (StringUtils.isEmpty(cypher)) {

@@ -416,7 +416,7 @@ public class Neo4jSession implements Session {
 
     @Override
     public Result query(String cypher, Map<String, ?> parameters) {
-        return executeQueriesDelegate.query(cypher, parameters);
+        return query(cypher, parameters, false);
     }
 
     @Override

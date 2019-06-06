@@ -20,16 +20,26 @@ package org.neo4j.ogm.persistence.session.capability;
 
 import static org.assertj.core.api.Assertions.*;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
@@ -42,13 +52,18 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.testutil.TestUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class QueryCapabilityTest extends MultiDriverTestClass {
 
     private Session session;
+
+    @Rule
+    public final LoggerRule loggerRule = new LoggerRule();
 
     @Before
     public void init() throws IOException {
@@ -67,10 +82,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void shouldQueryForArbitraryDataUsingBespokeParameterisedCypherQuery() {
         session.save(new Actor("Helen Mirren"));
         Actor alec = new Actor("Alec Baldwin");
@@ -91,19 +103,19 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.iterator().next().get("name")).isEqualTo("Alec Baldwin");
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test(expected = RuntimeException.class)
+    @Test // DATAGRAPH-697
     public void readOnlyQueryMustBeReadOnly() {
+
         session.save(new Actor("Jeff"));
         session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), true);
+        
+        Condition<String> stringMatches = new Condition<>(s -> s.contains(
+            "Cypher query contains keywords that indicate a writing query but OGM is going to use a read only transaction as requested, so the query might fail."),
+            "String matches");
+        assertThat(loggerRule.getFormattedMessages()).areAtLeastOne(stringMatches);
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void modifyingQueryShouldReturnStatistics() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
@@ -119,10 +131,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(3);
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void modifyingQueryShouldReturnResultsWithStatistics() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
@@ -162,10 +171,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(names.contains("Colin")).isTrue();
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void readOnlyQueryShouldNotReturnStatistics() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
@@ -187,10 +193,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(names.contains("Colin")).isTrue();
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void modifyingQueryShouldBePermittedWhenQueryingForObject() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
@@ -201,10 +204,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(jeff.getName()).isEqualTo("Jeff");
     }
 
-    /**
-     * @see DATAGRAPH-697
-     */
-    @Test
+    @Test // DATAGRAPH-697
     public void modifyingQueryShouldBePermittedWhenQueryingForObjects() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
@@ -235,10 +235,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(result.get("nonExistent")).isNull();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntities() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:{name}})-[:RATED]->(m) RETURN u as user, m as movie",
@@ -255,10 +252,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntitiesAndScalars() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:{name}})-[:RATED]->(m) RETURN u as user, count(m) as count",
@@ -274,10 +268,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntitiesAndScalarsMultipleRows() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User)-[r:RATED]->(m) RETURN m as movie, avg(r.stars) as average ORDER BY average DESC",
@@ -303,10 +294,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntitiesAndScalarsMultipleRowsAndNoAlias() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User)-[r:RATED]->(m) RETURN m, avg(r.stars) ORDER BY avg(r.stars) DESC",
@@ -332,10 +320,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntitiesAndRelationships() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:{name}})-[r:FRIENDS]->(friend) RETURN u as user, friend as friend, r",
@@ -357,10 +342,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
-    /**
-     * @see DATAGRAPH-700
-     */
-    @Test
+    @Test // DATAGRAPH-700
     public void shouldBeAbleToMapEntitiesAndRelationshipsOfDifferentTypes() {
         Iterator<Map<String, Object>> results = session.query(
             "MATCH (u:User {name:{name}})-[r:FRIENDS]->(friend)-[r2:RATED]->(m) RETURN u as user, friend as friend, r, r2, m as movie, r2.stars as stars",
@@ -725,5 +707,43 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
             }
         }
         return foundMichal;
+    }
+
+    static class LoggerRule implements TestRule {
+
+        private final ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        private final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+
+        @Override
+        public Statement apply(Statement base, Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    setup();
+                    base.evaluate();
+                    teardown();
+                }
+            };
+        }
+
+        private void setup() {
+            logger.addAppender(listAppender);
+            listAppender.start();
+        }
+
+        private void teardown() {
+            listAppender.stop();
+            listAppender.list.clear();
+            logger.detachAppender(listAppender);
+        }
+
+        public List<String> getMessages() {
+            return listAppender.list.stream().map(e -> e.getMessage()).collect(Collectors.toList());
+        }
+
+        public List<String> getFormattedMessages() {
+            return listAppender.list.stream().map(e -> e.getFormattedMessage()).collect(Collectors.toList());
+        }
+
     }
 }

@@ -29,11 +29,10 @@ import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class OptimisticLockingChecker {
 

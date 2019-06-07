@@ -20,11 +20,17 @@ package org.neo4j.ogm.persistence.examples.locking;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.locking.FriendOf;
 import org.neo4j.ogm.domain.locking.User;
+import org.neo4j.ogm.domain.locking.VersionedEntityWithExternalId;
 import org.neo4j.ogm.exception.OptimisticLockingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -34,6 +40,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * Test of behaviour of the Session cache when optimistic locking failures happen
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class SessionCacheOptimisticLockingTest extends MultiDriverTestClass {
 
@@ -47,7 +54,7 @@ public class SessionCacheOptimisticLockingTest extends MultiDriverTestClass {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
@@ -220,5 +227,72 @@ public class SessionCacheOptimisticLockingTest extends MultiDriverTestClass {
         }
     }
 
+    @Test
+    public void lockingWithExternalIdsShouldWorkInDifferentSessions() throws InterruptedException {
 
+        final String cypherTemplate = "MATCH (n:VersionedEntityWithExternalId) WHERE n.name = 'Michael' RETURN n";
+
+        VersionedEntityWithExternalId emp = new VersionedEntityWithExternalId();
+        emp.setName("Michael");
+        session.save(emp);
+
+        CountDownLatch t1latch = new CountDownLatch(1);
+        CountDownLatch t2latch = new CountDownLatch(1);
+        CountDownLatch outer = new CountDownLatch(2);
+
+        AtomicBoolean gotException = new AtomicBoolean(false);
+        new Thread(() -> {
+            try {
+                Session session1 = sessionFactory.openSession();
+
+                VersionedEntityWithExternalId t1emp = session1.queryForObject(VersionedEntityWithExternalId.class,
+                    cypherTemplate, Collections.emptyMap());
+                t1emp.setSomething(
+                    "OGM needs some real change here to trigger updates. " + ThreadLocalRandom.current().nextLong());
+
+                t2latch.countDown();
+                try {
+                    t1latch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // This is necessary. It opens a new session that is not aware of the thing with external id as in
+                // it doesn't know that it has already been assigned an internal id as well.
+                session1 = sessionFactory.openSession();
+                session1.save(t1emp);
+            } catch (OptimisticLockingException e) {
+                gotException.set(true);
+            } finally {
+                outer.countDown();
+            }
+
+        }).start();
+
+        new Thread(() -> {
+            try {
+                try {
+                    t2latch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Session session2 = sessionFactory.openSession();
+                VersionedEntityWithExternalId t2emp = session2.queryForObject(VersionedEntityWithExternalId.class,
+                    cypherTemplate, Collections.emptyMap());
+                t2emp.setSomething(
+                    "OGM needs some real change here to trigger updates. " + ThreadLocalRandom.current().nextLong());
+
+                session2.save(t2emp);
+                t1latch.countDown();
+            } catch (OptimisticLockingException e) {
+                gotException.set(true);
+            } finally {
+                outer.countDown();
+            }
+        }).start();
+
+        outer.await();
+
+        assertThat(gotException.get()).isTrue();
+    }
 }

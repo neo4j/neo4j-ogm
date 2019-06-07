@@ -34,8 +34,9 @@ import org.neo4j.ogm.request.StatementFactory;
 /**
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
-public class DeletedRelationshipEntityStatementBuilder extends BaseBuilder implements CypherStatementBuilder {
+public class DeletedRelationshipEntityStatementBuilder implements CypherStatementBuilder {
 
     private final StatementFactory statementFactory;
 
@@ -58,7 +59,7 @@ public class DeletedRelationshipEntityStatementBuilder extends BaseBuilder imple
             queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]-() WHERE ID(r) = row.relId ");
 
             if (firstEdge.hasVersionProperty()) {
-                appendVersionPropertyCheck(queryBuilder, firstEdge, "r");
+                queryBuilder.append(OptimisticLockingUtils.getFragmentForExistingNodesAndRelationships(firstEdge, "r"));
             }
             queryBuilder.append("DELETE r RETURN ID(r) as ref, ID(r) as id, {type} as type");
 

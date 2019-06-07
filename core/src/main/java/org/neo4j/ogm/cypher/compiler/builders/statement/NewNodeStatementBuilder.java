@@ -18,7 +18,9 @@
  */
 package org.neo4j.ogm.cypher.compiler.builders.statement;
 
-import java.util.ArrayList;
+import static java.util.stream.Collectors.*;
+import static org.neo4j.ogm.cypher.compiler.builders.statement.OptimisticLockingUtils.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +28,14 @@ import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Node;
-import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
 
 /**
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class NewNodeStatementBuilder implements CypherStatementBuilder {
 
@@ -73,23 +76,22 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
                     .append(firstNode.getPrimaryIndex())
                     .append("}");
             }
+            queryBuilder.append(") "); // Closing MERGE or CREATE
 
-            queryBuilder.append(") SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type");
-            List<Map> rows = new ArrayList<>();
-            for (Node node : newNodes) {
-                Map<String, Object> rowMap = new HashMap<>();
-                rowMap.put("nodeRef", node.getId());
-                Map<String, Object> props = new HashMap<>();
-                for (Property property : node.getPropertyList()) {
-                    if (property.getValue() != null) {
-                        props.put((String) property.getKey(), property.getValue());
-                    }
-                }
-                rowMap.put("props", props);
-                rows.add(rowMap);
+            if (firstNode.hasVersionProperty() && firstNode.getPrimaryIndex() != null) {
+                queryBuilder.append(getFragmentForNewOrExistingNodes(firstNode, "n"));
             }
+
+            queryBuilder.append("SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type");
+            List<Map> rows = newNodes.stream().map(node -> node.toRow("nodeRef")).collect(toList());
             parameters.put("type", "node");
             parameters.put("rows", rows);
+
+            if (firstNode.hasVersionProperty()) {
+                OptimisticLockingConfig olConfig = new OptimisticLockingConfig(rows.size(),
+                    firstNode.getLabels(), firstNode.getVersion().getKey());
+                return statementFactory.statement(queryBuilder.toString(), parameters, olConfig);
+            }
         }
 
         return statementFactory.statement(queryBuilder.toString(), parameters);

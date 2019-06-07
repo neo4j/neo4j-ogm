@@ -326,7 +326,7 @@ public class EntityGraphMapper implements EntityMapper {
             nodeBuilder = compiler.newNode(id).addLabels(labels).setPrimaryIndex(primaryIndex);
             context.registerNewObject(id, entity);
         } else {
-            nodeBuilder = compiler.existingNode(Long.valueOf(id.toString()));
+            nodeBuilder = compiler.existingNode(id);
             nodeBuilder.addLabels(labels).setPrimaryIndex(primaryIndex);
 
             this.mappingContext.getSnapshotOf(entity).ifPresent(snapshot ->

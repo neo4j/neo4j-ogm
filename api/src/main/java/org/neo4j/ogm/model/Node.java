@@ -18,7 +18,9 @@
  */
 package org.neo4j.ogm.model;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -54,4 +56,29 @@ public interface Node extends PropertyContainer {
     Property<String, Long> getVersion();
 
     Set<String> getPreviousDynamicLabels();
+
+    /**
+     * Turns this node object into a row. The version field is treated different, it is not included with the standard properties,
+     * but only as separate value.
+     *
+     * @param nodeIdTarget The name under which to store this nodes id. The value is used as a backreference.
+     * @return A map of values representing this node.
+     */
+    default Map<String, Object> toRow(String nodeIdTarget) {
+        Map<String, Object> rowMap = new HashMap<>();
+        rowMap.put(nodeIdTarget, this.getId());
+        Map<String, Object> props = new HashMap<>();
+        for (Property property : this.getPropertyList()) {
+            // Don't include version property into props, it will be incremented by the query
+            if (!property.equals(this.getVersion())) {
+                props.put((String) property.getKey(), property.getValue());
+            }
+        }
+        rowMap.put("props", props);
+        if (this.hasVersionProperty()) {
+            Property version = this.getVersion();
+            rowMap.put((String) version.getKey(), version.getValue());
+        }
+        return rowMap;
+    }
 }

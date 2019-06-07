@@ -37,8 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 public class OptimisticLockingChecker {
 
-    private static final Logger logger = LoggerFactory.getLogger(OptimisticLockingChecker.class);
-
     private final Neo4jSession session;
 
     public OptimisticLockingChecker(Neo4jSession session) {

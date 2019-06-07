@@ -35,7 +35,7 @@ import org.neo4j.ogm.request.StatementFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class ExistingRelationshipStatementBuilder extends BaseBuilder implements CypherStatementBuilder {
+public class ExistingRelationshipStatementBuilder implements CypherStatementBuilder {
 
     private final StatementFactory statementFactory;
 
@@ -56,7 +56,7 @@ public class ExistingRelationshipStatementBuilder extends BaseBuilder implements
             queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]->() WHERE ID(r) = row.relId ");
 
             if (firstEdge.hasVersionProperty()) {
-                appendVersionPropertyCheck(queryBuilder, firstEdge, "r");
+                queryBuilder.append(OptimisticLockingUtils.getFragmentForExistingNodesAndRelationships(firstEdge, "r"));
             }
 
             queryBuilder.append(firstEdge.createPropertyRemovalFragment("r"));

@@ -18,7 +18,8 @@
  */
 package org.neo4j.ogm.cypher.compiler.builders.statement;
 
-import java.util.ArrayList;
+import static java.util.stream.Collectors.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,6 @@ import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Node;
-import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
@@ -34,8 +34,9 @@ import org.neo4j.ogm.request.StatementFactory;
 /**
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
-public class ExistingNodeStatementBuilder extends BaseBuilder implements CypherStatementBuilder {
+public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
 
     private final StatementFactory statementFactory;
 
@@ -55,11 +56,11 @@ public class ExistingNodeStatementBuilder extends BaseBuilder implements CypherS
         if (existingNodes != null && existingNodes.size() > 0) {
             Node firstNode = existingNodes.iterator().next();
 
-            queryBuilder.append("UNWIND {rows} as row ")
-                .append("MATCH (n) WHERE ID(n)=row.nodeId ");
+            queryBuilder
+                .append("UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId ");
 
             if (firstNode.hasVersionProperty()) {
-                appendVersionPropertyCheck(queryBuilder, firstNode, "n");
+                queryBuilder.append(OptimisticLockingUtils.getFragmentForExistingNodesAndRelationships(firstNode, "n"));
             }
 
             Set<String> previousDynamicLabels = firstNode.getPreviousDynamicLabels();
@@ -75,24 +76,7 @@ public class ExistingNodeStatementBuilder extends BaseBuilder implements CypherS
             }
 
             queryBuilder.append(" SET n += row.props RETURN row.nodeId as ref, ID(n) as id, {type} as type");
-            List<Map> rows = new ArrayList<>();
-            for (Node node : existingNodes) {
-                Map<String, Object> rowMap = new HashMap<>();
-                rowMap.put("nodeId", node.getId());
-                Map<String, Object> props = new HashMap<>();
-                for (Property property : node.getPropertyList()) {
-                    // Don't include version property into props, it will be incremented by the query
-                    if (!property.equals(node.getVersion())) {
-                        props.put((String) property.getKey(), property.getValue());
-                    }
-                }
-                rowMap.put("props", props);
-                if (node.hasVersionProperty()) {
-                    Property version = node.getVersion();
-                    rowMap.put((String) version.getKey(), version.getValue());
-                }
-                rows.add(rowMap);
-            }
+            List<Map> rows = existingNodes.stream().map(node -> node.toRow("nodeId")).collect(toList());
             parameters.put("type", "node");
             parameters.put("rows", rows);
 

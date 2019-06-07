@@ -1,3 +1,9 @@
+3.1.11
+o Apply optimistic locking logic during merge, too. (#623)
+o Turn off client side Cypher validation, request TX type as needed. (#627)
+o Upgrade to Jackson 2.9.9. (#628)
+o Upgrade Neo4j 3.5 to 3.5.6.
+
 3.1.10
 o Provide hooks to configure native Bolt driver logging.
 

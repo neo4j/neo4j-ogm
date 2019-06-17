@@ -23,6 +23,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.function.BiFunction;
 
 /**
  * Tells OGM to map values of a Map field in a node or relationship entity to properties of a node or a relationship
@@ -64,4 +65,35 @@ public @interface Properties {
      * @return True, when the values of map entries are allowed to be cast to a wider datatype.
      */
     boolean allowCast() default false;
+
+    /**
+     * This attribute allows for configuring a transformation that is applied to enum properties. {@link Phase#TO_GRAPH} is applied
+     * before the name of the enum is written to the graph, {@link Phase#TO_ENTITY} is applied before an instance of the enum
+     * value is referenced.
+     *
+     * @return A transformation to be used on enum keys.
+     */
+    Class<? extends BiFunction<Phase, String, String>> transformEnumKeysWith() default NoopTransformation.class;
+
+    /**
+     * Phase of the mapping currently taking place.
+     */
+    enum Phase {
+        /**
+         * Properties are mapped to graph properties.
+         */
+        TO_GRAPH,
+        /**
+         * Graph properties are mapped to key/values of a map contained in an entity.
+         */
+        TO_ENTITY
+    }
+
+    class NoopTransformation implements BiFunction<Phase, String, String> {
+
+        @Override
+        public String apply(Phase phase, String s) {
+            return s;
+        }
+    }
 }

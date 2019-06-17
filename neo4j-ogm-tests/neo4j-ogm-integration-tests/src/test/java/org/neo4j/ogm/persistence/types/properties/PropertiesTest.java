@@ -90,6 +90,27 @@ public class PropertiesTest extends MultiDriverTestClass {
         }
     }
 
+    @Test // GH-634
+    public void shouldHandleFilteredProperties() {
+
+        User user = new User("A");
+        user.setFilteredProperties(Collections.singletonMap(User.EnumA.VALUE_AA, "aa"));
+
+        session.save(user);
+        session.clear();
+
+        user = session.load(User.class, user.getId());
+        assertThat(user.getFilteredProperties()).containsEntry(User.EnumA.VALUE_AA, "aa");
+
+        try (Transaction tx = getGraphDatabaseService().beginTx()) {
+            Node userNode = getGraphDatabaseService().getNodeById(user.getId());
+            assertThat(userNode.getAllProperties()).containsKeys()
+                .containsEntry("filteredProperties.value_aa", "aa");
+
+            tx.success();
+        }
+    }
+
     @Test // GH-632
     public void shouldNotAllowNullKeys() {
 

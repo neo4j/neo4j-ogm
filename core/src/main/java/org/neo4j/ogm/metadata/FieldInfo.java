@@ -27,8 +27,10 @@ import java.lang.reflect.Type;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 
+import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Index;
@@ -100,21 +102,23 @@ public class FieldInfo {
                 throw new IllegalStateException(String.format(
                     "The converter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
                     this.name));
-            } else {
-                AnnotationInfo properties = getAnnotations().get(Properties.class);
-                if (properties != null) {
-                    if (fieldType.equals(Map.class)) {
-                        Type fieldGenericType = field.getGenericType();
-                        MapCompositeConverter mapCompositeConverter = new MapCompositeConverter(
-                            properties.get("prefix", field.getName()),
-                            properties.get("delimiter"),
-                            Boolean.valueOf(properties.get("allowCast")),
-                            (ParameterizedType) fieldGenericType, isSupportedNativeType);
-                        setCompositeConverter(mapCompositeConverter);
-                    } else {
-                        throw new MappingException(
-                            "@Properties annotation is allowed only on fields of type java.util.Map");
+            } else if (hasAnnotation(Properties.class)) {
+                if (fieldType.equals(Map.class)) {
+                    Properties propertiesAnnotation = (Properties) getAnnotations().get(Properties.class).getAnnotation();
+                    Type fieldGenericType = field.getGenericType();
+                    MapCompositeConverter mapCompositeConverter = new MapCompositeConverter(
+                        Optional.ofNullable(propertiesAnnotation.prefix()).filter(StringUtils::isNotBlank).orElseGet(field::getName),
+                        propertiesAnnotation.delimiter(),
+                        propertiesAnnotation.allowCast(),
+                        (ParameterizedType) fieldGenericType, isSupportedNativeType);
+                    try {
+                        mapCompositeConverter.setEnumKeysTransformation(propertiesAnnotation.transformEnumKeysWith().getDeclaredConstructor().newInstance());
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("Unsupported property key filter: " + propertiesAnnotation.transformEnumKeysWith(), e);
                     }
+                    setCompositeConverter(mapCompositeConverter);
+                } else {
+                    throw new MappingException("@Properties annotation is allowed only on fields of type java.util.Map");
                 }
             }
         }

@@ -18,10 +18,14 @@
  */
 package org.neo4j.ogm.domain.properties;
 
+import static org.neo4j.ogm.annotation.Properties.*;
+
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Properties;
@@ -69,6 +73,9 @@ public class User {
 
     @Properties
     private Map<EnumB, Object> enumBProperties;
+
+    @Properties(transformEnumKeysWith = LowerCasePropertiesFilter.class)
+    private Map<EnumA, Object> filteredProperties;
 
     @Relationship(type = "VISITED")
     private Set<Visit> visits;
@@ -200,5 +207,32 @@ public class User {
 
     public void setEnumBProperties(Map<EnumB, Object> enumBProperties) {
         this.enumBProperties = enumBProperties;
+    }
+
+    public Map<EnumA, Object> getFilteredProperties() {
+        return filteredProperties;
+    }
+
+    public void setFilteredProperties(Map<EnumA, Object> filteredProperties) {
+        this.filteredProperties = filteredProperties;
+    }
+
+    public static class LowerCasePropertiesFilter implements BiFunction<Phase, String, String> {
+
+        @Override
+        public String apply(Phase phase, String s) {
+            if (s == null) {
+                return null;
+            }
+
+            switch (phase) {
+                case TO_GRAPH:
+                    return s.toLowerCase(Locale.ENGLISH);
+                case TO_ENTITY:
+                    return s.toUpperCase(Locale.ENGLISH);
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
     }
 }

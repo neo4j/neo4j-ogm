@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * The prefix and delimiter is configurable.
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class MapCompositeConverter implements CompositeAttributeConverter<Map<?, ?>> {
 
@@ -78,7 +79,10 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
      * @param delimiter    delimiter that is used between prefix, properties and nested properties
      * @param allowCast    if casting from non Cypher types should be allowed
      * @param mapFieldType type information for the field
+     * @deprecated Since 3.1.12, this class is not meant to be public API. From 3.2 onwards, it takes in an additional
+     *            {@link java.util.function.Predicate} that delegates the test for natively supported types to our typesystem.
      */
+    @Deprecated
     public MapCompositeConverter(String prefix, String delimiter, boolean allowCast, ParameterizedType mapFieldType) {
         this.prefix = prefix;
         this.delimiter = delimiter;

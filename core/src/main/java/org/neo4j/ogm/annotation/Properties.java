@@ -33,10 +33,9 @@ import java.lang.annotation.Target;
  * The values in the Map can be of any Java type equivalent to Cypher types. If full type information is provided other
  * Java types are also supported.
  * If {@link #allowCast()} is set to true then types that can be cast to corresponding Cypher types are allowed as well.
- * Note that the original type cannot be deduced and the value will be deserialized to corresponding type - e.g.
- * when Integer instance is put to {@code Map<String, Object>} it will be deserialized as Long.
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  * @since 3.0
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -45,17 +44,24 @@ import java.lang.annotation.Target;
 public @interface Properties {
 
     /**
-     * Prefix for mapped properties, if not set the field name is used
+     * Allows for specifying a prefix for the map properties. OGM defaults to the field name of the map attribute when not set.
+     *
+     * @return The prefix for mapped properties.
      */
     String prefix() default "";
 
     /**
-     * Delimiter to use in the property names
+     * @return Delimiter to use in the property names
      */
     String delimiter() default ".";
 
     /**
-     * If values in the Map that do not have supported Cypher type should be allowed to be cast to Cypher types
+     * Some Java types, like Integer and Float, can be automatically cast into a wider type, like Long and Double, by
+     * the Neo4j type systems. This in most cases not what one does expect during mapping. We have however not a way
+     * to determine whether the type of the value put into the map was supposed originally when reading the instance
+     * containing the map back. Set this attribute to true to allow OGM to accept the automatic cast.
+     *
+     * @return True, when the values of map entries are allowed to be cast to a wider datatype.
      */
     boolean allowCast() default false;
 }

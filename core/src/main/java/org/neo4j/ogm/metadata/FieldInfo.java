@@ -109,7 +109,7 @@ public class FieldInfo {
                             properties.get("prefix", field.getName()),
                             properties.get("delimiter"),
                             Boolean.valueOf(properties.get("allowCast")),
-                            (ParameterizedType) fieldGenericType);
+                            (ParameterizedType) fieldGenericType, isSupportedNativeType);
                         setCompositeConverter(mapCompositeConverter);
                     } else {
                         throw new MappingException(

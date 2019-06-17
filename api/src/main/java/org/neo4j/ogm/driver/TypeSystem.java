@@ -29,11 +29,18 @@ import java.util.function.Function;
 public interface TypeSystem {
 
     /**
+     * True if values of the given class are supported natively.
+     * See <a href="https://neo4j.com/docs/driver-manual/1.7/cypher-values/#driver-neo4j-type-system">the Cypher type system</a>
+     * for reference.
+     *
      * @param clazz The class of an object that is to stored natively
      * @return True if the driver can store an object of the given class natively
+     * @see AbstractConfigurableDriver#DEFAULT_SUPPORTED_TYPES
      */
     default boolean supportsAsNativeType(Class<?> clazz) {
-        return false;
+
+        return AbstractConfigurableDriver.DEFAULT_SUPPORTED_TYPES.stream()
+            .filter(st -> st.isAssignableFrom(clazz)).findAny().isPresent();
     }
 
     /**

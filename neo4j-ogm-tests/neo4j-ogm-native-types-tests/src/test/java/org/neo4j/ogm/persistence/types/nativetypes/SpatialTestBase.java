@@ -166,4 +166,29 @@ public abstract class SpatialTestBase {
         assertThat(loaded.getListOfPoints()).hasSize(2).extracting(GeographicPoint2d::getLatitude)
             .containsExactlyInAnyOrder(50.0, 51.0);
     }
+
+    @Test
+    public void spatialObjectsInMapsShouldWork() {
+        Session session = sessionFactory.openSession();
+        SomethingSpatial spatial = new SomethingSpatial();
+
+        GeographicPoint2d geographicPoint2d = new GeographicPoint2d(1, 2);
+        GeographicPoint3d geographicPoint3d = new GeographicPoint3d(1, 2, 3);
+        CartesianPoint2d cartesianPoint2d = new CartesianPoint2d(1, 2);
+        CartesianPoint3d cartesianPoint3d = new CartesianPoint3d(1, 2, 3);
+
+        spatial.addProperty("geographicPoint2d", geographicPoint2d);
+        spatial.addProperty("geographicPoint3d", geographicPoint3d);
+        spatial.addProperty("cartesianPoint2d", cartesianPoint2d);
+        spatial.addProperty("cartesianPoint3d", cartesianPoint3d);
+
+        session.save(spatial);
+
+        session.clear();
+        SomethingSpatial loaded = session.load(SomethingSpatial.class, spatial.getId());
+        assertThat(loaded.getProperties()).containsEntry("geographicPoint2d", geographicPoint2d);
+        assertThat(loaded.getProperties()).containsEntry("geographicPoint3d", geographicPoint3d);
+        assertThat(loaded.getProperties()).containsEntry("cartesianPoint2d", cartesianPoint2d);
+        assertThat(loaded.getProperties()).containsEntry("cartesianPoint3d", cartesianPoint3d);
+    }
 }

@@ -380,8 +380,9 @@ public class DomainInfo {
                     .map(Map.Entry::getValue)
                     .flatMap(selectAttributeConverter);
 
+            boolean isSupportedNativeType = typeSystem.supportsAsNativeType(DescriptorMappings.getType(fieldInfo.getTypeDescriptor()));
             // We can use a registered converter
-            if (registeredAttributeConverter.isPresent() && !typeSystem.supportsAsNativeType(fieldInfo.type())) {
+            if (registeredAttributeConverter.isPresent() && !isSupportedNativeType) {
                 fieldInfo.setPropertyConverter(registeredAttributeConverter.get());
             } else {
                 // Check if the user configured one through the convert annotation

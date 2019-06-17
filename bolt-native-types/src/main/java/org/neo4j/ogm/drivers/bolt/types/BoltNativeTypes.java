@@ -127,7 +127,7 @@ class BoltNativeTypes implements TypeSystem {
     }
 
     public boolean supportsAsNativeType(Class<?> clazz) {
-        return mappedToNativeAdapter.hasAdapterFor(clazz);
+        return TypeSystem.super.supportsAsNativeType(clazz) || mappedToNativeAdapter.hasAdapterFor(clazz);
     }
 
     @Override

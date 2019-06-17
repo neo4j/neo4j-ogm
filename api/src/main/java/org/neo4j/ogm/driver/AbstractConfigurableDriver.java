@@ -18,13 +18,19 @@
  */
 package org.neo4j.ogm.driver;
 
+import static java.util.stream.Collectors.*;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.neo4j.ogm.config.Configuration;
@@ -51,6 +57,26 @@ import org.neo4j.ogm.support.ClassUtils;
  * @author Michael J. Simons
  */
 public abstract class AbstractConfigurableDriver implements Driver {
+
+    /**
+     * Set of classes that are supported natively without implicit or explicit (native type support) conversion.
+     * The set is not meant to be used outside this package, so it was put into the concrete driver class and not
+     * on the {@link TypeSystem} interface.
+     * </p>
+     * The byte array ({@code byte[]} has been excluded here as OGM should use {@code org.neo4j.ogm.typeconversion.ByteArrayBase64Converter}
+     * by default.
+     * </p>
+     * {@link List} and {@link Map} have both been excluded, as the {@link TypeSystemBasedParameterConversion} takes care of that.
+     */
+    static final Set<Class<?>> DEFAULT_SUPPORTED_TYPES =
+        Stream.of(
+            List.class,
+            Map.class,
+            Boolean.class, boolean.class,
+            Long.class, long.class,
+            Double.class, double.class,
+            String.class
+        ).collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
     private final ThreadLocal<ServiceLoader<CypherModificationProvider>> cypherModificationProviderLoader =
         ThreadLocal.withInitial(() -> ServiceLoader.load(CypherModificationProvider.class));

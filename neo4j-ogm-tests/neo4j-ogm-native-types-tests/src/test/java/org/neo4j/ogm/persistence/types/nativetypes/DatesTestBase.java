@@ -54,6 +54,7 @@ import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 /**
  * @author Gerrit Meier
  * @author Michael J. Simons
+ * @author Matt Harrison
  */
 public abstract class DatesTestBase {
 
@@ -124,18 +125,26 @@ public abstract class DatesTestBase {
         Sometime loaded = session.load(Sometime.class, sometime.id);
         assertThat(loaded.period).isEqualTo(period.normalized());
     }
-    
+
     @Test
     public void convertPersistAndLoadZonedDateTimeInMap() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
         ZonedDateTime dateTime = ZonedDateTime.of(2019,6,17,13,31,0,0,ZoneId.systemDefault());
+        LocalDate localDate = LocalDate.of(2018, 11, 14);
+        LocalDateTime localDateTime = LocalDateTime.of(2018, 10, 11, 15, 24);
+
         sometime.addMapProperty("zoned_datetime", dateTime);
+        sometime.addMapProperty("local_date", localDate);
+        sometime.addMapProperty("local_date_time", localDateTime);
+
         session.save(sometime);
 
         session.clear();
         Sometime loaded = session.load(Sometime.class, sometime.id);
-        assertThat(loaded.getMapProperties().get("zoned_datetime")).isEqualTo(dateTime);
+        assertThat(loaded.getMapProperties()).containsEntry("zoned_datetime", dateTime);
+        assertThat(loaded.getMapProperties()).containsEntry("local_date", localDate);
+        assertThat(loaded.getMapProperties()).containsEntry("local_date_time", localDateTime);
     }
 
     @Test
@@ -255,9 +264,9 @@ public abstract class DatesTestBase {
         TemporalAmount temporalAmount;
         private Long id;
 
-        @Properties(allowCast=true)
+        @Properties
         private Map<String, Object> mapProperties = new HashMap<>();
-        
+
         @Convert(LocalDateStringConverter.class)
         LocalDate convertedLocalDate;
 
@@ -315,11 +324,11 @@ public abstract class DatesTestBase {
         public void setArrayOfDates(Duration[] arrayOfDates) {
             this.arrayOfDates = arrayOfDates;
         }
-        
+
         public void addMapProperty(String key, Object value) {
         	this.mapProperties.put(key, value);
         }
-        
+
         public Map<String, Object> getMapProperties() {
         	return mapProperties;
         }

@@ -26,43 +26,29 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * MapCompositeConverter converts Map field into prefixed properties of node or relationship entity.
  * The prefix and delimiter is configurable.
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class MapCompositeConverter implements CompositeAttributeConverter<Map<?, ?>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MapCompositeConverter.class);
-    private static final Set<Class> cypherTypes;
-    private static final Set<Class> castableTypes;
-
-    static {
-        Set<Class> types = new HashSet<>();
-        types.add(Boolean.class);
-        types.add(Long.class);
-        types.add(Double.class);
-        types.add(String.class);
-        types.add(List.class);
-        cypherTypes = Collections.unmodifiableSet(types);
-
-        Set<Class> castable = new HashSet<>();
-        castable.add(Short.class);
-        castable.add(Integer.class);
-        castable.add(Float.class);
-        castableTypes = unmodifiableSet(castable);
-    }
+    private static final Set<Class> castableTypes =
+        Stream.of(
+            Short.class, short.class,
+            Integer.class, int.class,
+            Float.class, Float.class
+        ).collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
     private final String prefix;
     private final String delimiter;
@@ -71,6 +57,8 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
     private final ParameterizedType mapFieldType;
     private final String firstPart;
 
+    private final Predicate<Class<?>> isSupportedNativeType;
+
     /**
      * Create MapCompositeConverter
      *
@@ -78,13 +66,16 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
      * @param delimiter    delimiter that is used between prefix, properties and nested properties
      * @param allowCast    if casting from non Cypher types should be allowed
      * @param mapFieldType type information for the field
+     * @param isSupportedNativeType Passed on f
      */
-    public MapCompositeConverter(String prefix, String delimiter, boolean allowCast, ParameterizedType mapFieldType) {
+    public MapCompositeConverter(String prefix, String delimiter, boolean allowCast, ParameterizedType mapFieldType,
+        Predicate<Class<?>> isSupportedNativeType) {
         this.prefix = prefix;
         this.delimiter = delimiter;
         this.allowCast = allowCast;
         this.mapFieldType = mapFieldType;
-        firstPart = prefix + delimiter;
+        this.firstPart = prefix + delimiter;
+        this.isSupportedNativeType = isSupportedNativeType;
     }
 
     @Override
@@ -121,7 +112,7 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
     }
 
     private boolean isCypherType(Object entryValue) {
-        return cypherTypes.contains(entryValue.getClass()) || List.class.isAssignableFrom(entryValue.getClass());
+        return entryValue == null || this.isSupportedNativeType.test(entryValue.getClass());
     }
 
     @Override

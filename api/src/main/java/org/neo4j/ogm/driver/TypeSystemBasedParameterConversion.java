@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * This conversion mode first tries to map all parameters to a FOOBAR  and uses them directly. For all non supported
@@ -90,7 +91,9 @@ class TypeSystemBasedParameterConversion implements ParameterConversion {
     }
 
     private Object convertSingle(Object value) {
-        if (typeSystem.supportsAsNativeType(value.getClass())) {
+        Predicate<Class> isSupportedNativeCollection = c -> List.class.isAssignableFrom(c) || Map.class.isAssignableFrom(c);
+
+        if (isSupportedNativeCollection.negate().and(typeSystem::supportsAsNativeType).test(value.getClass())) {
             return typeSystem.getMappedToNativeTypeAdapter(value.getClass()).apply(value);
         } else {
             String fixedKey = "u";

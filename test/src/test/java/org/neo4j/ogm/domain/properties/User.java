@@ -29,9 +29,21 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 @NodeEntity
 public class User {
+
+    public enum EnumA {VALUE_AA}
+
+    public enum EnumB {
+        VALUE_BA;
+
+        @Override
+        public String toString() {
+            return super.name() + " deliberately screw the enum combo toString/name.";
+        }
+    }
 
     private Long id;
 
@@ -51,6 +63,12 @@ public class User {
 
     @Properties(allowCast = true)
     private Map<String, Object> allowCastProperties;
+
+    @Properties
+    private Map<EnumA, Object> enumAProperties;
+
+    @Properties
+    private Map<EnumB, Object> enumBProperties;
 
     @Relationship(type = "VISITED")
     private Set<Visit> visits;
@@ -168,4 +186,19 @@ public class User {
         visits.add(visit);
     }
 
+    public Map<EnumA, Object> getEnumAProperties() {
+        return enumAProperties;
+    }
+
+    public void setEnumAProperties(Map<EnumA, Object> enumAProperties) {
+        this.enumAProperties = enumAProperties;
+    }
+
+    public Map<EnumB, Object> getEnumBProperties() {
+        return enumBProperties;
+    }
+
+    public void setEnumBProperties(Map<EnumB, Object> enumBProperties) {
+        this.enumBProperties = enumBProperties;
+    }
 }

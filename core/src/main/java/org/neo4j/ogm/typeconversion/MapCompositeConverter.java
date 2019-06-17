@@ -104,13 +104,14 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
     private void addMapToProperties(Map<?, ?> fieldValue, Map<String, Object> graphProperties, String prefix) {
         for (Map.Entry<?, ?> entry : fieldValue.entrySet()) {
             Object entryValue = entry.getValue();
+            String entryKey = prefix + keyInstanceToString(entry.getKey());
             if (entryValue instanceof Map) {
-                addMapToProperties((Map<?, ?>) entryValue, graphProperties, prefix + entry.getKey() + delimiter);
+                addMapToProperties((Map<?, ?>) entryValue, graphProperties, entryKey + delimiter);
             } else {
                 if (isCypherType(entryValue) ||
                     (allowCast && canCastType(entryValue))) {
 
-                    graphProperties.put(prefix + entry.getKey(), entryValue);
+                    graphProperties.put(entryKey, entryValue);
                 } else {
                     throw new MappingException("Could not map key=" + prefix + entry.getKey() + ", " +
                         "value=" + entryValue + " (type = " + entryValue.getClass() + ") " +
@@ -184,6 +185,22 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
         }
     }
 
+    private String keyInstanceToString(Object propertyKey) {
+        if (propertyKey == null) {
+            throw new UnsupportedOperationException("Null is not a supported property key!");
+        }
+
+        if (propertyKey instanceof String) {
+            return (String) propertyKey;
+        } else if (propertyKey.getClass().isEnum()) {
+            return ((Enum) propertyKey).name();
+        }
+
+        throw new UnsupportedOperationException(
+            "Only String and Enum allowed to be keys, got " + propertyKey.getClass());
+
+    }
+
     private Object keyInstanceFromString(String propertyKey, Class<?> keyType) {
         if (keyType == null) {
             return propertyKey;
@@ -195,8 +212,8 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException("Should not happen", e);
             }
-        } else {
-            throw new UnsupportedOperationException("Only String and Enum allowed to be keys, got " + keyType);
         }
+
+        throw new UnsupportedOperationException("Only String and Enum allowed to be keys, got " + keyType);
     }
 }

@@ -21,10 +21,13 @@ package org.neo4j.ogm.persistence.types.nativetypes;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +41,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
@@ -119,6 +123,19 @@ public abstract class DatesTestBase {
         session.clear();
         Sometime loaded = session.load(Sometime.class, sometime.id);
         assertThat(loaded.period).isEqualTo(period.normalized());
+    }
+    
+    @Test
+    public void convertPersistAndLoadZonedDateTimeInMap() {
+        Session session = sessionFactory.openSession();
+        Sometime sometime = new Sometime();
+        ZonedDateTime dateTime = ZonedDateTime.of(2019,6,17,13,31,0,0,ZoneId.systemDefault());
+        sometime.addMapProperty("zoned_datetime", dateTime);
+        session.save(sometime);
+
+        session.clear();
+        Sometime loaded = session.load(Sometime.class, sometime.id);
+        assertThat(loaded.getMapProperties().get("zoned_datetime")).isEqualTo(dateTime);
     }
 
     @Test
@@ -238,6 +255,9 @@ public abstract class DatesTestBase {
         TemporalAmount temporalAmount;
         private Long id;
 
+        @Properties(allowCast=true)
+        private Map<String, Object> mapProperties = new HashMap<>();
+        
         @Convert(LocalDateStringConverter.class)
         LocalDate convertedLocalDate;
 
@@ -294,6 +314,14 @@ public abstract class DatesTestBase {
 
         public void setArrayOfDates(Duration[] arrayOfDates) {
             this.arrayOfDates = arrayOfDates;
+        }
+        
+        public void addMapProperty(String key, Object value) {
+        	this.mapProperties.put(key, value);
+        }
+        
+        public Map<String, Object> getMapProperties() {
+        	return mapProperties;
         }
     }
 

@@ -18,6 +18,7 @@ o `SessionFactory.getDriver()` has been replaced with `SessionFactory.unwrap(Cla
   way to get the underlying Neo4j-OGM driver or the native driver.
 o Wrap CypherModificationProvider in a ThreadLocal.
 o Add support for containing filter in combination with ignore case.
+o Provide transformEnumKeysWith on @Properties. (#634)
 
 3.1.11
 o Apply optimistic locking logic during merge, too. (#623)

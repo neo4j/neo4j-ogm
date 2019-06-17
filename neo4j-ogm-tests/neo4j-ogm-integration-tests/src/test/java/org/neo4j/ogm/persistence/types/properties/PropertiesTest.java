@@ -30,7 +30,9 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.domain.properties.SomeNode;
@@ -50,6 +52,9 @@ public class PropertiesTest extends MultiDriverTestClass {
 
     private Session session;
 
+    @Rule
+    public ExpectedException thrownException = ExpectedException.none();
+
     @BeforeClass
     public static void init() {
         sessionFactory = new SessionFactory(driver, User.class.getName(), SomeNode.class.getName());
@@ -59,6 +64,60 @@ public class PropertiesTest extends MultiDriverTestClass {
     public void setUp() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
+    }
+
+    @Test // GH-632
+    public void shouldHandleEnumsAsKey() {
+
+        User user = new User("A");
+        user.setEnumAProperties(Collections.singletonMap(User.EnumA.VALUE_AA, "aa"));
+        user.setEnumBProperties(Collections.singletonMap(User.EnumB.VALUE_BA, "ba"));
+
+        session.save(user);
+
+        session.clear();
+
+        user = session.load(User.class, user.getId());
+        assertThat(user.getEnumAProperties()).containsEntry(User.EnumA.VALUE_AA, "aa");
+        assertThat(user.getEnumBProperties()).containsEntry(User.EnumB.VALUE_BA, "ba");
+
+        try (Transaction tx = getGraphDatabaseService().beginTx()) {
+            Node userNode = getGraphDatabaseService().getNodeById(user.getId());
+            assertThat(userNode.getAllProperties()).containsKeys()
+                .containsKeys("enumAProperties.VALUE_AA", "enumBProperties.VALUE_BA");
+
+            tx.success();
+        }
+    }
+
+    @Test // GH-632
+    public void shouldNotAllowNullKeys() {
+
+        thrownException.expect(UnsupportedOperationException.class);
+        thrownException.expectMessage("Null is not a supported property key!");
+
+        User user = new User("A");
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(null, "irrelevant");
+        user.setMyProperties(properties);
+        session.save(user);
+
+        session.clear();
+    }
+
+    @Test // GH-632
+    public void shouldNotAllowKeysOtherThanStringAndEnum() {
+
+        thrownException.expect(UnsupportedOperationException.class);
+        thrownException.expectMessage("Only String and Enum allowed to be keys, got class java.lang.Integer");
+
+        User user = new User("A");
+        Map properties = new HashMap<>();
+        properties.put(123, "irrelevant");
+        user.setMyProperties(properties);
+        session.save(user);
+
+        session.clear();
     }
 
     @Test

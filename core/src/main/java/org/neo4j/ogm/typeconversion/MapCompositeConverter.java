@@ -20,6 +20,7 @@ package org.neo4j.ogm.typeconversion;
 
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static org.neo4j.ogm.annotation.Properties.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -50,7 +52,6 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
             Float.class, Float.class
         ).collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
-    private final String prefix;
     private final String delimiter;
     private final boolean allowCast;
 
@@ -58,6 +59,8 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
     private final String firstPart;
 
     private final Predicate<Class<?>> isSupportedNativeType;
+
+    private BiFunction<Phase, String, String> enumKeysTransformation = new NoopTransformation();
 
     /**
      * Create MapCompositeConverter
@@ -70,12 +73,17 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
      */
     public MapCompositeConverter(String prefix, String delimiter, boolean allowCast, ParameterizedType mapFieldType,
         Predicate<Class<?>> isSupportedNativeType) {
-        this.prefix = prefix;
+
         this.delimiter = delimiter;
         this.allowCast = allowCast;
         this.mapFieldType = mapFieldType;
         this.firstPart = prefix + delimiter;
         this.isSupportedNativeType = isSupportedNativeType;
+    }
+
+    public void setEnumKeysTransformation(BiFunction<Phase, String, String> enumKeysTransformation) {
+
+        this.enumKeysTransformation = enumKeysTransformation;
     }
 
     @Override
@@ -180,7 +188,7 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
         if (propertyKey instanceof String) {
             return (String) propertyKey;
         } else if (propertyKey.getClass().isEnum()) {
-            return ((Enum) propertyKey).name();
+            return enumKeysTransformation.apply(Phase.TO_GRAPH, ((Enum) propertyKey).name());
         }
 
         throw new UnsupportedOperationException(
@@ -195,7 +203,8 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
             return propertyKey;
         } else if (keyType.isEnum()) {
             try {
-                return keyType.getDeclaredMethod("valueOf", String.class).invoke(keyType, propertyKey);
+                return keyType.getDeclaredMethod("valueOf", String.class).invoke(keyType, enumKeysTransformation.apply(
+                    Phase.TO_ENTITY, propertyKey));
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException("Should not happen", e);
             }

@@ -97,33 +97,12 @@ public class DomainInfo {
     }
 
     private static ScanResult findClasses(String[] packagesOrClasses) {
-        List<String> packages = new ArrayList<>(packagesOrClasses.length);
-        Set<String> classes = new HashSet<>(packagesOrClasses.length);
 
-        for (String packageOrClass : packagesOrClasses) {
-            if (isClass(packageOrClass)) {
-                classes.add(packageOrClass);
-            } else {
-                packages.add(packageOrClass);
-            }
-        }
-
-        ScanResult scanResult = new ClassGraph()
+        return new ClassGraph()
             .enableAllInfo()
-            .whitelistPackages(packages.toArray(new String[] {}))
-            .whitelistClasses(classes.toArray(new String[] {}))
+            .whitelistPackages(packagesOrClasses)
+            .whitelistClasses(packagesOrClasses)
             .scan();
-
-        return scanResult;
-    }
-
-    private static boolean isClass(String className) {
-        try {
-            Class.forName(className, false, Thread.currentThread().getContextClassLoader());
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
     }
 
     /**

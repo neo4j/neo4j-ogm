@@ -193,7 +193,7 @@
         <commons-lang3.version>3.8</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
         <dropwizard-metrics.version>4.0.2</dropwizard-metrics.version>
-        <fast.classpath.scanner>2.18.1</fast.classpath.scanner>
+        <classgraph.version>4.8.41</classgraph.version>
         <httpclient.version>4.5.2</httpclient.version>
         <httpcore.version>4.4.10</httpcore.version>
         <jackson.version>2.9.9</jackson.version>
@@ -364,10 +364,9 @@
             </dependency>
 
             <dependency>
-                <groupId>io.github.lukehutch</groupId>
-                <artifactId>fast-classpath-scanner</artifactId>
-                <version>${fast.classpath.scanner}</version>
-                <scope>compile</scope>
+                <groupId>io.github.classgraph</groupId>
+                <artifactId>classgraph</artifactId>
+                <version>${classgraph.version}</version>
             </dependency>
 
             <dependency>

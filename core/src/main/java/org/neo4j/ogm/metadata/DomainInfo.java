@@ -20,8 +20,8 @@ package org.neo4j.ogm.metadata;
 
 import static java.util.Comparator.*;
 
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
-import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 
 import java.util.*;
 import java.util.function.Function;
@@ -68,17 +68,19 @@ public class DomainInfo {
 
     public static DomainInfo create(TypeSystem typeSystem, String... packages) {
 
-        ScanResult scanResult = new FastClasspathScanner(packages)
-            .strictWhitelist()
-            .scan();
+        ScanResult scanResult = findClasses(packages);
+
+        List<String> allClasses = scanResult.getAllClasses().stream()
+            .map(io.github.classgraph.ClassInfo::getName)
+            .collect(Collectors.toList());
 
         DomainInfo domainInfo = new DomainInfo(typeSystem);
 
-        Predicate<Class<?>> classCouldBeLoaded = clazz -> clazz != null;
+        Predicate<Class<?>> classCouldBeLoaded = Objects::nonNull;
         Predicate<Class<?>> classIsMappable = clazz -> !(clazz.isAnnotation() || clazz.isAnonymousClass() || clazz
             .equals(Object.class));
 
-        Map<String, Class<?>> mappableClasses = scanResult.getNamesOfAllClasses()
+        Map<String, Class<?>> mappableClasses = allClasses
             .stream()
             .map(DomainInfo::loadClass)
             .filter(classCouldBeLoaded)
@@ -89,8 +91,18 @@ public class DomainInfo {
             .forEach(clazz -> prepareClass(domainInfo, mappableClasses, typeSystem, clazz));
 
         domainInfo.finish();
+        scanResult.close();
 
         return domainInfo;
+    }
+
+    private static ScanResult findClasses(String[] packagesOrClasses) {
+
+        return new ClassGraph()
+            .enableAllInfo()
+            .whitelistPackages(packagesOrClasses)
+            .whitelistClasses(packagesOrClasses)
+            .scan();
     }
 
     /**

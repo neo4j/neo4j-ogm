@@ -22,7 +22,6 @@ import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static org.neo4j.ogm.annotation.Properties.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -202,12 +201,10 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
         } else if (keyType.equals(String.class)) {
             return propertyKey;
         } else if (keyType.isEnum()) {
-            try {
-                return keyType.getDeclaredMethod("valueOf", String.class).invoke(keyType, enumKeysTransformation.apply(
-                    Phase.TO_ENTITY, propertyKey));
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                throw new RuntimeException("Should not happen", e);
-            }
+            @SuppressWarnings({"unchecked", "rawtypes"})
+            Enum key = Enum.valueOf(((Class<Enum>) keyType), enumKeysTransformation.apply(
+                Phase.TO_ENTITY, propertyKey));
+        	return key;
         }
 
         throw new UnsupportedOperationException("Only String and Enum allowed to be keys, got " + keyType);

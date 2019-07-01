@@ -20,6 +20,7 @@ package org.neo4j.ogm.metadata.reflect;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.DirectedRelationship;
@@ -73,88 +74,97 @@ public class EntityAccessManager {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static Object merge(Class<?> parameterType, Object newValues, Collection currentValues, Class elementType) {
 
-        //While we expect newValues to be an iterable, there are a couple of exceptions
+        // While we expect newValues to be an iterable, there are a couple of exceptions
 
         if (newValues != null) {
-            //1. A primitive array cannot be cast directly to Iterable
+            // 1. A primitive array cannot be cast directly to Iterable
             newValues = boxPrimitiveArray(newValues);
 
-            //2. A char[] may come in as a String or an array of String[]
+            // 2. A char[] may come in as a String or an array of String[]
             newValues = stringToCharacterIterable(newValues, parameterType, elementType);
         }
 
+        // Array needs a different cooersion and special treatment to properyl reassign the existing collection
         if (parameterType.isArray()) {
-            Class type = parameterType.getComponentType();
-            List<Object> objects = new ArrayList<>(union((Collection) newValues, currentValues, elementType));
 
-            Object array = Array.newInstance(type, objects.size());
-            for (int i = 0; i < objects.size(); i++) {
-                Array.set(array, i, Utils.coerceTypes(type, objects.get(i)));
-            }
-            return array;
+            Class<?> componentType = parameterType.getComponentType();
+
+            // Merge and coerce is done directly on the component type
+            Collection<Object> mergedValues = mergeAndCoerce(componentType, (Collection) newValues, currentValues);
+
+            Object targetArray = Array.newInstance(componentType, mergedValues.size());
+            AtomicInteger cnt = new AtomicInteger(0);
+            mergedValues.forEach(object -> Array.set(targetArray, cnt.getAndIncrement(), object));
+            return targetArray;
         }
 
         // create the desired type of collection and use it for the merge
-        Collection newCollection = createCollection(parameterType, (Collection) newValues, currentValues, elementType);
+        Collection newCollection = createTargetCollection(parameterType,
+            mergeAndCoerce(elementType, (Collection) newValues, currentValues));
         if (newCollection != null) {
             return newCollection;
         }
 
         // hydrated is unusable at this point so we can just set the other collection if it's compatible
-        assert newValues != null;
-        if (parameterType.isAssignableFrom(newValues.getClass())) {
+        if (newValues != null && parameterType.isAssignableFrom(newValues.getClass())) {
             return newValues;
         }
 
         throw new RuntimeException("Unsupported: " + parameterType.getName());
     }
 
-    private static Collection<?> createCollection(Class<?> parameterType, Collection collection, Collection hydrated,
-        Class elementType) {
-        if (Vector.class.isAssignableFrom(parameterType)) {
-            return new Vector<>(union(collection, hydrated, elementType));
-        }
-        if (List.class.isAssignableFrom(parameterType)) {
-            return new ArrayList<>(union(collection, hydrated, elementType));
-        }
-        if (SortedSet.class.isAssignableFrom(parameterType)) {
-            return new TreeSet<>(union(collection, hydrated, elementType));
-        }
-        if (Set.class.isAssignableFrom(parameterType)) {
-            return new HashSet<>(union(collection, hydrated, elementType));
-        }
-        return null;
-    }
+    /**
+     * Merges and coerces two collections. The elements in right have precedence over the left, so the right collection
+     * dominates the order. That is mostly due to the fact that the call stack leading here when completly hydrating new
+     * collections from queries puts the freshly hydrated elements into the right.
+     * @param elementType
+     * @param left
+     * @param right
+     * @return The merged collection with no duplicates
+     */
+    private static Collection<Object> mergeAndCoerce(Class elementType, Collection left, Collection right) {
 
-    private static Collection<Object> union(Collection collection, Collection hydrated, Class elementType) {
-        if (collection == null) {
-            return hydrated;
-        }
-        if (hydrated == null || hydrated.size() == 0) {
-            Collection<Object> result = new ArrayList<>(collection.size());
-            for (Object object : collection) {
-                result.add(Utils.coerceTypes(elementType, object));
-            }
-            return result;
-        }
-        int resultSize = collection.size();
-        resultSize += hydrated.size();
-        Collection<Object> result = new LinkedHashSet<>(resultSize);
+        // Turn each collection into the correct target type
+        Collection<Object> coercedLeft = coerceCollection(elementType, left);
+        Collection<Object> coercedRight = coerceCollection(elementType, right);
 
-        if (hydrated.size() > collection.size()) {
-            result.addAll(hydrated);
-            addToCollection(collection, result, elementType);
-        } else {
-            addToCollection(collection, result, elementType);
-            addToCollection(hydrated, result, elementType);
-        }
+        // Remove duplicates
+        coercedRight.removeAll(coercedLeft);
+
+        // Finally create the union without duplicates
+        Collection<Object> result = new ArrayList<>(coercedLeft.size() + coercedRight.size());
+        result.addAll(coercedRight);
+        result.addAll(coercedLeft);
         return result;
     }
 
-    private static void addToCollection(Collection add, Collection<Object> addTo, Class elementType) {
-        for (Object object : add) {
-            addTo.add(Utils.coerceTypes(elementType, object));
+    private static Collection<Object> coerceCollection(Class<Object> targetType, Collection<Object> source) {
+        Collection<Object> target;
+        if (source == null || source.isEmpty()) {
+            target = Collections.emptyList();
+        } else {
+            target = new ArrayList<>(source.size());
+            for (Object object : source) {
+                target.add(Utils.coerceTypes(targetType, object));
+            }
         }
+        return target;
+    }
+
+    private static Collection<?> createTargetCollection(Class<?> parameterType, Collection collection) {
+        if (Vector.class.isAssignableFrom(parameterType)) {
+            return collection instanceof Vector ? collection : new Vector<>(collection);
+        }
+        if (List.class.isAssignableFrom(parameterType)) {
+            return collection instanceof ArrayList ? collection : new ArrayList<>(collection);
+        }
+        if (SortedSet.class.isAssignableFrom(parameterType)) {
+            return collection instanceof TreeSet ? collection : new TreeSet<>(collection);
+        }
+        if (Set.class.isAssignableFrom(parameterType)) {
+            return collection instanceof HashSet ? collection : new HashSet<>(collection);
+        }
+        return null;
     }
 
     /**

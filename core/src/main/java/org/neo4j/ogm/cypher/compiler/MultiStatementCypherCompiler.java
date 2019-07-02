@@ -50,6 +50,7 @@ import org.neo4j.ogm.response.model.RelationshipModel;
  *
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class MultiStatementCypherCompiler implements Compiler {
 
@@ -62,8 +63,8 @@ public class MultiStatementCypherCompiler implements Compiler {
     private final List<RelationshipBuilder> deletedRelationshipEntityBuilders;
     private StatementFactory statementFactory;
 
-    public MultiStatementCypherCompiler() {
-        this.context = new CypherContext(this);
+    public MultiStatementCypherCompiler(Function<Object, Long> nativeIdProvider) {
+        this.context = new CypherContext(this, nativeIdProvider);
         this.newNodeBuilders = new ArrayList<>();
         this.newRelationshipBuilders = new ArrayList<>();
         this.existingNodeBuilders = new ArrayList<>();

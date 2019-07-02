@@ -18,7 +18,11 @@
  */
 package org.neo4j.ogm.persistence.model;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -27,6 +31,10 @@ import org.junit.Test;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.domain.election.Candidate;
 import org.neo4j.ogm.domain.election.Voter;
+import org.neo4j.ogm.domain.gh640.MyNode;
+import org.neo4j.ogm.domain.gh640.MyNodeWithAssignedId;
+import org.neo4j.ogm.domain.gh641.Entity1;
+import org.neo4j.ogm.domain.gh641.MyRelationship;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.session.Session;
@@ -37,6 +45,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 /**
  * @author Mark Angrish
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class RelationshipMappingTest extends MultiDriverTestClass {
 
@@ -44,8 +53,12 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
     private Session session;
 
     @BeforeClass
-    public static void oneTimeSetup() throws IOException {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.policy", "org.neo4j.ogm.domain.election");
+    public static void oneTimeSetup() {
+        sessionFactory = new SessionFactory(driver,
+            "org.neo4j.ogm.domain.policy",
+            "org.neo4j.ogm.domain.election",
+            "org.neo4j.ogm.domain.gh640",
+            "org.neo4j.ogm.domain.gh641");
     }
 
     @Before
@@ -113,10 +126,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
             "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
     }
 
-    /**
-     * @see DATAGRAPH-674
-     */
-    @Test
+    @Test // DATAGRAPH-674
     public void testAnnotatedRelationshipTypeWhenMethodsAreJsonIgnored() {
         Person jim = new Person("Jim");
         Policy policy = new Policy("Health");
@@ -160,5 +170,121 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
             "CREATE (a:Voter:Candidate {name:'A'}) " +
                 "CREATE (b:Voter:Candidate {name:'B'}) " +
                 "CREATE (v:Voter {name:'V'})-[:CANDIDATE_VOTED_FOR]->(a)");
+    }
+
+    @Test // GH-640
+    public void shouldDealWithTheSameButNotEqualParentEntities() {
+
+        Session tx = sessionFactory.openSession();
+        Map<String, Object> result = tx.query("CREATE (n1:MyNode {name: 'node1'})\n"
+            + "CREATE (n2:MyNode {name: 'node2'})\n"
+            + "CREATE (n3:MyNode {name: 'node3'})\n"
+            + "CREATE (n1) - [:REL_TWO] -> (n2)\n"
+            + "CREATE (n2) - [:REL_ONE] -> (n1)\n"
+            + "RETURN id(n1) as idOfn1, id(n2) as idOfn2, id(n3) as idOfn3", Collections.emptyMap()).iterator().next();
+
+        // Lets flush the session and thus basically creating a new tx, at least as far as the cache is concerned
+        tx = sessionFactory.openSession();
+
+        // Let's go through a bunch of queries to make sure the associations are loaded as OGM would do by default…
+        MyNode node1 = tx.load(MyNode.class, (Long)result.get("idOfn1"));
+        MyNode node2 = tx.load(MyNode.class, (Long)result.get("idOfn2"));
+        MyNode node3 = tx.load(MyNode.class, (Long)result.get("idOfn3"));
+
+        // Let's check some preconditions, shall we?
+        assertThat(node1).isNotNull();
+        assertThat(node2).isNotNull();
+        assertThat(node3).isNotNull();
+
+        assertThat(node1.getRefOne()).isEqualTo(node2);
+        assertThat(node1.getRefTwo()).containsOnly(node2);
+
+        // We start a new tx, but keep working on the copy of the previously loaded node
+        tx = sessionFactory.openSession();
+        MyNode changed = tx.load(MyNode.class, node1.getId()).copy();
+        changed.setName("Dirty thing.");
+        changed.setRefOne(node3);
+        tx.save(changed);
+
+        // Again, verify in a new session.
+        tx = sessionFactory.openSession();
+        node1 = tx.load(MyNode.class, changed.getId());
+        assertThat(node1.getRefOne()).isEqualTo(node3);
+        assertThat(node1.getRefTwo()).containsOnly(node2);
+
+        // Better safe than sorry.
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+            "CREATE (n1:MyNode {name: 'Dirty thing.'})\n"
+                + "CREATE (n2:MyNode {name: 'node2'})\n"
+                + "CREATE (n3:MyNode {name: 'node3'})\n"
+                + "CREATE (n1) - [:REL_TWO] -> (n2)\n"
+                + "CREATE (n3) - [:REL_ONE] -> (n1)");
+    }
+
+    @Test // GH-640
+    public void shouldDealWithTheSameButNotEqualParentEntitiesWithAssignedId() {
+        // Sames as above but this time the entity has an assigned id.
+
+        Session tx = sessionFactory.openSession();
+        tx.query("CREATE (n1:MyNodeWithAssignedId {name: 'node1'})\n"
+            + "CREATE (n2:MyNodeWithAssignedId {name: 'node2'})\n"
+            + "CREATE (n3:MyNodeWithAssignedId {name: 'node3'})\n"
+            + "CREATE (n1) - [:REL_TWO] -> (n2)\n"
+            + "CREATE (n2) - [:REL_ONE] -> (n1)\n"
+            + "RETURN id(n1) as idOfn1, id(n2) as idOfn2, id(n3) as idOfn3", Collections.emptyMap()).iterator().next();
+
+        tx = sessionFactory.openSession();
+
+        MyNodeWithAssignedId node1 = tx.load(MyNodeWithAssignedId.class, "node1");
+        MyNodeWithAssignedId node2 = tx.load(MyNodeWithAssignedId.class, "node2");
+        MyNodeWithAssignedId node3 = tx.load(MyNodeWithAssignedId.class, "node3");
+
+        assertThat(node1).isNotNull();
+        assertThat(node2).isNotNull();
+        assertThat(node3).isNotNull();
+
+        assertThat(node1.getRefOne()).isEqualTo(node2);
+        assertThat(node1.getRefTwo()).containsOnly(node2);
+
+        tx = sessionFactory.openSession();
+        MyNodeWithAssignedId changed = tx.load(MyNodeWithAssignedId.class, node1.getName()).copy();
+        changed.setRefOne(node3);
+        tx.save(changed);
+
+        tx = sessionFactory.openSession();
+        node1 = tx.load(MyNodeWithAssignedId.class, changed.getName());
+        assertThat(node1.getRefOne()).isEqualTo(node3);
+        assertThat(node1.getRefTwo()).containsOnly(node2);
+
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+            "CREATE (n1:MyNodeWithAssignedId {name: 'node1'})\n"
+                + "CREATE (n2:MyNodeWithAssignedId {name: 'node2'})\n"
+                + "CREATE (n3:MyNodeWithAssignedId {name: 'node3'})\n"
+                + "CREATE (n1) - [:REL_TWO] -> (n2)\n"
+                + "CREATE (n3) - [:REL_ONE] -> (n1)");
+    }
+
+    @Test // GH-641
+    public void shouldKeepOrderOfRelatedElements() {
+        // This test doesn't fit too well into here, as it is a broader problem than relationships,
+        // it also is tackled in org.neo4j.ogm.persistence.relationships.transitive.abb.ABBTest,
+        // org.neo4j.ogm.persistence.relationships.direct.abb.ABBTest and some others, but there it fits
+        // even worse.
+
+        session.query("CREATE (e1:Entity1)\n"
+            + "CREATE (e2:Entity2)\n"
+            + "CREATE (e3:Entity2)\n"
+            + "CREATE (e4:Entity2)\n"
+            + "CREATE (e1) - [:MY_RELATIONSHIP {ordering: 1}] -> (e3)\n"
+            + "CREATE (e1) - [:MY_RELATIONSHIP {ordering: 2}] -> (e4)\n"
+            + "CREATE (e1) - [:MY_RELATIONSHIP {ordering: 3}] -> (e2)\n"
+            + "RETURN *", Collections.emptyMap());
+        session.clear();
+
+        Entity1 entity1 = session.queryForObject(Entity1.class,
+            "MATCH (e1:Entity1)-[r:MY_RELATIONSHIP]->(e2:Entity2)\n"
+                + "RETURN e1, r, e2\n"
+                + "ORDER BY r.ordering", Collections.emptyMap());
+        assertThat(entity1.getEntries()).extracting(MyRelationship::getOrdering).containsExactly(1, 2, 3);
     }
 }

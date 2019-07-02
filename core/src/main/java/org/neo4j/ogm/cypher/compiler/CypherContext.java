@@ -38,6 +38,10 @@ import org.neo4j.ogm.context.Mappable;
  */
 public class CypherContext implements CompileContext {
 
+    /**
+     * Stores the the builder and the horizon of visited objects. The key is either the native graph id of the entity
+     * if the id is available (that is not null and greater 0L) or otherwise the entity itself.
+     */
     private final Map<Object, NodeBuilderHorizonPair> visitedObjects = new IdentityHashMap<>();
     private final Set<Long> visitedRelationshipEntities = new HashSet<>();
 
@@ -52,18 +56,26 @@ public class CypherContext implements CompileContext {
 
     private final Compiler compiler;
 
-    public CypherContext(Compiler compiler) {
+    private final Function<Object, Long> nativeIdProvider;
+
+    public CypherContext(Compiler compiler, Function<Object, Long> nativeIdProvider) {
         this.compiler = compiler;
+        this.nativeIdProvider = nativeIdProvider;
+    }
+
+    private Object getIdentity(Object entity) {
+        Long nativeId = this.nativeIdProvider.apply(entity);
+        return (nativeId == null || nativeId < 0) ? entity : nativeId;
     }
 
     public boolean visited(Object entity, int horizon) {
-        NodeBuilderHorizonPair pair = visitedObjects.get(entity);
+        NodeBuilderHorizonPair pair = visitedObjects.get(getIdentity(entity));
         return pair != null && (horizon < 0 || pair.getHorizon() > horizon);
     }
 
     @Override
     public void visit(Object entity, NodeBuilder nodeBuilder, int horizon) {
-        this.visitedObjects.put(entity, new NodeBuilderHorizonPair(nodeBuilder, horizon));
+        this.visitedObjects.put(getIdentity(entity), new NodeBuilderHorizonPair(nodeBuilder, horizon));
     }
 
     public void registerRelationship(Mappable mappedRelationship) {
@@ -76,7 +88,7 @@ public class CypherContext implements CompileContext {
 
     @Override
     public NodeBuilder visitedNode(Object entity) {
-        NodeBuilderHorizonPair pair = this.visitedObjects.get(entity);
+        NodeBuilderHorizonPair pair = this.visitedObjects.get(getIdentity(entity));
         return pair != null ? pair.getNodeBuilder() : null;
     }
 

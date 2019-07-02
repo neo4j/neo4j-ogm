@@ -56,10 +56,7 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver,
-            "org.neo4j.ogm.persistence.relationships",
-            "org.neo4j.ogm.domain.gh641"
-        );
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.relationships");
     }
 
     @Before
@@ -74,31 +71,6 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         m.rset.add(r1);
 
         session.purgeDatabase();
-    }
-
-
-    @Test // GH-641
-    public void shouldKeepOrderOfRelatedElements() {
-        // This test doesn't fit too well into here, as it is a broader problem than relationships,
-        // it also is tackled in org.neo4j.ogm.persistence.relationships.transitive.abb.ABBTest,
-        // org.neo4j.ogm.persistence.relationships.direct.abb.ABBTest and some others, but there it fits
-        // even worse.
-
-        session.query("CREATE (e1:Entity1)\n"
-            + "CREATE (e2:Entity2)\n"
-            + "CREATE (e3:Entity2)\n"
-            + "CREATE (e4:Entity2)\n"
-            + "CREATE (e1) - [:MY_RELATIONSHIP {ordering: 1}] -> (e3)\n"
-            + "CREATE (e1) - [:MY_RELATIONSHIP {ordering: 2}] -> (e4)\n"
-            + "CREATE (e1) - [:MY_RELATIONSHIP {ordering: 3}] -> (e2)\n"
-            + "RETURN *", Collections.emptyMap());
-        session.clear();
-
-        Entity1 entity1 = session.queryForObject(Entity1.class,
-            "MATCH (e1:Entity1)-[r:MY_RELATIONSHIP]->(e2:Entity2)\n"
-            + "RETURN e1, r, e2\n"
-            + "ORDER BY r.ordering", Collections.emptyMap());
-        assertThat(entity1.getEntries()).extracting(MyRelationship::getOrdering).containsExactly(1, 2, 3);
     }
 
     @Test

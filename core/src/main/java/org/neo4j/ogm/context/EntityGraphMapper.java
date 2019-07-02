@@ -58,7 +58,7 @@ public class EntityGraphMapper implements EntityMapper {
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
-    private final Compiler compiler = new MultiStatementCypherCompiler();
+    private final Compiler compiler;
     /**
      * Default supplier for write protection: Always write all the stuff.
      */
@@ -73,6 +73,7 @@ public class EntityGraphMapper implements EntityMapper {
     public EntityGraphMapper(MetaData metaData, MappingContext mappingContext) {
         this.metaData = metaData;
         this.mappingContext = mappingContext;
+        this.compiler = new MultiStatementCypherCompiler(mappingContext::nativeId);
     }
 
     public void addWriteProtection(BiFunction<WriteProtectionTarget, Class<?>, Predicate<Object>> writeProtectionSupplier) {

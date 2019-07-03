@@ -19,6 +19,7 @@
 package org.neo4j.ogm.metadata;
 
 import static java.util.Comparator.*;
+import static org.neo4j.ogm.support.ClassUtils.*;
 
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
@@ -379,13 +380,11 @@ public class DomainInfo {
                     }
                 }
 
-                if (!enumConverterSet) {
-                    if (fieldType.isEnum()) {
-                        LOGGER.debug(
-                            "Setting default enum converter for unscanned class " + classInfo.name() + ", field: "
-                                + fieldInfo.getName());
-                        setEnumFieldConverter(fieldInfo, fieldType);
-                    }
+                if (!enumConverterSet && isEnum(fieldType)) {
+                    LOGGER.debug(
+                        "Setting default enum converter for unscanned class " + classInfo.name() + ", field: "
+                            + fieldInfo.getName());
+                    setEnumFieldConverter(fieldInfo, fieldType);
                 }
             }
         }

@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.metadata.reflect;
 
+import static org.neo4j.ogm.support.ClassUtils.*;
+
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -204,7 +206,7 @@ public class EntityAccessManager {
             return characters;
         }
 
-        if (value.getClass().isArray() && (elementType == String.class || elementType.isEnum())) {
+        if (value.getClass().isArray() && (elementType == String.class || isEnum(elementType))) {
             String[] strings = (String[]) value;
             return Arrays.asList(strings);
         }

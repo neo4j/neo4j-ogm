@@ -26,6 +26,7 @@ import org.neo4j.ogm.annotation.Properties;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 @NodeEntity(label = "User")
 public class UserWithEnumMap {
@@ -70,7 +71,15 @@ public class UserWithEnumMap {
     public enum UserProperties {
 
         CITY,
-        ZIP_CODE,
+        ZIP_CODE {
+            @Override
+            void doSomething() {
 
+            }
+        };
+
+        void doSomething() {
+
+        }
     }
 }

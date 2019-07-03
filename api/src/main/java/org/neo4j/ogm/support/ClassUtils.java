@@ -64,6 +64,32 @@ public final class ClassUtils {
         return cl;
     }
 
+    /**
+     * See https://github.com/neo4j/neo4j-ogm/issues/643. An enum instance that overrides methods of the enum itself
+     * is realized as an anonymous inner class for which {@link Class#isEnum()} returns false.
+     *
+     * @param clazz The class to check whether it is an enum or not.
+     * @return True, if {@code clazz} is an enum.
+     */
+    public static boolean isEnum(Class<?> clazz) {
+
+        return clazz.isEnum() || Enum.class.isAssignableFrom(clazz);
+    }
+
+    /**
+     * @param object
+     * @return True, if the object is an enum instance.
+     * @see #isEnum(Class)
+     */
+    public static boolean isEnum(Object object) {
+
+        if (object == null) {
+            return false;
+        }
+
+        return isEnum(object.getClass());
+    }
+
     private ClassUtils() {
     }
 }

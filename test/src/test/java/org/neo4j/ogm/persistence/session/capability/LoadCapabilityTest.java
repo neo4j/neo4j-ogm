@@ -36,6 +36,7 @@ import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.domain.education.DomainObject;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
+import org.neo4j.ogm.domain.gh368.User;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.Recording;
@@ -59,7 +60,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
     @Before
     public void init() throws IOException {
 
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.gh368");
         session = sessionFactory.openSession();
         session.purgeDatabase();
 
@@ -79,10 +80,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-    /**
-     * @see DATAGRAPH-707
-     */
-    @Test
+    @Test // DATAGRAPH-707
     public void loadAllShouldRespectEntityType() {
         Collection<Artist> artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId));
         assertThat(artists).hasSize(1);
@@ -159,10 +157,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(albums).isEmpty();
     }
 
-    /**
-     * @see DATAGRAPH-707
-     */
-    @Test
+    @Test // DATAGRAPH-707
     public void loadOneShouldRespectEntityType() {
         Artist artist = session.load(Artist.class, beatlesId);
         assertThat(artist.getName()).isEqualTo("The Beatles");
@@ -180,10 +175,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(artist).isNull();
     }
 
-    /**
-     * @see Issue 170
-     */
-    @Test
+    @Test // GH-170
     public void shouldBeAbleToLoadEntitiesToDifferentDepthsInDifferentSessions() {
         Artist pinkFloyd = new Artist("Pink Floyd");
         Album divisionBell = new Album("The Division Bell");
@@ -244,10 +236,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(pinkfloyd_1_1.getName()).isEqualTo("Pink Floyd"); //the name should be refreshed from the graph
     }
 
-    /**
-     * @see Issue 177
-     */
-    @Test
+    @Test // GH-177
     public void shouldNotBeDirtyOnLoadEntityThenSaveThenReload() {
 
         MappingContext context = ((Neo4jSession) session).context();
@@ -279,10 +268,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(pinkFloyd == purpleFloyd).isTrue();       // two refs pointing to the same object
     }
 
-    /**
-     * @see Issue 177
-     */
-    @Test
+    @Test // GH-177
     public void shouldNotBeDirtyOnLoadRelationshipEntityThenSaveThenReload() {
 
         MappingContext context = ((Neo4jSession) session).context();
@@ -322,10 +308,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(recording == recording1995).isTrue();       // two refs pointing to the same object
     }
 
-    /**
-     * @see DATAGRAPH-642, Issue 174
-     */
-    @Test
+    @Test // DATAGRAPH-642, GH-174
     public void shouldRetainPreviouslyLoadedRelationshipsWhenDepthIsReduced() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
@@ -372,10 +355,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(ledZeppelinIV.getRecording().getStudio().getName()).isEqualTo(studio.getName());
     }
 
-    /**
-     * @see DATAGRAPH-642, Issue 174
-     */
-    @Test
+    @Test // DATAGRAPH-642, GH-174
     public void shouldAddRelationshipsWhenDepthIsIncreased() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
@@ -416,10 +396,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(ledZeppelinIV.getRecording().getStudio().getName()).isEqualTo(studio.getName());
     }
 
-    /**
-     * @see Issue 173
-     */
-    @Test
+    @Test // GH-173
     public void shouldNotModifyPreviouslyLoadedNodesWhenDepthIsIncreased() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
@@ -455,10 +432,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(ledZeppelinIV.getRecording()).isNull();
     }
 
-    /**
-     * @see Issue 173
-     */
-    @Test
+    @Test // GH-173
     public void shouldNotModifyPreviouslyLoadedNodesWhenDepthIsReduced() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
@@ -494,10 +468,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(ledZeppelin.getAlbums()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-642, Issue 174
-     */
-    @Test
+    @Test // DATAGRAPH-642, GH-174
     public void shouldBeAbleToLoadEntityToDifferentDepthsInDifferentSessions() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
@@ -529,10 +500,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(ledZeppelin0.getAlbums()).isEmpty();
     }
 
-    /**
-     * @see Issue 173
-     */
-    @Test
+    @Test // GH-173
     public void shouldNotModifyPreviouslyLoadedNodesWhenEntityIsReloaded() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
@@ -572,10 +540,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(ledZeppelinIV.getRecording()).isNull();
     }
 
-    /**
-     * @see Issue 173
-     */
-    @Test
+    @Test // GH-173
     public void shouldMapNewNodesAndRelationshipsWhenEntityIsReloaded() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
@@ -622,10 +587,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         }
     }
 
-    /**
-     * @see Issue 173
-     */
-    @Test
+    @Test // GH-173
     public void shouldRefreshEntityStateWhenReloadedOnCleanSession() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
@@ -664,10 +626,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertThat(ledZeppelin.getAlbums()).isEmpty();
     }
 
-    /**
-     * @see Issue 302
-     */
-    @Test
+    @Test // GH-302
     public void shouldMaintainSortOrderWhenLoadingByIds() {
         Artist led = new Artist("Led Zeppelin");
         session.save(led);
@@ -760,5 +719,27 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         Collection<DomainObject> loaded = session.loadAll(Arrays.asList(school, student));
         assertThat(loaded).contains(school, student);
+    }
+
+    @Test // GH-368
+    public void shouldKeepOrder() {
+        User anna = new User("noone@nowhere.com", "Anna", "Doe");
+        User bob = new User("noone@nowhere.com", "Bob", "Doe");
+        User charlie = new User("noone@nowhere.com", "Charlie", "Doe");
+
+        session.save(charlie);
+        session.save(anna);
+        session.save(bob);
+
+        anna.setFriends(Collections.singleton(charlie));
+        session.save(anna);
+
+        Collection<User> allUsers = session.loadAll(User.class,
+            new SortOrder().add("lastName").add("firstName"),
+            1);
+
+        assertThat(allUsers)
+            .extracting(User::getFirstName)
+            .containsExactly("Anna", "Bob", "Charlie");
     }
 }

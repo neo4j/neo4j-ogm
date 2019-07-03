@@ -22,9 +22,13 @@ import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 
 import org.neo4j.ogm.metadata.MetaData;
@@ -62,7 +66,7 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
         // I guess those are the entities that are clearly identified by
         // something in the return clause.
         List<GraphModel> listOfGraphModels = new ArrayList<>();
-        Set<Long> idsOfResultEntities = new HashSet<>();
+        Set<Long> idsOfResultEntities = new LinkedHashSet<>();
 
         listOfRowModels.forEach(graphRowModel -> {
 
@@ -76,8 +80,14 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
             idsOfResultEntities.addAll(idsInCurrentRow);
         });
 
+        // The order map here contains the ids of the top level nodes as they have appeared in the result.
+        // Top level meaning here nodes that should be returned in the result set, not their related nodes.
+        Map<Long, Long> order = new HashMap<>();
+        AtomicLong index = new AtomicLong(0L);
+        idsOfResultEntities.forEach(id -> order.put(id, index.getAndIncrement()));
+
         BiFunction<GraphModel, Long, Boolean> includeModelObject =
             (graphModel, nativeId) -> idsOfResultEntities.contains(nativeId);
-        return delegate.map(type, listOfGraphModels, includeModelObject);
+        return delegate.map(type, listOfGraphModels, includeModelObject, Collections.unmodifiableMap(order));
     }
 }

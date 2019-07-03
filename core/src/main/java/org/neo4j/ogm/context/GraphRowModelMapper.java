@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.context;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -56,6 +57,6 @@ public class GraphRowModelMapper implements ResponseMapper<GraphModel> {
             }
             return node.map(n -> !((NodeModel) n).isGeneratedNode()).get();
         };
-        return delegate.map(type, listOfGraphModels, isNotGeneratedNode);
+        return delegate.map(type, listOfGraphModels, isNotGeneratedNode, Collections.emptyMap());
     }
 }

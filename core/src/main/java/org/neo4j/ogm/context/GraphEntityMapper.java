@@ -81,16 +81,33 @@ public class GraphEntityMapper {
     }
 
     <T> List<T> map(Class<T> type, List<GraphModel> listOfGraphModels) {
-        return map(type, listOfGraphModels, (m, n) -> true);
+        return map(type, listOfGraphModels, (m, n) -> true, Collections.emptyMap());
     }
 
+    /**
+     * @param type                 the type of the entities to return
+     * @param listOfGraphModels    The list of graph models to work on
+     * @param additionalNodeFilter An optional filter to exclude entities based on some nodes from the result
+     * @param order                This is a map from a native graph id to an index specifying the order of entities
+     *                             based on the node with the given id in the result.
+     * @param <T>                  The type of the class of the entities to return
+     * @return The list of entities represented by the list of graph models.
+     */
     <T> List<T> map(Class<T> type, List<GraphModel> listOfGraphModels,
-        BiFunction<GraphModel, Long, Boolean> additionalNodeFilter) {
+        BiFunction<GraphModel, Long, Boolean> additionalNodeFilter, Map<Long, Long> order) {
 
         // Those are the ids of all mapped nodes.
         Set<Long> mappedNodeIds = new LinkedHashSet<>();
+
         // Those are the ids of the returned nodes
-        Set<Long> returnedNodeIds = new LinkedHashSet<>();
+        // Although we try to keep the order as we process the list of graph models, there are some edge cases when
+        // one graph model contains a node and its related nodes. When those nodes have a self referential relationship
+        // than the order of the query get's messed up:
+        // With  a->c, b, c and the , query should return a, b, c, it would return
+        // a, c, b because org.neo4j.ogm.context.GraphEntityMapper.mapNodes would map all nodes coming from a in that order
+        Set<Long> returnedNodeIds = order.isEmpty() ?
+            new LinkedHashSet<>() :
+            new TreeSet<>(Comparator.comparingLong(e -> order.getOrDefault(e, e)));
         Set<Long> mappedRelationshipIds = new LinkedHashSet<>();
         Set<Long> returnedRelationshipIds = new LinkedHashSet<>();
 
@@ -195,7 +212,7 @@ public class GraphEntityMapper {
 
     private Set<Long> mapNodes(GraphModel graphModel) {
 
-        Set<Long> mappedNodeIds = new HashSet<>();
+        Set<Long> mappedNodeIds = new LinkedHashSet<>();
         for (Node node : graphModel.getNodes()) {
             Object entity = mappingContext.getNodeEntity(node.getId());
             if (entity == null) {

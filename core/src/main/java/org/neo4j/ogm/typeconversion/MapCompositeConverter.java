@@ -21,6 +21,7 @@ package org.neo4j.ogm.typeconversion;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static org.neo4j.ogm.annotation.Properties.*;
+import static org.neo4j.ogm.support.ClassUtils.*;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -186,7 +187,7 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
 
         if (propertyKey instanceof String) {
             return (String) propertyKey;
-        } else if (propertyKey.getClass().isEnum()) {
+        } else if (isEnum(propertyKey)) {
             return enumKeysTransformation.apply(Phase.TO_GRAPH, ((Enum) propertyKey).name());
         }
 
@@ -200,11 +201,11 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
             return propertyKey;
         } else if (keyType.equals(String.class)) {
             return propertyKey;
-        } else if (keyType.isEnum()) {
+        } else if (isEnum(keyType)) {
             @SuppressWarnings({"unchecked", "rawtypes"})
             Enum key = Enum.valueOf(((Class<Enum>) keyType), enumKeysTransformation.apply(
                 Phase.TO_ENTITY, propertyKey));
-        	return key;
+            return key;
         }
 
         throw new UnsupportedOperationException("Only String and Enum allowed to be keys, got " + keyType);

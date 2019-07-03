@@ -119,7 +119,7 @@ public class ClassInfo {
         final int modifiers = cls.getModifiers();
         this.isInterface = Modifier.isInterface(modifiers);
         this.isAbstract = Modifier.isAbstract(modifiers);
-        this.isEnum = cls.isEnum();
+        this.isEnum = org.neo4j.ogm.support.ClassUtils.isEnum(cls);
         this.className = cls.getName();
 
         if (cls.getSuperclass() != null) {

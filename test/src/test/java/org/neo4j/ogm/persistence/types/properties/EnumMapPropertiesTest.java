@@ -36,20 +36,21 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class EnumMapPropertiesTest extends MultiDriverTestClass {
 
     private static Session session;
 
     @BeforeClass
-    public static void init() throws IOException {
+    public static void init() {
         session = new SessionFactory(driver,
             UserWithEnumMap.class.getName())
             .openSession();
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         session.purgeDatabase();
     }
 
@@ -74,7 +75,7 @@ public class EnumMapPropertiesTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldMapNodePropertiesToPropertiesAttribute() throws Exception {
+    public void shouldMapNodePropertiesToPropertiesAttribute() {
         session.query(
             "CREATE (u:User {`name`:'Frantisek', `myProperties.CITY`:'London', `myProperties.ZIP_CODE`:'SW1A 1AA'})",
             emptyMap());

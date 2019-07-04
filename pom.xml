@@ -528,7 +528,7 @@
         <profile>
             <id>neo4j-3.5</id>
             <properties>
-                <neo4j>3.5.6</neo4j>
+                <neo4j>3.5.7</neo4j>
             </properties>
         </profile>
 
@@ -549,14 +549,14 @@
         <profile>
             <id>driver-1.6</id>
             <properties>
-                <bolt>1.6.3</bolt>
+                <bolt>1.6.4</bolt>
             </properties>
         </profile>
 
         <profile>
             <id>driver-1.7</id>
             <properties>
-                <bolt>1.7.0</bolt>
+                <bolt>1.7.5</bolt>
             </properties>
         </profile>
 

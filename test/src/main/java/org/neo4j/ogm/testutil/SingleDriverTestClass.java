@@ -85,8 +85,7 @@ public abstract class SingleDriverTestClass {
     }
 
     public boolean databaseSupportJava8TimeTypes() {
-        return getServerVersion()
-            .greaterThanOrEqual(ServerVersion.version("3.4.0"));
+        return getServerVersion().greaterThanOrEqual(ServerVersion.version("Neo4j/3.4.0"));
     }
 
     protected void doWithSessionFactoryOf(

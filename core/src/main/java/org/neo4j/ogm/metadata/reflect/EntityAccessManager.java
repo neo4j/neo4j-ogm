@@ -22,6 +22,7 @@ import static org.neo4j.ogm.support.ClassUtils.*;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.neo4j.ogm.annotation.Relationship;
@@ -48,6 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Adam George
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class EntityAccessManager {
 
@@ -268,9 +270,9 @@ public class EntityAccessManager {
         return value;
     }
 
-    private static Map<ClassInfo, Map<DirectedRelationship, FieldInfo>> relationalReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> relationalWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> iterableWriterCache = new HashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationship, FieldInfo>> relationalReaderCache = new ConcurrentHashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> relationalWriterCache = new ConcurrentHashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> iterableWriterCache = new ConcurrentHashMap<>();
 
     private static final boolean STRICT_MODE = true; //strict mode for matching readers and writers, will only look for explicit annotations
     private static final boolean INFERRED_MODE = false; //inferred mode for matching readers and writers, will infer the relationship type from the getter/setter
@@ -301,17 +303,15 @@ public class EntityAccessManager {
     public static FieldInfo getRelationalWriter(ClassInfo classInfo, String relationshipType,
         String relationshipDirection, Class<?> objectType) {
 
-        if (!relationalWriterCache.containsKey(classInfo)) {
-            relationalWriterCache.put(classInfo, new HashMap<>());
-        }
-
-        DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType,
+        final ClassInfo lookupClassInfo = classInfo;
+        final DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType,
             relationshipDirection, objectType);
-        if (relationalWriterCache.get(classInfo).containsKey(directedRelationship)) {
-            return relationalWriterCache.get(classInfo).get(directedRelationship);
-        }
+        final Map<DirectedRelationshipForType, FieldInfo> typeFieldInfoMap = relationalWriterCache
+            .computeIfAbsent(lookupClassInfo, key -> new ConcurrentHashMap<>());
 
-        ClassInfo lookupClassInfo = classInfo;
+        if (typeFieldInfoMap.containsKey(directedRelationship)) {
+            return typeFieldInfoMap.get(directedRelationship);
+        }
 
         while (classInfo != null) {
 
@@ -322,7 +322,7 @@ public class EntityAccessManager {
                     if (fieldInfo.isTypeOf(objectType) ||
                         fieldInfo.isParameterisedTypeOf(objectType) ||
                         fieldInfo.isArrayOf(objectType)) {
-                        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                        typeFieldInfoMap.put(directedRelationship, fieldInfo);
                         return fieldInfo;
                     }
                 }
@@ -340,7 +340,7 @@ public class EntityAccessManager {
                         if (fieldInfo.isTypeOf(objectType) ||
                             fieldInfo.isParameterisedTypeOf(objectType) ||
                             fieldInfo.isArrayOf(objectType)) {
-                            relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                            typeFieldInfoMap.put(directedRelationship, fieldInfo);
                             return fieldInfo;
                         }
                     }
@@ -352,7 +352,7 @@ public class EntityAccessManager {
                         if (fieldInfo.isTypeOf(objectType) ||
                             fieldInfo.isParameterisedTypeOf(objectType) ||
                             fieldInfo.isArrayOf(objectType)) {
-                            relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                            typeFieldInfoMap.put(directedRelationship, fieldInfo);
                             return fieldInfo;
                         }
                     }
@@ -364,7 +364,7 @@ public class EntityAccessManager {
                     FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
                     if (!candidateFieldInfo.relationshipDirection(Relationship.UNDIRECTED)
                         .equals(Relationship.INCOMING)) {
-                        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, candidateFieldInfo);
+                        typeFieldInfoMap.put(directedRelationship, candidateFieldInfo);
                         return candidateFieldInfo;
                     }
                 }
@@ -372,7 +372,6 @@ public class EntityAccessManager {
             // walk up the object hierarchy
             classInfo = classInfo.directSuperclass();
         }
-        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, null);
         return null;
     }
 
@@ -387,22 +386,21 @@ public class EntityAccessManager {
     public static FieldInfo getRelationalReader(ClassInfo classInfo, String relationshipType,
         String relationshipDirection) {
 
-        if (!relationalReaderCache.containsKey(classInfo)) {
-            relationalReaderCache.put(classInfo, new HashMap<>());
-        }
+        final ClassInfo lookupClassInfo = classInfo;
+        final DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,
+            relationshipDirection);
+        final Map<DirectedRelationship, FieldInfo> relationshipFieldInfoMap = relationalReaderCache
+            .computeIfAbsent(lookupClassInfo, key -> new ConcurrentHashMap<>());
 
-        DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
-        if (relationalReaderCache.get(classInfo).containsKey(directedRelationship)) {
-            return relationalReaderCache.get(classInfo).get(directedRelationship);
+        if (relationshipFieldInfoMap.containsKey(directedRelationship)) {
+            return relationshipFieldInfoMap.get(directedRelationship);
         }
-
-        ClassInfo lookupClassInfo = classInfo;
 
         while (classInfo != null) {
             // 1st, try to find a field explicitly annotated with the neo4j relationship type and direction
             FieldInfo fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, STRICT_MODE);
             if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-                relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                relationshipFieldInfoMap.put(directedRelationship, fieldInfo);
                 return fieldInfo;
             }
 
@@ -413,19 +411,18 @@ public class EntityAccessManager {
                 // 3rd, try to find a field  annotated with the neo4j relationship type and direction, allowing for implied relationships
                 fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
                 if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-                    relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                    relationshipFieldInfoMap.put(directedRelationship, fieldInfo);
                     return fieldInfo;
                 }
 
                 // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
                 if (fieldInfo != null) {
-                    relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                    relationshipFieldInfoMap.put(directedRelationship, fieldInfo);
                     return fieldInfo;
                 }
             }
             classInfo = classInfo.directSuperclass();
         }
-        relationalReaderCache.get(lookupClassInfo).put(directedRelationship, null);
         return null;
     }
 
@@ -440,16 +437,17 @@ public class EntityAccessManager {
      */
     public static FieldInfo getIterableField(ClassInfo classInfo, Class<?> parameterType, String relationshipType,
         String relationshipDirection) {
-        if (!iterableWriterCache.containsKey(classInfo)) {
-            iterableWriterCache.put(classInfo, new HashMap<>());
-        }
-        DirectedRelationshipForType directedRelationshipForType = new DirectedRelationshipForType(relationshipType,
-            relationshipDirection, parameterType);
-        if (iterableWriterCache.get(classInfo).containsKey(directedRelationshipForType)) {
-            return iterableWriterCache.get(classInfo).get(directedRelationshipForType);
-        }
 
-        ClassInfo lookupClassInfo = classInfo;
+        final ClassInfo lookupClassInfo = classInfo;
+        final DirectedRelationshipForType directedRelationshipForType = new DirectedRelationshipForType(
+            relationshipType,
+            relationshipDirection, parameterType);
+        final Map<DirectedRelationshipForType, FieldInfo> typeFieldInfoMap = iterableWriterCache
+            .computeIfAbsent(lookupClassInfo, key -> new ConcurrentHashMap<>());
+
+        if (typeFieldInfoMap.containsKey(directedRelationshipForType)) {
+            return typeFieldInfoMap.get(directedRelationshipForType);
+        }
 
         while (classInfo != null) {
 
@@ -462,7 +460,7 @@ public class EntityAccessManager {
                 return fieldInfo;
             }
 
-            //If relationshipDirection=INCOMING, we should have found an annotated field already
+            // If relationshipDirection=INCOMING, we should have found an annotated field already
 
             if (!relationshipDirection.equals(Relationship.INCOMING)) {
 
@@ -477,7 +475,6 @@ public class EntityAccessManager {
             }
             classInfo = classInfo.directSuperclass();
         }
-        iterableWriterCache.get(lookupClassInfo).put(directedRelationshipForType, null);
         return null;
     }
 

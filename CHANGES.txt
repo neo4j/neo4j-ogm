@@ -19,6 +19,12 @@ o `SessionFactory.getDriver()` has been replaced with `SessionFactory.unwrap(Cla
 o Wrap CypherModificationProvider in a ThreadLocal.
 o Add support for containing filter in combination with ignore case.
 o Provide transformEnumKeysWith on @Properties. (#634)
+o Fix unstable sort order for some queries. (#368)
+o Make sure all kinds of enums are correctly identified. (#643)
+o Store visited nodes under their native graph id if possible. (#640)
+o Fix merging of collections. (#641)
+o Use cast instead of dynamic invocation for enum map keys. (#638)
+o Use concurrent hash maps as cache for entity access.
 
 3.1.11
 o Apply optimistic locking logic during merge, too. (#623)

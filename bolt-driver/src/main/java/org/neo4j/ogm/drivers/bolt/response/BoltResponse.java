@@ -20,9 +20,9 @@ package org.neo4j.ogm.drivers.bolt.response;
 
 import java.util.Set;
 
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.exceptions.ClientException;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.StatementResult;
+import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;

@@ -21,7 +21,7 @@ package org.neo4j.ogm.drivers.bolt.driver;
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
-import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
+import org.neo4j.driver.exceptions.ServiceUnavailableException;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;

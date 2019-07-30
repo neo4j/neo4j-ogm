@@ -30,10 +30,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.neo4j.driver.v1.AccessMode;
-import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.AccessMode;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.internal.SessionConfig;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.transaction.Transaction;
@@ -49,33 +51,38 @@ public class BookmarkTest {
     private Driver nativeDriver;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private org.neo4j.driver.v1.Session nativeSession;
+    private org.neo4j.driver.Session nativeSession;
     private Session session;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         BoltDriver driver = new BoltDriver(nativeDriver);
         session = new Neo4jSession(new MetaData("org.neo4j.ogm.empty"), driver);
 
-        when(nativeDriver.session(any(AccessMode.class), anyIterable())).thenReturn(nativeSession);
+        when(nativeDriver.session(any(SessionConfig.class))).thenReturn(nativeSession);
         when(nativeSession.beginTransaction().isOpen()).thenReturn(true);
         when(nativeSession.lastBookmark()).thenReturn("last-bookmark");
     }
 
     @Test
-    public void shouldPassBookmarksToDriver() throws Exception {
+    public void shouldPassBookmarksToDriver() {
         Set<String> bookmarks = new HashSet<>(Arrays.asList("bookmark1", "bookmark2"));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_ONLY, bookmarks);
+        ArgumentCaptor<SessionConfig> argumentCaptor = ArgumentCaptor.forClass(SessionConfig.class);
 
-        verify(nativeDriver).session(AccessMode.READ, bookmarks);
+        verify(nativeDriver).session(argumentCaptor.capture());
+
+        SessionConfig sessionConfig = argumentCaptor.getValue();
+        assertThat(sessionConfig.defaultAccessMode()).isEqualTo(AccessMode.READ);
+        assertThat(sessionConfig.bookmarks()).containsAll(bookmarks);
 
         transaction.rollback();
         transaction.close();
     }
 
     @Test
-    public void shouldHaveAvailableBookmark() throws Exception {
+    public void shouldHaveAvailableBookmark() {
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_WRITE);
 

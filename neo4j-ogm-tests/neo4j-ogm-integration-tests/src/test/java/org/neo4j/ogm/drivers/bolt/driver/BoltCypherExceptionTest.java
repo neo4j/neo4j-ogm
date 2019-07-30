@@ -20,8 +20,8 @@ package org.neo4j.ogm.drivers.bolt.driver;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.GraphDatabase;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.CypherExceptionTestBase;
 import org.neo4j.ogm.session.SessionFactory;

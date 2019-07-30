@@ -24,8 +24,8 @@ import static org.neo4j.ogm.transaction.Transaction.Type.*;
 
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.Transaction;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 public class BoltTransactionTest {

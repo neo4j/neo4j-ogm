@@ -23,8 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.StatementResult;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;

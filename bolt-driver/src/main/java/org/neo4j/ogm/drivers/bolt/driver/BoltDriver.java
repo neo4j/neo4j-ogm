@@ -32,16 +32,17 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.neo4j.driver.v1.AccessMode;
-import org.neo4j.driver.v1.AuthToken;
-import org.neo4j.driver.v1.AuthTokens;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.Logging;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.exceptions.ClientException;
-import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
+import org.neo4j.driver.AccessMode;
+import org.neo4j.driver.AuthToken;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Logging;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.exceptions.ClientException;
+import org.neo4j.driver.exceptions.ServiceUnavailableException;
+import org.neo4j.driver.internal.SessionConfig;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
@@ -140,18 +141,17 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
         final String serviceUnavailableMessage = "Could not create driver instance";
         try {
+            Driver driver;
             if (credentials != null) {
                 UsernamePasswordCredentials usernameAndPassword = (UsernamePasswordCredentials) this.credentials;
                 AuthToken authToken = AuthTokens.basic(usernameAndPassword.getUsername(), usernameAndPassword.getPassword());
-                boltDriver = createDriver(authToken);
+                driver = createDriver(authToken);
             } else {
-                try {
-                    boltDriver = createDriver(AuthTokens.none());
-                } catch (ServiceUnavailableException e) {
-                    throw new ConnectionException(serviceUnavailableMessage, e);
-                }
                 LOGGER.debug("Bolt Driver credentials not supplied");
+                driver = createDriver(AuthTokens.none());
             }
+            driver.verifyConnectivity();
+            boltDriver = driver;
         } catch (ServiceUnavailableException e) {
             throw new ConnectionException(serviceUnavailableMessage, e);
         }
@@ -248,7 +248,15 @@ public class BoltDriver extends AbstractConfigurableDriver {
         Session boltSession;
         try {
             AccessMode accessMode = type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ : AccessMode.WRITE;
-            boltSession = boltDriver.session(accessMode, bookmarks);
+            List<String> listOfBookmarks;
+            if (bookmarks instanceof List) {
+                listOfBookmarks = (List<String>) bookmarks;
+            } else {
+                listOfBookmarks = new ArrayList<>();
+                bookmarks.forEach(listOfBookmarks::add);
+            }
+            boltSession = boltDriver.session(
+                SessionConfig.builder().withDefaultAccessMode(accessMode).withBookmarks(listOfBookmarks).build());
         } catch (ClientException ce) {
             throw new ConnectionException(
                 "Error connecting to graph database using Bolt: " + ce.code() + ", " + ce.getMessage(), ce);
@@ -258,7 +266,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return boltSession;
     }
 
-    private Optional<Logging> getBoltLogging() throws Exception {
+    private Optional<Logging> getBoltLogging() {
 
         Object possibleLogging = customPropertiesSupplier.get().get(CONFIG_PARAMETER_BOLT_LOGGING);
         if (possibleLogging != null && !(possibleLogging instanceof Logging)) {

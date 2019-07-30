@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.drivers.bolt.driver;
 
-import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
+import org.neo4j.driver.exceptions.ServiceUnavailableException;
 import org.neo4j.ogm.driver.ExceptionTranslator;
 import org.neo4j.ogm.exception.ConnectionException;
 

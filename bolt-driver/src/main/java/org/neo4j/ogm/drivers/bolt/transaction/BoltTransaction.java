@@ -18,9 +18,9 @@
  */
 package org.neo4j.ogm.drivers.bolt.transaction;
 
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.Transaction;
-import org.neo4j.driver.v1.exceptions.ClientException;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
+import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.TransactionException;

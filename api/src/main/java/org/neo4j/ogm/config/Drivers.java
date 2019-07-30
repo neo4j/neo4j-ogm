@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 enum Drivers {
 
-    BOLT("org.neo4j.ogm.drivers.bolt.driver.BoltDriver", "bolt", "bolt+routing"),
+    BOLT("org.neo4j.ogm.drivers.bolt.driver.BoltDriver", "bolt", "bolt+routing", "neo4j"),
     EMBEDDED("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver", "file"),
     HTTP("org.neo4j.ogm.drivers.http.driver.HttpDriver", "http", "https");
 

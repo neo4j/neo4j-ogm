@@ -37,10 +37,9 @@ import org.neo4j.driver.internal.value.LocalDateTimeValue;
 import org.neo4j.driver.internal.value.LocalTimeValue;
 import org.neo4j.driver.internal.value.PointValue;
 import org.neo4j.driver.internal.value.TimeValue;
-import org.neo4j.driver.v1.Value;
-import org.neo4j.driver.v1.Values;
-import org.neo4j.driver.v1.types.IsoDuration;
-import org.neo4j.driver.v1.types.Point;
+import org.neo4j.driver.Values;
+import org.neo4j.driver.types.IsoDuration;
+import org.neo4j.driver.types.Point;
 import org.neo4j.ogm.driver.TypeAdapterLookupDelegate;
 import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.types.adapter.BoltValueToPointAdapter;
@@ -87,11 +86,11 @@ class BoltNativeTypes implements TypeSystem {
     private static void addJavaTimeFeature(Map<Class<?>, Function> nativeToMappedAdapter,
         Map<Class<?>, Function> mappedToNativeAdapter) {
 
-        nativeToMappedAdapter.put(DateValue.class, new DriverFunctionWrapper<>(Values.ofLocalDate()));
-        nativeToMappedAdapter.put(TimeValue.class, new DriverFunctionWrapper<>(Values.ofOffsetTime()));
-        nativeToMappedAdapter.put(LocalTimeValue.class, new DriverFunctionWrapper<>(Values.ofLocalTime()));
-        nativeToMappedAdapter.put(DateTimeValue.class, new DriverFunctionWrapper<>(Values.ofZonedDateTime()));
-        nativeToMappedAdapter.put(LocalDateTimeValue.class, new DriverFunctionWrapper<>(Values.ofLocalDateTime()));
+        nativeToMappedAdapter.put(DateValue.class, Values.ofLocalDate());
+        nativeToMappedAdapter.put(TimeValue.class, Values.ofOffsetTime());
+        nativeToMappedAdapter.put(LocalTimeValue.class, Values.ofLocalTime());
+        nativeToMappedAdapter.put(DateTimeValue.class, Values.ofZonedDateTime());
+        nativeToMappedAdapter.put(LocalDateTimeValue.class, Values.ofLocalDateTime());
 
         nativeToMappedAdapter.put(IsoDuration.class, new TemporalAmountAdapter());
 
@@ -138,19 +137,5 @@ class BoltNativeTypes implements TypeSystem {
     @Override
     public Function<Object, Object> getMappedToNativeTypeAdapter(Class<?> clazz) {
         return mappedToNativeAdapter.getAdapterFor(clazz);
-    }
-
-    static class DriverFunctionWrapper<R> implements Function<Value, R> {
-
-        private final org.neo4j.driver.v1.util.Function<Value, R> delegate;
-
-        DriverFunctionWrapper(org.neo4j.driver.v1.util.Function<Value, R> delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public R apply(Value t) {
-            return delegate.apply(t);
-        }
     }
 }

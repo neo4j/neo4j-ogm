@@ -28,11 +28,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.BeforeClass;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.Values;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Values;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;

@@ -28,9 +28,9 @@ import java.util.stream.Stream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
@@ -50,7 +50,7 @@ public class ResponseMapperTest {
     private static URI boltURI;
 
     @BeforeClass
-    public static void initializeNeo4j() throws IOException {
+    public static void initializeNeo4j() {
 
         serverControls = TestServerBuilders.newInProcessBuilder().withProcedure(ApocLovesSwitch.class)
             .newServer();

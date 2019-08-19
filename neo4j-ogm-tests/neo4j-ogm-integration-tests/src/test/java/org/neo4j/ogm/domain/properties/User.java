@@ -20,16 +20,22 @@ package org.neo4j.ogm.domain.properties;
 
 import static org.neo4j.ogm.annotation.Properties.*;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 
 /**
  * @author Frantisek Hartman
@@ -76,6 +82,9 @@ public class User {
 
     @Properties(transformEnumKeysWith = LowerCasePropertiesFilter.class)
     private Map<EnumA, Object> filteredProperties;
+
+    @Convert(NoPrefixPropertiesConverter.class)
+    private Map<String, Object> manualProperties;
 
     @Relationship(type = "VISITED")
     private Set<Visit> visits;
@@ -217,6 +226,14 @@ public class User {
         this.filteredProperties = filteredProperties;
     }
 
+    public Map<String, Object> getManualProperties() {
+        return manualProperties;
+    }
+
+    public void setManualProperties(Map<String, Object> manualProperties) {
+        this.manualProperties = manualProperties;
+    }
+
     public static class LowerCasePropertiesFilter implements BiFunction<Phase, String, String> {
 
         @Override
@@ -233,6 +250,30 @@ public class User {
                 default:
                     throw new IllegalArgumentException();
             }
+        }
+    }
+
+    public static class NoPrefixPropertiesConverter implements CompositeAttributeConverter<Map<String, Object>> {
+
+        private static final Set<String> SUPPORTED_PROPERTIES = Collections
+            .unmodifiableSet(new HashSet<>(Arrays.asList("a", "b")));
+
+        @Override
+        public Map<String, ?> toGraphProperties(Map<String, Object> value) {
+
+            return value.entrySet()
+                .stream()
+                .filter(e -> SUPPORTED_PROPERTIES.contains(e.getKey()))
+                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+        }
+
+        @Override
+        public Map<String, Object> toEntityAttribute(Map<String, ?> value) {
+
+            return value.entrySet()
+                .stream()
+                .filter(e -> SUPPORTED_PROPERTIES.contains(e.getKey()))
+                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
         }
     }
 }

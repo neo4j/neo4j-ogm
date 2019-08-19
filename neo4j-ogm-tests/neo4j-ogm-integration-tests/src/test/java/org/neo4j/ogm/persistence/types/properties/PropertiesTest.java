@@ -425,4 +425,26 @@ public class PropertiesTest extends MultiDriverTestClass {
                 .containsEntry("anotherProperty", "anotherValue")
         );
     }
+
+    @Test // GH-650
+    public void manualConversionShouldSupportPropertiesWithouthPrefix() {
+        User user = new User();
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("a", 1L);
+        properties.put("b", 2L);
+
+        user.setManualProperties(properties);
+
+        user.putMyProperty("prop1", "A property");
+        user.putMyProperty("prop2", "Another property");
+
+        session.save(user);
+        session.clear();
+        user = session.load(User.class, user.getId());
+        assertThat(user.getManualProperties())
+            .containsOnly(new HashMap.SimpleEntry<>("a", 1L), new HashMap.SimpleEntry<>("b", 2L));
+
+        assertThat(user.getMyProperties())
+            .containsOnlyKeys("prop1", "prop2");
+    }
 }

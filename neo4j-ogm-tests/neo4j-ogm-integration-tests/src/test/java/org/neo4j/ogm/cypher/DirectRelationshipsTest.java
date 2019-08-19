@@ -391,7 +391,7 @@ public class DirectRelationshipsTest {
         mappingContext.addNodeEntity(folder);
         mappingContext.addNodeEntity(document);
         mappingContext.addRelationship(
-            new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
+            new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), null, Folder.class, Document.class));
 
         document.setFolder(null);
         folder.getDocuments().clear();
@@ -407,7 +407,7 @@ public class DirectRelationshipsTest {
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
         mappingContext.addRelationship(
-            new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
+            new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), null, Folder.class, Document.class));
 
         compiler = mapper.map(document).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
@@ -439,9 +439,9 @@ public class DirectRelationshipsTest {
         mappingContext.addNodeEntity(doc1);
         mappingContext.addNodeEntity(doc2);
         mappingContext.addRelationship(
-            new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
+            new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), null, Folder.class, Document.class));
         mappingContext.addRelationship(
-            new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
+            new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), null, Folder.class, Document.class));
 
         // when
         doc2.setFolder(null);
@@ -461,7 +461,7 @@ public class DirectRelationshipsTest {
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
         mappingContext.addRelationship(
-            new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
+            new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), null, Folder.class, Document.class));
         compiler = mapper.map(doc1).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
 
@@ -473,7 +473,7 @@ public class DirectRelationshipsTest {
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
         mappingContext.addRelationship(
-            new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
+            new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), null, Folder.class, Document.class));
         compiler = mapper.map(doc2).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
 
@@ -500,9 +500,9 @@ public class DirectRelationshipsTest {
         mappingContext.addNodeEntity(folder);
         mappingContext.addNodeEntity(doc1);
         mappingContext.addRelationship(
-            new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
+            new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), null, Folder.class, Document.class));
         mappingContext.addRelationship(
-            new MappedRelationship(folder.getId(), "ARCHIVED", doc1.getId(), Folder.class, Document.class));
+            new MappedRelationship(folder.getId(), "ARCHIVED", doc1.getId(), null, Folder.class, Document.class));
 
         // when
         folder.getDocuments().remove(doc1);

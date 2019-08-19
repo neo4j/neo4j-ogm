@@ -266,13 +266,13 @@ public class RequestExecutor {
             if (registeredTransientRelationshipIndex.containsKey(referenceMapping.ref)) {
                 TransientRelationship transientRelationship = registeredTransientRelationshipIndex
                     .get(referenceMapping.ref);
+                boolean isRelationshipEntity = session.context().getRelationshipEntity(referenceMapping.id) != null;
+                System.out.println(isRelationshipEntity + "<<<");
                 MappedRelationship mappedRelationship = new MappedRelationship(
                     context.getId(transientRelationship.getSrc()), transientRelationship.getRel(),
-                    context.getId(transientRelationship.getTgt()), transientRelationship.getSrcClass(),
-                    transientRelationship.getTgtClass());
-                if (session.context().getRelationshipEntity(referenceMapping.id) != null) {
-                    mappedRelationship.setRelationshipId(referenceMapping.id);
-                }
+                    context.getId(transientRelationship.getTgt()),
+                    isRelationshipEntity ? referenceMapping.id : null,
+                    transientRelationship.getSrcClass(), transientRelationship.getTgtClass());
                 session.context().addRelationship(mappedRelationship);
             }
         }

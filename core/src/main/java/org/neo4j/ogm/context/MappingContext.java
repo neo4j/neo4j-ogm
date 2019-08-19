@@ -260,10 +260,6 @@ public class MappingContext {
     }
 
     public void addRelationship(MappedRelationship relationship) {
-        if (relationship.getRelationshipId() != null
-            && relationshipEntityRegister.get(relationship.getRelationshipId()) == null) {
-            relationship.setRelationshipId(null); //We're only interested in id's of relationship entities
-        }
         relationshipRegister.add(relationship);
     }
 

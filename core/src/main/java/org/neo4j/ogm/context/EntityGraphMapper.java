@@ -752,17 +752,13 @@ public class EntityGraphMapper implements EntityMapper {
     private MappedRelationship createMappedRelationship(RelationshipBuilder relationshipBuilder,
         RelationshipNodes relNodes) {
 
+        boolean isRelationshipEntity = relationshipBuilder.isRelationshipEntity();
         MappedRelationship mappedRelationshipOutgoing = new MappedRelationship(relNodes.sourceId,
-            relationshipBuilder.type(), relNodes.targetId, relationshipBuilder.reference(), relNodes.sourceType,
+            relationshipBuilder.type(), relNodes.targetId, isRelationshipEntity ? relationshipBuilder.reference() : null, relNodes.sourceType,
             relNodes.targetType);
         MappedRelationship mappedRelationshipIncoming = new MappedRelationship(relNodes.targetId,
-            relationshipBuilder.type(), relNodes.sourceId, relationshipBuilder.reference(), relNodes.sourceType,
+            relationshipBuilder.type(), relNodes.sourceId, isRelationshipEntity ? relationshipBuilder.reference() : null, relNodes.sourceType,
             relNodes.targetType);
-        if (!relationshipBuilder.isRelationshipEntity()) {
-            //Only track ids of relationship entities
-            mappedRelationshipIncoming.setRelationshipId(null);
-            mappedRelationshipOutgoing.setRelationshipId(null);
-        }
         if (relationshipBuilder.hasDirection(Relationship.UNDIRECTED)) {
             if (mappingContext.containsRelationship(mappedRelationshipIncoming)) {
                 return mappedRelationshipIncoming;
@@ -838,7 +834,6 @@ public class EntityGraphMapper implements EntityMapper {
                 LOGGER.debug("context-add: ({})-[{}:{}]->({})", mappedRelationship.getStartNodeId(),
                     relationshipBuilder.reference(), mappedRelationship.getRelationshipType(),
                     mappedRelationship.getEndNodeId());
-                mappedRelationship.activate();
                 context.registerRelationship(mappedRelationship);
             }
         }

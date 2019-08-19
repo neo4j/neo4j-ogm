@@ -261,6 +261,9 @@ public class User {
         @Override
         public Map<String, ?> toGraphProperties(Map<String, Object> value) {
 
+            if (value == null) {
+                return Collections.emptyMap();
+            }
             return value.entrySet()
                 .stream()
                 .filter(e -> SUPPORTED_PROPERTIES.contains(e.getKey()))
@@ -270,6 +273,9 @@ public class User {
         @Override
         public Map<String, Object> toEntityAttribute(Map<String, ?> value) {
 
+            if (value == null) {
+                return Collections.emptyMap();
+            }
             return value.entrySet()
                 .stream()
                 .filter(e -> SUPPORTED_PROPERTIES.contains(e.getKey()))

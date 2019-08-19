@@ -453,10 +453,10 @@ public class FieldInfo {
         if (annotationOfField != null) {
             AnnotationInfo relationshipAnnotation = annotationOfField.get(Relationship.class);
             if (relationshipAnnotation != null) {
-                return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
+                return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.OUTGOING);
             }
         }
-        return Relationship.UNDIRECTED;
+        return Relationship.OUTGOING;
     }
 
     public String typeDescriptor() {

@@ -267,7 +267,6 @@ public class RequestExecutor {
                 TransientRelationship transientRelationship = registeredTransientRelationshipIndex
                     .get(referenceMapping.ref);
                 boolean isRelationshipEntity = session.context().getRelationshipEntity(referenceMapping.id) != null;
-                System.out.println(isRelationshipEntity + "<<<");
                 MappedRelationship mappedRelationship = new MappedRelationship(
                     context.getId(transientRelationship.getSrc()), transientRelationship.getRel(),
                     context.getId(transientRelationship.getTgt()),

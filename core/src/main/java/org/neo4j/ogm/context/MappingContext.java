@@ -64,12 +64,12 @@ public class MappingContext {
     public MappingContext(MetaData metaData) {
         this.metaData = metaData;
         this.identityMap = new IdentityMap(metaData);
-        this.nodeEntityRegister = new HashMap<>();
-        this.primaryIndexNodeRegister = new HashMap<>();
-        this.primaryIdToNativeId = new HashMap<>();
-        this.relationshipEntityRegister = new HashMap<>();
-        this.primaryIdToRelationship = new HashMap<>();
-        this.relationshipRegister = new HashSet<>();
+        this.nodeEntityRegister = new LinkedHashMap<>();
+        this.primaryIndexNodeRegister = new LinkedHashMap<>();
+        this.primaryIdToNativeId = new LinkedHashMap<>();
+        this.relationshipEntityRegister = new LinkedHashMap<>();
+        this.primaryIdToRelationship = new LinkedHashMap<>();
+        this.relationshipRegister = new LinkedHashSet<>();
     }
 
     /**

@@ -93,8 +93,8 @@ public class OptimisticLockingChecker {
                 for (Map.Entry<Long, Long> rel : relIds.entrySet()) {
                     Long relId = rel.getKey();
                     session.context().detachRelationshipEntity(relId);
-                    message.append("Entity with id")
-                        .append(relId).append("had incorrect version ").append(rel.getValue());
+                    message.append("Relationship entity with id ")
+                        .append(relId).append(" had incorrect version ").append(rel.getValue());
                 }
 
 

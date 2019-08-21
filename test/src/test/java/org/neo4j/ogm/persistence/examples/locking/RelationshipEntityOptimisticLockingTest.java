@@ -214,4 +214,17 @@ public class RelationshipEntityOptimisticLockingTest extends MultiDriverTestClas
         }
     }
 
+    @Test
+    public void removeVersionedRelationship() {
+        User michael = new User("Michael");
+        User oliver = new User("Oliver");
+        FriendOf friendOf = michael.addFriend(oliver);
+
+        session.save(michael);
+
+        michael.clearFriends();
+
+        session.save(michael);
+    }
+
 }

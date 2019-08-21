@@ -56,7 +56,7 @@ public class DeletedRelationshipEntityStatementBuilder implements CypherStatemen
         if (deletedEdges != null && deletedEdges.size() > 0) {
             Edge firstEdge = deletedEdges.iterator().next();
 
-            queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]-() WHERE ID(r) = row.relId ");
+            queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]->() WHERE ID(r) = row.relId ");
 
             if (firstEdge.hasVersionProperty()) {
                 queryBuilder.append(OptimisticLockingUtils.getFragmentForExistingNodesAndRelationships(firstEdge, "r"));

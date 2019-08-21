@@ -63,7 +63,7 @@ public class FieldsInfo {
         for (Field field : allFieldsInfluencedByThisClass) {
 
             final int modifiers = field.getModifiers();
-            if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
+            if (!(field.isSynthetic() || Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers))) {
 
                 ObjectAnnotations objectAnnotations = ObjectAnnotations.of(field.getDeclaredAnnotations());
                 if (!objectAnnotations.has(Transient.class)) {

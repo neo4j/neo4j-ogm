@@ -30,8 +30,6 @@ import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.music.Album;
-import org.neo4j.ogm.domain.typed_relationships.SomeEntity;
-import org.neo4j.ogm.domain.typed_relationships.TypedEntity;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -52,8 +50,7 @@ public class SessionDelegateIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void createSessionFactory() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music",
-            "org.neo4j.ogm.domain.typed_relationships");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music");
     }
 
     @Before
@@ -105,26 +102,5 @@ public class SessionDelegateIntegrationTest extends MultiDriverTestClass {
         assertThat(leftChartAtFilter.getPropertyConverter())
             .as("Specified provider should be used")
             .isInstanceOf(DateLongConverter.class);
-    }
-
-    @Test // GH-528
-    public void shouldDealWithTypedRelationships() {
-        SomeEntity someEntity = new SomeEntity();
-
-        someEntity.setThing(new TypedEntity<>(42.21));
-        someEntity.setMoreThings(Arrays.asList(new TypedEntity<>("Die halbe Wahrheit"), new TypedEntity<>("21")));
-        someEntity.setSomeOtherStuff(Arrays.asList("A", "B", "C"));
-
-        session.save(someEntity);
-        session.clear();
-
-        someEntity = session.load(SomeEntity.class, someEntity.getId());
-        assertThat(someEntity.getThing().getSomeThing())
-            .isEqualTo(42.21);
-        assertThat(someEntity.getMoreThings())
-            .extracting(t -> (String) t.getSomeThing())
-            .containsExactlyInAnyOrder("Die halbe Wahrheit", "21");
-        assertThat(someEntity.getSomeOtherStuff())
-            .containsExactlyInAnyOrder("A", "B", "C");
     }
 }

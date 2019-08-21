@@ -178,8 +178,7 @@ public class FieldInfo {
 
         return DescriptorMappings.describesPrimitve(descriptor)
             || isSupportedNativeType
-            || (DescriptorMappings.describesWrapper(descriptor) && typeParameterDescriptor == null)
-            || (typeParameterDescriptor != null && DescriptorMappings.describesWrapper((typeParameterDescriptor)))
+            || DescriptorMappings.describesWrapper(getTypeDescriptor())
             || propertyConverter != null
             || compositeConverter != null;
     }

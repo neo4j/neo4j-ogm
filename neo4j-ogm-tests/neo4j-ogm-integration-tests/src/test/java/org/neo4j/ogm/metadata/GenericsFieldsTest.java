@@ -34,72 +34,72 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
 
     @Test
     public void testUnboundedGeneric() {
-        checkField("genericObject", "java.lang.Object", Object.class);
+        checkField("genericObject", "java.lang.Object", Object.class, null);
     }
 
     @Test
     public void testGenericComparable() { // from java.lang
-        checkField("genericComparable", "java.lang.Comparable", Comparable.class);
+        checkField("genericComparable", "java.lang.Comparable", Comparable.class, null);
     }
 
     @Test
     public void testGenericSerializable() { // from java.io
-        checkField("genericSerializable", "java.io.Serializable", Serializable.class);
+        checkField("genericSerializable", "java.io.Serializable", Serializable.class, null);
     }
 
     @Test
     public void testGenericSelfReference() {
-        checkField("next", "org.neo4j.ogm.metadata.POJO", POJO.class);
+        checkField("next", "org.neo4j.ogm.metadata.POJO", POJO.class, null);
     }
 
     @Test // List<S>
     public void testCollectionWithUnboundGenericParameter() {
-        checkField("elements", "java.lang.Object", Object.class);
+        checkField("elements", "java.lang.Object", Object.class, "java.util.List");
     }
 
     @Test // List<POJO<S, T, U>> neighbours;
     public void testCollectionWithConcreteParameterizedType() {
-        checkField("neighbours", "org.neo4j.ogm.metadata.POJO", POJO.class);
+        checkField("neighbours", "org.neo4j.ogm.metadata.POJO", POJO.class, "java.util.List");
     }
 
     @Test // List<? extends Integer> superIntegers
     public void testCollectionWithExtendedConcreteParameterizedType() {
-        checkField("superIntegers", "java.lang.Object", Object.class);
+        checkField("superIntegers", "java.lang.Object", Object.class, "java.util.List");
     }
 
     @Test    // List<? super Integer> subIntegers;
     public void testCollectionWithReducedConcreteParameterizedType() {
-        checkField("subIntegers", "java.lang.Object", Object.class);
+        checkField("subIntegers", "java.lang.Object", Object.class, "java.util.List");
     }
 
     @Test    // List<? extends S> superS;
     public void testCollectionOfWildcardExtendingGenericType() {
-        checkField("superS", "java.lang.Object", Object.class);
+        checkField("superS", "java.lang.Object", Object.class, "java.util.List");
     }
 
     @Test    // List<? super S> subS;
     public void testCollectionOfWildcardReducingGenericType() {
-        checkField("subS", "java.lang.Object", Object.class);
+        checkField("subS", "java.lang.Object", Object.class, "java.util.List");
     }
 
     @Test    // List<?>;
     public void testListGenericWildcard() {
-        checkField("listOfAnything", "java.lang.Object", Object.class);
+        checkField("listOfAnything", "java.lang.Object", Object.class, "java.util.List");
     }
 
     @Test    // Vector<?>;
     public void testVectorGenericWildcard() {
-        checkField("vectorOfAnything", "java.lang.Object", Object.class);
+        checkField("vectorOfAnything", "java.lang.Object", Object.class, "java.util.Vector");
     }
 
     @Test    // Set<?>;
     public void testSetGenericWildcard() {
-        checkField("setOfAnything", "java.lang.Object", Object.class);
+        checkField("setOfAnything", "java.lang.Object", Object.class, "java.util.Set");
     }
 
     @Test    // Iterable<Map<Class<S>, POJO<S, T, U>>> iterable;
     public void testIterableOfMapOfParameterizedClasses() {
-        checkField("iterable", "java.util.Map", Map.class);
+        checkField("iterable", "java.util.Map", Map.class, "java.lang.Iterable");
     }
 
     @Test // GH-492
@@ -120,6 +120,19 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
         FieldInfo fieldInfo = classInfo.getFieldInfo("genericValue");
         assertThat(fieldInfo.isArray()).isTrue();
         assertThat(fieldInfo.type()).isEqualTo(Integer[].class);
+    }
+
+    @Test // GH-656
+    public void parameterizedFieldsInParentClassesShouldWork() {
+
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh656");
+        ClassInfo classInfo = metaData.classInfo("Group");
+        assertThat(classInfo).isNotNull();
+        assertThat(classInfo.getFieldInfo("uuid")).isNotNull();
+        FieldInfo hasVersionField = classInfo.relationshipField("HAS_VERSION");
+        assertThat(hasVersionField).isNotNull();
+        assertThat(hasVersionField.getCollectionClassname()).isEqualTo("java.util.Set");
+        assertThat(hasVersionField.getTypeDescriptor()).isEqualTo("org.neo4j.ogm.domain.gh656.GroupVersion");
     }
 }
 

@@ -23,19 +23,28 @@ import static org.assertj.core.api.Assertions.*;
 import org.neo4j.ogm.utils.ClassUtils;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Michael J. Simons
  */
-
 public class TestMetaDataTypeResolution {
 
     private MetaData metaData = new MetaData("org.neo4j.ogm.metadata");
 
     public void checkField(String name, String expectedDescriptor, Class expectedPersistableType) {
+        this.checkField(name, expectedDescriptor, expectedPersistableType, null);
+    }
+
+    public void checkField(String name, String expectedDescriptor, Class expectedPersistableType, String fieldType) {
         ClassInfo classInfo = metaData.classInfo("POJO");
         FieldInfo fieldInfo = classInfo.fieldsInfo().get(name);
         String fieldDescriptor = fieldInfo.getTypeDescriptor();
         assertThat(fieldDescriptor).isEqualTo(expectedDescriptor);
         Class clazz = ClassUtils.getType(fieldDescriptor);
         assertThat(clazz).isEqualTo(expectedPersistableType);
+        if (fieldType != null) {
+            assertThat(fieldInfo.getCollectionClassname()).isEqualTo(fieldType);
+        } else {
+            assertThat(fieldInfo.getCollectionClassname()).isEqualTo(fieldDescriptor);
+        }
     }
 }

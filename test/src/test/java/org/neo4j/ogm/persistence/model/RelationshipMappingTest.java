@@ -21,6 +21,7 @@ package org.neo4j.ogm.persistence.model;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,12 @@ import org.neo4j.ogm.domain.gh640.MyNode;
 import org.neo4j.ogm.domain.gh640.MyNodeWithAssignedId;
 import org.neo4j.ogm.domain.gh641.Entity1;
 import org.neo4j.ogm.domain.gh641.MyRelationship;
+import org.neo4j.ogm.domain.gh656.Group;
+import org.neo4j.ogm.domain.gh656.GroupVersion;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
+import org.neo4j.ogm.domain.typed_relationships.SomeEntity;
+import org.neo4j.ogm.domain.typed_relationships.TypedEntity;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
@@ -57,7 +62,9 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
             "org.neo4j.ogm.domain.policy",
             "org.neo4j.ogm.domain.election",
             "org.neo4j.ogm.domain.gh640",
-            "org.neo4j.ogm.domain.gh641");
+            "org.neo4j.ogm.domain.gh641",
+            "org.neo4j.ogm.domain.typed_relationships",
+            "org.neo4j.ogm.domain.gh656");
     }
 
     @Before
@@ -285,5 +292,38 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
                 + "RETURN e1, r, e2\n"
                 + "ORDER BY r.ordering", Collections.emptyMap());
         assertThat(entity1.getEntries()).extracting(MyRelationship::getOrdering).containsExactly(1, 2, 3);
+    }
+
+    @Test // GH-528
+    public void shouldDealWithTypedRelationships() {
+        SomeEntity someEntity = new SomeEntity();
+
+        someEntity.setThing(new TypedEntity<>(42.21));
+        someEntity.setMoreThings(Arrays.asList(new TypedEntity<>("Die halbe Wahrheit"), new TypedEntity<>("21")));
+        someEntity.setSomeOtherStuff(Arrays.asList("A", "B", "C"));
+
+        session.save(someEntity);
+        session.clear();
+
+        someEntity = session.load(SomeEntity.class, someEntity.getId());
+        assertThat(someEntity.getThing().getSomeThing())
+            .isEqualTo(42.21);
+        assertThat(someEntity.getMoreThings())
+            .extracting(t -> (String) t.getSomeThing())
+            .containsExactlyInAnyOrder("Die halbe Wahrheit", "21");
+        assertThat(someEntity.getSomeOtherStuff())
+            .containsExactlyInAnyOrder("A", "B", "C");
+    }
+
+    @Test // GH-656
+    public void genericRelationshipsInParentClassesShouldWork() {
+        Group group = new Group();
+        GroupVersion groupVersion = new GroupVersion();
+        group.setVersions(Collections.singleton(groupVersion));
+
+        sessionFactory.openSession().save(group);
+
+        group = sessionFactory.openSession().load(Group.class, group.getUuid());
+        assertThat(group.getVersions()).hasSize(1);
     }
 }

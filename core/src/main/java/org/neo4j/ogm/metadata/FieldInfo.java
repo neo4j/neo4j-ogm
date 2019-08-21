@@ -191,8 +191,7 @@ public class FieldInfo {
     public boolean persistableAsProperty() {
 
         return PRIMITIVES.contains(descriptor)
-            || (AUTOBOXERS.contains(descriptor) && typeParameterDescriptor == null)
-            || (typeParameterDescriptor != null && AUTOBOXERS.contains(typeParameterDescriptor))
+            || AUTOBOXERS.contains(getTypeDescriptor())
             || propertyConverter != null
             || compositeConverter != null;
     }

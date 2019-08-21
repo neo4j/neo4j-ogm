@@ -48,10 +48,21 @@ public final class GenericUtils {
     }
 
     /**
-     * Tries to discover type of given field
+     * Helper to check whether a given field is a parameterized field (A field described by a type variable presenting a parameter type).
+     *
+     * @param field The field to check for a parameterized type
+     * @return True, if {@code field} is a parameterized field.
+     */
+    public static boolean isParameterizedField(Field field) {
+        return field.getGenericType() instanceof ParameterizedType;
+    }
+
+    /**
+     * Tries to discover type of given field.
      * If the field ha a concrete type then there is nothing to do and it's type is returned.
      * If the field has a generic type then it traverses class hierarchy of the concrete class to discover
-     * ParameterizedType with type parameter
+     * ParameterizedType with type parameter.
+     * If the field is parameterized but no parameter can be discovered, than {@code Object.class} will be returned.
      *
      * @param field         field
      * @param concreteClass concrete class that either declares the field or is a subclass of such class
@@ -61,7 +72,7 @@ public final class GenericUtils {
 
         Class<?>[] arguments = resolveRawArguments(field.getGenericType(), concreteClass);
         if (arguments == null || arguments.length == 0 || arguments[0] == Unknown.class) {
-            return field.getType();
+            return isParameterizedField(field) ? Object.class : field.getType();
         }
 
         return arguments[0];

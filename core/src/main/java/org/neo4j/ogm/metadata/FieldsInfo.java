@@ -18,13 +18,11 @@
  */
 package org.neo4j.ogm.metadata;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,9 +30,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
 import org.neo4j.ogm.metadata.reflect.GenericUtils;
 
@@ -57,7 +55,7 @@ public class FieldsInfo {
         // all generics fields of possible superclasses that resolve to concrete
         // types through this class.
         List<Field> allFieldsInfluencedByThisClass = new ArrayList<>();
-        allFieldsInfluencedByThisClass.addAll(getGenericFieldsInHierarchyOf(clazz));
+        allFieldsInfluencedByThisClass.addAll(getGenericOrParameterizedFieldsInHierarchyOf(clazz));
         allFieldsInfluencedByThisClass.addAll(Arrays.asList(clazz.getDeclaredFields()));
 
         for (Field field : allFieldsInfluencedByThisClass) {
@@ -68,28 +66,7 @@ public class FieldsInfo {
                     String typeParameterDescriptor = null;
                     final Type genericType = field.getGenericType();
                     if (genericType instanceof ParameterizedType) {
-                        ParameterizedType parameterizedType = (ParameterizedType) genericType;
-                        final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-                        if (actualTypeArguments.length > 0) {
-                            for (Type typeArgument : actualTypeArguments) {
-                                if (typeArgument instanceof ParameterizedType) {
-                                    ParameterizedType parameterizedTypeArgument = (ParameterizedType) typeArgument;
-                                    typeParameterDescriptor = parameterizedTypeArgument.getRawType().getTypeName();
-                                    break;
-                                } else if ((typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType)
-                                    // The type parameter descriptor doesn't matter if we're dealing with an explicit relationship
-                                    // We must not try to persist it as a property if the user explicitly asked for storing it as a node.
-                                    && !objectAnnotations.has(Relationship.class))  {
-                                    typeParameterDescriptor = Object.class.getName();
-                                    break;
-                                } else if (typeArgument instanceof Class) {
-                                    typeParameterDescriptor = ((Class) typeArgument).getName();
-                                }
-                            }
-                        }
-                        if (typeParameterDescriptor == null) {
-                            typeParameterDescriptor = parameterizedType.getRawType().getTypeName();
-                        }
+                        typeParameterDescriptor = GenericUtils.findFieldType(field, clazz).getName();
                     }
                     if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
                         typeParameterDescriptor = field.getType().getTypeName();
@@ -101,13 +78,16 @@ public class FieldsInfo {
         }
     }
 
-    private static List<Field> getGenericFieldsInHierarchyOf(Class<?> clazz) {
+    private static List<Field> getGenericOrParameterizedFieldsInHierarchyOf(Class<?> clazz) {
+
+        Predicate<Field> predicate = GenericUtils::isGenericField;
+        predicate = predicate.or(GenericUtils::isParameterizedField);
 
         List<Field> genericFieldsInHierarchy = new ArrayList<>();
         Class<?> currentClass = clazz.getSuperclass();
         while(currentClass != null) {
             Stream.of(currentClass.getDeclaredFields())
-                .filter(GenericUtils::isGenericField)
+                .filter(predicate)
                 .forEach(genericFieldsInHierarchy::add);
             currentClass = currentClass.getSuperclass();
         }

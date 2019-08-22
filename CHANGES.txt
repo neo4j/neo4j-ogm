@@ -1,3 +1,8 @@
+3.1.13
+o Correctly discover and handle typed and parameterized fields. (#656)
+o Fix deletion of relationship entities with optimistic locking.
+o Improve support for Kotlin data classes. (#653)
+
 3.1.12
 o Verify sort order. (#368)
 o Make sure all kinds of enums are correctly identified. (#643)

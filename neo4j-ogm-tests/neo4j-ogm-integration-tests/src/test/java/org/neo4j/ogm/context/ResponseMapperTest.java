@@ -18,7 +18,6 @@
  */
 package org.neo4j.ogm.context;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,9 +27,9 @@ import java.util.stream.Stream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
@@ -44,13 +43,13 @@ import org.neo4j.procedure.Procedure;
  * @author Michael J. Simons
  */
 public class ResponseMapperTest {
-    private static final Config driverConfig = Config.build().withoutEncryption().toConfig();
+    private static final Config driverConfig = Config.builder().withoutEncryption().build();
 
     private static ServerControls serverControls;
     private static URI boltURI;
 
     @BeforeClass
-    public static void initializeNeo4j() throws IOException {
+    public static void initializeNeo4j() {
 
         serverControls = TestServerBuilders.newInProcessBuilder().withProcedure(ApocLovesSwitch.class)
             .newServer();

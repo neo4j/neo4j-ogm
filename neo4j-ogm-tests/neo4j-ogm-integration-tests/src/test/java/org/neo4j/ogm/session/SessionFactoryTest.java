@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assumptions.*;
 
 import org.assertj.core.api.Assumptions;
 import org.junit.Test;
-import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.Driver;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.domain.bike.Bike;

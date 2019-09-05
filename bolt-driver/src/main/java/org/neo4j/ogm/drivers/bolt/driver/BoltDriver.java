@@ -19,29 +19,37 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static java.util.Objects.*;
+import static org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction.*;
+import static java.util.stream.Collectors.*;
 
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
-import org.neo4j.driver.v1.AccessMode;
-import org.neo4j.driver.v1.AuthToken;
-import org.neo4j.driver.v1.AuthTokens;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.Logging;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.exceptions.ClientException;
-import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
+import org.neo4j.driver.AccessMode;
+import org.neo4j.driver.AuthToken;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Logging;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
+import org.neo4j.driver.exceptions.ClientException;
+import org.neo4j.driver.exceptions.ServiceUnavailableException;
+import org.neo4j.driver.internal.Bookmark;
+import org.neo4j.driver.internal.InternalBookmark;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
@@ -140,18 +148,17 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
         final String serviceUnavailableMessage = "Could not create driver instance";
         try {
+            Driver driver;
             if (credentials != null) {
                 UsernamePasswordCredentials usernameAndPassword = (UsernamePasswordCredentials) this.credentials;
                 AuthToken authToken = AuthTokens.basic(usernameAndPassword.getUsername(), usernameAndPassword.getPassword());
-                boltDriver = createDriver(authToken);
+                driver = createDriver(authToken);
             } else {
-                try {
-                    boltDriver = createDriver(AuthTokens.none());
-                } catch (ServiceUnavailableException e) {
-                    throw new ConnectionException(serviceUnavailableMessage, e);
-                }
                 LOGGER.debug("Bolt Driver credentials not supplied");
+                driver = createDriver(AuthTokens.none());
             }
+            driver.verifyConnectivity();
+            boltDriver = driver;
         } catch (ServiceUnavailableException e) {
             throw new ConnectionException(serviceUnavailableMessage, e);
         }
@@ -248,7 +255,9 @@ public class BoltDriver extends AbstractConfigurableDriver {
         Session boltSession;
         try {
             AccessMode accessMode = type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ : AccessMode.WRITE;
-            boltSession = boltDriver.session(accessMode, bookmarks);
+            boltSession = boltDriver.session(
+                SessionConfig.builder().withDefaultAccessMode(accessMode)
+                    .withBookmarks(bookmarksFromStrings(bookmarks)).build());
         } catch (ClientException ce) {
             throw new ConnectionException(
                 "Error connecting to graph database using Bolt: " + ce.code() + ", " + ce.getMessage(), ce);
@@ -258,7 +267,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return boltSession;
     }
 
-    private Optional<Logging> getBoltLogging() throws Exception {
+    private Optional<Logging> getBoltLogging() {
 
         Object possibleLogging = customPropertiesSupplier.get().get(CONFIG_PARAMETER_BOLT_LOGGING);
         if (possibleLogging != null && !(possibleLogging instanceof Logging)) {
@@ -274,23 +283,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private Config buildDriverConfig() {
         try {
-            Config.ConfigBuilder configBuilder = Config.build();
-            configBuilder.withMaxSessions(configuration.getConnectionPoolSize());
+            Config.ConfigBuilder configBuilder = Config.builder();
+            configBuilder.withMaxConnectionPoolSize(configuration.getConnectionPoolSize());
 
-            Config.EncryptionLevel encryptionLevel = Config.EncryptionLevel.REQUIRED;
-
-            if (configuration.getEncryptionLevel() != null) {
-                try {
-                    encryptionLevel = Config.EncryptionLevel
-                        .valueOf(configuration.getEncryptionLevel().toUpperCase());
-                } catch (IllegalArgumentException iae) {
-                    LOGGER.debug("Invalid configuration for the Bolt Driver Encryption Level: {}",
-                        configuration.getEncryptionLevel());
-                    throw iae;
-                }
-            }
-
-            if (encryptionLevel == Config.EncryptionLevel.REQUIRED) {
+            if (configuration.getEncryptionLevel() != null && "REQUIRED"
+                .equals(configuration.getEncryptionLevel().toUpperCase(Locale.ENGLISH).trim())) {
                 configBuilder.withEncryption();
             } else {
                 configBuilder.withoutEncryption();
@@ -298,26 +295,42 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
             Config.TrustStrategy.Strategy trustStrategy;
             if (configuration.getTrustStrategy() != null) {
+
+                String configuredTrustStrategy = configuration.getTrustStrategy().toUpperCase(Locale.ENGLISH).trim();
+                if (Arrays.asList("TRUST_ON_FIRST_USE", "TRUST_SIGNED_CERTIFICATES")
+                    .contains(configuredTrustStrategy)) {
+                    String validNames = Arrays.stream(Config.TrustStrategy.Strategy.values()).map(
+                        Config.TrustStrategy.Strategy::name).collect(joining(", "));
+                    throw new IllegalArgumentException(
+                        "Truststrategy " + configuredTrustStrategy + " is no longer supported, please choose one of "
+                            + validNames);
+                }
+
                 try {
-                    trustStrategy = Config.TrustStrategy.Strategy.valueOf(configuration.getTrustStrategy());
+                    trustStrategy = Config.TrustStrategy.Strategy.valueOf(configuredTrustStrategy);
                 } catch (IllegalArgumentException iae) {
                     LOGGER.debug("Invalid configuration for the Bolt Driver Trust Strategy: {}",
                         configuration.getTrustStrategy());
                     throw iae;
                 }
 
-                if (configuration.getTrustCertFile() == null) {
-                    throw new IllegalArgumentException("Missing configuration value for trust.certificate.file");
-                }
-
-                File knownHostsFile = new File(new URI(configuration.getTrustCertFile()));
-                if (trustStrategy == Config.TrustStrategy.Strategy.TRUST_ON_FIRST_USE) {
-                    configBuilder.withTrustStrategy(
-                        Config.TrustStrategy.trustOnFirstUse(knownHostsFile));
-                }
-                if (trustStrategy == Config.TrustStrategy.Strategy.TRUST_SIGNED_CERTIFICATES) {
-                    configBuilder.withTrustStrategy(
-                        Config.TrustStrategy.trustSignedBy(knownHostsFile));
+                switch (trustStrategy) {
+                    case TRUST_ALL_CERTIFICATES:
+                        configBuilder.withTrustStrategy(Config.TrustStrategy.trustAllCertificates());
+                        break;
+                    case TRUST_SYSTEM_CA_SIGNED_CERTIFICATES:
+                        configBuilder.withTrustStrategy(Config.TrustStrategy.trustSystemCertificates());
+                        break;
+                    case TRUST_CUSTOM_CA_SIGNED_CERTIFICATES:
+                        if (configuration.getTrustCertFile() == null) {
+                            throw new IllegalArgumentException(
+                                "Configured trust strategy requires a certificate file.");
+                        }
+                        configBuilder.withTrustStrategy(Config.TrustStrategy
+                            .trustCustomCertificateSignedBy(new File(new URI(configuration.getTrustCertFile()))));
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown strategy." + trustStrategy);
                 }
             }
             if (configuration.getConnectionLivenessCheckTimeout() != null) {
@@ -327,9 +340,17 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
             getBoltLogging().ifPresent(configBuilder::withLogging);
 
-            return configBuilder.toConfig();
+            return configBuilder.build();
         } catch (Exception e) {
             throw new ConnectionException("Unable to build driver configuration", e);
         }
+    }
+
+    static List<Bookmark> bookmarksFromStrings(Iterable<String> bookmarks) {
+        return StreamSupport.stream(bookmarks.spliterator(), false)
+            .map(b -> b.split(BOOKMARK_SEPARATOR))
+            .map(Arrays::asList)
+            .map(InternalBookmark::parse)
+            .collect(toList());
     }
 }

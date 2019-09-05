@@ -25,9 +25,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.driver.internal.util.ServerVersion;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.domain.gh492.BaseUser.ByteUser;
@@ -56,9 +56,9 @@ public class GenericArrayConversionTest {
 
         serverControls = TestServerBuilders.newInProcessBuilder().newServer();
 
-        Driver driver = GraphDatabase.driver(serverControls.boltURI(), Config.build().withoutEncryption().toConfig());
+        Driver driver = GraphDatabase.driver(serverControls.boltURI(), Config.builder().withoutEncryption().build());
 
-        supportsBytePacking = ServerVersion.version(driver).greaterThanOrEqual(ServerVersion.v3_2_0);
+        supportsBytePacking = ServerVersion.version(driver).greaterThanOrEqual(ServerVersion.v3_4_0);
         sessionFactory = new SessionFactory(new BoltDriver(driver), DOMAIN_PACKAGE);
     }
 

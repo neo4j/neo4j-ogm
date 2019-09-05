@@ -21,7 +21,6 @@ package org.neo4j.ogm.persistence.types.nativetypes;
 import java.net.URI;
 
 import org.junit.BeforeClass;
-import org.neo4j.driver.v1.Config.EncryptionLevel;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
@@ -40,7 +39,7 @@ public class SpatialBoltTest extends SpatialTestBase {
 
         Configuration ogmConfiguration = new Configuration.Builder()
             .uri(boltURI.toString())
-            .encryptionLevel(EncryptionLevel.NONE.name())
+            .encryptionLevel("NONE")
             .useNativeTypes()
             .build();
 

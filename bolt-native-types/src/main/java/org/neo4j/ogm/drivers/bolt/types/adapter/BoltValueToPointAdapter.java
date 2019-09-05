@@ -20,7 +20,7 @@ package org.neo4j.ogm.drivers.bolt.types.adapter;
 
 import java.util.function.Function;
 
-import org.neo4j.driver.v1.types.Point;
+import org.neo4j.driver.types.Point;
 import org.neo4j.ogm.types.spatial.AbstractPoint;
 import org.neo4j.ogm.types.spatial.Coordinate;
 import org.neo4j.ogm.types.spatial.PointBuilder;

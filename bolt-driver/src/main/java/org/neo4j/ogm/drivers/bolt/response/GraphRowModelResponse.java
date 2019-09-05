@@ -20,7 +20,7 @@ package org.neo4j.ogm.drivers.bolt.response;
 
 import java.util.Arrays;
 
-import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.StatementResult;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;

@@ -20,8 +20,8 @@ package org.neo4j.ogm.drivers.bolt.driver;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.GraphDatabase;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.CypherExceptionTestBase;
 import org.neo4j.ogm.session.SessionFactory;
@@ -36,7 +36,7 @@ public class BoltCypherExceptionTest extends CypherExceptionTestBase<BoltDriver>
     @BeforeClass
     public static void initSessionFactory() {
         Driver driver = new BoltDriver(
-            GraphDatabase.driver(serverControls.boltURI(), Config.build().withoutEncryption().toConfig()));
+            GraphDatabase.driver(serverControls.boltURI(), Config.builder().withoutEncryption().build()));
         sessionFactory = new SessionFactory(driver, DOMAIN_PACKAGE);
     }
 

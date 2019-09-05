@@ -20,7 +20,7 @@ package org.neo4j.ogm.drivers.bolt.types.adapter;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.neo4j.driver.v1.types.Point;
+import org.neo4j.driver.types.Point;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;

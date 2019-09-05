@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mockito;
-import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.GraphDatabase;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.SessionFactory;
 import org.powermock.api.mockito.PowerMockito;
@@ -51,6 +51,9 @@ public class BoltDriverConfigurationTest {
         PowerMockito.mockStatic(GraphDatabase.class);
         Mockito
             .when(GraphDatabase.routingDriver(Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenAnswer(Answers.RETURNS_MOCKS);
+        Mockito
+            .when(GraphDatabase.driver(Mockito.any(URI.class), Mockito.any(), Mockito.any()))
             .thenAnswer(Answers.RETURNS_MOCKS);
     }
 

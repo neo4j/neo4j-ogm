@@ -28,11 +28,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.BeforeClass;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.Values;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Values;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
@@ -53,7 +53,7 @@ public class DatesBoltTest extends DatesTestBase {
 
         Configuration ogmConfiguration = new Configuration.Builder()
             .uri(boltURI.toString())
-            .encryptionLevel(Config.EncryptionLevel.NONE.name())
+            .encryptionLevel("NONE")
             .useNativeTypes()
             .build();
 
@@ -79,7 +79,7 @@ public class DatesBoltTest extends DatesTestBase {
     public void shouldUseNativeDateTimeTypesInParameterMaps() {
 
         try (
-            Driver driver = GraphDatabase.driver(boltURI, Config.build().withoutEncryption().toConfig());
+            Driver driver = GraphDatabase.driver(boltURI, Config.builder().withoutEncryption().build());
         ) {
             Session session = sessionFactory.openSession();
 
@@ -109,7 +109,7 @@ public class DatesBoltTest extends DatesTestBase {
 
         Map<String, Object> params = createSometimeWithConvertedLocalDate();
         try (
-            Driver driver = GraphDatabase.driver(boltURI, Config.build().withoutEncryption().toConfig());
+            Driver driver = GraphDatabase.driver(boltURI, Config.builder().withoutEncryption().build());
         ) {
             Record record = driver.session()
                 .run(

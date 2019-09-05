@@ -21,12 +21,13 @@ package org.neo4j.ogm.drivers.bolt;
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
-import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
+import org.neo4j.driver.exceptions.ServiceUnavailableException;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.SessionFactory;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class MultipleURIsBoltDriverTest {
 
@@ -34,8 +35,8 @@ public class MultipleURIsBoltDriverTest {
     public void throwCorrectExceptionOnUnavailableCluster() {
 
         Configuration configuration = new Configuration.Builder()
-            .uri("bolt+routing://localhost:1022")
-            .uris(new String[] { "bolt+routing://localhost:1023" })
+            .uri("neo4j://localhost:1022")
+            .uris(new String[] { "neo4j://localhost:1023" })
             .verifyConnection(true)
             .build();
 

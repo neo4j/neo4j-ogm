@@ -19,10 +19,12 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static java.util.Objects.*;
+import static org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction.*;
 
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +42,11 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Logging;
 import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.ServiceUnavailableException;
-import org.neo4j.driver.internal.SessionConfig;
+import org.neo4j.driver.internal.Bookmark;
+import org.neo4j.driver.internal.InternalBookmark;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
@@ -248,13 +252,12 @@ public class BoltDriver extends AbstractConfigurableDriver {
         Session boltSession;
         try {
             AccessMode accessMode = type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ : AccessMode.WRITE;
-            List<String> listOfBookmarks;
-            if (bookmarks instanceof List) {
-                listOfBookmarks = (List<String>) bookmarks;
-            } else {
-                listOfBookmarks = new ArrayList<>();
-                bookmarks.forEach(listOfBookmarks::add);
-            }
+            List<Bookmark> listOfBookmarks = new ArrayList<>();
+            bookmarks.forEach((bookmark) -> {
+                List<String> bookmarkContent = Arrays.asList(bookmark.split(BOOKMARK_SEPARATOR));
+                listOfBookmarks.add(InternalBookmark.parse(bookmarkContent));
+            });
+
             boltSession = boltDriver.session(
                 SessionConfig.builder().withDefaultAccessMode(accessMode).withBookmarks(listOfBookmarks).build());
         } catch (ClientException ce) {

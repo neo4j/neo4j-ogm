@@ -25,6 +25,9 @@ o Store visited nodes under their native graph id if possible. (#640)
 o Fix merging of collections. (#641)
 o Use cast instead of dynamic invocation for enum map keys. (#638)
 o Use concurrent hash maps as cache for entity access.
+o Improve support for Kotlin data classes. (#653)
+o Correctly discover and handle typed and parameterized fields. (#656)
+o Update Java driver to latest 4.0.0-beta01 release.
 
 3.1.12
 o Verify sort order. (#368)

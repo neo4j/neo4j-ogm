@@ -36,7 +36,7 @@ public class BoltCypherExceptionTest extends CypherExceptionTestBase<BoltDriver>
     @BeforeClass
     public static void initSessionFactory() {
         Driver driver = new BoltDriver(
-            GraphDatabase.driver(serverControls.boltURI(), Config.build().withoutEncryption().toConfig()));
+            GraphDatabase.driver(serverControls.boltURI(), Config.builder().withoutEncryption().build()));
         sessionFactory = new SessionFactory(driver, DOMAIN_PACKAGE);
     }
 

@@ -21,7 +21,6 @@ package org.neo4j.ogm.persistence.types.nativetypes.filter;
 import java.net.URI;
 
 import org.junit.BeforeClass;
-import org.neo4j.driver.Config;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
@@ -37,7 +36,7 @@ public class DistanceComparisonBoltTest extends DistanceComparisonTestBase {
 
         Configuration ogmConfiguration = new Configuration.Builder()
             .uri(boltURI.toString())
-            .encryptionLevel(Config.EncryptionLevel.NONE.name())
+            .encryptionLevel("NONE")
             .useNativeTypes()
             .build();
 

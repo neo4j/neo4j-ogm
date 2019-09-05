@@ -18,7 +18,6 @@
  */
 package org.neo4j.ogm.context;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +43,7 @@ import org.neo4j.procedure.Procedure;
  * @author Michael J. Simons
  */
 public class ResponseMapperTest {
-    private static final Config driverConfig = Config.build().withoutEncryption().toConfig();
+    private static final Config driverConfig = Config.builder().withoutEncryption().build();
 
     private static ServerControls serverControls;
     private static URI boltURI;

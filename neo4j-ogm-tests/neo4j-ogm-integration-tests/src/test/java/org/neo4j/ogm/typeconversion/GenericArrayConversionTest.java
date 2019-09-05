@@ -56,9 +56,9 @@ public class GenericArrayConversionTest {
 
         serverControls = TestServerBuilders.newInProcessBuilder().newServer();
 
-        Driver driver = GraphDatabase.driver(serverControls.boltURI(), Config.build().withoutEncryption().toConfig());
+        Driver driver = GraphDatabase.driver(serverControls.boltURI(), Config.builder().withoutEncryption().build());
 
-        supportsBytePacking = ServerVersion.version(driver).greaterThanOrEqual(ServerVersion.v3_2_0);
+        supportsBytePacking = ServerVersion.version(driver).greaterThanOrEqual(ServerVersion.v3_4_0);
         sessionFactory = new SessionFactory(new BoltDriver(driver), DOMAIN_PACKAGE);
     }
 

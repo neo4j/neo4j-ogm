@@ -32,7 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 public class BoltTransaction extends AbstractTransaction {
 
@@ -111,7 +113,7 @@ public class BoltTransaction extends AbstractTransaction {
             super.commit();
             if (canCommit) {
                 Bookmark bookmark = nativeSession.lastBookmark();
-                String bookmarks = String.join(BOOKMARK_SEPARATOR, ((InternalBookmark) bookmark).values());
+                String bookmarks = bookmark == null ? null : String.join(BOOKMARK_SEPARATOR, ((InternalBookmark) bookmark).values());
                 transactionManager.bookmark(bookmarks);
             }
         }

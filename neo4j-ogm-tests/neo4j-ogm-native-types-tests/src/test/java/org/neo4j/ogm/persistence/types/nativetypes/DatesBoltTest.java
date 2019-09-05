@@ -53,7 +53,7 @@ public class DatesBoltTest extends DatesTestBase {
 
         Configuration ogmConfiguration = new Configuration.Builder()
             .uri(boltURI.toString())
-            .encryptionLevel(Config.EncryptionLevel.NONE.name())
+            .encryptionLevel("NONE")
             .useNativeTypes()
             .build();
 
@@ -79,7 +79,7 @@ public class DatesBoltTest extends DatesTestBase {
     public void shouldUseNativeDateTimeTypesInParameterMaps() {
 
         try (
-            Driver driver = GraphDatabase.driver(boltURI, Config.build().withoutEncryption().toConfig());
+            Driver driver = GraphDatabase.driver(boltURI, Config.builder().withoutEncryption().build());
         ) {
             Session session = sessionFactory.openSession();
 
@@ -109,7 +109,7 @@ public class DatesBoltTest extends DatesTestBase {
 
         Map<String, Object> params = createSometimeWithConvertedLocalDate();
         try (
-            Driver driver = GraphDatabase.driver(boltURI, Config.build().withoutEncryption().toConfig());
+            Driver driver = GraphDatabase.driver(boltURI, Config.builder().withoutEncryption().build());
         ) {
             Record record = driver.session()
                 .run(

@@ -276,6 +276,10 @@ public class MappingContext {
         relationshipEntityRegister.clear();
     }
 
+    public Map<Long, Object> getSnapshotOfRelationshipEntityRegister() {
+        return new HashMap<>(this.relationshipEntityRegister);
+    }
+
     public Object getRelationshipEntity(Long relationshipId) {
         return relationshipEntityRegister.get(relationshipId);
     }

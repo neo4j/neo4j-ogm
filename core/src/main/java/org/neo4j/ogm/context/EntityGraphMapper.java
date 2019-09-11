@@ -169,6 +169,8 @@ public class EntityGraphMapper implements EntityMapper {
     private void deleteObsoleteRelationships(Compiler compiler) {
         CompileContext context = compiler.context();
 
+        Map<Long, Object> snapshotOfKnownRelationshipEntities
+            = mappingContext.getSnapshotOfRelationshipEntityRegister();
         Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.getRelationships().iterator();
         while (mappedRelationshipIterator.hasNext()) {
             MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
@@ -186,7 +188,7 @@ public class EntityGraphMapper implements EntityMapper {
                     mappedRelationship.getEndNodeId(),
                     mappedRelationship.getRelationshipId());
 
-                Object entity = mappingContext.getRelationshipEntity(mappedRelationship.getRelationshipId());
+                Object entity = snapshotOfKnownRelationshipEntities.get(mappedRelationship.getRelationshipId());
                 if (entity != null) {
                     ClassInfo classInfo = metaData.classInfo(entity);
                     if (classInfo.hasVersionField()) {

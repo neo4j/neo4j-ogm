@@ -1,3 +1,6 @@
+3.1.14
+o Fix inconsistent usage of optimistic locking properties.
+
 3.1.13
 o Correctly discover and handle typed and parameterized fields. (#656)
 o Fix deletion of relationship entities with optimistic locking.

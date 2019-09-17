@@ -39,8 +39,7 @@ import org.neo4j.ogm.domain.versioned_rel.UsedBy;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-import org.neo4j.test.rule.RepeatRule;
-import org.neo4j.test.rule.RepeatRule.Repeat;
+import org.neo4j.ogm.testutil.RepeatRule;
 
 /**
  * @author Nils Dröge
@@ -71,9 +70,8 @@ public class RichRelationTest extends MultiDriverTestClass {
      * relationships from the mapping context.
      */
     @Test
-    @Repeat(times = 20)
+    @RepeatRule.Repeat(times = 20)
     public void versionedRelationshipsTargetingDifferentEndNodes() {
-
         final Session localSession = sessionFactory.openSession();
 
         Service serviceA = new Service();

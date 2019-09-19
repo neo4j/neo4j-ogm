@@ -19,18 +19,22 @@
 package org.neo4j.ogm.domain.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.*
 import org.neo4j.driver.AuthTokens
+import org.neo4j.driver.Driver
 import org.neo4j.driver.GraphDatabase
 import org.neo4j.driver.Values
 import org.neo4j.harness.ServerControls
 import org.neo4j.harness.TestServerBuilders
 import org.neo4j.ogm.config.Configuration
+import org.neo4j.ogm.cypher.ComparisonOperator
+import org.neo4j.ogm.cypher.Filter
+import org.neo4j.ogm.cypher.Filters
+import org.neo4j.ogm.cypher.query.SortOrder
+import org.neo4j.ogm.cypher.query.SortOrder.Direction
 import org.neo4j.ogm.domain.dataclasses.MyNode
 import org.neo4j.ogm.domain.dataclasses.OtherNode
-import org.neo4j.ogm.session.SessionFactory
+import org.neo4j.ogm.session.*
 
 /**
  * @author Michael J. Simons
@@ -41,51 +45,148 @@ class KotlinInteropTest {
         @JvmStatic
         private lateinit var server: ServerControls
 
+        private lateinit var driver: Driver
+
+        private lateinit var sessionFactory: SessionFactory
+
         @BeforeClass
         @JvmStatic
         fun setup() {
             server = TestServerBuilders.newInProcessBuilder().newServer()
+            driver = GraphDatabase.driver(server.boltURI(), AuthTokens.none())
+
+            val ogmConfiguration = Configuration.Builder()
+                    .uri(server.boltURI().toString())
+                    .build()
+            sessionFactory = SessionFactory(ogmConfiguration, MyNode::class.java.`package`.name)
         }
 
         @AfterClass
         @JvmStatic
         fun tearDown() {
+            sessionFactory.close()
+            driver.close()
             server.close()
         }
     }
 
+    val names = listOf("Brian", "Roger", "John", "Freddie", "Farin", "Rod", "Bela")
+
+    @Before
+    fun prepareData() {
+
+        driver.session().use {
+            assertThat(it.run("CREATE (n:Unrelated)").summary().counters().nodesCreated()).isEqualTo(1)
+            val summary = it.run("UNWIND \$names AS name CREATE (n:MyNode {name: name})", Values.parameters("names", names)).summary()
+            assertThat(summary.counters().nodesCreated()).isEqualTo(names.size)
+        }
+    }
+
+    @After
+    fun purgeData() {
+
+        driver.session().use { it.run("MATCH (n) DETACH DELETE n").consume() }
+    }
+
     @Test
     fun basicMappingShouldWork() {
-        val ogmConfiguration = Configuration.Builder()
-                .uri(server.boltURI().toString())
-                .build()
 
-        val sessionFactory = SessionFactory(ogmConfiguration, MyNode::class.java.`package`.name)
-        var myNode: MyNode
-
-        try {
-            myNode = MyNode(name = "Node1", description = "A node", otherNodes = listOf(OtherNode(name = "o1"), OtherNode(name = "o2")))
+        var myNode = MyNode(name = "Node1", description = "A node", otherNodes = listOf(OtherNode(name = "o1"), OtherNode(name = "o2")))
             sessionFactory.openSession().save(myNode)
 
-            myNode = sessionFactory.openSession().load(MyNode::class.java, myNode.dbId)
+        myNode = sessionFactory.openSession().load(myNode.dbId!!)
             assertThat(myNode.name).isEqualTo("Node1")
             assertThat(myNode.description).isEqualTo("A node")
             assertThat(myNode.otherNodes)
                     .hasSize(2)
                     .extracting("name").containsExactlyInAnyOrder("o1", "o2")
-        } finally {
-            sessionFactory.close()
-        }
 
-        GraphDatabase.driver(server.boltURI(), AuthTokens.none()).use { driver ->
-            driver.session().use { session ->
-                val resultList = session.run("MATCH (n:MyNode) WHERE id(n) = \$id RETURN n", Values.parameters("id", myNode.dbId)).list()
+        driver.session().use {
+            val resultList = it.run("MATCH (n:MyNode) WHERE id(n) = \$id RETURN n", Values.parameters("id", myNode.dbId)).list()
 
-                assertThat(resultList).hasSize(1)
-                resultList.forEach { record ->
-                    assertThat(record.get("n").asMap()).containsKeys("name", "description")
-                }
+            assertThat(resultList).hasSize(1)
+            resultList.forEach { record ->
+                assertThat(record.get("n").asMap()).containsKeys("name", "description")
             }
         }
+    }
+
+    @Test
+    fun `loadAll with ids should work`() {
+
+        val ids: List<Long> = driver.session().use { session ->
+            session.run("MATCH (n:MyNode) WHERE n.name IN ['Rod', 'John'] RETURN id(n) as id").list { it["id"].asLong() }
+        }
+
+        val nodes = sessionFactory.openSession().loadAll<MyNode>(ids, SortOrder(Direction.ASC, "name"))
+        assertThat(nodes.map { it.name }).containsExactly("John", "Rod")
+    }
+
+    @Test
+    fun `loadAll should work`() {
+
+        val nodes = sessionFactory.openSession().loadAll<MyNode>(SortOrder(Direction.DESC, "name"))
+        assertThat(nodes.map { it.name }).containsExactlyElementsOf(names.sortedDescending())
+    }
+
+    @Test
+    fun `loadAll with filter should work`() {
+
+        val nodes = sessionFactory.openSession().loadAll<MyNode>(Filter("name", ComparisonOperator.EQUALS, "John"))
+        assertThat(nodes.map { it.name }).containsExactly("John")
+    }
+
+    @Test
+    fun `loadAll with filters should work`() {
+
+        val filters = Filters(Filter("name", ComparisonOperator.EQUALS, "Roger")).or(Filter("name", ComparisonOperator.EQUALS, "Bela"))
+        val nodes = sessionFactory.openSession().loadAll<MyNode>(filters, SortOrder(Direction.ASC, "name"))
+        assertThat(nodes.map { it.name }).containsExactly("Bela", "Roger")
+    }
+
+    @Test
+    fun `deleteAll should work`() {
+
+        sessionFactory.openSession().deleteAll<MyNode>()
+        val remainingNumberOfNodes = driver.session().use {
+            it.run("MATCH (n:Unrelated) RETURN count(n) AS cnt").single()["cnt"].asLong()
+        }
+        assertThat(remainingNumberOfNodes).isEqualTo(1L)
+    }
+
+    @Test
+    fun `delete with filter should work`() {
+
+        val deletedObjects : Any = sessionFactory.openSession().delete<MyNode>(listOf(Filter("name", ComparisonOperator.EQUALS, "Freddie")), false)
+
+        assertThat(deletedObjects).isEqualTo(1L)
+    }
+
+    @Test
+    fun `queryForObject should work`() {
+
+        val farin : MyNode = sessionFactory.openSession().queryForObject("MATCH (n:MyNode {name: \$name}) RETURN n", mapOf(Pair("name", "Farin")))
+        assertThat(farin.name).isEqualTo("Farin")
+    }
+
+    @Test
+    fun `query should work`() {
+
+        val returnedNames : Iterable<String> = sessionFactory.openSession().query("MATCH (n:MyNode) RETURN n.name ORDER BY n.name DESC")
+        assertThat(returnedNames).containsExactlyElementsOf(names.sortedDescending())
+    }
+
+    @Test
+    fun `countEntitiesOfType should work`() {
+
+        val numberOfMyNodes = sessionFactory.openSession().countEntitiesOfType<MyNode>()
+        assertThat(numberOfMyNodes).isEqualTo(names.size.toLong())
+    }
+
+    @Test
+    fun `count should work`() {
+
+        val numberOfMyNodes = sessionFactory.openSession().count<MyNode>(listOf(Filter("name", ComparisonOperator.EQUALS, "Brian")))
+        assertThat(numberOfMyNodes).isEqualTo(1)
     }
 }

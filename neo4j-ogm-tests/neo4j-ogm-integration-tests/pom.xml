@@ -31,22 +31,6 @@
     <name>Neo4j-OGM Integration tests</name>
     <description>Integration tests of Neo4j-OGM Core and API across different transports.</description>
 
-    <properties>
-        <kotlin.version>1.3.41</kotlin.version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-bom</artifactId>
-                <version>${kotlin.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
 
         <dependency>

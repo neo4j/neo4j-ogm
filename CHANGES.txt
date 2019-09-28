@@ -1,4 +1,4 @@
-3.2.x
+3.2.0
 o Removed "neo4j.ha.properties.file" property from OGM configuration. Use "neo4j.conf.location" instead.
 o Removed `org.neo4j.ogm.autoindex.AutoIndexManager#build`. Use `org.neo4j.ogm.autoindex.AutoIndexManager#run` instead.
 o Removed deprecated and unsupported method `org.neo4j.ogm.session.Neo4jSession#setDriver`.
@@ -26,8 +26,16 @@ o Fix merging of collections. (#641)
 o Use cast instead of dynamic invocation for enum map keys. (#638)
 o Use concurrent hash maps as cache for entity access.
 o Improve support for Kotlin data classes. (#653)
+o Update Java driver to latest 4.0.0-beta02 release.
+o Add some useful Kotlin extensions to Session. (#661)
+
+3.1.14
+o Fix inconsistent usage of optimistic locking properties.
+
+3.1.13
 o Correctly discover and handle typed and parameterized fields. (#656)
-o Update Java driver to latest 4.0.0-beta01 release.
+o Fix deletion of relationship entities with optimistic locking.
+o Improve support for Kotlin data classes. (#653)
 
 3.1.12
 o Verify sort order. (#368)

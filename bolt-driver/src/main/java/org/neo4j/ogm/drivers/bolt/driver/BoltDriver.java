@@ -19,13 +19,13 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static java.util.Objects.*;
+import static org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction.*;
 import static java.util.stream.Collectors.*;
 
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -35,10 +35,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 import org.neo4j.driver.AccessMode;
 import org.neo4j.driver.AuthToken;
 import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Bookmark;
 import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
@@ -47,7 +49,7 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.ServiceUnavailableException;
-import org.neo4j.driver.internal.InternalBookmark;
+import org.neo4j.driver.util.BookmarkUtil;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
@@ -120,7 +122,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return "org.neo4j.ogm.drivers.bolt.types.BoltNativeTypes";
     }
 
-    public Function<TransactionManager, BiFunction<Transaction.Type, Collection<String>, Transaction>> getTransactionFactorySupplier() {
+    public Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier() {
         return transactionManager -> (type, bookmarks) -> {
             checkDriverInitialized();
 
@@ -190,11 +192,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
         String[] uris = configuration.getURIS();
 
         if (uri != null) {
-            mergedUris.add(URI.create(uri));
+            mergedUris.add(fixProtocolIfNecessary(URI.create(uri)));
         }
         if (uris != null) {
             for (String routingUri : uris) {
-                mergedUris.add(URI.create(routingUri));
+                mergedUris.add(fixProtocolIfNecessary(URI.create(routingUri)));
             }
         }
 
@@ -203,18 +205,32 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private URI getSingleURI() {
 
+        String singleUri;
         if (configuration.getURI() != null) {
-            return URI.create(configuration.getURI());
+            singleUri = configuration.getURI();
+        } else {
+            // if no URI was provided take the first argument from the URI list
+            String[] uris = configuration.getURIS();
+            if (uris == null || configuration.getURIS().length == 0) {
+                throw new IllegalArgumentException(
+                    "You must provide either an URI or at least one URI in the URIS parameter.");
+            }
+            singleUri = configuration.getURIS()[0];
         }
 
-        // if no URI was provided take the first argument from the URI list
-        String[] uris = configuration.getURIS();
-        if (uris == null || configuration.getURIS().length == 0) {
-            throw new IllegalArgumentException(
-                "You must provide either an URI or at least one URI in the URIS parameter.");
-        }
+        return fixProtocolIfNecessary(URI.create(singleUri));
+    }
 
-        return URI.create(configuration.getURIS()[0]);
+    /**
+     * Make the 4.0 driver somewhat backward compatible with older configurations
+     * @param uri
+     * @return
+     */
+    private static URI fixProtocolIfNecessary(URI uri) {
+        if ("bolt+routing".equals(uri.getScheme().toLowerCase(Locale.ENGLISH))) {
+            return URI.create(uri.toString().replaceAll("^bolt\\+routing", "neo4j"));
+        }
+        return uri;
     }
 
     @Override
@@ -249,13 +265,13 @@ public class BoltDriver extends AbstractConfigurableDriver {
         }
     }
 
-    private Session newSession(Transaction.Type type, Collection<String> bookmarks) {
+    private Session newSession(Transaction.Type type, Iterable<String> bookmarks) {
         Session boltSession;
         try {
             AccessMode accessMode = type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ : AccessMode.WRITE;
             boltSession = boltDriver.session(
                 SessionConfig.builder().withDefaultAccessMode(accessMode)
-                    .withBookmarks(InternalBookmark.parse(bookmarks)).build());
+                    .withBookmarks(bookmarksFromStrings(bookmarks)).build());
         } catch (ClientException ce) {
             throw new ConnectionException(
                 "Error connecting to graph database using Bolt: " + ce.code() + ", " + ce.getMessage(), ce);
@@ -344,4 +360,12 @@ public class BoltDriver extends AbstractConfigurableDriver {
         }
     }
 
+    @SuppressWarnings("deprecation")
+    static List<Bookmark> bookmarksFromStrings(Iterable<String> bookmarks) {
+        return StreamSupport.stream(bookmarks.spliterator(), false)
+            .map(b -> b.split(BOOKMARK_SEPARATOR))
+            .map(Arrays::asList)
+            .map(BookmarkUtil::parse)
+            .collect(toList());
+    }
 }

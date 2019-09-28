@@ -60,12 +60,38 @@ public class BoltDriverConfigurationTest {
     @Test
     public void shouldSupportAdditionalRoutingUris() {
 
+        String uri = "neo4j://somewhere1";
+        String[] uris = { "neo4j://somewhere2", "neo4j://somewhere3" };
+        List<URI> routingUris = Arrays.asList(
+            URI.create("neo4j://somewhere1"),
+            URI.create("neo4j://somewhere2"),
+            URI.create("neo4j://somewhere3"));
+
+        Configuration configuration = new Configuration.Builder()
+            .uri(uri)
+            .uris(uris)
+            .verifyConnection(true)
+            .build();
+
+        // trigger bolt driver creation
+        new SessionFactory(configuration, "non.existing.package");
+
+        assertThat(configuration.getURI()).isEqualTo(uri);
+        assertThat(configuration.getURIS()).isEqualTo(uris);
+
+        PowerMockito.verifyStatic(GraphDatabase.class);
+        GraphDatabase.routingDriver(Mockito.eq(routingUris), Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    public void shouldRenameBoltRoutingSchemeToNeo4j() {
+
         String uri = "bolt+routing://somewhere1";
         String[] uris = { "bolt+routing://somewhere2", "bolt+routing://somewhere3" };
         List<URI> routingUris = Arrays.asList(
-            URI.create("bolt+routing://somewhere1"),
-            URI.create("bolt+routing://somewhere2"),
-            URI.create("bolt+routing://somewhere3"));
+            URI.create("neo4j://somewhere1"),
+            URI.create("neo4j://somewhere2"),
+            URI.create("neo4j://somewhere3"));
 
         Configuration configuration = new Configuration.Builder()
             .uri(uri)
@@ -86,11 +112,11 @@ public class BoltDriverConfigurationTest {
     @Test
     public void shouldSupportAdditionalRoutingUrisWithoutDefiningUri() {
 
-        String[] uris = { "bolt+routing://somewhere1", "bolt+routing://somewhere2", "bolt+routing://somewhere3" };
+        String[] uris = { "neo4j://somewhere1", "neo4j://somewhere2", "neo4j://somewhere3" };
         List<URI> routingUris = Arrays.asList(
-            URI.create("bolt+routing://somewhere1"),
-            URI.create("bolt+routing://somewhere2"),
-            URI.create("bolt+routing://somewhere3"));
+            URI.create("neo4j://somewhere1"),
+            URI.create("neo4j://somewhere2"),
+            URI.create("neo4j://somewhere3"));
 
         Configuration configuration = new Configuration.Builder()
             .uris(uris)
@@ -109,8 +135,8 @@ public class BoltDriverConfigurationTest {
     @Test
     public void shouldCallDefaultGraphDatabaseInstantiationWithJustOneUriInUris() {
 
-        String[] uris = { "bolt+routing://somewhere1" };
-        URI uri = URI.create("bolt+routing://somewhere1");
+        String[] uris = { "neo4j://somewhere1" };
+        URI uri = URI.create("neo4j://somewhere1");
 
         Configuration configuration = new Configuration.Builder()
             .uris(uris)
@@ -129,7 +155,7 @@ public class BoltDriverConfigurationTest {
     @Test
     public void shouldCallDefaultGraphDatabaseInstantiationWithOneUri() {
 
-        String uriValue ="bolt+routing://somewhere1";
+        String uriValue ="neo4j://somewhere1";
         URI uri = URI.create(uriValue);
 
         Configuration configuration = new Configuration.Builder()

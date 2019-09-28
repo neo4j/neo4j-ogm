@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.transaction;
 
-import java.util.Collection;
-
 /**
  * @author Vince Bickers
  * @author Mark Angrish
@@ -42,7 +40,7 @@ public interface TransactionManager {
      * @param bookmarks bookmarks to be passed to driver
      * @return a new @{link Transaction}
      */
-    Transaction openTransaction(Transaction.Type type, Collection<String> bookmarks);
+    Transaction openTransaction(Transaction.Type type, Iterable<String> bookmarks);
 
     /**
      * Rolls back the specified transaction.
@@ -79,5 +77,5 @@ public interface TransactionManager {
 
     boolean canRollback();
 
-    void bookmark(Iterable<String> bookmark);
+    void bookmark(String bookmark);
 }

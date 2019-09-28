@@ -596,7 +596,7 @@ public interface Session {
      * @param bookmarks bookmarks that are passed to driver
      * @return a new active Transaction
      */
-    Transaction beginTransaction(Transaction.Type type, Collection<String> bookmarks);
+    Transaction beginTransaction(Transaction.Type type, Iterable<String> bookmarks);
 
     /**
      * a cypher statement this method will return a domain object that is hydrated to the
@@ -727,14 +727,14 @@ public interface Session {
      *
      * @return The last used bookmark String on this session.
      */
-    Iterable<String> getLastBookmark();
+    String getLastBookmark();
 
     /**
      * Sets the bookmark to use on this session. Useful when resuming a user session with a causal cluster.
      *
      * @param bookmark The last used bookmark String that this session should start from.
      */
-    void withBookmark(Iterable<String> bookmark);
+    void withBookmark(String bookmark);
 
     /**
      * Returns current load strategy

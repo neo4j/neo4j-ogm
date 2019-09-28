@@ -20,7 +20,6 @@ package org.neo4j.ogm.session.transaction;
 
 import static java.util.Collections.*;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -41,11 +40,11 @@ import org.neo4j.ogm.transaction.TransactionManager;
 public class DefaultTransactionManager implements TransactionManager {
 
     private final Session session;
-    private final BiFunction<Transaction.Type, Collection<String>, Transaction> transactionFactory;
+    private final BiFunction<Transaction.Type, Iterable<String>, Transaction> transactionFactory;
     private final ThreadLocal<Transaction> currentThreadLocalTransaction = new ThreadLocal<>();
 
     public DefaultTransactionManager(Session session,
-        Function<TransactionManager, BiFunction<Transaction.Type, Collection<String>, Transaction>> transactionFactorySupplier) {
+        Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> transactionFactorySupplier) {
         this.session = session;
         this.transactionFactory = transactionFactorySupplier.apply(this);
     }
@@ -71,7 +70,7 @@ public class DefaultTransactionManager implements TransactionManager {
      *
      * @return a new {@link Transaction}
      */
-    public Transaction openTransaction(Transaction.Type type, Collection<String> bookmarks) {
+    public Transaction openTransaction(Transaction.Type type, Iterable<String> bookmarks) {
         if (currentThreadLocalTransaction.get() == null) {
             currentThreadLocalTransaction.set(transactionFactory.apply(type, bookmarks));
         } else {
@@ -172,7 +171,7 @@ public class DefaultTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void bookmark(Iterable<String> bookmark) {
+    public void bookmark(String bookmark) {
         if (session != null) {
             session.withBookmark(bookmark);
         }

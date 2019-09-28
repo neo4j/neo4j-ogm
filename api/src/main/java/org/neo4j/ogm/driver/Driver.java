@@ -18,7 +18,6 @@
  */
 package org.neo4j.ogm.driver;
 
-import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -40,7 +39,7 @@ public interface Driver extends AutoCloseable {
     /**
      * @return A factory method for creating suppliers of transactions for a given transaction manager
      */
-    Function<TransactionManager, BiFunction<Transaction.Type, Collection<String>, Transaction>> getTransactionFactorySupplier();
+    Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier();
 
     void close();
 

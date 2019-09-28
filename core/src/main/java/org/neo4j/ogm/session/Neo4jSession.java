@@ -94,7 +94,12 @@ public class Neo4jSession implements Session {
     private EntityInstantiator entityInstantiator;
 
     private Driver driver;
-    private Iterable<String> bookmark;
+    /**
+     * This is the last bookmark returned from the server. The bookmark may consisted of several bookmarks that together
+     * made the whole bookmark. That is a new feature in the 4.0 Bolt driver. To not break API, we store those values
+     * separated by a constant string.
+     */
+    private String bookmark;
 
     private List<EventListener> registeredEventListeners = new LinkedList<>();
 
@@ -526,7 +531,7 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public Transaction beginTransaction(Transaction.Type type, Collection<String> bookmarks) {
+    public Transaction beginTransaction(Transaction.Type type, Iterable<String> bookmarks) {
         return txManager.openTransaction(type, bookmarks);
     }
 
@@ -669,13 +674,13 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public Iterable<String> getLastBookmark() {
+    public String getLastBookmark() {
         return bookmark;
     }
 
     @Override
     @SuppressWarnings("HiddenField")
-    public void withBookmark(Iterable<String> bookmark) {
+    public void withBookmark(String bookmark) {
         this.bookmark = bookmark;
     }
 

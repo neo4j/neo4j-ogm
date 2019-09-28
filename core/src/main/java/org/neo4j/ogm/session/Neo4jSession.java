@@ -94,7 +94,7 @@ public class Neo4jSession implements Session {
     private EntityInstantiator entityInstantiator;
 
     private Driver driver;
-    private String bookmark;
+    private Iterable<String> bookmark;
 
     private List<EventListener> registeredEventListeners = new LinkedList<>();
 
@@ -526,7 +526,7 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public Transaction beginTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+    public Transaction beginTransaction(Transaction.Type type, Collection<String> bookmarks) {
         return txManager.openTransaction(type, bookmarks);
     }
 
@@ -669,13 +669,13 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public String getLastBookmark() {
+    public Iterable<String> getLastBookmark() {
         return bookmark;
     }
 
     @Override
     @SuppressWarnings("HiddenField")
-    public void withBookmark(String bookmark) {
+    public void withBookmark(Iterable<String> bookmark) {
         this.bookmark = bookmark;
     }
 

@@ -30,6 +30,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -158,7 +159,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier() {
+    public Function<TransactionManager, BiFunction<Transaction.Type, Collection<String>, Transaction>> getTransactionFactorySupplier() {
         return transactionManager -> (type, bookmarks) -> {
             if (bookmarks != null && bookmarks.iterator().hasNext()) {
                 logger.warn("Passing bookmarks {} to EmbeddedDriver. This is not currently supported.", bookmarks);

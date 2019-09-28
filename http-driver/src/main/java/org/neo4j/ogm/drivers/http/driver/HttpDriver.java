@@ -19,6 +19,7 @@
 package org.neo4j.ogm.drivers.http.driver;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +67,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author vince
  */
-
 public final class HttpDriver extends AbstractConfigurableDriver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpDriver.class);
@@ -121,7 +121,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier() {
+    public Function<TransactionManager, BiFunction<Transaction.Type, Collection<String>, Transaction>> getTransactionFactorySupplier() {
         return transactionManager -> (type, bookmarks) -> {
             if (bookmarks != null && bookmarks.iterator().hasNext()) {
                 LOGGER.warn("Passing bookmarks {} to EmbeddedDriver. This is not currently supported.", bookmarks);

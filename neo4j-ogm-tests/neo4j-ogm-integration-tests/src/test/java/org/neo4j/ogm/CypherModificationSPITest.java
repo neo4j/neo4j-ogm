@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
@@ -121,7 +122,7 @@ public class CypherModificationSPITest {
     private static class TestDriver extends AbstractConfigurableDriver {
 
         @Override
-        public Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier() {
+        public Function<TransactionManager, BiFunction<Transaction.Type, Collection<String>, Transaction>> getTransactionFactorySupplier() {
             return null;
         }
 

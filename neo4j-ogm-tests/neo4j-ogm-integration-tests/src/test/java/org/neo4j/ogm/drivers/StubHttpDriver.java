@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.drivers;
 
+import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -63,7 +64,7 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> getTransactionFactorySupplier() {
+    public Function<TransactionManager, BiFunction<Transaction.Type, Collection<String>, Transaction>> getTransactionFactorySupplier() {
         return transactionManager -> (type, bookmarks) -> null;
     }
 

@@ -18,10 +18,10 @@
  */
 package org.neo4j.ogm.drivers.bolt.transaction;
 
+import org.neo4j.driver.Bookmark;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.exceptions.ClientException;
-import org.neo4j.driver.internal.Bookmark;
 import org.neo4j.driver.internal.InternalBookmark;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.exception.CypherException;
@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
  */
 public class BoltTransaction extends AbstractTransaction {
 
-    public static final String BOOKMARK_SEPARATOR = "BS";
     private static final String NEO_CLIENT_ERROR_SECURITY = "Neo.ClientError.Security";
     private final Transaction nativeTransaction;
     private final Session nativeSession;
@@ -71,7 +70,7 @@ public class BoltTransaction extends AbstractTransaction {
             if (transactionManager.canRollback()) {
                 LOGGER.debug("Rolling back native transaction: {}", nativeTransaction);
                 if (nativeTransaction.isOpen()) {
-                    nativeTransaction.failure();
+                    nativeTransaction.rollback();
                     nativeTransaction.close();
                 } else {
                     LOGGER.warn("Transaction is already closed");
@@ -93,7 +92,7 @@ public class BoltTransaction extends AbstractTransaction {
             if (canCommit) {
                 LOGGER.debug("Committing native transaction: {}", nativeTransaction);
                 if (nativeTransaction.isOpen()) {
-                    nativeTransaction.success();
+                    nativeTransaction.commit();
                     nativeTransaction.close();
                     nativeSession.close();
                 } else {
@@ -113,8 +112,7 @@ public class BoltTransaction extends AbstractTransaction {
             super.commit();
             if (canCommit) {
                 Bookmark bookmark = nativeSession.lastBookmark();
-                String bookmarks = bookmark == null ? null : String.join(BOOKMARK_SEPARATOR, ((InternalBookmark) bookmark).values());
-                transactionManager.bookmark(bookmarks);
+                transactionManager.bookmark(bookmark != null ? ((InternalBookmark) bookmark).values() : null);
             }
         }
     }

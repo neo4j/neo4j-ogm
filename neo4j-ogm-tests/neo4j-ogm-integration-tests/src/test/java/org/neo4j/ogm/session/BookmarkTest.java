@@ -24,9 +24,9 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,9 +36,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.neo4j.driver.AccessMode;
+import org.neo4j.driver.Bookmark;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.SessionConfig;
-import org.neo4j.driver.internal.Bookmark;
 import org.neo4j.driver.internal.InternalBookmark;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.metadata.MetaData;
@@ -71,8 +71,8 @@ public class BookmarkTest {
     @Test
     public void shouldPassBookmarksToDriver() {
         Set<String> bookmarkStringRepresentation = new HashSet<>(Arrays.asList("bookmark1", "bookmark2"));
-        Set<Bookmark> bookmarks = bookmarkStringRepresentation.stream().map(InternalBookmark::parse).collect(
-            toSet());
+        Bookmark bookmark = InternalBookmark.from(bookmarkStringRepresentation.stream().map(InternalBookmark::parse).collect(
+            toSet()));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_ONLY, bookmarkStringRepresentation);
         ArgumentCaptor<SessionConfig> argumentCaptor = ArgumentCaptor.forClass(SessionConfig.class);
@@ -81,7 +81,7 @@ public class BookmarkTest {
 
         SessionConfig sessionConfig = argumentCaptor.getValue();
         assertThat(sessionConfig.defaultAccessMode()).isEqualTo(AccessMode.READ);
-        assertThat(sessionConfig.bookmarks()).containsAll(bookmarks);
+        assertThat(sessionConfig.bookmarks()).isEqualTo(Collections.singletonList(bookmark));
 
         transaction.rollback();
         transaction.close();
@@ -95,7 +95,8 @@ public class BookmarkTest {
         transaction.commit();
         transaction.close();
 
-        String lastBookmark = session.getLastBookmark();
-        assertThat(lastBookmark).isEqualTo("last-bookmark");
+        Iterable<String> lastBookmark = session.getLastBookmark();
+        assertThat(lastBookmark).hasSize(1);
+        assertThat(lastBookmark.iterator().next()).isEqualTo("last-bookmark");
     }
 }

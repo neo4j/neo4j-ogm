@@ -649,7 +649,7 @@
         <profile>
             <id>neo4j-3.5</id>
             <properties>
-                <neo4j.version>3.5.9</neo4j.version>
+                <neo4j.version>3.5.11</neo4j.version>
             </properties>
             <modules>
                 <module>embedded-native-types</module>

@@ -50,6 +50,16 @@ public class EmbeddedDriverTest {
         assumeTrue("ogm-embedded.properties".equals(System.getProperty("ogm.properties")));
     }
 
+    @BeforeClass
+    public static void assumeDefaultConfigurationIsDifferentFromCustom() {
+        try (EmbeddedDriver driver = new EmbeddedDriver()) {
+            driver.configure(new Configuration.Builder().build());
+            Result r = getValueOfCypherPlanner(driver.unwrap(GraphDatabaseService.class));
+            assumeTrue(r.hasNext());
+            assumeTrue("default".equals(r.next().get("value")));
+        }
+    }
+
     @Test
     public void shouldCreateImpermanentInstanceWhenNoURI() {
         Configuration configuration = new Configuration.Builder().build();
@@ -184,9 +194,7 @@ public class EmbeddedDriverTest {
         try (EmbeddedDriver driver = new EmbeddedDriver()) {
             driver.configure(new Configuration.Builder().neo4jConfLocation("classpath:custom-neo4j.conf").build());
 
-            GraphDatabaseService databaseService = driver.unwrap(GraphDatabaseService.class);
-
-            assertReadOnly(databaseService);
+            assertCustomConfiguration(driver);
         }
     }
 
@@ -198,9 +206,7 @@ public class EmbeddedDriverTest {
                 new Configuration.Builder(new ClasspathConfigurationSource("ogm-pointing-to-custom-conf.properties"))
                     .build());
 
-            GraphDatabaseService databaseService = driver.unwrap(GraphDatabaseService.class);
-
-            assertReadOnly(databaseService);
+            assertCustomConfiguration(driver);
         }
     }
 
@@ -230,7 +236,7 @@ public class EmbeddedDriverTest {
         }
     }
 
-    static boolean canRunHATests() {
+    private static boolean canRunHATests() {
         try {
             Class.forName("org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory", false,
                 ClassUtils.getDefaultClassLoader());
@@ -238,5 +244,20 @@ public class EmbeddedDriverTest {
         } catch (ClassNotFoundException e) {
             return false;
         }
+    }
+
+    private static void assertCustomConfiguration(EmbeddedDriver driver) {
+        Result r = getValueOfCypherPlanner(driver.unwrap(GraphDatabaseService.class));
+        assertThat(r.hasNext()).isTrue();
+        assertThat(r.next().get("value")).isEqualTo("COST");
+    }
+
+    private static Result getValueOfCypherPlanner(GraphDatabaseService databaseService) {
+        return databaseService.execute(""
+            + "CALL dbms.listConfig()\n"
+            + "YIELD name,  value\n"
+            + "WHERE name ='cypher.planner'\n"
+            + "RETURN value"
+        );
     }
 }

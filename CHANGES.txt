@@ -1,3 +1,8 @@
+3.1.15
+o Fix invalid conversion of native types on embedded inside maps with when the experimental option
+  `org.neo4j.ogm.driver.ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE` introduced in 3.1.4 is set
+  to `CONVERT_NON_NATIVE_ONLY` (#665)
+
 3.1.14
 o Fix inconsistent usage of optimistic locking properties.
 

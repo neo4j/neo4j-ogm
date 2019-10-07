@@ -20,9 +20,12 @@ package org.neo4j.ogm.drivers.embedded.driver;
 
 import static java.util.stream.Collectors.*;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
@@ -46,7 +49,7 @@ enum EmbeddedBasedParameterConversion implements ParameterConversion {
     private final Logger logger = LoggerFactory.getLogger(EmbeddedBasedParameterConversion.class);
     private final ParameterConversion fallback = AbstractConfigurableDriver.CONVERT_ALL_PARAMETERS_CONVERSION;
 
-    private Predicate<Entry<String, Object>> canConvert;
+    private Predicate<Object> canConvert;
 
     EmbeddedBasedParameterConversion() {
 
@@ -66,17 +69,60 @@ enum EmbeddedBasedParameterConversion implements ParameterConversion {
     @Override
     public Map<String, Object> convertParameters(Map<String, Object> originalParameter) {
 
-        Map<Boolean, Map<String, Object>> allParameters = originalParameter.entrySet().stream()
-            .collect(partitioningBy(canConvert, Collectors.toMap(Entry::getKey, Entry::getValue)));
+        final Map<String, Object> convertedParameter = new HashMap<>(originalParameter.size());
+        final Map<String, Object> unconvertedParameter = new HashMap<>(originalParameter.size());
 
-        Map<String, Object> convertedParameters = new HashMap<>(originalParameter.size());
-        convertedParameters.putAll(allParameters.get(true));
-        convertedParameters.putAll(fallback.convertParameters(allParameters.get(false)));
+        originalParameter.forEach((parameterKey, unconvertedValue) -> {
 
-        return convertedParameters;
+            if (unconvertedValue == null) {
+                convertedParameter.put(parameterKey, null);
+            } else if (unconvertedValue instanceof List) {
+                convertedParameter.put(parameterKey, convertListItems((List) unconvertedValue));
+            } else if (unconvertedValue.getClass().isArray()) {
+                convertedParameter.put(parameterKey, convertArrayItems(unconvertedValue));
+            } else if (unconvertedValue instanceof Map) {
+                convertedParameter.put(parameterKey, convertParameters((Map<String, Object>) unconvertedValue));
+            } else if (canConvert.test(unconvertedValue)) {
+                convertedParameter.put(parameterKey, unconvertedValue);
+            } else {
+                System.out.println("putting "+ unconvertedValue);
+                unconvertedParameter.put(parameterKey, unconvertedValue);
+            }
+        });
+
+        convertedParameter.putAll(fallback.convertParameters(unconvertedParameter));
+        return convertedParameter;
     }
 
-    private static class WrappedValuesUnsafeOf implements Predicate<Entry<String, Object>> {
+    private List<?> convertListItems(List<?> unconvertedValues) {
+
+        return unconvertedValues.stream().map(this::convertSingle).collect(toList());
+    }
+
+    private Object[] convertArrayItems(Object unconvertedValues) {
+
+        int length = Array.getLength(unconvertedValues);
+        Object[] convertedValues = new Object[length];
+
+        for (int i = 0; i < length; ++i) {
+            convertedValues[i] = convertSingle(Array.get(unconvertedValues, i));
+        }
+
+        return convertedValues;
+    }
+
+    private Object convertSingle(Object value) {
+        Predicate<Class> isSupportedNativeCollection = c -> List.class.isAssignableFrom(c) || Map.class.isAssignableFrom(c);
+
+        if (isSupportedNativeCollection.negate().test(value.getClass()) && canConvert.test(value)) {
+            return value;
+        } else {
+            String fixedKey = "u";
+            return convertParameters(Collections.singletonMap(fixedKey, value)).get(fixedKey);
+        }
+    }
+
+    private static class WrappedValuesUnsafeOf implements Predicate<Object> {
         private final Method unsafeOf;
 
         WrappedValuesUnsafeOf(Method unsafeOf) {
@@ -84,9 +130,9 @@ enum EmbeddedBasedParameterConversion implements ParameterConversion {
         }
 
         @Override
-        public boolean test(Entry<String, Object> o) {
+        public boolean test(Object o) {
             try {
-                return this.unsafeOf.invoke(null, o.getValue(), true) != null;
+                return this.unsafeOf.invoke(null, o, true) != null;
             } catch (IllegalAccessException | InvocationTargetException e) {
                 // InvocationTargetException is ignored on purpose, just try the default fallback then.
             }

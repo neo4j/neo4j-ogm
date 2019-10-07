@@ -16,22 +16,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.drivers.bolt;
+package org.neo4j.ogm.drivers.bolt.driver;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
 import static org.neo4j.ogm.driver.ParameterConversionMode.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+import org.neo4j.driver.internal.value.DateTimeValue;
+import org.neo4j.driver.internal.value.FloatValue;
+import org.neo4j.driver.internal.value.ListValue;
+import org.neo4j.driver.internal.value.MapValue;
+import org.neo4j.driver.internal.value.StringValue;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
+import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.types.TypeSystem;
 import org.neo4j.ogm.driver.ParameterConversionMode;
-import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.testutil.SingleDriverTestClass;
 
@@ -79,5 +88,42 @@ public class JavaBasedParameterConversionTest extends SingleDriverTestClass {
         } catch (NoSuchMethodException e) {
             return false;
         }
+    }
+
+    @Test
+    public void nestedConversions() {
+
+        assumeTrue(driverSupportsLocalDate());
+        assumeTrue(databaseSupportJava8TimeTypes());
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("aDate", ZonedDateTime.now());
+        parameters.put("somethingElse", "Foobar");
+        parameters.put("aDouble", 47.11);
+        parameters.put("aNumber", new BigDecimal("42.23"));
+        parameters.put("listOfDates", Arrays.asList(ZonedDateTime.now()));
+        parameters.put("mapOfDates", Collections.singletonMap("aDate", ZonedDateTime.now()));
+        parameters.put("arrayOfDates", new ZonedDateTime[] { ZonedDateTime.now() });
+
+        Map<String, Object> convertedParameters = JavaDriverBasedParameterConversion.INSTANCE
+            .convertParameters(parameters);
+
+        assertThat(convertedParameters.keySet())
+            .containsAll(parameters.keySet());
+        assertThat(convertedParameters.get("aDate")).isInstanceOf(DateTimeValue.class);
+        assertThat(convertedParameters.get("somethingElse"))
+            .isInstanceOf(StringValue.class)
+            .satisfies(v -> assertThat(((Value) v).asString()).isEqualTo("Foobar"));
+        assertThat(convertedParameters.get("aDouble"))
+            .isInstanceOf(FloatValue.class)
+            .satisfies(v -> assertThat(((Value) v).asDouble()).isEqualTo(47.11));
+        assertThat(convertedParameters.get("aNumber"))
+            .isEqualTo(new BigDecimal("42.23"));
+        assertThat(convertedParameters.get("listOfDates")).isInstanceOf(ListValue.class)
+            .satisfies(v -> assertThat(((Value) v).asList(li -> li).get(0)).isInstanceOf(DateTimeValue.class));
+        assertThat(convertedParameters.get("mapOfDates")).isInstanceOf(MapValue.class)
+            .satisfies(v -> assertThat(((Value) v).asMap(li -> li).get("aDate")).isInstanceOf(DateTimeValue.class));
+        assertThat(convertedParameters.get("arrayOfDates")).isInstanceOf(ListValue.class)
+            .satisfies(v -> assertThat(((Value) v).asList(li -> li).get(0)).isInstanceOf(DateTimeValue.class));
     }
 }

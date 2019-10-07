@@ -18,8 +18,14 @@
  */
 package org.neo4j.ogm.drivers.bolt.driver;
 
+import static java.util.stream.Collectors.*;
+
+import java.lang.reflect.Array;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.Values;

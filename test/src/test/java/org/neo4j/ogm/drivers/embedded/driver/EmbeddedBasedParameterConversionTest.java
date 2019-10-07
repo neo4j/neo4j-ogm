@@ -16,19 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.drivers.embedded;
+package org.neo4j.ogm.drivers.embedded.driver;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
 import static org.neo4j.ogm.driver.ParameterConversionMode.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.testutil.SingleDriverTestClass;
 
@@ -56,6 +60,7 @@ public class EmbeddedBasedParameterConversionTest extends SingleDriverTestClass 
 
                 Map<String, Object> parameters = new HashMap<>();
                 parameters.put("createdAt", originalDateTime);
+
                 session.query("CREATE (n:Test {createdAt: $createdAt})", parameters);
 
                 Object createdAt = graphDatabaseService.execute("MATCH (n:Test) RETURN n.createdAt AS createdAt").next()
@@ -63,5 +68,36 @@ public class EmbeddedBasedParameterConversionTest extends SingleDriverTestClass 
                 assertThat(createdAt).isInstanceOf(LocalDateTime.class)
                     .isEqualTo(originalDateTime);
             });
+    }
+
+    @Test
+    public void nestedConversions() {
+
+        assumeTrue(databaseSupportJava8TimeTypes());
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("aDate", ZonedDateTime.now());
+        parameters.put("somethingElse", "Foobar");
+        parameters.put("aDouble", 47.11);
+        parameters.put("aNumber", new BigDecimal("42.23"));
+        parameters.put("listOfDates", Arrays.asList(ZonedDateTime.now()));
+        parameters.put("mapOfDates", Collections.singletonMap("aDate", ZonedDateTime.now()));
+        parameters.put("arrayOfDates", new ZonedDateTime[] { ZonedDateTime.now() });
+
+        Map<String, Object> convertedParameters = EmbeddedBasedParameterConversion.INSTANCE
+            .convertParameters(parameters);
+
+        assertThat(convertedParameters.keySet())
+            .containsAll(parameters.keySet());
+        assertThat(convertedParameters.get("aDate")).isInstanceOf(ZonedDateTime.class);
+        assertThat(convertedParameters.get("somethingElse")).isEqualTo("Foobar");
+        assertThat(convertedParameters.get("aDouble")).isEqualTo(47.11);
+        assertThat(convertedParameters.get("aNumber")).isEqualTo(new BigDecimal("42.23"));
+        assertThat(convertedParameters.get("listOfDates")).isInstanceOf(List.class);
+        assertThat(((List) convertedParameters.get("listOfDates")).get(0)).isInstanceOf(ZonedDateTime.class);
+        assertThat(convertedParameters.get("mapOfDates")).isInstanceOf(Map.class);
+        assertThat(((Map) convertedParameters.get("mapOfDates")).get("aDate")).isInstanceOf(ZonedDateTime.class);
+        assertThat(convertedParameters.get("arrayOfDates")).isInstanceOf(Object[].class);
+        assertThat(((Object[]) convertedParameters.get("arrayOfDates"))[0]).isInstanceOf(ZonedDateTime.class);
     }
 }

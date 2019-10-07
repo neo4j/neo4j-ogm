@@ -1,6 +1,5 @@
-:version: 3.1.13
-:dev_version: 3.1.14-SNAPSHOT
-:last_dev_version: 3.2.0-SNAPSHOT
+:version: 3.1.15
+:dev_version: 3.1.16-SNAPSHOT
 
 image:https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg[Maven Central,link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.neo4j%22%20AND%20a%3A%22neo4j-ogm%22]
 image:https://rawgit.com/aleen42/badges/master/src/slack.svg[Slack,link=https://neo4j-users.slack.com/messages/neo4j-sdn-ogm/]
@@ -14,8 +13,10 @@ It aims to simplify development with the Neo4j graph database and like JPA, it u
 
 If you use Spring to build your applications be sure to check out https://github.com/spring-projects/spring-data-neo4j[Spring Data Neo4j].
 
-*_The latest OGM version is:_* `{version}`.
-*_The latest OGM development versions are:_* `{last_dev_version}` and `{dev_version}`.
+*_The latest OGM 3.1.x version is:_* `{version}`.
+*_The latest OGM 3.1.x development versions is:_* `{dev_version}`.
+
+NOTE: The current OGM mainline is *3.2.x*.
 
 == Quick start
 

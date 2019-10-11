@@ -22,7 +22,6 @@ import static java.util.Collections.*;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import org.neo4j.ogm.compiler.SrcTargetKey;
 import org.neo4j.ogm.context.Mappable;
@@ -277,8 +276,7 @@ public class CypherContext implements CompileContext {
      */
     private boolean isAlreadyDeleted(Mappable mappedRelationship) {
 
-        Predicate<Mappable> describesSameRelationship = mappedRelationship::equals;
-        return deletedRelationships.stream().anyMatch(describesSameRelationship);
+        return deletedRelationships.contains(mappedRelationship);
     }
 
     private static class NodeBuilderHorizonPair {

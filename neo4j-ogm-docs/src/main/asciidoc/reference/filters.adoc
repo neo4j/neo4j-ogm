@@ -6,7 +6,7 @@ They can be chained together with boolean operators, and associated with a compa
 Additionally, each filter contains a `FilterFunction`.
 A filter function can be provided when the filter is instantiated, otherwise, by default a `PropertyComparison` is used.
 
-In the example below, we're return a collection containing any satellites that are manned.
+In the example below, we are return a collection containing any satellites that are manned.
 
 
 .Example of using a Filter

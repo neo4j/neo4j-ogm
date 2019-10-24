@@ -34,7 +34,7 @@ Directly executing Cypher queries against the database using `session.query()` w
 [[reference:events:interfaces]]
 == Interfaces
 
-The Events mechanism introduces two new interfaces, `Event` and `EventListener`.
+The events mechanism introduces two new interfaces, `Event` and `EventListener`.
 
 *The Event interface*
 
@@ -54,7 +54,7 @@ public interface Event {
 }
 ----
 
-*The Event Listener interface*
+*The event listener interface*
 
 The `EventListener` interface provides methods allowing implementing classes to handle each of the different `Event` types:
 
@@ -120,9 +120,9 @@ sessionFactory.deregister(eventListener);
 
 [NOTE]
 ====
-It’s possible and sometimes desirable to add several EventListener objects to the session, depending on the application’s requirements.
+It is possible and sometimes desirable to add several EventListener objects to the session, depending on the application’s requirements.
 For example, our business logic might require us to add a UUID to a new object, as well as manage wider concerns such as ensuring that a particular persistence event won’t leave our domain model in a logically inconsistent state.
-It’s usually a good idea to separate these concerns into different objects with specific responsibilities, rather than having one single object try to do everything.
+It is usually a good idea to separate these concerns into different objects with specific responsibilities, rather than having one single object try to do everything.
 ====
 
 [[reference:events:listener-adapter]]
@@ -152,15 +152,15 @@ class PreSaveEventListener extends EventListenerAdapter {
 [[reference:events:disposing-listener]]
 == Disposing of an EventListener
 
-Something to bear in mind is that once an `EventListener` has been registered it will continue to respond to any and all persistence events.
+Something to bear in mind is that once an `EventListener` has been registered it will continue to respond to all persistence events.
 Sometimes you may want only to handle events for a short period of time, rather than for the duration of the entire session.
 
-If you're done with an EventListener you can stop it from firing any more events by invoking `session.dispose(...)`, passing in the EventListener to be disposed of.
+If you are done with an `EventListener` you can stop it from firing any more events by invoking `session.dispose(...)`, passing in the `EventListener` to be disposed of.
 
 [NOTE]
 ====
-The process of collecting persistence events prior to dispatching them to any EventListeners adds a small performance overhead to the persistence layer.
-Consequently, Neo4j-OGM is configured to suppress the event collection phase if there are no EventListeners registered with the Session.
+The process of collecting persistence events prior to dispatching them to any `EventListeners` adds a small performance overhead to the persistence layer.
+Consequently, Neo4j-OGM is configured to suppress the event collection phase if there are no `EventListeners` registered with the `Session`.
 Using `dispose()` when you're finished with an EventListener is good practice!
 ====
 
@@ -174,7 +174,7 @@ As mentioned previously, events are not only fired for the top-level objects bei
 Connected objects are any objects reachable in the domain model from the top-level object being saved.
 Connected objects can be many levels deep in the domain model graph.
 
-In this way, the Events mechanism allows us to capture events for objects that we didn't explicitly save ourselves.
+In this way, the events mechanism allows us to capture events for objects that we didn't explicitly save ourselves.
 
 [source, java]
 ----
@@ -198,9 +198,9 @@ session.save(a);
 [[reference:events:events-and-types]]
 == Events and types
 
-When we delete a Type, all the nodes with a label corresponding to that Type are deleted in the graph.
-The affected objects are not enumerated by the Events mechanism (they may not even be known).
-Instead, `_DELETE` events will be raised for the Type:
+When we delete a type, all the nodes with a label corresponding to that type are deleted in the graph.
+The affected objects are not enumerated by the events mechanism (they may not even be known).
+Instead, `_DELETE` events will be raised for the type:
 
 [source, java]
 ----
@@ -255,9 +255,11 @@ session.save(Arrays.asList(a, b));
 The previous examples show how events fire when the underlying *node* representing an entity is updated or deleted in the graph.
 Events are also fired when a save or delete request results in the modification, addition or deletion of a *relationship* in the graph.
 
-For example, if you delete a Document object that is a member of a Folder's documents collection, events will be fired for the Document as well as the Folder, to reflect the fact that the relationship between the folder and the document has been removed in the graph.
+For example, if you delete a `Document` object that is contained in the documents collection of a `Folder`,
+events will be fired for the `Document` as well as the `Folder`,
+to reflect the fact that the relationship between the folder and the document has been removed in the graph.
 
-.Example: Deleting a Document attached to a Folder
+.Example: Deleting a `Document` attached to a `Folder`
 [source, java]
 ----
 Folder folder = new Folder();
@@ -279,7 +281,7 @@ The `folder` was not deleted.
 [WARNING]
 ====
 The event mechanism does not try to synchronise your domain model.
-In this example, the folder is still holding a reference to the Document, even though it no longer exists in the graph.
+In this example, the folder is still holding a reference to the `Document`, even though it no longer exists in the graph.
 As always, your code must take care of domain model synchronisation.
 ====
 

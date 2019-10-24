@@ -124,15 +124,15 @@ address.street=Downing Street
 address.number=10
 ----
 
-Supported types for keys in the Map are String and Enum.
+Supported types for keys in the `Map` are `String` and `Enum`.
 
-The values in the Map can be of any Java type equivalent to Cypher types.
+The values in the `Map` can be of any Java type equivalent to Cypher types.
 If full type information is provided other Java types are also supported.
 
 If annotation parameter `allowCast` is set to true then types that can be cast to corresponding Cypher types are allowed as well.
 [NOTE]
 The original type cannot be deduced and the value will be deserialized to corresponding type - e.g.
-when Integer instance is put to `Map<String, Object>` it will be deserialized as Long.
+when Integer instance is put to `Map<String, Object>` it will be deserialized as `Long`.
 
 [source, java]
 ----

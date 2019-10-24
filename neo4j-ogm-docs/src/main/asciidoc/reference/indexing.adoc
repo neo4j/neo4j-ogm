@@ -50,6 +50,12 @@ This feature is only supported by Neo4j Enterprise 3.1 and higher.
 
 By default index management is set to `None`.
 
+[NOTE]
+From our experience with this feature usage we see this as an development time feature.
+Usually indexes should get created within the database.
+At most in test scenarios there is no guarantee that an index is created before the test runs because of its
+asynchronous creation.
+
 If you would like Neo4j-OGM to manage your schema creation there are several ways to go about it.
 
 Only classes marked with `@Index`, `@CompositeIndex` or `@Required` will be used.

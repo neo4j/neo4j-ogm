@@ -23,7 +23,7 @@ try (Transaction tx = session.beginTransaction()) {
 
 NOTE: make sure to always close the transaction by wrapping it in a `try-with-resources` block or by calling `close()` in a `finally` block.
 
-In the example above, the transaction is committed only when both a concert ticket and hotel room is available, otherwise, neither booking is made.
+In the example above, the transaction is committed only when both, a concert ticket and hotel room, are available, otherwise, neither booking is made.
 
 *If you do not manage a transaction in this manner, auto commit transactions are provided implicitly* for `Session` methods such as `save`, `load`, `delete`, `execute` and so on.
 

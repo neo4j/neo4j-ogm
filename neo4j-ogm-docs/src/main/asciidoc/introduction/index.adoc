@@ -15,10 +15,10 @@ include::whats-new-ogm3.adoc[]
 [[introduction:requirements]]
 == Requirements
 
-Neo4j-OGM 3.1.x at minimum, requires:
+Neo4j-OGM 3.2.x at minimum, requires:
 
 * JDK Version 8 and above.
-* Neo4j Database 3.1.x / 3.2.x and above.
+* Neo4j Database 3.2.x and above.
 
 
 [[introduction:additional-resources]]
@@ -28,9 +28,7 @@ Neo4j-OGM 3.1.x at minimum, requires:
 === Project metadata
 
 * Version control - https://github.com/neo4j/neo4j-ogm
-* Bugtracker - https://github.com/neo4j/neo4j-ogm/issues
-* Release repository - https://m2.neo4j.org/content/repositories/releases
-* Snapshot repository - https://m2.neo4j.org/content/repositories/snapshots
+* Bug tracker - https://github.com/neo4j/neo4j-ogm/issues
 
 [[introduction:additional-resources:help]]
 === Getting Help or providing feedback
@@ -41,104 +39,26 @@ If you encounter issues or you are just looking for advice, feel free to use one
 * The https://github.com/neo4j-examples/neo4j-ogm-university[sample project:Neo4j-OGM University].
   This project is used in the <<tutorial:introduction,Tutorial>>.
 
-* The https://github.com/neo4j-examples/movies-java-spring-data-neo4j[sample project: Movies].
-* For more detailed questions, use http://stackoverflow.com/questions/tagged/neo4j-ogm[Neo4j-OGM on StackOverflow]
+* For more detailed questions, use our https://community.neo4j.com/c/drivers-stacks/spring-data-neo4j-ogm[community platform]
+or http://stackoverflow.com/questions/tagged/neo4j-ogm[Neo4j-OGM on StackOverflow].
 * Use the https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template[templates] for reporting issues (they can also be used to bootstrap your projects).
-
-[[introduction:graph-database]]
-== What is a graph database?
-
-A graph database is a storage engine that is specialised in storing and retrieving vast networks of information.
-It efficiently stores data as nodes and relationships and allows high performance retrieval and querying of those structures.
-Properties can be added to both nodes and relationships.
-Nodes can be labelled by zero or more labels, relationships are always directed and named.
-
-Graph databases are well suited for storing most kinds of domain models.
-In almost all domains, there are certain things connected to other things.
-In most other modelling approaches, the relationships between things are reduced to a single link without identity and attributes.
-Graph databases allow to keep the rich relationships that originate from the domain equally well-represented in the database without resorting to also modelling the relationships as "things".
-There is very little "impedance mismatch" when putting real-life domains into a graph database.
-
-[[introduction:graph-database:introducing-neo4j]]
-=== Introducing Neo4j
-
-http://neo4j.com/[Neo4j] is an open source NoSQL graph database.
-It is a fully transactional database (ACID) that stores data structured as graphs consisting of nodes, connected by relationships.
-Inspired by the structure of the real world, it allows for high query performance on complex data, while remaining intuitive and simple for the developer.
-
-Neo4j is very well-established.
-It has been in commercial development for 15 years and in production for over 12 years.
-Most importantly, it has an active and contributing community surrounding it, but it also:
-
-* has an intuitive, rich graph-oriented model for data representation.
-  Instead of tables, rows, and columns, you work with a graph consisting of http://neo4j.com/docs/developer-manual/current/introduction/#graphdb-neo4j[nodes, relationships, and properties].
-* has a disk-based, native storage manager optimised for storing graph structures with maximum performance and scalability.
-* is scalable.
-  Neo4j can handle graphs with many billions of nodes/relationships/properties on a single machine, but can also be scaled out across multiple machines for high availability.
-* has a powerful graph query language called Cypher, which allows users to efficiently read/write data by expressing graph patterns.
-* has a powerful traversal framework and query languages for traversing the graph.
-* can be deployed as a standalone server, which is the recommended way of using Neo4j.
-* can be deployed as an embedded (in-process) database, giving developers access to its core Java {neo4j-javadoc-base-uri}[API].
-
-In addition, Neo4j provides ACID transactions, durable persistence, concurrency control, transaction recovery, high availability, and more.
-Neo4j is released under a dual free software/commercial licence model.
-
-[[introduction:graph-database:introducing-neo4j:query-with-cypher]]
-==== Querying with Cypher
-
-Neo4j provides a graph query language called http://neo4j.com/docs/stable/cypher-query-lang.html[Cypher] which draws from many sources.
-It resembles SQL clauses but is centered around matching iconic representation of patterns in the graph.
-
-Cypher queries typically begin with a `MATCH` clause, which can be used to provide a way to pattern match against the graph.
-Match clauses can introduce new identifiers for nodes and relationships.
-In the `WHERE` clause additional filtering of the result set is applied by evaluating expressions.
-The `RETURN` clause defines which part of the query result will be available to the caller.
-Aggregation also happens in the return clause by using aggregation functions on some of the returned values.
-Sorting can happen in the `ORDER BY` clause and the `SKIP` and `LIMIT` parts restrict the result set to a certain window.
-
-Here are some examples of how easy Cypher is to use (These queries work with the "Movies" data set that comes installed with Neo4j browser)
-
-.Names and birthplaces of Actors who appeared in a Matrix movie
-[source,cypher]
-----
-MATCH (movie:Movie)<-[:ACTS_IN]-(actor)
-WHERE movie.title =~ 'Matrix.*'
-RETURN actor.name, actor.birthplace
-----
-
-.All movie titles the user "michal" rated more than 3 stars
-[source,cypher]
-----
-MATCH (user:User {login:'michal'})-[r:RATED]->(movie)
-WHERE r.stars > 3
-RETURN movie.title, r.stars, r.comment
-----
-
-.User michal's friends who rated a movie more than 3 stars
-[source,cypher]
-----
-MATCH (user:User {login:'micha'})-[:FRIEND]-(friend)-[r:RATED]->(movie)
-WHERE r.stars > 3
-RETURN friend.name, movie.title, r.stars, r.comment
-----
-
 
 [[introduction:graph-database:introducing-neo4j:learn-more]]
 ==== Learning more
 
-The jumping off ground for learning about Neo4J is https://neo4j.com/[neo4j.com].
+The jumping off ground for learning about Neo4j is https://neo4j.com/[neo4j.com].
 Here is a list of other useful resources:
 
 * The https://neo4j.com/docs/[Neo4j documentation] introduces Neo4j and contains links to getting started guides, reference documentation and tutorials.
 * The https://neo4j.com/sandbox/[online sandbox] provides a convenient way to interact with a Neo4j instance in combination with the online https://neo4j.com//developer/get-started/[tutorial.]
-* Neo4J https://neo4j.com/docs/developer-manual/3.1/drivers/[Java Bolt Driver].
+* Neo4j https://neo4j.com/docs/driver-manual/current/[Java Bolt Driver].
 * Several https://neo4j.com/books/[books] available for purchase and https://www.youtube.com/neo4j[videos] to watch.
 
 [[introduction:ogm]]
 == What is an OGM?
 
 An OGM (Object Graph Mapper) maps nodes and relationships in the graph to objects and references in a domain model.
-Object instances are mapped to nodes while object references are mapped using relationships, or serialized to properties (e.g. references to a Date).
+Object instances are mapped to nodes while object references are mapped using relationships, or serialized to properties.
 JVM primitives are mapped to node or relationship properties.
 An OGM abstracts the database and provides a convenient way to persist your domain model in the graph and query it without using low level drivers.
 It also provides the flexibility to the developer to supply custom queries where the queries generated by Neo4j-OGM are insufficient.
@@ -152,6 +72,6 @@ It uses Cypher statements to handle those operations in Neo4j.
 
 Neo4j-OGM supports tracking changes to minimize necessary updates and transitive persistence (reading and updating neighborhoods of an object).
 
-The connection to Neo4j handled by a driver layer, which can use the binary protocol, HTTP or Neo4j’s embedded APIs.
+The connection to Neo4j handled by a transport mode layer called driver, which can use the binary protocol, HTTP or Neo4j’s embedded APIs.
 
 

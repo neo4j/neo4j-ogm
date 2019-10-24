@@ -7,9 +7,9 @@ It aims to simplify development with the Neo4j graph database and like JPA, it u
 
 With a focus on performance, Neo4j-OGM introduces a number of innovations, including:
 
-- non-reflection based classpath scanning for much faster startup times;
-- variable-depth persistence to allow you to fine-tune requests according to the characteristics of your graph;
-- smart object-mapping to reduce redundant requests to the database, improve latency and minimise wasted CPU cycles; and
+- non-reflection based classpath scanning for much faster startup times
+- variable-depth persistence to allow you to fine-tune requests according to the characteristics of your graph
+- smart object-mapping to reduce redundant requests to the database, improve latency and minimise wasted CPU cycles
 - user-definable session lifetimes, helping you to strike a balance between memory-usage and server request efficiency in your applications.
 
 [[reference:introduction:overview]]

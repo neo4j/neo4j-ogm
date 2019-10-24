@@ -51,7 +51,7 @@ This method allows the greatest flexibility and gives you access to the full ran
 [source, java]
 ----
 org.neo4j.driver.v1.Driver nativeDriver = ...;
-DriverNeo4j-OGMDriver = new BoltDriver(nativeDriver);
+Driver ogmDriver = new BoltDriver(nativeDriver);
 new SessionFactory(ogmDriver, ...);
 ----
 

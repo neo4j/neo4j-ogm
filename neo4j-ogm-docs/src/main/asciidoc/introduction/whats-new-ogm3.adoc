@@ -1,5 +1,5 @@
 [[introduction:whats-new]]
-== What's new inNeo4j-OGM 3 ?
+== What's new in Neo4j-OGM 3 ?
 
 At a high level, here is what has changed in this third major version of Neo4j-OGM :
 

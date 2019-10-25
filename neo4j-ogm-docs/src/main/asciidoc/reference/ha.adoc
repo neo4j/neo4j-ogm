@@ -1,5 +1,5 @@
 [[reference:ha]]
-= High Availability (HA) Support
+= Clustering Support
 
 [NOTE]
 The clustering features are only available in Neo4j Enterprise Edition.

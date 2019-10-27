@@ -85,7 +85,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
 
         T next = results.iterator().next();
 
-        if (!next.getClass().isAssignableFrom(type)) {
+        if (!type.isAssignableFrom(next.getClass())) {
 
             String typeOfResult = next.getClass().getName();
             String wantedType = type.getName();

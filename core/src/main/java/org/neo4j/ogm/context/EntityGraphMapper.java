@@ -35,11 +35,15 @@ import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.cypher.compiler.PropertyContainerBuilder;
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 import org.neo4j.ogm.exception.core.MappingException;
+import org.neo4j.ogm.lazyloading.LazyCollection;
+import org.neo4j.ogm.lazyloading.LazyInitializer;
+import org.neo4j.ogm.lazyloading.SupportsLazyLoading;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.DescriptorMappings;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +63,7 @@ public class EntityGraphMapper implements EntityMapper {
     private final MetaData metaData;
     private final MappingContext mappingContext;
     private final Compiler compiler;
+    private Neo4jSession session;
     /**
      * Default supplier for write protection: Always write all the stuff.
      */
@@ -75,6 +80,11 @@ public class EntityGraphMapper implements EntityMapper {
         this.metaData = metaData;
         this.mappingContext = mappingContext;
         this.compiler = new MultiStatementCypherCompiler(mappingContext::nativeId);
+    }
+
+    public EntityGraphMapper(Neo4jSession session) {
+        this(session.metaData(), session.context());
+        this.session = session;
     }
 
     public void addWriteProtection(
@@ -358,7 +368,12 @@ public class EntityGraphMapper implements EntityMapper {
 
         ClassInfo srcInfo = metaData.classInfo(entity);
         Long srcIdentity = mappingContext.nativeId(entity);
-
+        if (entity instanceof SupportsLazyLoading) {
+            LazyInitializer lazyInitializer = ((SupportsLazyLoading) entity).getLazyInitializer();
+            if (lazyInitializer != null) {
+                lazyInitializer.validateSession(session);
+            }
+        }
         for (FieldInfo reader : srcInfo.relationshipFields()) {
 
             String relationshipType = reader.relationshipType();
@@ -405,6 +420,12 @@ public class EntityGraphMapper implements EntityMapper {
                 relNodes.sourceId = srcIdentity;
                 Boolean mapBothWays = null;
                 if (relatedObject instanceof Iterable) {
+                    if (relatedObject instanceof LazyCollection<?, ?>) {
+                        if (((LazyCollection<?, ?>) relatedObject).isInitialized()) {
+                            ((LazyCollection<?, ?>) relatedObject).validateSession(session);
+                        }
+                        relatedObject = ((LazyCollection<?, ?>) relatedObject).getLoadedEntities();
+                    }
                     for (Object tgtObject : (Iterable<?>) relatedObject) {
                         if (mapBothWays == null) {
                             mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject,
@@ -997,13 +1018,20 @@ public class EntityGraphMapper implements EntityMapper {
      * @param srcObject
      * @return True if the target object or any contained object equals the source object.
      */
-    private static boolean targetEqualsSource(Object target, Object srcObject) {
+    private boolean targetEqualsSource(Object target, Object srcObject) {
 
         if (target == null) {
             return false;
         }
 
         if (target instanceof Iterable) {
+            if (target instanceof LazyCollection<?, ?>) {
+                if (((LazyCollection<?, ?>) target).isInitialized()) {
+                    ((LazyCollection<?, ?>) target).validateSession(session);
+                } else {
+                    return false;
+                }
+            }
             for (Object relatedObject : (Iterable<?>) target) {
                 if (relatedObject.equals(srcObject)) {
                     return true;

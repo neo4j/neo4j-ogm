@@ -20,8 +20,13 @@ package org.neo4j.ogm.session.request.strategy.impl;
 
 import static org.neo4j.ogm.annotation.Relationship.*;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.schema.Node;
 import org.neo4j.ogm.metadata.schema.Relationship;
 import org.neo4j.ogm.metadata.schema.Schema;
@@ -44,24 +49,71 @@ public abstract class AbstractSchemaLoadClauseBuilder {
 
     protected void expand(StringBuilder sb, String variable, Node node, int depth) {
         if (depth > 0) {
-            if (node.relationships().size() > 0) {
+            Collection<Relationship> relationships = getRelevantRelationships(node);
+            if (relationships.size() > 0) {
                 sb.append(",[ ");
 
             }
-            expand(sb, variable, node, 1, depth - 1);
-            if (node.relationships().size() > 0) {
+            expand(sb, variable, node, relationships, 1, depth - 1);
+            if (relationships.size() > 0) {
                 sb.append(" ]");
             }
         }
     }
 
-    protected void expand(StringBuilder sb, String variable, Node node, int level, int depth) {
-        for (Map.Entry<String, Relationship> entry : node.relationships().entrySet()) {
+    protected Collection<Relationship> getRelevantRelationships(Node node) {
+        return node.relationships().values();
+    }
+
+    protected Collection<Relationship> getNonLazyLoadingRelationships(MetaData metaData, Node node) {
+        Collection<Relationship> relationships = node.relationships().values();
+        return node.label()
+            .map(metaData::classInfo)
+            .<Collection<Relationship>>map(classInfo -> relationships
+                .stream()
+                .filter(relationship -> doesNotSupportLazyLoading(classInfo, relationship, metaData, node))
+                .collect(Collectors.toList()))
+            .orElse(relationships);
+    }
+
+    private Boolean doesNotSupportLazyLoading(ClassInfo info,
+        Relationship relationship,
+        MetaData metaData,
+        Node node) {
+
+        ClassInfo relationType = metaData.classInfo(relationship.type());
+        FieldInfo fieldInfo = null;
+        if (relationType == null) {
+            relationType = relationship.other(node)
+                .label()
+                .map(metaData::classInfo)
+                .orElse(null);
+        }
+        if (relationType != null) {
+            fieldInfo = EntityAccessManager.getRelationalWriter(
+                info,
+                relationship.type(),
+                relationship.direction(node),
+                relationType.getUnderlyingClass()
+            );
+        }
+        if (fieldInfo == null) {
+            fieldInfo = info.relationshipField(relationship.type());
+        }
+        if (fieldInfo != null) {
+            return !fieldInfo.supportsLazyLoading();
+        }
+        return true;
+    }
+
+    protected void expand(StringBuilder sb, String variable, Node node, Collection<Relationship> relationships,
+        int level, int depth) {
+        for (Relationship relationship : relationships) {
             if (needsSeparator(sb)) {
                 sb.append(", ");
             }
 
-            listComprehension(sb, variable, entry.getValue(), node, level, depth);
+            listComprehension(sb, variable, relationship, node, level, depth);
 
         }
 
@@ -115,9 +167,10 @@ public abstract class AbstractSchemaLoadClauseBuilder {
         sb.append(", ");
         sb.append(toNodeVar);
 
-        if (depth > 0 && !toNode.relationships().isEmpty()) {
+        Collection<Relationship> relationships = getRelevantRelationships(toNode);
+        if (depth > 0 && !relationships.isEmpty()) {
             sb.append(", [ ");
-            expand(sb, toNodeVar, toNode, level + 1, depth - 1);
+            expand(sb, toNodeVar, toNode, relationships, level + 1, depth - 1);
             sb.append(" ]");
         }
 

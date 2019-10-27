@@ -95,16 +95,15 @@ public class LoadByTypeDelegate extends SessionDelegate {
             if (query.needsRowResult()) {
                 DefaultGraphRowListModelRequest graphRowListModelRequest = new DefaultGraphRowListModelRequest(
                     query.getStatement(), query.getParameters());
-                try (Response<GraphRowListModel> response = session.requestHandler().execute(graphRowListModelRequest)) {
-                    return (Collection<T>) new GraphRowListModelMapper(session.metaData(), session.context(),
-                        session.getEntityInstantiator())
+                try (Response<GraphRowListModel> response = session.requestHandler()
+                    .execute(graphRowListModelRequest)) {
+                    return (Collection<T>) new GraphRowListModelMapper(session.getResponseMapper(true))
                         .map(type, response);
                 }
             } else {
                 GraphModelRequest request = new DefaultGraphModelRequest(query.getStatement(), query.getParameters());
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                    return (Collection<T>) new GraphRowModelMapper(session.metaData(), session.context(),
-                        session.getEntityInstantiator()).map(type, response);
+                    return (Collection<T>) new GraphRowModelMapper(session.getResponseMapper(true)).map(type, response);
                 }
             }
         }, Transaction.Type.READ_WRITE);

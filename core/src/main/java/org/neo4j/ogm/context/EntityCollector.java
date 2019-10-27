@@ -75,12 +75,12 @@ class EntityCollector {
 
     private void record(Long owningEntityId, Class startPropertyType, String relationshipType,
         String relationshipDirection, TargetTriple triple) {
-        this.collected.computeIfAbsent(owningEntityId, k -> new HashMap<>());
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
-        this.collected.get(owningEntityId).computeIfAbsent(directedRelationship, k -> new HashMap<>());
-        this.collected.get(owningEntityId).get(directedRelationship)
-            .computeIfAbsent(startPropertyType, k -> new HashSet<>());
-        this.collected.get(owningEntityId).get(directedRelationship).get(startPropertyType).add(triple);
+        this.collected
+            .computeIfAbsent(owningEntityId, k -> new HashMap<>())
+            .computeIfAbsent(directedRelationship, k -> new HashMap<>())
+            .computeIfAbsent(startPropertyType, k -> new HashSet<>())
+            .add(triple);
     }
 
     public void forCollectedEntities(CollectedHandler handler) {

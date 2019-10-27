@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.session;
 
-import static java.util.Collections.*;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -27,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.context.WriteProtectionTarget;
 import org.neo4j.ogm.cypher.Filter;
@@ -40,31 +39,22 @@ import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.request.Request;
-import org.neo4j.ogm.session.delegates.DeleteDelegate;
-import org.neo4j.ogm.session.delegates.ExecuteQueriesDelegate;
-import org.neo4j.ogm.session.delegates.GraphIdDelegate;
-import org.neo4j.ogm.session.delegates.LoadByIdsDelegate;
-import org.neo4j.ogm.session.delegates.LoadByInstancesDelegate;
-import org.neo4j.ogm.session.delegates.LoadByTypeDelegate;
-import org.neo4j.ogm.session.delegates.LoadOneDelegate;
-import org.neo4j.ogm.session.delegates.SaveDelegate;
+import org.neo4j.ogm.session.delegates.*;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.session.request.OptimisticLockingChecker;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
-import org.neo4j.ogm.session.request.strategy.impl.PathNodeLoadClauseBuilder;
-import org.neo4j.ogm.session.request.strategy.impl.PathRelationshipLoadClauseBuilder;
-import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
-import org.neo4j.ogm.session.request.strategy.impl.SchemaNodeLoadClauseBuilder;
-import org.neo4j.ogm.session.request.strategy.impl.SchemaRelationshipLoadClauseBuilder;
+import org.neo4j.ogm.session.request.strategy.impl.*;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWork;
 import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWorkWithoutResult;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Collections.emptySet;
+import static org.neo4j.ogm.session.LoadStrategy.LAZY_LOAD_STRATEGY;
 
 /**
  * @author Vince Bickers
@@ -698,6 +688,16 @@ public class Neo4jSession implements Session {
         this.loadStrategy = loadStrategy;
     }
 
+    /**
+     * @param supportsLazyLoading true, if the mapper should be enhance entities for lazy loading if enabled
+     * @return the mapper
+     * @see LoadStrategy#LAZY_LOAD_STRATEGY
+     */
+    public GraphEntityMapper getResponseMapper(boolean supportsLazyLoading) {
+        return new GraphEntityMapper(metaData, mappingContext, entityInstantiator, this,
+            supportsLazyLoading && loadStrategy == LAZY_LOAD_STRATEGY);
+    }
+
     private LoadClauseBuilder loadNodeClauseBuilder(int depth) {
         if (depth < 0) {
             return new PathNodeLoadClauseBuilder();
@@ -709,6 +709,9 @@ public class Neo4jSession implements Session {
 
             case SCHEMA_LOAD_STRATEGY:
                 return new SchemaNodeLoadClauseBuilder(metaData.getSchema());
+
+            case LAZY_LOAD_STRATEGY:
+                return new LazyLoadNodeClauseBuilder(metaData);
 
             default:
                 throw new IllegalStateException("Unknown loadStrategy " + loadStrategy);
@@ -726,6 +729,9 @@ public class Neo4jSession implements Session {
 
             case SCHEMA_LOAD_STRATEGY:
                 return new SchemaRelationshipLoadClauseBuilder(metaData.getSchema());
+
+            case LAZY_LOAD_STRATEGY:
+                return new LazyLoadRelationshipClauseBuilder(metaData);
 
             default:
                 throw new IllegalStateException("Unknown loadStrategy " + loadStrategy);

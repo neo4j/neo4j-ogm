@@ -28,10 +28,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.DirectedRelationship;
 import org.neo4j.ogm.context.DirectedRelationshipForType;
+import org.neo4j.ogm.lazyloading.LazyCollection;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.session.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,7 +128,10 @@ public class EntityAccessManager {
      * @return The merged collection with no duplicates
      */
     private static Collection<Object> mergeAndCoerce(Class elementType, Collection left, Collection right) {
-
+        if (right instanceof LazyCollection && !((LazyCollection<?, ?>) right).isInitialized()) {
+            ((LazyCollection<?, ?>) right).addLoadedData(left);
+            return right;
+        }
         // Turn each collection into the correct target type
         Collection<Object> coercedLeft = coerceCollection(elementType, left);
         Collection<Object> coercedRight = coerceCollection(elementType, right);
@@ -156,17 +160,20 @@ public class EntityAccessManager {
     }
 
     private static Collection<?> createTargetCollection(Class<?> parameterType, Collection collection) {
+        if (parameterType.isInstance(collection)) {
+            return collection;
+        }
         if (Vector.class.isAssignableFrom(parameterType)) {
-            return collection instanceof Vector ? collection : new Vector<>(collection);
+            return new Vector<>(collection);
         }
         if (List.class.isAssignableFrom(parameterType)) {
-            return collection instanceof ArrayList ? collection : new ArrayList<>(collection);
+            return new ArrayList<>(collection);
         }
         if (SortedSet.class.isAssignableFrom(parameterType)) {
-            return collection instanceof TreeSet ? collection : new TreeSet<>(collection);
+            return new TreeSet<>(collection);
         }
         if (Set.class.isAssignableFrom(parameterType)) {
-            return collection instanceof HashSet ? collection : new HashSet<>(collection);
+            return new HashSet<>(collection);
         }
         return null;
     }

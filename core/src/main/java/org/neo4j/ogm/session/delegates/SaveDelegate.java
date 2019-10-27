@@ -55,7 +55,7 @@ public class SaveDelegate extends SessionDelegate {
 
         SaveEventDelegate eventsDelegate = new SaveEventDelegate(session);
 
-        EntityGraphMapper entityGraphMapper = new EntityGraphMapper(session.metaData(), session.context());
+        EntityGraphMapper entityGraphMapper = new EntityGraphMapper(session);
         if (this.writeProtectionStrategy != null) {
             entityGraphMapper.addWriteProtection(this.writeProtectionStrategy.get());
         }

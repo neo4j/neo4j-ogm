@@ -135,6 +135,7 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
 
         while (it.hasNext()) {
             Ingredient i = it.next();
+            // would be loaded when lazy loading is active
             assertThat(i.getPairings()).as(i.getName()).hasSize(0);
         }
     }
@@ -221,6 +222,7 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
             }
         }
         assertThat(loadedPineapple).isNotNull();
+        // for lazy loading this would be 2
         assertThat(loadedPineapple.getPairings()).hasSize(1);
 
         Ingredient loadedCarrot;
@@ -240,6 +242,7 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
             }
         }
         assertThat(loadedButter).isNotNull();
+        // for lazy loading this would be 2
         assertThat(loadedButter.getPairings()).hasSize(1);
 
         session.clear();

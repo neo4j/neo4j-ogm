@@ -74,7 +74,7 @@ public class LoadByIdsDelegate extends SessionDelegate {
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
         return session.doInTransaction(() -> {
             try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                Iterable<T> mapped = new GraphRowModelMapper(session.metaData(), session.context(), session.getEntityInstantiator()).map(type, response);
+                Iterable<T> mapped = new GraphRowModelMapper(session.getResponseMapper(true)).map(type, response);
 
                 if (sortOrder.sortClauses().isEmpty()) {
                     return sortResultsByIds(type, ids, mapped);

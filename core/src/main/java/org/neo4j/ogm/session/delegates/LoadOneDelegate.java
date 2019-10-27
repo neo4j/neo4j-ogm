@@ -82,7 +82,7 @@ public class LoadOneDelegate extends SessionDelegate {
 
         return session.doInTransaction(() -> {
             try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                new GraphRowModelMapper(session.metaData(), session.context(), session.getEntityInstantiator())
+                new GraphRowModelMapper(session.getResponseMapper(true))
                     .map(type, response);
                 return lookup(type, id);
             }

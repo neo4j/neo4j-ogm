@@ -23,13 +23,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
 import org.neo4j.ogm.response.model.NodeModel;
-import org.neo4j.ogm.session.EntityInstantiator;
 
 /**
  * @author Michael J. Simons
@@ -38,10 +36,8 @@ public class GraphRowModelMapper implements ResponseMapper<GraphModel> {
 
     private final GraphEntityMapper delegate;
 
-    public GraphRowModelMapper(MetaData metaData, MappingContext mappingContext,
-        EntityInstantiator entityInstantiator) {
-
-        this.delegate = new GraphEntityMapper(metaData, mappingContext, entityInstantiator);
+    public GraphRowModelMapper(GraphEntityMapper delegate) {
+        this.delegate = delegate;
     }
 
     @Override

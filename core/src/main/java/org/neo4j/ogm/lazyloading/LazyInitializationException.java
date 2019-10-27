@@ -16,29 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.session;
+package org.neo4j.ogm.lazyloading;
 
 /**
- * @author Frantisek Hartman
+ * @author Andreas Berger
  */
-public enum LoadStrategy {
-
-    /**
-     * Load strategy which fetches related nodes by querying all paths from matched nodes, resulting into pattern
-     * similar to
-     * {@code MATCH p=(n)-[*0..n]-() RETURN p}
-     */
-    PATH_LOAD_STRATEGY,
-
-    /**
-     * Load strategy which uses nested list comprehensions to get related nodes based on the schema generated from
-     * entity classes
-     * NOTE: Does not support queries with unlimited depth
-     */
-    SCHEMA_LOAD_STRATEGY,
-
-    /**
-     * Load strategy which loads data as it is accessed in the entity
-     */
-    LAZY_LOAD_STRATEGY
+public class LazyInitializationException extends RuntimeException {
+    public LazyInitializationException(String msg) {
+        super(msg);
+    }
 }

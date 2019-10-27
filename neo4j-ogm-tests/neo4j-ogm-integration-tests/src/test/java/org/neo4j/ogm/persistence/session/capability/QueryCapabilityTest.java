@@ -454,7 +454,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
             ratedRelationshipFound = true;
         }
 
-        assertThat(user.getFriends()).isNull();
+        assertThat(user.getFriends()).isNullOrEmpty();
 
         result = results.next();
         assertThat(result).isNotNull();
@@ -477,7 +477,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
             ratedRelationshipFound = true;
         }
         assertThat(ratedRelationshipFound).isTrue();
-        assertThat(user.getFriends()).isNull();
+        assertThat(user.getFriends()).isNullOrEmpty();
     }
 
     @Test // DATAGRAPH-700

@@ -75,11 +75,11 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
         company = session.load(Company.class, company.getId());
         assertThat(company).isNotNull();
         assertThat(company.getEmployees()).hasSize(2);
-        assertThat(company.getOwners()).isNull();
+        assertThat(company.getOwners()).isNullOrEmpty();
 
         for (Person employee : company.getEmployees()) {
             assertThat(employee.getEmployer()).isNotNull();
-            assertThat(employee.getOwns()).isNull();
+            assertThat(employee.getOwns()).isNullOrEmpty();
         }
     }
 
@@ -126,6 +126,6 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
         session.clear();
         person = session.load(Person.class, person.getId());
         assertThat(person).isNotNull();
-        assertThat(person.getDevices()).isNull();
+        assertThat(person.getDevices()).isNullOrEmpty();
     }
 }

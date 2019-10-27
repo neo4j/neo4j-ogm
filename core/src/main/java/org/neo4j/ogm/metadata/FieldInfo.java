@@ -41,6 +41,9 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Version;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.InternalIdStrategy;
+import org.neo4j.ogm.lazyloading.LazyCollection;
+import org.neo4j.ogm.lazyloading.LazyInitializer;
+import org.neo4j.ogm.lazyloading.SupportsLazyLoading;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
@@ -336,6 +339,15 @@ public class FieldInfo {
             try {
                 field.setAccessible(true);
                 field.set(instance, value);
+                if (value instanceof LazyCollection<?, ?>) {
+                    return null;
+                }
+                if (instance instanceof SupportsLazyLoading) {
+                    LazyInitializer lazyInitializer = ((SupportsLazyLoading) instance).getLazyInitializer();
+                    if (lazyInitializer != null) {
+                        lazyInitializer.markInitialized(field.getName());
+                    }
+                }
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
@@ -479,6 +491,9 @@ public class FieldInfo {
                 .strategy().equals(InternalIdStrategy.class);
     }
 
+    public boolean supportsLazyLoading() {
+        return isIterable() || SupportsLazyLoading.class.isAssignableFrom(field.getType());
+    }
 
     private static boolean doesDescriptorMatchType(String descriptor, Class<?> type) {
 

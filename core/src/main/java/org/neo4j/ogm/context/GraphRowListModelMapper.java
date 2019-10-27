@@ -31,12 +31,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.session.EntityInstantiator;
 
 /**
  * @author Vince Bickers
@@ -46,10 +44,8 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
 
     private final GraphEntityMapper delegate;
 
-    public GraphRowListModelMapper(MetaData metaData, MappingContext mappingContext,
-        EntityInstantiator entityInstantiator) {
-
-        this.delegate = new GraphEntityMapper(metaData, mappingContext, entityInstantiator);
+    public GraphRowListModelMapper(GraphEntityMapper delegate) {
+        this.delegate = delegate;
     }
 
     public <T> Iterable<T> map(Class<T> type, Response<GraphRowListModel> response) {

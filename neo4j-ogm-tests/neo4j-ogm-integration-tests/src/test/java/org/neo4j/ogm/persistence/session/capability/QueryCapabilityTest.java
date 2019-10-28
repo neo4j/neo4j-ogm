@@ -696,6 +696,12 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
                 Restaurant.class.getName());
     }
 
+    @Test // GH-671
+    public void shouldNotThrowExceptionIfTypeIsSuperTypeOfResultObject() {
+    	session.queryForObject(Long.class, "MATCH (n:User) return count(n)", emptyMap());
+    	session.queryForObject(Number.class, "MATCH (n:User) return count(n)", emptyMap());
+    }
+
     @Test
     public void queryForObjectFindsNestedClasses() {
 

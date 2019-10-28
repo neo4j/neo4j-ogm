@@ -697,6 +697,12 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(((Object[]) row.get("names")).length).isEqualTo(0);
     }
 
+    @Test // GH-671
+    public void shouldNotThrowExceptionIfTypeIsSuperTypeOfResultObject() {
+        session.queryForObject(Long.class, "MATCH (n:User) return count(n)", Collections.EMPTY_MAP);
+        session.queryForObject(Number.class, "MATCH (n:User) return count(n)", Collections.EMPTY_MAP);
+    }
+
     private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {
         if (result.get("n") instanceof User) {
             User u = (User) result.get("n");

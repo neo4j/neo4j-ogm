@@ -73,10 +73,9 @@ ext {
             Operations_Manual=${docsCrossReferenceBaseUris['operations-manual-base-uri']}/
             Cypher_Manual=${docsCrossReferenceBaseUris['cypher-manual-base-uri']}/
             Driver_Manual=${docsCrossReferenceBaseUris['driver-manual-base-uri']}/
-            OGM_Manual=${docsCrossReferenceBaseUris['ogm-manual-base-uri']}/
-            Graph_Algorithms=${docsCrossReferenceBaseUris['graph-algorithms-base-uri']}/
-            Java_Reference=${docsCrossReferenceBaseUris['java-reference-base-uri']}/
+            Docs_Library=${docsBaseUri}/
             """
+
     commonAsciidoctorAttributes = [
             'copyright-year'                   : copyrightYear,
             'copyright'                        : "${copyrightYear} Neo4j, Inc.",

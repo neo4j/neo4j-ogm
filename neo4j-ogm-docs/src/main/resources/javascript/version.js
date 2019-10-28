@@ -1,5 +1,5 @@
 window.docMeta = (function () {
-  var version = '3.1';
+  var version = '3.2';
   var name = 'ogm-manual';
   var href = window.location.href;
   return {

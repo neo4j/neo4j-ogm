@@ -57,7 +57,7 @@ public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
             Node firstNode = existingNodes.iterator().next();
 
             queryBuilder
-                .append("UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId ");
+                .append("UNWIND $rows as row MATCH (n) WHERE ID(n)=row.nodeId ");
 
             if (firstNode.hasVersionProperty()) {
                 queryBuilder.append(OptimisticLockingUtils.getFragmentForExistingNodesAndRelationships(firstNode, "n"));
@@ -75,7 +75,7 @@ public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
                 queryBuilder.append(":`").append(label).append("`");
             }
 
-            queryBuilder.append(" SET n += row.props RETURN row.nodeId as ref, ID(n) as id, {type} as type");
+            queryBuilder.append(" SET n += row.props RETURN row.nodeId as ref, ID(n) as id, $type as type");
             List<Map> rows = existingNodes.stream().map(node -> node.toRow("nodeId")).collect(toList());
             parameters.put("type", "node");
             parameters.put("rows", rows);

@@ -64,7 +64,7 @@ public class PropertyComparison implements FilterFunction<Object> {
         } else if (operator == IS_TRUE) {
             return String.format("%s.`%s` = true ", nodeIdentifier, filteredProperty);
         } else {
-            return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filteredProperty,
+            return String.format("%s.`%s` %s $`%s` ", nodeIdentifier, filteredProperty,
                 operator.getValue(), createUniqueParameterName.apply(PARAMETER_NAME));
         }
     }
@@ -92,7 +92,7 @@ public class PropertyComparison implements FilterFunction<Object> {
         @Override
         public String expression(final String nodeIdentifier, String filteredProperty,
             UnaryOperator<String> createUniqueParameterName) {
-            return String.format("toLower(%s.`%s`) %s toLower({ `%s` }) ", nodeIdentifier, filteredProperty,
+            return String.format("toLower(%s.`%s`) %s toLower($`%s`) ", nodeIdentifier, filteredProperty,
                 operator.getValue(), createUniqueParameterName.apply(PARAMETER_NAME));
         }
     }

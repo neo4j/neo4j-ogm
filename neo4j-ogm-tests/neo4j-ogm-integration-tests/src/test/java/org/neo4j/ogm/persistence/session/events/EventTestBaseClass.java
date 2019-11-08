@@ -35,13 +35,13 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.session.event.PersistenceEvent;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Mihai Raulea
  * @author Vince Bickers
  */
-public abstract class EventTestBaseClass extends MultiDriverTestClass {
+public abstract class EventTestBaseClass extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     static TestEventListener eventListener;
@@ -64,7 +64,7 @@ public abstract class EventTestBaseClass extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.filesystem",
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.filesystem",
             "org.neo4j.ogm.domain.cineasts.annotated");
         eventListener = new TestEventListener();
         sessionFactory.register(eventListener);

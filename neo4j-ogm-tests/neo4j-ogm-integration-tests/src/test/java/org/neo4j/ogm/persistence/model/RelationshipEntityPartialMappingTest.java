@@ -18,6 +18,9 @@
  */
 package org.neo4j.ogm.persistence.model;
 
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 
 import org.junit.Before;
@@ -27,8 +30,7 @@ import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.GraphTestUtils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * The purpose of these tests is to describe the behaviour of the
@@ -37,14 +39,14 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  *
  * @author Vince Bickers
  */
-public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
+public class RelationshipEntityPartialMappingTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetup() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.minimum");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.minimum");
     }
 
     @Before
@@ -63,9 +65,10 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
         keanu.addRole("Neo", matrix);
 
         session.save(keanu);
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-            "create (a:Actor {name:'Keanu Reeves'}) " +
-                "create (m:Movie {name:'The Matrix'}) " +
-                "create (a)-[:ACTS_IN {played:'Neo'}]->(m)");
+
+        session.clear();
+        assertThat(session.query("MATCH (a:Actor {name:'Keanu Reeves'}), " +
+                "(m:Movie {name:'The Matrix'}) " +
+                "WHERE (a)-[:ACTS_IN {played:'Neo'}]->(m) return a, m", emptyMap()).queryResults()).hasSize(1);
     }
 }

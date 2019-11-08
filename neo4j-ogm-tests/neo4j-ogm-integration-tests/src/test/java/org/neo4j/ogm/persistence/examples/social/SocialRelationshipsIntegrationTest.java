@@ -18,8 +18,8 @@
  */
 package org.neo4j.ogm.persistence.examples.social;
 
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,19 +38,19 @@ import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.event.EventListenerAdapter;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
  */
-public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
+public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.social");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
     }
 
     @Before
@@ -74,8 +74,9 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         userA.getFriends().add(userB);
         session.save(userA);
 
-        assertSameGraph(getGraphDatabaseService(),
-            "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'}) CREATE (a)-[:FRIEND]->(b)");
+        session.clear();
+        assertThat(session.query("MATCH (a:User {name:'A'}), (b:User {name:'B'}) WHERE (a)-[:FRIEND]->(b) "
+            + "return a,b", emptyMap()).queryResults()).hasSize(1);
     }
 
     /**
@@ -90,8 +91,13 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         individualA.setFriends(Collections.singletonList(individualB));
         session.save(individualA);
 
-        assertSameGraph(getGraphDatabaseService(),
-            "CREATE (a:Individual {name:'A', age: 0, code:0, bankBalance:0.0}) CREATE (b:Individual {name:'B', age:0, code:0, bankBalance:0.0}) CREATE (a)-[:FRIENDS]->(b)");
+        session.clear();
+        assertThat(
+            session.query("MATCH (a:Individual {name:'A', age: 0, code:0, bankBalance:0.0}),"
+                + "(b:Individual {name:'B', age:0, code:0, bankBalance:0.0}) WHERE (a)-[:FRIENDS]->(b) "
+                + "return a,b", emptyMap())
+                .queryResults())
+            .hasSize(1);
     }
 
     /**
@@ -103,8 +109,10 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         Person personB = new Person("B");
         personA.getPeopleILike().add(personB);
         session.save(personA);
-        assertSameGraph(getGraphDatabaseService(),
-            "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (a)-[:LIKES]->(b)");
+
+        session.clear();
+        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}) WHERE (a)-[:LIKES]->(b) "
+            + "return a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     /**
@@ -116,8 +124,10 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         Mortal mortalB = new Mortal("B");
         mortalA.getKnownBy().add(mortalB);
         session.save(mortalA);
-        assertSameGraph(getGraphDatabaseService(),
-            "CREATE (a:Mortal {name:'A'}) CREATE (b:Mortal {name:'B'}) CREATE (a)<-[:KNOWN_BY]-(b)");
+
+        session.clear();
+        assertThat(session.query("MATCH (a:Mortal {name:'A'}), (b:Mortal {name:'B'}) WHERE (a)<-[:KNOWN_BY]-(b) "
+            + "return a,b", emptyMap()).queryResults()).hasSize(1);
     }
 
     /**
@@ -131,8 +141,9 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         personB.getPeopleILike().add(personA);
         session.save(personA);
 
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) " +
-            "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
+        session.clear();
+        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}) " +
+            "WHERE (a)-[:LIKES]->(b) and (b)-[:LIKES]->(a) return a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     /**
@@ -147,8 +158,10 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         personA.getPeopleILike().add(personB);
         personB.getPeopleILike().add(personA);
         session.save(personA);
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) " +
-            "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
+
+        session.clear();
+        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}) " +
+            "WHERE (a)-[:LIKES]->(b) and (b)-[:LIKES]->(a) return a,b", emptyMap()).queryResults()).hasSize(1);
     }
 
     /**
@@ -162,16 +175,20 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         personA.getPeopleILike().add(personB);
         personB.getPeopleILike().add(personA);
         session.save(personA);
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) " +
-            "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
+
+        session.clear();
+        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}) " +
+            "WHERE (a)-[:LIKES]->(b) and (b)-[:LIKES]->(a) return a,b", emptyMap()).queryResults()).hasSize(1);
 
         personA.getPeopleILike().clear();
         personA.getPeopleILike().add(personC);
         personC.getPeopleILike().add(personA);
         session.save(personA);
-        assertSameGraph(getGraphDatabaseService(),
-            "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (c:Person {name:'C'}) " +
-                " CREATE (a)-[:LIKES]->(c) CREATE (c)-[:LIKES]->(a) CREATE (b)-[:LIKES]->(a)");
+
+        session.clear();
+        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}), (c:Person {name:'C'}) " +
+            " WHERE (a)-[:LIKES]->(c) and (c)-[:LIKES]->(a) and (b)-[:LIKES]->(a) return a, b, c", emptyMap())
+            .queryResults()).hasSize(1);
     }
 
     /**
@@ -192,10 +209,12 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         session.save(personB);
         session.save(personC);
         session.save(personD);
-        assertSameGraph(getGraphDatabaseService(),
-            "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (c:Person {name:'C'}) CREATE (d:Person {name:'D'})"
-                +
-                "CREATE (a)-[:LIKES]->(b) CREATE (a)-[:LIKES]->(c) CREATE (b)-[:LIKES]->(a) CREATE (d)-[:LIKES]->(a)");
+
+        session.clear();
+        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}), " +
+            "(c:Person {name:'C'}), (d:Person {name:'D'}) " +
+            "WHERE (a)-[:LIKES]->(b) and (a)-[:LIKES]->(c) and (b)-[:LIKES]->(a) and (d)-[:LIKES]->(a) " +
+            "return a, b, c, d", emptyMap()).queryResults()).hasSize(1);
     }
 
     /**
@@ -285,12 +304,13 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         userA.getFriends().add(userB);
         session.save(userA);
 
-        assertSameGraph(getGraphDatabaseService(),
-            "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'}) CREATE (a)-[:FRIEND]->(b)");
+        assertThat(session.query("MATCH (a:User {name:'A'}), (b:User {name:'B'}) WHERE (a)-[:FRIEND]->(b) return a,b",
+            emptyMap()).queryResults()).hasSize(1);
 
         userA.unfriend(userB);
         session.save(userA);
-        assertSameGraph(getGraphDatabaseService(), "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'})");
+        assertThat(session.query("MATCH (a:User {name:'A'}), (b:User {name:'B'}) WHERE (a)-[:FRIEND]->(b) return a, b",
+            emptyMap()).queryResults()).hasSize(0);
     }
 
     /**

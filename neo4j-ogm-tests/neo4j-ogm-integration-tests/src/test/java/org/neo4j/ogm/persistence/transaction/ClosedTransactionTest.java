@@ -28,7 +28,7 @@ import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -41,7 +41,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  * @author Vince Bickers
  * @author Michael J. Simons
  */
-public class ClosedTransactionTest extends MultiDriverTestClass {
+public class ClosedTransactionTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private DefaultTransactionManager transactionManager;
@@ -50,7 +50,7 @@ public class ClosedTransactionTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.tree");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.tree");
     }
 
     @Before
@@ -59,7 +59,7 @@ public class ClosedTransactionTest extends MultiDriverTestClass {
         // The session actually has it's own transaction manager, which is btw tied to thread locally to the driver.
         // We could force get the sessions transaction manager or just create a new one here and tie it to the driver.
         // Both feel broken, this here a little less painfull, though.
-        transactionManager = new DefaultTransactionManager(session, driver.getTransactionFactorySupplier());
+        transactionManager = new DefaultTransactionManager(session, getDriver().getTransactionFactorySupplier());
     }
 
     @Before

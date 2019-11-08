@@ -23,10 +23,8 @@ import static org.junit.Assume.*;
 
 import java.util.function.Predicate;
 
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.ogm.domain.autoindex.CompositeIndexChild;
 import org.neo4j.ogm.domain.autoindex.CompositeIndexEntity;
 import org.neo4j.ogm.domain.autoindex.MultipleCompositeIndexEntity;
@@ -35,6 +33,7 @@ import org.neo4j.ogm.session.SessionFactory;
 /**
  * @author Frantisek Hartman
  * @author Michael J. Simons
+ * @author Gerrit Meier
  */
 public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
@@ -50,25 +49,24 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
     }
 
     @BeforeClass
-    public static void setUpClass() throws Exception {
+    public static void setUpClass() {
+
         assumeTrue("This test uses composite index and node key constraint and can only be run on enterprise edition",
-            isEnterpriseEdition());
+            useEnterpriseEdition());
 
         assumeTrue("This tests uses composite index and can only be run on Neo4j 3.2.0 and later",
             isVersionOrGreater("3.2.0"));
     }
 
     @Override
-    @After
-    public void tearDown() throws Exception {
-
-        super.tearDown();
+    protected void additionalTearDown() {
         executeDrop(CONSTRAINT);
+        executeDrop(INDEXES);
     }
 
     @Test
     public void testAutoIndexManagerUpdateConstraintChangedToIndex() {
-
+        assumeTrue(isVersionOrGreater("3.3"));
         executeCreate(CONSTRAINT);
 
         runAutoIndex("update");
@@ -82,7 +80,7 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
 
     @Test
     public void testMultipleCompositeIndexAnnotations() {
-
+        assumeTrue(isVersionOrGreater("3.3"));
         try {
             runAutoIndex("update");
             executeForIndexes(indexes ->
@@ -97,10 +95,10 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
 
     @Test
     public void shouldSupportScanningNonEntityPackages() {
-        new SessionFactory(CompositeIndexAutoIndexManagerTest.class.getName());
+        new SessionFactory(getDriver(), CompositeIndexAutoIndexManagerTest.class.getName());
     }
 
-    private static Predicate<IndexDefinition> byLabel(String label) {
-        return indexDefinition -> label.equals(indexDefinition.getLabel().name());
+    private static Predicate<IndexInfo> byLabel(String label) {
+        return indexDefinition -> label.equals(indexDefinition.getLabel());
     }
 }

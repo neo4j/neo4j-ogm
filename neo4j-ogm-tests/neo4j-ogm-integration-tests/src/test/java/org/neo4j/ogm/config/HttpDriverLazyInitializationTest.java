@@ -27,7 +27,7 @@ import org.neo4j.ogm.testutil.TestUtils;
 public class HttpDriverLazyInitializationTest extends DriverLazyInitializationTest {
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         configBuilder = new Configuration.Builder(new ClasspathConfigurationSource("ogm-http.properties"))
             .uri("http://neo4j:neo4j12@localhost:" + TestUtils.getAvailablePort());
     }

@@ -41,7 +41,7 @@ import org.neo4j.ogm.domain.gh576.FormulaItem;
 import org.neo4j.ogm.domain.gh576.Variable;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.testutil.TestUtils;
 
 /**
@@ -54,7 +54,7 @@ import org.neo4j.ogm.testutil.TestUtils;
  * @author Michael J. Simons
  */
 @RunWith(Parameterized.class)
-public class CypherContextTest extends MultiDriverTestClass {
+public class CypherContextTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -70,7 +70,7 @@ public class CypherContextTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void initSesssionFactory() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.gh576");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh576");
     }
 
     public CypherContextTest(@SuppressWarnings("unused") Integer iterations) {

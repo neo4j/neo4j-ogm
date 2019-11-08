@@ -29,12 +29,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
  */
-public class BucketIntegrationTest extends MultiDriverTestClass {
+public class BucketIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -42,7 +42,7 @@ public class BucketIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.examples.numbers");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.examples.numbers");
     }
 
     @Before

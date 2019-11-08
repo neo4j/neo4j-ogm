@@ -34,12 +34,12 @@ import org.neo4j.ogm.domain.ingredients.Ingredient;
 import org.neo4j.ogm.domain.ingredients.Pairing;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
  */
-public class IngredientsIntegrationTest extends MultiDriverTestClass {
+public class IngredientsIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -47,7 +47,7 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.ingredients");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.ingredients");
     }
 
     @Before

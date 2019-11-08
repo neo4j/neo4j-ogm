@@ -22,24 +22,25 @@ import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class IdMatchClauseBuilder implements MatchClauseBuilder {
 
     @Override
     public String build(String label) {
         if (label == null || label.isEmpty()) {
-            return "MATCH (n) WHERE ID(n) = { id } WITH n";
+            return "MATCH (n) WHERE ID(n) = $id WITH n";
         } else {
-            return "MATCH (n:`" + label + "`) WHERE ID(n) = { id } WITH n";
+            return "MATCH (n:`" + label + "`) WHERE ID(n) = $id WITH n";
         }
     }
 
     @Override
     public String build(String label, String property) {
         if (label == null || label.isEmpty()) {
-            return "MATCH (n) WHERE n.`" + property + "` = { id } WITH n";
+            return "MATCH (n) WHERE n.`" + property + "` = $id WITH n";
         } else {
-            return "MATCH (n:`" + label + "`) WHERE n.`" + property + "` = { id } WITH n";
+            return "MATCH (n:`" + label + "`) WHERE n.`" + property + "` = $id WITH n";
         }
     }
 }

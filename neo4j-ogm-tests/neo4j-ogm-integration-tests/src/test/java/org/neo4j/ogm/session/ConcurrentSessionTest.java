@@ -24,18 +24,17 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.concurrency.World;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Mark Angrish
  */
-public class ConcurrentSessionTest extends MultiDriverTestClass {
+public class ConcurrentSessionTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -45,7 +44,7 @@ public class ConcurrentSessionTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.concurrency");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.concurrency");
     }
 
 

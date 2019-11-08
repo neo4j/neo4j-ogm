@@ -33,7 +33,7 @@ import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.typeconversion.DateLongConverter;
 import org.neo4j.ogm.typeconversion.DateStringConverter;
 
@@ -42,7 +42,7 @@ import org.neo4j.ogm.typeconversion.DateStringConverter;
  *
  * @author Michael J. Simons
  */
-public class SessionDelegateIntegrationTest extends MultiDriverTestClass {
+public class SessionDelegateIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -50,7 +50,7 @@ public class SessionDelegateIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void createSessionFactory() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
     }
 
     @Before

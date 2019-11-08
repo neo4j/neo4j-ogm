@@ -45,7 +45,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.testutil.TestUtils;
 
 /**
@@ -55,14 +55,14 @@ import org.neo4j.ogm.testutil.TestUtils;
  * @author Adam George
  * @author Mark Angrish
  */
-public class CineastsIntegrationTest extends MultiDriverTestClass {
+public class CineastsIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
     @Before
@@ -286,7 +286,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(new Actor("Helen Mirren"));
         session.save(new Actor("Matt Damon"));
 
-        Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE a.name={param} RETURN a",
+        Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE a.name=$param RETURN a",
             Collections.singletonMap("param", "Alec Baldwin"));
         assertThat(loadedActor).as("The entity wasn't loaded").isNotNull();
         assertThat(loadedActor.getName()).isEqualTo("Alec Baldwin");
@@ -312,17 +312,13 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(carrie);
         session.save(new Actor("Laurence Fishbourne"));
 
-        Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE a.uuid={param} RETURN a",
+        Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE a.uuid=$param RETURN a",
             Collections.<String, Object>singletonMap("param", carrie.getUuid()));
         assertThat(loadedActor).as("The entity wasn't loaded").isNotNull();
         assertThat(loadedActor.getName()).isEqualTo("Carrie-Ann Moss");
     }
 
-    /**
-     * @throws MalformedURLException
-     * @see issue #125
-     */
-    @Test
+    @Test // GH-125
     public void shouldModifyStringArraysCorrectly() throws MalformedURLException {
         User user = new User("joker", "Joker", "password");
         URL[] urls = new URL[3];

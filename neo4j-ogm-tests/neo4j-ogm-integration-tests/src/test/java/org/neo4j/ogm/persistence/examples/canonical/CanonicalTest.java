@@ -30,19 +30,19 @@ import org.neo4j.ogm.domain.canonical.Mappable;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
  */
-public class CanonicalTest extends MultiDriverTestClass {
+public class CanonicalTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.canonical");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.canonical");
     }
 
     @Before

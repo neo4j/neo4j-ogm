@@ -24,8 +24,12 @@ import org.junit.BeforeClass;
 import org.neo4j.ogm.domain.autoindex.NodePropertyExistenceConstraintEntity;
 
 /**
+ * While this test looks empty, it's put in place to execute all the stuff in {@link BaseAutoIndexManagerTestClass}
+ * with the given constraints in the constructor.
+ *
  * @author Frantisek Hartman
  * @author Michael J. Simons
+ * @author Gerrit Meier
  */
 public class NodePropertyExistenceConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
@@ -35,8 +39,13 @@ public class NodePropertyExistenceConstraintAutoIndexManagerTest extends BaseAut
     }
 
     @BeforeClass
-    public static void setUpClass() throws Exception {
+    public static void setUpClass() {
         assumeTrue("This test uses existence constraint and can only be run on enterprise edition",
-            isEnterpriseEdition());
+            useEnterpriseEdition());
+    }
+
+    @Override
+    protected void additionalTearDown() {
+        // Nothing to be done here.
     }
 }

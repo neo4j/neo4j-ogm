@@ -34,19 +34,19 @@ import org.neo4j.ogm.domain.mappings.Event;
 import org.neo4j.ogm.domain.mappings.Tag;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Nils Dröge
  * @author Luanne Misquitta
  */
-public class DualTargetEntityRelationshipTest extends MultiDriverTestClass {
+public class DualTargetEntityRelationshipTest extends TestContainersTestBase {
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.mappings").openSession();
+        session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.mappings").openSession();
         session.purgeDatabase();
     }
 

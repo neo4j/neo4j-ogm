@@ -60,7 +60,7 @@ public class RelationshipEntityQuerySortingTest {
     public void testFindByProperty() {
         filters.add(new Filter("distance", EQUALS, 60.2));
         sortOrder.add("aphelion");
-        String expected = "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` = { `distance_0` }  " +
+        String expected = "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` = $`distance_0`  " +
             "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m ORDER BY r0.aphelion " +
             "MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
             "MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +

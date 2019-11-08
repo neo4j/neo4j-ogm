@@ -32,6 +32,7 @@ import org.neo4j.ogm.request.StatementFactory;
 /**
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class DeletedRelationshipStatementBuilder implements CypherStatementBuilder {
 
@@ -52,7 +53,7 @@ public class DeletedRelationshipStatementBuilder implements CypherStatementBuild
         if (deletedEdges != null && deletedEdges.size() > 0) {
             Edge firstEdge = deletedEdges.iterator().next();
 
-            queryBuilder.append("UNWIND {rows} as row ")
+            queryBuilder.append("UNWIND $rows as row ")
                 .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode ")
                 .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ")
                 .append("MATCH (startNode)-[rel:`").append(firstEdge.getType()).append("`]->(endNode) ")

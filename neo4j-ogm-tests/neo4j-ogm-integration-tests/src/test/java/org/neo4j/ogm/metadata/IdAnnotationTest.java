@@ -25,18 +25,22 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.id.UuidStrategy;
 
+/**
+ * @author Nicolas Mervaillie
+ * @author Frantisek Hartman
+ * @author Michael J. Simons
+ */
 public class IdAnnotationTest {
 
     private MetaData metaData;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         metaData = new MetaData("org.neo4j.ogm.domain.annotations.ids");
     }
 
     @Test
-    //    @Ignore("Classes without graph id field not implemented yet")
-    public void shouldSupportClassWithoutId() throws Exception {
+    public void shouldSupportClassWithoutId() {
 
         ValidAnnotations.WithoutId entity = new ValidAnnotations.WithoutId();
 
@@ -46,7 +50,7 @@ public class IdAnnotationTest {
     }
 
     @Test
-    public void shouldFindInternalIdentifier() throws Exception {
+    public void shouldFindInternalIdentifier() {
         ValidAnnotations.InternalIdWithAnnotation entity = new ValidAnnotations.InternalIdWithAnnotation();
         ClassInfo classInfo = metaData.classInfo(entity);
         // primary index field should be null, @Id is internal
@@ -54,7 +58,7 @@ public class IdAnnotationTest {
     }
 
     @Test
-    public void shouldFindBasicId() throws Exception {
+    public void shouldFindBasicId() {
 
         ValidAnnotations.Basic entity = new ValidAnnotations.Basic();
 
@@ -63,7 +67,7 @@ public class IdAnnotationTest {
     }
 
     @Test
-    public void shouldFindBasicChild() throws Exception {
+    public void shouldFindBasicChild() {
 
         ValidAnnotations.BasicChild entity = new ValidAnnotations.BasicChild();
 
@@ -72,7 +76,7 @@ public class IdAnnotationTest {
     }
 
     @Test
-    public void shouldFindIdAndGenerationType() throws Exception {
+    public void shouldFindIdAndGenerationType() {
 
         ValidAnnotations.IdAndGenerationType entity = new ValidAnnotations.IdAndGenerationType();
 

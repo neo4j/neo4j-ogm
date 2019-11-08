@@ -38,7 +38,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.request.RowStatementFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
@@ -48,13 +48,13 @@ import org.neo4j.ogm.transaction.Transaction;
  * @author Michael J. Simons
  * @author Andreas Berger
  */
-public class CyclicStructureTest extends MultiDriverTestClass {
+public class CyclicStructureTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
     @BeforeClass
     public static void initSesssionFactory() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.gh609");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh609");
     }
 
     /**

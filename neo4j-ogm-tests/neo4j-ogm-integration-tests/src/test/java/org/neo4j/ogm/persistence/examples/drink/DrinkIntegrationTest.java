@@ -34,20 +34,20 @@ import org.neo4j.ogm.domain.drink.Owns;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.event.EventListenerAdapter;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
  * @author Michael J. Simons
  */
-public class DrinkIntegrationTest extends MultiDriverTestClass {
+public class DrinkIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sf;
     private Session session;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        sf = new SessionFactory(driver, Beverage.class.getPackage().getName());
+        sf = new SessionFactory(getDriver(), Beverage.class.getPackage().getName());
 
         // register dummy listener to SaveEventDelegate code
         sf.register(new EventListenerAdapter());

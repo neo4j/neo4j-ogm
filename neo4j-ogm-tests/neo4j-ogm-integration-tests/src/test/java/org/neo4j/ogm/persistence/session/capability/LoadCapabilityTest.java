@@ -44,13 +44,13 @@ import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
-public class LoadCapabilityTest extends MultiDriverTestClass {
+public class LoadCapabilityTest extends TestContainersTestBase {
 
     private SessionFactory sessionFactory;
     private Session session;
@@ -60,7 +60,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
     @Before
     public void init() throws IOException {
 
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.gh368");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.gh368");
         session = sessionFactory.openSession();
         session.purgeDatabase();
 
@@ -709,7 +709,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
     @Test
     public void loadAllByInstancesShouldLoadAllClasses() {
-        SessionFactory sf = new SessionFactory(driver, "org.neo4j.ogm.domain.education");
+        SessionFactory sf = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.education");
         Session sessionWithEducationDomain = sf.openSession();
 
         School school = new School();

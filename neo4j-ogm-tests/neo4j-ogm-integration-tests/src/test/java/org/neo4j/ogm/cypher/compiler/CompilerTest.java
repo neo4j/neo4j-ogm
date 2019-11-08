@@ -106,7 +106,7 @@ public class CompilerTest {
         Compiler compiler = mapAndCompile(newStudent, -1);
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
         assertThat(compiler.createNodesStatements()).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`DomainObject`:`Student`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`DomainObject`:`Student`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
     }
 
@@ -127,10 +127,10 @@ public class CompilerTest {
 
         Compiler compiler = mapAndCompile(franchise, -1);
         assertThat(compiler.createNodesStatements()).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`Franchise`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type",
+            "UNWIND $rows as row CREATE (n:`Franchise`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type",
             // the order of labels here does not matter
             // the point is only one query for this combination of labels
-            "UNWIND {rows} as row CREATE (n:`Delicious`:`Foreign`:`Restaurant`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`Delicious`:`Foreign`:`Restaurant`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
     }
 
@@ -151,7 +151,7 @@ public class CompilerTest {
         compiler.useStatementFactory(new RowStatementFactory());
         assertThat(compiler.createNodesStatements()).isEmpty();
         assertThat(compiler.updateNodesStatements()).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`DomainObject`:`Student` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`DomainObject`:`Student` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, $type as type"
         );
     }
 
@@ -184,13 +184,13 @@ public class CompilerTest {
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isTrue();
 
         assertThat(compiler.createNodesStatements()).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`DomainObject`:`School`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type",
-            "UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`DomainObject`:`School`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type",
+            "UNWIND $rows as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
 
         assertThat(compiler.createRelationshipsStatements()).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type",
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type",
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
     }
 
@@ -278,7 +278,7 @@ public class CompilerTest {
 
         List<Statement> createNodesStatements = compiler.createNodesStatements();
         assertThat(createNodesStatements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
 
         assertThat(createNodesStatements).extracting(Statement::getParameters);
@@ -289,8 +289,8 @@ public class CompilerTest {
 
         List<Statement> createRelsStatements = compiler.createRelationshipsStatements();
         assertThat(createRelsStatements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type",
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type",
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
 
         //Save waller
@@ -298,7 +298,7 @@ public class CompilerTest {
 
         createNodesStatements = compiler.createNodesStatements();
         assertThat(createNodesStatements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
         for (Statement statement : createNodesStatements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -307,8 +307,8 @@ public class CompilerTest {
 
         createRelsStatements = compiler.createRelationshipsStatements();
         assertThat(createRelsStatements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type",
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type",
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
 
         //Save mary
@@ -316,7 +316,7 @@ public class CompilerTest {
 
         createNodesStatements = compiler.createNodesStatements();
         assertThat(createNodesStatements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
         for (Statement statement : createNodesStatements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -325,8 +325,8 @@ public class CompilerTest {
 
         createRelsStatements = compiler.createRelationshipsStatements();
         assertThat(createRelsStatements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type",
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type",
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
     }
 
@@ -355,9 +355,9 @@ public class CompilerTest {
 
         List<Statement> createNodesStatements = compiler.createNodesStatements();
         assertThat(createNodesStatements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type",
-            "UNWIND {rows} as row CREATE (n:`Course`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type",
-            "UNWIND {rows} as row CREATE (n:`DomainObject`:`Student`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type",
+            "UNWIND $rows as row CREATE (n:`Course`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type",
+            "UNWIND $rows as row CREATE (n:`DomainObject`:`Student`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
 
         for (Statement statement : createNodesStatements) {
@@ -375,8 +375,8 @@ public class CompilerTest {
 
         List<Statement> createRelsStatements = compiler.createRelationshipsStatements();
         assertThat(createRelsStatements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`COURSES`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type",
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`STUDENTS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`COURSES`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type",
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`STUDENTS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
         for (Statement statement : createRelsStatements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -435,7 +435,7 @@ public class CompilerTest {
 
         List<Statement> deleteRelsStatement = compiler.deleteRelationshipStatements();
         assertThat(deleteRelsStatement).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`STUDENTS`]->(endNode) DELETE rel"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`STUDENTS`]->(endNode) DELETE rel"
         );
         assertThat(((List) deleteRelsStatement.get(0).getParameters().get("rows"))).hasSize(2);
     }
@@ -487,7 +487,7 @@ public class CompilerTest {
 
         statements = compiler.createRelationshipsStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`STUDENTS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`STUDENTS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -496,7 +496,7 @@ public class CompilerTest {
 
         List<Statement> deleteRelsStatements = compiler.deleteRelationshipStatements();
         assertThat(deleteRelsStatements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`STUDENTS`]->(endNode) DELETE rel"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`STUDENTS`]->(endNode) DELETE rel"
         );
         assertThat(((List) deleteRelsStatements.get(0).getParameters().get("rows"))).hasSize(1);
 
@@ -574,7 +574,7 @@ public class CompilerTest {
 
         statements = compiler.deleteRelationshipStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`TEACHERS`]->(endNode) DELETE rel"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`TEACHERS`]->(endNode) DELETE rel"
         );
         assertThat(((List) statements.get(0).getParameters().get("rows"))).hasSize(1);
 
@@ -592,7 +592,7 @@ public class CompilerTest {
 
         statements = compiler.deleteRelationshipStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`SCHOOL`]->(endNode) DELETE rel"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`SCHOOL`]->(endNode) DELETE rel"
         );
         assertThat(((List) statements.get(0).getParameters().get("rows"))).hasSize(1);
 
@@ -624,8 +624,8 @@ public class CompilerTest {
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`Forum`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type",
-            "UNWIND {rows} as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`Forum`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type",
+            "UNWIND $rows as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -634,7 +634,7 @@ public class CompilerTest {
 
         statements = compiler.createRelationshipsStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId CREATE (startNode)-[rel:`HAS_TOPIC`]->(endNode) SET rel += row.props RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId CREATE (startNode)-[rel:`HAS_TOPIC`]->(endNode) SET rel += row.props RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -646,8 +646,8 @@ public class CompilerTest {
 
         statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`Forum`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type",
-            "UNWIND {rows} as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`Forum`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type",
+            "UNWIND $rows as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -656,7 +656,7 @@ public class CompilerTest {
 
         statements = compiler.createRelationshipsStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId CREATE (startNode)-[rel:`HAS_TOPIC`]->(endNode) SET rel += row.props RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId CREATE (startNode)-[rel:`HAS_TOPIC`]->(endNode) SET rel += row.props RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -668,7 +668,7 @@ public class CompilerTest {
 
         statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -691,12 +691,12 @@ public class CompilerTest {
 
         assertThat(statements)
             .extracting(Statement::getStatement)
-            .containsOnly("UNWIND {rows} as row "
+            .containsOnly("UNWIND $rows as row "
                 + "MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode "
                 + "MATCH (endNode) WHERE ID(endNode) = row.endNodeId "
                 + "MERGE (startNode)-[rel:`VISITED` {`identifier`: row.props.`identifier`}]->(endNode) "
                 + "SET rel += row.props "
-                + "RETURN row.relRef as ref, ID(rel) as id, {type} as type");
+                + "RETURN row.relRef as ref, ID(rel) as id, $type as type");
     }
 
     @Test
@@ -738,7 +738,7 @@ public class CompilerTest {
         assertThat(statements).isEmpty();
         statements = compiler.updateRelationshipStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} AS row MATCH ()-[r]->() WHERE ID(r) = row.relId SET r += row.props RETURN ID(r) as ref, ID(r) as id, {type} as type"
+            "UNWIND $rows AS row MATCH ()-[r]->() WHERE ID(r) = row.relId SET r += row.props RETURN ID(r) as ref, ID(r) as id, $type as type"
         );
         assertThat((List) statements.get(0).getParameters().get("rows")).hasSize(1);
     }
@@ -785,7 +785,7 @@ public class CompilerTest {
 
         statements = compiler.deleteRelationshipStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`HAS_TOPIC`]->(endNode) DELETE rel"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`HAS_TOPIC`]->(endNode) DELETE rel"
         );
         assertThat(((List) statements.get(0).getParameters().get("rows"))).hasSize(1);
 
@@ -812,8 +812,8 @@ public class CompilerTest {
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`l'artiste`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type",
-            "UNWIND {rows} as row CREATE (n:`l'album`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`l'artiste`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type",
+            "UNWIND $rows as row CREATE (n:`l'album`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -822,7 +822,7 @@ public class CompilerTest {
 
         statements = compiler.createRelationshipsStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS-ALBUM`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS-ALBUM`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -845,7 +845,7 @@ public class CompilerTest {
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`Individual`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`Individual`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -854,7 +854,7 @@ public class CompilerTest {
 
         statements = compiler.createRelationshipsStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`FRIENDS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`FRIENDS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
         List rows = (List) statements.get(0).getParameters().get("rows");
         assertThat(rows).hasSize(1);
@@ -875,7 +875,7 @@ public class CompilerTest {
 
         List<Statement> statements = compiler.createNodesStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row CREATE (n:`Mortal`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type"
+            "UNWIND $rows as row CREATE (n:`Mortal`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type"
         );
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
@@ -884,7 +884,7 @@ public class CompilerTest {
 
         statements = compiler.createRelationshipsStatements();
         assertThat(statements).extracting(Statement::getStatement).containsOnly(
-            "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`KNOWN_BY`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, {type} as type"
+            "UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`KNOWN_BY`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type"
         );
         List rows = (List) statements.get(0).getParameters().get("rows");
         assertThat(rows).hasSize(1);

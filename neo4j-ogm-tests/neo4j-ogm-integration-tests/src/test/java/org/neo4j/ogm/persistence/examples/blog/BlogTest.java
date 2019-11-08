@@ -30,19 +30,19 @@ import org.neo4j.ogm.domain.blog.Comment;
 import org.neo4j.ogm.domain.blog.Post;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Vince Bickers
  */
-public class BlogTest extends MultiDriverTestClass {
+public class BlogTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.blog");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.blog");
     }
 
     @Before

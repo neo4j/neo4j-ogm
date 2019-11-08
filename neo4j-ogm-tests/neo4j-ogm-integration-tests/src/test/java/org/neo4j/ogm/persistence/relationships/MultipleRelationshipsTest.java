@@ -33,19 +33,19 @@ import org.neo4j.ogm.domain.entityMapping.Person;
 import org.neo4j.ogm.domain.entityMapping.Rating;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author vince
  * @author Luanne Misquitta
  */
-public class MultipleRelationshipsTest extends MultiDriverTestClass {
+public class MultipleRelationshipsTest extends TestContainersTestBase {
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.entityMapping").openSession();
+        session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.entityMapping").openSession();
         session.purgeDatabase();
     }
 

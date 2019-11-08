@@ -23,13 +23,14 @@ import static org.neo4j.ogm.cypher.function.NativeDistanceComparison.*;
 
 import java.util.Collection;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.function.DistanceFromNativePoint;
 import org.neo4j.ogm.persistence.types.nativetypes.SomethingSpatial;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
@@ -39,9 +40,14 @@ import org.neo4j.ogm.types.spatial.GeographicPoint3d;
  * @author Gerrit Meier
  * @author Michael J. Simons
  */
-abstract class DistanceComparisonTestBase {
+abstract class DistanceComparisonTestBase extends TestContainersTestBase {
 
     static SessionFactory sessionFactory;
+
+    @Before
+    public void clearDatabase() {
+        sessionFactory.openSession().purgeDatabase();
+    }
 
     @Test
     public void filterForCartesianPoint2d() {

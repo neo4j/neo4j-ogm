@@ -34,18 +34,18 @@ import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
  */
-public class NumericConversionTest extends MultiDriverTestClass {
+public class NumericConversionTest extends TestContainersTestBase {
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.social").openSession();
+        session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social").openSession();
     }
 
     @After
@@ -192,7 +192,7 @@ public class NumericConversionTest extends MultiDriverTestClass {
 
         session.clear();
 
-        Result result = session.query("MATCH (m:Immortal) WHERE ID(m) = {id} RETURN m",
+        Result result = session.query("MATCH (m:Immortal) WHERE ID(m) = $id RETURN m",
             Collections.singletonMap("id", immortal.getId()));
 
         assertThat(result).isNotNull();

@@ -31,12 +31,12 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Vince Bickers
  */
-public class ABTest extends MultiDriverTestClass {
+public class ABTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -45,7 +45,7 @@ public class ABTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetup() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.relationships.direct.ab");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships.direct.ab");
     }
 
     @Before

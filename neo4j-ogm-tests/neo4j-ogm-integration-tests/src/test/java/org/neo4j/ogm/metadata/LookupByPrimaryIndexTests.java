@@ -34,20 +34,20 @@ import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Mark Angrish
  * @author Nicolas Mervaillie
  */
-public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
+public class LookupByPrimaryIndexTests extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver,
+        sessionFactory = new SessionFactory(getDriver(),
             "org.neo4j.ogm.domain.cineasts.annotated",
             "org.neo4j.ogm.domain.annotations.ids",
             "org.neo4j.ogm.domain.autoindex.valid"
@@ -168,7 +168,7 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test
     public void loadUsesGraphIdWhenPrimaryIndexNotPresent() {
 
-        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.partial");
+        SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.partial");
         Session session1 = sessionFactory.openSession();
         Actor actor = new Actor("David Hasslehoff");
         session1.save(actor);
@@ -233,7 +233,7 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
 
     @Test(expected = IllegalArgumentException.class)
     public void exceptionRaisedWhenLookupDoneByNonLongKeyAndThereIsNoPrimaryIndex() throws Exception {
-        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.partial");
+        SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.partial");
         Session session1 = sessionFactory.openSession();
 
         Actor actor = new Actor("David Hasslehoff");

@@ -29,18 +29,19 @@ import org.neo4j.ogm.domain.meetup.Meetup;
 import org.neo4j.ogm.domain.meetup.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
+ * @author Gerrit Meier
  */
-public class MeetupIntegrationTest extends MultiDriverTestClass {
+public class MeetupIntegrationTest extends TestContainersTestBase {
 
     private static Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.meetup").openSession();
+        session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.meetup").openSession();
     }
 
     @After
@@ -48,10 +49,7 @@ public class MeetupIntegrationTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-    /**
-     * @see Issue 276
-     */
-    @Test
+    @Test // GH-276
     public void shouldLoadRelatedPersonsCorrectly() {
         Meetup meetup = new Meetup("Neo4j UAE");
         Person michal = new Person("Michal");

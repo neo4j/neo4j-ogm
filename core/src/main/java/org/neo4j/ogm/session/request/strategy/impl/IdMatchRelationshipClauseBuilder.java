@@ -22,24 +22,25 @@ import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class IdMatchRelationshipClauseBuilder implements MatchClauseBuilder {
 
     @Override
     public String build(String label) {
         if (label == null || label.isEmpty()) {
-            return "MATCH ()-[r0]->() WHERE ID(r0)={id}  WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m";
+            return "MATCH ()-[r0]->() WHERE ID(r0)=$id  WITH r0, STARTNODE(r0) AS n, ENDNODE(r0) AS m";
         } else {
-            return "MATCH ()-[r0:`" + label + "`]->() WHERE ID(r0)={id}  WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m";
+            return "MATCH ()-[r0:`" + label + "`]->() WHERE ID(r0)=$id WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m";
         }
     }
 
     @Override
     public String build(String label, String property) {
         if (label == null || label.isEmpty()) {
-            return "MATCH ()-[r0]->() WHERE r0.`" + property + "`={id}  WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m";
+            return "MATCH ()-[r0]->() WHERE r0.`" + property + "`=$id WITH r0, STARTNODE(r0) AS n, ENDNODE(r0) AS m";
         } else {
-            return "MATCH ()-[r0:`" + label + "`]->() WHERE r0.`" + property + "`={id}  WITH r0,STARTNODE(r0) AS n, ENDNODE(r0) AS m";
+            return "MATCH ()-[r0:`" + label + "`]->() WHERE r0.`" + property + "`=$id  WITH r0, STARTNODE(r0) AS n, ENDNODE(r0) AS m";
         }
     }
 }

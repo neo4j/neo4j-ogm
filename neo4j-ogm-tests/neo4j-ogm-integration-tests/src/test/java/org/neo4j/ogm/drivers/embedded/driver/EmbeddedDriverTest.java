@@ -28,12 +28,16 @@ import java.nio.file.Paths;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.driver.Driver;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.security.WriteOperationsNotAllowedException;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.domain.bike.Bike;
+import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.support.ClassUtils;
 import org.neo4j.ogm.support.FileUtils;
 import org.neo4j.test.TestGraphDatabaseFactory;
@@ -43,7 +47,7 @@ import org.neo4j.test.TestGraphDatabaseFactory;
  */
 public class EmbeddedDriverTest {
 
-    public static final String NAME_OF_HA_DATABASE_CLASS = "HighlyAvailableGraphDatabase";
+    private static final String NAME_OF_HA_DATABASE_CLASS = "HighlyAvailableGraphDatabase";
 
     @BeforeClass
     public static void setUp() {
@@ -58,6 +62,27 @@ public class EmbeddedDriverTest {
             assumeTrue(r.hasNext());
             assumeTrue("default".equals(r.next().get("value")));
         }
+    }
+
+    @Test
+    public void shouldUnwrapEmbeddedDriver() {
+
+        Configuration configuration = new Configuration.Builder().build();
+        SessionFactory sessionFactory = new SessionFactory(configuration, Bike.class.getPackage().getName());
+
+        // Neo4j-OGM Driver
+        assertThat(sessionFactory.unwrap(EmbeddedDriver.class))
+            .isInstanceOf(EmbeddedDriver.class);
+        // Underlying embedded instance
+        assertThat(sessionFactory.unwrap(GraphDatabaseService.class))
+            .isInstanceOf(GraphDatabaseService.class);
+
+        assertThatIllegalArgumentException()
+            .isThrownBy(() -> sessionFactory.unwrap(BoltDriver.class));
+        assertThatIllegalArgumentException()
+            .isThrownBy(() -> sessionFactory.unwrap(Driver.class));
+        assertThatIllegalArgumentException()
+            .isThrownBy(() -> sessionFactory.unwrap(HttpDriver.class));
     }
 
     @Test
@@ -89,7 +114,7 @@ public class EmbeddedDriverTest {
     }
 
     @Test
-    public void shouldWriteAndReadFromProvidedDatabase() throws Exception {
+    public void shouldWriteAndReadFromProvidedDatabase() {
 
         GraphDatabaseService impermanentDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
 
@@ -104,7 +129,6 @@ public class EmbeddedDriverTest {
                 tx.success();
             }
         }
-
     }
 
     @Test
@@ -171,17 +195,18 @@ public class EmbeddedDriverTest {
 
     @Test // GH-169
     public void shouldCreateDirectoryIfMissing() throws IOException {
-        final String EMBEDDED_DIR = "/var/tmp/ogmEmbeddedDir";
-        Path path = Paths.get(EMBEDDED_DIR);
+        final String embeddedDir = "/var/tmp/ogmEmbeddedDir";
+        final String databaseDir = embeddedDir + "/neo4j";
+        Path path = Paths.get(embeddedDir);
         if (Files.exists(path)) {
             FileUtils.deleteDirectory(path);
         }
 
-        Configuration configuration = new Configuration.Builder().uri("file://" + EMBEDDED_DIR).build();
+        Configuration configuration = new Configuration.Builder().uri("file://" + databaseDir).build();
 
         try (EmbeddedDriver driver = new EmbeddedDriver()) {
             driver.configure(configuration);
-            assertThat(configuration.getURI()).isEqualTo("file://" + EMBEDDED_DIR);
+            assertThat(configuration.getURI()).isEqualTo("file://" + databaseDir);
             assertThat(driver.unwrap(GraphDatabaseService.class)).isNotNull();
             assertThat(Files.exists(path)).isTrue();
         }
@@ -207,19 +232,6 @@ public class EmbeddedDriverTest {
                     .build());
 
             assertCustomConfiguration(driver);
-        }
-    }
-
-    private static void assertReadOnly(GraphDatabaseService databaseService) {
-        Result r = databaseService.execute("MATCH (n) RETURN n");
-        assertThat(r.hasNext()).isFalse();
-
-        try (Transaction tx = databaseService.beginTx()) {
-            // The config sets dbms.read_only = true
-            assertThatExceptionOfType(WriteOperationsNotAllowedException.class).isThrownBy(() -> {
-                databaseService.execute("CREATE (n: Node {name: 'node'})");
-            });
-            tx.failure();
         }
     }
 

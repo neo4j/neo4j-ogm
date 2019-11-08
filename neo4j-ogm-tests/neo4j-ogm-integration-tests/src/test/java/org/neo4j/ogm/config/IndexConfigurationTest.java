@@ -19,42 +19,41 @@
 package org.neo4j.ogm.config;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.neo4j.ogm.testutil.MultiDriverTestClass.*;
-
 import org.junit.Test;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
  */
-public class IndexConfigurationTest {
+public class IndexConfigurationTest extends TestContainersTestBase {
 
     @Test
     public void shouldPreserveNoneConfiguration() {
-        Configuration configuration = getBaseConfiguration().autoIndex("none").build();
+        Configuration configuration = getBaseConfigurationBuilder().autoIndex("none").build();
         assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
     }
 
     @Test
     public void shouldPreserveAssertConfiguration() {
-        Configuration configuration = getBaseConfiguration().autoIndex("assert").build();
+        Configuration configuration = getBaseConfigurationBuilder().autoIndex("assert").build();
         assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.ASSERT);
     }
 
     @Test
     public void shouldPreserveUpdateConfiguration() {
-        Configuration configuration = getBaseConfiguration().autoIndex("update").build();
+        Configuration configuration = getBaseConfigurationBuilder().autoIndex("update").build();
         assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.UPDATE);
     }
 
     @Test
     public void shouldPreserveValidateConfiguration() {
-        Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
+        Configuration configuration = getBaseConfigurationBuilder().autoIndex("validate").build();
         assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.VALIDATE);
     }
 
     @Test
     public void shouldPreserveDumpConfiguration() {
-        Configuration configuration = getBaseConfiguration().autoIndex("dump").build();
+        Configuration configuration = getBaseConfigurationBuilder().autoIndex("dump").build();
         assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.DUMP);
     }
 

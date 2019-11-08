@@ -42,7 +42,7 @@ import org.neo4j.harness.ServerControls;
 import org.neo4j.ogm.domain.simple.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.TestServer;
+import org.neo4j.ogm.testutil.TestHarnessSupplier;
 import org.neo4j.server.plugins.Injectable;
 import org.neo4j.test.server.HTTP;
 
@@ -51,6 +51,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class OgmPluginInitializerTest {
 
@@ -67,9 +68,9 @@ public class OgmPluginInitializerTest {
     }
 
     @Test
-    public void testOgmPluginExtension() throws Exception {
+    public void testOgmPluginExtension() {
 
-        try (ServerControls controls = TestServer.newInProcessBuilder()
+        try (ServerControls controls = new TestHarnessSupplier().get()
             .withConfig(GraphDatabaseSettings.auth_enabled, "false")
             .withExtension(TEST_PATH, TestOgmExtension.class)
             .newServer()) {
@@ -87,8 +88,8 @@ public class OgmPluginInitializerTest {
     }
 
     @Test
-    public void ogmExtensionShouldUseProvidedDatabase() throws Exception {
-        try (ServerControls controls = TestServer.newInProcessBuilder()
+    public void ogmExtensionShouldUseProvidedDatabase() {
+        try (ServerControls controls = new TestHarnessSupplier().get()
             .withConfig(GraphDatabaseSettings.auth_enabled, "false")
             .withExtension(TEST_PATH, TestOgmExtension.class)
             .newServer()) {

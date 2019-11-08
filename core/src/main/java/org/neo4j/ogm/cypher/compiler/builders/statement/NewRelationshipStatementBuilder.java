@@ -35,6 +35,7 @@ import org.neo4j.ogm.request.StatementFactory;
 /**
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
 
@@ -60,7 +61,7 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
             hasProperties = firstEdge.getPropertyList().size() > 0;
             boolean hasPrimaryId = firstEdge.getPrimaryIdName() != null;
 
-            queryBuilder.append("UNWIND {rows} as row ")
+            queryBuilder.append("UNWIND $rows as row ")
                 .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode ")
                 .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ");
 
@@ -87,7 +88,7 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
                 queryBuilder.append("SET rel += row.props ");
 
             }
-            queryBuilder.append("RETURN row.relRef as ref, ID(rel) as id, {type} as type");
+            queryBuilder.append("RETURN row.relRef as ref, ID(rel) as id, $type as type");
 
             List<Map> rows = new ArrayList<>();
             for (Edge edge : edges) {

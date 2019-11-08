@@ -34,20 +34,20 @@ import org.neo4j.ogm.domain.companies.annotated.Device;
 import org.neo4j.ogm.domain.companies.annotated.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
  * @author Vince Bickers
  */
-public class CompaniesIntegrationTest extends MultiDriverTestClass {
+public class CompaniesIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void init() throws IOException {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.companies.annotated");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.companies.annotated");
     }
 
     @Before

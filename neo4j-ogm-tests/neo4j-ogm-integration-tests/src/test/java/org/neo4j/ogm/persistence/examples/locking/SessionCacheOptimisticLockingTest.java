@@ -34,7 +34,7 @@ import org.neo4j.ogm.domain.locking.VersionedEntityWithExternalId;
 import org.neo4j.ogm.exception.OptimisticLockingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * Test of behaviour of the Session cache when optimistic locking failures happen
@@ -42,7 +42,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author Frantisek Hartman
  * @author Michael J. Simons
  */
-public class SessionCacheOptimisticLockingTest extends MultiDriverTestClass {
+public class SessionCacheOptimisticLockingTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -50,7 +50,7 @@ public class SessionCacheOptimisticLockingTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void setUpClass() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.locking");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.locking");
     }
 
     @Before

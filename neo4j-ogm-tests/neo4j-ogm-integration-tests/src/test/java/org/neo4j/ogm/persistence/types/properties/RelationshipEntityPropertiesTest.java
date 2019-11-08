@@ -33,14 +33,14 @@ import org.neo4j.ogm.domain.properties.User;
 import org.neo4j.ogm.domain.properties.Visit;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * Test for @{@link org.neo4j.ogm.annotation.Properties} annotation on @RelationshipEntity class
  *
  * @author Frantisek Hartman
  */
-public class RelationshipEntityPropertiesTest extends MultiDriverTestClass {
+public class RelationshipEntityPropertiesTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -50,7 +50,7 @@ public class RelationshipEntityPropertiesTest extends MultiDriverTestClass {
     public static void init() throws IOException {
         // Listing concrete classes because package also contains invalid mapping (for testing)
         String[] classes = new String[] { User.class.getName(), Visit.class.getName(), Place.class.getName() };
-        sessionFactory = new SessionFactory(driver, classes);
+        sessionFactory = new SessionFactory(getDriver(), classes);
     }
 
     @Before

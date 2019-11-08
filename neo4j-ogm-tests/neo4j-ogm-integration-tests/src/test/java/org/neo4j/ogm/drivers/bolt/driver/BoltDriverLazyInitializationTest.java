@@ -30,7 +30,7 @@ import org.neo4j.ogm.testutil.TestUtils;
 public class BoltDriverLazyInitializationTest extends DriverLazyInitializationTest {
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         configBuilder = new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties"))
             .uri("bolt://localhost:" + TestUtils.getAvailablePort());
     }

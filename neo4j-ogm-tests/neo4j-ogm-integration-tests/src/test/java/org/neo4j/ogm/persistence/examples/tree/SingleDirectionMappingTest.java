@@ -27,18 +27,18 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.tree.Node;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  *
  */
-public class SingleDirectionMappingTest extends MultiDriverTestClass {
+public class SingleDirectionMappingTest extends TestContainersTestBase {
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.tree").openSession();
+        session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.tree").openSession();
         session.purgeDatabase();
     }
 

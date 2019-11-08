@@ -44,7 +44,7 @@ public class FilterTest {
     public void toCypher() {
         Filter filter = new Filter("moons", ComparisonOperator.LESS_THAN, 23);
         filter.setBooleanOperator(BooleanOperator.AND);
-        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`moons` < { `moons_0` } ");
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`moons` < $`moons_0` ");
     }
 
     @Test
@@ -55,7 +55,7 @@ public class FilterTest {
         filter.setNegated(true);
         assertThat(filter.toCypher("n", true))
             .isEqualTo(
-                "WHERE NOT(distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ");
+                "WHERE NOT(distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude: $lat, longitude: $lon})) < $distance ) ");
     }
 
     @Test
@@ -63,7 +63,7 @@ public class FilterTest {
         ContainsAnyComparison filterFunction = new ContainsAnyComparison("test");
         Filter filter = new Filter("property", filterFunction);
         assertThat(filter.toCypher("n", true))
-            .isEqualTo("WHERE ANY(collectionFields IN {`property_0`} WHERE collectionFields in n.`property`) ");
+            .isEqualTo("WHERE ANY(collectionFields IN $`property_0` WHERE collectionFields in n.`property`) ");
         assertThat(filter.parameters().get("property_0")).isEqualTo("test");
 
     }
@@ -120,11 +120,11 @@ public class FilterTest {
         final String value = "someOtherThing";
         Filter filter = new Filter("thing", ComparisonOperator.EQUALS, value);
         filter.setFunction(new PropertyComparison(value));
-        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` = { `thing_0` } ");
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` = $`thing_0` ");
 
         filter = new Filter("thing", ComparisonOperator.EQUALS, value);
         filter.ignoreCase();
-        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE toLower(n.`thing`) = toLower({ `thing_0` }) ");
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE toLower(n.`thing`) = toLower($`thing_0`) ");
     }
 
     @Test
@@ -132,7 +132,7 @@ public class FilterTest {
         final String value = "someOtherThing";
         Filter filter = new Filter("thing", ComparisonOperator.CONTAINING, value);
         filter.ignoreCase();
-        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE toLower(n.`thing`) CONTAINS toLower({ `thing_0` }) ");
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE toLower(n.`thing`) CONTAINS toLower($`thing_0`) ");
     }
 
     @Test

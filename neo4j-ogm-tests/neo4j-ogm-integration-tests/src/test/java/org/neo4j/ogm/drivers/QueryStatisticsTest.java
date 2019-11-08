@@ -28,14 +28,14 @@ import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Frantisek Hartman
  */
-public class QueryStatisticsTest extends MultiDriverTestClass {
+public class QueryStatisticsTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private static final Logger logger = LoggerFactory.getLogger(QueryStatisticsTest.class);
@@ -44,7 +44,7 @@ public class QueryStatisticsTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.social");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
     }
 
     @Before

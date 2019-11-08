@@ -38,19 +38,19 @@ import org.neo4j.ogm.domain.hierarchy.relations.Type2;
 import org.neo4j.ogm.domain.hierarchy.relations.Type3;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Luanne Misquitta
  */
-public class HierarchyRelsTest extends MultiDriverTestClass {
+public class HierarchyRelsTest extends TestContainersTestBase {
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.relations", "org.neo4j.ogm.domain.forum")
+        session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.hierarchy.relations", "org.neo4j.ogm.domain.forum")
             .openSession();
         session.purgeDatabase();
     }

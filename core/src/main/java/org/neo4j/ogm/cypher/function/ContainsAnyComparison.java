@@ -61,7 +61,7 @@ public class ContainsAnyComparison implements FilterFunction<Object> {
 
     @Override
     public String expression(String nodeIdentifier) {
-        return String.format("ANY(collectionFields IN {`%s`} WHERE collectionFields in %s.`%s`) ",
+        return String.format("ANY(collectionFields IN $`%s` WHERE collectionFields in %s.`%s`) ",
             filter.uniqueParameterName(), nodeIdentifier, filter.getPropertyName());
     }
 

@@ -57,8 +57,8 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
         String latitude = nodeIdentifier + LATITUDE_PROPERTY_SUFFIX;
         String longitude = nodeIdentifier + LONGITUDE_PROPERTY_SUFFIX;
 
-        return String.format("distance(point({latitude: %s, longitude: %s}),point({latitude:{lat}, longitude:{lon}})) " +
-            "%s {distance} ", latitude, longitude, filter.getComparisonOperator().getValue());
+        return String.format("distance(point({latitude: %s, longitude: %s}),point({latitude: $lat, longitude: $lon})) " +
+            "%s $distance ", latitude, longitude, filter.getComparisonOperator().getValue());
     }
 
     @Override

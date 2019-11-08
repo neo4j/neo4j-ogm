@@ -237,7 +237,6 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     private void createPermanentFileStore(String strPath) {
-
         try {
             URI uri = new URI(strPath);
             File file = new File(uri);

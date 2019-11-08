@@ -47,6 +47,6 @@ public class RelationshipEntityQueryPagingTest {
             query.findByType("ORBITS", new Filters().add(new Filter("distance", ComparisonOperator.EQUALS, 60.2)), 1)
                 .setPagination(new Pagination(0, 4)).getStatement())
             .isEqualTo(
-                "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` = { `distance_0` }  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m SKIP 0 LIMIT 4 MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
+                "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` = $`distance_0`  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m SKIP 0 LIMIT 4 MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 }

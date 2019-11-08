@@ -28,7 +28,7 @@ import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * These tests define the behaviour of the OGM with regard to
@@ -53,7 +53,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  *
  * @author Vince Bickers
  */
-public class StaleObjectTest extends MultiDriverTestClass {
+public class StaleObjectTest extends TestContainersTestBase {
 
     private Folder f;
     private Document a;
@@ -63,7 +63,7 @@ public class StaleObjectTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.filesystem");
+        SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.filesystem");
         session = sessionFactory.openSession();
         session.purgeDatabase();
 

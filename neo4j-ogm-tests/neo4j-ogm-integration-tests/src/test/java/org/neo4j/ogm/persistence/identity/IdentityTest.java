@@ -18,11 +18,13 @@
  */
 package org.neo4j.ogm.persistence.identity;
 
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.annotation.Relationship.*;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -39,8 +42,7 @@ import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.GraphTestUtils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author vince
  * @author Michael J. Simons
  */
-public class IdentityTest extends MultiDriverTestClass {
+public class IdentityTest extends TestContainersTestBase {
 
     private static final Logger logger = LoggerFactory.getLogger(IdentityTest.class);
 
@@ -62,7 +64,7 @@ public class IdentityTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.identity");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.identity");
     }
 
     @Before
@@ -171,20 +173,20 @@ public class IdentityTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void indistinguishableRelationshipsMapAsSingleRelatedEntityInstance() throws Exception {
+    public void indistinguishableRelationshipsMapAsSingleRelatedEntityInstance() {
 
-        Map<String, Object> ids = getGraphDatabaseService().execute("CREATE "
+        Map<String, Object> ids = session.query("CREATE "
             + "(n1:NODE), (n2:NODE),"
             + "(n1)-[:RELATED]->(n2),"
             + "(n1)-[:RELATED]->(n2)"
-            + "RETURN id(n1) AS id1, id(n2) AS id2").next();
+            + "RETURN id(n1) AS id1, id(n2) AS id2", emptyMap()).queryResults().iterator().next();
 
         Node node = session.load(Node.class, (Long) ids.get("id1"));
         assertThat(node.related).hasSize(1);
     }
 
     @Test
-    public void indistinguishableEntityInstancesMapAsSingleRelationship() throws Exception {
+    public void indistinguishableEntityInstancesMapAsSingleRelationship() {
         Node nodeA = new Node();
         Node nodeB = new Node();
 
@@ -192,9 +194,9 @@ public class IdentityTest extends MultiDriverTestClass {
 
         session.save(nodeA);
 
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-            "CREATE (n1:NODE), (n2:NODE),"
-                + "(n1)-[:RELATED]->(n2)");
+        session.clear();
+        assertThat(session.query("MATCH (n1:NODE), (n2:NODE) WHERE (n1)-[:RELATED]->(n2) return n1, n2", emptyMap())
+            .queryResults()).hasSize(1);
     }
 
     @NodeEntity(label = "NODE")

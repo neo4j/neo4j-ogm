@@ -19,9 +19,10 @@
 package org.neo4j.ogm.session;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assumptions.*;
+import static org.assertj.core.api.Assumptions.assumeThat;
+import static org.junit.Assume.*;
 
-import org.assertj.core.api.Assumptions;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -32,18 +33,20 @@ import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Michael J. Simons
+ * @author Gerrit Meier
  */
-public class SessionFactoryTest extends MultiDriverTestClass {
+public class SessionFactoryTest extends TestContainersTestBase {
 
     @Test
     public void shouldMergeBasePackages() {
 
-        Configuration configuration = getBaseConfiguration()
+        Configuration configuration = new Configuration.Builder()
             .withBasePackages(Bike.class.getPackage().getName())
+            .uri("bolt://somewhere") // some bolt url to avoid embedded driver (and database) creation
             .build();
 
         SessionFactory sessionFactory = new SessionFactory(configuration, Author.class.getPackage().getName());
@@ -52,13 +55,12 @@ public class SessionFactoryTest extends MultiDriverTestClass {
         assertThat(sessionFactory.metaData().classInfo(Pizza.class)).isNull();
     }
 
-
     @Test
     public void shouldUnwrapBoltDriver() {
 
-        assumeThat(driver).isInstanceOf(BoltDriver.class);
+        assumeTrue(isBoltDriver());
 
-        SessionFactory sessionFactory = new SessionFactory(driver, Bike.class.getPackage().getName());
+        SessionFactory sessionFactory = new SessionFactory(getDriver(), Bike.class.getPackage().getName());
 
         // Neo4j-OGM Driver
         assertThat(sessionFactory.unwrap(BoltDriver.class))
@@ -76,33 +78,11 @@ public class SessionFactoryTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldUnwrapEmbeddedDriver() {
-
-        assumeThat(driver).isInstanceOf(EmbeddedDriver.class);
-
-        SessionFactory sessionFactory = new SessionFactory(driver, Bike.class.getPackage().getName());
-
-        // Neo4j-OGM Driver
-        assertThat(sessionFactory.unwrap(EmbeddedDriver.class))
-            .isInstanceOf(EmbeddedDriver.class);
-        // Underlying embedded instance
-        assertThat(sessionFactory.unwrap(GraphDatabaseService.class))
-            .isInstanceOf(GraphDatabaseService.class);
-
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> sessionFactory.unwrap(BoltDriver.class));
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> sessionFactory.unwrap(Driver.class));
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> sessionFactory.unwrap(HttpDriver.class));
-    }
-
-    @Test
     public void shouldUnwrapHttpDriver() {
 
-        assumeThat(driver).isInstanceOf(HttpDriver.class);
+        assumeTrue(isHttpDriver());
 
-        SessionFactory sessionFactory = new SessionFactory(driver, Bike.class.getPackage().getName());
+        SessionFactory sessionFactory = new SessionFactory(getDriver(), Bike.class.getPackage().getName());
 
         // Neo4j-OGM Driver
         assertThat(sessionFactory.unwrap(HttpDriver.class))

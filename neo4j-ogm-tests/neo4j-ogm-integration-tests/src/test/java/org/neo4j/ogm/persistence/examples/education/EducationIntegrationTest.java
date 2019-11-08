@@ -36,19 +36,19 @@ import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
  */
-public class EducationIntegrationTest extends MultiDriverTestClass {
+public class EducationIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
-    public static void oneTimeSetUp() throws IOException {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.education");
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.education");
     }
 
     @Before

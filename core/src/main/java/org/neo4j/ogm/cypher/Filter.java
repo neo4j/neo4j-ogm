@@ -501,7 +501,7 @@ public class Filter implements FilterWithRelationship {
         @Override
         public String expression(final String nodeIdentifier) {
             final Filter filter = this.getFilter();
-            return String.format("toLower(%s.`%s`) %s toLower({ `%s` }) ", nodeIdentifier, filter.getPropertyName(),
+            return String.format("toLower(%s.`%s`) %s toLower($`%s`) ", nodeIdentifier, filter.getPropertyName(),
                 filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
         }
     }

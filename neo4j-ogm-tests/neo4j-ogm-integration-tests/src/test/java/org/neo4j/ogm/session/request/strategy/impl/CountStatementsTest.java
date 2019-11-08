@@ -56,7 +56,7 @@ public class CountStatementsTest {
         CypherQuery query = statements
             .countNodes("Person", new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Jim")));
         assertThat(query.getStatement())
-            .isEqualTo("MATCH (n:`Person`) WHERE n.`name` = { `name_0` } WITH n RETURN COUNT(n)");
+            .isEqualTo("MATCH (n:`Person`) WHERE n.`name` = $`name_0` WITH n RETURN COUNT(n)");
         assertThat(query.getParameters().toString()).isEqualTo("{name_0=Jim}");
     }
 
@@ -65,7 +65,7 @@ public class CountStatementsTest {
         CypherQuery query = statements
             .countEdges("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
         assertThat(query.getStatement())
-            .isEqualTo("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  RETURN COUNT(r0)");
+            .isEqualTo("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = $`score_0`  RETURN COUNT(r0)");
         assertThat(query.getParameters().toString()).isEqualTo("{score_0=-12.2}");
     }
 

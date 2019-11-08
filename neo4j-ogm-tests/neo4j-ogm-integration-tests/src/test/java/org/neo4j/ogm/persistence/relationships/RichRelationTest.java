@@ -38,14 +38,14 @@ import org.neo4j.ogm.domain.versioned_rel.Template;
 import org.neo4j.ogm.domain.versioned_rel.UsedBy;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.testutil.RepeatRule;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Nils Dröge
  * @author Michael J. Simons
  */
-public class RichRelationTest extends MultiDriverTestClass {
+public class RichRelationTest extends TestContainersTestBase {
 
     @Rule
     public RepeatRule repeatRule = new RepeatRule();
@@ -55,7 +55,7 @@ public class RichRelationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void prepareSessionFactory() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.mappings", "org.neo4j.ogm.domain.versioned_rel");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.mappings", "org.neo4j.ogm.domain.versioned_rel");
     }
 
     @Before

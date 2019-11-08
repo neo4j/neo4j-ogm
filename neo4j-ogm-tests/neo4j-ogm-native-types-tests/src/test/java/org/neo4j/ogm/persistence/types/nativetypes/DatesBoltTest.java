@@ -19,8 +19,8 @@
 package org.neo4j.ogm.persistence.types.nativetypes;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assume.*;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -28,12 +28,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.BeforeClass;
-import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Values;
-import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.Session;
@@ -46,14 +44,12 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class DatesBoltTest extends DatesTestBase {
 
-    private static URI boltURI = TestServerBuilders.newInProcessBuilder().newServer().boltURI();
-
     @BeforeClass
     public static void init() {
 
-        Configuration ogmConfiguration = new Configuration.Builder()
-            .uri(boltURI.toString())
-            .encryptionLevel("NONE")
+        assumeTrue(isBoltDriver());
+
+        Configuration ogmConfiguration = getBaseConfigurationBuilder()
             .useNativeTypes()
             .build();
 
@@ -79,7 +75,7 @@ public class DatesBoltTest extends DatesTestBase {
     public void shouldUseNativeDateTimeTypesInParameterMaps() {
 
         try (
-            Driver driver = GraphDatabase.driver(boltURI, Config.builder().withoutEncryption().build());
+            Driver driver = GraphDatabase.driver(getBoltUrl())
         ) {
             Session session = sessionFactory.openSession();
 
@@ -109,7 +105,7 @@ public class DatesBoltTest extends DatesTestBase {
 
         Map<String, Object> params = createSometimeWithConvertedLocalDate();
         try (
-            Driver driver = GraphDatabase.driver(boltURI, Config.builder().withoutEncryption().build());
+            Driver driver = GraphDatabase.driver(getBoltUrl())
         ) {
             Record record = driver.session()
                 .run(

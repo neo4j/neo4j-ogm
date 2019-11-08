@@ -32,12 +32,12 @@ import org.neo4j.ogm.domain.simpleNetwork.classes.StateNode;
 import org.neo4j.ogm.domain.simpleNetwork.classes.TimeRelation;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author vince
  */
-public class SimpleNetworkIntegrationTest extends MultiDriverTestClass {
+public class SimpleNetworkIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -45,7 +45,7 @@ public class SimpleNetworkIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.simpleNetwork");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.simpleNetwork");
     }
 
     @Before

@@ -23,9 +23,11 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Arrays;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
@@ -35,13 +37,20 @@ import org.neo4j.ogm.types.spatial.GeographicPoint3d;
  * @author Gerrit Meier
  * @author Michael J. Simons
  */
-public abstract class SpatialTestBase {
+public abstract class SpatialTestBase extends TestContainersTestBase {
 
     static SessionFactory sessionFactory;
 
+    @Before
+    public void clearDatabase() {
+        sessionFactory.openSession().purgeDatabase();
+    }
+
     @AfterClass
     public static void shutDown() {
-        sessionFactory.close();
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
 
     @Test

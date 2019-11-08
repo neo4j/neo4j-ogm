@@ -23,33 +23,33 @@ import static org.junit.Assume.*;
 
 import org.apache.http.client.HttpResponseException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-
-public class AuthenticatingDriverTest extends MultiDriverTestClass {
+@Ignore
+public class AuthenticatingHttpDriverTest extends TestContainersTestBase {
 
     private Session session;
 
     @Before
     public void beforeMethod() {
-        assumeTrue(getBaseConfiguration().build().getDriverClassName().equals(HttpDriver.class.getName()));
+        assumeTrue(isEmbeddedDriver());
     }
 
     @Test
     public void testUnauthorizedDriver() {
-
-        session = new SessionFactory(getBaseConfiguration().credentials("", "").build(), "dummy").openSession();
-
-        try (Transaction tx = session.beginTransaction()) {
+        try {
+            session = new SessionFactory(getBaseConfigurationBuilder().credentials("", "").build(), "dummy")
+                .openSession();
+            Transaction tx = session.beginTransaction();
             tx.commit();
             fail("Driver should not have authenticated");
         } catch (Exception rpe) {
@@ -63,26 +63,23 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
 
     @Test
     public void testAuthorizedDriver() {
-
-        session = new SessionFactory(driver, "dummy").openSession();
-
-        try (Transaction ignored = session.beginTransaction()) {
+        try {
+            session = new SessionFactory(getDriver(), "dummy").openSession();
+            Transaction ignored = session.beginTransaction();
             assertThat(ignored).isNotNull();
         } catch (Exception rpe) {
             fail("'" + rpe.getLocalizedMessage() + "' was not expected here");
         }
     }
 
-    /**
-     * @see issue #35
-     */
-    @Test
+    @Test // GH-35
     public void testInvalidCredentials() {
 
-        session = new SessionFactory(getBaseConfiguration().credentials("neo4j", "invalid_password").build(), "dummy")
-            .openSession();
-
-        try (Transaction tx = session.beginTransaction()) {
+        try {
+            session = new SessionFactory(getBaseConfigurationBuilder().credentials("neo4j", "invalid_password").build(),
+                "dummy")
+                .openSession();
+            Transaction tx = session.beginTransaction();
             fail("Driver should not have authenticated");
         } catch (Exception rpe) {
             Throwable cause = rpe.getCause();

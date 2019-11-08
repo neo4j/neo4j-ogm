@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.neo4j.ogm.annotation.CompositeIndex;
@@ -36,12 +37,12 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.DefaultRequest;
-import org.neo4j.ogm.session.request.RowDataStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,7 @@ import org.slf4j.LoggerFactory;
  * @author Mark Angrish
  * @author Eric Spiegelberg
  * @author Michael J. Simons
+ * @author Gerrit Meier
  */
 public class AutoIndexManager {
 
@@ -63,6 +65,7 @@ public class AutoIndexManager {
     private final List<AutoIndex> indexes;
 
     private final Neo4jSession session;
+    private DatabaseInformation databaseInfo;
 
     public AutoIndexManager(MetaData metaData, Configuration configuration, Neo4jSession session) {
 
@@ -79,6 +82,10 @@ public class AutoIndexManager {
      * indexes. Does nothing in all other cases.
      */
     public void run() {
+
+        databaseInfo = DatabaseInformation.parse(session.query("call dbms.components()",
+            emptyMap()).queryResults().iterator().next());
+
         switch (this.mode) {
             case ASSERT:
                 assertIndexes();
@@ -166,17 +173,24 @@ public class AutoIndexManager {
     }
 
     private List<AutoIndex> loadIndexesFromDB() {
-        DefaultRequest indexRequests = buildProcedures();
         List<AutoIndex> dbIndexes = new ArrayList<>();
+
         session.doInTransaction(() -> {
-            try (Response<RowModel> response = session.requestHandler().execute(indexRequests)) {
-                RowModel rowModel;
-                while ((rowModel = response.next()) != null) {
-                    Optional<AutoIndex> dbIndex = AutoIndex.parse((String) rowModel.getValues()[0]);
-                    dbIndex.ifPresent(dbIndexes::add);
-                }
+            Result query = session.query("CALL db.constraints()", emptyMap());
+            for (Map<String, Object> queryResult : query.queryResults()) {
+                Optional<AutoIndex> dbIndex = AutoIndex.parseConstraint(queryResult, databaseInfo.version);
+                dbIndex.ifPresent(dbIndexes::add);
             }
-        }, READ_WRITE);
+        }, READ_ONLY);
+
+        session.doInTransaction(() -> {
+            Result query = session.query("CALL db.indexes()", emptyMap());
+            for (Map<String, Object> queryResult : query.queryResults()) {
+                Optional<AutoIndex> dbIndex = AutoIndex.parseIndex(queryResult, databaseInfo.version);
+                dbIndex.ifPresent(dbIndexes::add);
+            }
+        }, READ_ONLY);
+
         return dbIndexes;
     }
 
@@ -210,19 +224,6 @@ public class AutoIndexManager {
                 // Success
             }
         }, READ_WRITE);
-    }
-
-    private DefaultRequest buildProcedures() {
-        List<Statement> procedures = new ArrayList<>();
-
-        procedures.add(new RowDataStatement("CALL db.constraints()", emptyMap()));
-        procedures.add(new RowDataStatement(
-            "CALL db.indexes() YIELD description, type WITH description, type WHERE type <> 'node_unique_property' RETURN description",
-            emptyMap()));
-
-        DefaultRequest getIndexesRequest = new DefaultRequest();
-        getIndexesRequest.setStatements(procedures);
-        return getIndexesRequest;
     }
 
     private void create() {
@@ -336,5 +337,26 @@ public class AutoIndexManager {
 
         indexFields.addAll(classInfo.getIndexFields());
         return indexFields;
+    }
+
+    private static class DatabaseInformation {
+
+        final String version;
+        final String edition;
+
+        private DatabaseInformation(String version, String edition) {
+            this.version = version;
+            this.edition = edition;
+        }
+
+        static DatabaseInformation parse(Map<String, Object> databaseInformation) {
+
+            return new DatabaseInformation(extractVersion(databaseInformation),
+                (String) databaseInformation.get("edition"));
+        }
+
+        private static String extractVersion(Map<String, Object> databaseInformation) {
+            return ((String[]) databaseInformation.get("versions"))[0];
+        }
     }
 }

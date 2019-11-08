@@ -34,7 +34,7 @@ import org.neo4j.ogm.domain.hierarchy.dualRelation.ThingOwned;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * This test passes because DataView and DataViewOwned have their setSharedWith annotated with @Relationship.
@@ -45,7 +45,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class DualRelationshipTest extends MultiDriverTestClass {
+public class DualRelationshipTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -53,7 +53,7 @@ public class DualRelationshipTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.dualRelation");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.hierarchy.dualRelation");
     }
 
     @Before
@@ -109,7 +109,7 @@ public class DualRelationshipTest extends MultiDriverTestClass {
 
         session.clear();
 
-        String query = "MATCH (n:DataView) WITH n MATCH p=(n)-[*0..1]-(m) RETURN n,nodes(p),rels(p)";
+        String query = "MATCH (n:DataView) WITH n MATCH p=(n)-[*0..1]-(m) RETURN n,nodes(p),relationships(p)";
 
         DataView found = session.queryForObject(DataView.class, query, Collections.emptyMap());
 
@@ -161,7 +161,7 @@ public class DualRelationshipTest extends MultiDriverTestClass {
 
         session.clear();
 
-        String query = "MATCH (n:DataViewOwned) WITH n MATCH p=(n)-[*0..1]-(m) RETURN n,nodes(p),rels(p)";
+        String query = "MATCH (n:DataViewOwned) WITH n MATCH p=(n)-[*0..1]-(m) RETURN n,nodes(p),relationships(p)";
 
         DataViewOwned found = session.queryForObject(DataViewOwned.class, query, Collections.emptyMap());
 

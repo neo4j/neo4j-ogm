@@ -21,9 +21,8 @@ package org.neo4j.ogm.persistence.types.properties;
 import org.junit.Test;
 import org.neo4j.ogm.domain.properties.UserWithInvalidPropertiesType;
 import org.neo4j.ogm.exception.core.MappingException;
-import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * Test for {@link org.neo4j.ogm.annotation.Properties} annotation that tests that invalid cases throw
@@ -31,13 +30,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  *
  * @author Frantisek Hartman
  */
-public class InvalidPropertiesTest extends MultiDriverTestClass {
-
-    private static Session session;
+public class InvalidPropertiesTest extends TestContainersTestBase {
 
     @Test(expected = MappingException.class)
-    public void shouldThrowInvalidMappingException() throws Exception {
-        session = new SessionFactory(driver,
+    public void shouldThrowInvalidMappingException() {
+        new SessionFactory(getDriver(),
             UserWithInvalidPropertiesType.class.getName())
             .openSession();
     }

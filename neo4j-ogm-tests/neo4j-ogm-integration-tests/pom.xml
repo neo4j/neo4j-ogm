@@ -31,6 +31,10 @@
     <name>Neo4j-OGM Integration tests</name>
     <description>Integration tests of Neo4j-OGM Core and API across different transports.</description>
 
+    <properties>
+        <testcontainers.version>1.12.3</testcontainers.version>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -143,6 +147,25 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>neo4j</artifactId>
+            <version>${testcontainers.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-compress</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>

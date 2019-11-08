@@ -48,18 +48,18 @@ import org.neo4j.ogm.domain.convertible.numbers.Account;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
  */
-public class ConvertibleIntegrationTest extends MultiDriverTestClass {
+public class ConvertibleIntegrationTest extends TestContainersTestBase {
 
     private static Session session;
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.convertible").openSession();
+        session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.convertible").openSession();
     }
 
     @After

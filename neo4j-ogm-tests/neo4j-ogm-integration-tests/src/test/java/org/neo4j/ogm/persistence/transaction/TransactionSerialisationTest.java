@@ -29,14 +29,14 @@ import org.junit.Test;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * GH-130
  * @author Vince Bickers
  */
-public class TransactionSerialisationTest extends MultiDriverTestClass {
+public class TransactionSerialisationTest extends TestContainersTestBase {
 
     @Test
     public void shouldBeAbleToRunMultiThreadedLongRunningQueriesWithoutLosingConnectionResources()
@@ -82,7 +82,7 @@ public class TransactionSerialisationTest extends MultiDriverTestClass {
 
         private final CountDownLatch latch;
         private final String query;
-        private final SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.tree");
+        private final SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.tree");
 
         QueryRunner(CountDownLatch latch, String query) {
             this.query = query;

@@ -24,6 +24,7 @@ import static java.util.regex.Pattern.*;
 import static org.neo4j.ogm.autoindex.IndexType.*;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -183,27 +184,60 @@ class AutoIndex {
         return description;
     }
 
-    static Optional<AutoIndex> parse(String description) {
+    static Optional<AutoIndex> parseConstraint(Map<String, Object> constraintRow, String version) {
 
         Pattern pattern;
         Matcher matcher;
 
-        pattern = compile("INDEX ON :(?<label>.*)\\((?<property>.*)\\)");
-        matcher = pattern.matcher(description);
-        if (matcher.matches()) {
-            String label = matcher.group("label");
-            String[] properties = matcher.group("property").split(",");
-            for (int i = 0; i < properties.length; i++) {
-                properties[i] = properties[i].trim();
-            }
-            if (properties.length > 1) {
-                return of(new AutoIndex(IndexType.COMPOSITE_INDEX, label, properties));
-            } else {
-                return of(new AutoIndex(SINGLE_INDEX, label, properties));
-            }
-        }
+        String description = (String) constraintRow.get("description");
+        if (version.compareTo("4.0") < 0) {
 
-        pattern = compile("CONSTRAINT ON \\((?<name>.*):(?<label>.*)\\) ASSERT ?\\k<name>.(?<property>.*) IS UNIQUE");
+            pattern = compile(
+                "CONSTRAINT ON \\((?<name>.*):(?<label>.*)\\) ASSERT ?\\k<name>.(?<property>.*) IS UNIQUE");
+            matcher = pattern.matcher(description);
+            if (matcher.matches()) {
+                String label = matcher.group("label").trim();
+                String[] properties = matcher.group("property").split(",");
+                return of(new AutoIndex(IndexType.UNIQUE_CONSTRAINT, label, properties));
+            }
+
+            pattern = compile(
+                "CONSTRAINT ON \\((?<name>.*):(?<label>.*)\\) ASSERT \\((?<properties>.*)\\) IS NODE KEY");
+            matcher = pattern.matcher(description);
+            if (matcher.matches()) {
+                String label = matcher.group("label").trim();
+                String[] properties = matcher.group("properties").split(",");
+                for (int i = 0; i < properties.length; i++) {
+                    properties[i] = properties[i].trim().substring(label.length() + 1);
+                }
+                return of(new AutoIndex(IndexType.NODE_KEY_CONSTRAINT, label, properties));
+            }
+
+            pattern = compile(
+                "CONSTRAINT ON \\(\\s?(?<name>.*):(?<label>.*)\\s?\\) ASSERT exists\\(?\\k<name>.(?<property>.*)\\)");
+            matcher = pattern.matcher(description);
+            if (matcher.matches()) {
+                String label = matcher.group("label").trim();
+                String[] properties = matcher.group("property").split(",");
+                return of(new AutoIndex(IndexType.NODE_PROP_EXISTENCE_CONSTRAINT, label, properties));
+            }
+
+            pattern = compile(
+                "CONSTRAINT ON \\(\\)-\\[\\s?(?<name>.*):(?<label>.*)\\s?\\]-\\(\\) ASSERT exists\\(?\\k<name>.(?<property>.*)\\)");
+            matcher = pattern.matcher(description);
+            if (matcher.matches()) {
+                String label = matcher.group("label").trim();
+                String[] properties = matcher.group("property").split(",");
+                for (int i = 0; i < properties.length; i++) {
+                    properties[i] = properties[i].trim();
+                }
+                return of(new AutoIndex(IndexType.REL_PROP_EXISTENCE_CONSTRAINT, label, properties));
+            }
+
+            logger.warn("Could not parse constraint description {}", description);
+        }
+        pattern = compile(
+            "CONSTRAINT ON \\( ?(?<name>.+):(?<label>.+) ?\\) ASSERT \\(\\k<name>\\.(?<property>.*)\\) IS UNIQUE");
         matcher = pattern.matcher(description);
         if (matcher.matches()) {
             String label = matcher.group("label").trim();
@@ -211,7 +245,8 @@ class AutoIndex {
             return of(new AutoIndex(IndexType.UNIQUE_CONSTRAINT, label, properties));
         }
 
-        pattern = compile("CONSTRAINT ON \\((?<name>.*):(?<label>.*)\\) ASSERT \\((?<properties>.*)\\) IS NODE KEY");
+        pattern = compile(
+            "CONSTRAINT ON \\((?<name>.*):(?<label>.*)\\) ASSERT \\((?<properties>.*)\\) IS NODE KEY");
         matcher = pattern.matcher(description);
         if (matcher.matches()) {
             String label = matcher.group("label").trim();
@@ -243,9 +278,53 @@ class AutoIndex {
             return of(new AutoIndex(IndexType.REL_PROP_EXISTENCE_CONSTRAINT, label, properties));
         }
 
-        logger.warn("Could not parse index description {}", description);
-
+        logger.warn("Could not parse constraint description {}", description);
         return empty();
+    }
+    static Optional<AutoIndex> parseIndex(Map<String, Object> indexRow, String version) {
+
+        Pattern pattern;
+        Matcher matcher;
+
+        if (version.compareTo("4.0") < 0) {
+            // skip unique properties index because they will get processed within
+            // the collection of constraints.
+            String indexType = (String) indexRow.get("type");
+            if (indexType.equals("node_unique_property")) {
+                return empty();
+            }
+
+            String description = (String) indexRow.get("description");
+            pattern = compile("INDEX ON :(?<label>.*)\\((?<property>.*)\\)");
+            matcher = pattern.matcher(description);
+            if (matcher.matches()) {
+                String label = matcher.group("label");
+                String[] properties = matcher.group("property").split(",");
+                for (int i = 0; i < properties.length; i++) {
+                    properties[i] = properties[i].trim();
+                }
+                if (properties.length > 1) {
+                    return of(new AutoIndex(IndexType.COMPOSITE_INDEX, label, properties));
+                } else {
+                    return of(new AutoIndex(SINGLE_INDEX, label, properties));
+                }
+            }
+            logger.warn("Could not parse index description {}", description);
+        }
+
+        // skip unique properties index because they will get processed within
+        // the collection of constraints.
+        String indexUniqueness = (String) indexRow.get("uniqueness");
+        if (indexUniqueness.equals("UNIQUE")) {
+            return empty();
+        }
+
+        String[] indexProperties = (String[]) indexRow.get("properties");
+        String indexLabel = ((String[]) indexRow.get("labelsOrTypes"))[0];
+
+        return of(new AutoIndex(indexProperties.length > 1 ? COMPOSITE_INDEX : SINGLE_INDEX,
+            indexLabel, indexProperties));
+
     }
 
     @Override

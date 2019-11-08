@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class ParameterisedStatementsTest {
 
@@ -49,6 +50,6 @@ public class ParameterisedStatementsTest {
         String cypher = mapper.writeValueAsString(new Statements(statements));
 
         assertThat(cypher).isEqualTo(
-            "{\"statements\":[{\"statement\":\"MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}");
+            "{\"statements\":[{\"statement\":\"MATCH (n) WHERE ID(n) = $id WITH n MATCH p=(n)-[*0..1]-(m) RETURN p\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}");
     }
 }

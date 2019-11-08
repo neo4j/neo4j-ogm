@@ -57,7 +57,7 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
         if (newNodes != null && newNodes.size() > 0) {
             Node firstNode = newNodes.iterator().next();
 
-            queryBuilder.append("UNWIND {rows} as row ");
+            queryBuilder.append("UNWIND $rows as row ");
 
             if (firstNode.getPrimaryIndex() != null) {
                 queryBuilder.append("MERGE (n");
@@ -82,7 +82,7 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
                 queryBuilder.append(getFragmentForNewOrExistingNodes(firstNode, "n"));
             }
 
-            queryBuilder.append("SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type");
+            queryBuilder.append("SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type");
             List<Map> rows = newNodes.stream().map(node -> node.toRow("nodeRef")).collect(toList());
             parameters.put("type", "node");
             parameters.put("rows", rows);

@@ -61,7 +61,7 @@ public class PropertyComparison implements FilterFunction<Object> {
         } else if (filter.getComparisonOperator().equals(IS_TRUE)) {
             return String.format("%s.`%s` = true ", nodeIdentifier, filter.getPropertyName());
         } else {
-            return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(),
+            return String.format("%s.`%s` %s $`%s` ", nodeIdentifier, filter.getPropertyName(),
                 filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
         }
     }

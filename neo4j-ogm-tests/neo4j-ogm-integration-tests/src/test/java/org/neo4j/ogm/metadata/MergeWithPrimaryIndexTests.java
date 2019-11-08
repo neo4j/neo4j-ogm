@@ -68,7 +68,7 @@ public class MergeWithPrimaryIndexTests {
         Compiler compiler = mapAndCompile(pizza);
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
         assertThat(compiler.createNodesStatements().get(0).getStatement()).isEqualTo(
-            "UNWIND {rows} as row CREATE (n:`Pizza`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type");
+            "UNWIND $rows as row CREATE (n:`Pizza`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type");
     }
 
     @Test
@@ -78,7 +78,7 @@ public class MergeWithPrimaryIndexTests {
         Compiler compiler = mapAndCompile(newUser);
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
         assertThat(compiler.createNodesStatements().get(0).getStatement()).isEqualTo(
-            "UNWIND {rows} as row MERGE (n:`User`{login: row.props.login}) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, {type} as type");
+            "UNWIND $rows as row MERGE (n:`User`{login: row.props.login}) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type");
     }
 
     @Test(expected = MetadataException.class)

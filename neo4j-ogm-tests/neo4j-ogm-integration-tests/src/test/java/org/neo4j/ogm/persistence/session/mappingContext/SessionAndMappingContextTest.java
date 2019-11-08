@@ -37,14 +37,14 @@ import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Mihai Raulea
  * @see ISSUE-86
  */
-public class SessionAndMappingContextTest extends MultiDriverTestClass {
+public class SessionAndMappingContextTest extends TestContainersTestBase {
 
     // i need a Neo4jSession because the session interface does not define the context() method
     private Neo4jSession session;
@@ -62,7 +62,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = (Neo4jSession) new SessionFactory(driver, "org.neo4j.ogm.domain.music",
+        session = (Neo4jSession) new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music",
             "org.neo4j.ogm.domain.cineasts.annotated").openSession();
 
         artist1 = new Artist();

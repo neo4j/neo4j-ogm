@@ -36,12 +36,12 @@ import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 /**
  * @author Luanne Misquitta
  * @author Jasper Blues
- * @author Michael J. SImons
+ * @author Michael J. Simons
  */
 public class RelationshipDeleteStatements implements DeleteStatements {
 
     public CypherQuery delete(Long id) {
-        return new DefaultRowModelRequest("MATCH (n)-[r0]->() WHERE ID(r0) = { id } DELETE r0", Collections
+        return new DefaultRowModelRequest("MATCH (n)-[r0]->() WHERE ID(r0) = $id DELETE r0", Collections
             .singletonMap("id", id));
     }
 
@@ -58,18 +58,18 @@ public class RelationshipDeleteStatements implements DeleteStatements {
         params.put("type", "rel");
 
         return new DefaultRowModelRequest("MATCH (n)-[r0]->() "
-            + "  WHERE ID(r0) = {id} AND r0.`" + versionField.property() + "` = {version} "
+            + "  WHERE ID(r0) = $id AND r0.`" + versionField.property() + "` = $version "
             + "SET "
             + " r0.`" + versionField.property() + "` = r0.`" + versionField.property() + "` + 1 "
             + "WITH r0 "
-            + " WHERE r0.`" + versionField.property() + "` = {version} + 1 "
+            + " WHERE r0.`" + versionField.property() + "` = $version + 1 "
             + "DELETE r0 "
             + "RETURN DISTINCT ID(r0) AS id", // Use DISTINCT because node may have multiple relationships
             params, optimisticLockingConfig);
     }
 
     public CypherQuery delete(Collection<Long> ids) {
-        return new DefaultRowModelRequest("MATCH (n)-[r0]->() WHERE ID(r0) IN { ids } DELETE r0",
+        return new DefaultRowModelRequest("MATCH (n)-[r0]->() WHERE ID(r0) IN $ids DELETE r0",
             Collections.singletonMap("ids", ids));
     }
 

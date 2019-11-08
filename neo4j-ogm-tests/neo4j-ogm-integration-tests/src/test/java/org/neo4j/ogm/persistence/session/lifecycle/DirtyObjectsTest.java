@@ -29,19 +29,19 @@ import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Vince Bickers
  */
-public class DirtyObjectsTest extends MultiDriverTestClass {
+public class DirtyObjectsTest extends TestContainersTestBase {
 
     private Neo4jSession session;
     private SessionFactory sessionFactory;
 
     @Before
     public void init() throws IOException {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.filesystem");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.filesystem");
         session = (Neo4jSession) sessionFactory.openSession();
         session.purgeDatabase();
     }

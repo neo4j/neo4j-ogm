@@ -36,7 +36,7 @@ import org.neo4j.ogm.domain.postload.UserWithBrokenMethodDeclaration;
 import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * Test for {@link org.neo4j.ogm.annotation.PostLoad} annotation behaviour
@@ -44,7 +44,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author Frantisek Hartman
  * @author Michael J. Simons
  */
-public class PostLoadTest extends MultiDriverTestClass {
+public class PostLoadTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -52,7 +52,7 @@ public class PostLoadTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.postload",
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.postload",
             "org.neo4j.ogm.domain.generic_hierarchy");
     }
 

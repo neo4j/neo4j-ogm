@@ -19,28 +19,22 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
  */
-public class BoltDriverServiceTest extends MultiDriverTestClass {
-
-    @BeforeClass
-    public static void setUp() {
-        assumeTrue(getBaseConfiguration().build().getDriverClassName().equals(BoltDriver.class.getName()));
-    }
+public class BoltDriverServiceTest extends TestContainersTestBase {
 
     @Test
-    public void loadLoadBoltDriver() {
-        String uri = getBaseConfiguration().build().getURI();
+    public void loadBoltDriver() {
+        String uri = new Configuration.Builder(new ClasspathConfigurationSource("ogm.properties")).build().getURI();
         Configuration driverConfiguration = new Configuration.Builder().uri(uri).build();
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
         Driver driver = sf.unwrap(Driver.class);

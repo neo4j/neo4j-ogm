@@ -30,23 +30,22 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.domain.properties.SomeNode;
 import org.neo4j.ogm.domain.properties.User;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
  * @author Michael J. Simons
  */
-public class PropertiesTest extends MultiDriverTestClass {
+public class PropertiesTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -57,7 +56,7 @@ public class PropertiesTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void init() {
-        sessionFactory = new SessionFactory(driver, User.class.getName(), SomeNode.class.getName());
+        sessionFactory = new SessionFactory(getDriver(), User.class.getName(), SomeNode.class.getName());
     }
 
     @Before
@@ -81,13 +80,13 @@ public class PropertiesTest extends MultiDriverTestClass {
         assertThat(user.getEnumAProperties()).containsEntry(User.EnumA.VALUE_AA, "aa");
         assertThat(user.getEnumBProperties()).containsEntry(User.EnumB.VALUE_BA, "ba");
 
-        try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            Node userNode = getGraphDatabaseService().getNodeById(user.getId());
-            assertThat(userNode.getAllProperties()).containsKeys()
-                .containsKeys("enumAProperties.VALUE_AA", "enumBProperties.VALUE_BA");
-
-            tx.success();
-        }
+        session.clear();
+        User loadedObject = (User) session.query(
+            "MATCH (n) where id(n)=" + user.getId() + " return n", emptyMap())
+            .queryResults().iterator().next()
+            .get("n");
+        assertThat(loadedObject.getEnumAProperties()).containsEntry(User.EnumA.VALUE_AA, "aa");
+        assertThat(loadedObject.getEnumBProperties()).containsEntry(User.EnumB.VALUE_BA, "ba");
     }
 
     @Test // GH-634
@@ -102,13 +101,12 @@ public class PropertiesTest extends MultiDriverTestClass {
         user = session.load(User.class, user.getId());
         assertThat(user.getFilteredProperties()).containsEntry(User.EnumA.VALUE_AA, "aa");
 
-        try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            Node userNode = getGraphDatabaseService().getNodeById(user.getId());
-            assertThat(userNode.getAllProperties()).containsKeys()
-                .containsEntry("filteredProperties.value_aa", "aa");
-
-            tx.success();
-        }
+        session.clear();
+        User loadedObject = (User) session.query(
+            "MATCH (n) where id(n)=" + user.getId() + " return n", emptyMap())
+            .queryResults().iterator().next()
+            .get("n");
+        assertThat(loadedObject.getFilteredProperties()).containsEntry(User.EnumA.VALUE_AA, "aa");
     }
 
     @Test // GH-632
@@ -148,17 +146,13 @@ public class PropertiesTest extends MultiDriverTestClass {
         user.putMyProperty("zipCode", "SW1A 1AA");
 
         session.save(user);
-
-        try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            Node userNode = getGraphDatabaseService().getNodeById(user.getId());
-            assertThat(userNode.getAllProperties())
-                .hasSize(3)
-                .containsEntry("name", "Frantisek")
-                .containsEntry("myProperties.city", "London")
-                .containsEntry("myProperties.zipCode", "SW1A 1AA");
-
-            tx.success();
-        }
+        session.clear();
+        User loadedObject = (User) session.query(
+            "MATCH (n) where id(n)=" + user.getId() + " return n", emptyMap())
+            .queryResults().iterator().next()
+            .get("n");
+        assertThat(loadedObject.getMyProperties()).containsEntry("city", "London");
+        assertThat(loadedObject.getMyProperties()).containsEntry("zipCode", "SW1A 1AA");
     }
 
     @Test
@@ -170,17 +164,12 @@ public class PropertiesTest extends MultiDriverTestClass {
         user.putMyProperty("address", address);
 
         session.save(user);
-
-        try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            Node userNode = getGraphDatabaseService().getNodeById(user.getId());
-            assertThat(userNode.getAllProperties())
-                .hasSize(3)
-                .containsEntry("name", "Frantisek")
-                .containsEntry("myProperties.address.city", "London")
-                .containsEntry("myProperties.address.zipCode", "SW1A 1AA");
-
-            tx.success();
-        }
+        session.clear();
+        User loadedObject = (User) session.query(
+            "MATCH (n) where id(n)=" + user.getId() + " return n", emptyMap())
+            .queryResults().iterator().next()
+            .get("n");
+        assertThat(loadedObject.getMyProperties()).containsEntry("address", address);
     }
 
     @Test
@@ -190,17 +179,13 @@ public class PropertiesTest extends MultiDriverTestClass {
         user.putPrefixedProperty("zipCode", "SW1A 1AA");
 
         session.save(user);
-
-        try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            Node userNode = getGraphDatabaseService().getNodeById(user.getId());
-            assertThat(userNode.getAllProperties())
-                .hasSize(3)
-                .containsEntry("name", "Frantisek")
-                .containsEntry("myPrefix.city", "London")
-                .containsEntry("myPrefix.zipCode", "SW1A 1AA");
-
-            tx.success();
-        }
+        session.clear();
+        User loadedObject = (User) session.query(
+            "MATCH (n) where id(n)=" + user.getId() + " return n", emptyMap())
+            .queryResults().iterator().next()
+            .get("n");
+        assertThat(loadedObject.getPrefixedProperties()).containsEntry("city", "London");
+        assertThat(loadedObject.getPrefixedProperties()).containsEntry("zipCode", "SW1A 1AA");
     }
 
     @Test
@@ -210,17 +195,13 @@ public class PropertiesTest extends MultiDriverTestClass {
         user.putDelimiterProperty("zipCode", "SW1A 1AA");
 
         session.save(user);
-
-        try (Transaction tx = getGraphDatabaseService().beginTx()) {
-            Node userNode = getGraphDatabaseService().getNodeById(user.getId());
-            assertThat(userNode.getAllProperties())
-                .hasSize(3)
-                .containsEntry("name", "Frantisek")
-                .containsEntry("delimiterProperties__city", "London")
-                .containsEntry("delimiterProperties__zipCode", "SW1A 1AA");
-
-            tx.success();
-        }
+        session.clear();
+        User loadedObject = (User) session.query(
+            "MATCH (n) where id(n)=" + user.getId() + " return n", emptyMap())
+            .queryResults().iterator().next()
+            .get("n");
+        assertThat(loadedObject.getDelimiterProperties()).containsEntry("city", "London");
+        assertThat(loadedObject.getDelimiterProperties()).containsEntry("zipCode", "SW1A 1AA");
     }
 
     @Test

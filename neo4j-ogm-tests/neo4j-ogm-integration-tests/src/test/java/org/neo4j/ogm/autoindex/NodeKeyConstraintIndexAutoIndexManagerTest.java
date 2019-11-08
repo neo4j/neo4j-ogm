@@ -29,6 +29,7 @@ import org.neo4j.ogm.domain.autoindex.NodeKeyConstraintEntity;
 /**
  * @author Frantisek Hartman
  * @author Michael J. Simons
+ * @author Gerrit Meier
  */
 public class NodeKeyConstraintIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
@@ -44,21 +45,20 @@ public class NodeKeyConstraintIndexAutoIndexManagerTest extends BaseAutoIndexMan
     @BeforeClass
     public static void setUpClass() {
         assumeTrue("This test uses composite index and node key constraint and can only be run on enterprise edition",
-            isEnterpriseEdition());
+            useEnterpriseEdition());
 
         assumeTrue("This tests uses composite index and can only be run on Neo4j 3.2.0 and later",
             isVersionOrGreater("3.2.0"));
     }
 
     @Override
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
+    protected void additionalTearDown() {
         executeDrop(INDEX);
+        executeDrop(CONSTRAINT);
     }
 
     @Test
-    public void testAutoIndexManagerUpdateConstraintChangedToIndex() throws Exception {
+    public void testAutoIndexManagerUpdateConstraintChangedToIndex() {
         executeCreate(INDEX);
 
         runAutoIndex("update");
@@ -70,5 +70,4 @@ public class NodeKeyConstraintIndexAutoIndexManagerTest extends BaseAutoIndexMan
             assertThat(constraints).hasSize(1);
         });
     }
-
 }

@@ -19,15 +19,14 @@
 package org.neo4j.ogm.persistence.types.nativetypes;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assume.*;
 
-import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.assertj.core.util.Files;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.Configuration;
@@ -42,22 +41,16 @@ import org.neo4j.values.storable.DurationValue;
  */
 public class DatesEmbeddedTest extends DatesTestBase {
 
-    private static EmbeddedDriver embeddedOgmDriver;
-
     @BeforeClass
     public static void init() {
 
-        File temporaryFolder = Files.newTemporaryFolder();
-        temporaryFolder.deleteOnExit();
+        assumeTrue(isEmbeddedDriver());
 
-        File databaseDirectory = Files.newFolder(temporaryFolder.getAbsolutePath() + "/database");
-
-        Configuration ogmConfiguration = new Configuration.Builder()
-            .uri("file://" + databaseDirectory)
+        Configuration ogmConfiguration = getBaseConfigurationBuilder()
             .useNativeTypes()
             .build();
 
-        embeddedOgmDriver = new EmbeddedDriver();
+        EmbeddedDriver embeddedOgmDriver = new EmbeddedDriver();
         embeddedOgmDriver.configure(ogmConfiguration);
         sessionFactory = new SessionFactory(embeddedOgmDriver, SpatialEmbeddedTest.class.getPackage().getName());
     }

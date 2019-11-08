@@ -33,19 +33,16 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.domain.gh641.Entity1;
-import org.neo4j.ogm.domain.gh641.MyRelationship;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class RelationshipEntityTest extends MultiDriverTestClass {
+public class RelationshipEntityTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -56,7 +53,7 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.relationships");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships");
     }
 
     @Before
@@ -208,9 +205,9 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         session.clear();
 
         M qryM = session.queryForObject(M.class, "MATCH (n:M) return n", Collections.emptyMap());
-        M findM = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } RETURN n", Collections.singletonMap("id", m.id));
+        M findM = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = $id RETURN n", Collections.singletonMap("id", m.id));
         M findM2 = session
-            .queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN nodes(p)",
+            .queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = $id WITH n MATCH p=(n)-[*0..1]-(m) RETURN nodes(p)",
                 Collections.singletonMap("id", m.id));
 
         assertThat(qryM).isNotNull();

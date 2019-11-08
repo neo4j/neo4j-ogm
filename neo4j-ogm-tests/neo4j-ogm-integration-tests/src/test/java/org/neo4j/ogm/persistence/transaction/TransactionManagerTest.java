@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
@@ -44,14 +44,14 @@ import org.neo4j.ogm.transaction.Transaction;
  * @author Vince Bickers
  * @author Michael J. Simons
  */
-public class TransactionManagerTest extends MultiDriverTestClass {
+public class TransactionManagerTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void setUpClass() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.social");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
     }
 
     @Before
@@ -67,7 +67,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
-            driver.getTransactionFactorySupplier());
+            getDriver().getTransactionFactorySupplier());
         assertThat(session.getLastBookmark()).isNull();
         try (Transaction tx = transactionManager.openTransaction()) {
             assertThat(tx.status()).isEqualTo(Transaction.Status.OPEN);
@@ -77,7 +77,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Test
     public void shouldRollbackManagedTransaction() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
-            driver.getTransactionFactorySupplier());
+            getDriver().getTransactionFactorySupplier());
         assertThat(session.getLastBookmark()).isNull();
 
         try (Transaction tx = transactionManager.openTransaction()) {

@@ -40,6 +40,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Jasper Blues
+ * author Michael J. Simons
  */
 public class NodeQueryStatementsTest {
 
@@ -57,14 +58,14 @@ public class NodeQueryStatementsTest {
     @Test
     public void testFindOne() throws Exception {
         assertThat(queryStatements.findOne(0L, 2).getStatement())
-            .isEqualTo("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p");
+            .isEqualTo("MATCH (n) WHERE ID(n) = $id WITH n MATCH p=(n)-[*0..2]-(m) RETURN p");
     }
 
     @Test
     public void testFindOnePrimaryIndex() throws Exception {
         PagingAndSortingQuery query = primaryQueryStatements.findOne("test-uuid", 2);
         assertThat(query.getStatement())
-            .isEqualTo("MATCH (n) WHERE n.`uuid` = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p");
+            .isEqualTo("MATCH (n) WHERE n.`uuid` = $id WITH n MATCH p=(n)-[*0..2]-(m) RETURN p");
         assertThat(query.getParameters()).containsEntry("id", "test-uuid");
     }
 
@@ -72,7 +73,7 @@ public class NodeQueryStatementsTest {
     public void testFindOneByType() throws Exception {
         PagingAndSortingQuery query = queryStatements.findOneByType("Orbit", 0L, 2);
         assertThat(query.getStatement())
-            .isEqualTo("MATCH (n:`Orbit`) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p");
+            .isEqualTo("MATCH (n:`Orbit`) WHERE ID(n) = $id WITH n MATCH p=(n)-[*0..2]-(m) RETURN p");
         assertThat(query.getParameters()).containsEntry("id", 0L);
 
         // Also assert that an empty label is the same as using the typeless variant
@@ -87,7 +88,7 @@ public class NodeQueryStatementsTest {
         PagingAndSortingQuery query = primaryQueryStatements.findOneByType("Orbit", "test-uuid", 2);
 
         assertThat(query.getStatement())
-            .isEqualTo("MATCH (n:`Orbit`) WHERE n.`uuid` = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p");
+            .isEqualTo("MATCH (n:`Orbit`) WHERE n.`uuid` = $id WITH n MATCH p=(n)-[*0..2]-(m) RETURN p");
         assertThat(query.getParameters()).containsEntry("id", "test-uuid");
     }
 
@@ -96,7 +97,7 @@ public class NodeQueryStatementsTest {
         PagingAndSortingQuery query = primaryQueryStatements.findOneByType("Orbit", "test-uuid", -1);
 
         assertThat(query.getStatement())
-            .isEqualTo("MATCH (n:`Orbit`) WHERE n.`uuid` = { id } WITH n MATCH p=(n)-[*0..]-(m) RETURN p");
+            .isEqualTo("MATCH (n:`Orbit`) WHERE n.`uuid` = $id WITH n MATCH p=(n)-[*0..]-(m) RETURN p");
         assertThat(query.getParameters()).containsEntry("id", "test-uuid");
     }
 
@@ -113,7 +114,7 @@ public class NodeQueryStatementsTest {
         String statement = queryStatements.findByType("Restaurant",
             filters, 4).getStatement();
         assertThat(statement).isEqualTo(
-            "MATCH (n:`Restaurant`) WHERE distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude:{lat}, longitude:{lon}})) = {distance} WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Restaurant`) WHERE distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude: $lat, longitude: $lon})) = $distance WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
     }
 
     @Test
@@ -133,75 +134,65 @@ public class NodeQueryStatementsTest {
             "MATCH (n:`Restaurant`) WHERE NOT(n.`score` IS NULL ) WITH n MATCH p=(n)-[*0..3]-(m) RETURN p, ID(n)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-707
-     */
-    @Test
-    public void testFindAllByLabel() throws Exception {
+    @Test // DATAGRAPH-707
+    public void testFindAllByLabel() {
         assertThat(queryStatements.findAllByType("Orbit", asList(1L, 2L, 3L), 0).getStatement())
-            .isEqualTo("MATCH (n:`Orbit`) WHERE ID(n) IN { ids } WITH n RETURN n");
+            .isEqualTo("MATCH (n:`Orbit`) WHERE ID(n) IN $ids WITH n RETURN n");
     }
 
     @Test
-    public void testFindAllByLabelPrimaryIndex() throws Exception {
+    public void testFindAllByLabelPrimaryIndex() {
         List<String> ids = Arrays.asList("uuid-1", "uuid-2");
         PagingAndSortingQuery query = primaryQueryStatements.findAllByType("Orbit", ids, 0);
 
         assertThat(query.getStatement())
-            .isEqualTo("MATCH (n:`Orbit`) WHERE n.`uuid` IN { ids } WITH n RETURN n");
+            .isEqualTo("MATCH (n:`Orbit`) WHERE n.`uuid` IN $ids WITH n RETURN n");
         assertThat(query.getParameters())
             .containsEntry("ids", ids);
     }
 
     @Test
-    public void testFindAllByLabelPrimaryIndexInfiniteDepth() throws Exception {
+    public void testFindAllByLabelPrimaryIndexInfiniteDepth() {
         List<String> ids = Arrays.asList("uuid-1", "uuid-2");
         PagingAndSortingQuery query = primaryQueryStatements.findAllByType("Orbit", ids, -1);
 
         assertThat(query.getStatement())
-            .isEqualTo("MATCH (n:`Orbit`) WHERE n.`uuid` IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p");
+            .isEqualTo("MATCH (n:`Orbit`) WHERE n.`uuid` IN $ids WITH n MATCH p=(n)-[*0..]-(m) RETURN p");
         assertThat(query.getParameters())
             .containsEntry("ids", ids);
     }
 
-    /**
-     * @see DATAGRAPH-707
-     */
-    @Test
-    public void testFindAllByLabelDepthOne() throws Exception {
+    @Test // DATAGRAPH-707
+    public void testFindAllByLabelDepthOne() {
         assertThat(queryStatements.findAllByType("Orbit", asList(1L, 2L, 3L), 1).getStatement())
-            .isEqualTo("MATCH (n:`Orbit`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p");
+            .isEqualTo("MATCH (n:`Orbit`) WHERE ID(n) IN $ids WITH n MATCH p=(n)-[*0..1]-(m) RETURN p");
     }
 
-    /**
-     * @see DATAGRAPH-707
-     */
-    @Test
-    public void testFindAllByLabelDepthInfinity() throws Exception {
+    @Test // DATAGRAPH-707
+    public void testFindAllByLabelDepthInfinity() {
         assertThat(queryStatements.findAllByType("Orbit", asList(1L, 2L, 3L), -1).getStatement())
-            .isEqualTo("MATCH (n:`Orbit`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p");
+            .isEqualTo("MATCH (n:`Orbit`) WHERE ID(n) IN $ids WITH n MATCH p=(n)-[*0..]-(m) RETURN p");
     }
 
     @Test
-    public void testFindByProperty() throws Exception {
+    public void testFindByProperty() {
         String statement = queryStatements.findByType("Asteroid",
             new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS, 60.2)), 4).getStatement();
         assertThat(statement).isEqualTo(
-            "MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Asteroid`) WHERE n.`diameter` = $`diameter_0` WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
     }
 
     @Test
-    public void testFindOneZeroDepth() throws Exception {
+    public void testFindOneZeroDepth() {
         assertThat(queryStatements.findOne(0L, 0).getStatement())
-            .isEqualTo("MATCH (n) WHERE ID(n) = { id } WITH n RETURN n");
+            .isEqualTo("MATCH (n) WHERE ID(n) = $id WITH n RETURN n");
     }
 
     @Test
     public void testFindOneZeroDepthPrimaryIndex() throws Exception {
         PagingAndSortingQuery query = primaryQueryStatements.findOne("test-uuid", 0);
 
-        assertThat(query.getStatement()).isEqualTo("MATCH (n) WHERE n.`uuid` = { id } WITH n RETURN n");
+        assertThat(query.getStatement()).isEqualTo("MATCH (n) WHERE n.`uuid` = $id WITH n RETURN n");
     }
 
     @Test
@@ -213,7 +204,7 @@ public class NodeQueryStatementsTest {
     @Test
     public void testFindByPropertyZeroDepth() throws Exception {
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", EQUALS, 60.2)), 0)
-            .getStatement()).isEqualTo("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } WITH n RETURN n");
+            .getStatement()).isEqualTo("MATCH (n:`Asteroid`) WHERE n.`diameter` = $`diameter_0` WITH n RETURN n");
     }
 
     @Test
@@ -226,7 +217,7 @@ public class NodeQueryStatementsTest {
             .findByType("Asteroid", new Filters().add(new Filter("albedo", ComparisonOperator.EQUALS, -12.2)), 0);
 
         assertThat(pagingAndSortingQuery.getStatement())
-            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`albedo` = { `albedo_0` } WITH n RETURN n");
+            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`albedo` = $`albedo_0` WITH n RETURN n");
         assertThat((double) pagingAndSortingQuery.getParameters().get("albedo_0")).isEqualTo(-12.2, within(0.005));
     }
 
@@ -246,7 +237,7 @@ public class NodeQueryStatementsTest {
     @Test
     public void testFindOneInfiniteDepth() throws Exception {
         assertThat(queryStatements.findOne(0L, -1).getStatement())
-            .isEqualTo("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..]-(m) RETURN p");
+            .isEqualTo("MATCH (n) WHERE ID(n) = $id WITH n MATCH p=(n)-[*0..]-(m) RETURN p");
     }
 
     /**
@@ -267,7 +258,7 @@ public class NodeQueryStatementsTest {
     public void testFindByPropertyInfiniteDepth() throws Exception {
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", EQUALS, 60.2)), -1)
             .getStatement()).isEqualTo(
-            "MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } WITH n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Asteroid`) WHERE n.`diameter` = $`diameter_0` WITH n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -279,7 +270,7 @@ public class NodeQueryStatementsTest {
         assertThat(queryStatements
             .findByType("Studio", new Filters().add(new Filter("studio-name", EQUALS, "Abbey Road Studios")), 3)
             .getStatement()).isEqualTo(
-            "MATCH (n:`Studio`) WHERE n.`studio-name` = { `studio-name_0` } WITH n MATCH p=(n)-[*0..3]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Studio`) WHERE n.`studio-name` = $`studio-name_0` WITH n MATCH p=(n)-[*0..3]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -290,7 +281,7 @@ public class NodeQueryStatementsTest {
     public void testFindByPropertyGreaterThan() throws Exception {
         Filter parameter = new Filter("diameter", ComparisonOperator.GREATER_THAN, 60);
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(parameter), 4).getStatement()).isEqualTo(
-            "MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter_0` } WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Asteroid`) WHERE n.`diameter` > $`diameter_0` WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -301,7 +292,7 @@ public class NodeQueryStatementsTest {
     public void testFindByPropertyGreaterThanEqual() throws Exception {
         Filter parameter = new Filter("diameter", ComparisonOperator.GREATER_THAN_EQUAL, 60);
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(parameter), 4).getStatement()).isEqualTo(
-            "MATCH (n:`Asteroid`) WHERE n.`diameter` >= { `diameter_0` } WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Asteroid`) WHERE n.`diameter` >= $`diameter_0` WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -313,7 +304,7 @@ public class NodeQueryStatementsTest {
         Filter parameter = new Filter("diameter", ComparisonOperator.LESS_THAN, 60);
         assertThat(queryStatements.findByType("Asteroid",
             new Filters().add(parameter), 4).getStatement())
-            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`diameter` < { `diameter_0` } " +
+            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`diameter` < $`diameter_0` " +
                 "WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
     }
 
@@ -326,7 +317,7 @@ public class NodeQueryStatementsTest {
         Filter parameter = new Filter("diameter", ComparisonOperator.LESS_THAN_EQUAL, 60);
         assertThat(queryStatements.findByType("Asteroid",
             new Filters().add(parameter), 4).getStatement())
-            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`diameter` <= { `diameter_0` } " +
+            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`diameter` <= $`diameter_0` " +
                 "WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
     }
 
@@ -349,8 +340,8 @@ public class NodeQueryStatementsTest {
 
         assertThat(queryStatements.findByType("Asteroid",
             new Filters().add(planetParam).and(moonParam), 1).getStatement())
-            .isEqualTo("MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } " +
-                "MATCH (m1:`Moon`) WHERE m1.`name` = { `moon_name_1` } MATCH (n)-[:`COLLIDES`]->(m0) " +
+            .isEqualTo("MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_0` " +
+                "MATCH (m1:`Moon`) WHERE m1.`name` = $`moon_name_1` MATCH (n)-[:`COLLIDES`]->(m0) " +
                 "MATCH (n)<-[:`ORBITS`]-(m1) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
@@ -365,8 +356,8 @@ public class NodeQueryStatementsTest {
 
         assertThat(queryStatements.findByType("Asteroid",
             new Filters().add(planetParam).or(moonParam), 1).getStatement())
-            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`name` = { `name_0` } " +
-                "OR n.`name` = { `name_1` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`name` = $`name_0` " +
+                "OR n.`name` = $`name_1` WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -379,7 +370,7 @@ public class NodeQueryStatementsTest {
         diameterParam.setBooleanOperator(BooleanOperator.AND);
         assertThat(queryStatements.findByType("Asteroid",
             new Filters().add(nameParam).add(diameterParam), 2).getStatement())
-            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`name` = { `name_0` } AND n.`diameter` < { `diameter_1` } " +
+            .isEqualTo("MATCH (n:`Asteroid`) WHERE n.`name` = $`name_0` AND n.`diameter` < $`diameter_1` " +
                 "WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
     }
 
@@ -394,7 +385,7 @@ public class NodeQueryStatementsTest {
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(nameParam).add(diameterParam), 2).getStatement())
             .isEqualTo(
-                "MATCH (n:`Asteroid`) WHERE n.`name` = { `name_0` } AND n.`diameter` > { `diameter_1` } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
+                "MATCH (n:`Asteroid`) WHERE n.`name` = $`name_0` AND n.`diameter` > $`diameter_1` WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -408,7 +399,7 @@ public class NodeQueryStatementsTest {
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(nameParam), 2).getStatement())
             .isEqualTo(
-                "MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter_0` } AND n.`name` = { `name_1` } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
+                "MATCH (n:`Asteroid`) WHERE n.`diameter` > $`diameter_0` AND n.`name` = $`name_1` WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -422,7 +413,7 @@ public class NodeQueryStatementsTest {
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(nameParam).add(diameterParam), 2).getStatement())
             .isEqualTo(
-                "MATCH (n:`Asteroid`) WHERE n.`name` = { `name_0` } OR n.`diameter` > { `diameter_1` } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
+                "MATCH (n:`Asteroid`) WHERE n.`name` = $`name_0` OR n.`diameter` > $`diameter_1` WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -436,7 +427,7 @@ public class NodeQueryStatementsTest {
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(nameParam).add(diameterParam), 2).getStatement())
             .isEqualTo(
-                "MATCH (n:`Asteroid`) WHERE n.`name` = { `name_0` } OR n.`diameter` < { `diameter_1` } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
+                "MATCH (n:`Asteroid`) WHERE n.`name` = $`name_0` OR n.`diameter` < $`diameter_1` WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -450,7 +441,7 @@ public class NodeQueryStatementsTest {
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(nameParam), 2).getStatement())
             .isEqualTo(
-                "MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter_0` } OR n.`name` = { `name_1` } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
+                "MATCH (n:`Asteroid`) WHERE n.`diameter` > $`diameter_0` OR n.`name` = $`name_1` WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -464,7 +455,7 @@ public class NodeQueryStatementsTest {
         planetParam.setRelationshipType("COLLIDES");
         planetParam.setRelationshipDirection("OUTGOING");
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement()).isEqualTo(
-            "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_0` MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -478,7 +469,7 @@ public class NodeQueryStatementsTest {
         filter.setRelationshipType("COLLIDES");
         filter.setRelationshipDirection("OUTGOING");
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(filter), 1).getStatement()).isEqualTo(
-            "MATCH (n:`Asteroid`) MATCH (m0:`Asteroid`) WHERE m0.`name` = { `collidesWith_name_0` } MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Asteroid`) MATCH (m0:`Asteroid`) WHERE m0.`name` = $`collidesWith_name_0` MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -492,7 +483,7 @@ public class NodeQueryStatementsTest {
         planetParam.setRelationshipType("COLLIDES");
         planetParam.setRelationshipDirection("INCOMING");
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement()).isEqualTo(
-            "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } MATCH (n)<-[:`COLLIDES`]-(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_0` MATCH (n)<-[:`COLLIDES`]-(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -506,7 +497,7 @@ public class NodeQueryStatementsTest {
         planetParam.setRelationshipType("COLLIDES");
         planetParam.setRelationshipDirection("UNDIRECTED");
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement()).isEqualTo(
-            "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } MATCH (n)-[:`COLLIDES`]-(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_0` MATCH (n)-[:`COLLIDES`]-(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -525,7 +516,7 @@ public class NodeQueryStatementsTest {
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(planetParam), 1).getStatement())
             .isEqualTo(
-                "MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter_0` } MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_1` } MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+                "MATCH (n:`Asteroid`) WHERE n.`diameter` > $`diameter_0` MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_1` MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -543,7 +534,7 @@ public class NodeQueryStatementsTest {
         planetParam.setRelationshipDirection("OUTGOING");
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(planetParam), -1)
             .getStatement()).isEqualTo(
-            "MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter_0` } MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_1` } MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Asteroid`) WHERE n.`diameter` > $`diameter_0` MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_1` MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -563,7 +554,7 @@ public class NodeQueryStatementsTest {
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(planetParam), 1).getStatement())
             .isEqualTo(
-                "MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter` } OPTIONAL MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name` } OPTIONAL MATCH (n)-[:`COLLIDES`]->(m0) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+                "MATCH (n:`Asteroid`) WHERE n.`diameter` > $`diameter` OPTIONAL MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name` OPTIONAL MATCH (n)-[:`COLLIDES`]->(m0) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -584,7 +575,7 @@ public class NodeQueryStatementsTest {
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(planetParam), 0).getStatement())
             .isEqualTo(
-                "MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter` } OPTIONAL MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name` } OPTIONAL MATCH (n)-[:`COLLIDES`]->(m0) RETURN n");
+                "MATCH (n:`Asteroid`) WHERE n.`diameter` > $`diameter` OPTIONAL MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name` OPTIONAL MATCH (n)-[:`COLLIDES`]->(m0) RETURN n");
     }
 
     /**
@@ -602,7 +593,7 @@ public class NodeQueryStatementsTest {
 
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement())
             .isEqualTo("MATCH (n:`Asteroid`) MATCH (n)-[r0:`COLLIDES`]->(m0) " +
-                "WHERE r0.`totalDestructionProbability` = { `collision_totalDestructionProbability_0` } " +
+                "WHERE r0.`totalDestructionProbability` = $`collision_totalDestructionProbability_0` " +
                 "WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
@@ -630,9 +621,9 @@ public class NodeQueryStatementsTest {
 
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam).add(satelliteParam), 1)
             .getStatement()).isEqualTo(
-            "MATCH (n:`Asteroid`) MATCH (n)-[r0:`COLLIDES`]->(m0) WHERE r0.`totalDestructionProbability` = { `collision_totalDestructionProbability_0` } "
+            "MATCH (n:`Asteroid`) MATCH (n)-[r0:`COLLIDES`]->(m0) WHERE r0.`totalDestructionProbability` = $`collision_totalDestructionProbability_0` "
                 +
-                "MATCH (n)<-[r1:`MONITORED_BY`]-(m1) WHERE r1.`signalStrength` >= { `monitoringSatellites_signalStrength_1` } WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+                "MATCH (n)<-[r1:`MONITORED_BY`]-(m1) WHERE r1.`signalStrength` >= $`monitoringSatellites_signalStrength_1` WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -657,8 +648,8 @@ public class NodeQueryStatementsTest {
 
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam, moonParam), 1).getStatement())
             .isEqualTo("MATCH (n:`Asteroid`) MATCH (n)-[r0:`COLLIDES`]->(m0) " +
-                "WHERE r0.`totalDestructionProbability` = { `collision_totalDestructionProbability_0` } " +
-                "MATCH (m1:`Moon`) WHERE m1.`name` = { `moon_name_1` } MATCH (n)<-[:`ORBITS`]-(m1) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+                "WHERE r0.`totalDestructionProbability` = $`collision_totalDestructionProbability_0` " +
+                "MATCH (m1:`Moon`) WHERE m1.`name` = $`moon_name_1` MATCH (n)<-[:`ORBITS`]-(m1) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -680,8 +671,8 @@ public class NodeQueryStatementsTest {
         moonParam.setBooleanOperator(BooleanOperator.AND);
         assertThat(queryStatements.findByType("Asteroid",
             new Filters().add(planetParam).add(moonParam), 1).getStatement())
-            .isEqualTo("MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } " +
-                "MATCH (m1:`Moon`) WHERE m1.`name` = { `moon_name_1` } MATCH (n)-[:`COLLIDES`]->(m0) " +
+            .isEqualTo("MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_0` " +
+                "MATCH (m1:`Moon`) WHERE m1.`name` = $`moon_name_1` MATCH (n)-[:`COLLIDES`]->(m0) " +
                 "MATCH (n)<-[:`ORBITS`]-(m1) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
@@ -707,7 +698,7 @@ public class NodeQueryStatementsTest {
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(planetParam).add(moonParam), 1).getStatement())
             .isEqualTo(
-                "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name` } OPTIONAL MATCH (m1:`Moon`) WHERE m1.`name` = { `moon_name` } OPTIONAL MATCH (n)-[:`COLLIDES`]->(m0) OPTIONAL MATCH (n)<-[:`ORBITS`]-(m1) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+                "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name` OPTIONAL MATCH (m1:`Moon`) WHERE m1.`name` = $`moon_name` OPTIONAL MATCH (n)-[:`COLLIDES`]->(m0) OPTIONAL MATCH (n)<-[:`ORBITS`]-(m1) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**
@@ -730,7 +721,7 @@ public class NodeQueryStatementsTest {
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(planetParam).add(moonParam), 1).getStatement())
             .isEqualTo(
-                "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } AND m0.`size` = { `collidesWith_size_1` } MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
+                "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_0` AND m0.`size` = $`collidesWith_size_1` MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     /**

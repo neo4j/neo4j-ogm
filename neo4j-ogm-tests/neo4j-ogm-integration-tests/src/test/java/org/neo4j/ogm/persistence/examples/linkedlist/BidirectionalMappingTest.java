@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
@@ -51,7 +51,7 @@ import org.neo4j.ogm.transaction.Transaction;
  * </code>
  * </pre>
  */
-public class BidirectionalMappingTest extends MultiDriverTestClass {
+public class BidirectionalMappingTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -59,7 +59,7 @@ public class BidirectionalMappingTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.linkedlist");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.linkedlist");
     }
 
     @Before

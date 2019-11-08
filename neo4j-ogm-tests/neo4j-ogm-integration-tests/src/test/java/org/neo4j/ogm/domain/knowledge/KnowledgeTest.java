@@ -23,13 +23,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author vince
  */
-public class KnowledgeTest extends MultiDriverTestClass {
+public class KnowledgeTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -37,7 +37,7 @@ public class KnowledgeTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.knowledge");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.knowledge");
     }
 
     @Before

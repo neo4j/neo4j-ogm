@@ -18,63 +18,59 @@
  */
 package org.neo4j.ogm.persistence.relationships;
 
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.domain.gh385.RichRelations.E;
 import org.neo4j.ogm.domain.gh385.RichRelations.R;
 import org.neo4j.ogm.domain.gh385.RichRelations.S;
-import org.neo4j.ogm.domain.gh385.SimpleRelations.P;
+import org.neo4j.ogm.domain.gh385.SimpleRelations;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Michael J. Simons
  */
-public class GenericCollectionRelationshipsTest extends MultiDriverTestClass {
+public class GenericCollectionRelationshipsTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
     @BeforeClass
     public static void initSesssionFactory() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.gh385");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh385");
     }
 
     @Test // GH-385
     public void shouldLoadSimpleRelationshipIntoCollection() {
-
-        final GraphDatabaseService database = getGraphDatabaseService();
-        long id = (long) database.execute(""
+        long id = (long) sessionFactory.openSession().query(""
             + "CREATE (p:P {name: 'P'})\n"
             + "MERGE (p) - [:HAS] -> (:C {name: 'C1'})\n"
             + "MERGE (p) - [:HAS] -> (:C {name: 'C2'})\n"
-            + "RETURN id(p) AS id"
-        ).next().get("id");
+            + "RETURN id(p) AS id", emptyMap()
+        ).queryResults().iterator().next().get("id");
 
         Session session = sessionFactory.openSession();
-        P p = session.load(P.class, id);
+        SimpleRelations.P p = session.load(SimpleRelations.P.class, id);
 
         assertThat(p)
             .isNotNull()
-            .extracting(P::getC).asList()
+            .extracting(SimpleRelations.P::getC).asList()
             .hasSize(2);
     }
 
     @Test // GH-385
     public void shouldLoadRichRelationshipIntoCollection() {
-
-        final GraphDatabaseService database = getGraphDatabaseService();
-        long id = (long) database.execute(""
+        long id = (long) sessionFactory.openSession().query(""
             + "CREATE (s:S)\n"
             + "MERGE (s) - [:R {name: 'Same'}] -> (:E {name: 'E1'})\n"
             + "MERGE (s) - [:R {name: 'Same'}] -> (:E {name: 'E2'})\n"
-            + "RETURN id(s) AS id"
-        ).next().get("id");
+            + "RETURN id(s) AS id", emptyMap()
+        ).queryResults().iterator().next().get("id");
 
         Session session = sessionFactory.openSession();
         S s = session.load(S.class, id);

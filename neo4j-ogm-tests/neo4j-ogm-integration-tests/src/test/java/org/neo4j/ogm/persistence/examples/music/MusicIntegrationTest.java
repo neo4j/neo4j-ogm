@@ -42,12 +42,12 @@ import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
  */
-public class MusicIntegrationTest extends MultiDriverTestClass {
+public class MusicIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -55,7 +55,7 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
     }
 
     @Before

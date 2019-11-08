@@ -26,9 +26,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.food.entities.scanned.Pizza;
 import org.neo4j.ogm.domain.food.entities.scanned.Risk;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * Tests behaviour of enums that have been scanned when creating a SessionFactory
@@ -37,14 +38,14 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author Luanne Misquitta
  * @see issue #145
  */
-public class EnumsScannedTest extends MultiDriverTestClass {
+public class EnumsScannedTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.food.entities.scanned");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.food.entities.scanned");
     }
 
     @Before

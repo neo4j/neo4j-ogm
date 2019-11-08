@@ -38,14 +38,14 @@ import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.testutil.TestUtils;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Vince Bickers
  */
-public class SatelliteIntegrationTest extends MultiDriverTestClass {
+public class SatelliteIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -53,7 +53,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.satellites");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.satellites");
         Session initialSession = sessionFactory.openSession();
         initialSession.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/satellites.cql").toString(), Collections.emptyMap());
     }

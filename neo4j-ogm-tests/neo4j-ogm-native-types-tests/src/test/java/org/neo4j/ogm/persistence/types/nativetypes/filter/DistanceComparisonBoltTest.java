@@ -18,29 +18,27 @@
  */
 package org.neo4j.ogm.persistence.types.nativetypes.filter;
 
-import java.net.URI;
+import static org.junit.Assume.*;
 
 import org.junit.BeforeClass;
-import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.persistence.types.nativetypes.DatesBoltTest;
 import org.neo4j.ogm.session.SessionFactory;
 
 public class DistanceComparisonBoltTest extends DistanceComparisonTestBase {
 
-    private static URI boltURI = TestServerBuilders.newInProcessBuilder().newServer().boltURI();
-
     @BeforeClass
     public static void init() {
 
-        Configuration ogmConfiguration = new Configuration.Builder()
-            .uri(boltURI.toString())
-            .encryptionLevel("NONE")
+        assumeTrue(isBoltDriver());
+
+        Configuration ogmConfiguration = getBaseConfigurationBuilder()
             .useNativeTypes()
             .build();
 
-        BoltDriver boltOgmDriver = new BoltDriver();
+        Driver boltOgmDriver = new BoltDriver();
         boltOgmDriver.configure(ogmConfiguration);
         sessionFactory = new SessionFactory(boltOgmDriver, DatesBoltTest.class.getPackage().getName());
     }

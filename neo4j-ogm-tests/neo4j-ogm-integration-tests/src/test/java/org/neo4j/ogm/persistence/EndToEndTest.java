@@ -32,20 +32,20 @@ import org.neo4j.ogm.domain.bike.Saddle;
 import org.neo4j.ogm.domain.bike.Wheel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Michal Bachman
  * @author Vince Bickers
  */
-public class EndToEndTest extends MultiDriverTestClass {
+public class EndToEndTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.bike");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.bike");
     }
 
     @Before
@@ -70,14 +70,14 @@ public class EndToEndTest extends MultiDriverTestClass {
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("material", "Leather");
         Saddle actual = session
-            .queryForObject(Saddle.class, "MATCH (saddle:Saddle{material: {material}}) RETURN saddle", parameters);
+            .queryForObject(Saddle.class, "MATCH (saddle:Saddle{material: $material}) RETURN saddle", parameters);
 
         assertThat(actual.getId()).isEqualTo(expected.getId());
         assertThat(actual.getMaterial()).isEqualTo(expected.getMaterial());
 
         HashMap<String, Object> parameters2 = new HashMap<>();
         parameters2.put("brand", "Huffy");
-        Bike actual2 = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand: {brand}}) RETURN bike", parameters2);
+        Bike actual2 = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand: $brand}) RETURN bike", parameters2);
 
         assertThat(actual2.getId()).isEqualTo(bike.getId());
         assertThat(actual2.getBrand()).isEqualTo(bike.getBrand());
@@ -94,7 +94,7 @@ public class EndToEndTest extends MultiDriverTestClass {
         parameters.put("material", "Leather");
 
         long actual = session
-            .queryForObject(Long.class, "MATCH (saddle:Saddle{material: {material}}) RETURN COUNT(saddle)", parameters);
+            .queryForObject(Long.class, "MATCH (saddle:Saddle{material: $material}) RETURN COUNT(saddle)", parameters);
 
         assertThat(actual).isEqualTo(1);
     }
@@ -117,7 +117,7 @@ public class EndToEndTest extends MultiDriverTestClass {
         parameters.put("brand", "Huffy");
 
         Bike actual = session.queryForObject(Bike.class,
-            "MATCH (bike:Bike{brand:{brand}})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters);
+            "MATCH (bike:Bike{brand:$brand})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters);
 
         assertThat(actual.getId()).isEqualTo(bike.getId());
         assertThat(actual.getBrand()).isEqualTo(bike.getBrand());
@@ -150,12 +150,12 @@ public class EndToEndTest extends MultiDriverTestClass {
         parameters.put("brand", "Huffy");
         parameters.put("saddle", newSaddle);
 
-        session.query("MATCH (bike:Bike{brand:{brand}})-[r]-(s:Saddle) SET s = {saddle}", parameters);
+        session.query("MATCH (bike:Bike{brand:$brand})-[r]-(s:Saddle) SET s = $saddle", parameters);
 
         HashMap<String, Object> parameters2 = new HashMap<>();
         parameters2.put("brand", "Huffy");
         Bike actual = session.queryForObject(Bike.class,
-            "MATCH (bike:Bike{brand:{brand}})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters2);
+            "MATCH (bike:Bike{brand: $brand})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters2);
 
         assertThat(actual.getId()).isEqualTo(bike.getId());
         assertThat(actual.getBrand()).isEqualTo(bike.getBrand());

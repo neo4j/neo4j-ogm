@@ -27,6 +27,7 @@ import org.neo4j.ogm.domain.autoindex.SingleIndexEntity;
 /**
  * @author Frantisek Hartman
  * @author Michael J. Simons
+ * @author Gerrit Meier
  */
 public class SingleIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
@@ -37,12 +38,10 @@ public class SingleIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestCla
         super(new String[] { INDEX }, SingleIndexEntity.class);
     }
 
-    @After
     @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        // clean up in case this test fails
+    protected void additionalTearDown() {
         executeDrop(CONSTRAINT);
+        executeDrop(INDEX);
     }
 
     @Test

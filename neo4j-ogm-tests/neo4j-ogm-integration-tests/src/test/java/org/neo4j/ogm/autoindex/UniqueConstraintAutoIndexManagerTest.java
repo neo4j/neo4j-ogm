@@ -27,6 +27,7 @@ import org.neo4j.ogm.domain.autoindex.UniqueConstraintEntity;
 /**
  * @author Frantisek Hartman
  * @author Michael J. Simons
+ * @author Gerrit Meier
  */
 public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
@@ -37,14 +38,6 @@ public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTe
         super(new String[] { CONSTRAINT }, UniqueConstraintEntity.class);
     }
 
-    @After
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        // clean up index created in case this test in case it fails
-        executeDrop(INDEX);
-    }
-
     @Test
     public void testAutoIndexManagerUpdateIndexChangedToConstraint() {
         executeCreate(INDEX);
@@ -53,5 +46,11 @@ public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTe
 
         executeForIndexes(indexes -> assertThat(indexes).isEmpty());
         executeForConstraints(constraints -> assertThat(constraints).hasSize(1));
+    }
+
+    @Override
+    protected void additionalTearDown() {
+        // clean up index created in case this test in case it fails
+        executeDrop(INDEX);
     }
 }

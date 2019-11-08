@@ -27,7 +27,7 @@ import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * The purpose of these tests is to describe the behaviour of the
@@ -38,14 +38,14 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  *
  * @author Vince Bickers
  */
-public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
+public class RelationshipEntityPartialMappingTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.minimum");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.minimum");
     }
 
     @Before

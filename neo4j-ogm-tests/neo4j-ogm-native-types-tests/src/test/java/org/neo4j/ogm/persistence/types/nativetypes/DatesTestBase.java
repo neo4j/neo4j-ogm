@@ -21,7 +21,6 @@ package org.neo4j.ogm.persistence.types.nativetypes;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -38,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -48,17 +48,22 @@ import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.typeconversion.LocalDateStringConverter;
-import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 
 /**
  * @author Gerrit Meier
  * @author Michael J. Simons
  * @author Matt Harrison
  */
-public abstract class DatesTestBase {
+public abstract class DatesTestBase extends TestContainersTestBase {
 
     static SessionFactory sessionFactory;
+
+    @Before
+    public void clearDatabase() {
+        sessionFactory.openSession().purgeDatabase();
+    }
 
     @Test
     public void convertPersistAndLoadLocalDate() {

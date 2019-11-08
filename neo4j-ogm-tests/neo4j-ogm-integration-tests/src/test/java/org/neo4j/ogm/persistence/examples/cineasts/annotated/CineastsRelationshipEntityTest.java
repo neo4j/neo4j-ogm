@@ -44,7 +44,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.testutil.TestUtils;
 
 /**
@@ -53,14 +53,14 @@ import org.neo4j.ogm.testutil.TestUtils;
  * @author Mark Angrish
  * @author Michael J. Simons
  */
-public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
+public class CineastsRelationshipEntityTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
     @Before

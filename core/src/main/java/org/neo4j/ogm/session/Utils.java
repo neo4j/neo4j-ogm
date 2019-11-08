@@ -38,7 +38,7 @@ public class Utils {
     @Deprecated
     public static Map<String, Object> map(final Object... keysAndValues) {
 
-        Map<String, Object> newMap = new HashMap<>();
+        Map<String, Object> newMap = new HashMap<>(keysAndValues.length / 2);
         for (int i = 0; i < keysAndValues.length; i += 2) {
             newMap.put(String.valueOf(keysAndValues[i]), keysAndValues[i + 1]);
         }

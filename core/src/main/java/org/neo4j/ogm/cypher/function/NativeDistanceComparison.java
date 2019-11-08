@@ -64,7 +64,7 @@ public class NativeDistanceComparison implements FilterFunction<DistanceFromNati
         String comparisonOperator = operator.getValue();
 
         return String.format(
-            "distance({%s},%s) %s {%s} ",
+            "distance($%s,%s) %s $%s ",
             OGM_POINT_PARAMETER, pointPropertyOfEntity, comparisonOperator, DISTANCE_VALUE_PARAMETER);
     }
 

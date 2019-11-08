@@ -31,7 +31,7 @@ import org.neo4j.ogm.testutil.TestServer;
 
 /**
  * Tests for lazy initialization of Bolt and Http drivers
- * Not using {@link org.neo4j.ogm.testutil.MultiDriverTestClass} test class because we actually test behaviour when
+ * Not using {@link org.neo4j.ogm.testutil.TestContainersTestBase} test class because we actually test behaviour when
  * server is down at SessionFactory creation.
  *
  * @author Frantisek Hartman
@@ -59,7 +59,7 @@ public abstract class DriverLazyInitializationTest {
 
     @Test
     public void shouldInitialiseDriverAfterServerComesOnline() {
-        TestServer testServer = new TestServer(true, true, 5);
+        TestServer testServer = new TestServer(true, 5);
         String uri = testServer.getUri();
         testServer.shutdown();
 
@@ -69,7 +69,7 @@ public abstract class DriverLazyInitializationTest {
 
         SessionFactory sessionFactory = new SessionFactory(configuration, User.class.getPackage().getName());
 
-        testServer = new TestServer(false, true, 5, testServer.getPort());
+        testServer = new TestServer(true, 5, testServer.getPort());
         Session session = sessionFactory.openSession();
         User user = new User("John Doe");
         session.save(user);

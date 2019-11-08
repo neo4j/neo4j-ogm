@@ -39,7 +39,7 @@ import org.neo4j.ogm.persistence.examples.stage.nodes.Drama;
 import org.neo4j.ogm.persistence.examples.stage.nodes.StageActor;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * Issue #54, ##66, #186 & #298 (Zendesk ticket XXX)
@@ -49,14 +49,14 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author Vince Bickers
  */
 
-public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTestClass {
+public class AbstractWithGenericPropertyRelationshipTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.model",
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.model",
             "org.neo4j.ogm.persistence.examples.stage");
     }
 

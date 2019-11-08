@@ -20,9 +20,13 @@ package org.neo4j.ogm.persistence.model;
 
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assume.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.StreamSupport;
@@ -30,8 +34,6 @@ import java.util.stream.StreamSupport;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.domain.generic_hierarchy.AnotherEntity;
@@ -42,9 +44,11 @@ import org.neo4j.ogm.domain.generic_hierarchy.Entity;
 import org.neo4j.ogm.domain.generic_hierarchy.EntityWithImplicitPlusAdditionalLabels;
 import org.neo4j.ogm.domain.gh619.model.RealNode;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
+import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.utils.EntityUtils;
 
 /**
@@ -56,7 +60,7 @@ import org.neo4j.ogm.utils.EntityUtils;
  * @author Jonathan D'Orleans
  * @author Michael J. Simons
  */
-public class LabelDeterminationTest extends MultiDriverTestClass {
+public class LabelDeterminationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -64,7 +68,7 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void setupSessionFactory() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.generic_hierarchy");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.generic_hierarchy");
     }
 
     @Before
@@ -116,6 +120,7 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
 
     @Test
     public void indexesShouldBeCreatedForLoadableClassesInHierarchy() {
+        assumeTrue(isVersionOrGreater("3.3"));
         final IndexDescription[] expectedIndexes = new IndexDescription[] {
             new IndexDescription("DefaultUser", "id"),
             new IndexDescription("Admin", "id"),
@@ -125,17 +130,33 @@ public class LabelDeterminationTest extends MultiDriverTestClass {
             new IndexDescription("LabeledEntity", "uuid"),
             new IndexDescription("EntityWithImplicitPlusAdditionalLabels", "id")
         };
+        sessionFactory
+            .runAutoIndexManager(getBaseConfigurationBuilder().autoIndex(AutoIndexMode.UPDATE.name()).build());
 
-        sessionFactory.runAutoIndexManager(getBaseConfiguration().autoIndex(AutoIndexMode.UPDATE.name()).build());
-        GraphDatabaseService service = getGraphDatabaseService();
+        Session session = sessionFactory.openSession();
 
-        try (Transaction tx = service.beginTx()) {
-            IndexDescription[] indexes = StreamSupport.stream(service.schema().getIndexes().spliterator(), false)
-                .map(IndexDescription::new).toArray(IndexDescription[]::new);
+        try (Transaction tx = session.beginTransaction()) {
+            Result indexResult = session.query("CALL db.indexes()", emptyMap());
 
-            assertThat(indexes).containsExactlyInAnyOrder(expectedIndexes);
+            List<IndexDescription> indexDescriptions = new ArrayList<>();
+            for (Map<String, Object> queryResult : indexResult.queryResults()) {
 
-            tx.success();
+                // ensure compatibility with 3.x and 4.x
+                String label = "unknown";
+                if (queryResult.get("label") != null) { // 3.4(-)
+                    label = (String) queryResult.get("label");
+                } else if (queryResult.get("tokenNames") != null) { // 3.5
+                    label = ((String[]) queryResult.get("tokenNames"))[0];
+                } else if (queryResult.get("labelsOrTypes") != null) { // 4.0+
+                    label = ((String[]) queryResult.get("labelsOrTypes"))[0];
+                }
+
+                indexDescriptions.add(new IndexDescription(label, (String[]) queryResult.get("properties")));
+            }
+
+            assertThat(indexDescriptions).containsExactlyInAnyOrder(expectedIndexes);
+
+            tx.commit();
         }
     }
 

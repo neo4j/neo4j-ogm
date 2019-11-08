@@ -34,14 +34,14 @@ import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
 @SuppressWarnings({"HiddenField", "MultipleVariableDeclarations"})
-public class ABBTest extends MultiDriverTestClass {
+public class ABBTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -51,7 +51,7 @@ public class ABBTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetup() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.relationships.transitive.abb");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships.transitive.abb");
     }
 
     @Before

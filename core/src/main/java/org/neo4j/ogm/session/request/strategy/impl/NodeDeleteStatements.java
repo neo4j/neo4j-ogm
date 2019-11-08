@@ -41,7 +41,7 @@ public class NodeDeleteStatements implements DeleteStatements {
 
     @Override
     public CypherQuery delete(Long id) {
-        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n",
+        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) = $id OPTIONAL MATCH (n)-[r0]-() DELETE r0, n",
             Collections.singletonMap("id", id));
     }
 
@@ -58,11 +58,11 @@ public class NodeDeleteStatements implements DeleteStatements {
         params.put("type", "node");
 
         return new DefaultRowModelRequest("MATCH (n) "
-            + "  WHERE id(n) = {id} AND n.`" + versionField.property() + "` = {version} "
+            + "  WHERE id(n) = $id AND n.`" + versionField.property() + "` = $version "
             + "SET "
             + " n.`" + versionField.property() + "` = n.`" + versionField.property() + "` + 1 "
             + "WITH n "
-            + " WHERE n.`" + versionField.property() + "` = {version} + 1 "
+            + " WHERE n.`" + versionField.property() + "` = $version + 1 "
             + "OPTIONAL MATCH (n)-[r0]-() "
             + "DELETE r0, n "
             + "RETURN DISTINCT id(n) AS id", // Use DISTINCT because node may have multiple relationships
@@ -73,7 +73,7 @@ public class NodeDeleteStatements implements DeleteStatements {
 
     @Override
     public CypherQuery delete(Collection<Long> ids) {
-        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n",
+        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) in $ids OPTIONAL MATCH (n)-[r0]-() DELETE r0, n",
             Collections.singletonMap("ids", ids));
     }
 

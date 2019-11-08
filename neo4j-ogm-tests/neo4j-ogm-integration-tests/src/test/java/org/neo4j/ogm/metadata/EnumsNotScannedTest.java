@@ -30,7 +30,7 @@ import org.neo4j.ogm.domain.food.entities.notScanned.Pizza;
 import org.neo4j.ogm.domain.food.entities.scanned.Risk;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * Tests behaviour of enums that have not been scanned when creating a SessionFactory
@@ -39,14 +39,14 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author Luanne Misquitta
  * @see issue #145
  */
-public class EnumsNotScannedTest extends MultiDriverTestClass {
+public class EnumsNotScannedTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.food.entities.notScanned");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.food.entities.notScanned");
     }
 
     @Before

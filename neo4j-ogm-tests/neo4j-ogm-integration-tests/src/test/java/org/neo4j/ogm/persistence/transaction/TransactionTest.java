@@ -32,19 +32,19 @@ import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Luanne Misquitta
  */
-public class TransactionTest extends MultiDriverTestClass {
+public class TransactionTest extends TestContainersTestBase {
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music");
+        SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }

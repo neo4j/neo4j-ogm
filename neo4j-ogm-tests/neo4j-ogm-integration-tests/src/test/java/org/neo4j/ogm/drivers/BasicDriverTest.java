@@ -46,25 +46,26 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.WriteProtectionStrategy;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * This test class is converted from the AbstractDriverTestSuite to use the test harness in use by other tests.
  * <em>Do not rename this class to end with *Test, or certain test packages might try to execute it.</em>
  *
- * @author vince
+ * @author Vince Bickers
  * @author Michael J. Simons
  * @author Jared Hancock
+ * @author Gerrit Meier
  */
-public class BasicDriverTest extends MultiDriverTestClass {
+public class BasicDriverTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.social");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
     }
 
     @Before

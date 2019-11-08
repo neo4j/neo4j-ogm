@@ -31,13 +31,13 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
  */
 @SuppressWarnings({"HiddenField", "MultipleVariableDeclarations"})
-public class AATest extends MultiDriverTestClass {
+public class AATest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -46,7 +46,7 @@ public class AATest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetup() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.relationships.direct.aa");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships.direct.aa");
     }
 
     @Before

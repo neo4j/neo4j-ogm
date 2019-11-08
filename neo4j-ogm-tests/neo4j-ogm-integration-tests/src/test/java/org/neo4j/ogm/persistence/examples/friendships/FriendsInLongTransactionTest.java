@@ -26,13 +26,13 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.friendships.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Luanne Misquitta
  */
-public class FriendsInLongTransactionTest extends MultiDriverTestClass {
+public class FriendsInLongTransactionTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -40,7 +40,7 @@ public class FriendsInLongTransactionTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.friendships");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.friendships");
     }
 
     @Before

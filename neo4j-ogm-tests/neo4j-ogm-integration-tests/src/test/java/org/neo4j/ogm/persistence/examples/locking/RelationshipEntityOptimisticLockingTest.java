@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.commons.lang3.builder.ToStringExclude;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,12 +32,12 @@ import org.neo4j.ogm.domain.locking.User;
 import org.neo4j.ogm.exception.OptimisticLockingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
  */
-public class RelationshipEntityOptimisticLockingTest extends MultiDriverTestClass {
+public class RelationshipEntityOptimisticLockingTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -46,7 +45,7 @@ public class RelationshipEntityOptimisticLockingTest extends MultiDriverTestClas
 
     @BeforeClass
     public static void setUpClass() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.locking");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.locking");
     }
 
     @Before

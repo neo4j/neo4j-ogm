@@ -32,14 +32,14 @@ import org.neo4j.ogm.domain.generic_hierarchy.relationship.TargetEntityWithEntit
 import org.neo4j.ogm.domain.generic_hierarchy.relationship.TargetEntityWithEntitySuperInterface;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
-public class GenericRelationshipEntityTest extends MultiDriverTestClass {
+public class GenericRelationshipEntityTest extends TestContainersTestBase {
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.generic_hierarchy.relationship").openSession();
+        session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.generic_hierarchy.relationship").openSession();
         session.purgeDatabase();
 
     }

@@ -19,6 +19,7 @@
 package org.neo4j.ogm.config;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.neo4j.ogm.support.FileUtils.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -51,7 +52,14 @@ public class DriverServiceTest {
     @BeforeClass
     public static void createEmbeddedStore() {
         try {
-            Files.createDirectories(TMP_NEO4J_DB);
+            final Path directories = Files.createDirectories(TMP_NEO4J);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    deleteDirectory(directories);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to delete temporary files in " + directories, e);
+                }
+            }));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

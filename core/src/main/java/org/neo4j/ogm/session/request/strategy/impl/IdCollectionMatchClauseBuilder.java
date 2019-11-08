@@ -22,15 +22,16 @@ import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class IdCollectionMatchClauseBuilder implements MatchClauseBuilder {
     @Override
     public String build(String label) {
-        return "MATCH (n:`" + label + "`) WHERE ID(n) IN { ids } WITH n";
+        return "MATCH (n:`" + label + "`) WHERE ID(n) IN $ids WITH n";
     }
 
     @Override
     public String build(String label, String property) {
-        return "MATCH (n:`" + label + "`) WHERE n.`" + property + "` IN { ids } WITH n";
+        return "MATCH (n:`" + label + "`) WHERE n.`" + property + "` IN $ids WITH n";
     }
 }

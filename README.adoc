@@ -168,7 +168,33 @@ You can also post questions in our https://community.neo4j.com/c/drivers-stacks/
 
 == Building locally
 
-To use the latest development version, just clone this repository and run `mvn clean install`
+To use the latest development version, just clone this repository and run `mvn clean install`.
+
+The tests default to Bolt.
+If you want to change this, you have to define the property `ogm.properties` when calling Maven.
+e.g. `./mvnw clean verify -Dogm.properties=ogm-http.properties` to use the HTTP transport.
+Possible values are `ogm-bolt.properties`, `ogm-http.properties` and `ogm-embedded.properties`.
+
+For tests we are using https://www.testcontainers.org/[TestContainers].
+The default image right now is `neo4j:3.5.12`.
+If you want to use other images or the enterprise edition, you have to opt-in.
+
+Here is a list of the possible environment variables you can provide.
+
+[options="header"]
+|===
+|Variable |Description |Default value
+|`NEO4J_OGM_NEO4J_ACCEPT_AND_USE_COMMERCIAL_EDITION`
+|Use enterprise edition and accept the Neo4j licence agreement.
+|`no`
+|`NEO4J_OGM_NEO4J_IMAGE_NAME`
+|Image to be used by TestContainers.
+|`neo4j:3.5.12`
+|===
+
+If you are using embedded-based tests, the TestContainers values are ignored.
+To switch between various Neo4j versions for embedded, you have to select the right profile.
+`neo4j-3.2` - `neo4j-3.5` and `neo4j-enterprise` or `neo4j-3.5-enterprise` if you want to test against the enterprise versions.
 
 == YourKit profiler
 

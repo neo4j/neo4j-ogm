@@ -21,8 +21,6 @@ package org.neo4j.ogm.persistence.examples.companies;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.IOException;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,30 +28,30 @@ import org.neo4j.ogm.domain.companies.partial.Company;
 import org.neo4j.ogm.domain.companies.partial.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
  */
-public class PartialCompaniesIntegrationTest extends MultiDriverTestClass {
+public class PartialCompaniesIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
-    public static void init() throws IOException {
-        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.companies.partial");
+    public static void init() {
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.companies.partial");
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
 
     }
 
     @Test
-    public void whenSaveAndLoadCompany_thenShouldCorrectlySetPersonFields() throws Exception {
+    public void whenSaveAndLoadCompany_thenShouldCorrectlySetPersonFields() {
         Person alice = new Person("Alice the Founder");
         Person bob = new Person("Bob the employee");
 

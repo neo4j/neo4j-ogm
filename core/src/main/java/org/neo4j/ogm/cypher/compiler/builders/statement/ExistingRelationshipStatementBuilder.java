@@ -53,7 +53,7 @@ public class ExistingRelationshipStatementBuilder implements CypherStatementBuil
 
         Edge firstEdge = edges.iterator().next();
         if (edges.size() > 0) {
-            queryBuilder.append("UNWIND {rows} AS row MATCH ()-[r]->() WHERE ID(r) = row.relId ");
+            queryBuilder.append("UNWIND $rows AS row MATCH ()-[r]->() WHERE ID(r) = row.relId ");
 
             if (firstEdge.hasVersionProperty()) {
                 queryBuilder.append(OptimisticLockingUtils.getFragmentForExistingNodesAndRelationships(firstEdge, "r"));
@@ -62,7 +62,7 @@ public class ExistingRelationshipStatementBuilder implements CypherStatementBuil
             queryBuilder.append(firstEdge.createPropertyRemovalFragment("r"));
 
             queryBuilder.append("SET r += row.props ");
-            queryBuilder.append("RETURN ID(r) as ref, ID(r) as id, {type} as type");
+            queryBuilder.append("RETURN ID(r) as ref, ID(r) as id, $type as type");
             List<Map> rows = new ArrayList<>();
             for (Edge edge : edges) {
                 Map<String, Object> rowMap = new HashMap<>();

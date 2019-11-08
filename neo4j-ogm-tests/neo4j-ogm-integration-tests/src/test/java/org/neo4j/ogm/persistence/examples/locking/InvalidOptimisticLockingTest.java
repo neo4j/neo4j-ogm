@@ -23,17 +23,17 @@ import org.neo4j.ogm.domain.lockinginvalid.MultipleVersionFields;
 import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
  */
-public class InvalidOptimisticLockingTest extends MultiDriverTestClass {
+public class InvalidOptimisticLockingTest extends TestContainersTestBase {
 
     @Test(expected = MetadataException.class)
     public void multipleVersionFields() {
 
-        SessionFactory sf = new SessionFactory(driver, MultipleVersionFields.class.getName().toString());
+        SessionFactory sf = new SessionFactory(getDriver(), MultipleVersionFields.class.getName());
         Session session = sf.openSession();
 
         session.save(new MultipleVersionFields());

@@ -32,20 +32,20 @@ import org.neo4j.ogm.domain.convertible.parametrized.StringMapEntity;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author vince
  * @author Luanne Misquitta
  */
-public class ParameterizedConversionTest extends MultiDriverTestClass {
+public class ParameterizedConversionTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
-    public static void oneTimeSetUp() throws IOException {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.convertible.parametrized");
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.convertible.parametrized");
     }
 
     @Before

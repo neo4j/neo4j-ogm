@@ -32,19 +32,19 @@ import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
  */
-public class IdGenerationTest extends MultiDriverTestClass {
+public class IdGenerationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids",
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.annotations.ids",
             "org.neo4j.ogm.domain.annotations.invalid.ids");
     }
 
@@ -208,7 +208,7 @@ public class IdGenerationTest extends MultiDriverTestClass {
     @Test(expected = MappingException.class)
     public void saveWithCustomInstanceIdStrategyWhenStrategyNotRegistered() throws Exception {
         // create new session factory without registered instance of the strategy
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.annotations.ids");
         session = sessionFactory.openSession();
 
         ValidAnnotations.WithCustomInstanceIdStrategy entity = new ValidAnnotations.WithCustomInstanceIdStrategy();

@@ -18,12 +18,14 @@
  */
 package org.neo4j.ogm.persistence.examples.restaurant;
 
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -45,17 +48,16 @@ import org.neo4j.ogm.domain.restaurant.Location;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.GraphTestUtils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
-public class RestaurantIntegrationTest extends MultiDriverTestClass {
+public class RestaurantIntegrationTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.restaurant");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.restaurant");
     }
 
     @Before
@@ -76,8 +78,13 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
             new Location(37.61649, -122.38681), 94128);
         session.save(restaurant);
 
-        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-            "CREATE (n:`Restaurant` {name: 'San Francisco International Airport (SFO)', latitude: 37.61649, longitude: -122.38681, zip: 94128, score: 0.0, halal: false, specialities:[]})");
+        session.clear();
+        assertThat(
+            session.query(
+                "MATCH (n:`Restaurant` {name: 'San Francisco International Airport (SFO)', latitude: 37.61649, "
+                    + "longitude: -122.38681, zip: 94128, score: 0.0, halal: false, specialities:[]}) return n",
+                emptyMap()).queryResults())
+            .hasSize(1);
     }
 
     @Test
@@ -105,7 +112,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         parameters.put("distance", 1000);
 
         Restaurant found = session.queryForObject(Restaurant.class, "MATCH (r:Restaurant) " +
-                "WHERE distance(point({latitude: r.latitude, longitude:r.longitude}),point({latitude:37.0, longitude:-118.0, crs: 'WGS-84'})) < {distance}*1000 RETURN r;",
+                "WHERE distance(point({latitude: r.latitude, longitude:r.longitude}),point({latitude:37.0, longitude:-118.0, crs: 'WGS-84'})) < $distance*1000 RETURN r;",
             parameters);
 
         assertThat(found).isNotNull();

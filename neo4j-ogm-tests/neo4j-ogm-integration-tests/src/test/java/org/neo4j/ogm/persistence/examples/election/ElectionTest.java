@@ -31,7 +31,7 @@ import org.neo4j.ogm.domain.election.Voter;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * These tests assert that we can create loop edges in the graph, to support use cases
@@ -41,14 +41,14 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author vince
  * @See DATAGRAPH-689
  */
-public class ElectionTest extends MultiDriverTestClass {
+public class ElectionTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.election");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.election");
     }
 
     @Before

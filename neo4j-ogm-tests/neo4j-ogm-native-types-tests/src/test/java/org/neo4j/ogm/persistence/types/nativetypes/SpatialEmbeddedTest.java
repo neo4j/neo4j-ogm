@@ -18,9 +18,8 @@
  */
 package org.neo4j.ogm.persistence.types.nativetypes;
 
-import java.io.File;
+import static org.junit.Assume.*;
 
-import org.assertj.core.util.Files;
 import org.junit.BeforeClass;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
@@ -34,14 +33,9 @@ public class SpatialEmbeddedTest extends SpatialTestBase {
 
     @BeforeClass
     public static void init() {
+        assumeTrue(isEmbeddedDriver());
 
-        File temporaryFolder = Files.newTemporaryFolder();
-        temporaryFolder.deleteOnExit();
-
-        File databaseDirectory = Files.newFolder(temporaryFolder.getAbsolutePath() + "/database");
-
-        Configuration ogmConfiguration = new Configuration.Builder()
-            .uri("file://" + databaseDirectory.getAbsolutePath())
+        Configuration ogmConfiguration = getBaseConfigurationBuilder()
             .useNativeTypes()
             .build();
 

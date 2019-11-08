@@ -30,12 +30,12 @@ import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Recording;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author vince
  */
-public class DeleteCapabilityTest extends MultiDriverTestClass {
+public class DeleteCapabilityTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
@@ -43,7 +43,7 @@ public class DeleteCapabilityTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
     }
 
     @Before

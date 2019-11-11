@@ -20,7 +20,7 @@ package org.neo4j.ogm.metadata;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class MetaData {
 
@@ -47,7 +48,6 @@ public class MetaData {
 
     private final DomainInfo domainInfo;
     private final Schema schema;
-    private Map<String, ClassInfo> classInfos = new HashMap<>();
 
     public MetaData(String... packages) {
         this(NoNativeTypes.INSTANCE, packages);
@@ -70,30 +70,23 @@ public class MetaData {
      * @return A ClassInfo matching the supplied name, or null if it doesn't exist
      */
     public ClassInfo classInfo(String name) {
-        if (classInfos.containsKey(name)) {
-            return classInfos.get(name);
-        }
 
-        ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), NodeEntity.LABEL);
+        ClassInfo classInfo = _classInfo(name, NodeEntity.class);
         if (classInfo != null) {
-            classInfos.put(name, classInfo);
             return classInfo;
         }
 
-        classInfo = _classInfo(name, RelationshipEntity.class.getName(), RelationshipEntity.TYPE);
+        classInfo = _classInfo(name, RelationshipEntity.class);
         if (classInfo != null) {
-            classInfos.put(name, classInfo);
             return classInfo;
         }
 
         classInfo = domainInfo.getClassSimpleName(name);
         if (classInfo != null) {
-            classInfos.put(name, classInfo);
             return classInfo;
         }
 
         // not found
-        classInfos.put(name, null);
         return null;
     }
 
@@ -117,34 +110,24 @@ public class MetaData {
         return classInfo(object.getClass().getName());
     }
 
-    private ClassInfo _classInfo(String name, String nodeEntityAnnotation, String annotationPropertyName) {
-        List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
-        if (labelledClasses != null) {
-            for (ClassInfo labelledClass : labelledClasses) {
-                AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(nodeEntityAnnotation);
-                String value = annotationInfo.get(annotationPropertyName, labelledClass.neo4jName());
-                if (value.equals(name)) {
-                    return labelledClass;
-                }
-            }
-        }
-        return null;
-    }
+    private ClassInfo _classInfo(String name, Class<?> nodeEntityAnnotation) {
 
-    private Set<ClassInfo> _classInfos(String name, String nodeEntityAnnotation) {
-
-        Set<ClassInfo> newClassInfos = new HashSet<>();
-        List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
-        if (labelledClasses != null) {
-            for (ClassInfo labelledClass : labelledClasses) {
-                AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(nodeEntityAnnotation);
-                String value = annotationInfo.get("type", labelledClass.neo4jName());
-                if (value.equals(name)) {
-                    newClassInfos.add(labelledClass);
-                }
-            }
+        Map<String, List<ClassInfo>> labelledClasses;
+        if (nodeEntityAnnotation == NodeEntity.class) {
+            labelledClasses = domainInfo.getNodeEntitiesByLabel();
+        } else if (nodeEntityAnnotation == RelationshipEntity.class) {
+            labelledClasses = domainInfo.getRelationshipEntitiesByType();
+        } else {
+            throw new IllegalArgumentException(
+                "Cannot retrieve class infos for annotation " + nodeEntityAnnotation.toString());
         }
-        return newClassInfos;
+
+        // Make it explicit that duplicate labels are not dealt with.
+        // Usually, the class infos list contains the classes for a specific label in the reverse order of
+        // processing. That is: The last class found by class graph is the first one in the list.
+        // So returning the first one reassembles the previous behaviour (before working on GH-678).
+        List<ClassInfo> classInfos = labelledClasses.getOrDefault(name, Collections.emptyList());
+        return classInfos.isEmpty() ? null : classInfos.get(0);
     }
 
     /**
@@ -232,15 +215,13 @@ public class MetaData {
 
         Set<ClassInfo> matchingClassInfos = new HashSet<>();
 
-        ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), NodeEntity.LABEL);
+        ClassInfo classInfo = _classInfo(name, NodeEntity.class);
         if (classInfo != null) {
             matchingClassInfos.add(classInfo);
         }
 
-        //Potentially many relationship entities annotated with the same type
-        for (ClassInfo info : _classInfos(name, RelationshipEntity.class.getName())) {
-            matchingClassInfos.add(info);
-        }
+        // Potentially many relationship entities annotated with the same type
+        matchingClassInfos.addAll(domainInfo.getRelationshipEntitiesByType().getOrDefault(name, Collections.emptyList()));
 
         classInfo = domainInfo.getClassSimpleName(name);
         if (classInfo != null) {
@@ -313,5 +294,4 @@ public class MetaData {
     public void registerConversionCallback(ConversionCallback conversionCallback) {
         this.domainInfo.registerConversionCallback(conversionCallback);
     }
-
 }

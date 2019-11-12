@@ -75,14 +75,16 @@ public class DomainInfo {
         Predicate<Class<?>> classIsMappable = clazz -> !(clazz.isAnnotation() || clazz.isAnonymousClass() || clazz
             .equals(Object.class));
 
-        ScanResult scanResult = findClasses(packages);
-        scanResult.getAllClasses().loadClasses(true)
-            .stream()
-            .filter(classIsMappable)
-            .forEach(clazz -> prepareClass(domainInfo, typeSystem, clazz));
-        scanResult.close();
-        domainInfo.finish();
-
+        try (ScanResult scanResult = findClasses(packages)) {
+            for (Class<?> clazz : scanResult.getAllClasses().loadClasses(true)) {
+                if (!classIsMappable.test(clazz)) {
+                    continue;
+                }
+                domainInfo.addClass(clazz);
+            }
+        } finally {
+            domainInfo.finish();
+        }
         return domainInfo;
     }
 
@@ -90,47 +92,47 @@ public class DomainInfo {
 
         // .enableExternalClasses() is not needed, as the super classes are loaded anywhere when the class is loaded.
         return new ClassGraph()
-            .enableAllInfo()
+            .ignoreClassVisibility()
             .whitelistPackages(packagesOrClasses)
             .whitelistClasses(packagesOrClasses)
             .scan();
     }
 
     /**
-     * Prepares and hydrates a class. If the class has super classes that have not been scan, this method modifies loads
-     * and prepares the super classes recursively and adds it to {@link DomainInfo#classNameToClassInfo}.
+     * Prepares and hydrates a class. The methods adds all super classes of the given class.
      *
-     * @param domainInfo
-     * @param typeSystem
      * @param clazz
      */
-    static void prepareClass(
-        DomainInfo domainInfo, TypeSystem typeSystem, Class clazz) {
+    private void addClass(Class clazz) {
         ClassInfo newClassInfo = new ClassInfo(clazz, typeSystem);
         String className = newClassInfo.name();
         String superclassName = newClassInfo.superclassName();
 
-        LOGGER.debug("Processing: {} -> {}", className, superclassName);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Processing: {} -> {}", className, superclassName);
+        }
 
-        ClassInfo classInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> newClassInfo);
+        ClassInfo classInfo = this.classNameToClassInfo.computeIfAbsent(className, k -> newClassInfo);
         if (!classInfo.hydrated()) {
             classInfo.hydrate(newClassInfo);
         }
 
+        if (classInfo.isEnum()) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Registering enum class: {}", classInfo.name());
+            }
+            this.enumTypes.add(classInfo.getUnderlyingClass());
+        }
+
         if (superclassName != null) {
-            ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
+            ClassInfo superclassInfo = this.classNameToClassInfo.get(superclassName);
             if (superclassInfo != null) {
                 superclassInfo.addSubclass(classInfo);
             } else if (!"java.lang.Object".equals(superclassName) && !"java.lang.Enum".equals(superclassName)) {
                 Class<?> superClazz = clazz.getSuperclass();
-                domainInfo.classNameToClassInfo.put(superclassName, new ClassInfo(superClazz, classInfo));
-                prepareClass(domainInfo, typeSystem, superClazz);
+                this.classNameToClassInfo.put(superclassName, new ClassInfo(superClazz, classInfo));
+                this.addClass(superClazz);
             }
-        }
-
-        if (classInfo.isEnum()) {
-            LOGGER.debug("Registering enum class: {}", classInfo.name());
-            domainInfo.enumTypes.add(classInfo.getUnderlyingClass());
         }
     }
 

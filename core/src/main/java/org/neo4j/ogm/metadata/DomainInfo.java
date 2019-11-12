@@ -145,16 +145,14 @@ public class DomainInfo {
 
             AnnotationInfo nodeEntityAnnotation = classInfo.annotationsInfo().get(NodeEntity.class);
             if (nodeEntityAnnotation != null) {
-                String label = nodeEntityAnnotation.get(NodeEntity.LABEL, classInfo.neo4jName());
-                List<ClassInfo> classInfos = temporaryNodeEntitiesByLabel.computeIfAbsent(label, k -> new ArrayList());
+                List<ClassInfo> classInfos = temporaryNodeEntitiesByLabel.computeIfAbsent(classInfo.neo4jName(), k -> new ArrayList());
                 classInfos.add(classInfo);
             }
 
             AnnotationInfo relationshipEntityAnnotation = classInfo.annotationsInfo().get(RelationshipEntity.class);
             if (relationshipEntityAnnotation != null) {
-                String type = relationshipEntityAnnotation.get(RelationshipEntity.TYPE, classInfo.neo4jName());
                 List<ClassInfo> classInfos = temporaryRelationshipEntitiesByType
-                    .computeIfAbsent(type, k -> new ArrayList());
+                    .computeIfAbsent(classInfo.neo4jName(), k -> new ArrayList());
                 classInfos.add(classInfo);
             }
         }

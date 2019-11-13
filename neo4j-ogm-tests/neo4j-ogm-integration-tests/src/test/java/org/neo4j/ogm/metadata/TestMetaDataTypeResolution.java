@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class TestMetaDataTypeResolution {
 
-    private MetaData metaData = new MetaData("org.neo4j.ogm.metadata");
+    private MetaData metaData = new MetaData("org.neo4j.ogm.domain.metadata");
 
     public void checkField(String name, String expectedDescriptor, Class expectedPersistableType) {
         this.checkField(name, expectedDescriptor, expectedPersistableType, null);

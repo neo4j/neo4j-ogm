@@ -38,6 +38,7 @@ import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.activity.Activity;
 import org.neo4j.ogm.domain.forum.activity.Post;
+import org.neo4j.ogm.domain.metadata.LabelsAnnotationWithWrongType;
 import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.exception.core.InvalidPropertyFieldException;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -55,7 +56,7 @@ public class ClassInfoTest {
     public void setUp() {
         metaData = new MetaData("org.neo4j.ogm.domain.forum",
             "org.neo4j.ogm.domain.pizza",
-            "org.neo4j.ogm.metadata",
+            "org.neo4j.ogm.domain.metadata",
             "org.neo4j.ogm.domain.canonical",
             "org.neo4j.ogm.domain.hierarchy.domain",
             "org.neo4j.ogm.domain.cineasts.partial",
@@ -371,10 +372,7 @@ public class ClassInfoTest {
         assertThat(nonAnnotatedClassInfo.staticLabels()).isEqualTo(asList("Student", "DomainObject"));
     }
 
-    /**
-     * @see issue #159
-     */
-    @Test
+    @Test // GH-159
     public void labelFieldOrNull() {
         ClassInfo classInfo = metaData.classInfo(Pizza.class.getSimpleName());
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
@@ -382,16 +380,13 @@ public class ClassInfoTest {
         assertThat(fieldInfo.getName()).isEqualTo("labels");
     }
 
-    /**
-     * @see issue #159
-     */
-    @Test
+    @Test // GH-159
     public void labelFieldOrNullThrowsMappingExceptionForInvalidType() {
         assertThatThrownBy(() -> {
-            LabelsAnnotationWithWrongTye entity = new LabelsAnnotationWithWrongTye();
+            LabelsAnnotationWithWrongType entity = new LabelsAnnotationWithWrongType();
             Collection<String> collatedLabels = EntityUtils.labels(entity, metaData);
         }).isInstanceOf(MappingException.class)
-            .hasMessage("Field 'labels' in class 'org.neo4j.ogm.metadata.LabelsAnnotationWithWrongTye' "
+            .hasMessage("Field 'labels' in class 'org.neo4j.ogm.domain.metadata.LabelsAnnotationWithWrongType' "
                 + "includes the @Labels annotation, however this field is not a type of collection.");
     }
 
@@ -430,19 +425,19 @@ public class ClassInfoTest {
         assertThat(fieldInfo.isScalar()).isTrue();
     }
 
-    @Test // see DATAGRAPH-615
+    @Test // DATAGRAPH-615
     public void testDefaultLabelOfNodeEntities() {
         ClassInfo classInfo = metaData.classInfo("Forum");
         assertThat(classInfo.neo4jName()).isEqualTo("Forum");
     }
 
-    @Test // see DATAGRAPH-615
+    @Test // DATAGRAPH-615
     public void testDefaultLabelOfRelationshipEntities() {
         ClassInfo classInfo = metaData.classInfo("Nomination");
         assertThat(classInfo.neo4jName()).isEqualTo("NOMINATION");
     }
 
-    @Test // see DATAGRAPH-690
+    @Test // DATAGRAPH-690
     public void testTypeParameterDescriptorForRelationships() {
         ClassInfo classInfo = metaData.classInfo("Topic");
         assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", OUTGOING)).isEqualTo(Post.class);

@@ -20,6 +20,10 @@ package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
+import io.github.classgraph.issues.issue267.FakeRestartClassLoader;
+
+import java.lang.reflect.Method;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,4 +66,53 @@ public class DomainInfoTest {
         assertThat(classInfo).isNotNull();
         assertThat(classInfo.interfacesInfo().list()).hasSize(1);
     }
+
+    @Test
+    public void shouldLoadClassesCorrectlyWithSimpleClassLoader() throws Exception {
+        final String classLoaderName = Thread.currentThread().getContextClassLoader().getClass().getSimpleName();
+        new DomainInfoTestClassLoaderTestStub().assertCorrectClassLoaders(classLoaderName, classLoaderName);
+    }
+
+    /**
+     * This recreates the behaviour of Spring Boots dev tools reloader.
+     * @throws Throwable
+     */
+    @Test
+    public void shouldLoadClassesCorrectlyWithParentLastClassLoader() throws Throwable {
+        final String classLoaderName = Thread.currentThread().getContextClassLoader().getClass().getSimpleName();
+        final TestLauncher launcher = new TestLauncher(classLoaderName);
+        launcher.start();
+        launcher.join();
+        if (launcher.error != null) {
+            throw launcher.error;
+        }
+    }
 }
+
+class TestLauncher extends Thread {
+
+    private final String parentClassLoader;
+
+    Throwable error;
+
+    TestLauncher(final String parentClassLoader) {
+        this.parentClassLoader = parentClassLoader;
+        setDaemon(false);
+        setContextClassLoader(new FakeRestartClassLoader());
+    }
+
+    @Override
+    public void run() {
+        try {
+            final Class<?> mainClass = getContextClassLoader()
+                .loadClass("org.neo4j.ogm.metadata.DomainInfoTestClassLoaderTestStub");
+            final Method mainMethod = mainClass
+                .getDeclaredMethod("assertCorrectClassLoaders", String.class, String.class);
+            mainMethod
+                .invoke(mainClass.getDeclaredConstructor().newInstance(), parentClassLoader, "FakeRestartClassLoader");
+        } catch (Throwable ex) {
+            error = ex;
+        }
+    }
+}
+

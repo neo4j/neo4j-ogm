@@ -27,8 +27,9 @@ import io.github.classgraph.ScanResult;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
@@ -54,8 +55,9 @@ public class DomainInfo {
     private final TypeSystem typeSystem;
 
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
-    private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
-    private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
+    private Map<String, List<ClassInfo>> nodeEntitiesByLabel;
+    private Map<String, List<ClassInfo>> relationshipEntitiesByType;
+    private final Map<String, List<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
     private final Set<Class> enumTypes = new HashSet<>();
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
@@ -69,128 +71,108 @@ public class DomainInfo {
 
     public static DomainInfo create(TypeSystem typeSystem, String... packages) {
 
-        ScanResult scanResult = findClasses(packages);
-
-        List<String> allClasses = scanResult.getAllClasses().stream()
-            .map(io.github.classgraph.ClassInfo::getName)
-            .collect(Collectors.toList());
-
         DomainInfo domainInfo = new DomainInfo(typeSystem);
-
-        Predicate<Class<?>> classCouldBeLoaded = Objects::nonNull;
         Predicate<Class<?>> classIsMappable = clazz -> !(clazz.isAnnotation() || clazz.isAnonymousClass() || clazz
             .equals(Object.class));
 
-        Map<String, Class<?>> mappableClasses = allClasses
-            .stream()
-            .map(DomainInfo::loadClass)
-            .filter(classCouldBeLoaded)
-            .filter(classIsMappable)
-            .collect(Collectors.toMap(Class::getName, Function.identity()));
-
-        mappableClasses.values()
-            .forEach(clazz -> prepareClass(domainInfo, mappableClasses, typeSystem, clazz));
-
-        domainInfo.finish();
-        scanResult.close();
-
+        try (ScanResult scanResult = findClasses(packages)) {
+            for (Class<?> clazz : scanResult.getAllClasses().loadClasses(true)) {
+                if (!classIsMappable.test(clazz)) {
+                    continue;
+                }
+                domainInfo.addClass(clazz);
+            }
+        } finally {
+            domainInfo.finish();
+        }
         return domainInfo;
     }
 
     private static ScanResult findClasses(String[] packagesOrClasses) {
 
+        // .enableExternalClasses() is not needed, as the super classes are loaded anywhere when the class is loaded.
         return new ClassGraph()
-            .enableAllInfo()
+            .ignoreClassVisibility()
             .whitelistPackages(packagesOrClasses)
             .whitelistClasses(packagesOrClasses)
             .scan();
     }
 
     /**
-     * Prepares and hydrates a class. If the class has super classes that have not been scan, this method modifies loads
-     * and prepares the super classes recursively and adds it to {@link DomainInfo#classNameToClassInfo}.
+     * Prepares and hydrates a class. The methods adds all super classes of the given class.
      *
-     * @param domainInfo
-     * @param mappableClasses
-     * @param typeSystem
      * @param clazz
      */
-    static void prepareClass(
-        DomainInfo domainInfo, Map<String, Class<?>> mappableClasses, TypeSystem typeSystem, Class clazz) {
+    private void addClass(Class clazz) {
         ClassInfo newClassInfo = new ClassInfo(clazz, typeSystem);
         String className = newClassInfo.name();
         String superclassName = newClassInfo.superclassName();
 
-        LOGGER.debug("Processing: {} -> {}", className, superclassName);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Processing: {} -> {}", className, superclassName);
+        }
 
-        ClassInfo classInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> newClassInfo);
+        ClassInfo classInfo = this.classNameToClassInfo.computeIfAbsent(className, k -> newClassInfo);
         if (!classInfo.hydrated()) {
             classInfo.hydrate(newClassInfo);
         }
 
+        if (classInfo.isEnum()) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Registering enum class: {}", classInfo.name());
+            }
+            this.enumTypes.add(classInfo.getUnderlyingClass());
+        }
+
         if (superclassName != null) {
-            ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
+            ClassInfo superclassInfo = this.classNameToClassInfo.get(superclassName);
             if (superclassInfo != null) {
                 superclassInfo.addSubclass(classInfo);
             } else if (!"java.lang.Object".equals(superclassName) && !"java.lang.Enum".equals(superclassName)) {
-
-                Class<?> superClazz = Optional.ofNullable(mappableClasses.get(superclassName))
-                    // This is the case when a class outside the scanned packages is referred to
-                    .orElseGet(() -> (Class) loadClass(superclassName));
-
-                superclassInfo = new ClassInfo(superClazz, classInfo);
-                domainInfo.classNameToClassInfo.put(superclassName, superclassInfo);
-
-                prepareClass(domainInfo, mappableClasses, typeSystem, superClazz);
+                Class<?> superClazz = clazz.getSuperclass();
+                this.classNameToClassInfo.put(superclassName, new ClassInfo(superClazz, classInfo));
+                this.addClass(superClazz);
             }
         }
-
-        if (classInfo.isEnum()) {
-            LOGGER.debug("Registering enum class: {}", classInfo.name());
-            domainInfo.enumTypes.add(classInfo.getUnderlyingClass());
-        }
     }
 
-    static Class<?> loadClass(String className) {
+    private void buildByLabelLookupMaps() {
 
-        Class<?> loadedButNotInitalizedClass = null;
-        try {
-            loadedButNotInitalizedClass = Class
-                .forName(className, false, Thread.currentThread().getContextClassLoader());
-        } catch (ClassNotFoundException e) {
-            LOGGER.warn("Could not load class {}", className);
+        LOGGER.info("Building byLabel lookup maps");
 
-        }
-        return loadedButNotInitalizedClass;
-    }
+        Map<String, List<ClassInfo>> temporaryNodeEntitiesByLabel = new HashMap<>();
+        Map<String, List<ClassInfo>> temporaryRelationshipEntitiesByType = new HashMap<>();
 
-    private void buildAnnotationNameToClassInfoMap() {
-
-        LOGGER.info("Building annotation class map");
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            for (AnnotationInfo annotation : classInfo.annotations()) {
-                ArrayList<ClassInfo> classInfoList = annotationNameToClassInfo.get(annotation.getName());
-                if (classInfoList == null) {
-                    classInfoList = new ArrayList<>();
-                    annotationNameToClassInfo.put(annotation.getName(), classInfoList);
-                }
-                classInfoList.add(classInfo);
+
+            AnnotationInfo nodeEntityAnnotation = classInfo.annotationsInfo().get(NodeEntity.class);
+            if (nodeEntityAnnotation != null) {
+                List<ClassInfo> classInfos = temporaryNodeEntitiesByLabel.computeIfAbsent(classInfo.neo4jName(), k -> new ArrayList());
+                classInfos.add(classInfo);
+            }
+
+            AnnotationInfo relationshipEntityAnnotation = classInfo.annotationsInfo().get(RelationshipEntity.class);
+            if (relationshipEntityAnnotation != null) {
+                List<ClassInfo> classInfos = temporaryRelationshipEntitiesByType
+                    .computeIfAbsent(classInfo.neo4jName(), k -> new ArrayList());
+                classInfos.add(classInfo);
             }
         }
+
+        this.nodeEntitiesByLabel = Collections.unmodifiableMap(temporaryNodeEntitiesByLabel);
+        this.relationshipEntitiesByType = Collections.unmodifiableMap(temporaryRelationshipEntitiesByType);
     }
 
     private void buildInterfaceNameToClassInfoMap() {
+
         LOGGER.info("Building interface class map for {} classes", classNameToClassInfo.values().size());
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             LOGGER.debug(" - {} implements {} interfaces", classInfo.simpleName(),
                 classInfo.interfacesInfo().list().size());
             for (InterfaceInfo iface : classInfo.interfacesInfo().list()) {
-                ArrayList<ClassInfo> classInfoList = interfaceNameToClassInfo.get(iface.name());
-                if (classInfoList == null) {
-                    classInfoList = new ArrayList<>();
-                    interfaceNameToClassInfo.put(iface.name(), classInfoList);
-                }
                 LOGGER.debug("   - {}", iface.name());
+                List<ClassInfo> classInfoList = interfaceNameToClassInfo
+                    .computeIfAbsent(iface.name(), key -> new ArrayList<>());
                 classInfoList.add(classInfo);
             }
         }
@@ -204,7 +186,7 @@ public class DomainInfo {
 
         LOGGER.info("Starting Post-processing phase");
 
-        buildAnnotationNameToClassInfoMap();
+        buildByLabelLookupMaps();
         buildInterfaceNameToClassInfoMap();
 
         List<ClassInfo> transientClasses = new ArrayList<>();
@@ -235,8 +217,8 @@ public class DomainInfo {
         LOGGER.debug("Checking for @Transient classes....");
 
         // find transient interfaces
-        Collection<ArrayList<ClassInfo>> interfaceInfos = interfaceNameToClassInfo.values();
-        for (ArrayList<ClassInfo> classInfos : interfaceInfos) {
+        Collection<List<ClassInfo>> interfaceInfos = interfaceNameToClassInfo.values();
+        for (List<ClassInfo> classInfos : interfaceInfos) {
             for (ClassInfo classInfo : classInfos) {
                 if (classInfo.isTransient()) {
                     LOGGER.debug("Registering @Transient baseclass: {}", classInfo.name());
@@ -355,9 +337,14 @@ public class DomainInfo {
     }
 
     private ClassInfo getClassInfo(String fullOrPartialClassName, Map<String, ClassInfo> infos) {
-        ClassInfo match = null;
+
+        ClassInfo match = infos.get(fullOrPartialClassName);
+        if (match != null) {
+            return match;
+        }
+
         for (String fqn : infos.keySet()) {
-            if (fqn.endsWith("." + fullOrPartialClassName) || fqn.equals(fullOrPartialClassName)) {
+            if (fqn.endsWith("." + fullOrPartialClassName)) {
                 if (match == null) {
                     match = infos.get(fqn);
                 } else {
@@ -368,8 +355,12 @@ public class DomainInfo {
         return match;
     }
 
-    List<ClassInfo> getClassInfosWithAnnotation(String annotation) {
-        return annotationNameToClassInfo.get(annotation);
+    Map<String, List<ClassInfo>> getNodeEntitiesByLabel() {
+        return nodeEntitiesByLabel;
+    }
+
+    Map<String, List<ClassInfo>> getRelationshipEntitiesByType() {
+        return relationshipEntitiesByType;
     }
 
     private void registerDefaultFieldConverters(ClassInfo classInfo, FieldInfo fieldInfo) {

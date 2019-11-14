@@ -29,6 +29,7 @@ import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientSingleClass;
 /**
  * @author Mark Angrish
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class TransientObjectsTest {
 
@@ -36,7 +37,7 @@ public class TransientObjectsTest {
 
     @Before
     public void setUp() {
-        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata",
+        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.domain.metadata",
             "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain",
             "org.neo4j.ogm.domain.cineasts.annotated");
     }
@@ -74,35 +75,4 @@ public class TransientObjectsTest {
         }
     }
 
-    @NodeEntity(label = "PersistableClass")
-    public class PersistableClass {
-
-        private Long id;
-
-        @Transient
-        private transient String transientObject;
-
-        @Transient
-        private Integer chickenCounting;
-
-        public TransientSingleClass transientSingleClassField;
-
-        public String getTransientObject() {
-            return transientObject;
-        }
-
-        public void setTransientObject(String value) {
-            transientObject = value;
-        }
-
-        public TransientSingleClass getTransientSingleClass() {
-            return null;
-        }
-    }
-
-    @Transient
-    public class TransientClass {
-
-        private Long id;
-    }
 }

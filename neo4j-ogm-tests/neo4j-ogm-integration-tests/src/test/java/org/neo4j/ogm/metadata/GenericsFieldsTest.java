@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.gh492.BaseUser;
+import org.neo4j.ogm.domain.metadata.POJO;
 
 /**
  * @author Vince Bickers
@@ -49,7 +50,7 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
 
     @Test
     public void testGenericSelfReference() {
-        checkField("next", "org.neo4j.ogm.metadata.POJO", POJO.class, null);
+        checkField("next", "org.neo4j.ogm.domain.metadata.POJO", POJO.class, null);
     }
 
     @Test // List<S>
@@ -59,7 +60,7 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
 
     @Test // List<POJO<S, T, U>> neighbours;
     public void testCollectionWithConcreteParameterizedType() {
-        checkField("neighbours", "org.neo4j.ogm.metadata.POJO", POJO.class, "java.util.List");
+        checkField("neighbours", "org.neo4j.ogm.domain.metadata.POJO", POJO.class, "java.util.List");
     }
 
     @Test // List<? extends Integer> superIntegers

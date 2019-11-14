@@ -16,15 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.domain.metadata;
 
-import org.neo4j.ogm.annotation.Labels;
+import org.neo4j.ogm.annotation.Transient;
 
-public class LabelsAnnotationWithWrongTye {
+/**
+ * @author Mark Angrish
+ * @author Luanne Misquitta
+ * @author Michael J. Simons
+ */
+@Transient
+public class TransientClass {
 
-    /**
-     * The labels field must be applied to a type of collection.
-     */
-    @Labels
-    private String labels = new String();
+    private Long id;
 }

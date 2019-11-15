@@ -24,10 +24,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Teacher;
+import org.neo4j.ogm.domain.education.TeachesAt;
 import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class IdentityMapTest {
 
@@ -69,5 +71,30 @@ public class IdentityMapTest {
         teacher.setSchool(new School("Roedean")); // a related object does not affect the property list.
 
         assertThat(mappingContext.isDirty(teacher)).isFalse();
+    }
+
+    @Test
+    public void testNodeAndRelationshipWithSameId() {
+
+        // Create a Node and set the Id.
+        Teacher mrsJones = new Teacher();
+        mrsJones.setId(1L);
+
+        // Remember the entity.
+        mappingContext.addNodeEntity(mrsJones);
+
+        // Create a Relationship with the same Id.
+        TeachesAt teachesAtRelationship = new TeachesAt();
+        teachesAtRelationship.setId(1L);
+
+        IdentityMap identityMap = new IdentityMap(metaData);
+        identityMap.remember(mrsJones, mrsJones.getId());
+
+        assertThat(identityMap.remembered(mrsJones, mrsJones.getId())).isTrue();
+        assertThat(identityMap.remembered(teachesAtRelationship, teachesAtRelationship.getId())).isFalse();
+
+        identityMap.remember(teachesAtRelationship, teachesAtRelationship.getId());
+
+        assertThat(identityMap.remembered(teachesAtRelationship, teachesAtRelationship.getId())).isTrue();
     }
 }

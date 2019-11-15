@@ -90,17 +90,22 @@ class IdentityMap {
      */
     boolean remembered(Object object, Long entityId) {
 
-        // Bail out early if the native id is null or neither the hashes of nodes nor relationships contain the entity id.
-        if (entityId == null || !(nodeHashes.containsKey(entityId) || relEntityHashes.containsKey(entityId))) {
+        // Bail out early if the native id is null...
+        if (entityId == null) {
             return false;
         }
 
         ClassInfo classInfo = metaData.classInfo(object);
         boolean isRelEntity = metaData.isRelationshipEntity(classInfo.name());
+        Map<Long, Long> hashes = isRelEntity ? relEntityHashes : nodeHashes;
+
+        // ... or a little later when the hashes in question doesnt contain the entities id
+        if (!hashes.containsKey(entityId)) {
+            return false;
+        }
 
         long actual = hash(object, classInfo);
-        long expected = isRelEntity ? relEntityHashes.get(entityId) : nodeHashes.get(entityId);
-
+        long expected = hashes.get(entityId);
         return actual == expected;
     }
 

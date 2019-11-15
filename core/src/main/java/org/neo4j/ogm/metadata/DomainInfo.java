@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DomainInfo {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DomainInfo.class);
+    static final Logger LOGGER = LoggerFactory.getLogger(DomainInfo.class);
     private final TypeSystem typeSystem;
 
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();

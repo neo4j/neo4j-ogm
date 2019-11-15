@@ -54,8 +54,21 @@ public class MetaData {
     }
 
     public MetaData(TypeSystem typeSystem, String... packages) {
+
+        if (containsRootPackage(packages)) {
+            LOGGER.warn(""
+                + "You are trying to scan the root package. "
+                + "This will take a long time and probably end with an error or "
+                + "classes being mapped that are not part of your domain. "
+                + "Please have a look at the configuration of your SessionFactory.");
+        }
+
         this.domainInfo = DomainInfo.create(typeSystem, packages);
         this.schema = new DomainInfoSchemaBuilder(domainInfo).build();
+    }
+
+    static boolean containsRootPackage(String... packages) {
+        return packages == null || packages.length == 0 || Arrays.stream(packages).anyMatch(String::isEmpty);
     }
 
     public Schema getSchema() {

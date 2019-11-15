@@ -297,6 +297,11 @@ public class FieldInfo {
         if (!isIterable() || isArray()) {
             return descriptor;
         }
+
+        if (typeParameterDescriptor == null) {
+            return "java.lang.Object";
+        }
+
         return typeParameterDescriptor;
     }
 

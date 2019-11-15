@@ -192,6 +192,14 @@ public class MetaDataTest {
             .isEqualTo("org.neo4j.ogm.domain.forum.SilverMembership");
     }
 
+    @Test // GH-686 and others
+    public void containsRootPackageShouldWork() {
+        assertThat(MetaData.containsRootPackage(null)).isTrue();
+        assertThat(MetaData.containsRootPackage()).isTrue();
+        assertThat(MetaData.containsRootPackage("a", "", "foo")).isTrue();
+        assertThat(MetaData.containsRootPackage("a", "b")).isFalse();
+    }
+
     /**
      * Ensure that performance does not degrade with a huge number of domain classes.
      */

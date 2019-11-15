@@ -76,8 +76,8 @@ class KotlinInteropTest {
     fun prepareData() {
 
         driver.session().use {
-            assertThat(it.run("CREATE (n:Unrelated)").summary().counters().nodesCreated()).isEqualTo(1)
-            val summary = it.run("UNWIND \$names AS name CREATE (n:MyNode {name: name})", Values.parameters("names", names)).summary()
+            assertThat(it.run("CREATE (n:Unrelated)").consume().counters().nodesCreated()).isEqualTo(1)
+            val summary = it.run("UNWIND \$names AS name CREATE (n:MyNode {name: name})", Values.parameters("names", names)).consume()
             assertThat(summary.counters().nodesCreated()).isEqualTo(names.size)
         }
     }

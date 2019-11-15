@@ -73,7 +73,7 @@ public class IdentityMapTest {
         assertThat(mappingContext.isDirty(teacher)).isFalse();
     }
 
-    @Test
+    @Test // GH-684
     public void testNodeAndRelationshipWithSameId() {
 
         // Create a Node and set the Id.

@@ -20,9 +20,12 @@ package org.neo4j.ogm.metadata;
 
 import static java.util.stream.Collectors.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -63,9 +66,31 @@ public class ClassInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
 
+    private static final Class<? extends Annotation> kotlinMetadata;
+
+    static {
+        Class<?> metadata;
+        ClassLoader classLoader = DomainInfo.class.getClassLoader();
+        try {
+            metadata = Class.forName("kotlin.Metadata", false, classLoader);
+        } catch (ClassNotFoundException ex) {
+            // Kotlin API not available - no Kotlin support
+            metadata = null;
+        }
+        kotlinMetadata = (Class<? extends Annotation>) metadata;
+    }
+
     private final List<ClassInfo> directSubclasses = new ArrayList<>();
     private final List<ClassInfo> directInterfaces = new ArrayList<>();
     private final List<ClassInfo> directImplementingClasses = new ArrayList<>();
+    /**
+     * Indirect super classes will only be filled for Kotlin classes that make use of Kotlin's
+     * <a href="https://kotlinlang.org/docs/reference/delegation.html">"Implementation by Delegation"</a>. Find a
+     * more in depth of the inner workings
+     * <a href="https://medium.com/til-kotlin/how-kotlins-class-delegation-works-and-di-101-de9887b95d3e">here</a>
+     * (and feel free to replace the above medium link with a real spec doc).
+     */
+    private final List<ClassInfo> indirectSuperClasses = new ArrayList<>();
     private String className;
     private String directSuperclassName;
     private String neo4jName;
@@ -115,6 +140,15 @@ public class ClassInfo {
     }
 
     public ClassInfo(Class<?> cls, TypeSystem typeSystem) {
+        this(cls, null, typeSystem);
+    }
+
+    /**
+     * @param cls        The type of this class
+     * @param parent     Will be filled if containing class is a Kotlin class and this class is the type of a Kotlin delegate.
+     * @param typeSystem The typesystem in use
+     */
+    private ClassInfo(Class<?> cls, Field parent, TypeSystem typeSystem) {
         this.cls = cls;
         final int modifiers = cls.getModifiers();
         this.isInterface = Modifier.isInterface(modifiers);
@@ -126,8 +160,8 @@ public class ClassInfo {
             this.directSuperclassName = cls.getSuperclass().getName();
         }
         this.interfacesInfo = new InterfacesInfo(cls);
-        this.fieldsInfo = new FieldsInfo(this, cls, typeSystem);
-        this.methodsInfo = new MethodsInfo(cls);
+        this.fieldsInfo = new FieldsInfo(this, cls, parent, typeSystem);
+        this.methodsInfo = new MethodsInfo(cls, parent);
         this.annotationsInfo = new AnnotationsInfo(cls);
 
         if (isRelationshipEntity() && labelFieldOrNull() != null) {
@@ -143,6 +177,28 @@ public class ClassInfo {
                         name(), fieldInfo.getName()));
             }
         }
+
+        if (isKotlinType(cls)) {
+            this.inspectLocalDelegates(typeSystem);
+        }
+    }
+
+    private void inspectLocalDelegates(TypeSystem typeSystem) {
+
+        for (Field field : this.cls.getDeclaredFields()) {
+            if (!isKotlinDelegate(field)) {
+                continue;
+            }
+
+            ClassInfo indirectSuperClass = new ClassInfo(field.getType(), field, typeSystem);
+            this.extend(indirectSuperClass);
+            this.indirectSuperClasses.add(indirectSuperClass);
+        }
+    }
+
+    private static boolean isKotlinDelegate(Field field) {
+
+        return field.isSynthetic() && field.getName().startsWith("$$delegate_");
     }
 
     /**
@@ -258,6 +314,9 @@ public class ClassInfo {
         }
         for (ClassInfo interfaceInfo : directInterfaces()) {
             interfaceInfo.collectLabels(labelNames);
+        }
+        for (ClassInfo indirectSuperClass : indirectSuperClasses) {
+            indirectSuperClass.collectLabels(labelNames);
         }
         return labelNames;
     }
@@ -608,7 +667,9 @@ public class ClassInfo {
      *
      * @param methodInfo the MethodInfo used to obtain the Method
      * @return a Method
+     * @deprecated since 3.2.3, please use MethodInfo directly.
      */
+    @Deprecated
     public Method getMethod(MethodInfo methodInfo) {
         return methodInfo.getMethod();
     }
@@ -741,20 +802,22 @@ public class ClassInfo {
      */
     boolean isSubclassOf(ClassInfo classInfo) {
 
+        if (classInfo == null) {
+            return false;
+        }
+
         if (this == classInfo) {
             return true;
         }
 
-        boolean found = false;
-
         for (ClassInfo subclass : classInfo.directSubclasses()) {
-            found = isSubclassOf(subclass);
-            if (found) {
-                break;
+            if (isSubclassOf(subclass)) {
+                return true;
             }
         }
 
-        return found;
+        return this.indirectSuperClasses.stream()
+            .anyMatch(c -> c.getUnderlyingClass() == classInfo.getUnderlyingClass());
     }
 
     /**
@@ -1138,5 +1201,43 @@ public class ClassInfo {
         }
 
         return reader;
+    }
+
+    /**
+     * @return True if Kotlin is present on the classpath.
+     */
+    private static boolean isKotlinPresent() {
+        return (kotlinMetadata != null);
+    }
+
+    /**
+     * @param clazz
+     * @return True, if Kotlin is present and {@code clazz} is a Kotlin class.
+     */
+    private static boolean isKotlinType(Class<?> clazz) {
+        return isKotlinPresent() && clazz.getDeclaredAnnotation(kotlinMetadata) != null;
+    }
+
+    static Object getInstanceOrDelegate(Object instance, Field delegateHolder) {
+        if (delegateHolder == null) {
+            return instance;
+        } else {
+            return AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                try {
+                    delegateHolder.setAccessible(true);
+                    return delegateHolder.get(instance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "ClassInfo{" +
+            "className='" + className + '\'' +
+            ", neo4jName='" + neo4jName + '\'' +
+            '}';
     }
 }

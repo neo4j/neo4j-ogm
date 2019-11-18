@@ -34,6 +34,7 @@ import org.neo4j.ogm.cypher.query.SortOrder
 import org.neo4j.ogm.cypher.query.SortOrder.Direction
 import org.neo4j.ogm.domain.dataclasses.MyNode
 import org.neo4j.ogm.domain.dataclasses.OtherNode
+import org.neo4j.ogm.domain.delegation.KotlinAImpl
 import org.neo4j.ogm.session.*
 
 /**
@@ -58,7 +59,10 @@ class KotlinInteropTest {
             val ogmConfiguration = Configuration.Builder()
                     .uri(server.boltURI().toString())
                     .build()
-            sessionFactory = SessionFactory(ogmConfiguration, MyNode::class.java.`package`.name)
+            sessionFactory = SessionFactory(ogmConfiguration,
+                    MyNode::class.java.`package`.name,
+                    KotlinAImpl::class.java.`package`.name
+            )
         }
 
         @AfterClass
@@ -79,6 +83,8 @@ class KotlinInteropTest {
             assertThat(it.run("CREATE (n:Unrelated)").consume().counters().nodesCreated()).isEqualTo(1)
             val summary = it.run("UNWIND \$names AS name CREATE (n:MyNode {name: name})", Values.parameters("names", names)).consume()
             assertThat(summary.counters().nodesCreated()).isEqualTo(names.size)
+
+            assertThat(it.run("CREATE (n:A:Base)").consume().counters().nodesCreated()).isEqualTo(1)
         }
     }
 
@@ -108,6 +114,20 @@ class KotlinInteropTest {
             resultList.forEach { record ->
                 assertThat(record.get("n").asMap()).containsKeys("name", "description")
             }
+        }
+    }
+
+    @Test // GH-685
+    fun `Implementation by delegate should work`() {
+
+        val nodes = sessionFactory.openSession().loadAll<KotlinAImpl>()
+        assertThat(nodes.map { it.baseName }).containsExactly("someValue")
+
+        sessionFactory.openSession().save(KotlinAImpl());
+
+        driver.session().use {
+            val resultList = it.run("MATCH (n:A:Base) RETURN count(n) as n ").single()["n"].asLong();
+            assertThat(resultList).isEqualTo(2L)
         }
     }
 

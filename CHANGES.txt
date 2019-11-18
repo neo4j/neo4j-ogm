@@ -1,3 +1,9 @@
+3.2.2
+o MappingException in Session.queryForObject when actualType extends objectType. (#671)
+
+3.2.1
+o Fix API compatibility issues with Spring Data Neo4j 5.1.x series.
+
 3.2.0
 o Removed "neo4j.ha.properties.file" property from OGM configuration. Use "neo4j.conf.location" instead.
 o Removed `org.neo4j.ogm.autoindex.AutoIndexManager#build`. Use `org.neo4j.ogm.autoindex.AutoIndexManager#run` instead.
@@ -28,6 +34,11 @@ o Use concurrent hash maps as cache for entity access.
 o Improve support for Kotlin data classes. (#653)
 o Update Java driver to latest 4.0.0-beta02 release.
 o Add some useful Kotlin extensions to Session. (#661)
+
+3.1.15
+o Fix invalid conversion of native types on embedded inside maps with when the experimental option
+  `org.neo4j.ogm.driver.ParameterConversionMode.CONFIG_PARAMETER_CONVERSION_MODE` introduced in 3.1.4 is set
+  to `CONVERT_NON_NATIVE_ONLY` (#665)
 
 3.1.14
 o Fix inconsistent usage of optimistic locking properties.

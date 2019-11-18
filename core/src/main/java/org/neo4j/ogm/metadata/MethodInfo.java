@@ -18,6 +18,10 @@
  */
 package org.neo4j.ogm.metadata;
 
+import static org.neo4j.ogm.metadata.ClassInfo.*;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -31,16 +35,21 @@ public class MethodInfo {
     private final String name;
     private final ObjectAnnotations annotations;
     private final Method method;
+    /**
+     * Optional field holding a delegate, from which this method was derived.
+     */
+    private final Field delegateHolder;
 
     /**
      * Creates an info object for the given method and its declared annotation.
      *
      * @param method
+     * @param delegateHolder
      * @return A new method info object.
      */
-    static MethodInfo of(Method method) {
+    static MethodInfo of(Method method, Field delegateHolder) {
         ObjectAnnotations objectAnnotations = ObjectAnnotations.of(method.getDeclaredAnnotations());
-        return new MethodInfo(method, objectAnnotations);
+        return new MethodInfo(method, delegateHolder, objectAnnotations);
     }
 
     /**
@@ -48,10 +57,11 @@ public class MethodInfo {
      *
      * @param method The method.
      */
-    private MethodInfo(Method method, ObjectAnnotations annotations) {
+    private MethodInfo(Method method, Field delegateHolder, ObjectAnnotations annotations) {
         this.method = method;
         this.name = method.getName();
         this.annotations = annotations;
+        this.delegateHolder = delegateHolder;
     }
 
     public String getName() {
@@ -87,5 +97,13 @@ public class MethodInfo {
     @Override
     public int hashCode() {
         return Objects.hash(method);
+    }
+
+    public Object invoke(Object target, Object... args)
+        throws SecurityException, IllegalAccessException, InvocationTargetException {
+        if (!method.isAccessible()) {
+            method.setAccessible(true);
+        }
+        return method.invoke(getInstanceOrDelegate(target, delegateHolder), args);
     }
 }

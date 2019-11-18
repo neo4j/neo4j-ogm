@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.metadata;
 
+import static org.neo4j.ogm.metadata.ClassInfo.*;
 import static org.neo4j.ogm.metadata.reflect.GenericUtils.*;
 
 import java.lang.reflect.Field;
@@ -62,6 +63,10 @@ public class FieldInfo {
     private final boolean isArray;
     private final boolean isSupportedNativeType;
     private final ClassInfo containingClassInfo;
+    /**
+     * Optional field holding a delegate, from which this method was derived.
+     */
+    private final Field delegateHolder;
     private final Field field;
     private final Class<?> fieldType;
     /**
@@ -81,9 +86,10 @@ public class FieldInfo {
      *                                if that's not appropriate
      * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
-    public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations,
+    FieldInfo(ClassInfo classInfo, Field delegateHolder, Field field, String typeParameterDescriptor, ObjectAnnotations annotations,
         Predicate<Class<?>> isSupportedNativeType) {
         this.containingClassInfo = classInfo;
+        this.delegateHolder = delegateHolder;
         this.field = field;
         this.fieldType = isGenericField(field) ? findFieldType(field, classInfo.getUnderlyingClass()) : field.getType();
         this.isArray = fieldType.isArray();
@@ -359,14 +365,14 @@ public class FieldInfo {
 
         if (hasPropertyConverter()) {
             value = getPropertyConverter().toEntityAttribute(value);
-            write(field, instance, value);
         } else {
             if (isScalar()) {
                 String actualTypeDescriptor = getTypeDescriptor();
                 value = Utils.coerceTypes(DescriptorMappings.getType(actualTypeDescriptor), value);
             }
-            write(field, instance, value);
         }
+
+        write(field, getInstanceOrDelegate(instance, delegateHolder), value);
     }
 
     /**
@@ -400,7 +406,7 @@ public class FieldInfo {
     }
 
     public Object read(Object instance) {
-        return read(containingClassInfo.getField(this), instance);
+        return read(containingClassInfo.getField(this), getInstanceOrDelegate(instance, delegateHolder));
     }
 
     public Object readProperty(Object instance) {
@@ -408,7 +414,7 @@ public class FieldInfo {
             throw new IllegalStateException(
                 "The readComposite method should be used for fields with a CompositeAttributeConverter");
         }
-        Object value = read(containingClassInfo.getField(this), instance);
+        Object value = read(containingClassInfo.getField(this), getInstanceOrDelegate(instance, delegateHolder));
         if (hasPropertyConverter()) {
             value = getPropertyConverter().toGraphProperty(value);
         }
@@ -420,7 +426,7 @@ public class FieldInfo {
             throw new IllegalStateException(
                 "readComposite should only be used when a field is annotated with a CompositeAttributeConverter");
         }
-        Object value = read(containingClassInfo.getField(this), instance);
+        Object value = read(containingClassInfo.getField(this), getInstanceOrDelegate(instance, delegateHolder));
         return getCompositeConverter().toGraphProperties(value);
     }
 

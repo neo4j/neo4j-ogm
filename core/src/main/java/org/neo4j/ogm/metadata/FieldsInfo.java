@@ -49,7 +49,7 @@ public class FieldsInfo {
         this.fields = new HashMap<>();
     }
 
-    FieldsInfo(ClassInfo classInfo, Class<?> clazz, TypeSystem typeSystem) {
+    FieldsInfo(ClassInfo classInfo, Class<?> clazz, Field delegateHolder, TypeSystem typeSystem) {
         this.fields = new HashMap<>();
 
         // Fields influenced by this class are all all declared fields plus
@@ -69,7 +69,7 @@ public class FieldsInfo {
 
                     String typeParameterDescriptor = findTypeParameterDescriptor(field, clazz, objectAnnotations);
                     fields.put(field.getName(),
-                        new FieldInfo(classInfo, field, typeParameterDescriptor, objectAnnotations,
+                        new FieldInfo(classInfo, delegateHolder, field, typeParameterDescriptor, objectAnnotations,
                             typeSystem::supportsAsNativeType));
                 }
             }

@@ -23,7 +23,6 @@ import static org.neo4j.ogm.annotation.Relationship.*;
 import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -193,20 +192,18 @@ public class GraphEntityMapper {
 
         ClassInfo classInfo = metadata.classInfo(instance);
         MethodInfo postLoadMethod = classInfo.postLoadMethodOrNull();
-        if (postLoadMethod != null) {
-            final Method method = classInfo.getMethod(postLoadMethod);
-            try {
-                if (!method.isAccessible()) {
-                    method.setAccessible(true);
-                }
-                method.invoke(instance);
-            } catch (SecurityException e) {
-                logger.warn("Cannot call PostLoad annotated method {} on class {}, "
-                    + "security manager denied access.", method.getName(), classInfo.name(), e);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                logger.warn("Cannot call PostLoad annotated method {} on class {}. "
-                    + "Make sure it is public and has no arguments", method.getName(), classInfo.name(), e);
-            }
+        if (postLoadMethod == null) {
+            return;
+        }
+
+        try {
+            postLoadMethod.invoke(instance);
+        } catch (SecurityException e) {
+            logger.warn("Cannot call PostLoad annotated method {} on class {}, "
+                + "security manager denied access.", postLoadMethod.getMethod().getName(), classInfo.name(), e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            logger.warn("Cannot call PostLoad annotated method {} on class {}. "
+                + "Make sure it is public and has no arguments", postLoadMethod.getMethod().getName(), classInfo.name(), e);
         }
     }
 

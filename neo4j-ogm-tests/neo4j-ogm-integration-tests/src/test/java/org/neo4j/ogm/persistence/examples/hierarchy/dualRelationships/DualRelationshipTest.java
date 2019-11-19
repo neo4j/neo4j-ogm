@@ -21,6 +21,7 @@ package org.neo4j.ogm.persistence.examples.hierarchy.dualRelationships;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,11 +39,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 /**
  * This test passes because DataView and DataViewOwned have their setSharedWith annotated with @Relationship.
  * If the setter were not annotated, these tests would fail.
- * //TODO revisit this after we take a decision on mapping strategies
+ *
+ * GH-144
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
- * @see Issue 144
  */
 public class DualRelationshipTest extends MultiDriverTestClass {
 
@@ -110,7 +111,7 @@ public class DualRelationshipTest extends MultiDriverTestClass {
 
         String query = "MATCH (n:DataView) WITH n MATCH p=(n)-[*0..1]-(m) RETURN n,nodes(p),rels(p)";
 
-        DataView found = session.queryForObject(DataView.class, query, Utils.map());
+        DataView found = session.queryForObject(DataView.class, query, Collections.emptyMap());
 
         assertThat(found.getSharedWith()).hasSize(1);
         assertThat(found.getOwner().getName()).isEqualTo("owner");
@@ -162,7 +163,7 @@ public class DualRelationshipTest extends MultiDriverTestClass {
 
         String query = "MATCH (n:DataViewOwned) WITH n MATCH p=(n)-[*0..1]-(m) RETURN n,nodes(p),rels(p)";
 
-        DataViewOwned found = session.queryForObject(DataViewOwned.class, query, Utils.map());
+        DataViewOwned found = session.queryForObject(DataViewOwned.class, query, Collections.emptyMap());
 
         assertThat(found).isNotNull();
         assertThat(found.getSharedWith()).hasSize(1);

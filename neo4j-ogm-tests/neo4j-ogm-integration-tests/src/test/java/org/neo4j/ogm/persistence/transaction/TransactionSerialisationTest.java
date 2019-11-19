@@ -20,6 +20,7 @@ package org.neo4j.ogm.persistence.transaction;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,13 +29,12 @@ import org.junit.Test;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
- * @author vince
- * @see Issue #130
+ * GH-130
+ * @author Vince Bickers
  */
 public class TransactionSerialisationTest extends MultiDriverTestClass {
 
@@ -95,7 +95,7 @@ public class TransactionSerialisationTest extends MultiDriverTestClass {
             Session session = sessionFactory.openSession();
 
             try (Transaction tx = session.beginTransaction()) {
-                session.query(query, Utils.map());
+                session.query(query, Collections.emptyMap());
                 tx.commit();
             } catch (Exception e) {
                 assertThat(e instanceof CypherException).isTrue();

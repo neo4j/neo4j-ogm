@@ -37,7 +37,7 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
- * @author Nils Dr\u00F6ge
+ * @author Nils Dröge
  * @author Luanne Misquitta
  */
 public class DualTargetEntityRelationshipTest extends MultiDriverTestClass {
@@ -50,10 +50,7 @@ public class DualTargetEntityRelationshipTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-    /**
-     * @see DATAGRAPH-636
-     */
-    @Test
+    @Test // DATAGRAPH-636
     public void mappingShouldConsiderClasses() {
 
         Category category = new Category("cat1");
@@ -80,10 +77,7 @@ public class DualTargetEntityRelationshipTest extends MultiDriverTestClass {
         assertThat(event.getTags().iterator().next()).isEqualTo(tag1);
     }
 
-    /**
-     * @see DATAGRAPH-690
-     */
-    @Test
+    @Test // DATAGRAPH-690
     public void shouldKeepAllRelations() {
 
         Category category = new Category("cat1");

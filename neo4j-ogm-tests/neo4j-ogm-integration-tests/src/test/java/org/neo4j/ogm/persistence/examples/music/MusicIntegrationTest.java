@@ -117,7 +117,7 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldLoadStudioWithLocationMissingInDomainModel() {
-        session.query("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})", Utils.map());
+        session.query("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})", Collections.emptyMap());
         Studio studio = session
             .loadAll(Studio.class, new Filter("name", ComparisonOperator.EQUALS, "Abbey Road Studios")).iterator()
             .next();

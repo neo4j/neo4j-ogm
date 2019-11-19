@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -291,7 +292,8 @@ public class BasicDriverTest extends MultiDriverTestClass {
     public void shouldQueryForObject() {
         session.save(new User("Bilbo Baggins"));
         session.clear();
-        User bilbo = session.queryForObject(User.class, "MATCH(u:User) RETURN u", Utils.map("name", "Bilbo Baggins"));
+        User bilbo = session.queryForObject(User.class, "MATCH(u:User) RETURN u", Collections
+            .singletonMap("name", "Bilbo Baggins"));
         assertThat(bilbo).isNotNull();
     }
 
@@ -301,7 +303,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Frodo Baggins"));
         session.clear();
         Collection<User> users = (Collection) session
-            .query(User.class, "MATCH(u:User) WHERE u.name =~ '.*Baggins' RETURN u", Utils.map());
+            .query(User.class, "MATCH(u:User) WHERE u.name =~ '.*Baggins' RETURN u", Collections.emptyMap());
         assertThat(users).isNotNull();
         assertThat(users).hasSize(2);
     }
@@ -312,7 +314,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Frodo Baggins"));
         session.clear();
         Collection<String> userNames = (Collection) session
-            .query(String.class, "MATCH(u:User) WHERE u.name =~ '.*Baggins' RETURN u.name", Utils.map());
+            .query(String.class, "MATCH(u:User) WHERE u.name =~ '.*Baggins' RETURN u.name", Collections.emptyMap());
         assertThat(userNames).isNotNull();
         assertThat(userNames).hasSize(2);
     }
@@ -323,7 +325,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Frodo Baggins"));
         session.clear();
         Result result = session
-            .query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit'", Utils.map());
+            .query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit'", Collections.emptyMap());
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(2);
         assertThat(result.iterator().hasNext()).isFalse();
     }
@@ -334,7 +336,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
         session.save(new User("Frodo Baggins"));
         session.clear();
         Result result = session
-            .query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit' RETURN u.name", Utils.map());
+            .query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit' RETURN u.name", Collections.emptyMap());
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(2);
         assertThat(result.iterator().hasNext()).isTrue();
     }
@@ -428,7 +430,7 @@ public class BasicDriverTest extends MultiDriverTestClass {
     public void shouldWrapUnderlyingException() {
         session.save(new User("Bilbo Baggins"));
         try {
-            session.query(User.class, "MATCH(u:User) WHERE u.name ~ '.*Baggins' RETURN u", Utils.map());
+            session.query(User.class, "MATCH(u:User) WHERE u.name ~ '.*Baggins' RETURN u", Collections.emptyMap());
             fail("Expected a CypherException but got none");
         } catch (CypherException ce) {
             assertThat(ce.getCode().contains("Neo.ClientError.Statement")).isTrue();

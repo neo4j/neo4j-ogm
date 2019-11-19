@@ -207,11 +207,11 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         session.clear();
 
-        M qryM = session.queryForObject(M.class, "MATCH (n:M) return n", Utils.map());
-        M findM = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } RETURN n", Utils.map("id", m.id));
+        M qryM = session.queryForObject(M.class, "MATCH (n:M) return n", Collections.emptyMap());
+        M findM = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } RETURN n", Collections.singletonMap("id", m.id));
         M findM2 = session
             .queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN nodes(p)",
-                Utils.map("id", m.id));
+                Collections.singletonMap("id", m.id));
 
         assertThat(qryM).isNotNull();
         assertThat(findM).isNotNull();
@@ -230,10 +230,7 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         assertThat(u.rset).isEmpty();
     }
 
-    /**
-     * @see DATAGRAPH-706
-     */
-    @Test
+    @Test // DATAGRAPH-706
     public void shouldReplaceOneEndOfR() {
         session.save(u);
 
@@ -301,7 +298,7 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         assertThat(link.id).isNotNull();
         Arc reloaded = session
-            .queryForObject(Arc.class, "MATCH (f:Vertex)-[a:Arc]->(t:Vertex) return f, a, t", Utils.map());
+            .queryForObject(Arc.class, "MATCH (f:Vertex)-[a:Arc]->(t:Vertex) return f, a, t", Collections.emptyMap());
 
         assertThat(reloaded).isNotNull();
         assertThat(reloaded.from).isNotNull();

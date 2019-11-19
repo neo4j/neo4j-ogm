@@ -22,11 +22,11 @@ import static java.util.Collections.*;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.exception.core.InvalidDepthException;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
 import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
@@ -35,6 +35,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class RelationshipQueryStatements<ID extends Serializable> implements QueryStatements<ID> {
 
@@ -59,7 +60,7 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
         if (depth > 0) {
             String matchClause = idMatchClauseBuilder.build("");
             String returnClause = loadClauseBuilder.build("r0", "", depth);
-            return new PagingAndSortingQuery(matchClause, returnClause, Utils.map("id", id), true, true, "r0");
+            return new PagingAndSortingQuery(matchClause, returnClause, Collections.singletonMap("id", id), true, true, "r0");
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
         }
@@ -79,7 +80,7 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
                 matchClause = idMatchClauseBuilder.build(label, primaryId);
             }
             String returnClause = loadClauseBuilder.build("r0", label, depth);
-            return new PagingAndSortingQuery(matchClause, returnClause, Utils.map("id", id), true, true, "r0");
+            return new PagingAndSortingQuery(matchClause, returnClause, Collections.singletonMap("id", id), true, true, "r0");
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
         }
@@ -95,7 +96,7 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
                 matchClause = idCollectionMatchClauseBuilder.build(type, primaryId);
             }
             String loadClause = loadClauseBuilder.build("r0", type, depth);
-            return new PagingAndSortingQuery(matchClause, loadClause, Utils.map("ids", ids), true, true, "r0");
+            return new PagingAndSortingQuery(matchClause, loadClause, Collections.singletonMap("ids", ids), true, true, "r0");
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
         }

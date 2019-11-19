@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -54,7 +55,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.satellites");
         Session initialSession = sessionFactory.openSession();
-        initialSession.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/satellites.cql").toString(), Utils.map());
+        initialSession.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/satellites.cql").toString(), Collections.emptyMap());
     }
 
     @Before

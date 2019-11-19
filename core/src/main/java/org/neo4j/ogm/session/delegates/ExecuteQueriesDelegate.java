@@ -51,7 +51,6 @@ import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.QueryResultModel;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.strategy.impl.CountStatements;
 import org.neo4j.ogm.transaction.Transaction;
 
@@ -73,31 +72,35 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
     public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters) {
         Iterable<T> results = query(type, cypher, parameters);
 
-        int resultSize = Utils.size(results);
+        int cnt = 0;
+        T returnedObject = null;
+        for (T next : results) {
+            if (returnedObject == null) {
+                returnedObject = next;
+            }
+            ++cnt;
+        }
 
-        if (resultSize < 1) {
+        if (cnt == 0) {
             return null;
         }
 
-        if (resultSize > 1) {
-            throw new RuntimeException("Result not of expected size. Expected 1 row but found " + resultSize);
+        if (cnt > 1) {
+            throw new RuntimeException("Result not of expected size. Expected 1 row but found " + cnt);
         }
 
-        T next = results.iterator().next();
-
-        if (!type.isAssignableFrom(next.getClass())) {
-
-            String typeOfResult = next.getClass().getName();
-            String wantedType = type.getName();
-            String message = String.format(
-                "Cannot map %s to %s. This can be caused by missing registration of %s.",
-                typeOfResult, wantedType, wantedType
-            );
-
-            throw new MappingException(message);
+        if (type.isAssignableFrom(returnedObject.getClass())) {
+            return returnedObject;
         }
 
-        return next;
+        String typeOfResult = returnedObject.getClass().getName();
+        String wantedType = type.getName();
+        String message = String.format(
+            "Cannot map %s to %s. This can be caused by missing registration of %s.",
+            typeOfResult, wantedType, wantedType
+        );
+
+        throw new MappingException(message);
     }
 
     public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {

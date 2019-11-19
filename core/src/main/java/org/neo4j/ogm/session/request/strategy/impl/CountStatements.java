@@ -23,7 +23,6 @@ import java.util.Collections;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
@@ -34,6 +33,7 @@ import org.neo4j.ogm.session.request.strategy.AggregateStatements;
  * @author Adam George
  * @author Vince Bickers
  * @author Jasper Blues
+ * @author Michael J. Simons
  */
 public class CountStatements implements AggregateStatements {
 
@@ -65,6 +65,6 @@ public class CountStatements implements AggregateStatements {
     public CypherQuery countEdges(String startLabel, String type, String endLabel) {
         return new DefaultRowModelRequest(
             String.format("MATCH (:`%s`)-[r0:`%s`]->(:`%s`) RETURN COUNT(r0)", startLabel, type, endLabel),
-            Utils.map());
+            Collections.emptyMap());
     }
 }

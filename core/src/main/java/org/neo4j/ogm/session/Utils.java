@@ -30,6 +30,12 @@ import java.util.Map;
  */
 public class Utils {
 
+    /**
+     * @param keysAndValues The list of key and values, must be an even number
+     * @return A map.
+     * @deprecated since 3.2.3, no replacement. Use Collections.singletonMap or emptyMap, or Map builders on JDK 9+
+     */
+    @Deprecated
     public static Map<String, Object> map(final Object... keysAndValues) {
 
         Map<String, Object> newMap = new HashMap<>();

@@ -21,6 +21,7 @@ package org.neo4j.ogm.persistence.session.lifecycle;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +32,7 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
- * @author vince
+ * @author Vince Bickers
  */
 public class DirtyObjectsTest extends MultiDriverTestClass {
 
@@ -116,7 +117,7 @@ public class DirtyObjectsTest extends MultiDriverTestClass {
         session.save(d);
 
         // perform an out-of-session update on the object
-        session.query("MATCH (n) SET n.name='Document'", Utils.map());
+        session.query("MATCH (n) SET n.name='Document'", Collections.emptyMap());
 
         // get a copy of the document into a different session
         Document d2 = sessionFactory.openSession().load(Document.class, d.getId());

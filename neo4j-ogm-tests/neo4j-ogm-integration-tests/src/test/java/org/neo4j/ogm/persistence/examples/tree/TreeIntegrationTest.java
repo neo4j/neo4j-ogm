@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -32,7 +33,6 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.tree.Entity;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
@@ -55,10 +55,7 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-    /**
-     * @see DATAGRAPH-731
-     */
-    @Test
+    @Test // DATAGRAPH-731
     public void shouldCreateTreeProperly() {
         Entity parent = new Entity("parent");
         Entity child01 = new Entity("child01").setParent(parent);
@@ -81,13 +78,10 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         assertThat(childNames.contains(child02.getName())).isTrue();
     }
 
-    /**
-     * @see DATAGRAPH-731
-     */
-    @Test
+    @Test // DATAGRAPH-731
     public void shouldLoadTreeProperly() {
         String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
-        session.query(cypher, Utils.map());
+        session.query(cypher, Collections.emptyMap());
         session.clear();
         Entity parent = session.loadAll(Entity.class, new Filter("name", ComparisonOperator.EQUALS, "parent"))
             .iterator().next();
@@ -103,13 +97,10 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         assertThat(childNames.contains("c2")).isTrue();
     }
 
-    /**
-     * @see Issue 88
-     */
-    @Test
+    @Test // GH-88
     public void shouldMapElementsToTreeSetProperly() {
         String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
-        session.query(cypher, Utils.map());
+        session.query(cypher, Collections.emptyMap());
         session.clear();
         Entity parent = session.loadAll(Entity.class, new Filter("name", ComparisonOperator.EQUALS, "parent"))
             .iterator().next();

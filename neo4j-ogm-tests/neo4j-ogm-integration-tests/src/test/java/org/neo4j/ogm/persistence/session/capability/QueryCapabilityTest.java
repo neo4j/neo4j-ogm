@@ -92,11 +92,11 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     }
 
     private void importCineasts() {
-        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Utils.map());
+        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Collections.emptyMap());
     }
 
     private void importFriendships() {
-        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/items.cql").toString(), Utils.map());
+        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/items.cql").toString(), Collections.emptyMap());
     }
 
     @After

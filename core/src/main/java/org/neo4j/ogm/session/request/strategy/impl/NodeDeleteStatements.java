@@ -19,6 +19,9 @@
 package org.neo4j.ogm.session.request.strategy.impl;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
@@ -26,21 +29,20 @@ import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.request.OptimisticLockingConfig;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class NodeDeleteStatements implements DeleteStatements {
 
     @Override
-
     public CypherQuery delete(Long id) {
         return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n",
-            Utils.map("id", id));
+            Collections.singletonMap("id", id));
     }
 
     @Override
@@ -49,6 +51,11 @@ public class NodeDeleteStatements implements DeleteStatements {
         Long version = (Long) versionField.read(object);
         OptimisticLockingConfig optimisticLockingConfig = new OptimisticLockingConfig(1,
             classInfo.staticLabels().toArray(new String[] {}), versionField.property());
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("version", version);
+        params.put("type", "node");
 
         return new DefaultRowModelRequest("MATCH (n) "
             + "  WHERE id(n) = {id} AND n.`" + versionField.property() + "` = {version} "
@@ -59,7 +66,7 @@ public class NodeDeleteStatements implements DeleteStatements {
             + "OPTIONAL MATCH (n)-[r0]-() "
             + "DELETE r0, n "
             + "RETURN DISTINCT id(n) AS id", // Use DISTINCT because node may have multiple relationships
-            Utils.map("id", id, "version", version, "type", "node"),
+            params,
             optimisticLockingConfig);
 
     }
@@ -67,18 +74,18 @@ public class NodeDeleteStatements implements DeleteStatements {
     @Override
     public CypherQuery delete(Collection<Long> ids) {
         return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n",
-            Utils.map("ids", ids));
+            Collections.singletonMap("ids", ids));
     }
 
     @Override
     public CypherQuery deleteAll() {
-        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", Utils.map());
+        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", Collections.emptyMap());
     }
 
     @Override
     public CypherQuery delete(String label) {
         return new DefaultRowModelRequest(
-            String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", label), Utils.map());
+            String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", label), Collections.emptyMap());
     }
 
     @Override

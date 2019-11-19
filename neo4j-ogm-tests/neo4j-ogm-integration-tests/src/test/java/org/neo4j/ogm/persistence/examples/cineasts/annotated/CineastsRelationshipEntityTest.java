@@ -187,7 +187,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
             "CREATE " +
                 "(dh:Movie {title:'Die Hard'}), " +
                 "(bw:Actor {name: 'Bruce Willis'}), " +
-                "(bw)-[:ACTS_IN {role : 'John'}]->(dh)", Utils.map());
+                "(bw)-[:ACTS_IN {role : 'John'}]->(dh)", Collections.emptyMap());
 
         //Movie dieHard = TestUtils.firstOrNull(session.loadByProperty(Movie.class, new Parameter("title", "Die Hard")));
 
@@ -302,7 +302,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
             "CREATE " +
                 "(nc:NotAClass {name:'Colin'}), " +
                 "(g:NotAClass {age: 39}), " +
-                "(g)-[:TEST {comment : 'test'}]->(nc)", Utils.map());
+                "(g)-[:TEST {comment : 'test'}]->(nc)", Collections.emptyMap());
 
         User critic = new User();
         critic.setName("Gary");
@@ -338,7 +338,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
             "CREATE " +
                 "(ff:Movie {title:'Fast and Furious XVII'}), " +
                 "(g:User {name: 'Gary'}), " +
-                "(g)-[:RATED {comment : 'Too many of these films!'}]->(ff)", Utils.map());
+                "(g)-[:RATED {comment : 'Too many of these films!'}]->(ff)", Collections.emptyMap());
 
         Rating loadedRating = session.loadAll(Rating.class).iterator().next();
 
@@ -966,6 +966,6 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
     }
 
     private void bootstrap(String cqlFileName) {
-        session.query(TestUtils.readCQLFile(cqlFileName).toString(), Utils.map());
+        session.query(TestUtils.readCQLFile(cqlFileName).toString(), Collections.emptyMap());
     }
 }

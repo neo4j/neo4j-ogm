@@ -72,7 +72,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
     }
 
     private void importCineasts() {
-        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Utils.map());
+        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Collections.emptyMap());
     }
 
     @After

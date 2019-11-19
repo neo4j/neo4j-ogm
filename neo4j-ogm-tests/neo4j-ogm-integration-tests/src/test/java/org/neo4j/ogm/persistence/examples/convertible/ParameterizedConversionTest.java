@@ -21,6 +21,7 @@ package org.neo4j.ogm.persistence.examples.convertible;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +62,7 @@ public class ParameterizedConversionTest extends MultiDriverTestClass {
     public void shouldConvertParametrizedMap() {
 
         JsonNode jsonNode = new JsonNode();
-        jsonNode.payload = Utils.map("key", "value");
+        jsonNode.payload = Collections.singletonMap("key", "value");
 
         session.save(jsonNode);
 
@@ -73,10 +74,7 @@ public class ParameterizedConversionTest extends MultiDriverTestClass {
         assertThat(found.payload.get("key")).isEqualTo("value");
     }
 
-    /**
-     * @see Issue 102
-     */
-    @Test
+    @Test // GH-102
     public void shouldConvertParameterizedStringMap() {
         StringMapEntity entity = new StringMapEntity();
         session.save(entity);

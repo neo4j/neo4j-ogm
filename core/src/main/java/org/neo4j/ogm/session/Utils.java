@@ -46,6 +46,12 @@ public class Utils {
         return newMap;
     }
 
+    /**
+     * @param iterable The iterable who's size should be determined.
+     * @return The size of the iterable.
+     * @deprecated Since 3.2.3, no replacement.
+     */
+    @Deprecated
     public static int size(Iterable<?> iterable) {
         return (iterable instanceof Collection)
             ? ((Collection<?>) iterable).size()

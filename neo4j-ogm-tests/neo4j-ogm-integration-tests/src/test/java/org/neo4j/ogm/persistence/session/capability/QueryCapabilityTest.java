@@ -698,8 +698,9 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Test // GH-671
     public void shouldNotThrowExceptionIfTypeIsSuperTypeOfResultObject() {
-    	session.queryForObject(Long.class, "MATCH (n:User) return count(n)", emptyMap());
-    	session.queryForObject(Number.class, "MATCH (n:User) return count(n)", emptyMap());
+
+        session.queryForObject(Long.class, "MATCH (n:User) return count(n)", emptyMap());
+        session.queryForObject(Number.class, "MATCH (n:User) return count(n)", emptyMap());
     }
 
     @Test
@@ -711,6 +712,23 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
             .queryForObject(NestingClass.Something.class, "MATCH (n:`NestingClass$Something`) return n", emptyMap());
 
         assertThat(something).isNotNull();
+    }
+
+    @Test // GH-693
+    public void queryForObjectsShouldDealWithIncorrectResultSizes() {
+
+        session.query("CREATE (:`NestingClass$Something`{name:'Test'})", emptyMap());
+
+        Long value;
+        value = session.queryForObject(Long.class, "UNWIND RANGE (1,0) AS n RETURN n", emptyMap());
+        assertThat(value).isNull();
+
+        value = session.queryForObject(Long.class, "UNWIND RANGE (1,1) AS n RETURN n", emptyMap());
+        assertThat(value).isEqualTo(1L);
+
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
+            session.queryForObject(Long.class, "UNWIND RANGE (1,3) AS n RETURN n", emptyMap())
+        ).withMessage("Result not of expected size. Expected 1 row but found 3");
     }
 
     @Test // GH-496

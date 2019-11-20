@@ -61,8 +61,11 @@ public enum ComparisonOperator {
     }
 
     /**
-     *
+     * @param these
+     * @return
+     * @deprecated since 3.2.3, no replacement, use an {@link java.util.EnumSet}
      */
+    @Deprecated
     public boolean isOneOf(ComparisonOperator... these) {
         for (ComparisonOperator candidate : these) {
             if (this.equals(candidate)) {

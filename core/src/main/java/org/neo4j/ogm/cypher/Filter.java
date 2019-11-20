@@ -342,7 +342,8 @@ public class Filter implements FilterWithRelationship {
     private String uniqueParameterName(String originalName) {
 
         // We should maybe include the original name here as well. This changes the generated queries,
-        // but would prevent bugs with multiple filters of the same type.
+        // but would prevent bugs with multiple filters of the same type or filter functions using
+        // more than one parameter (as {@link org.neo4j.ogm.cypher.function.NativeDistanceComparison} currently does)
         String format = "%2$d";
 
         if (isNested()) {

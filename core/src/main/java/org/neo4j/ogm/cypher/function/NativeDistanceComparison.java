@@ -43,7 +43,12 @@ public class NativeDistanceComparison implements FilterFunction<DistanceFromNati
     }
 
     public static NativeDistanceComparison distanceComparisonFor(DistanceFromNativePoint distanceFromNativePoint) {
-        return new NativeDistanceComparison(ComparisonOperator.LESS_THAN, distanceFromNativePoint);
+        return distanceComparisonFor(ComparisonOperator.LESS_THAN, distanceFromNativePoint);
+    }
+
+    public static NativeDistanceComparison distanceComparisonFor(ComparisonOperator operator,
+        DistanceFromNativePoint distanceFromNativePoint) {
+        return new NativeDistanceComparison(operator, distanceFromNativePoint);
     }
 
     @Override
@@ -60,8 +65,7 @@ public class NativeDistanceComparison implements FilterFunction<DistanceFromNati
 
         return String.format(
             "distance({%s},%s) %s {%s} ",
-            createUniqueParameterName.apply(OGM_POINT_PARAMETER), pointPropertyOfEntity, comparisonOperator,
-            createUniqueParameterName.apply(DISTANCE_VALUE_PARAMETER));
+            OGM_POINT_PARAMETER, pointPropertyOfEntity, comparisonOperator, DISTANCE_VALUE_PARAMETER);
     }
 
     @Override
@@ -69,8 +73,8 @@ public class NativeDistanceComparison implements FilterFunction<DistanceFromNati
 
         Map<String, Object> map = new HashMap<>();
 
-        map.put(createUniqueParameterName.apply(OGM_POINT_PARAMETER), distanceFromNativePoint.getPoint());
-        map.put(createUniqueParameterName.apply(DISTANCE_VALUE_PARAMETER), distanceFromNativePoint.getDistance());
+        map.put(OGM_POINT_PARAMETER, distanceFromNativePoint.getPoint());
+        map.put(DISTANCE_VALUE_PARAMETER, distanceFromNativePoint.getDistance());
         return map;
 
     }

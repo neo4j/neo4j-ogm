@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.function.UnaryOperator;
 
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
@@ -198,9 +197,8 @@ public class Filter implements FilterWithRelationship {
                         CONTAINING.name())
                 );
             }
-            FilterFunction caseInsensitiveFilter = new CaseInsensitiveEqualsComparison(
+            this.function = new PropertyComparison.CaseInsensitiveEqualsComparison(
                 propertyComparision.getOperator(), propertyComparision.getValue());
-            this.function = caseInsensitiveFilter;
             return this;
         }
     }
@@ -413,19 +411,4 @@ public class Filter implements FilterWithRelationship {
         return String.format("NOT(%s) ", expression);
     }
 
-    /**
-     * Internal class for modifying an EQUALS or CONTAINS comparison to ignore the case of both attribute and parameter.
-     */
-    static final class CaseInsensitiveEqualsComparison extends PropertyComparison {
-        CaseInsensitiveEqualsComparison(ComparisonOperator operator, Object value) {
-            super(operator, value);
-        }
-
-        @Override
-        public String expression(final String nodeIdentifier, String filteredProperty,
-            UnaryOperator<String> createUniqueParameterName) {
-            return String.format("toLower(%s.`%s`) %s toLower({ `%s` }) ", nodeIdentifier, filteredProperty,
-                operator.getValue(), createUniqueParameterName.apply(PARAMETER_NAME));
-        }
-    }
 }

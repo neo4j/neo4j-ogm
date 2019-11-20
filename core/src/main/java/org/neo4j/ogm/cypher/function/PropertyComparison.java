@@ -80,4 +80,20 @@ public class PropertyComparison implements FilterFunction<Object> {
                     .transformPropertyValue(this.value));
         }
     }
+
+    /**
+     * Internal class for modifying an EQUALS or CONTAINS comparison to ignore the case of both attribute and parameter.
+     */
+    public static final class CaseInsensitiveEqualsComparison extends PropertyComparison {
+        public CaseInsensitiveEqualsComparison(ComparisonOperator operator, Object value) {
+            super(operator, value);
+        }
+
+        @Override
+        public String expression(final String nodeIdentifier, String filteredProperty,
+            UnaryOperator<String> createUniqueParameterName) {
+            return String.format("toLower(%s.`%s`) %s toLower({ `%s` }) ", nodeIdentifier, filteredProperty,
+                operator.getValue(), createUniqueParameterName.apply(PARAMETER_NAME));
+        }
+    }
 }

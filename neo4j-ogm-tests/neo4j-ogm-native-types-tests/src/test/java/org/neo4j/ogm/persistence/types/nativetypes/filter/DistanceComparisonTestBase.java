@@ -35,6 +35,10 @@ import org.neo4j.ogm.types.spatial.CartesianPoint3d;
 import org.neo4j.ogm.types.spatial.GeographicPoint2d;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 
+/**
+ * @author Gerrit Meier
+ * @author Michael J. Simons
+ */
 abstract class DistanceComparisonTestBase {
 
     static SessionFactory sessionFactory;
@@ -48,8 +52,7 @@ abstract class DistanceComparisonTestBase {
         session.save(spatial);
 
         DistanceFromNativePoint distanceFromNativePoint = new DistanceFromNativePoint(new CartesianPoint2d(2, 2), 2);
-        Filter filter = new Filter("cartesianPoint2d", distanceComparisonFor(distanceFromNativePoint),
-            ComparisonOperator.LESS_THAN);
+        Filter filter = new Filter("cartesianPoint2d", distanceComparisonFor(distanceFromNativePoint));
         filter.setOwnerEntityType(SomethingSpatial.class);
 
         Collection<SomethingSpatial> somethingSpatials = session.loadAll(SomethingSpatial.class, filter);
@@ -66,8 +69,7 @@ abstract class DistanceComparisonTestBase {
         session.save(spatial);
 
         DistanceFromNativePoint distanceFromNativePoint = new DistanceFromNativePoint(new CartesianPoint2d(2, 2), 1);
-        Filter filter = new Filter("cartesianPoint2d", distanceComparisonFor(distanceFromNativePoint),
-            ComparisonOperator.LESS_THAN);
+        Filter filter = new Filter("cartesianPoint2d", distanceComparisonFor(distanceFromNativePoint));
         filter.setOwnerEntityType(SomethingSpatial.class);
 
         Collection<SomethingSpatial> somethingSpatials = session.loadAll(SomethingSpatial.class, filter);
@@ -84,8 +86,7 @@ abstract class DistanceComparisonTestBase {
         session.save(spatial);
 
         DistanceFromNativePoint distanceFromNativePoint = new DistanceFromNativePoint(new CartesianPoint3d(2, 2, 3), 2);
-        Filter filter = new Filter("cartesianPoint3d", distanceComparisonFor(distanceFromNativePoint),
-            ComparisonOperator.LESS_THAN);
+        Filter filter = new Filter("cartesianPoint3d", distanceComparisonFor(distanceFromNativePoint));
         filter.setOwnerEntityType(SomethingSpatial.class);
 
         Collection<SomethingSpatial> somethingSpatials = session.loadAll(SomethingSpatial.class, filter);
@@ -102,8 +103,7 @@ abstract class DistanceComparisonTestBase {
         session.save(spatial);
 
         DistanceFromNativePoint distanceFromNativePoint = new DistanceFromNativePoint(new CartesianPoint3d(2, 2, 3), 1);
-        Filter filter = new Filter("cartesianPoint3d", distanceComparisonFor(distanceFromNativePoint),
-            ComparisonOperator.LESS_THAN);
+        Filter filter = new Filter("cartesianPoint3d", distanceComparisonFor(distanceFromNativePoint));
         filter.setOwnerEntityType(SomethingSpatial.class);
 
         Collection<SomethingSpatial> somethingSpatials = session.loadAll(SomethingSpatial.class, filter);
@@ -122,8 +122,7 @@ abstract class DistanceComparisonTestBase {
 
         GeographicPoint2d office = new GeographicPoint2d(55.611851, 12.9949028);
         DistanceFromNativePoint distanceFromNativePoint = new DistanceFromNativePoint(office, 449);
-        Filter filter = new Filter("geographicPoint2d", distanceComparisonFor(distanceFromNativePoint),
-            ComparisonOperator.LESS_THAN);
+        Filter filter = new Filter("geographicPoint2d", distanceComparisonFor(distanceFromNativePoint));
         filter.setOwnerEntityType(SomethingSpatial.class);
 
         Collection<SomethingSpatial> somethingSpatials = session.loadAll(SomethingSpatial.class, filter);
@@ -142,8 +141,7 @@ abstract class DistanceComparisonTestBase {
 
         GeographicPoint2d office = new GeographicPoint2d(55.611851, 12.9949028);
         DistanceFromNativePoint distanceFromNativePoint = new DistanceFromNativePoint(office, 448);
-        Filter filter = new Filter("geographicPoint2d", distanceComparisonFor(distanceFromNativePoint),
-            ComparisonOperator.LESS_THAN);
+        Filter filter = new Filter("geographicPoint2d", distanceComparisonFor(distanceFromNativePoint));
         filter.setOwnerEntityType(SomethingSpatial.class);
 
         Collection<SomethingSpatial> somethingSpatials = session.loadAll(SomethingSpatial.class, filter);
@@ -162,8 +160,7 @@ abstract class DistanceComparisonTestBase {
 
         GeographicPoint3d office = new GeographicPoint3d(55.611851, 12.9949028, 15);
         DistanceFromNativePoint distanceFromNativePoint = new DistanceFromNativePoint(office, 448.9591);
-        Filter filter = new Filter("geographicPoint3d", distanceComparisonFor(distanceFromNativePoint),
-            ComparisonOperator.LESS_THAN);
+        Filter filter = new Filter("geographicPoint3d", distanceComparisonFor(distanceFromNativePoint));
         filter.setOwnerEntityType(SomethingSpatial.class);
 
         Collection<SomethingSpatial> somethingSpatials = session.loadAll(SomethingSpatial.class, filter);
@@ -182,8 +179,7 @@ abstract class DistanceComparisonTestBase {
 
         GeographicPoint3d office = new GeographicPoint3d(55.611851, 12.9949028, 15);
         DistanceFromNativePoint distanceFromNativePoint = new DistanceFromNativePoint(office, 448.950);
-        Filter filter = new Filter("geographicPoint3d", distanceComparisonFor(distanceFromNativePoint),
-            ComparisonOperator.LESS_THAN);
+        Filter filter = new Filter("geographicPoint3d", distanceComparisonFor(distanceFromNativePoint));
         filter.setOwnerEntityType(SomethingSpatial.class);
 
         Collection<SomethingSpatial> somethingSpatials = session.loadAll(SomethingSpatial.class, filter);

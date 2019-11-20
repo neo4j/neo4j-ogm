@@ -160,7 +160,7 @@ public class FilteredQueryBuilder {
         Map<String, Object> properties) {
         for (Filter filter : filters) {
             query.append(filter.toCypher(nodeIdentifier, false));
-            properties.putAll(filter.getFunction().parameters());
+            properties.putAll(filter.parameters());
         }
     }
 }

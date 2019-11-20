@@ -21,6 +21,7 @@ package org.neo4j.ogm.cypher;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -45,6 +46,7 @@ public class FilterTest {
         Filter filter = new Filter("moons", ComparisonOperator.LESS_THAN, 23);
         filter.setBooleanOperator(BooleanOperator.AND);
         assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`moons` < { `moons_0` } ");
+        assertThat(filter.parameters()).containsEntry("moons_0", 23);
     }
 
     @Test
@@ -56,6 +58,11 @@ public class FilterTest {
         assertThat(filter.toCypher("n", true))
             .isEqualTo(
                 "WHERE NOT(distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ");
+
+        Map<String, Object> parameters = filter.parameters();
+        assertThat(parameters).containsEntry("lat", 37.4);
+        assertThat(parameters).containsEntry("lon", 112.1);
+        assertThat(parameters).containsEntry("distance", 1000.0);
     }
 
     @Test
@@ -119,7 +126,6 @@ public class FilterTest {
     public void equalComparisionShouldWork() {
         final String value = "someOtherThing";
         Filter filter = new Filter("thing", ComparisonOperator.EQUALS, value);
-        filter.setFunction(new PropertyComparison(value));
         assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` = { `thing_0` } ");
 
         filter = new Filter("thing", ComparisonOperator.EQUALS, value);

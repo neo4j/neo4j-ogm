@@ -18,12 +18,17 @@
  */
 package org.neo4j.ogm.cypher;
 
+import java.util.EnumSet;
+
+import org.neo4j.ogm.cypher.function.PropertyComparison;
+
 /**
  * Comparison operators used in queries.
  *
  * @author Luanne Misquitta
  * @author Adam George
  * @author Jasper Blues
+ * @author Michael J. Simons
  */
 public enum ComparisonOperator {
     EQUALS("="),
@@ -54,22 +59,25 @@ public enum ComparisonOperator {
     }
 
     /**
+     * Creates a new property comparision with this operator.
+     *
+     * @param possiblePropertyValue        The possiblePropertyValue to compare
+     * @return A functional comparision
+     */
+    PropertyComparison compare(Object possiblePropertyValue) {
+        if (possiblePropertyValue == null && !EnumSet.of(EXISTS, IS_TRUE, IS_NULL).contains(this)) {
+            throw new RuntimeException(
+                "A null possiblePropertyValue can only be used with unary comparison operators (EXISTS, IS_TRUE and IS_NULL)");
+        }
+
+        return new PropertyComparison(this, possiblePropertyValue);
+    }
+
+    /**
      * @return The textual comparison operator to use in the Cypher query
      */
     public String getValue() {
         return value;
-    }
-
-    /**
-     *
-     */
-    public boolean isOneOf(ComparisonOperator... these) {
-        for (ComparisonOperator candidate : these) {
-            if (this.equals(candidate)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -78,5 +86,4 @@ public enum ComparisonOperator {
     public PropertyValueTransformer getPropertyValueTransformer() {
         return valueTransformer;
     }
-
 }

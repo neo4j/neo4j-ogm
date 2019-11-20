@@ -29,9 +29,7 @@ import java.util.Map;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
-import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
-import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 
 /**
  * A parameter along with filter information to be added to a query.
@@ -53,11 +51,6 @@ public class Filter implements FilterWithRelationship {
      * The property name on the entity to be used in the filter
      */
     private String propertyName;
-
-    /**
-     * The comparison operator to use in the property filter
-     */
-    private ComparisonOperator comparisonOperator;
 
     /**
      * The boolean operator used to append this filter to the previous ones.
@@ -102,50 +95,35 @@ public class Filter implements FilterWithRelationship {
 
     private AttributeConverter propertyConverter;
 
-    private CompositeAttributeConverter compositeConverter;
-
     /**
      * Whether the nested property is backed by a relationship entity
      */
     private boolean nestedRelationshipEntity;
 
-    private FilterFunction function;
+    private FilterFunction<?> function;
 
     private List<NestedPathSegment> nestedPath;
 
     public Filter(FilterFunction function) {
-        this(null, function, null);
-    }
-
-    public Filter(String propertyName, FilterFunction filterFunction) {
-        this(propertyName, filterFunction, null);
+        this(null, function);
     }
 
     public Filter(DistanceComparison distanceComparisonFunction, ComparisonOperator comparisonOperator) {
-        this(null, distanceComparisonFunction, comparisonOperator);
+        this(null, distanceComparisonFunction.withOperator(comparisonOperator));
     }
 
     public Filter(String propertyName, ComparisonOperator comparisonOperator, Object propertyValue) {
-        this(propertyName, new PropertyComparison(propertyValue), comparisonOperator);
+        this(propertyName, comparisonOperator.compare(propertyValue));
     }
 
-    public Filter(String propertyName, FilterFunction filterFunction, ComparisonOperator comparisonOperator) {
+    public Filter(String propertyName, FilterFunction filterFunction) {
         this.index = 0;
         this.propertyName = propertyName;
         this.function = filterFunction;
-        this.function.setFilter(this);
-        this.comparisonOperator = comparisonOperator;
     }
 
-    // TODO: Split Operators up into binary and unary.
     public Filter(String propertyName, ComparisonOperator comparisonOperator) {
-        this(new PropertyComparison(null));
-        this.propertyName = propertyName;
-        if (!EnumSet.of(ComparisonOperator.EXISTS, ComparisonOperator.IS_TRUE, ComparisonOperator.IS_NULL)
-            .contains(comparisonOperator)) {
-            throw new RuntimeException("This constructor can only be used with Unary comparison operators");
-        }
-        this.comparisonOperator = comparisonOperator;
+        this(propertyName, comparisonOperator.compare(null));
     }
 
     public static void setNameFromProperty(Filter filter, String propertyName) {
@@ -167,10 +145,6 @@ public class Filter implements FilterWithRelationship {
     @Deprecated
     public void setPropertyName(String propertyName) {
         this.propertyName = propertyName;
-    }
-
-    public ComparisonOperator getComparisonOperator() {
-        return comparisonOperator;
     }
 
     public BooleanOperator getBooleanOperator() {
@@ -215,13 +189,18 @@ public class Filter implements FilterWithRelationship {
     public Filter ignoreCase() {
         if (!(this.function instanceof PropertyComparison)) {
             throw new IllegalStateException("ignoreCase is only supported for a filter based on property comparison");
-        } else if (!this.getComparisonOperator().isOneOf(EQUALS, CONTAINING)) {
-            throw new IllegalStateException(
-                String.format("ignoreCase is only supported for %s or %s comparison", EQUALS.name(), CONTAINING.name())
-            );
+        } else {
+            PropertyComparison propertyComparision = (PropertyComparison) this.function;
+            if (!EnumSet.of(EQUALS, CONTAINING).contains(propertyComparision.getOperator())) {
+                throw new IllegalStateException(
+                    String.format("ignoreCase is only supported for %s or %s comparison", EQUALS.name(),
+                        CONTAINING.name())
+                );
+            }
+            this.function = new PropertyComparison.CaseInsensitiveEqualsComparison(
+                propertyComparision.getOperator(), propertyComparision.getValue());
+            return this;
         }
-        this.function = new CaseInsensitiveEqualsComparison((PropertyComparison) this.function);
-        return this;
     }
 
     /**
@@ -358,9 +337,20 @@ public class Filter implements FilterWithRelationship {
         this.nestedRelationshipEntity = nestedRelationshipEntity;
     }
 
-    public String uniqueParameterName() {
-        return isNested() ? getNestedPropertyName() + "_" + getPropertyName() + "_" + index :
-            getPropertyName() + "_" + index;
+    private String uniqueParameterName(String originalName) {
+
+        // We should maybe include the original name here as well. This changes the generated queries,
+        // but would prevent bugs with multiple filters of the same type or filter functions using
+        // more than one parameter (as {@link org.neo4j.ogm.cypher.function.NativeDistanceComparison} currently does)
+        String format = "%2$d";
+
+        if (isNested()) {
+            format = getNestedPropertyName() + "_" + getPropertyName() + "_" + format;
+        } else if (getPropertyName() != null) {
+            format = getPropertyName() + "_" + format;
+        }
+
+        return String.format(format, originalName, index);
     }
 
     public AttributeConverter getPropertyConverter() {
@@ -369,49 +359,6 @@ public class Filter implements FilterWithRelationship {
 
     public void setPropertyConverter(AttributeConverter propertyConverter) {
         this.propertyConverter = propertyConverter;
-    }
-
-    public CompositeAttributeConverter getCompositeAttributeConverter() {
-        return compositeConverter;
-    }
-
-    public void setCompositeConverter(CompositeAttributeConverter compositeAttributeConverter) {
-        this.compositeConverter = compositeAttributeConverter;
-    }
-
-    /**
-     * Returns the result of passing the property value through the transformer associated with the comparison operator
-     * on this {@link Filter}.
-     *
-     * @return The transformed property value
-     */
-    public Object getTransformedPropertyValue() {
-        Object value = this.function.getValue();
-        if (this.getPropertyConverter() != null) {
-            value = this.getPropertyConverter().toGraphProperty(value);
-        } else if (this.getCompositeAttributeConverter() != null) {
-            throw new MappingException("Properties with a CompositeAttributeConverter are not supported by " +
-                "Filters in this version of OGM. Consider implementing a custom FilterFunction.");
-        }
-        return transformPropertyValue(value);
-    }
-
-    private Object transformPropertyValue(Object value) {
-        if (this.comparisonOperator != null) {
-            return this.comparisonOperator.getPropertyValueTransformer().transformPropertyValue(value);
-        }
-
-        return new NoOpPropertyValueTransformer().transformPropertyValue(value);
-    }
-
-    public FilterFunction getFunction() {
-        return function;
-    }
-
-    public void setFunction(FilterFunction function) {
-        assert function != null;
-        this.function = function;
-        this.function.setFilter(this);
     }
 
     /**
@@ -430,13 +377,22 @@ public class Filter implements FilterWithRelationship {
      * @return The filter state as a CYPHER fragment.
      */
     public String toCypher(String nodeIdentifier, boolean addWhereClause) {
-        String fragment = this.function.expression(nodeIdentifier);
+
+        String fragment = this.function.expression(nodeIdentifier, propertyName, this::uniqueParameterName);
         String suffix = isNegated() ? negate(fragment) : fragment;
         return cypherPrefix(addWhereClause) + suffix;
     }
 
     public Map<String, Object> parameters() {
-        return function.parameters();
+
+        PropertyValueTransformer valueTransformer;
+        if (this.propertyConverter == null) {
+            valueTransformer = new NoOpPropertyValueTransformer();
+        } else {
+            valueTransformer = value -> this.propertyConverter.toGraphProperty(value);
+        }
+
+        return function.parameters(this::uniqueParameterName, valueTransformer);
     }
 
     private String cypherPrefix(boolean addWhereClause) {
@@ -455,20 +411,4 @@ public class Filter implements FilterWithRelationship {
         return String.format("NOT(%s) ", expression);
     }
 
-    /**
-     * Internal class for modifying an EQUALS or CONTAINS comparison to ignore the case of both attribute and parameter.
-     */
-    static final class CaseInsensitiveEqualsComparison extends PropertyComparison {
-        private CaseInsensitiveEqualsComparison(final PropertyComparison propertyComparison) {
-            super(propertyComparison.getValue());
-            super.setFilter(propertyComparison.getFilter());
-        }
-
-        @Override
-        public String expression(final String nodeIdentifier) {
-            final Filter filter = this.getFilter();
-            return String.format("toLower(%s.`%s`) %s toLower({ `%s` }) ", nodeIdentifier, filter.getPropertyName(),
-                filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
-        }
-    }
 }

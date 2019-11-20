@@ -37,6 +37,7 @@ import org.neo4j.ogm.utils.RelationshipUtils;
 
 /**
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 abstract class SessionDelegate {
 
@@ -62,7 +63,6 @@ abstract class SessionDelegate {
             FieldInfo fieldInfo = classInfo.getFieldInfo(filter.getPropertyName());
             if (fieldInfo != null) {
                 filter.setPropertyConverter(fieldInfo.getPropertyConverter());
-                filter.setCompositeConverter(fieldInfo.getCompositeConverter());
             }
 
             if (filter.isNested()) {

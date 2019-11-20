@@ -19,21 +19,19 @@
 package org.neo4j.ogm.cypher.function;
 
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
-import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.PropertyValueTransformer;
 
 /**
  * @author Jasper Blues
+ * @author Michael J. Simons
  */
 public interface FilterFunction<T> {
 
-    Filter getFilter();
-
-    void setFilter(Filter filter);
-
     T getValue();
 
-    String expression(String nodeIdentifier);
+    String expression(String nodeIdentifier, String filteredProperty, UnaryOperator<String> createUniqueParameterName);
 
-    Map<String, Object> parameters();
+    Map<String, Object> parameters(UnaryOperator<String> createUniqueParameterName, PropertyValueTransformer valueTransformer);
 }

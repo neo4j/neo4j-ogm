@@ -20,32 +20,30 @@ package org.neo4j.ogm.cypher.function;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
-import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.ComparisonOperator;
+import org.neo4j.ogm.cypher.PropertyValueTransformer;
 
+/**
+ * @author Gerrit Meier
+ * @author Michael J. Simons
+ */
 public class NativeDistanceComparison implements FilterFunction<DistanceFromNativePoint> {
 
     private static final String DISTANCE_VALUE_PARAMETER = "distanceValue";
     private static final String OGM_POINT_PARAMETER = "ogmPoint";
-    private final DistanceFromNativePoint distanceFromNativePoint;
-    private Filter filter;
 
-    private NativeDistanceComparison(DistanceFromNativePoint distanceFromNativePoint) {
+    protected final ComparisonOperator operator;
+    protected final DistanceFromNativePoint distanceFromNativePoint;
+
+    private NativeDistanceComparison(ComparisonOperator operator, DistanceFromNativePoint distanceFromNativePoint) {
+        this.operator = operator;
         this.distanceFromNativePoint = distanceFromNativePoint;
     }
 
     public static NativeDistanceComparison distanceComparisonFor(DistanceFromNativePoint distanceFromNativePoint) {
-        return new NativeDistanceComparison(distanceFromNativePoint);
-    }
-
-    @Override
-    public Filter getFilter() {
-        return filter;
-    }
-
-    @Override
-    public void setFilter(Filter filter) {
-        this.filter = filter;
+        return new NativeDistanceComparison(ComparisonOperator.LESS_THAN, distanceFromNativePoint);
     }
 
     @Override
@@ -54,23 +52,25 @@ public class NativeDistanceComparison implements FilterFunction<DistanceFromNati
     }
 
     @Override
-    public String expression(String nodeIdentifier) {
+    public String expression(String nodeIdentifier, String filteredProperty,
+        UnaryOperator<String> createUniqueParameterName) {
 
-        String pointPropertyOfEntity = nodeIdentifier + "." + getFilter().getPropertyName();
-        String comparisonOperator = getFilter().getComparisonOperator().getValue();
+        String pointPropertyOfEntity = nodeIdentifier + "." + filteredProperty;
+        String comparisonOperator = operator.getValue();
 
         return String.format(
             "distance({%s},%s) %s {%s} ",
-            OGM_POINT_PARAMETER, pointPropertyOfEntity, comparisonOperator, DISTANCE_VALUE_PARAMETER);
+            createUniqueParameterName.apply(OGM_POINT_PARAMETER), pointPropertyOfEntity, comparisonOperator,
+            createUniqueParameterName.apply(DISTANCE_VALUE_PARAMETER));
     }
 
     @Override
-    public Map<String, Object> parameters() {
+    public Map<String, Object> parameters(UnaryOperator<String> createUniqueParameterName, PropertyValueTransformer valueTransformer) {
 
         Map<String, Object> map = new HashMap<>();
 
-        map.put(OGM_POINT_PARAMETER, distanceFromNativePoint.getPoint());
-        map.put(DISTANCE_VALUE_PARAMETER, distanceFromNativePoint.getDistance());
+        map.put(createUniqueParameterName.apply(OGM_POINT_PARAMETER), distanceFromNativePoint.getPoint());
+        map.put(createUniqueParameterName.apply(DISTANCE_VALUE_PARAMETER), distanceFromNativePoint.getDistance());
         return map;
 
     }

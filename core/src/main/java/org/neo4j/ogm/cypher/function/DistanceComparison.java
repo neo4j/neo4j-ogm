@@ -20,31 +20,34 @@ package org.neo4j.ogm.cypher.function;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
-import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.ComparisonOperator;
+import org.neo4j.ogm.cypher.PropertyValueTransformer;
 
 /**
  * @author Jasper Blues
+ * @author Michael J. Simons
  */
 public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
 
     private static final String LATITUDE_PROPERTY_SUFFIX = ".latitude";
     private static final String LONGITUDE_PROPERTY_SUFFIX = ".longitude";
-    private DistanceFromPoint value;
-    private Filter filter;
+
+    private final ComparisonOperator operator;
+    private final DistanceFromPoint value;
 
     public DistanceComparison(DistanceFromPoint value) {
+        this(ComparisonOperator.LESS_THAN, value);
+    }
+
+    public DistanceComparison(ComparisonOperator operator, DistanceFromPoint value) {
+        this.operator = operator;
         this.value = value;
     }
 
-    @Override
-    public Filter getFilter() {
-        return filter;
-    }
-
-    @Override
-    public void setFilter(Filter filter) {
-        this.filter = filter;
+    public DistanceComparison withOperator(ComparisonOperator newOperator) {
+        return this.operator == newOperator ? this : new DistanceComparison(newOperator, value);
     }
 
     @Override
@@ -53,16 +56,19 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
     }
 
     @Override
-    public String expression(String nodeIdentifier) {
+    public String expression(String nodeIdentifier, String filteredProperty,
+        UnaryOperator<String> createUniqueParameterName) {
+
         String latitude = nodeIdentifier + LATITUDE_PROPERTY_SUFFIX;
         String longitude = nodeIdentifier + LONGITUDE_PROPERTY_SUFFIX;
 
         return String.format("distance(point({latitude: %s, longitude: %s}),point({latitude:{lat}, longitude:{lon}})) " +
-            "%s {distance} ", latitude, longitude, filter.getComparisonOperator().getValue());
+            "%s {distance} ", latitude, longitude, operator.getValue());
     }
 
     @Override
-    public Map<String, Object> parameters() {
+    public Map<String, Object> parameters(UnaryOperator<String> createUniqueParameterName,
+        PropertyValueTransformer valueTransformer) {
 
         Map<String, Object> map = new HashMap<>();
         map.put("lat", value.getLatitude());

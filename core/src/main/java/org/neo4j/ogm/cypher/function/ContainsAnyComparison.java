@@ -18,10 +18,11 @@
  */
 package org.neo4j.ogm.cypher.function;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
-import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.PropertyValueTransformer;
 
 /**
  * Filter to allow searching in collection properties.
@@ -34,24 +35,18 @@ import org.neo4j.ogm.cypher.Filter;
  *  Collection&lt;Restaurant&gt; all = session.loadAll(Restaurant.class, new Filters(f));
  * </pre>
  * will match all restaurant having burger OR sushi as a speciality.
+ *
+ * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 public class ContainsAnyComparison implements FilterFunction<Object> {
 
+    protected static final String PARAMETER_NAME = "property";
+
     private final Object value;
-    private Filter filter;
 
     public ContainsAnyComparison(Object value) {
         this.value = value;
-    }
-
-    @Override
-    public Filter getFilter() {
-        return filter;
-    }
-
-    @Override
-    public void setFilter(Filter filter) {
-        this.filter = filter;
     }
 
     @Override
@@ -60,15 +55,18 @@ public class ContainsAnyComparison implements FilterFunction<Object> {
     }
 
     @Override
-    public String expression(String nodeIdentifier) {
+    public String expression(String nodeIdentifier, String filteredProperty,
+        UnaryOperator<String> createUniqueParameterName) {
+
         return String.format("ANY(collectionFields IN {`%s`} WHERE collectionFields in %s.`%s`) ",
-            filter.uniqueParameterName(), nodeIdentifier, filter.getPropertyName());
+            createUniqueParameterName.apply(PARAMETER_NAME), nodeIdentifier, filteredProperty);
     }
 
     @Override
-    public Map<String, Object> parameters() {
-        Map<String, Object> map = new HashMap<>();
-        map.put(filter.uniqueParameterName(), filter.getTransformedPropertyValue());
-        return map;
+    public Map<String, Object> parameters(UnaryOperator<String> createUniqueParameterName,
+        PropertyValueTransformer propertyValueTransformer) {
+
+        return Collections.singletonMap(createUniqueParameterName.apply(PARAMETER_NAME),
+            propertyValueTransformer.transformPropertyValue(this.value));
     }
 }

@@ -20,21 +20,32 @@ package org.neo4j.ogm.cypher.function;
 
 import static org.neo4j.ogm.cypher.ComparisonOperator.*;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
-import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.ComparisonOperator;
+import org.neo4j.ogm.cypher.PropertyValueTransformer;
 
 /**
  * @author Jasper Blues
+ * @author Michael J. Simons
  */
 public class PropertyComparison implements FilterFunction<Object> {
 
-    private Object value;
-    private Filter filter;
+    protected static final String PARAMETER_NAME = "property";
 
-    public PropertyComparison(Object value) {
+    protected final ComparisonOperator operator;
+    protected final Object value;
+
+    public PropertyComparison(ComparisonOperator operator, Object value) {
+        this.operator = operator;
         this.value = value;
+    }
+
+    public ComparisonOperator getOperator() {
+        return operator;
     }
 
     @Override
@@ -43,35 +54,30 @@ public class PropertyComparison implements FilterFunction<Object> {
     }
 
     @Override
-    public Filter getFilter() {
-        return filter;
-    }
+    public String expression(String nodeIdentifier, String filteredProperty,
+        UnaryOperator<String> createUniqueParameterName) {
 
-    @Override
-    public void setFilter(Filter filter) {
-        this.filter = filter;
-    }
-
-    @Override
-    public String expression(String nodeIdentifier) {
-        if (filter.getComparisonOperator().equals(IS_NULL)) {
-            return String.format("%s.`%s` IS NULL ", nodeIdentifier, filter.getPropertyName());
-        } else if (filter.getComparisonOperator().equals(EXISTS)) {
-            return String.format("EXISTS(%s.`%s`) ", nodeIdentifier, filter.getPropertyName());
-        } else if (filter.getComparisonOperator().equals(IS_TRUE)) {
-            return String.format("%s.`%s` = true ", nodeIdentifier, filter.getPropertyName());
+        if (operator == IS_NULL) {
+            return String.format("%s.`%s` IS NULL ", nodeIdentifier, filteredProperty);
+        } else if (operator == EXISTS) {
+            return String.format("EXISTS(%s.`%s`) ", nodeIdentifier, filteredProperty);
+        } else if (operator == IS_TRUE) {
+            return String.format("%s.`%s` = true ", nodeIdentifier, filteredProperty);
         } else {
-            return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(),
-                filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
+            return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filteredProperty,
+                operator.getValue(), createUniqueParameterName.apply(PARAMETER_NAME));
         }
     }
 
     @Override
-    public Map<String, Object> parameters() {
-        Map<String, Object> map = new HashMap<>();
-        if (!filter.getComparisonOperator().isOneOf(IS_NULL, EXISTS, IS_TRUE)) {
-            map.put(filter.uniqueParameterName(), filter.getTransformedPropertyValue());
+    public Map<String, Object> parameters(UnaryOperator<String> createUniqueParameterName,
+        PropertyValueTransformer valueTransformer) {
+        if (EnumSet.of(IS_NULL, EXISTS, IS_TRUE).contains(operator)) {
+            return Collections.emptyMap();
+        } else {
+            return Collections.singletonMap(createUniqueParameterName.apply(PARAMETER_NAME),
+                valueTransformer.andThen(this.operator.getPropertyValueTransformer())
+                    .transformPropertyValue(this.value));
         }
-        return map;
     }
 }

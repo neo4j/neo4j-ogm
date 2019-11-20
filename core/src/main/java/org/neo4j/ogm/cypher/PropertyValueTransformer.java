@@ -23,7 +23,9 @@ package org.neo4j.ogm.cypher;
  * when building a Cypher query.
  *
  * @author Adam George
+ * @author Michael J. Simons
  */
+@FunctionalInterface
 public interface PropertyValueTransformer {
 
     /**
@@ -34,4 +36,16 @@ public interface PropertyValueTransformer {
      * @return The transformed property value or <code>null</code> if invoked with <code>null</code>
      */
     Object transformPropertyValue(Object propertyValue);
+
+    /**
+     * Applies this transformer first, then {@literal after} as the next transformation.
+     *
+     * @param after The next transformation.
+     * @return A new property value transformer.
+     */
+    default PropertyValueTransformer andThen(PropertyValueTransformer after) {
+
+        return (t) -> after.transformPropertyValue(this.transformPropertyValue(t));
+    }
+
 }

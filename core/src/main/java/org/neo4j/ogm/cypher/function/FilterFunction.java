@@ -31,7 +31,20 @@ public interface FilterFunction<T> {
 
     T getValue();
 
+    /**
+     * Generates a cypher expression for this function
+     * @param nodeIdentifier The identifier of the node to be filtered in the query
+     * @param filteredProperty The identifier of the filtered property
+     * @param createUniqueParameterName An operator to create unique parameter names, the same as in {@link #parameters(UnaryOperator, PropertyValueTransformer)}
+     * @return The fragment to use
+     */
     String expression(String nodeIdentifier, String filteredProperty, UnaryOperator<String> createUniqueParameterName);
 
+    /**
+     * Provides the map of parameters to use. It is advised to use the provided operator for creating unique parameter names
+     * @param createUniqueParameterName An operator to create unique parameter names
+     * @param valueTransformer Transformer for adapting possible values to the domain
+     * @return The map of parameters
+     */
     Map<String, Object> parameters(UnaryOperator<String> createUniqueParameterName, PropertyValueTransformer valueTransformer);
 }

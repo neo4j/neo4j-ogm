@@ -129,6 +129,13 @@ public class Filter implements FilterWithRelationship {
         this(propertyName, new PropertyComparison(propertyValue), comparisonOperator);
     }
 
+    /**
+     * @param propertyName
+     * @param filterFunction
+     * @param comparisonOperator
+     * @deprecated since 3.2.3, no replacement, use {@link #Filter(String, ComparisonOperator, Object)}
+     */
+    @Deprecated
     public Filter(String propertyName, FilterFunction filterFunction, ComparisonOperator comparisonOperator) {
         this.index = 0;
         this.propertyName = propertyName;
@@ -169,6 +176,11 @@ public class Filter implements FilterWithRelationship {
         this.propertyName = propertyName;
     }
 
+    /**
+     * @return The operator of this filter
+     * @deprecated since 3.2.3, no replacement.
+     */
+    @Deprecated
     public ComparisonOperator getComparisonOperator() {
         return comparisonOperator;
     }
@@ -358,6 +370,11 @@ public class Filter implements FilterWithRelationship {
         this.nestedRelationshipEntity = nestedRelationshipEntity;
     }
 
+    /**
+     * @return A unique parameter based on the index of the filter
+     * @deprecated since 3.2.3, no replacement, solved internally
+     */
+    @Deprecated
     public String uniqueParameterName() {
         return isNested() ? getNestedPropertyName() + "_" + getPropertyName() + "_" + index :
             getPropertyName() + "_" + index;
@@ -367,10 +384,20 @@ public class Filter implements FilterWithRelationship {
         return propertyConverter;
     }
 
+    /**
+     * @param propertyConverter
+     * @deprecated since 3.2.3, no replacement.
+     */
+    @Deprecated
     public void setPropertyConverter(AttributeConverter propertyConverter) {
         this.propertyConverter = propertyConverter;
     }
 
+    /**
+     * @return
+     * @deprecated since 3.2.3, no replacement.
+     */
+    @Deprecated
     public CompositeAttributeConverter getCompositeAttributeConverter() {
         return compositeConverter;
     }
@@ -384,7 +411,9 @@ public class Filter implements FilterWithRelationship {
      * on this {@link Filter}.
      *
      * @return The transformed property value
+     * @deprecated since 3.2.3, no replacement, solved internally
      */
+    @Deprecated
     public Object getTransformedPropertyValue() {
         Object value = this.function.getValue();
         if (this.getPropertyConverter() != null) {
@@ -408,6 +437,11 @@ public class Filter implements FilterWithRelationship {
         return function;
     }
 
+    /**
+     * @param function
+     * @deprecated since 3.2.3, no replacement, solved internally
+     */
+    @Deprecated
     public void setFunction(FilterFunction function) {
         assert function != null;
         this.function = function;
@@ -430,13 +464,13 @@ public class Filter implements FilterWithRelationship {
      * @return The filter state as a CYPHER fragment.
      */
     public String toCypher(String nodeIdentifier, boolean addWhereClause) {
-        String fragment = this.function.expression(nodeIdentifier);
+        String fragment = this.function.expression(nodeIdentifier, this.propertyName, s -> uniqueParameterName());
         String suffix = isNegated() ? negate(fragment) : fragment;
         return cypherPrefix(addWhereClause) + suffix;
     }
 
     public Map<String, Object> parameters() {
-        return function.parameters();
+        return function.parameters(s -> uniqueParameterName(), this::transformPropertyValue);
     }
 
     private String cypherPrefix(boolean addWhereClause) {

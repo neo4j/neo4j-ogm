@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.neo4j.driver.AccessMode;
@@ -49,7 +50,6 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.ServiceUnavailableException;
-import org.neo4j.driver.util.BookmarkUtil;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
@@ -363,9 +363,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
     @SuppressWarnings("deprecation")
     static List<Bookmark> bookmarksFromStrings(Iterable<String> bookmarks) {
         return StreamSupport.stream(bookmarks.spliterator(), false)
-            .map(b -> b.split(BOOKMARK_SEPARATOR))
-            .map(Arrays::asList)
-            .map(BookmarkUtil::parse)
+            .map(b -> Arrays.stream(b.split(BOOKMARK_SEPARATOR)).collect(
+                collectingAndThen(Collectors.toSet(), Bookmark::from)))
             .collect(toList());
     }
 }

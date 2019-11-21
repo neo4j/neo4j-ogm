@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.domain.kotlin
+package org.neo4j.ogm.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.*

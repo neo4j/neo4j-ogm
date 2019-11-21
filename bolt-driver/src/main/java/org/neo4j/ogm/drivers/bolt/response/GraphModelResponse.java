@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.drivers.bolt.response;
 
-import org.neo4j.driver.StatementResult;
+import org.neo4j.driver.Result;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.model.GraphModel;
 
@@ -30,7 +30,7 @@ public class GraphModelResponse extends BoltResponse<GraphModel> {
 
     private final BoltGraphModelAdapter adapter;
 
-    public GraphModelResponse(StatementResult result, BoltEntityAdapter boltEntityAdapter) {
+    public GraphModelResponse(Result result, BoltEntityAdapter boltEntityAdapter) {
 
         super(result);
 

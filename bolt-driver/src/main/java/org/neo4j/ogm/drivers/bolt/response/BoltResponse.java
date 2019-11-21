@@ -21,7 +21,7 @@ package org.neo4j.ogm.drivers.bolt.response;
 import java.util.Set;
 
 import org.neo4j.driver.Record;
-import org.neo4j.driver.StatementResult;
+import org.neo4j.driver.Result;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.response.Response;
@@ -30,14 +30,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public abstract class BoltResponse<T> implements Response {
 
-    final StatementResult result;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoltResponse.class);
 
-    private final Logger LOGGER = LoggerFactory.getLogger(BoltResponse.class);
+    protected final Result result;
 
-    BoltResponse(StatementResult result) {
+    BoltResponse(Result result) {
         this.result = result;
     }
 

@@ -20,7 +20,7 @@ package org.neo4j.ogm.drivers.bolt.response;
 
 import java.util.Arrays;
 
-import org.neo4j.driver.StatementResult;
+import org.neo4j.driver.Result;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.model.RowModel;
 
@@ -32,7 +32,7 @@ public class RowModelResponse extends BoltResponse<RowModel> {
 
     private final BoltRowModelAdapter adapter;
 
-    public RowModelResponse(StatementResult result, BoltEntityAdapter entityAdapter) {
+    public RowModelResponse(Result result, BoltEntityAdapter entityAdapter) {
 
         super(result);
 

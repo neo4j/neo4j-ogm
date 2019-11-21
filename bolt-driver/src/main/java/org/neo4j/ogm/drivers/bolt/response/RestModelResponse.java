@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.neo4j.driver.Record;
-import org.neo4j.driver.StatementResult;
+import org.neo4j.driver.Result;
 import org.neo4j.ogm.drivers.bolt.driver.BoltEntityAdapter;
 import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;
@@ -41,7 +41,7 @@ public class RestModelResponse extends BoltResponse<RestModel> {
     private final QueryStatisticsModel statisticsModel;
     private final Iterator<Record> resultProjection;
 
-    public RestModelResponse(StatementResult result, BoltEntityAdapter entityAdapter) {
+    public RestModelResponse(Result result, BoltEntityAdapter entityAdapter) {
 
         super(result);
 

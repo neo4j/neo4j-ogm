@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.drivers.bolt.response;
 
-import org.neo4j.driver.StatementResult;
+import org.neo4j.driver.Result;
 import org.neo4j.driver.summary.SummaryCounters;
 import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
@@ -30,12 +30,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
-public class StatisticsModelAdapter implements ResultAdapter<StatementResult, QueryStatisticsModel> {
+public class StatisticsModelAdapter implements ResultAdapter<Result, QueryStatisticsModel> {
 
     protected static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     @Override
-    public QueryStatisticsModel adapt(StatementResult result) {
+    public QueryStatisticsModel adapt(Result result) {
         QueryStatisticsModel queryStatisticsModel = new QueryStatisticsModel();
         SummaryCounters stats = result.consume().counters();
         queryStatisticsModel.setContains_updates(stats.containsUpdates());

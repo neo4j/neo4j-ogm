@@ -18,15 +18,15 @@
  */
 package org.neo4j.ogm.session;
 
-import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,14 +39,13 @@ import org.neo4j.driver.AccessMode;
 import org.neo4j.driver.Bookmark;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.SessionConfig;
-import org.neo4j.driver.internal.InternalBookmark;
-import org.neo4j.driver.util.BookmarkUtil;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Frantisek Hartman
+ * @author Gerrit Meier
  * @author Michael J. Simons
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -74,13 +73,12 @@ public class BookmarkTest {
         ArgumentCaptor<SessionConfig> argumentCaptor = ArgumentCaptor.forClass(SessionConfig.class);
 
         verify(nativeDriver).session(argumentCaptor.capture());
-
         SessionConfig sessionConfig = argumentCaptor.getValue();
         assertThat(sessionConfig.defaultAccessMode()).isEqualTo(AccessMode.READ);
         assertThat(sessionConfig.bookmarks())
             .contains(
-                BookmarkUtil.parse("bookmark1"),
-                BookmarkUtil.parse("bookmark2")
+                Bookmark.from(Collections.singleton("bookmark1")),
+                Bookmark.from(Collections.singleton("bookmark2"))
             );
 
         transaction.rollback();
@@ -96,13 +94,15 @@ public class BookmarkTest {
 
         verify(nativeDriver).session(argumentCaptor.capture());
 
+        Set<String> multipleBookmarks = new HashSet<>();
+        multipleBookmarks.addAll(Arrays.asList("bookmark3-part1", "bookmark3-part2"));
         SessionConfig sessionConfig = argumentCaptor.getValue();
         assertThat(sessionConfig.defaultAccessMode()).isEqualTo(AccessMode.READ);
         assertThat(sessionConfig.bookmarks())
             .contains(
-                BookmarkUtil.parse("bookmark1"),
-                BookmarkUtil.parse("bookmark2"),
-                BookmarkUtil.parse(Arrays.asList("bookmark3-part1", "bookmark3-part2"))
+                Bookmark.from(Collections.singleton("bookmark1")),
+                Bookmark.from(Collections.singleton("bookmark2")),
+                Bookmark.from(multipleBookmarks)
             );
 
         transaction.rollback();
@@ -113,7 +113,7 @@ public class BookmarkTest {
     public void shouldHaveAvailableBookmark() {
         when(nativeDriver.session(any(SessionConfig.class))).thenReturn(nativeSession);
         when(nativeSession.beginTransaction().isOpen()).thenReturn(true);
-        when(nativeSession.lastBookmark()).thenReturn(BookmarkUtil.parse("last-bookmark"));
+        when(nativeSession.lastBookmark()).thenReturn(Bookmark.from(Collections.singleton("last-bookmark")));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_WRITE);
 
@@ -125,13 +125,16 @@ public class BookmarkTest {
     }
 
     /**
-     * Make sure a bookmark containing multiple values is treated as one, not multiple bookarmsk
+     * Make sure a bookmark containing multiple values is treated as one, not multiple bookmarks
      */
     @Test
     public void shouldDealWithMultiValueBookmarks() {
+        Set<String> multipleBookmarks = new LinkedHashSet<>();
+        multipleBookmarks.addAll(Arrays.asList("bookmark-part1", "bookmark-part2"));
+
         when(nativeDriver.session(any(SessionConfig.class))).thenReturn(nativeSession);
         when(nativeSession.beginTransaction().isOpen()).thenReturn(true);
-        when(nativeSession.lastBookmark()).thenReturn(BookmarkUtil.parse(Arrays.asList("bookmark-part1", "bookmark-part2")));
+        when(nativeSession.lastBookmark()).thenReturn(Bookmark.from(multipleBookmarks));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_WRITE);
 

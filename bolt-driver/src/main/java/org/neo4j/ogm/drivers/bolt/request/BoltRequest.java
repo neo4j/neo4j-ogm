@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.neo4j.driver.StatementResult;
+import org.neo4j.driver.Result;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.DatabaseException;
 import org.neo4j.driver.exceptions.TransientException;
@@ -100,7 +100,7 @@ public class BoltRequest implements Request {
         String[] columns = null;
         for (Statement statement : query.getStatements()) {
 
-            StatementResult result = executeRequest(statement);
+            Result result = executeRequest(statement);
 
             if (columns == null) {
                 try {
@@ -170,7 +170,7 @@ public class BoltRequest implements Request {
         return new RestModelResponse(executeRequest(request), entityAdapter);
     }
 
-    private StatementResult executeRequest(Statement request) {
+    private Result executeRequest(Statement request) {
         try {
             Map<String, Object> parameterMap = this.parameterConversion.convertParameters(request.getParameters());
             String cypher = cypherModification.apply(request.getStatement());

@@ -35,6 +35,9 @@ import org.neo4j.ogm.cypher.query.SortOrder.Direction
 import org.neo4j.ogm.domain.dataclasses.MyNode
 import org.neo4j.ogm.domain.dataclasses.OtherNode
 import org.neo4j.ogm.domain.delegation.KotlinAImpl
+import org.neo4j.ogm.domain.gh696.Lion
+import org.neo4j.ogm.domain.gh696.Zebra
+import org.neo4j.ogm.domain.gh696.ZooKotlin
 import org.neo4j.ogm.session.*
 
 /**
@@ -61,7 +64,8 @@ class KotlinInteropTest {
                     .build()
             sessionFactory = SessionFactory(ogmConfiguration,
                     MyNode::class.java.`package`.name,
-                    KotlinAImpl::class.java.`package`.name
+                    KotlinAImpl::class.java.`package`.name,
+                    ZooKotlin::class.java.`package`.name
             )
         }
 
@@ -85,6 +89,8 @@ class KotlinInteropTest {
             assertThat(summary.counters().nodesCreated()).isEqualTo(names.size)
 
             assertThat(it.run("CREATE (n:A:Base)").consume().counters().nodesCreated()).isEqualTo(1)
+            assertThat(it.run("CREATE (a1:Animal:Zebra) <- [:CONTAINS] - (z:ZooKotlin) - [:CONTAINS] -> (a2:Animal:Lion)")
+                    .consume().counters().nodesCreated()).isEqualTo(3)
         }
     }
 
@@ -129,6 +135,15 @@ class KotlinInteropTest {
             val resultList = it.run("MATCH (n:A:Base) RETURN count(n) as n ").single()["n"].asLong();
             assertThat(resultList).isEqualTo(2L)
         }
+    }
+
+    @Test // GH-696
+    fun `Kotlin based wildcard mapping should work`() {
+
+        val nodes = sessionFactory.openSession().loadAll<ZooKotlin>()
+        assertThat(nodes).hasSize(1)
+        assertThat(nodes.first().animals).hasSize(2)
+        assertThat(nodes.first().animals!!.map { it::class.java }).containsExactlyInAnyOrder(Lion::class.java, Zebra::class.java);
     }
 
     @Test

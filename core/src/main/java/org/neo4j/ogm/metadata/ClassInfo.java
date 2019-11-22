@@ -20,7 +20,6 @@ package org.neo4j.ogm.metadata;
 
 import static java.util.stream.Collectors.*;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -65,20 +64,6 @@ import org.slf4j.LoggerFactory;
 public class ClassInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
-
-    private static final Class<? extends Annotation> kotlinMetadata;
-
-    static {
-        Class<?> metadata;
-        ClassLoader classLoader = DomainInfo.class.getClassLoader();
-        try {
-            metadata = Class.forName("kotlin.Metadata", false, classLoader);
-        } catch (ClassNotFoundException ex) {
-            // Kotlin API not available - no Kotlin support
-            metadata = null;
-        }
-        kotlinMetadata = (Class<? extends Annotation>) metadata;
-    }
 
     private final List<ClassInfo> directSubclasses = new ArrayList<>();
     private final List<ClassInfo> directInterfaces = new ArrayList<>();
@@ -178,7 +163,7 @@ public class ClassInfo {
             }
         }
 
-        if (isKotlinType(cls)) {
+        if (KotlinDetector.isKotlinType(cls)) {
             this.inspectLocalDelegates(typeSystem);
         }
     }
@@ -1201,21 +1186,6 @@ public class ClassInfo {
         }
 
         return reader;
-    }
-
-    /**
-     * @return True if Kotlin is present on the classpath.
-     */
-    private static boolean isKotlinPresent() {
-        return (kotlinMetadata != null);
-    }
-
-    /**
-     * @param clazz
-     * @return True, if Kotlin is present and {@code clazz} is a Kotlin class.
-     */
-    private static boolean isKotlinType(Class<?> clazz) {
-        return isKotlinPresent() && clazz.getDeclaredAnnotation(kotlinMetadata) != null;
     }
 
     static Object getInstanceOrDelegate(Object instance, Field delegateHolder) {

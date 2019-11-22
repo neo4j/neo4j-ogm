@@ -21,6 +21,7 @@ package org.neo4j.ogm.config;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowModel;
 import org.neo4j.ogm.response.model.NodeModel;
+import org.neo4j.ogm.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -84,6 +85,10 @@ public final class ObjectMapperFactory {
         }
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    abstract static class IgnoreUnknownPropertiesMixin {
+    }
+
     static class Neo4jOgmJacksonModule extends SimpleModule {
 
         Neo4jOgmJacksonModule() {
@@ -94,6 +99,7 @@ public final class ObjectMapperFactory {
             context.setMixInAnnotations(NodeModel.class, NodeModelMixin.class);
             context.setMixInAnnotations(DefaultGraphModel.class, DefaultGraphModelMixin.class);
             context.setMixInAnnotations(DefaultGraphRowModel.class, DefaultGraphRowModelMixin.class);
+            context.setMixInAnnotations(QueryStatisticsModel.class, IgnoreUnknownPropertiesMixin.class);
         }
     }
 

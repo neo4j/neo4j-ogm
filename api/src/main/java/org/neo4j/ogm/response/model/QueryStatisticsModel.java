@@ -20,15 +20,12 @@ package org.neo4j.ogm.response.model;
 
 import org.neo4j.ogm.model.QueryStatistics;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 /**
  * Holds read only statistics about query execution.
  * The field names do not follow convention as they are mapped directly from the JSON received from the Neo4j API.
  *
  * @author Luanne Misquitta
  */
-@JsonIgnoreProperties(value = {"contains_system_updates", "system_updates"})
 public class QueryStatisticsModel implements QueryStatistics {
 
     private boolean contains_updates;

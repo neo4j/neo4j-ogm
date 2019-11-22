@@ -466,7 +466,6 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         changed.setRefTwo(Collections.singletonList(node2));
         tx.save(changed);
 
-        System.out.println("END ====================");
         // Again, verify in a new session.
         tx = sessionFactory.openSession();
         node1 = tx.load(MyNode.class, changed.getId());

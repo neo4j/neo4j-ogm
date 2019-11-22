@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.domain.kotlin
+package org.neo4j.ogm.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -54,5 +54,18 @@ class KotlinMetaDataTest {
 
         aKotlinClass.baseName = "somethingElse"
         assertThat(baseNameField.read(aKotlinClass)).isEqualTo("somethingElse")
+    }
+
+    @Test // GH-696
+    fun `Type descriptor of Kotlin collections containing Java classes should be resolved`() {
+        val metaData = MetaData("org.neo4j.ogm.domain.gh696")
+        val javaZoo = metaData.classInfo("ZooJava")
+        val kotlinZoo = metaData.classInfo("ZooKotlin")
+
+        assertThat(javaZoo).isNotNull
+        assertThat(javaZoo.getFieldInfo("animals").typeDescriptor).isEqualTo("org.neo4j.ogm.domain.gh696.Animal")
+        assertThat(kotlinZoo).isNotNull
+        assertThat(kotlinZoo.getFieldInfo("animals").typeDescriptor).isEqualTo("org.neo4j.ogm.domain.gh696.Animal")
+        assertThat(kotlinZoo.getFieldInfo("zookeepers").typeDescriptor).isEqualTo("org.neo4j.ogm.domain.gh696.Zookeeper")
     }
 }

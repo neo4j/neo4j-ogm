@@ -24,8 +24,11 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.neo4j.ogm.metadata.KotlinDetector;
 
 /**
  * Contains a stripped down version of <a href="https://github.com/jhalterman">Jonathan Halterman's</a>
@@ -138,6 +141,11 @@ public final class GenericUtils {
             genericType = getTypeVariableMap(subType, functionalInterface).get(variable);
             genericType = genericType == null ? resolveBound(variable)
                 : resolveRawClass(genericType, subType, functionalInterface);
+        } else if (genericType instanceof WildcardType && KotlinDetector.isKotlinType(subType)) {
+            WildcardType variable = (WildcardType) genericType;
+            if (variable.getUpperBounds().length == 1) {
+                genericType = variable.getUpperBounds()[0];
+            }
         }
 
         return genericType instanceof Class ? (Class<?>) genericType : Unknown.class;

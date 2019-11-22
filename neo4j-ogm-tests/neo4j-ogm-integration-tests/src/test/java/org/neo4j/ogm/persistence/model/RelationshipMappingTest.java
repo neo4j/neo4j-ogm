@@ -362,7 +362,7 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(node2.getRefTwo()).containsOnly(node1);
 
         tx = sessionFactory.openSession();
-        MyNode changed = tx.load(MyNode.class, node1.getId());
+        MyNode changed = tx.load(MyNode.class, node1.getId()).copy();
         changed.setName("Dirty thing.");
         changed.setRefTwo(Collections.emptyList());
 
@@ -413,7 +413,7 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(node2.getRefTwo()).containsOnly(node1);
 
         tx = sessionFactory.openSession();
-        MyNode changed = tx.load(MyNode.class, node2.getId());
+        MyNode changed = tx.load(MyNode.class, node2.getId()).copy();
         changed.setName("Dirty thing.");
         changed.setRefTwo(Collections.emptyList());
 
@@ -460,16 +460,13 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(node1.getRefTwo()).isEmpty();
         assertThat(node2.getRefTwo()).isEmpty();
 
-        // tx = sessionFactory.openSession();
-        MyNode changed = node1;//tx.load(MyNode.class, node1.getId()).copy();
-        MyNode node2Copy = node2;//tx.load(MyNode.class, node2.getId()).copy();
+        tx = sessionFactory.openSession();
+        MyNode changed = tx.load(MyNode.class, node1.getId()).copy();
         changed.setName("Dirty thing.");
-        // Due to the unidirectional relationship between nodes of the same label,
-        // an OGM user has to
-        changed.setRefTwo(Collections.singletonList(node2Copy));
-        node2Copy.setRefTwo(Collections.singletonList(changed));
+        changed.setRefTwo(Collections.singletonList(node2));
         tx.save(changed);
 
+        System.out.println("END ====================");
         // Again, verify in a new session.
         tx = sessionFactory.openSession();
         node1 = tx.load(MyNode.class, changed.getId());
@@ -483,7 +480,7 @@ public class RelationshipMappingTest extends TestContainersTestBase {
                 + "       (n2:MyNode {name: 'node2'}),"
                 + "       (n3:MyNode {name: 'node3'}),"
                 + "       (n2) - [:REL_ONE] -> (n1) "
-                + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] -> (n2)) as relTwo",
+                + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] - (n2)) as relTwo",
             emptyMap()).queryResults();
         assertThat(actual).hasSize(1);
         assertThat(actual.iterator().next()).containsEntry("relTwo", true);

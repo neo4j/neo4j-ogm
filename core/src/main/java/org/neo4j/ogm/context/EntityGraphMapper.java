@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -60,6 +61,15 @@ public class EntityGraphMapper implements EntityMapper {
     private final MappingContext mappingContext;
     private final Compiler compiler;
     /**
+     * This tracks the current depth of mapping. While the session uses "depth" as external language, the
+     * compiler context uses horizon. This here is the current depth of the mapping: 0 being the entrance at {@link #map(Object, int)},
+     * incremented by 1 one each time entering {@link #mapEntityReferences(Object, NodeBuilder, int)} and decremented
+     * accordingly. This is ugly and is yet one more state, but is needed to decide whether a root object is allowed to
+     * overwrite relationships again.
+     */
+    private final AtomicInteger currentDepth = new AtomicInteger(0);
+
+    /**
      * Default supplier for write protection: Always write all the stuff.
      */
     private Optional<BiFunction<WriteProtectionTarget, Class<?>, Predicate<Object>>> optionalWriteProtectionSupplier = Optional
@@ -90,6 +100,8 @@ public class EntityGraphMapper implements EntityMapper {
 
     @Override
     public CompileContext map(Object entity, int horizon) {
+
+        this.currentDepth.set(0);
 
         if (entity == null) {
             throw new NullPointerException("Cannot map null object");
@@ -263,7 +275,7 @@ public class EntityGraphMapper implements EntityMapper {
         if (horizon != 0) {
             mapEntityReferences(entity, nodeBuilder, horizon - 1);
         } else {
-            LOGGER.debug("at horizon: {} ", entity);
+            LOGGER.debug("at horizon 0: {} ", entity);
         }
         return nodeBuilder;
     }
@@ -350,7 +362,8 @@ public class EntityGraphMapper implements EntityMapper {
      */
     private void mapEntityReferences(final Object entity, NodeBuilder nodeBuilder, int horizon) {
 
-        LOGGER.debug("mapping references declared by: {} ", entity);
+        int depth = currentDepth.incrementAndGet();
+        LOGGER.debug("mapping references declared by: {}, currently at depth {}", entity, depth);
 
         ClassInfo srcInfo = metaData.classInfo(entity);
         Long srcIdentity = mappingContext.nativeId(entity);
@@ -425,6 +438,8 @@ public class EntityGraphMapper implements EntityMapper {
                 }
             }
         }
+
+        currentDepth.decrementAndGet();
     }
 
     /**
@@ -485,6 +500,7 @@ public class EntityGraphMapper implements EntityMapper {
                 directedRelationship, mapBothDirections);
 
             if (isRelationshipEntity(relNodes.target)) {
+                LOGGER.debug("mapping relationship entity");
                 Long reIdentity = mappingContext.nativeId(relNodes.target);
                 if (!context.visitedRelationshipEntity(reIdentity)) {
                     mapRelationshipEntity(relNodes.target, relNodes.source, relationshipBuilder, context, nodeBuilder,
@@ -493,7 +509,8 @@ public class EntityGraphMapper implements EntityMapper {
                     LOGGER.debug("RE already visited {}: ", relNodes.target);
                 }
             } else {
-                mapRelatedEntity(nodeBuilder, relationshipBuilder, horizon, relNodes);
+                LOGGER.debug("mapping related entity");
+                mapRelatedEntity(nodeBuilder, relationshipBuilder, currentDepth.get(), horizon, relNodes);
             }
         } else {
             LOGGER.debug("cannot create relationship: ({})-[:{}]->(null)", relNodes.sourceId,
@@ -653,7 +670,7 @@ public class EntityGraphMapper implements EntityMapper {
             if (!context.visited(startEntity, horizon)) { // skip if we already visited the START_NODE
                 relNodes.source = targetEntity; // set up the nodes to link
                 relNodes.target = startEntity;
-                mapRelatedEntity(nodeBuilder, relationshipBuilder, horizon, relNodes);
+                mapRelatedEntity(nodeBuilder, relationshipBuilder, currentDepth.get(), horizon, relNodes);
             } else {
                 updateRelationship(context, tgtNodeBuilder, srcNodeBuilder, relationshipBuilder, relNodes);
             }
@@ -661,7 +678,7 @@ public class EntityGraphMapper implements EntityMapper {
             if (!context.visited(targetEntity, horizon)) {  // skip if we already visited the END_NODE
                 relNodes.source = startEntity;  // set up the nodes to link
                 relNodes.target = targetEntity;
-                mapRelatedEntity(nodeBuilder, relationshipBuilder, horizon, relNodes);
+                mapRelatedEntity(nodeBuilder, relationshipBuilder, currentDepth.get(), horizon, relNodes);
             } else {
                 updateRelationship(context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, relNodes);
             }
@@ -782,7 +799,7 @@ public class EntityGraphMapper implements EntityMapper {
      * @param relNodes            {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the end of this relationship
      */
     private void mapRelatedEntity(NodeBuilder srcNodeBuilder,
-        RelationshipBuilder relationshipBuilder, int horizon, RelationshipNodes relNodes) {
+        RelationshipBuilder relationshipBuilder, int level, int horizon, RelationshipNodes relNodes) {
 
         // context.visited fails if the class isn't a mapped class, so we have to check this first, even if mapEntity will do it again
         ClassInfo classInfo = metaData.classInfo(relNodes.target);
@@ -795,11 +812,15 @@ public class EntityGraphMapper implements EntityMapper {
         boolean alreadyVisitedNode = context.visited(relNodes.target, horizon);
         boolean selfReferentialUndirectedRelationship = relationshipBuilder.hasDirection(Relationship.UNDIRECTED)
             && relNodes.source.getClass() == relNodes.target.getClass();
+        boolean relationshipFromExplicitlyMappedObject = level == 1;
 
-        // Map this entity
+        // Map this entity (mapEntity checks whether the entity has been visited before)
         NodeBuilder tgtNodeBuilder = mapEntity(relNodes.target, horizon);
-        // And update the relationship if is directed or undirected, but not self referential to a node already seen
-        if (!(alreadyVisitedNode && selfReferentialUndirectedRelationship)) {
+        // Map the relationship only
+        // - if the entity hasn't been visited before
+        // - or the relationship has a defined direction
+        // - or the relationships is defined on an object being explicitly mapped
+        if (!alreadyVisitedNode || !selfReferentialUndirectedRelationship || relationshipFromExplicitlyMappedObject) {
             LOGGER.debug("trying to map relationship between {} and {}", relNodes.source, relNodes.target);
             relNodes.targetId = mappingContext.nativeId(relNodes.target);
             updateRelationship(context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, relNodes);

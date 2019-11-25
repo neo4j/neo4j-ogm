@@ -186,7 +186,7 @@ public class EntityGraphMapper implements EntityMapper {
         Set<Long> staleNodeIds = new HashSet<>();
         Set<MappedRelationship> relationships = new HashSet<>(mappingContext.getRelationships());
         // A node can only be stale if it's only reachable via one relationship originally in the context
-        Predicate<Long> canNotBeStale = nodeId -> relationships.stream()
+        Predicate<Long> cannotBeStale = nodeId -> relationships.stream()
             .filter(r -> r.getStartNodeId() == nodeId || r.getEndNodeId() == nodeId)
             .count() > 1;
 

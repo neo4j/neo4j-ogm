@@ -222,7 +222,7 @@ public class EntityGraphMapper implements EntityMapper {
 
         do {
             // Remove all nodes that are not isolated (that is only in one relationship)
-            // Don't do this as a filter, as this list is needed to calculate further stalte nodes
+            // Don't do this as a filter, as this list is needed to calculate further stale nodes
             staleNodeIds.removeIf(canNotBeStale);
             // Remove all the stale nodes
             staleNodeIds.stream()

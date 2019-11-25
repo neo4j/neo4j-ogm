@@ -220,10 +220,10 @@ public class EntityGraphMapper implements EntityMapper {
             }
         }
 
-        do {
+        while (!staleNodeIds.isEmpty()) {
             // Remove all nodes that are not isolated (that is only in one relationship)
             // Don't do this as a filter, as this list is needed to calculate further stale nodes
-            staleNodeIds.removeIf(canNotBeStale);
+            staleNodeIds.removeIf(cannotBeStale);
             // Remove all the stale nodes
             staleNodeIds.stream()
                 .map(mappingContext::getNodeEntity)
@@ -231,7 +231,7 @@ public class EntityGraphMapper implements EntityMapper {
                 .forEach(node -> mappingContext.removeNodeEntity(node, true));
             // Remove now stale relationship and possibly creating new stale nodes
             staleNodeIds = mappingContext.removeStaleRelationships(staleNodeIds);
-        } while (!staleNodeIds.isEmpty());
+        }
     }
 
     /**

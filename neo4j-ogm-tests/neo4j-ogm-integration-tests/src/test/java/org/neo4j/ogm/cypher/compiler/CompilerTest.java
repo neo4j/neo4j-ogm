@@ -219,9 +219,9 @@ public class CompilerTest {
         mappingContext.addNodeEntity(mary);
         mappingContext.addNodeEntity(waller);
 
-        mappingContext.addRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, Teacher.class, School.class));
+        mappingContext.addRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, null, Teacher.class, School.class));
         mappingContext
-            .addRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
+            .addRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, null, School.class, Teacher.class));
 
         Compiler compiler = mapAndCompile(waller, -1);
         compiler.useStatementFactory(new RowStatementFactory());
@@ -262,9 +262,9 @@ public class CompilerTest {
         // set the mapping context accordingly
         mappingContext.addNodeEntity(mary);
         mappingContext.addNodeEntity(waller);
-        mappingContext.addRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, Teacher.class, School.class));
+        mappingContext.addRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, null,Teacher.class, School.class));
         mappingContext
-            .addRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
+            .addRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, null, School.class, Teacher.class));
 
         Teacher jim = new Teacher("Jim");
         jim.setSchool(waller);
@@ -414,9 +414,9 @@ public class CompilerTest {
 
         music.setStudents(Arrays.asList(yvonne, xavier, zack));
 
-        mappingContext.addRelationship(new MappedRelationship(mid, "STUDENTS", xid, Course.class, Student.class));
-        mappingContext.addRelationship(new MappedRelationship(mid, "STUDENTS", yid, Course.class, Student.class));
-        mappingContext.addRelationship(new MappedRelationship(mid, "STUDENTS", zid, Course.class, Student.class));
+        mappingContext.addRelationship(new MappedRelationship(mid, "STUDENTS", xid, null, Course.class, Student.class));
+        mappingContext.addRelationship(new MappedRelationship(mid, "STUDENTS", yid, null, Course.class, Student.class));
+        mappingContext.addRelationship(new MappedRelationship(mid, "STUDENTS", zid, null, Course.class, Student.class));
 
         mappingContext.addNodeEntity(xavier);
         mappingContext.addNodeEntity(yvonne);
@@ -468,11 +468,11 @@ public class CompilerTest {
         mappingContext.addNodeEntity(shivani);
 
         mappingContext.addRelationship(
-            new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId, Teacher.class, Course.class));
+            new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId, null, Teacher.class, Course.class));
         mappingContext.addRelationship(
-            new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId, Teacher.class, Course.class));
+            new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId, null, Teacher.class, Course.class));
         mappingContext.addRelationship(
-            new MappedRelationship(businessStudiesCourseId, "STUDENTS", shivaniId, Teacher.class, Student.class));
+            new MappedRelationship(businessStudiesCourseId, "STUDENTS", shivaniId, null, Teacher.class, Student.class));
 
         // move shivani from one course to the other
         businessStudies.setStudents(Collections.emptyList());
@@ -544,13 +544,13 @@ public class CompilerTest {
         mappingContext.addNodeEntity(missJones);
 
         mappingContext
-            .addRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId, School.class, Teacher.class));
+            .addRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId, null, School.class, Teacher.class));
         mappingContext
-            .addRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId, School.class, Teacher.class));
+            .addRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId, null, School.class, Teacher.class));
         mappingContext
-            .addRelationship(new MappedRelationship(whiteId, "SCHOOL", schoolId, Teacher.class, School.class));
+            .addRelationship(new MappedRelationship(whiteId, "SCHOOL", schoolId, null, Teacher.class, School.class));
         mappingContext
-            .addRelationship(new MappedRelationship(jonesId, "SCHOOL", schoolId, Teacher.class, School.class));
+            .addRelationship(new MappedRelationship(jonesId, "SCHOOL", schoolId, null, Teacher.class, School.class));
 
         // Fire Mr White:
         mrWhite.setSchool(null);
@@ -771,7 +771,7 @@ public class CompilerTest {
 
         // the mapping context remembers the relationship between the forum and the topic in the graph
         mappingContext
-            .addRelationship(new MappedRelationship(forumId, "HAS_TOPIC", topicId, Forum.class, ForumTopicLink.class));
+            .addRelationship(new MappedRelationship(forumId, "HAS_TOPIC", topicId, null, Forum.class, ForumTopicLink.class));
 
         // unlink the objects manually
         forum.setTopicsInForum(null);

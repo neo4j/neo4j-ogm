@@ -559,11 +559,7 @@ public class CompilerTest {
         assertThat(mrWhite.getSchool()).isNull();
         assertThat(hillsRoad.getTeachers()).doesNotContain(mrWhite);
 
-        // we expect hillsRoad relationship to mrWhite to be removed.
-        // however, the change to MrWhite's relationship is not detected.
-        // this is because MrWhite is not "visited" during the traversal of
-        // hillsRoad - his reference is now inaccessible. this looks like a FIXME
-
+        // we expect hillsRoad relationship to mrWhite to be removed. OGM correctly detects this.
         Compiler compiler = mapAndCompile(hillsRoad, -1);
 
         List<Statement> statements = compiler.createNodesStatements();
@@ -578,10 +574,6 @@ public class CompilerTest {
         );
         assertThat(((List) statements.get(0).getParameters().get("rows"))).hasSize(1);
 
-        // we expect mrWhite's relationship to hillsRoad to be removed
-        // but the change to hillsRoad's relationship with MrWhite is not detected
-        // this is because hillsRoad object is no longer directly accessible from MrWhite
-        // looks like a FIXME (infer symmetric deletions)
         compiler = mapAndCompile(mrWhite, -1);
 
         statements = compiler.createNodesStatements();

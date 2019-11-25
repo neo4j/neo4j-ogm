@@ -19,9 +19,11 @@
 package org.neo4j.ogm.context;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -181,12 +183,14 @@ public class EntityGraphMapper implements EntityMapper {
     private void deleteObsoleteRelationships() {
         CompileContext context = compiler.context();
 
-        Map<Long, Object> snapshotOfKnownRelationshipEntities
-            = mappingContext.getSnapshotOfRelationshipEntityRegister();
-        Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.getRelationships().iterator();
-        while (mappedRelationshipIterator.hasNext()) {
-            MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
+        Set<Long> staleNodeIds = new HashSet<>();
+        Set<MappedRelationship> relationships = new HashSet<>(mappingContext.getRelationships());
+        // A node can only be stale if it's only reachable via one relationship originally in the context
+        Predicate<Long> canNotBeStale = nodeId -> relationships.stream()
+            .filter(r -> r.getStartNodeId() == nodeId || r.getEndNodeId() == nodeId)
+            .count() > 1;
 
+        for (MappedRelationship mappedRelationship : relationships) {
             // if we cannot remove this relationship from the compile context, it
             // means the user has deleted the relationship
             if (!context.removeRegisteredRelationship(mappedRelationship)) {
@@ -200,7 +204,7 @@ public class EntityGraphMapper implements EntityMapper {
                     mappedRelationship.getEndNodeId(),
                     mappedRelationship.getRelationshipId());
 
-                Object entity = snapshotOfKnownRelationshipEntities.get(mappedRelationship.getRelationshipId());
+                Object entity = mappingContext.getRelationshipEntity(mappedRelationship.getRelationshipId());
                 if (entity != null) {
                     ClassInfo classInfo = metaData.classInfo(entity);
                     if (classInfo.hasVersionField()) {
@@ -211,36 +215,23 @@ public class EntityGraphMapper implements EntityMapper {
 
                 // remove all nodes that are referenced by this relationship in the mapping context
                 // this will ensure that stale versions of these objects don't exist
-                clearRelatedObjects(mappedRelationship.getStartNodeId());
-                clearRelatedObjects(mappedRelationship.getEndNodeId());
-
-                // finally remove the relationship from the mapping context
-                //mappingContext.removeRelationship(mappedRelationship);
-                mappedRelationshipIterator.remove();
+                staleNodeIds.add(mappedRelationship.getStartNodeId());
+                staleNodeIds.add(mappedRelationship.getEndNodeId());
             }
         }
-    }
 
-    private void clearRelatedObjects(Long node) {
-
-        for (MappedRelationship mappedRelationship : mappingContext.getRelationships()) {
-            if (mappedRelationship.getStartNodeId() == node || mappedRelationship.getEndNodeId() == node) {
-
-                Object dirty = mappingContext.getNodeEntity(mappedRelationship.getEndNodeId());
-                if (dirty != null) {
-                    LOGGER.debug("flushing end node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(),
-                        mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-                    mappingContext.removeNodeEntity(dirty, true);
-                }
-
-                dirty = mappingContext.getNodeEntity(mappedRelationship.getStartNodeId());
-                if (dirty != null) {
-                    LOGGER.debug("flushing start node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(),
-                        mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-                    mappingContext.removeNodeEntity(dirty, true);
-                }
-            }
-        }
+        do {
+            // Remove all nodes that are not isolated (that is only in one relationship)
+            // Don't do this as a filter, as this list is needed to calculate further stalte nodes
+            staleNodeIds.removeIf(canNotBeStale);
+            // Remove all the stale nodes
+            staleNodeIds.stream()
+                .map(mappingContext::getNodeEntity)
+                .filter(Objects::nonNull)
+                .forEach(node -> mappingContext.removeNodeEntity(node, true));
+            // Remove now stale relationship and possibly creating new stale nodes
+            staleNodeIds = mappingContext.removeStaleRelationships(staleNodeIds);
+        } while (!staleNodeIds.isEmpty());
     }
 
     /**
@@ -951,11 +942,9 @@ public class EntityGraphMapper implements EntityMapper {
         relBuilder.relate(src, tgt);
         LOGGER.debug("context-new: ({})-[{}:{}]->({})", src, relBuilder.reference(), relBuilder.type(), tgt);
 
-        if (relBuilder.isNew()) {  //We only want to create or log new relationships
-            ctx.registerTransientRelationship(new SrcTargetKey(src, tgt),
-                new TransientRelationship(src, relBuilder.reference(), relBuilder.type(), tgt, srcClass,
-                    tgtClass)); // we log the new relationship as part of the transaction context.
-        }
+        ctx.registerTransientRelationship(new SrcTargetKey(src, tgt),
+            new TransientRelationship(src, relBuilder.reference(), relBuilder.type(), tgt, srcClass,
+                tgtClass)); // we log the new relationship as part of the transaction context.
     }
 
     /**

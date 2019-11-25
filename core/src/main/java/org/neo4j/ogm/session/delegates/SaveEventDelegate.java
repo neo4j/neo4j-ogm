@@ -365,11 +365,11 @@ final class SaveEventDelegate extends SessionDelegate {
 
                 if (direction.equals(Relationship.OUTGOING)) {
                     MappedRelationship edge = new MappedRelationship(parentId, type, referenceId,
-                        parentInfo.getUnderlyingClass(), referenceInfo.getUnderlyingClass());
+                        null, parentInfo.getUnderlyingClass(), referenceInfo.getUnderlyingClass());
                     mappedRelationships.add(edge);
                 } else {
                     MappedRelationship edge = new MappedRelationship(referenceId, type, parentId,
-                        referenceInfo.getUnderlyingClass(), parentInfo.getUnderlyingClass());
+                        null, referenceInfo.getUnderlyingClass(), parentInfo.getUnderlyingClass());
                     mappedRelationships.add(edge);
                 }
             } else {

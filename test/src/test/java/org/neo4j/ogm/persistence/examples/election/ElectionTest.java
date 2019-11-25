@@ -117,7 +117,7 @@ public class ElectionTest extends MultiDriverTestClass {
         MappingContext context = ((Neo4jSession) session).context();
 
         assertThat(context.containsRelationship(
-            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class)))
+            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), null, Voter.class, Candidate.class)))
             .isTrue();
         session.clear();
 
@@ -127,7 +127,7 @@ public class ElectionTest extends MultiDriverTestClass {
         assertThat(v.candidateVotedFor.getId()).isEqualTo(b.getId());
 
         assertThat(context.containsRelationship(
-            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class)))
+            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), null, Voter.class, Candidate.class)))
             .isTrue();
 
         v.candidateVotedFor = a;
@@ -141,10 +141,10 @@ public class ElectionTest extends MultiDriverTestClass {
         assertThat(v.candidateVotedFor.getId()).isEqualTo(a.getId());
 
         assertThat(context.containsRelationship(
-            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", a.getId(), Voter.class, Candidate.class)))
+            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", a.getId(),null, Voter.class, Candidate.class)))
             .isTrue();
         assertThat(context.containsRelationship(
-            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class)))
+            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), null, Voter.class, Candidate.class)))
             .isFalse();
 
         session.clear();

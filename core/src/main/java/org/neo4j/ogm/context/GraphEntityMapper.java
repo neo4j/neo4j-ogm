@@ -490,7 +490,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                         outgoingWriter.write(instance, parameter);
                     }
                     MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(),
-                        edge.getEndNode(), edge.getId(), instance.getClass(),
+                        edge.getEndNode(), null, instance.getClass(),
                         ClassUtils.getType(outgoingWriter.typeParameterDescriptor()));
                     relationshipsToRegister.add(mappedRelationship);
                 }
@@ -505,7 +505,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                         incomingWriter.write(parameter, instance);
                     }
                     relationshipsToRegister.add(
-                        new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(),
+                        new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), null,
                             instance.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
                 }
             }

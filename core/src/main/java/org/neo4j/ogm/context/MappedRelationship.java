@@ -37,18 +37,9 @@ public class MappedRelationship implements Mappable {
     private final long startNodeId;
     private final String relationshipType;
     private final long endNodeId;
-    private Long relationshipId;
-    private Class startNodeType;
-    private Class endNodeType;
-
-    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Class startNodeType,
-        Class endNodeType) {
-        this.startNodeId = startNodeId;
-        this.relationshipType = relationshipType;
-        this.endNodeId = endNodeId;
-        this.startNodeType = startNodeType;
-        this.endNodeType = endNodeType;
-    }
+    private final Long relationshipId;
+    private final Class startNodeType;
+    private final Class endNodeType;
 
     public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Long relationshipId,
         Class startNodeType, Class endNodeType) {
@@ -74,18 +65,6 @@ public class MappedRelationship implements Mappable {
 
     public Long getRelationshipId() {
         return relationshipId;
-    }
-
-    public void setRelationshipId(Long relationshipId) {
-        this.relationshipId = relationshipId;
-    }
-
-    /**
-     * The default state for an existing relationship
-     * is active, meaning that we don't expect to
-     * delete it when the transaction commits.
-     */
-    public void activate() {
     }
 
     public Class getEndNodeType() {

@@ -335,4 +335,153 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         group = sessionFactory.openSession().load(Group.class, group.getUuid());
         assertThat(group.getVersions()).hasSize(1);
     }
+
+    @Test // GH-657
+    public void deletesOfEntitiesWithTheSameButNotEqualParentShouldWork() {
+
+        Session tx = sessionFactory.openSession();
+        Map<String, Object> result = tx.query("CREATE (n1:MyNode {name: 'node1'})\n"
+            + "CREATE (n2:MyNode {name: 'node2'})\n"
+            + "CREATE (n3:MyNode {name: 'node3'})\n"
+            + "CREATE (n1) - [:REL_TWO] -> (n2)\n"
+            + "CREATE (n2) - [:REL_ONE] -> (n1)\n"
+            + "RETURN id(n1) as idOfn1, id(n2) as idOfn2, id(n3) as idOfn3", Collections.emptyMap()).iterator().next();
+
+        tx = sessionFactory.openSession();
+
+        MyNode node1 = tx.load(MyNode.class, (Long)result.get("idOfn1"));
+        MyNode node2 = tx.load(MyNode.class, (Long)result.get("idOfn2"));
+        MyNode node3 = tx.load(MyNode.class, (Long)result.get("idOfn3"));
+
+        assertThat(node1).isNotNull();
+        assertThat(node2).isNotNull();
+        assertThat(node3).isNotNull();
+
+        assertThat(node1.getRefOne()).isEqualTo(node2);
+        assertThat(node1.getRefTwo()).containsOnly(node2);
+        assertThat(node2.getRefTwo()).containsOnly(node1);
+
+        tx = sessionFactory.openSession();
+        MyNode changed = tx.load(MyNode.class, node1.getId()).copy();
+        changed.setName("Dirty thing.");
+        changed.setRefTwo(Collections.emptyList());
+
+        tx.save(changed);
+
+        // Again, verify in a new session.
+        tx = sessionFactory.openSession();
+        node1 = tx.load(MyNode.class, changed.getId());
+        assertThat(node1.getRefOne()).isEqualTo(node2);
+        assertThat(node1.getRefTwo()).isEmpty();
+
+        Iterable<Map<String, Object>> actual = sessionFactory.openSession().query(""
+            + " MATCH (n1:MyNode {name: 'Dirty thing.'}),"
+            + "       (n2:MyNode {name: 'node2'}),"
+            + "       (n3:MyNode {name: 'node3'}),"
+            + "       (n2) - [:REL_ONE] -> (n1) "
+            + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] -> (n2)) as relTwo",
+            emptyMap()).queryResults();
+        assertThat(actual).hasSize(1);
+        assertThat(actual.iterator().next()).containsEntry("relTwo", false);
+    }
+
+    @Test // GH-657
+    public void deletesOfEntitiesWithTheSameButNotEqualParentShouldWork2() {
+
+        Session tx = sessionFactory.openSession();
+        Map<String, Object> result = tx.query("CREATE (n1:MyNode {name: 'node1'})\n"
+            + "CREATE (n2:MyNode {name: 'node2'})\n"
+            + "CREATE (n3:MyNode {name: 'node3'})\n"
+            + "CREATE (n1) - [:REL_TWO] -> (n2)\n"
+            + "CREATE (n2) - [:REL_ONE] -> (n1)\n"
+            + "RETURN id(n1) as idOfn1, id(n2) as idOfn2, id(n3) as idOfn3", Collections.emptyMap()).iterator().next();
+
+        tx = sessionFactory.openSession();
+
+        MyNode node1 = tx.load(MyNode.class, (Long)result.get("idOfn1"));
+        MyNode node2 = tx.load(MyNode.class, (Long)result.get("idOfn2"));
+        MyNode node3 = tx.load(MyNode.class, (Long)result.get("idOfn3"));
+
+        assertThat(node1).isNotNull();
+        assertThat(node2).isNotNull();
+        assertThat(node3).isNotNull();
+
+        assertThat(node1.getRefOne()).isEqualTo(node2);
+        assertThat(node1.getRefTwo()).containsOnly(node2);
+
+        assertThat(node2.getRefOne()).isNull();
+        assertThat(node2.getRefTwo()).containsOnly(node1);
+
+        tx = sessionFactory.openSession();
+        MyNode changed = tx.load(MyNode.class, node2.getId()).copy();
+        changed.setName("Dirty thing.");
+        changed.setRefTwo(Collections.emptyList());
+
+        tx.save(changed);
+
+        // Again, verify in a new session.
+        tx = sessionFactory.openSession();
+        node2 = tx.load(MyNode.class, changed.getId());
+        assertThat(node2.getRefOne()).isNull();
+        assertThat(node2.getRefTwo()).isEmpty();
+
+        Iterable<Map<String, Object>> actual = sessionFactory.openSession().query(""
+                + " MATCH (n1:MyNode {name: 'node1'}),"
+                + "       (n2:MyNode {name: 'Dirty thing.'}),"
+                + "       (n3:MyNode {name: 'node3'}),"
+                + "       (n2) - [:REL_ONE] -> (n1) "
+                + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] -> (n2)) as relTwo",
+            emptyMap()).queryResults();
+        assertThat(actual).hasSize(1);
+        assertThat(actual.iterator().next()).containsEntry("relTwo", false);
+    }
+
+    @Test // GH-657
+    public void deletesOfEntitiesWithTheSameButNotEqualParentShouldWork3() {
+
+        Session tx = sessionFactory.openSession();
+        Map<String, Object> result = tx.query("CREATE (n1:MyNode {name: 'node1'})\n"
+            + "CREATE (n2:MyNode {name: 'node2'})\n"
+            + "CREATE (n3:MyNode {name: 'node3'})\n"
+            + "CREATE (n2) - [:REL_ONE] -> (n1)\n"
+            + "RETURN id(n1) as idOfn1, id(n2) as idOfn2, id(n3) as idOfn3", Collections.emptyMap()).iterator().next();
+
+        tx = sessionFactory.openSession();
+
+        MyNode node1 = tx.load(MyNode.class, (Long)result.get("idOfn1"));
+        MyNode node2 = tx.load(MyNode.class, (Long)result.get("idOfn2"));
+        MyNode node3 = tx.load(MyNode.class, (Long)result.get("idOfn3"));
+
+        assertThat(node1).isNotNull();
+        assertThat(node2).isNotNull();
+        assertThat(node3).isNotNull();
+
+        assertThat(node1.getRefOne()).isEqualTo(node2);
+        assertThat(node1.getRefTwo()).isEmpty();
+        assertThat(node2.getRefTwo()).isEmpty();
+
+        tx = sessionFactory.openSession();
+        MyNode changed = tx.load(MyNode.class, node1.getId()).copy();
+        changed.setName("Dirty thing.");
+        changed.setRefTwo(Collections.singletonList(node2));
+        tx.save(changed);
+
+        // Again, verify in a new session.
+        tx = sessionFactory.openSession();
+        node1 = tx.load(MyNode.class, changed.getId());
+        node2 = tx.load(MyNode.class, node2.getId());
+        assertThat(node1.getRefOne()).isEqualTo(node2);
+        assertThat(node1.getRefTwo()).containsOnly(node2);
+        assertThat(node2.getRefTwo()).containsOnly(node1);
+
+        Iterable<Map<String, Object>> actual = sessionFactory.openSession().query(""
+                + " MATCH (n1:MyNode {name: 'Dirty thing.'}),"
+                + "       (n2:MyNode {name: 'node2'}),"
+                + "       (n3:MyNode {name: 'node3'}),"
+                + "       (n2) - [:REL_ONE] -> (n1) "
+                + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] - (n2)) as relTwo",
+            emptyMap()).queryResults();
+        assertThat(actual).hasSize(1);
+        assertThat(actual.iterator().next()).containsEntry("relTwo", true);
+    }
 }

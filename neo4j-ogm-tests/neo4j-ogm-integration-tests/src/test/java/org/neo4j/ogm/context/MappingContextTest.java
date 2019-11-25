@@ -78,12 +78,12 @@ public class MappingContextTest {
         mappingContext.addNodeEntity(jim);
         mappingContext.addNodeEntity(policy);
         mappingContext.addRelationship(
-            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
+            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), null, Person.class, Policy.class));
 
         assertThat(mappingContext.getNodeEntity(jim.getId())).isEqualTo(jim);
         assertThat(mappingContext.getNodeEntity(policy.getId())).isEqualTo(policy);
         assertThat(mappingContext.containsRelationship(
-            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class))).isTrue();
+            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), null, Person.class, Policy.class))).isTrue();
     }
 
     @Test
@@ -98,13 +98,13 @@ public class MappingContextTest {
         mappingContext.addNodeEntity(jim);
         mappingContext.addNodeEntity(policy);
         mappingContext.addRelationship(
-            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
+            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), null, Person.class, Policy.class));
         mappingContext.removeEntity(jim);
 
         assertThat(mappingContext.getNodeEntity(jim.getId())).isEqualTo(null);
         assertThat(mappingContext.getNodeEntity(policy.getId())).isEqualTo(policy);
         assertThat(mappingContext.containsRelationship(
-            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class))).isFalse();
+            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), null, Person.class, Policy.class))).isFalse();
     }
 
     @Test // #96
@@ -123,14 +123,14 @@ public class MappingContextTest {
         mappingContext.addNodeEntity(another);
         mappingContext.addNodeEntity(policy);
         mappingContext.addRelationship(
-            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
+            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), null, Person.class, Policy.class));
         mappingContext.removeEntity(jim);
 
         assertThat(mappingContext.getNodeEntity(jim.getId())).isEqualTo(null);
         assertThat(mappingContext.getNodeEntity(policy.getId())).isEqualTo(policy);
         assertThat(mappingContext.getNodeEntity(another.getId())).isEqualTo(another);
         assertThat(mappingContext.containsRelationship(
-            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class))).isFalse();
+            new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), null, Person.class, Policy.class))).isFalse();
     }
 
     @Test
@@ -153,11 +153,11 @@ public class MappingContextTest {
         mappingContext.addNodeEntity(immigration);
 
         mappingContext.addRelationship(
-            new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId(), Person.class, Policy.class));
+            new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId(), null, Person.class, Policy.class));
         mappingContext.addRelationship(
-            new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId(), Person.class, Policy.class));
+            new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId(), null, Person.class, Policy.class));
         mappingContext.addRelationship(
-            new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId(), Person.class, Person.class));
+            new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId(), null, Person.class, Person.class));
 
         mappingContext.removeType(Policy.class);
 

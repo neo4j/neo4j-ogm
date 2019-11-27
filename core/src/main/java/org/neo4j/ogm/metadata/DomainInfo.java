@@ -73,6 +73,11 @@ public class DomainInfo {
     }
 
     private static void prepareClass(DomainInfo domainInfo, String className) {
+
+        if (className == null) {
+            return;
+        }
+
         Class<?> cls = null;
         try {
             cls = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
@@ -80,38 +85,34 @@ public class DomainInfo {
             LOGGER.warn("Could not load class {}", className);
         }
 
-        ClassInfo classInfo = new ClassInfo(cls);
+        if (cls != null && !(cls.isAnnotation() || cls.isAnonymousClass() || cls.equals(Object.class))) {
 
-        String superclassName = classInfo.superclassName();
+            ClassInfo classInfo;
+            if(domainInfo.classNameToClassInfo.containsKey(className)) {
+                classInfo = domainInfo.classNameToClassInfo.get(className);
+            } else {
+                classInfo = new ClassInfo(cls);
+                domainInfo.classNameToClassInfo.put(className, classInfo);
+            }
 
-        LOGGER.debug("Processing: {} -> {}", className, superclassName);
+            String superclassName = classInfo.superclassName();
 
-        if (className != null && !(cls.isAnnotation() || cls.isAnonymousClass() || cls.equals(Object.class))) {
+            LOGGER.debug("Processing: {} -> {}", className, superclassName);
 
-            ClassInfo thisClassInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
-
-            if (!thisClassInfo.hydrated()) {
-
-                thisClassInfo.hydrate(classInfo);
-
+            if (superclassName != null) {
                 ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
-                if (superclassInfo == null) {
-
-                    if (superclassName != null && !superclassName.equals("java.lang.Object") && !superclassName
-                        .equals("java.lang.Enum")) {
-                        domainInfo.classNameToClassInfo
-                            .put(superclassName, new ClassInfo(superclassName, thisClassInfo));
-
-                        prepareClass(domainInfo, superclassName);
-                    }
-                } else {
-                    superclassInfo.addSubclass(thisClassInfo);
+                if (superclassInfo != null) {
+                    superclassInfo.addSubclass(classInfo);
+                } else if (!"java.lang.Object".equals(superclassName) && !"java.lang.Enum".equals(superclassName)) {
+                    ClassInfo superClassInfo = new ClassInfo(cls.getSuperclass());
+                    superClassInfo.addSubclass(classInfo);
+                    domainInfo.classNameToClassInfo.put(superclassName, superClassInfo);
                 }
             }
 
-            if (thisClassInfo.isEnum()) {
-                LOGGER.debug("Registering enum class: {}", thisClassInfo.name());
-                domainInfo.enumTypes.add(thisClassInfo.getUnderlyingClass());
+            if (classInfo.isEnum()) {
+                LOGGER.debug("Registering enum class: {}", classInfo.name());
+                domainInfo.enumTypes.add(classInfo.getUnderlyingClass());
             }
         }
     }

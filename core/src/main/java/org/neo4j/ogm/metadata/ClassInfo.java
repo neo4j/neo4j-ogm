@@ -70,7 +70,6 @@ public class ClassInfo {
     private boolean isInterface;
     private boolean isAbstract;
     private boolean isEnum;
-    private boolean hydrated;
     private FieldsInfo fieldsInfo;
     private MethodsInfo methodsInfo;
     private AnnotationsInfo annotationsInfo;
@@ -94,22 +93,6 @@ public class ClassInfo {
     private Class<?> cls;
     private Class<? extends IdStrategy> idStrategyClass;
     private IdStrategy idStrategy;
-
-    /**
-     * This class was referenced as a superclass of the given subclass.
-     *
-     * @param name     the name of the class
-     * @param subclass {@link ClassInfo} of the subclass
-     */
-    ClassInfo(String name, ClassInfo subclass) {
-        this.className = name;
-        this.hydrated = false;
-        this.fieldsInfo = new FieldsInfo();
-        this.methodsInfo = new MethodsInfo();
-        this.annotationsInfo = new AnnotationsInfo();
-        this.interfacesInfo = new InterfacesInfo();
-        addSubclass(subclass);
-    }
 
     public ClassInfo(Class<?> cls) {
         this.cls = cls;
@@ -142,30 +125,6 @@ public class ClassInfo {
         }
     }
 
-    /**
-     * A class that was previously only seen as a temp superclass of another class can now be fully hydrated.
-     *
-     * @param classInfoDetails ClassInfo details
-     */
-    void hydrate(ClassInfo classInfoDetails) {
-
-        if (!this.hydrated) {
-            this.hydrated = true;
-
-            this.isAbstract = classInfoDetails.isAbstract;
-            this.isInterface = classInfoDetails.isInterface;
-            this.isEnum = classInfoDetails.isEnum;
-            this.directSuperclassName = classInfoDetails.directSuperclassName;
-            this.cls = classInfoDetails.cls;
-
-            this.interfacesInfo.append(classInfoDetails.interfacesInfo());
-
-            this.annotationsInfo.append(classInfoDetails.annotationsInfo());
-            this.fieldsInfo.append(classInfoDetails.fieldsInfo());
-            this.methodsInfo.append(classInfoDetails.methodsInfo());
-        }
-    }
-
     void extend(ClassInfo classInfo) {
         this.interfacesInfo.append(classInfo.interfacesInfo());
         this.fieldsInfo.append(classInfo.fieldsInfo());
@@ -185,10 +144,6 @@ public class ClassInfo {
         }
         subclass.directSuperclass = this;
         this.directSubclasses.add(subclass);
-    }
-
-    boolean hydrated() {
-        return hydrated;
     }
 
     public String name() {

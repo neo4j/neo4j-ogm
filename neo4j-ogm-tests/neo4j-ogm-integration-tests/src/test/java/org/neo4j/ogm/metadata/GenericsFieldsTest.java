@@ -135,5 +135,24 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
         assertThat(hasVersionField.getCollectionClassname()).isEqualTo("java.util.Set");
         assertThat(hasVersionField.getTypeDescriptor()).isEqualTo("org.neo4j.ogm.domain.gh656.GroupVersion");
     }
+
+    @Test // GH-706
+    public void parameterizedScalarFieldsInParentClassesShouldWork() {
+
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh704");
+        for (String[] parameters : new String[][] {
+            { "Country", "org.neo4j.ogm.domain.gh704.CountryRevision" },
+            { "org.neo4j.ogm.domain.gh704.CountryRevision", "org.neo4j.ogm.domain.gh704.CountryRevision" },
+            { "org.neo4j.ogm.domain.gh704.RevisionEntity", "java.lang.Object" }
+        }) {
+            ClassInfo classInfo = metaData.classInfo(parameters[0]);
+            assertThat(classInfo).isNotNull();
+            assertThat(classInfo.getFieldInfo("previousRevision")).satisfies(field -> {
+                assertThat(field).isNotNull();
+                assertThat(field.getTypeDescriptor()).isEqualTo(parameters[1]);
+                assertThat(field.relationship()).isEqualTo("PREVIOUS_REVISION");
+            });
+        }
+    }
 }
 

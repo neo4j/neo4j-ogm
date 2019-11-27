@@ -104,17 +104,12 @@ public class DomainInfo {
      * @param clazz
      */
     private void addClass(Class clazz) {
-        ClassInfo newClassInfo = new ClassInfo(clazz, typeSystem);
-        String className = newClassInfo.name();
-        String superclassName = newClassInfo.superclassName();
+
+        ClassInfo classInfo = this.classNameToClassInfo.computeIfAbsent(clazz.getName(), k -> new ClassInfo(clazz, typeSystem));
+        String superclassName = classInfo.superclassName();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Processing: {} -> {}", className, superclassName);
-        }
-
-        ClassInfo classInfo = this.classNameToClassInfo.computeIfAbsent(className, k -> newClassInfo);
-        if (!classInfo.hydrated()) {
-            classInfo.hydrate(newClassInfo);
+            LOGGER.debug("Processing: {} -> {}", classInfo.name(), superclassName);
         }
 
         if (classInfo.isEnum()) {
@@ -129,9 +124,9 @@ public class DomainInfo {
             if (superclassInfo != null) {
                 superclassInfo.addSubclass(classInfo);
             } else if (!"java.lang.Object".equals(superclassName) && !"java.lang.Enum".equals(superclassName)) {
-                Class<?> superClazz = clazz.getSuperclass();
-                this.classNameToClassInfo.put(superclassName, new ClassInfo(superClazz, classInfo));
-                this.addClass(superClazz);
+                ClassInfo superClassInfo = new ClassInfo(clazz.getSuperclass(), typeSystem);
+                superClassInfo.addSubclass(classInfo);
+                this.classNameToClassInfo.put(superclassName, superClassInfo);
             }
         }
     }

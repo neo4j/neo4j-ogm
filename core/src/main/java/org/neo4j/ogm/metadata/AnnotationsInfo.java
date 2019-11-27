@@ -30,10 +30,6 @@ public class AnnotationsInfo {
 
     private final Map<String, AnnotationInfo> classAnnotations;
 
-    public AnnotationsInfo() {
-        this.classAnnotations = new HashMap<>();
-    }
-
     public AnnotationsInfo(Class<?> cls) {
         this.classAnnotations = new HashMap<>();
 

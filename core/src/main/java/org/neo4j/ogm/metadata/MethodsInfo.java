@@ -38,10 +38,6 @@ public class MethodsInfo {
 
     private final Set<MethodInfo> methods;
 
-    MethodsInfo() {
-        this.methods = new HashSet<>();
-    }
-
     MethodsInfo(Class<?> cls, Field delegateHolder) {
         this.methods = new HashSet<>();
 

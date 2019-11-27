@@ -29,10 +29,6 @@ public class InterfacesInfo {
 
     private final Map<String, InterfaceInfo> interfaceMap;
 
-    InterfacesInfo() {
-        this.interfaceMap = new HashMap<>();
-    }
-
     InterfacesInfo(Class<?> cls) {
         this.interfaceMap = new HashMap<>();
         for (Class iface : cls.getInterfaces()) {

@@ -25,6 +25,8 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.gh492.BaseUser;
+import org.neo4j.ogm.domain.gh704.Country;
+import org.neo4j.ogm.domain.gh704.CountryRevision;
 import org.neo4j.ogm.domain.metadata.POJO;
 
 /**
@@ -154,5 +156,27 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
             });
         }
     }
-}
 
+    @Test // GH-704
+    public void correctClassesNeedToBeUsedDuringFieldLookup() {
+
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh704");
+
+        Country old = new Country();
+        old.setName("old");
+
+        Country newCountry = new Country();
+        newCountry.setName("new");
+        newCountry.setPreviousRevision(old);
+
+        CountryRevision newCountryRevision = new CountryRevision();
+        newCountry.setName("new");
+        newCountry.setPreviousRevision(old);
+
+        for (CountryRevision countryRevision : new CountryRevision[] { newCountry, newCountryRevision }) {
+            ClassInfo classInfo = metaData.classInfo(countryRevision.getClass());
+            CountryRevision oldRevision = (CountryRevision) classInfo.getFieldInfo("previousRevision").read(newCountry);
+            assertThat(oldRevision).isSameAs(old);
+        }
+    }
+}

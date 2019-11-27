@@ -45,10 +45,6 @@ public class FieldsInfo {
 
     private final Map<String, FieldInfo> fields;
 
-    FieldsInfo() {
-        this.fields = new HashMap<>();
-    }
-
     FieldsInfo(ClassInfo classInfo, Class<?> clazz, Field delegateHolder, TypeSystem typeSystem) {
         this.fields = new HashMap<>();
 

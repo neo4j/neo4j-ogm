@@ -1,3 +1,17 @@
+3.2.3
+o Update Java driver to latest 4.0.0-rc1 release. (#699)
+o Optimize scanning and storage of Node- and RelationshipEntities. (#678)
+o Add support for Kotlin’s "implementation by delegation". (#685)
+o Improve class hierarchy of programmatic filter mechanism. (#345)
+o Deprecate various utility methods (#692, #693)
+o Fix possible NPE in IdentityMap. (#684)
+o Fix resolving of type descriptor in Kotlin collections. (#696)
+o Fix deletion of bidirectional, undirected relationships. (#657)
+o Fix field lookups in class infos and improve scanning algorithm. (#704)
+o Fix detection of generic 1:1 relationships. (#706)
+o Upgrade Neo4j 3.5 to 3.5.13.
+o Upgrade Neo4j 3.4 to 3.4.17.
+
 3.2.2
 o MappingException in Session.queryForObject when actualType extends objectType. (#671)
 

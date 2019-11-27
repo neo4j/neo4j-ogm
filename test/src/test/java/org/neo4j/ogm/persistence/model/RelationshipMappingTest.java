@@ -38,6 +38,8 @@ import org.neo4j.ogm.domain.gh641.Entity1;
 import org.neo4j.ogm.domain.gh641.MyRelationship;
 import org.neo4j.ogm.domain.gh656.Group;
 import org.neo4j.ogm.domain.gh656.GroupVersion;
+import org.neo4j.ogm.domain.gh704.Country;
+import org.neo4j.ogm.domain.gh704.CountryRevision;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.typed_relationships.SomeEntity;
@@ -64,7 +66,8 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
             "org.neo4j.ogm.domain.gh640",
             "org.neo4j.ogm.domain.gh641",
             "org.neo4j.ogm.domain.typed_relationships",
-            "org.neo4j.ogm.domain.gh656");
+            "org.neo4j.ogm.domain.gh656",
+            "org.neo4j.ogm.domain.gh704");
     }
 
     @Before
@@ -325,6 +328,33 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 
         group = sessionFactory.openSession().load(Group.class, group.getUuid());
         assertThat(group.getVersions()).hasSize(1);
+    }
+
+    @Test // GH-704
+    public void generic1To1RelationshipsShouldWork() {
+
+        // Arrange an old country
+        Country oldRev = new Country();
+        oldRev.setName("oldCountry");
+        sessionFactory.openSession().save(oldRev);
+
+        // Create a new one
+        Session session = sessionFactory.openSession();
+        oldRev = session.load(Country.class, oldRev.getId());
+        assertThat(oldRev.getPreviousRevision()).isNull();
+
+        Country newRev = new Country();
+        newRev.setName("newCountry");
+        newRev.setPreviousRevision(oldRev);
+
+        session.save(newRev);
+
+        // Assert presence of revision
+        newRev = sessionFactory.openSession().load(Country.class, newRev.getId());
+        assertThat(newRev.getPreviousRevision()).isNotNull();
+        assertThat(newRev.getPreviousRevision().getName()).isEqualTo("oldCountry");
+        assertThat(newRev.getPreviousRevision()).isEqualTo(oldRev);
+
     }
 
     @Test // GH-657

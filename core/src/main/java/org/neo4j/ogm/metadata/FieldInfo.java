@@ -105,7 +105,7 @@ public class FieldInfo {
         this.fieldType = isGenericField(field) ? findFieldType(field, classInfo.getUnderlyingClass()) : field.getType();
         this.isArray = fieldType.isArray();
         this.name = field.getName();
-        this.descriptor = field.getType().getTypeName();
+        this.descriptor = fieldType.getTypeName();
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
         if (!this.annotations.isEmpty()) {
@@ -157,7 +157,7 @@ public class FieldInfo {
     }
 
     public String relationship() {
-        if (!persistableAsProperty()) {
+        if (this.containingClassInfo.relationshipFields().contains(this)) {
             if (annotations != null) {
                 AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
                 if (relationshipAnnotation != null) {

@@ -18,21 +18,24 @@
  */
 package org.neo4j.ogm.context;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.EntityFactory;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.session.EntityInstantiator;
+import org.neo4j.ogm.support.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Adam George
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class SingleUseEntityMapper {
 
@@ -64,8 +68,8 @@ public class SingleUseEntityMapper {
     /**
      * Constructs a new {@link SingleUseEntityMapper} based on the given mapping {@link MetaData}.
      *
-     * @param mappingMetaData The {@link MetaData} to use for performing mappings
-     * @param entityInstantiator   The entity factory to use.
+     * @param mappingMetaData    The {@link MetaData} to use for performing mappings
+     * @param entityInstantiator The entity factory to use.
      */
     public SingleUseEntityMapper(MetaData mappingMetaData, EntityInstantiator entityInstantiator) {
         this.metadata = mappingMetaData;
@@ -114,7 +118,6 @@ public class SingleUseEntityMapper {
             ".  At present, only @Result types that are discovered by the domain entity package scanning can be mapped.");
     }
 
-    // TODO: the following is all pretty much identical to GraphEntityMapper so should probably be refactored
     private void writeProperty(ClassInfo classInfo, Object instance, Map.Entry<String, Object> property) {
 
         FieldInfo writer = classInfo.getFieldInfo(property.getKey());
@@ -126,36 +129,83 @@ public class SingleUseEntityMapper {
             }
         }
 
-        if (writer == null && property.getKey().equals(
-            "id")) { //When mapping query results to objects that are not domain entities, there's no concept of a GraphID
-            FieldInfo idField = classInfo.identityField();
-            if (idField != null) {
-                writer = idField;
-            }
-        }
+        if (writer == null) {
+            logger.debug("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
+        } else {
+            Class elementType = DescriptorMappings.getType(writer.getTypeDescriptor());
+            boolean targetIsCollection = writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type());
 
-        if (writer != null) {
-            Object value = property.getValue();
-            if (value != null && value.getClass().isArray()) {
-                value = Arrays.asList((Object[]) value);
-            }
-            if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-                Class elementType = underlyingElementType(classInfo, property.getKey());
-                value = writer.type().isArray()
-                    ? EntityAccessManager.merge(writer.type(), value, new Object[] {}, elementType)
-                    : EntityAccessManager.merge(writer.type(), value, Collections.EMPTY_LIST, elementType);
+            Object value = mapKnownNestedClasses(elementType, property.getKey(), property.getValue(),
+                targetIsCollection);
+
+            // merge iterable / arrays and co-erce to the correct attribute type
+            if (targetIsCollection) {
+                if (value == null) {
+                    value = Collections.emptyList();
+                } else if (value.getClass().isArray()) {
+                    value = Arrays.asList((Object[]) value);
+                }
+
+                Class<?> paramType = writer.type();
+                if (paramType.isArray()) {
+                    value = EntityAccessManager.merge(paramType, value, new Object[] {}, elementType);
+                } else {
+                    value = EntityAccessManager.merge(paramType, value, Collections.emptyList(), elementType);
+                }
             }
             writer.write(instance, value);
-        } else {
-            logger.warn("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
         }
     }
 
-    private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
-        FieldInfo fieldInfo = classInfo.propertyField(propertyName);
-        if (fieldInfo != null) {
-            return DescriptorMappings.getType(fieldInfo.getTypeDescriptor());
+    /**
+     * @param elementType  The target type, must not be null
+     * @param property     The name of the property
+     * @param value        The value (can be null)
+     * @param asCollection whether to create a collection or not
+     * @return The mapped value
+     */
+    Object mapKnownNestedClasses(Class elementType, String property, Object value, boolean asCollection) {
+
+        Object mappedValue = value;
+        if (metadata.classInfo(elementType) != null) {
+            List<Object> nestedObjects = new ArrayList<>();
+
+            for (Object nestedPropertyMap : iterableOf(value)) {
+                if (nestedPropertyMap instanceof Map) {
+                    // Recursively map maps
+                    nestedObjects.add(map(elementType, (Map<String, Object>) nestedPropertyMap));
+                } else if (elementType.isInstance(nestedPropertyMap) || ClassUtils.isEnum(elementType)) {
+                    // Add fitting types and enums directly
+                    nestedObjects.add(nestedPropertyMap);
+                } else {
+                    logger.warn("Cannot map {} to a nested result object for property {}", nestedPropertyMap,
+                        property);
+                }
+            }
+            if (asCollection) {
+                mappedValue = nestedObjects;
+            } else if (nestedObjects.isEmpty()) {
+                mappedValue = Collections.emptyList();
+            } else if (nestedObjects.size() == 1) {
+                mappedValue = nestedObjects.get(0);
+            } else {
+                logger.warn(
+                    "Cannot map property {} from result set: The result contains more than one entry for the property.",
+                    property);
+            }
         }
-        return classInfo.getUnderlyingClass();
+        return mappedValue;
+    }
+
+    Iterable iterableOf(Object thingToIterator) {
+        if (thingToIterator == null) {
+            return Collections.emptyList();
+        } else if (thingToIterator instanceof Iterable) {
+            return ((Iterable) thingToIterator);
+        } else if (thingToIterator.getClass().isArray()) {
+            return Arrays.asList((Object[]) thingToIterator);
+        } else {
+            return Collections.singletonList(thingToIterator);
+        }
     }
 }

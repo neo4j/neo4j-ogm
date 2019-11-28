@@ -18,51 +18,86 @@
  */
 package org.neo4j.ogm.context;
 
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.domain.gh551.AnotherThing;
+import org.neo4j.ogm.domain.gh551.ThingResult;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
- * TODO: This test doesn't assert anything.
- *
- * @author vince
+ * @author Vince Bickers
+ * @author Michael J. Simons
  */
-public class SingleUseEntityMapperTest {
+public class SingleUseEntityMapperTest extends TestContainersTestBase {
 
-    private MetaData metaData = new MetaData("org.neo4j.ogm.context");
+    private static SessionFactory sessionFactory;
 
-    //	@Test
-    //	public void shouldMapFromRowModel() throws Exception {
-    //
-    //
-    //	}
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh551");
+
+        // Prepare test data
+        sessionFactory.openSession()
+            .query("unwind range(1,10) as x with x create (n:ThingEntity {name: 'Thing ' + x}) return n", EMPTY_MAP);
+    }
+
+    @Test
+    public void singleUseEntityMapperShouldWorkWithNestedObjects() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("MATCH (t:ThingEntity) RETURN 'a name' as something, collect({name: t.name}) as things", EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        ThingResult thingResult = entityMapper.map(ThingResult.class, results.iterator().next());
+        assertThat(thingResult.getSomething()).isEqualTo("a name");
+        assertThat(thingResult.getThings())
+            .hasSize(10)
+            .extracting(AnotherThing::getName)
+            .allSatisfy(s -> s.startsWith("Thing"));
+    }
 
     @Test
     public void shouldMapFromMap() {
 
+        MetaData metaData = new MetaData("org.neo4j.ogm.context");
+        SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData,
+            new ReflectionEntityInstantiator(metaData));
+
         Collection<Object> toReturn = new ArrayList<>();
-        SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData, new ReflectionEntityInstantiator(metaData));
 
         Iterable<Map<String, Object>> results = getQueryResults();
-
         for (Map<String, Object> result : results) {
             toReturn.add(entityMapper.map(UserResult.class, result));
         }
+
+        assertThat(toReturn).hasSize(1);
+        assertThat(toReturn).first().isInstanceOf(UserResult.class);
+        UserResult userResult = (UserResult) toReturn.iterator().next();
+        assertThat(userResult.getProfile()).containsAllEntriesOf(
+            (Map<? extends String, ?>) results.iterator().next().get("profile"));
     }
 
     private Iterable<Map<String, Object>> getQueryResults() {
-        List<Map<String, Object>> results = new ArrayList<>();
-
-        Map<String, Object> result = new HashMap<>();
 
         Map<String, Object> profile = new HashMap<>();
-
         profile.put("enterpriseId", "p.enterpriseId");
         profile.put("clidUuid", "u.clidUuid");
         profile.put("profileId", "p.clidUuid");
@@ -72,9 +107,6 @@ public class SingleUseEntityMapperTest {
         profile.put("roles", "roles");
         profile.put("connectionType", "connectionType");
 
-        result.put("profile", profile);
-        results.add(result);
-
-        return results;
+        return Collections.singletonList(Collections.singletonMap("profile", profile));
     }
 }

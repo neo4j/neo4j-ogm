@@ -216,7 +216,7 @@
         <!-- default for build, if no profiles invoked -->
         <neo4j>3.4.17</neo4j>
         <bolt>1.6.3</bolt>
-        <fast.classpath.scanner>2.18.1</fast.classpath.scanner>
+        <fast.classpath.scanner>2.21</fast.classpath.scanner>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
         <neo4j.edition>enterprise</neo4j.edition>
         <checkstyle.version>8.18</checkstyle.version>

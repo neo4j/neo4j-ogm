@@ -1,0 +1,56 @@
+= Changes
+
+== 3.2.3
+
+* Update Java driver to latest 4.0.0-rc1 release. (#699)
+* Optimize scanning and storage of Node- and RelationshipEntities. (#678)
+* Add support for Kotlin’s "implementation by delegation". (#685)
+* Improve class hierarchy of programmatic filter mechanism. (#345)
+* Deprecate various utility methods (#692, #693)
+* Fix possible NPE in IdentityMap. (#684)
+* Fix resolving of type descriptor in Kotlin collections. (#696)
+* Fix deletion of bidirectional, undirected relationships. (#657)
+* Fix field lookups in class infos and improve scanning algorithm. (#704)
+* Fix detection of generic 1:1 relationships. (#706)
+* Upgrade Neo4j 3.5 to 3.5.13.
+* Upgrade Neo4j 3.4 to 3.4.17.
+
+== 3.2.2
+
+* MappingException in Session.queryForObject when actualType extends objectType. (#671)
+
+== 3.2.1
+
+* Fix API compatibility issues with Spring Data Neo4j 5.1.x series.
+
+== 3.2.0
+
+* Removed "neo4j.ha.properties.file" property from OGM configuration. Use "neo4j.conf.location" instead.
+* Removed `org.neo4j.ogm.autoindex.AutoIndexManager#build`. Use `org.neo4j.ogm.autoindex.AutoIndexManager#run` instead.
+* Removed deprecated and unsupported method `org.neo4j.ogm.session.Neo4jSession#setDriver`.
+* Removed deprecated `@GraphId`. Please use a `Long` field annotated with `@Id @GeneratedValue` instead.
+* Removed deprecated `org.neo4j.ogm.session.Session.doInTransaction(GraphCallback<T>)`. SDN doesn't use that from 5.1.4
+  upwards anymore.
+* Allow configuration of packages to scan in `ogm.properties` through `base-packages`. (#131)
+* Removed deprecated and unused ServiceNotFoundException for good this time. (#319)
+* Removed deprecated `org.neo4j.ogm.session.Neo4jException`. (#319)
+* Removed deprecated `org.neo4j.ogm.exception.core.NotFoundException`. (#319)
+* Removed deprecated `org.neo4j.ogm.exception.core.ResultErrorsException`. (#319)
+* Introduced exception translator to unify exceptions of different transports into an OGM hierarchy. (#319)
+* Improved hashing in IdentityMap and MappedRelationship. (#579)
+* Deprecated OgmPluginInitializer.
+* Don't deploy `org.neo4j:neo4j-ogm-test` any longer. This module and the included utilities is not meant to be used outside Neo4j-OGM.
+* `SessionFactory.getDriver()` has been replaced with `SessionFactory.unwrap(Class<T> clazz)` which provides a consistent
+  way to get the underlying Neo4j-OGM driver or the native driver.
+* Wrap CypherModificationProvider in a ThreadLocal.
+* Add support for containing filter in combination with ignore case.
+* Provide transformEnumKeysWith on @Properties. (#634)
+* Fix unstable sort order for some queries. (#368)
+* Make sure all kinds of enums are correctly identified. (#643)
+* Store visited nodes under their native graph id if possible. (#640)
+* Fix merging of collections. (#641)
+* Use cast instead of dynamic invocation for enum map keys. (#638)
+* Use concurrent hash maps as cache for entity access.
+* Improve support for Kotlin data classes. (#653)
+* Update Java driver to latest 4.0.0-beta02 release.
+* Add some useful Kotlin extensions to Session. (#661)

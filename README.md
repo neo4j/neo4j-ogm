@@ -2,23 +2,25 @@
 [![Slack](https://rawgit.com/aleen42/badges/master/src/slack.svg)](https://neo4j-users.slack.com/messages/neo4j-sdn-ogm/)
 [![stackoverflow](https://rawgit.com/aleen42/badges/master/src/stackoverflow.svg)](https://stackoverflow.com/questions/tagged/neo4j-ogm)
 
-Neo4j OGM - An Object Graph Mapping Library for Neo4j
+Neo4j-OGM - An Object Graph Mapping Library for Neo4j
 =====================================================
 
-Neo4j OGM is a fast object-graph mapping library for [Neo4j](https://neo4j.com/), optimised for server-based installations utilising [Cypher](https://neo4j.com/developer/cypher-query-language/).
+***
+*NOTE*: This branch of Neo4j-OGM is not actively maintained anymore. Please have a look at the current supported versions and which combinations we recommend: [Recommended versions](https://github.com/neo4j/neo4j-ogm/wiki/Versions#recommended-versions).
+We accept only minor PRs against this branch (typos, trivial improvements). If in doubt, please reach out beforehand.
+***
+
+Neo4j-OGM is a fast object-graph mapping library for [Neo4j](https://neo4j.com/), optimised for server-based installations utilising [Cypher](https://neo4j.com/developer/cypher-query-language/).
 
 It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects.
 
 If you use Spring to build your applications be sure to check out [Spring Data Neo4j](https://github.com/spring-projects/spring-data-neo4j).
 
-***The latest OGM version is:*** `3.0.4`.
-***The latest OGM development version is:*** `2.1.7-SNAPSHOT` and `3.0.5-SNAPSHOT`.
-
 ## Quick start
 
 You can start coding with some simple [templates](https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template), or just follow the little guide below!
 
-### Dependencies for Neo4j OGM
+### Dependencies for Neo4j-OGM
 
 #### Maven
 
@@ -26,25 +28,25 @@ You can start coding with some simple [templates](https://github.com/neo4j-examp
 <dependency>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-core</artifactId>
-    <version>{version}</version>
+    <version>3.0.5</version>
 </dependency>
 
 <dependency> <!-- If you're using the HTTP driver -->
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-http-driver</artifactId>
-    <version>{version}</version>
+    <version>3.0.5</version>
 </dependency>
 
 <dependency> <!-- If you're using the Bolt driver -->
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-bolt-driver</artifactId>
-    <version>{version}</version>
+    <version>3.0.5</version>
 </dependency>
 
 <dependency> <!-- If you're using the Embedded driver -->
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-embedded-driver</artifactId>
-    <version>{version}</version>
+    <version>3.0.5</version>
 </dependency>
 ```
 
@@ -52,20 +54,20 @@ You can start coding with some simple [templates](https://github.com/neo4j-examp
 
 ```xml
 dependencies {
-    compile 'org.neo4j:neo4j-ogm-core:{version}'
-    compile 'org.neo4j:neo4j-ogm-http-driver:{version}'
-    compile 'org.neo4j:neo4j-ogm-bolt-driver:{version}'
-    compile 'org.neo4j:neo4j-ogm-embedded-driver:{version}'
+    compile 'org.neo4j:neo4j-ogm-core:3.0.5'
+    compile 'org.neo4j:neo4j-ogm-http-driver:3.0.5'
+    compile 'org.neo4j:neo4j-ogm-bolt-driver:3.0.5'
+    compile 'org.neo4j:neo4j-ogm-embedded-driver:3.0.5'
 }
 ```
 
 #### Ivy
 
 ```xml
-<dependency org="org.neo4j" name="neo4j-ogm-core" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-bolt-driver" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm-core" rev="3.0.5"/>
+<dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="3.0.5"/>
+<dependency org="org.neo4j" name="neo4j-ogm-bolt-driver" rev="3.0.5"/>
+<dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="3.0.5"/>
 ```
 
 ### Set up domain entities

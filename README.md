@@ -1,18 +1,20 @@
-Neo4j OGM - An Object Graph Mapping Library for Neo4j
+Neo4j-OGM - An Object Graph Mapping Library for Neo4j
 =====================================================
 
-Neo4j OGM is a fast object-graph mapping library for [Neo4j](https://neo4j.com/), optimised for server-based installations utilising [Cypher](https://neo4j.com/developer/cypher-query-language/).
+***
+*NOTE*: This is an supported branch of Neo4j-OGM and not actively maintained. Please have a look at the current supported versions and which combinations we recommend: [Recommended versions](https://github.com/neo4j/neo4j-ogm/wiki/Versions#recommended-versions).
+We don't accept PRs to this branch.
+***
+
+Neo4j-OGM is a fast object-graph mapping library for [Neo4j](https://neo4j.com/), optimised for server-based installations utilising [Cypher](https://neo4j.com/developer/cypher-query-language/).
 
 It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects.
 
 If you use Spring to build your applications be sure to check out [Spring Data Neo4j](https://github.com/spring-projects/spring-data-neo4j).
 
-***The latest OGM version is:*** `2.1.6`.
-***The latest OGM development version is:*** `2.1.7-SNAPSHOT`.
-
 ##Quick start
 
-### Dependencies for Neo4j OGM
+### Dependencies for Neo4j-OGM
 
 #### Maven
 
@@ -20,25 +22,25 @@ If you use Spring to build your applications be sure to check out [Spring Data N
 <dependency>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-core</artifactId>
-    <version>{version}</version>
+    <version>2.1.6</version>
 </dependency>
 
 <dependency> <!-- If you're using the HTTP driver -->
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-http-driver</artifactId>
-    <version>{version}</version>
+    <version>2.1.6</version>
 </dependency>
 
 <dependency> <!-- If you're using the Bolt driver -->
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-bolt-driver</artifactId>
-    <version>{version}</version>
+    <version>2.1.6</version>
 </dependency>
 
 <dependency> <!-- If you're using the Embedded driver -->
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-embedded-driver</artifactId>
-    <version>{version}</version>
+    <version>2.1.6</version>
 </dependency>
 ```
 
@@ -46,20 +48,20 @@ If you use Spring to build your applications be sure to check out [Spring Data N
 
 ```xml
 dependencies {
-    compile 'org.neo4j:neo4j-ogm-core:{version}'
-    compile 'org.neo4j:neo4j-ogm-http-driver:{version}'
-    compile 'org.neo4j:neo4j-ogm-bolt-driver:{version}'
-    compile 'org.neo4j:neo4j-ogm-embedded-driver:{version}'
+    compile 'org.neo4j:neo4j-ogm-core:2.1.6'
+    compile 'org.neo4j:neo4j-ogm-http-driver:2.1.6'
+    compile 'org.neo4j:neo4j-ogm-bolt-driver:2.1.6'
+    compile 'org.neo4j:neo4j-ogm-embedded-driver:2.1.6'
 }
 ```
 
 #### Ivy
 
 ```xml
-<dependency org="org.neo4j" name="neo4j-ogm-core" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-bolt-driver" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm-core" rev="2.1.6"/>
+<dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="2.1.6"/>
+<dependency org="org.neo4j" name="neo4j-ogm-bolt-driver" rev="2.1.6"/>
+<dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="2.1.6"/>
 ```
 
 ### Set up domain entities
@@ -154,7 +156,7 @@ for(Actor actor : matrix.getActors()) {
 
 The [reference guide](http://neo4j.com/docs/ogm-manual/current/) is the best place to get started.
 
-[Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university), the sample application shown in the reference guide is a working example of a Groovy/Ratpack app that uses the Neo4j OGM library (with the Bolt driver).
+[Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university), the sample application shown in the reference guide is a working example of a Groovy/Ratpack app that uses the Neo4j-OGM library (with the Bolt driver).
 A version that uses the Embedded driver is [also available](https://github.com/neo4j-examples/neo4j-ogm-university/tree/embedded) as well as a version that uses the [HTTP driver](https://github.com/neo4j-examples/neo4j-ogm-university/tree/http).
 
 ## Building locally

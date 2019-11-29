@@ -1,7 +1,12 @@
-Neo4j OGM - An Object Graph Mapping Library for Neo4j
+Neo4j-OGM - An Object Graph Mapping Library for Neo4j
 ===============
 
-Neo4j OGM is a fast object-graph mapping library for Neo4j, optimised for server-based installations and utilising Cypher via the transactional HTTP endpoint.
+***
+*NOTE*: This is an supported branch of Neo4j-OGM and not actively maintained. Please have a look at the current supported versions and which combinations we recommend: [Recommended versions](https://github.com/neo4j/neo4j-ogm/wiki/Versions#recommended-versions).
+We don't accept PRs to this branch.
+***
+
+Neo4j-OGM is a fast object-graph mapping library for Neo4j, optimised for server-based installations and utilising Cypher via the transactional HTTP endpoint.
 
 It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects.
 Together with metadata, the annotations drive mapping the POJO entities and their fields to nodes, relationships, and properties in the graph database.
@@ -14,7 +19,7 @@ The only exception is the neo4j-embedded-driver which is GPL v3 due to the direc
 
 ##Quick start
 
-### Dependencies for Neo4j OGM
+### Dependencies for Neo4j-OGM
 
 #### Maven
 
@@ -22,19 +27,19 @@ The only exception is the neo4j-embedded-driver which is GPL v3 due to the direc
 <dependency>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-core</artifactId>
-    <version>{version}</version>
+    <version>2.0.8</version>
 </dependency>
 
 <dependency> <!-- If you're using the HTTP driver -->
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-http-driver</artifactId>
-    <version>{version}</version>
+    <version>2.0.8</version>
 </dependency>
 
 <dependency> <!-- If you're using the Embedded driver -->
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-embedded-driver</artifactId>
-    <version>{version}</version>
+    <version>2.0.8</version>
 </dependency>
 ```
 
@@ -42,18 +47,18 @@ The only exception is the neo4j-embedded-driver which is GPL v3 due to the direc
 
 ```xml
 dependencies {
-    compile 'org.neo4j:neo4j-ogm-core:{version}'
-    compile 'org.neo4j:neo4j-ogm-http-driver:{version}'
-    compile 'org.neo4j:neo4j-ogm-embedded-driver:{version}'
+    compile 'org.neo4j:neo4j-ogm-core:2.0.8'
+    compile 'org.neo4j:neo4j-ogm-http-driver:2.0.8'
+    compile 'org.neo4j:neo4j-ogm-embedded-driver:2.0.8'
 }
 ```
 
 #### Ivy
 
 ```xml
-<dependency org="org.neo4j" name="neo4j-ogm-core" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm-core" rev="2.0.8"/>
+<dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="2.0.8"/>
+<dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="2.0.8"/>
 ```
 
 ### Set up domain entities
@@ -147,7 +152,7 @@ for(Actor actor : matrix.getActors()) {
 
 The [reference guide](http://neo4j.com/docs/ogm-manual/current/) is the best place to get started.
 
-[Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university/tree/2.0), the sample application from the reference guide is a working example of a Spring Boot app that uses the Neo4j OGM library.
+[Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university/tree/2.0), the sample application from the reference guide is a working example of a Spring Boot app that uses the Neo4j-OGM library.
 A version that uses the Embedded driver is [also available](https://github.com/neo4j-examples/neo4j-ogm-university/tree/2.0-embedded).
 
 ## Snapshots

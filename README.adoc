@@ -1,6 +1,4 @@
 :version: 3.2.3
-:dev_version: 3.2.4-SNAPSHOT
-:last_dev_version: 4.0.0-SNAPSHOT
 
 image:https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg[Maven Central,link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.neo4j%22%20AND%20a%3A%22neo4j-ogm%22]
 image:https://rawgit.com/aleen42/badges/master/src/slack.svg[Slack,link=https://neo4j-users.slack.com/messages/neo4j-sdn-ogm/]
@@ -8,14 +6,14 @@ image:https://rawgit.com/aleen42/badges/master/src/stackoverflow.svg[stackoverfl
 
 = Neo4j-OGM - An Object Graph Mapping Library for Neo4j
 
+NOTE: This is the development branch of Neo4j-OGM.
+Please have a look at the current supported versions and which combinations we recommend: https://github.com/neo4j/neo4j-ogm/wiki/Versions#recommended-versions[Recommended versions]. 
+
 Neo4j-OGM is a fast object-graph mapping library for https://neo4j.com/[Neo4j], optimised for server-based installations utilising https://neo4j.com/developer/cypher-query-language/[Cypher].
 
 It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects.
 
 If you use Spring to build your applications be sure to check out https://github.com/spring-projects/spring-data-neo4j[Spring Data Neo4j].
-
-*_The latest OGM version is:_* `{version}`.
-*_The latest OGM development versions are:_* `{last_dev_version}` and `{dev_version}`.
 
 == Quick start
 

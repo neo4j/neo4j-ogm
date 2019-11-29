@@ -1,14 +1,19 @@
-Neo4j OGM - An Object Graph Mapping Library for Neo4j
+Neo4j-OGM - An Object Graph Mapping Library for Neo4j
 ===============
 
-Neo4j OGM is a fast object-graph mapping library for Neo4j, optimised for server-based installations and utilising Cypher via the transactional HTTP endpoint.
+***
+*NOTE*: This is an supported branch of Neo4j-OGM and not actively maintained. Please have a look at the current supported versions and which combinations we recommend: [Recommended versions](https://github.com/neo4j/neo4j-ogm/wiki/Versions#recommended-versions).
+We don't accept PRs to this branch.
+***
+
+Neo4j-OGM is a fast object-graph mapping library for Neo4j, optimised for server-based installations and utilising Cypher via the transactional HTTP endpoint.
 
 It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects.
 Together with metadata, the annotations drive mapping the POJO entities and their fields to nodes, relationships, and properties in the graph database.
 
-##Quick start
+## Quick start
 
-### Dependencies for Neo4j OGM
+### Dependencies for Neo4j-OGM
 
 #### Maven
 
@@ -16,7 +21,7 @@ Together with metadata, the annotations drive mapping the POJO entities and thei
 <dependency>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
-    <version>{version}</version>
+    <version>1.1.6</version>
 </dependency>
 ```
 
@@ -24,14 +29,14 @@ Together with metadata, the annotations drive mapping the POJO entities and thei
 
 ```xml
 dependencies {
-    compile 'org.neo4j:neo4j-ogm:{version}'
+    compile 'org.neo4j:neo4j-ogm:1.1.6'
 }
 ```
 
 #### Ivy
 
 ```xml
-<dependency org="org.neo4j" name="neo4j-ogm" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm" rev="1.1.6"/>
 ```
 
 ### Set up domain entities
@@ -119,7 +124,7 @@ for(Actor actor : matrix.getActors()) {
 
 The [reference guide](http://neo4j.com/docs/ogm/java/stable/) is the best place to get started.
 
-[Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university), the sample application from the reference guide is a working example of a Spring Boot app that uses the Neo4j OGM library.
+[Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university), the sample application from the reference guide is a working example of a Spring Boot app that uses the Neo4j-OGM library.
 
 ## Snapshots
 

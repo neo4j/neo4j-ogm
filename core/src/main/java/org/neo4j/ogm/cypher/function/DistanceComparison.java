@@ -33,9 +33,8 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
 
     private static final String LATITUDE_PROPERTY_SUFFIX = ".latitude";
     private static final String LONGITUDE_PROPERTY_SUFFIX = ".longitude";
-
-    private final ComparisonOperator operator;
-    private final DistanceFromPoint value;
+    protected final ComparisonOperator operator;
+    protected final DistanceFromPoint value;
 
     public DistanceComparison(DistanceFromPoint value) {
         this(ComparisonOperator.LESS_THAN, value);
@@ -61,9 +60,9 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
 
         String latitude = nodeIdentifier + LATITUDE_PROPERTY_SUFFIX;
         String longitude = nodeIdentifier + LONGITUDE_PROPERTY_SUFFIX;
-
-        return String.format("distance(point({latitude: %s, longitude: %s}),point({latitude: $lat, longitude: $lon})) " +
-            "%s $distance ", latitude, longitude, operator.getValue());
+        return String
+            .format("distance(point({latitude: %s, longitude: %s}),point({latitude: $lat, longitude: $lon})) " +
+                "%s $distance ", latitude, longitude, operator.getValue());
     }
 
     @Override

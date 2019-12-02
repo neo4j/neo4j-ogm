@@ -54,7 +54,7 @@ public class SingleUseEntityMapper {
     private final MetaData metadata;
 
     /**
-     * Compatibility constructor for SDN 5.0
+     * Compatibility constructor for SDN 5.0 and 5.1
      *
      * @param mappingMetaData The {@link MetaData} to use for performing mappings
      * @param entityFactory   The entity factory to use.
@@ -109,7 +109,7 @@ public class SingleUseEntityMapper {
     }
 
     private ClassInfo resolveClassInfoFor(Class<?> type) {
-        ClassInfo classInfo = this.metadata.classInfo(type.getSimpleName());
+        ClassInfo classInfo = this.metadata.classInfo(type.getName());
         if (classInfo != null) {
             return classInfo;
         }
@@ -129,7 +129,7 @@ public class SingleUseEntityMapper {
         }
 
         if (writer == null) {
-            logger.debug("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
+            logger.warn("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
         } else {
             Class elementType = ClassUtils.getType(writer.getTypeDescriptor());
             boolean targetIsCollection = writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type());

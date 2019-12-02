@@ -31,6 +31,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.gh551.AnotherThing;
 import org.neo4j.ogm.domain.gh551.ThingResult;
+import org.neo4j.ogm.domain.gh552.Thing;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.SessionFactory;
@@ -53,7 +54,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
             .query("unwind range(1,10) as x with x create (n:ThingEntity {name: 'Thing ' + x}) return n", EMPTY_MAP);
     }
 
-    @Test
+    @Test // GH-551
     public void singleUseEntityMapperShouldWorkWithNestedObjects() {
 
         SingleUseEntityMapper entityMapper =
@@ -72,6 +73,17 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
             .hasSize(10)
             .extracting(AnotherThing::getName)
             .allSatisfy(s -> s.startsWith("Thing"));
+    }
+
+    @Test // GH-552
+    public void shouldLookupCorrectRootClass() {
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh552");
+        String propertyKey = "notAName";
+        Map<String, Object> properties = Collections.singletonMap(propertyKey, "NOT A NAME!!!");
+
+        SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData, new ReflectionEntityInstantiator(metaData));
+        Thing thing = entityMapper.map(Thing.class, properties);
+        assertThat(thing.getNotAName()).isEqualTo(properties.get(propertyKey));
     }
 
     @Test

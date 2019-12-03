@@ -49,7 +49,6 @@ public class ClassInfoTest {
     @Rule
     public final ExpectedException expectedException = none();
 
-
     private MetaData metaData;
 
     @Before
@@ -362,14 +361,14 @@ public class ClassInfoTest {
     @Test
     public void testStaticLabelsForClassInfo() {
         ClassInfo annotatedClassInfo = metaData.classInfo(Member.class.getSimpleName());
-        assertThat(annotatedClassInfo.staticLabels()).isEqualTo(asList("User", "Login"));
+        assertThat(annotatedClassInfo.staticLabels()).containsExactly("User", "Login");
 
         ClassInfo simpleClassInfo = metaData.classInfo("Topic");
-        assertThat(simpleClassInfo.staticLabels()).isEqualTo(asList("Topic"));
+        assertThat(simpleClassInfo.staticLabels()).containsOnly("Topic");
 
         ClassInfo nonAnnotatedClassInfo = new MetaData("org.neo4j.ogm.domain.education")
             .classInfo(Student.class.getSimpleName());
-        assertThat(nonAnnotatedClassInfo.staticLabels()).isEqualTo(asList("Student", "DomainObject"));
+        assertThat(nonAnnotatedClassInfo.staticLabels()).containsExactly("Student", "DomainObject");
     }
 
     @Test // GH-159

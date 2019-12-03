@@ -101,6 +101,7 @@ public class ClassInfo {
     private volatile boolean labelFieldMapped = false;
     private volatile boolean isPostLoadMethodMapped = false;
     private volatile MethodInfo postLoadMethod;
+    private volatile Collection<String> staticLabels;
     private boolean primaryIndexFieldChecked = false;
     private Class<?> cls;
     private Class<? extends IdStrategy> idStrategyClass;
@@ -223,7 +224,18 @@ public class ClassInfo {
      * any, never <code>null</code>
      */
     public Collection<String> staticLabels() {
-        return collectLabels(new ArrayList<>());
+
+        Collection<String> knownStaticLabels = this.staticLabels;
+        if (knownStaticLabels == null) {
+            synchronized (this) {
+                knownStaticLabels = this.staticLabels;
+                if (knownStaticLabels == null) {
+                    this.staticLabels = Collections.unmodifiableCollection(collectLabels(new ArrayList<>()));
+                    knownStaticLabels = this.staticLabels;
+                }
+            }
+        }
+        return knownStaticLabels;
     }
 
     public String neo4jName() {

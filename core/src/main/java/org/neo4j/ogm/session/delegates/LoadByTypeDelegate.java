@@ -20,6 +20,7 @@ package org.neo4j.ogm.session.delegates;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.neo4j.ogm.context.GraphRowListModelMapper;
 import org.neo4j.ogm.context.GraphRowModelMapper;
@@ -69,8 +70,8 @@ public class LoadByTypeDelegate extends SessionDelegate {
     public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination,
         int depth) {
 
-        String entityLabel = session.entityType(type.getName());
-        if (entityLabel == null) {
+        Optional<String> labelsOrType = session.determineLabelsOrTypeForLoading(type);
+        if (!labelsOrType.isPresent()) {
             LOG.warn("Unable to find database label for entity " + type.getName()
                 + " : no results will be returned. Make sure the class is registered, "
                 + "and not abstract without @NodeEntity annotation");
@@ -82,10 +83,10 @@ public class LoadByTypeDelegate extends SessionDelegate {
 
         PagingAndSortingQuery query;
         if (filters == null || filters.isEmpty()) {
-            query = queryStatements.findByType(entityLabel, depth);
+            query = queryStatements.findByType(labelsOrType.get(), depth);
         } else {
             resolvePropertyAnnotations(type, filters);
-            query = queryStatements.findByType(entityLabel, filters, depth);
+            query = queryStatements.findByType(labelsOrType.get(), filters, depth);
         }
 
         query.setSortOrder(sortOrderWithResolvedProperties)

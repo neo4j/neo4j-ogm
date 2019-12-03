@@ -292,7 +292,10 @@ public class MetaData {
 
     public String entityType(String name) {
         ClassInfo classInfo = classInfo(name);
-        if (isRelationshipEntity(classInfo.name())) {
+        if (classInfo == null) {
+            return null;
+        }
+        if (classInfo.isRelationshipEntity()) {
             AnnotationInfo annotation = classInfo.annotationsInfo().get(RelationshipEntity.class);
             return annotation.get(RelationshipEntity.TYPE, classInfo.name());
         }

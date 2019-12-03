@@ -42,7 +42,7 @@ class SchemaImpl implements Schema {
     public Node findNode(String label) {
 
         if (!nodes.containsKey(label)) {
-            throw new IllegalArgumentException("Unknown label " + label);
+            throw new IllegalArgumentException("Unknown label `" + label + "`");
         }
         return nodes.get(label);
     }

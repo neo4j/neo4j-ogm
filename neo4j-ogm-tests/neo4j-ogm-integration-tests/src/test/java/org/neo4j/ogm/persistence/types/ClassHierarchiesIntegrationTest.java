@@ -661,9 +661,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     @Test
     public void shouldReadHierarchy4() {
         session.query(
-            "CREATE (:Female {name:'Daniela'})," +
-                "(:Male {name:'Michal'})," +
-                "(:Bloke:Male {name:'Adam'})",
+            "CREATE (:Person:Female {name:'Daniela'})," +
+                "(:Male:Person {name:'Michal'})," +
+                "(:Bloke:Male:Person {name:'Adam'})",
             emptyMap());
         session.clear();
 
@@ -677,34 +677,6 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
 
         assertThat(males).hasSize(2);
         assertThat(males.containsAll(Arrays.asList(michal, adam))).isTrue();
-
-        assertThat(females).hasSize(1);
-        assertThat(females.contains(daniela)).isTrue();
-
-        assertThat(blokes).hasSize(1);
-        assertThat(blokes.contains(adam)).isTrue();
-    }
-
-    @Test
-    // the logic of this test is debatable. the domain model and persisted schema are not the same.
-    public void shouldReadHierarchy5() {
-        session.query(
-            "CREATE (:Female {name:'Daniela'})," +
-                "(:Male {name:'Michal'})," +
-                "(:Bloke {name:'Adam'})",
-            emptyMap());
-        session.clear();
-
-        Female daniela = new Female("Daniela");
-        Male michal = new Male("Michal");
-        Bloke adam = new Bloke("Adam");
-
-        Collection<Male> males = session.loadAll(Male.class);
-        Collection<Female> females = session.loadAll(Female.class);
-        Collection<Bloke> blokes = session.loadAll(Bloke.class);
-
-        assertThat(males).hasSize(1);
-        assertThat(males.containsAll(Arrays.asList(michal))).isTrue();
 
         assertThat(females).hasSize(1);
         assertThat(females.contains(daniela)).isTrue();

@@ -108,9 +108,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void updateObjectPropertyAndLabel() {
+    public void updateObjectProperty() {
 
-        Long sid = (Long) session.query("CREATE (s:Student {name:'Sheila Smythe'}) RETURN id(s) AS id", emptyMap())
+        Long sid = (Long) session.query("CREATE (s:Student:DomainObject {name:'Sheila Smythe'}) RETURN id(s) AS id", emptyMap())
             .queryResults().iterator().next().get("id");
         session.clear();
 

@@ -668,7 +668,7 @@ public class Neo4jSession implements Session {
             if (classInfo != null) {
                 result = classInfo.isRelationshipEntity() ?
                     classInfo.neo4jName() :
-                    classInfo.staticLabels().stream().collect(Collectors.joining("`:`"));
+                    String.join("`:`", classInfo.staticLabels());
             }
             labelsOrType = Optional.ofNullable(result);
         } else {

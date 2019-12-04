@@ -589,12 +589,12 @@ public class Configuration {
         }
 
         /**
-         * Tuzns on strict querying. In strict querying mode, Neo4j-OGM uses all reachable static labels in a class inheritance
+         * Turns on strict querying. In strict querying mode, Neo4j-OGM uses all reachable static labels in a class inheritance
          * scenario when querying a domain object, either all, one by id oder all by ids. That is, in strict mode, a node
          * needs to have {@code n:LabelA:LabelB} when a domain class has this two labels due to inheritance. In relaxed mode,
          * the label of the concrete class is enough.
          * <p>
-         * Turning strict mode on can improve query performance, when indixes are defined on labels spotted by parent classes.
+         * Turning strict mode on can improve query performance, when indexes are defined on labels spotted by parent classes.
          * <p>
          * Strict query mode is the default since 4.0.
          *
@@ -608,7 +608,7 @@ public class Configuration {
 
         /**
          * Turns strict querying off and uses only the single static label of a domain class, even if this class is part
-         * of an inheritance hierachy exposing more than one static label. This may have impact on performance as indexes
+         * of an inheritance hierrachy exposing more than one static label. This may have impact on performance as indexes
          * may not be used. However, turning it off may be necessary to query nodes that have been created outside Neo4j-OGM
          * and are missing some labels.
          *

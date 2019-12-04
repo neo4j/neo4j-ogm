@@ -106,9 +106,12 @@ public class Neo4jSession implements Session {
 
     private List<EventListener> registeredEventListeners = new LinkedList<>();
 
-    public Neo4jSession(MetaData metaData, Driver driver) {
+    private final boolean useStrictQuerying;
+
+    public Neo4jSession(MetaData metaData, boolean useStrictQuerying, Driver driver) {
 
         this.metaData = metaData;
+        this.useStrictQuerying = useStrictQuerying;
         this.driver = driver;
 
         this.mappingContext = new MappingContext(metaData);
@@ -117,9 +120,10 @@ public class Neo4jSession implements Session {
         this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
     }
 
-    public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners,
+    public Neo4jSession(MetaData metaData, boolean useStrictQuerying, Driver driver, List<EventListener> eventListeners,
         LoadStrategy loadStrategy, EntityInstantiator entityInstantiator) {
-        this(metaData, driver);
+
+        this(metaData, useStrictQuerying, driver);
         registeredEventListeners.addAll(eventListeners);
 
         this.loadStrategy = loadStrategy;
@@ -656,14 +660,22 @@ public class Neo4jSession implements Session {
      * @return Label(s) or type, empty optional of no valid label or type could be determined.
      */
     public Optional<String> determineLabelsOrTypeForLoading(Class<?> type) {
-        ClassInfo classInfo = metaData().classInfo(type);
-        String result = null;
-        if (classInfo != null) {
-            result = classInfo.isRelationshipEntity() ?
-                classInfo.neo4jName() :
-                classInfo.staticLabels().stream().collect(Collectors.joining("`:`"));
+
+        Optional<String> labelsOrType;
+        if (useStrictQuerying) {
+            ClassInfo classInfo = metaData().classInfo(type);
+            String result = null;
+            if (classInfo != null) {
+                result = classInfo.isRelationshipEntity() ?
+                    classInfo.neo4jName() :
+                    classInfo.staticLabels().stream().collect(Collectors.joining("`:`"));
+            }
+            labelsOrType = Optional.ofNullable(result);
+        } else {
+            labelsOrType = Optional.ofNullable(metaData.entityType(type.getName()));
         }
-        return Optional.ofNullable(result).map(String::trim).filter(s -> !s.isEmpty());
+
+        return labelsOrType.map(String::trim).filter(s -> !s.isEmpty());
     }
 
     public MappingContext context() {

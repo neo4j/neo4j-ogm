@@ -78,8 +78,6 @@ public class ConfigurationTest {
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("ZnJhbnRpxaFlazpQYXNzMTIz");
     }
 
-
-
     @Test(expected = RuntimeException.class)
     public void uriWithNoScheme() {
         Configuration configuration = new Configuration.Builder().uri("target/noe4j/my.db").build();
@@ -202,5 +200,49 @@ public class ConfigurationTest {
 
         String[] basePackages = configuration.mergeBasePackagesWith("A", "B", "a");
         assertThat(basePackages).containsExactlyInAnyOrder("A", "B", "a", "b");
+    }
+
+    @Test
+    public void shouldDefaultToStrictQuerying() {
+        Configuration.Builder builder = new Configuration.Builder();
+        Configuration configuration = builder.build();
+        assertThat(configuration.getUseStrictQuerying()).isTrue();
+    }
+
+    @Test
+    public void changingQueryingModeShouldWork() {
+        Configuration.Builder builder = new Configuration.Builder();
+        Configuration configuration = builder.relaxedQuerying().build();
+        assertThat(configuration.getUseStrictQuerying()).isFalse();
+    }
+
+    @Test
+    public void shouldParseQUeryingMode() {
+
+        Configuration configuration;
+
+        configuration = new Configuration.Builder(() -> new Properties()).build();
+        assertThat(configuration.getUseStrictQuerying()).isTrue();
+
+        configuration = new Configuration.Builder(() -> {
+            Properties properties = new Properties();
+            properties.setProperty("use-strict-querying", "");
+            return properties;
+        }).build();
+        assertThat(configuration.getUseStrictQuerying()).isTrue();
+
+        configuration = new Configuration.Builder(() -> {
+            Properties properties = new Properties();
+            properties.setProperty("use-strict-querying", "true");
+            return properties;
+        }).build();
+        assertThat(configuration.getUseStrictQuerying()).isTrue();
+
+        configuration = new Configuration.Builder(() -> {
+            Properties properties = new Properties();
+            properties.setProperty("use-strict-querying", "false");
+            return properties;
+        }).build();
+        assertThat(configuration.getUseStrictQuerying()).isFalse();
     }
 }

@@ -67,7 +67,7 @@ public class LoadByDelegateTest {
     private final MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh651");
 
     @Spy
-    Neo4jSession neo4jSession = new Neo4jSession(metaData, new AbstractConfigurableDriver() {
+    Neo4jSession neo4jSession = new Neo4jSession(metaData, true, new AbstractConfigurableDriver() {
         @Override protected String getTypeSystemName() {
             throw new UnsupportedOperationException();
         }

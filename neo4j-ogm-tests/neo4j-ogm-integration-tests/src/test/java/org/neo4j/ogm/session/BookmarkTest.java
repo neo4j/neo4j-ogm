@@ -62,7 +62,7 @@ public class BookmarkTest {
     @Before
     public void setUp() {
         BoltDriver driver = new BoltDriver(nativeDriver);
-        session = new Neo4jSession(new MetaData("org.neo4j.ogm.empty"), driver);
+        session = new Neo4jSession(new MetaData("org.neo4j.ogm.empty"), true, driver);
     }
 
     @Test

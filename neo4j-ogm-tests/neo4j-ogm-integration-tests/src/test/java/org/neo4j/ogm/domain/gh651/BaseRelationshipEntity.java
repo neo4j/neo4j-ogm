@@ -19,6 +19,8 @@
 package org.neo4j.ogm.domain.gh651;
 
 import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
 
@@ -27,6 +29,9 @@ import org.neo4j.ogm.annotation.StartNode;
  */
 @RelationshipEntity("BASE")
 abstract class BaseRelationshipEntity {
+
+    @Id @GeneratedValue
+    private long id;
 
     @StartNode
     private SomeEntity unrelatedEntity;

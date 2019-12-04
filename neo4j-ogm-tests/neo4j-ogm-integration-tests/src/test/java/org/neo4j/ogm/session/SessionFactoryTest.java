@@ -19,10 +19,9 @@
 package org.neo4j.ogm.session;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.junit.Assume.*;
+import static org.mockito.Mockito.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -30,6 +29,7 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.blog.Author;
 import org.neo4j.ogm.domain.pizza.Pizza;
+import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
@@ -102,16 +102,19 @@ public class SessionFactoryTest extends TestContainersTestBase {
     public void correctUseStrictQueryingSettingShouldBeApplied() {
 
         SessionFactory sessionFactory;
-        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.gh651");
+
+        sessionFactory = new SessionFactory(new Configuration.Builder().uri("bolt://something:7687").build(), "org.neo4j.ogm.domain.gh651");
         assertThat(sessionFactory.isUseStrictQuerying()).isTrue();
 
-        sessionFactory = new SessionFactory(new Configuration.Builder().relaxedQuerying().build(), "org.neo4j.ogm.domain.gh651");
+        sessionFactory = new SessionFactory(new Configuration.Builder().uri("bolt://something:7687").relaxedQuerying().build(), "org.neo4j.ogm.domain.gh651");
         assertThat(sessionFactory.isUseStrictQuerying()).isFalse();
 
-        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh651");
+        org.neo4j.ogm.driver.Driver mockedDriver = mock(org.neo4j.ogm.driver.Driver.class);
+        when(mockedDriver.getTypeSystem()).thenReturn(TypeSystem.NoNativeTypes.INSTANCE);
+        sessionFactory = new SessionFactory(mockedDriver, "org.neo4j.ogm.domain.gh651");
         assertThat(sessionFactory.isUseStrictQuerying()).isTrue();
 
-        sessionFactory = new SessionFactory(getDriver(), false, "org.neo4j.ogm.domain.gh651");
+        sessionFactory = new SessionFactory(mockedDriver, false, "org.neo4j.ogm.domain.gh651");
         assertThat(sessionFactory.isUseStrictQuerying()).isFalse();
     }
 }

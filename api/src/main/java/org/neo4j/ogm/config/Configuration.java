@@ -69,7 +69,7 @@ public class Configuration {
     private Boolean useNativeTypes;
     private Map<String, Object> customProperties;
     /**
-     * This flag instructs OGM to use all static labels when querying domain objects. Until 3.2.4 only the label of the
+     * This flag instructs OGM to use all static labels when querying domain objects. Until 3.1.16 only the label of the
      * concrete domain has been used to query domain objects in inheritance scenarios. When storing those objects again,
      * OGM writes all labels in any case.
      * <p>
@@ -599,7 +599,7 @@ public class Configuration {
          * Strict query mode is the default since 4.0.
          *
          * @return the changed builder
-         * @since 3.2.4
+         * @since 3.1.16
          */
         public Builder strictQuerying() {
             this.useStrictQuerying = true;
@@ -613,7 +613,7 @@ public class Configuration {
          * and are missing some labels.
          *
          * @return the changed builder
-         * @since 3.2.4
+         * @since 3.1.16
          */
         public Builder relaxedQuerying() {
             this.useStrictQuerying = false;

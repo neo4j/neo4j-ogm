@@ -41,7 +41,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 public class EducationTest {
 
     private static MetaData metadata = new MetaData("org.neo4j.ogm.domain.education");
-    private static Neo4jSession session = new Neo4jSession(metadata, new TeacherRequest());
+    private static Neo4jSession session = new Neo4jSession(metadata, true, new TeacherRequest());
 
     @Test
     public void testTeachers() throws Exception {

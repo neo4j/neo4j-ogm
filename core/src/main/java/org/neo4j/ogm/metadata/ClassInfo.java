@@ -89,6 +89,7 @@ public class ClassInfo {
     private volatile boolean labelFieldMapped = false;
     private volatile boolean isPostLoadMethodMapped = false;
     private volatile MethodInfo postLoadMethod;
+    private volatile Collection<String> staticLabels;
     private boolean primaryIndexFieldChecked = false;
     private Class<?> cls;
     private Class<? extends IdStrategy> idStrategyClass;
@@ -174,7 +175,18 @@ public class ClassInfo {
      * any, never <code>null</code>
      */
     public Collection<String> staticLabels() {
-        return collectLabels(new ArrayList<>());
+
+        Collection<String> knownStaticLabels = this.staticLabels;
+        if (knownStaticLabels == null) {
+            synchronized (this) {
+                knownStaticLabels = this.staticLabels;
+                if (knownStaticLabels == null) {
+                    this.staticLabels = Collections.unmodifiableCollection(collectLabels());
+                    knownStaticLabels = this.staticLabels;
+                }
+            }
+        }
+        return knownStaticLabels;
     }
 
     public String neo4jName() {
@@ -196,17 +208,19 @@ public class ClassInfo {
         return neo4jName;
     }
 
-    private Collection<String> collectLabels(Collection<String> labelNames) {
+    private Collection<String> collectLabels() {
+
+        List<String> labels = new ArrayList<>();
         if (!isAbstract || annotationsInfo.get(NodeEntity.class) != null) {
-            labelNames.add(neo4jName());
+            labels.add(neo4jName());
         }
         if (directSuperclass != null && !"java.lang.Object".equals(directSuperclass.className)) {
-            directSuperclass.collectLabels(labelNames);
+            labels.addAll(directSuperclass.collectLabels());
         }
         for (ClassInfo interfaceInfo : directInterfaces()) {
-            interfaceInfo.collectLabels(labelNames);
+            labels.addAll(interfaceInfo.collectLabels());
         }
-        return labelNames;
+        return labels;
     }
 
     public List<ClassInfo> directSubclasses() {

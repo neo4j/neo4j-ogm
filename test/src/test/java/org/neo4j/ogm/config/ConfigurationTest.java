@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Properties;
 
 import org.junit.Test;
 
@@ -232,5 +233,49 @@ public class ConfigurationTest {
         assertThat(configuration.getDriverClassName())
             .isEqualTo("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
         assertThat(configuration.getURI()).isEqualTo("FILE:///somewhere");
+    }
+
+    @Test
+    public void shouldDefaultToRelaxedQuerying() {
+        Configuration.Builder builder = new Configuration.Builder();
+        Configuration configuration = builder.build();
+        assertThat(configuration.getUseStrictQuerying()).isFalse();
+    }
+
+    @Test
+    public void changingQueryingModeShouldWork() {
+        Configuration.Builder builder = new Configuration.Builder();
+        Configuration configuration = builder.strictQuerying().build();
+        assertThat(configuration.getUseStrictQuerying()).isTrue();
+    }
+
+    @Test
+    public void shouldParseQUeryingMode() {
+
+        Configuration configuration;
+
+        configuration = new Configuration.Builder(() -> new Properties()).build();
+        assertThat(configuration.getUseStrictQuerying()).isFalse();
+
+        configuration = new Configuration.Builder(() -> {
+            Properties properties = new Properties();
+            properties.setProperty("use-strict-querying", "");
+            return properties;
+        }).build();
+        assertThat(configuration.getUseStrictQuerying()).isFalse();
+
+        configuration = new Configuration.Builder(() -> {
+            Properties properties = new Properties();
+            properties.setProperty("use-strict-querying", "true");
+            return properties;
+        }).build();
+        assertThat(configuration.getUseStrictQuerying()).isTrue();
+
+        configuration = new Configuration.Builder(() -> {
+            Properties properties = new Properties();
+            properties.setProperty("use-strict-querying", "false");
+            return properties;
+        }).build();
+        assertThat(configuration.getUseStrictQuerying()).isFalse();
     }
 }

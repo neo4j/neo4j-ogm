@@ -19,6 +19,7 @@
 package org.neo4j.ogm.session.delegates;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
@@ -65,17 +66,19 @@ public class LoadOneDelegate extends SessionDelegate {
 
         if (primaryIndexField == null && !(id instanceof Long)) {
             throw new IllegalArgumentException("Supplied id must be of type Long (native graph id) when supplied class "
-                + "does not have primary id" + type.getName());
+                + "does not have primary id " + type.getName());
         }
 
-        QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
-        String entityType = session.entityType(type.getName());
-        if (entityType == null) {
+        Optional<String> labelsOrType = session.determineLabelsOrTypeForLoading(type);
+        if (!labelsOrType.isPresent()) {
             logger.warn("Unable to find database label for entity " + type.getName()
                 + " : no results will be returned. Make sure the class is registered, "
                 + "and not abstract without @NodeEntity annotation");
+            return null;
         }
-        PagingAndSortingQuery qry = queryStatements.findOneByType(entityType, id, depth);
+
+        QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
+        PagingAndSortingQuery qry = queryStatements.findOneByType(labelsOrType.get(), id, depth);
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
 

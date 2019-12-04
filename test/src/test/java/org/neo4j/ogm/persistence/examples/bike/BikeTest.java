@@ -34,7 +34,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 public class BikeTest {
 
     private static MetaData metadata = new MetaData("org.neo4j.ogm.domain.bike");
-    private static Neo4jSession session = new Neo4jSession(metadata, new BikeRequest());
+    private static Neo4jSession session = new Neo4jSession(metadata, true, new BikeRequest());
 
     @Test
     public void testDeserialiseBikeModel() throws Exception {

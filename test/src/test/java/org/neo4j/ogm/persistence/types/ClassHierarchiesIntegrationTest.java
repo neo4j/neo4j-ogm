@@ -68,6 +68,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  *
  * @author Michal Bachman
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
@@ -93,10 +94,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(AnnotatedChildWithAnnotatedAbstractNamedParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void annotatedChildWithAnnotatedNamedInterfaceParent() {
         session.save(new AnnotatedChildWithAnnotatedNamedInterfaceParent());
 
@@ -116,10 +114,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(AnnotatedChildWithAnnotatedAbstractParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void annotatedChildWithAnnotatedInterfaceParent() {
         session.save(new AnnotatedChildWithAnnotatedInterfaceParent());
 
@@ -157,10 +152,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(AnnotatedChildWithPlainAbstractParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void annotatedChildWithPlainInterfaceParent() {
         session.save(new AnnotatedChildWithPlainInterfaceParent());
 
@@ -190,10 +182,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
             .isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithAnnotatedNamedInterface() {
         session.save(new AnnotatedNamedChildWithAnnotatedNamedInterfaceParent());
@@ -214,10 +203,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedAbstractParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithAnnotatedInterfaceParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedInterfaceParent());
@@ -259,10 +245,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(AnnotatedNamedChildWithPlainAbstractParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithPlainInterfaceParent() {
         session.save(new AnnotatedNamedChildWithPlainInterfaceParent());
@@ -309,10 +292,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(PlainChildWithAnnotatedAbstractNamedParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void plainChildWithAnnotatedNamedInterfaceParent() {
         session.save(new PlainChildWithAnnotatedNamedInterfaceParent());
 
@@ -331,10 +311,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(PlainChildWithAnnotatedAbstractParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void plainChildWithAnnotatedInterfaceParent() {
         session.save(new PlainChildWithAnnotatedInterfaceParent());
 
@@ -372,10 +349,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(PlainChildWithPlainAbstractParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void plainChildWithPlainInterfaceParent() {
         session.save(new PlainChildWithPlainInterfaceParent());
 
@@ -393,10 +367,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(PlainChildWithPlainConcreteParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void plainChildWithPlainConcreteParentImplementingInterface() {
         session.save(new PlainChildWithPlainConcreteParentImplementingInterface());
 
@@ -408,10 +379,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(PlainConcreteParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void plainChildWithPlainInterfaceChild() {
         session.save(new PlainChildWithPlainInterfaceChild());
 
@@ -420,10 +388,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(PlainChildWithPlainInterfaceChild.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void plainChildWithAnnotatedSuperInterface() {
         /*
         PlainChildWithAnnotatedSuperInterface->PlainInterfaceChildWithAnnotatedParentInterface->AnnotatedInterface
@@ -435,10 +400,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(PlainChildWithAnnotatedSuperInterface.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void annotatedChildWithAnnotatedInterface() {
         /*
         AnnotatedChildWithAnnotatedInterface->AnnotatedInterfaceWithSingleImpl
@@ -454,10 +416,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
             .isEqualTo("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface");
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void plainChildWithAnnotatedSuperclass() {
         /*
            PlainChildWithAnnotatedConcreteSuperclass->PlainChildWithAnnotatedConcreteParent->AnnotatedConcreteParent
@@ -471,10 +430,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(AnnotatedConcreteParent.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void plainChildWithAbstractParentAndAnnotatedSuperclass() {
         /*
            PlainChildWithAbstractParentAndAnnotatedSuperclass->PlainAbstractWithAnnotatedParent->AnnotatedSingleClass
@@ -488,10 +444,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(AnnotatedSingleClass.class).iterator().next()).isNotNull();
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void annotatedChildWithMultipleAnnotatedInterfaces() {
         session.save(new AnnotatedChildWithMultipleAnnotatedInterfaces());
 
@@ -524,10 +477,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         }
     }
 
-    /**
-     * @see DATAGRAPH-577
-     */
-    @Test
+    @Test // DATAGRAPH-577
     public void plainChildOfTransientInterface() {
         assertThatThrownBy(() -> session.save(new PlainChildOfTransientInterface()))
             .isInstanceOf(IllegalArgumentException.class)
@@ -821,10 +771,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(session.loadAll(Female.class)).isEmpty();
     }
 
-    /**
-     * @see DATAGRAPH-735
-     */
-    @Test
+    @Test // DATAGRAPH-735
     public void shouldLoadRelatedSuperclasses() {
         getGraphDatabaseService().execute("CREATE (f1:Female:Person {name:'f1'})," +
             "(m1:Male:Person {name:'m1'})," +
@@ -837,10 +784,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(m1.getChildren().iterator().next().getName()).isEqualTo("c1");
     }
 
-    /**
-     * #553
-     */
-    @Test
+    @Test // GH-553
     public void shouldLoadImplementationWhenParentClassIsQueriedDirectSubclass() {
         UUID uuid = UUID.randomUUID();
         SubEntity subEntity = new SubEntity();
@@ -855,10 +799,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(rootEntity).isNotNull();
     }
 
-    /**
-     * #553
-     */
-    @Test
+    @Test // GH-553
     public void shouldLoadImplementationWhenParentClassIsQueriedDeepSubclass() {
         UUID uuid = UUID.randomUUID();
         SubSubEntity subsubEntity = new SubSubEntity();
@@ -873,10 +814,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(rootEntity).isNotNull();
     }
 
-    /**
-     * #553
-     */
-    @Test
+    @Test // GH-553
     public void shouldLoadImplementationWhenParentClassIsQueriedDeepSubclasWithsMostBasicEntity() {
         UUID uuid = UUID.randomUUID();
         SubSubEntity subsubEntity = new SubSubEntity();
@@ -891,10 +829,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(rootEntity).isNull();
     }
 
-    /**
-     * #553
-     */
-    @Test
+    @Test // GH-553
     public void shouldLoadImplementationWhenParentClassIsQueriedLoadAll() {
         UUID uuid = UUID.randomUUID();
         SubSubEntity subsubEntity = new SubSubEntity();
@@ -909,10 +844,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertThat(rootEntity).isNotEmpty();
     }
 
-    /**
-     * #553
-     */
-    @Test
+    @Test // GH-553
     public void shouldLoadImplementationWhenParentClassIsQueriedLoadAllWithAbstractNonAnnotatedBaseClass() {
         UUID uuid = UUID.randomUUID();
         SubSubEntity subsubEntity = new SubSubEntity();
@@ -926,5 +858,4 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
         assertThat(rootEntity).isEmpty();
     }
-
 }

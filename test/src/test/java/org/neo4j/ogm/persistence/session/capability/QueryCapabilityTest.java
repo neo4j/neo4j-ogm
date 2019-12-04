@@ -26,6 +26,7 @@ import ch.qos.logback.core.read.ListAppender;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -108,7 +109,6 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
         session.save(new Actor("Jeff"));
         session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), true);
-        
         Condition<String> stringMatches = new Condition<>(s -> s.contains(
             "Cypher query contains keywords that indicate a writing query but OGM is going to use a read only transaction as requested, so the query might fail."),
             "String matches");
@@ -379,7 +379,8 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     @Test
     public void shouldBeAbleToMapRelationshipEntities() {
         Iterator<Map<String, Object>> results = session
-            .query("MATCH (u:User {name:{name}})-[r:RATED]->(m) RETURN u,r,m", MapUtil.map("name", "Vince")).iterator();
+            .query("MATCH (u:User {name:$name})-[r:RATED]->(m) RETURN u,r,m", Collections.singletonMap("name", "Vince"))
+            .iterator();
         assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
         assertThat(result).isNotNull();
@@ -402,10 +403,22 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertThat(results.hasNext()).isFalse();
     }
 
+    @Test // GH-651
+    public void shouldBeAbleToMapRelationshipEntitiesByIds() {
+        List<Long> ratingIds = new ArrayList<>();
+        for (Map<String, Object> row : session
+            .query("MATCH ()-[r:RATED]->() RETURN id(r) as r", Collections.emptyMap())
+            .queryResults()) {
+            ratingIds.add((Long) row.get("r"));
+        }
+
+        Collection<Rating> ratings = session.loadAll(Rating.class, ratingIds);
+        assertThat(ratings).extracting(Rating::getId).containsAll(ratingIds);
+    }
+
     /**
      * @see DATAGRAPH-700
      */
-    @Test
     public void shouldBeAbleToMapVariableDepthRelationshipsWithIncompletePaths() {
         Iterator<Map<String, Object>> results = session
             .query("match (u:User {name:{name}}) match (m:Movie {title:{title}}) match (u)-[r*0..2]-(m) return u,r,m",

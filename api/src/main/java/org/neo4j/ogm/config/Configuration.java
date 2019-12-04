@@ -74,6 +74,15 @@ public class Configuration {
     private Integer connectionLivenessCheckTimeout;
     private Boolean verifyConnection;
     private Map<String, Object> customProperties;
+    /**
+     * This flag instructs OGM to use all static labels when querying domain objects. Until 3.1.16 only the label of the
+     * concrete domain has been used to query domain objects in inheritance scenarios. When storing those objects again,
+     * OGM writes all labels in any case.
+     * <p>
+     * By default, Neo4j-OGM 3.1 and 3.2 uses only the single, static label defined at the type being queried.
+     * Neo4j-OGM 4.0 will default to strict querying.
+     */
+    private Boolean useStrictQuerying;
 
     /**
      * Protected constructor of the Configuration class.
@@ -97,6 +106,7 @@ public class Configuration {
         this.neo4jConfLocation = builder.neo4jConfLocation;
         this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
         this.customProperties = builder.customProperties;
+        this.useStrictQuerying = builder.useStrictQuerying;
 
         URI parsedUri = getSingleURI();
 
@@ -224,6 +234,10 @@ public class Configuration {
         return Collections.unmodifiableMap(customProperties);
     }
 
+    public Boolean getUseStrictQuerying() {
+        return useStrictQuerying;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -245,7 +259,8 @@ public class Configuration {
             Objects.equals(driverName, that.driverName) &&
             Objects.equals(credentials, that.credentials) &&
             Objects.equals(connectionLivenessCheckTimeout, that.connectionLivenessCheckTimeout) &&
-            Objects.equals(verifyConnection, that.verifyConnection);
+            Objects.equals(verifyConnection, that.verifyConnection) &&
+            Objects.equals(useStrictQuerying, that.useStrictQuerying);
     }
 
     @Override
@@ -263,7 +278,7 @@ public class Configuration {
     public static class Builder {
 
         public static Builder copy(Builder builder) {
-            return new Builder()
+            Builder copiedBuilder = new Builder()
                 .uri(builder.uri)
                 .connectionPoolSize(builder.connectionPoolSize)
                 .encryptionLevel(builder.encryptionLevel)
@@ -278,6 +293,14 @@ public class Configuration {
                 .neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
                 .credentials(builder.username, builder.password)
                 .customProperties(new HashMap<>(builder.customProperties));
+
+            if (builder.useStrictQuerying) {
+                copiedBuilder.strictQuerying();
+            } else {
+                copiedBuilder.relaxedQuerying();
+            }
+
+            return copiedBuilder;
         }
 
         // Those are the keys inside ogm.properties, not configuration values.
@@ -296,7 +319,7 @@ public class Configuration {
         private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
         private static final String NEO4J_CONF_LOCATION = "neo4j.conf.location";
         private static final String NEO4J_HA_PROPERTIES_FILE = "neo4j.ha.properties.file";
-
+        private static final String USE_STRICT_QUERYING = "use-strict-querying";
         private String uri;
         private String[] uris;
         private Integer connectionPoolSize;
@@ -317,6 +340,7 @@ public class Configuration {
         private String username;
         private String password;
         private Map<String, Object> customProperties = new HashMap<>();
+        private boolean useStrictQuerying = false;
 
         /**
          * Creates new Configuration builder
@@ -332,51 +356,57 @@ public class Configuration {
          */
         public Builder(ConfigurationSource configurationSource) {
             for (Map.Entry<Object, Object> entry : configurationSource.properties().entrySet()) {
+                final String value = (String) entry.getValue();
                 switch (entry.getKey().toString()) {
                     case URI:
-                        this.uri = (String) entry.getValue();
+                        this.uri = value;
                         break;
                     case USERNAME:
-                        this.username = (String) entry.getValue();
+                        this.username = value;
                         break;
                     case PASSWORD:
-                        this.password = (String) entry.getValue();
+                        this.password = value;
                         break;
                     case URIS:
                         this.uris = ((String) entry.getValue()).split(",");
                         break;
                     case CONNECTION_POOL_SIZE:
-                        this.connectionPoolSize = Integer.parseInt((String) entry.getValue());
+                        this.connectionPoolSize = Integer.parseInt(value);
                         break;
                     case ENCRYPTION_LEVEL:
-                        this.encryptionLevel = (String) entry.getValue();
+                        this.encryptionLevel = value;
                         break;
                     case TRUST_STRATEGY:
-                        this.trustStrategy = (String) entry.getValue();
+                        this.trustStrategy = value;
                         break;
                     case TRUST_CERT_FILE:
-                        this.trustCertFile = (String) entry.getValue();
+                        this.trustCertFile = value;
                         break;
                     case CONNECTION_LIVENESS_CHECK_TIMEOUT:
-                        this.connectionLivenessCheckTimeout = Integer.valueOf((String) entry.getValue());
+                        this.connectionLivenessCheckTimeout = Integer.valueOf(value);
                         break;
                     case VERIFY_CONNECTION:
-                        this.verifyConnection = Boolean.valueOf((String) entry.getValue());
+                        this.verifyConnection = Boolean.valueOf(value);
                         break;
                     case AUTO_INDEX:
-                        this.autoIndex = (String) entry.getValue();
+                        this.autoIndex = value;
                         break;
                     case GENERATED_INDEXES_OUTPUT_DIR:
-                        this.generatedIndexesOutputDir = (String) entry.getValue();
+                        this.generatedIndexesOutputDir = value;
                         break;
                     case GENERATED_INDEXES_OUTPUT_FILENAME:
-                        this.generatedIndexesOutputFilename = (String) entry.getValue();
+                        this.generatedIndexesOutputFilename = value;
                         break;
                     case NEO4J_HA_PROPERTIES_FILE:
                         this.neo4jHaPropertiesFile = (String) entry.getValue();
                         break;
                     case NEO4J_CONF_LOCATION:
-                        this.neo4jConfLocation = (String) entry.getValue();
+                        this.neo4jConfLocation = value;
+                        break;
+                    case USE_STRICT_QUERYING:
+                        if (!(value == null || value.isEmpty())) {
+                            this.useStrictQuerying = Boolean.valueOf(value);
+                        }
                         break;
                     default:
                         LOGGER.warn("Could not process property with key: {}", entry.getKey());
@@ -501,6 +531,38 @@ public class Configuration {
 
         public Builder withCustomProperty(String name, Object value) {
             this.customProperties.put(name, value);
+            return this;
+        }
+
+        /**
+         * Turns on strict querying. In strict querying mode, Neo4j-OGM uses all reachable static labels in a class inheritance
+         * scenario when querying a domain object, either all, one by id oder all by ids. That is, in strict mode, a node
+         * needs to have {@code n:LabelA:LabelB} when a domain class has this two labels due to inheritance. In relaxed mode,
+         * the label of the concrete class is enough.
+         * <p>
+         * Turning strict mode on can improve query performance, when indexes are defined on labels spotted by parent classes.
+         * <p>
+         * Strict query mode is the default since 4.0.
+         *
+         * @return the changed builder
+         * @since 3.1.16
+         */
+        public Builder strictQuerying() {
+            this.useStrictQuerying = true;
+            return this;
+        }
+
+        /**
+         * Turns strict querying off and uses only the single static label of a domain class, even if this class is part
+         * of an inheritance hierarchy exposing more than one static label. This may have impact on performance as indexes
+         * may not be used. However, turning it off may be necessary to query nodes that have been created outside Neo4j-OGM
+         * and are missing some labels.
+         *
+         * @return the changed builder
+         * @since 3.1.16
+         */
+        public Builder relaxedQuerying() {
+            this.useStrictQuerying = false;
             return this;
         }
 

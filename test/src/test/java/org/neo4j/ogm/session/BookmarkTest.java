@@ -56,7 +56,7 @@ public class BookmarkTest {
     @Before
     public void setUp() throws Exception {
         BoltDriver driver = new BoltDriver(nativeDriver);
-        session = new Neo4jSession(new MetaData("org.neo4j.ogm.empty"), driver);
+        session = new Neo4jSession(new MetaData("org.neo4j.ogm.empty"), true, driver);
 
         when(nativeDriver.session(any(AccessMode.class), anyIterable())).thenReturn(nativeSession);
         when(nativeSession.beginTransaction().isOpen()).thenReturn(true);

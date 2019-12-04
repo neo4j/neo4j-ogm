@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.context.MappingContext;
@@ -35,6 +36,7 @@ import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.CypherException;
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
@@ -103,9 +105,12 @@ public class Neo4jSession implements Session {
 
     private List<EventListener> registeredEventListeners = new LinkedList<>();
 
-    public Neo4jSession(MetaData metaData, Driver driver) {
+    private final boolean useStrictQuerying;
+
+    public Neo4jSession(MetaData metaData, boolean useStrictQuerying, Driver driver) {
 
         this.metaData = metaData;
+        this.useStrictQuerying = useStrictQuerying;
         this.driver = driver;
 
         this.mappingContext = new MappingContext(metaData);
@@ -114,9 +119,10 @@ public class Neo4jSession implements Session {
         this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
     }
 
-    public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners,
+    public Neo4jSession(MetaData metaData, boolean useStrictQuerying, Driver driver, List<EventListener> eventListeners,
         LoadStrategy loadStrategy, EntityInstantiator entityInstantiator) {
-        this(metaData, driver);
+
+        this(metaData, useStrictQuerying, driver);
         registeredEventListeners.addAll(eventListeners);
 
         this.loadStrategy = loadStrategy;
@@ -644,8 +650,31 @@ public class Neo4jSession implements Session {
         }
     }
 
-    public String entityType(String name) {
-        return metaData.entityType(name);
+    /**
+     * Determines the one relationship type or maybe multiple labels to use in various statements during loading of things.
+     * <p>
+     * Multiple labels are pre-joined with <pre>`:`</pre>. There are meant to be passed to various clause builders, which
+     * cannot deal with list of labels, but use the one label or type and use it in between tickmarks.
+     * @param type The type of the objects that shall be loaded
+     * @return Label(s) or type, empty optional of no valid label or type could be determined.
+     */
+    public Optional<String> determineLabelsOrTypeForLoading(Class<?> type) {
+
+        Optional<String> labelsOrType;
+        if (useStrictQuerying) {
+            ClassInfo classInfo = metaData().classInfo(type);
+            String result = null;
+            if (classInfo != null) {
+                result = classInfo.isRelationshipEntity() ?
+                    classInfo.neo4jName() :
+                    String.join("`:`", classInfo.staticLabels());
+            }
+            labelsOrType = Optional.ofNullable(result);
+        } else {
+            labelsOrType = Optional.ofNullable(metaData.entityType(type.getName()));
+        }
+
+        return labelsOrType.map(String::trim).filter(s -> !s.isEmpty());
     }
 
     public MappingContext context() {

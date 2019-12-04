@@ -20,6 +20,7 @@ package org.neo4j.ogm.session.delegates;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -59,22 +60,24 @@ public class LoadByIdsDelegate extends SessionDelegate {
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder,
         Pagination pagination, int depth) {
 
-        String entityLabel = session.entityType(type.getName());
-        if (entityLabel == null) {
+        Optional<String> labelsOrType = session.determineLabelsOrTypeForLoading(type);
+        if (!labelsOrType.isPresent()) {
             LOG.warn("Unable to find database label for entity " + type.getName()
                 + " : no results will be returned. Make sure the class is registered, "
                 + "and not abstract without @NodeEntity annotation");
+            return Collections.emptyList();
         }
-        QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
 
-        PagingAndSortingQuery qry = queryStatements.findAllByType(entityLabel, ids, depth)
+        QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
+        PagingAndSortingQuery qry = queryStatements.findAllByType(labelsOrType.get(), ids, depth)
             .setSortOrder(sortOrder)
             .setPagination(pagination);
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
         return session.doInTransaction(() -> {
             try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                Iterable<T> mapped = new GraphRowModelMapper(session.metaData(), session.context(), session.getEntityInstantiator()).map(type, response);
+                Iterable<T> mapped = new GraphRowModelMapper(session.metaData(), session.context(),
+                    session.getEntityInstantiator()).map(type, response);
 
                 if (sortOrder.sortClauses().isEmpty()) {
                     return sortResultsByIds(type, ids, mapped);

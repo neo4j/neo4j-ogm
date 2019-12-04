@@ -27,6 +27,7 @@ import ch.qos.logback.core.read.ListAppender;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -394,7 +395,8 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     @Test // DATAGRAPH-700
     public void shouldBeAbleToMapRelationshipEntities() {
         Iterator<Map<String, Object>> results = session
-            .query("MATCH (u:User {name:$name})-[r:RATED]->(m) RETURN u,r,m", Utils.map("name", "Vince")).iterator();
+            .query("MATCH (u:User {name:$name})-[r:RATED]->(m) RETURN u,r,m", Collections.singletonMap("name", "Vince"))
+            .iterator();
         assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
         assertThat(result).isNotNull();
@@ -415,6 +417,19 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(user.getRatings().iterator().next().getId()).isEqualTo(rating.getId());
 
         assertThat(results.hasNext()).isFalse();
+    }
+
+    @Test // GH-651
+    public void shouldBeAbleToMapRelationshipEntitiesByIds() {
+        List<Long> ratingIds = new ArrayList<>();
+        for (Map<String, Object> row : session
+            .query("MATCH ()-[r:RATED]->() RETURN id(r) as r", Collections.emptyMap())
+            .queryResults()) {
+            ratingIds.add((Long) row.get("r"));
+        }
+
+        Collection<Rating> ratings = session.loadAll(Rating.class, ratingIds);
+        assertThat(ratings).extracting(Rating::getId).containsExactlyInAnyOrderElementsOf(ratingIds);
     }
 
     @Test // DATAGRAPH-700

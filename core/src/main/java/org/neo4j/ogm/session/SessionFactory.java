@@ -22,6 +22,7 @@ import static java.util.Objects.*;
 import static org.neo4j.ogm.config.AutoIndexMode.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.neo4j.ogm.autoindex.AutoIndexManager;
@@ -49,6 +50,7 @@ public class SessionFactory {
     private final MetaData metaData;
     private final Driver driver;
     private final List<EventListener> eventListeners;
+    private final boolean useStrictQuerying;
 
     private LoadStrategy loadStrategy = LoadStrategy.SCHEMA_LOAD_STRATEGY;
     private EntityInstantiator entityInstantiator;
@@ -92,16 +94,26 @@ public class SessionFactory {
     }
 
     /**
+     * @see #SessionFactory(Driver, boolean, String...)
+     */
+    public SessionFactory(Driver driver, String... packages) {
+        this(driver, Optional.ofNullable(driver.getConfiguration()).map(Configuration::getUseStrictQuerying).orElse(true), packages);
+    }
+
+    /**
      * Create a session factory with given driver
      * Use this constructor when you need to provide fully customized driver.
      * Indexes will not be automatically created.
      *
-     * @param driver   driver to be used with this SessionFactory
-     * @param packages The packages to scan for domain objects
+     * @param driver            driver to be used with this SessionFactory
+     * @param useStrictQuerying Flag wether to use strict querying or not. Overwrites configuration settings (from the driver).
+     * @param packages          The packages to scan for domain objects
      */
-    public SessionFactory(Driver driver, String... packages) {
+    public SessionFactory(Driver driver, boolean useStrictQuerying, String... packages) {
+
         this.metaData = new MetaData(driver.getTypeSystem(), packages);
         this.driver = driver;
+        this.useStrictQuerying = useStrictQuerying;
         this.eventListeners = new CopyOnWriteArrayList<>();
         this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
     }
@@ -137,7 +149,7 @@ public class SessionFactory {
      * @return A new {@link Session}
      */
     public Session openSession() {
-        return new Neo4jSession(metaData, driver, eventListeners, loadStrategy, entityInstantiator);
+        return new Neo4jSession(metaData, useStrictQuerying, driver, eventListeners, loadStrategy, entityInstantiator);
     }
 
     /**
@@ -179,6 +191,13 @@ public class SessionFactory {
      */
     public void setLoadStrategy(LoadStrategy loadStrategy) {
         this.loadStrategy = loadStrategy;
+    }
+
+    /**
+     * @return True if this instance uses strict querying or not.
+     */
+    public boolean isUseStrictQuerying() {
+        return useStrictQuerying;
     }
 
     public void setEntityInstantiator(EntityInstantiator entityInstantiator) {

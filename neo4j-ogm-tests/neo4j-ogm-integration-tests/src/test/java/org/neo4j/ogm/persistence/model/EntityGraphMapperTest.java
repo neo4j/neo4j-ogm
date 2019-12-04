@@ -110,19 +110,22 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     @Test
     public void updateObjectPropertyAndLabel() {
 
-        Long sid = (Long) session.query("CREATE (s:Student {name:'Sheila Smythe'}) RETURN id(s) AS id", emptyMap())
-            .queryResults().iterator().next().get("id");
-        session.clear();
+        // This does only work in non-strict querying
+        Session customSession = new SessionFactory(getDriver(), false, "org.neo4j.ogm.domain.education").openSession();
 
-        Student sheila = session.load(Student.class, sid);
+        Long sid = (Long) customSession.query("CREATE (s:Student {name:'Sheila Smythe'}) RETURN id(s) AS id", emptyMap())
+            .queryResults().iterator().next().get("id");
+        customSession.clear();
+
+        Student sheila = customSession.load(Student.class, sid);
 
         // now update the object's properties locally
         sheila.setName("Sheila Smythe-Jones");
 
-        session.save(sheila);
+        customSession.save(sheila);
 
-        session.clear();
-        assertThat(session.query("MATCH (s:DomainObject:Student {name:'Sheila Smythe-Jones'}) return s", emptyMap()).queryResults())
+        customSession.clear();
+        assertThat(customSession.query("MATCH (s:DomainObject:Student {name:'Sheila Smythe-Jones'}) return s", emptyMap()).queryResults())
             .isNotEmpty();
     }
 

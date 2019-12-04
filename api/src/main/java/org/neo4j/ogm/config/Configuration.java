@@ -608,7 +608,7 @@ public class Configuration {
 
         /**
          * Turns strict querying off and uses only the single static label of a domain class, even if this class is part
-         * of an inheritance hierrachy exposing more than one static label. This may have impact on performance as indexes
+         * of an inheritance hierarchy exposing more than one static label. This may have impact on performance as indexes
          * may not be used. However, turning it off may be necessary to query nodes that have been created outside Neo4j-OGM
          * and are missing some labels.
          *

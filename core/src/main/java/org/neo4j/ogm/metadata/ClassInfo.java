@@ -230,7 +230,7 @@ public class ClassInfo {
             synchronized (this) {
                 knownStaticLabels = this.staticLabels;
                 if (knownStaticLabels == null) {
-                    this.staticLabels = Collections.unmodifiableCollection(collectLabels(new ArrayList<>()));
+                    this.staticLabels = Collections.unmodifiableCollection(collectLabels());
                     knownStaticLabels = this.staticLabels;
                 }
             }
@@ -257,20 +257,22 @@ public class ClassInfo {
         return neo4jName;
     }
 
-    private Collection<String> collectLabels(Collection<String> labelNames) {
+    private Collection<String> collectLabels() {
+
+        List<String> labels = new ArrayList<>();
         if (!isAbstract || annotationsInfo.get(NodeEntity.class) != null) {
-            labelNames.add(neo4jName());
+            labels.add(neo4jName());
         }
         if (directSuperclass != null && !"java.lang.Object".equals(directSuperclass.className)) {
-            directSuperclass.collectLabels(labelNames);
+            labels.addAll(directSuperclass.collectLabels());
         }
         for (ClassInfo interfaceInfo : directInterfaces()) {
-            interfaceInfo.collectLabels(labelNames);
+            labels.addAll(interfaceInfo.collectLabels());
         }
         for (ClassInfo indirectSuperClass : indirectSuperClasses) {
-            indirectSuperClass.collectLabels(labelNames);
+            labels.addAll(indirectSuperClass.collectLabels());
         }
-        return labelNames;
+        return labels;
     }
 
     public List<ClassInfo> directSubclasses() {

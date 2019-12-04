@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.context.WriteProtectionTarget;

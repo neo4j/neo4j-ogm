@@ -35,7 +35,7 @@ public class UserTest {
     public void testDeserialiseUserWithArrayOfEnums() {
 
         MetaData metadata = new MetaData("org.neo4j.ogm.domain.cineasts.annotated");
-        Neo4jSession session = new Neo4jSession(metadata, new UsersRequest());
+        Neo4jSession session = new Neo4jSession(metadata, true, new UsersRequest());
 
         User user = session.load(User.class, "luanne", 1);
 

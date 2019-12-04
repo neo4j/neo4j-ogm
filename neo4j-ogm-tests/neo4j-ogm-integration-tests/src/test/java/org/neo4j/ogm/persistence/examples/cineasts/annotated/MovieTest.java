@@ -38,7 +38,7 @@ public class MovieTest {
     public void testDeserialiseMovie() {
 
         MetaData metadata = new MetaData("org.neo4j.ogm.domain.cineasts.annotated");
-        Neo4jSession session = new Neo4jSession(metadata, new MoviesRequest());
+        Neo4jSession session = new Neo4jSession(metadata, true, new MoviesRequest());
 
         Movie movie = session.load(Movie.class, UUID.fromString("38ebe777-bc85-4810-8217-096f29a361f1"), 1);
 

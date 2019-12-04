@@ -26,6 +26,7 @@ import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
  * Schema based load clause builder for nodes - starts from given node variable
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class SchemaNodeLoadClauseBuilder extends AbstractSchemaLoadClauseBuilder implements LoadClauseBuilder {
 
@@ -47,7 +48,14 @@ public class SchemaNodeLoadClauseBuilder extends AbstractSchemaLoadClauseBuilder
         sb.append(variable);
         newLine(sb);
 
-        Node node = schema.findNode(label);
+        Node node;
+        final int separatorIndex = label.indexOf("`:`");
+        if (separatorIndex < 0) {
+            node = schema.findNode(label);
+        } else {
+            node = schema.findNode(label.substring(0, separatorIndex));
+        }
+
         expand(sb, variable, node, depth);
 
         return sb.toString();

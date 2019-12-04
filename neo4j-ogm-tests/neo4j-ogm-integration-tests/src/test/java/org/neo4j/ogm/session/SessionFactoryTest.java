@@ -97,4 +97,24 @@ public class SessionFactoryTest extends TestContainersTestBase {
         assertThatIllegalArgumentException()
             .isThrownBy(() -> sessionFactory.unwrap(GraphDatabaseService.class));
     }
+
+    @Test
+    public void correctUseStrictQueryingSettingShouldBeApplied() {
+
+        SessionFactory sessionFactory;
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.gh651");
+        assertThat(sessionFactory.isUseStrictQuerying()).isFalse();
+
+        sessionFactory = new SessionFactory(new Configuration.Builder().build(), "org.neo4j.ogm.domain.gh651");
+        assertThat(sessionFactory.isUseStrictQuerying()).isFalse();
+
+        sessionFactory = new SessionFactory(new Configuration.Builder().strictQuerying().build(), "org.neo4j.ogm.domain.gh651");
+        assertThat(sessionFactory.isUseStrictQuerying()).isTrue();
+
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh651");
+        assertThat(sessionFactory.isUseStrictQuerying()).isFalse();
+
+        sessionFactory = new SessionFactory(getDriver(), true, "org.neo4j.ogm.domain.gh651");
+        assertThat(sessionFactory.isUseStrictQuerying()).isTrue();
+    }
 }

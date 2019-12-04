@@ -62,7 +62,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  * @author Michael J. Simons
  */
 @RunWith(MockitoJUnitRunner.class)
-public class LoadByDelegateTest {
+public class StrictQueryingTest {
 
     private final MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh651");
 

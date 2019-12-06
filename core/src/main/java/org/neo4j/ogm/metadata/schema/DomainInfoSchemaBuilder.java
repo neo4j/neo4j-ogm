@@ -24,9 +24,9 @@ import java.util.Map;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.reflect.GenericUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,13 +75,7 @@ public class DomainInfoSchemaBuilder {
                 String label = classInfo.neo4jName();
                 NodeImpl node = (NodeImpl) schema.findNode(label);
 
-                Collection<FieldInfo> relationships = classInfo.relationshipFields();
-
-                // iterate over all relationships of all node entities
-                for (FieldInfo fieldInfo : relationships) {
-                    createRelationship(node, fieldInfo);
-                }
-
+                collectRelationshipsInHierarchy(node, classInfo);
             } else {
                 String type = classInfo.neo4jName();
                 if (schema.getRelationship(type) == null) {
@@ -96,6 +90,19 @@ public class DomainInfoSchemaBuilder {
                     schema.addRelationship(new RelationshipImpl(type, "OUTGOING", start, end));
                 }
             }
+        }
+    }
+
+    private void collectRelationshipsInHierarchy(NodeImpl node, ClassInfo classInfo) {
+        Collection<FieldInfo> relationships = classInfo.relationshipFields();
+
+        // iterate over all relationships of all node entities
+        for (FieldInfo fieldInfo : relationships) {
+            createRelationship(node, fieldInfo);
+        }
+
+        for (ClassInfo subClass : classInfo.directSubclasses()) {
+            collectRelationshipsInHierarchy(node, subClass);
         }
     }
 

@@ -62,9 +62,7 @@ public abstract class AbstractSchemaLoadClauseBuilder {
             }
 
             listComprehension(sb, variable, entry.getValue(), node, level, depth);
-
         }
-
     }
 
     private boolean needsSeparator(StringBuilder sb) {

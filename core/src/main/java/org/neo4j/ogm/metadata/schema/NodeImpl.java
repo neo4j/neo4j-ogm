@@ -57,11 +57,11 @@ class NodeImpl implements Node {
     }
 
     void addRelationship(Relationship relationship) {
-        relationships.put(RelationshipUtils.inferFieldName(relationship.type()), relationship);
+        relationships.putIfAbsent(RelationshipUtils.inferFieldName(relationship.type()), relationship);
     }
 
     void addRelationship(String name, Relationship relationship) {
-        relationships.put(name, relationship);
+        relationships.putIfAbsent(name, relationship);
     }
 
     @Override

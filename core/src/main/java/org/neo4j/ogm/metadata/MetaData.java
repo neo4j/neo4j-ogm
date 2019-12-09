@@ -167,7 +167,7 @@ public class MetaData {
                 // if there is, use that, otherwise this label cannot be resolved
                 if (taxonClassInfo.isInterface()) {
                     LOGGER.debug("label is on an interface. Looking for a single implementing class...");
-                    taxonClassInfo = findSingleImplementor(taxon);
+                    taxonClassInfo = findSingleImplementor(taxonClassInfo);
                 } else if (taxonClassInfo.isAbstract()) {
                     LOGGER.debug("label is on an abstract class. Looking for a single concrete subclass...");
                     taxonClassInfo = findFirstSingleConcreteClass(taxonClassInfo, taxonClassInfo.directSubclasses());
@@ -266,7 +266,7 @@ public class MetaData {
         // replace with its single implementing class - iff exactly one implementing class exists
         ClassInfo classInfo = classInfoList.iterator().next();
         if (classInfo.isInterface()) {
-            classInfo = findSingleImplementor(classInfo.name());
+            classInfo = findSingleImplementor(classInfo);
         }
 
         // if we have a potential concrete class, keep going!
@@ -278,8 +278,7 @@ public class MetaData {
         return classInfo != null && null != classInfo.annotationsInfo().get(RelationshipEntity.class);
     }
 
-    private ClassInfo findSingleImplementor(String taxon) {
-        ClassInfo interfaceInfo = domainInfo.getClassInfoForInterface(taxon);
+    private ClassInfo findSingleImplementor(ClassInfo interfaceInfo) {
         if (interfaceInfo != null && interfaceInfo.directImplementingClasses() != null
             && interfaceInfo.directImplementingClasses().size() == 1) {
             return interfaceInfo.directImplementingClasses().get(0);

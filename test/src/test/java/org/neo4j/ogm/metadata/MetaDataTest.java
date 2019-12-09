@@ -22,7 +22,11 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.domain.gh391.ClassWithNonUniqueSimpleName;
+import org.neo4j.ogm.domain.gh391.SomeContainer;
+import org.neo4j.ogm.domain.gh551.ThingResult;
 import org.neo4j.ogm.exception.core.AmbiguousBaseClassException;
+import org.neo4j.ogm.exception.core.MappingException;
 
 /**
  * @author Vince Bickers
@@ -65,6 +69,22 @@ public class MetaDataTest {
     public void testCanResolveClassHierarchies() {
         ClassInfo classInfo = metaData.resolve("Login", "User");
         assertThat(classInfo.name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
+    }
+
+    @Test // GH-391
+    public void shouldLookupClassesByTheirSimpleNameCorrectly() {
+
+        MetaData metaData1 = new MetaData("org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391");
+
+        assertThat(metaData1.classInfo(SomeContainer.StaticInnerThingResult.class.getSimpleName())).isNotNull();
+        assertThat(metaData1.classInfo("I dont't exist")).isNull();
+        assertThat(metaData1.classInfo(".*")).isNull();
+        assertThat(metaData1.classInfo(ThingResult.class.getName())).isNotNull();
+        assertThat(metaData1.classInfo(ThingResult.class.getSimpleName())).isNotNull();
+        assertThat(metaData1.classInfo(ClassWithNonUniqueSimpleName.class.getName())).isNotNull();
+        assertThat(metaData1.classInfo(SomeContainer.ClassWithNonUniqueSimpleName.class.getName())).isNotNull();
+        assertThatExceptionOfType(MappingException.class)
+            .isThrownBy(() -> metaData1.classInfo("ClassWithNonUniqueSimpleName"));
     }
 
     @Test(expected = AmbiguousBaseClassException.class)

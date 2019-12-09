@@ -169,8 +169,7 @@ public class IdGenerationTest extends MultiDriverTestClass {
         session2.delete(entity);
 
         // Assert it's gone.
-        assertThat(session2.queryForObject(ValidAnnotations.UuidIdAndGenerationType.class, cypher, parameters))
-            .isEqualTo(0l);
+        assertThat(session2.queryForObject(Long.class, cypher, parameters)).isEqualTo(0l);
     }
 
     @Test

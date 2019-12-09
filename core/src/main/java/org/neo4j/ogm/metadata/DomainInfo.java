@@ -26,6 +26,9 @@ import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -296,26 +299,24 @@ public class DomainInfo {
         return getClassInfo(fullOrPartialClassName, classNameToClassInfo);
     }
 
-    ClassInfo getClassInfoForInterface(String fullOrPartialClassName) {
-        ClassInfo classInfo = getClassSimpleName(fullOrPartialClassName);
-        if (classInfo != null && classInfo.isInterface()) {
-            return classInfo;
-        }
-        return null;
-    }
-
     private ClassInfo getClassInfo(String fullOrPartialClassName, Map<String, ClassInfo> infos) {
-        ClassInfo match = null;
-        for (String fqn : infos.keySet()) {
-            if (fqn.endsWith("." + fullOrPartialClassName) || fqn.equals(fullOrPartialClassName)) {
-                if (match == null) {
-                    match = infos.get(fqn);
-                } else {
-                    throw new MappingException("More than one class has simple name: " + fullOrPartialClassName);
-                }
-            }
+
+        // It is a fully, qualified name or at least matches to one.
+        if (infos.containsKey(fullOrPartialClassName)) {
+            return infos.get(fullOrPartialClassName);
         }
-        return match;
+
+        Pattern partialClassNamePattern = Pattern.compile(".+[\\\\.\\$]" + Pattern.quote(fullOrPartialClassName) + "$");
+        List<String> foundKeys = infos.keySet().stream().filter(partialClassNamePattern.asPredicate())
+            .collect(Collectors.toList());
+        if (foundKeys.isEmpty()) {
+            return null;
+        } else if (foundKeys.size() > 1) {
+            System.out.println(foundKeys);
+            throw new MappingException("More than one class has simple name: " + fullOrPartialClassName);
+        } else {
+            return infos.get(foundKeys.get(0));
+        }
     }
 
     List<ClassInfo> getClassInfosWithAnnotation(String annotation) {

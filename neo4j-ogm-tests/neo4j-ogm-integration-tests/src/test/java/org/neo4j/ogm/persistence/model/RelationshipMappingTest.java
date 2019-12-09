@@ -37,8 +37,9 @@ import org.neo4j.ogm.domain.gh641.Entity1;
 import org.neo4j.ogm.domain.gh641.MyRelationship;
 import org.neo4j.ogm.domain.gh656.Group;
 import org.neo4j.ogm.domain.gh656.GroupVersion;
+import org.neo4j.ogm.domain.gh666.MessedUpNode1;
+import org.neo4j.ogm.domain.gh666.MessedUpNode2;
 import org.neo4j.ogm.domain.gh704.Country;
-import org.neo4j.ogm.domain.gh704.CountryRevision;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.typed_relationships.SomeEntity;
@@ -60,13 +61,14 @@ public class RelationshipMappingTest extends TestContainersTestBase {
     @BeforeClass
     public static void oneTimeSetup() {
         sessionFactory = new SessionFactory(getDriver(),
-            "org.neo4j.ogm.domain.policy",
             "org.neo4j.ogm.domain.election",
             "org.neo4j.ogm.domain.gh640",
             "org.neo4j.ogm.domain.gh641",
-            "org.neo4j.ogm.domain.typed_relationships",
             "org.neo4j.ogm.domain.gh656",
-            "org.neo4j.ogm.domain.gh704");
+            "org.neo4j.ogm.domain.gh666",
+            "org.neo4j.ogm.domain.gh704",
+            "org.neo4j.ogm.domain.policy",
+            "org.neo4j.ogm.domain.typed_relationships");
     }
 
     @Before
@@ -513,5 +515,50 @@ public class RelationshipMappingTest extends TestContainersTestBase {
             emptyMap()).queryResults();
         assertThat(actual).hasSize(1);
         assertThat(actual.iterator().next()).containsEntry("relTwo", true);
+    }
+
+    @Test // GH-666
+    public void shouldNotMessUpNodes() {
+        Map<String, Object> ids = sessionFactory.openSession().query(""
+                + "MERGE (n3:MessedUpNode2:TypeY) <-[:RELATION_A] - (n1:MessedUpNode1)-[:RELATION_NOT_MODELED]->(n2:MessedUpNode2:TypeX) "
+                + "RETURN id(n1) as id1, id(n2) as id2, id(n3) as id3",
+            Collections.emptyMap()
+        ).queryResults().iterator().next();
+
+        Session session = sessionFactory.openSession();
+        MessedUpNode1 n1 = session.load(MessedUpNode1.class, (long) ids.get("id1"));
+        MessedUpNode2 n2 = session.load(MessedUpNode2.class, (long) ids.get("id2"));
+        MessedUpNode2 n3 = session.load(MessedUpNode2.class, (long) ids.get("id3"));
+
+        assertThat(n1).isNotNull();
+        assertThat(n2).isNotNull();
+        assertThat(n3).isNotNull();
+
+        // Expected behaviour
+        assertThat(n1.getRef()).isEqualTo(n3);
+
+        // Loaded from the session
+        String query = "MATCH (n1:MessedUpNode1)-[rel:RELATION_NOT_MODELED]->(n2:`TypeX`) WHERE id(n1) = $id1 RETURN n1, rel, n2";
+        Iterable<Map<String, Object>> r = session
+            .query(query, Collections.singletonMap("id1", n1.getId()), true).queryResults();
+        assertCorrectRelationShip(r, n3);
+
+        // Loaded from the database
+        session = sessionFactory.openSession();
+        r = session.query(query, Collections.singletonMap("id1", n1.getId()), true).queryResults();
+        assertCorrectRelationShip(r, null);
+    }
+
+    private static void assertCorrectRelationShip(Iterable<Map<String, Object>> result, MessedUpNode2 expectedNode) {
+        assertThat(result).hasSize(1);
+        assertThat(result).allSatisfy(row -> {
+            assertThat(row.get("n1")).isInstanceOf(MessedUpNode1.class);
+            MessedUpNode2 ref = ((MessedUpNode1) row.get("n1")).getRef();
+            if (expectedNode != null) {
+                assertThat(ref).isNotNull().extracting(MessedUpNode2::getId).isEqualTo(expectedNode.getId());
+            } else {
+                assertThat(ref).isNull();
+            }
+        });
     }
 }

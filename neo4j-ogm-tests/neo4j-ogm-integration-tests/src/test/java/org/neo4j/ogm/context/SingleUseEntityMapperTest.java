@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.domain.gh391.SomeContainer;
 import org.neo4j.ogm.domain.gh551.AnotherThing;
 import org.neo4j.ogm.domain.gh551.ThingResult;
 import org.neo4j.ogm.domain.gh552.Thing;
@@ -47,7 +48,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh551");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391");
 
         // Prepare test data
         sessionFactory.openSession()
@@ -84,6 +85,23 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData, new ReflectionEntityInstantiator(metaData));
         Thing thing = entityMapper.map(Thing.class, properties);
         assertThat(thing.getNotAName()).isEqualTo(properties.get(propertyKey));
+    }
+
+    @Test // GH-391
+    public void shouldDealWithStaticInnerClasses() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("MATCH (t:ThingEntity) RETURN 'a name' as something LIMIT 1", EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        SomeContainer.StaticInnerThingResult thingResult = entityMapper.map(SomeContainer.StaticInnerThingResult.class, results.iterator().next());
+        assertThat(thingResult.getSomething()).isEqualTo("a name");
     }
 
     @Test

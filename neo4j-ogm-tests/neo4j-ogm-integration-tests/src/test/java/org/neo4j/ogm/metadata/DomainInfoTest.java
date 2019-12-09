@@ -68,7 +68,7 @@ public class DomainInfoTest {
     }
 
     @Test
-    public void shouldLoadClassesCorrectlyWithSimpleClassLoader() throws Exception {
+    public void shouldLoadClassesCorrectlyWithSimpleClassLoader() {
         final String classLoaderName = Thread.currentThread().getContextClassLoader().getClass().getSimpleName();
         new DomainInfoTestClassLoaderTestStub().assertCorrectClassLoaders(classLoaderName, classLoaderName);
     }

@@ -125,6 +125,8 @@ public class SingleUseEntityMapper {
             FieldInfo fieldInfo = classInfo.relationshipFieldByName(property.getKey());
             if (fieldInfo != null) {
                 writer = fieldInfo;
+            } else if (property.getKey().equals("id")) {
+                writer = classInfo.identityField();
             }
         }
 

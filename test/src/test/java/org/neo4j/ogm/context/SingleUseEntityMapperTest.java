@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.gh391.SomeContainer;
 import org.neo4j.ogm.domain.gh551.AnotherThing;
 import org.neo4j.ogm.domain.gh551.ThingResult;
+import org.neo4j.ogm.domain.gh551.ThingWIthId;
 import org.neo4j.ogm.domain.gh552.Thing;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
@@ -76,13 +77,35 @@ public class SingleUseEntityMapperTest extends MultiDriverTestClass {
             .allSatisfy(s -> ((String) s).startsWith("Thing"));
     }
 
+    /**
+     * ID fields are treated differently in different versions of OGM. This tests assures that they work correctly.
+     */
+    @Test // GH-551
+    public void shouldUseIdFields() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("MATCH (t:ThingEntity) RETURN 4711 as id, 'a name' as name LIMIT 1", EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        ThingWIthId thingResult = entityMapper.map(ThingWIthId.class, results.iterator().next());
+        assertThat(thingResult.getName()).isEqualTo("a name");
+        assertThat(thingResult.getId()).isEqualTo(4711);
+    }
+
     @Test // GH-552
     public void shouldLookupCorrectRootClass() {
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh552");
         String propertyKey = "notAName";
         Map<String, Object> properties = Collections.singletonMap(propertyKey, "NOT A NAME!!!");
 
-        SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData, new ReflectionEntityInstantiator(metaData));
+        SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData,
+            new ReflectionEntityInstantiator(metaData));
         Thing thing = entityMapper.map(Thing.class, properties);
         assertThat(thing.getNotAName()).isEqualTo(properties.get(propertyKey));
     }

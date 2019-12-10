@@ -33,6 +33,7 @@ import org.neo4j.ogm.metadata.FieldInfo;
 
 /**
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class RelationshipWriterAnnotatedFieldsTest {
 
@@ -47,7 +48,7 @@ public class RelationshipWriterAnnotatedFieldsTest {
             .getRelationalWriter(classInfo, "LIST", Relationship.OUTGOING, new T());
         assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
         assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
-        assertThat(objectAccess.relationshipName()).isEqualTo("LIST");
+        assertThat(objectAccess.relationship()).isEqualTo("LIST");
         assertThat(objectAccess.type()).isEqualTo(List.class);
     }
 
@@ -60,7 +61,7 @@ public class RelationshipWriterAnnotatedFieldsTest {
             .getRelationalWriter(classInfo, "SCALAR", Relationship.OUTGOING, new T());
         assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
         assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
-        assertThat(objectAccess.relationshipName()).isEqualTo("SCALAR");
+        assertThat(objectAccess.relationship()).isEqualTo("SCALAR");
         assertThat(objectAccess.type()).isEqualTo(T.class);
     }
 
@@ -73,7 +74,7 @@ public class RelationshipWriterAnnotatedFieldsTest {
             .getRelationalWriter(classInfo, "ARRAY", Relationship.OUTGOING, new T());
         assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
         assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
-        assertThat(objectAccess.relationshipName()).isEqualTo("ARRAY");
+        assertThat(objectAccess.relationship()).isEqualTo("ARRAY");
         assertThat(objectAccess.type()).isEqualTo(T[].class);
     }
 

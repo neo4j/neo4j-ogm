@@ -30,8 +30,8 @@ import org.neo4j.ogm.context.DirectedRelationship;
 import org.neo4j.ogm.context.DirectedRelationshipForType;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.session.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -303,11 +303,10 @@ public class EntityAccessManager {
     public static FieldInfo getRelationalWriter(ClassInfo classInfo, String relationshipType,
         String relationshipDirection, Class<?> objectType) {
 
-        final ClassInfo lookupClassInfo = classInfo;
         final DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType,
             relationshipDirection, objectType);
         final Map<DirectedRelationshipForType, FieldInfo> typeFieldInfoMap = relationalWriterCache
-            .computeIfAbsent(lookupClassInfo, key -> new ConcurrentHashMap<>());
+            .computeIfAbsent(classInfo, key -> new ConcurrentHashMap<>());
 
         if (typeFieldInfoMap.containsKey(directedRelationship)) {
             return typeFieldInfoMap.get(directedRelationship);
@@ -361,11 +360,14 @@ public class EntityAccessManager {
                 // 4th, try to find a unique field that has the same type as the parameter
                 List<FieldInfo> fieldInfos = classInfo.findFields(objectType);
                 if (fieldInfos.size() == 1) {
-                    FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
-                    if (!candidateFieldInfo.relationshipDirection(Relationship.UNDIRECTED)
-                        .equals(Relationship.INCOMING)) {
-                        typeFieldInfoMap.put(directedRelationship, candidateFieldInfo);
-                        return candidateFieldInfo;
+                    FieldInfo candidateField = fieldInfos.iterator().next();
+
+                    if (!candidateField.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
+
+                        if (candidateField.relationshipTypeAnnotation() == null) {
+                            typeFieldInfoMap.put(directedRelationship, candidateField);
+                            return candidateField;
+                        }
                     }
                 }
             }
@@ -386,11 +388,10 @@ public class EntityAccessManager {
     public static FieldInfo getRelationalReader(ClassInfo classInfo, String relationshipType,
         String relationshipDirection) {
 
-        final ClassInfo lookupClassInfo = classInfo;
         final DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,
             relationshipDirection);
         final Map<DirectedRelationship, FieldInfo> relationshipFieldInfoMap = relationalReaderCache
-            .computeIfAbsent(lookupClassInfo, key -> new ConcurrentHashMap<>());
+            .computeIfAbsent(classInfo, key -> new ConcurrentHashMap<>());
 
         if (relationshipFieldInfoMap.containsKey(directedRelationship)) {
             return relationshipFieldInfoMap.get(directedRelationship);

@@ -393,10 +393,6 @@ public class FieldInfo {
         return fieldType;
     }
 
-    public String relationshipName() {
-        return this.relationship();
-    }
-
     public boolean forScalar() {
         return !Iterable.class.isAssignableFrom(type()) && !type().isArray();
     }

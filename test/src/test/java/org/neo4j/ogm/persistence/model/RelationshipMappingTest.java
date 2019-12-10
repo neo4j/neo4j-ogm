@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,6 +45,7 @@ import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.typed_relationships.SomeEntity;
 import org.neo4j.ogm.domain.typed_relationships.TypedEntity;
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
@@ -67,6 +69,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
             "org.neo4j.ogm.domain.gh641",
             "org.neo4j.ogm.domain.typed_relationships",
             "org.neo4j.ogm.domain.gh656",
+            "org.neo4j.ogm.domain.gh666",
             "org.neo4j.ogm.domain.gh704");
     }
 
@@ -504,5 +507,64 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
             Collections.emptyMap()).queryResults();
         assertThat(actual).hasSize(1);
         assertThat(actual.iterator().next()).containsEntry("relTwo", true);
+    }
+
+    @Test // GH-666
+    public void shouldNotMessUpNodes() {
+        assertMapping(org.neo4j.ogm.domain.gh666.MessedUpNode1.class, node -> node.getRef(), false);
+    }
+
+    @Test // GH-666
+    public void mayMessUpNodes() {
+        assertMapping(org.neo4j.ogm.domain.gh666.MessedUpNode3.class, node -> node.getRef(), true);
+    }
+
+    private <T> void assertMapping(Class<T> targetClass, Function<T, org.neo4j.ogm.domain.gh666.MessedUpNode2> refExtractor,
+        boolean wildCardMappingAllowed) {
+
+        ClassInfo targetclassInfo = sessionFactory.metaData().classInfo(targetClass);
+
+        Map<String, Object> ids = sessionFactory.openSession().query(""
+                + "MERGE (n3:MessedUpNode2:TypeY) <-[:RELATION_A] - (n1:" + targetclassInfo.neo4jName()
+                + ")-[:RELATION_NOT_MODELED]->(n2:MessedUpNode2:TypeX) "
+                + "RETURN id(n1) as id1, id(n2) as id2, id(n3) as id3",
+            Collections.emptyMap()
+        ).queryResults().iterator().next();
+
+        Session session = sessionFactory.openSession();
+        T n1 = session.load(targetClass, (long) ids.get("id1"));
+        org.neo4j.ogm.domain.gh666.MessedUpNode2 n2 = session.load(org.neo4j.ogm.domain.gh666.MessedUpNode2.class, (long) ids.get("id2"));
+        org.neo4j.ogm.domain.gh666.MessedUpNode2 n3 = session.load(org.neo4j.ogm.domain.gh666.MessedUpNode2.class, (long) ids.get("id3"));
+
+        assertThat(n1).isNotNull();
+        assertThat(n2).isNotNull();
+        assertThat(n3).isNotNull();
+
+        // Expected behaviour
+        assertThat(refExtractor.apply(n1)).isEqualTo(n3);
+
+        // Loaded from the session
+        String query = "MATCH (n1:" + targetclassInfo.neo4jName()
+            + ")-[rel:RELATION_NOT_MODELED]->(n2:`TypeX`) WHERE id(n1) = $id1 RETURN n1, rel, n2";
+        Iterable<Map<String, Object>> r = session
+            .query(query, Collections.singletonMap("id1", (long) ids.get("id1")), true).queryResults();
+        assertCorrectRelationShip(r, wildCardMappingAllowed ? n2 : n3);
+
+        // Loaded from the database
+        session = sessionFactory.openSession();
+        r = session.query(query, Collections.singletonMap("id1", (long) ids.get("id1")), true).queryResults();
+        assertCorrectRelationShip(r, wildCardMappingAllowed ? n2 : null);
+    }
+
+    private static void assertCorrectRelationShip(Iterable<Map<String, Object>> result, org.neo4j.ogm.domain.gh666.MessedUpNode2 expectedNode) {
+        assertThat(result).hasSize(1);
+        assertThat(result).allSatisfy(row -> {
+            assertThat(row).containsKeys("n1");
+            if (expectedNode != null) {
+                assertThat(row.get("n1")).extracting("ref").extracting("id").containsExactly(expectedNode.getId());
+            } else {
+                assertThat(row.get("n1")).extracting("ref").hasSize(1).containsNull();
+            }
+        });
     }
 }

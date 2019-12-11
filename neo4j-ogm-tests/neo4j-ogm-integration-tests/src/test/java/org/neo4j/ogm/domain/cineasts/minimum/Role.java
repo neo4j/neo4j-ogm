@@ -45,4 +45,16 @@ public class Role {
         this.actor = actor;
         this.movie = movie;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Movie getMovie() {
+        return movie;
+    }
+
+    public void setMovie(Movie movie) {
+        this.movie = movie;
+    }
 }

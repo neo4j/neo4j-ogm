@@ -1,5 +1,20 @@
 = Changes
 
+== 3.1.16
+
+* Check for contradicting annotations before mapping possible related nodes. (#666)
+* Ensure that id fields are mapped correctly during ad-hoc mapping. (#551)
+* Fix lookup of inner, static classes. (#391)
+* Fix inconsistent behavior when querying parent classes. (#670)
+* Use all mapped labels when querying domain objects. (#651)
+* Use fully qualified name to find class info. (#552)
+* Update FastClasspathScanner to latest 2.x series for OGM 3.1. (#708)
+* Make SingleUseEntityMapper aware of nested objects. (#551)
+* Improve building of class hierarchies. (#704)
+* Fix detection of generic 1:1 relationships. (#706)
+* Fix deletion of bidirectional, undirected relationships. (#657)
+* Optimize CypherContext::isAlreadyDeleted. (#668)
+
 == 3.1.15
 
 * Fix invalid conversion of native types on embedded inside maps with when the experimental option

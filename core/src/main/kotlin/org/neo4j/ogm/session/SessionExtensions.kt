@@ -28,7 +28,7 @@ import java.io.Serializable
  * Extension for [Session.loadAll] leveraging reified type parameters.
  */
 inline fun <reified T : Any> Session.loadAll(
-        ids: Collection<out Serializable>,
+        ids: Collection<Serializable>,
         sortOrder: SortOrder = SortOrder(),
         pagination: Pagination? = null,
         depth: Int = 1
@@ -67,7 +67,7 @@ inline fun <reified T : Any> Session.loadAll(
  * Extension for [Session.load] leveraging reified type parameters.
  */
 inline fun <reified T : Any> Session.load(id: Serializable, depth: Int = 1): T =
-        load(T::class.java, id)
+        load(T::class.java, id, depth)
 
 /**
  * Extension for [Session.deleteAll] leveraging reified type parameters.

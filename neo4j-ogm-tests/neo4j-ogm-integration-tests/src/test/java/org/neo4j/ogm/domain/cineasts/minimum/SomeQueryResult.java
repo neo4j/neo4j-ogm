@@ -18,47 +18,43 @@
  */
 package org.neo4j.ogm.domain.cineasts.minimum;
 
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
+import java.util.Set;
 
 /**
- * @author Vince Bickers
+ * Query result that contains mapped relationship entities. Comes from GH-718, the user used a variable length relationship
+ * query that wasn't correctly mapped.
+ *
+ * @author Michael J. Simons
  */
-@RelationshipEntity(type = "ACTS_IN")
-public class Role {
+public class SomeQueryResult {
 
-    Long id;
-    String played;
+    private Actor actor;
 
-    @StartNode
-    Actor actor;
+    private Set<Role> roles;
 
-    @EndNode
-    Movie movie;
+    private Set<Movie> movies;
 
-    public Role() {
+    public Actor getActor() {
+        return actor;
     }
 
-    public Role(String played, Actor actor, Movie movie) {
-        this.played = played;
+    public void setActor(Actor actor) {
         this.actor = actor;
-        this.movie = movie;
     }
 
-    public Long getId() {
-        return id;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public Movie getMovie() {
-        return movie;
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
-    public String getPlayed() {
-        return played;
+    public Set<Movie> getMovies() {
+        return movies;
     }
 
-    public void setMovie(Movie movie) {
-        this.movie = movie;
+    public void setMovies(Set<Movie> movies) {
+        this.movies = movies;
     }
 }

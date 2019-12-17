@@ -29,6 +29,10 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.domain.cineasts.minimum.Actor;
+import org.neo4j.ogm.domain.cineasts.minimum.Movie;
+import org.neo4j.ogm.domain.cineasts.minimum.Role;
+import org.neo4j.ogm.domain.cineasts.minimum.SomeQueryResult;
 import org.neo4j.ogm.domain.gh391.SomeContainer;
 import org.neo4j.ogm.domain.gh551.AnotherThing;
 import org.neo4j.ogm.domain.gh551.ThingResult;
@@ -36,6 +40,7 @@ import org.neo4j.ogm.domain.gh551.ThingWIthId;
 import org.neo4j.ogm.domain.gh552.Thing;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 
@@ -49,11 +54,22 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391",
+            "org.neo4j.ogm.domain.cineasts.minimum");
 
         // Prepare test data
-        sessionFactory.openSession()
-            .query("unwind range(1,10) as x with x create (n:ThingEntity {name: 'Thing ' + x}) return n", EMPTY_MAP);
+        Session session = sessionFactory.openSession();
+        session.query("MATCH (n) DETACH DELETE n", EMPTY_MAP);
+        session.query("unwind range(1,10) as x with x create (n:ThingEntity {name: 'Thing ' + x}) return n", EMPTY_MAP);
+
+        Actor actor = new Actor("A1");
+        Movie movie = new Movie("M1");
+        Role role = new Role("R1", actor, movie);
+        session.save(role);
+
+        movie = new Movie("M2");
+        role = new Role("R2", actor, movie);
+        session.save(role);
     }
 
     @Test // GH-551
@@ -75,6 +91,33 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
             .hasSize(10)
             .extracting(AnotherThing::getName)
             .allSatisfy(s -> s.startsWith("Thing"));
+    }
+
+    @Test // GH-718
+    public void queryResultShouldHandleNodeAndRelationshipEntities() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        // Notice the difference in how the relationship is queried: The variable length query pattern in
+        // the second query triggers the changes that had been necessary in org.neo4j.ogm.result.adapter.RestModelAdapter.adapt
+        // so that it works the same way as the org.neo4j.ogm.result.adapter.GraphModelAdapter.adapt
+        for (String query : new String[] {
+            "MATCH (a:Actor {name: 'A1'})-[r:ACTS_IN]->(m:Movie) RETURN a AS actor,COLLECT(r) AS roles, COLLECT(m) as movies",
+            "MATCH (a:Actor {name: 'A1'})-[r:ACTS_IN*]->(m:Movie) RETURN a AS actor,COLLECT(r) AS roles, COLLECT(m) as movies"
+        }) {
+            Iterable<Map<String, Object>> results = sessionFactory.openSession().query(query, EMPTY_MAP)
+                .queryResults();
+
+            assertThat(results).hasSize(1);
+            SomeQueryResult thingResult = entityMapper.map(SomeQueryResult.class, results.iterator().next());
+            assertThat(thingResult.getActor().getName()).isEqualTo("A1");
+            assertThat(thingResult.getRoles())
+                .hasSize(2)
+                .extracting(Role::getPlayed)
+                .containsExactlyInAnyOrder("R1", "R2");
+        }
     }
 
     /**

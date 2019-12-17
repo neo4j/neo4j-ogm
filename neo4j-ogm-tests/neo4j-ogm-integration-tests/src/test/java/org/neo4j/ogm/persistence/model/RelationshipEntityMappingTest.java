@@ -63,12 +63,6 @@ public class RelationshipEntityMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void f() {
-
-
-    }
-
-    @Test
     public void testThatAnnotatedRelationshipOnRelationshipEntityCreatesTheCorrectRelationshipTypeInTheGraph() {
         Movie hp = new Movie("Goblet of Fire", 2005);
 

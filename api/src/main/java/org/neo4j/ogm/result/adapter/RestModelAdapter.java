@@ -31,6 +31,7 @@ import org.neo4j.ogm.response.model.RelationshipModel;
  * Adapt embedded response to a NodeModels, RelationshipModels, and objects
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public abstract class RestModelAdapter extends BaseAdapter
     implements ResultAdapter<Map<String, Object>, Map<String, Object>> {
@@ -44,7 +45,7 @@ public abstract class RestModelAdapter extends BaseAdapter
                 Collection<Object> adaptedValues = new ArrayList<>();
                 Collection<Object> values = (List) value;
                 for (Object element : values) {
-                    adaptedValues.add(processData(element));
+                    handleAdaptedValue(adaptedValues, processData(element));
                 }
                 adaptedResults.put(entry.getKey(), adaptedValues);
             } else {
@@ -55,6 +56,14 @@ public abstract class RestModelAdapter extends BaseAdapter
         return adaptedResults;
     }
 
+    private static void handleAdaptedValue(Collection<Object> adaptedValues, Object newValue) {
+        if (newValue instanceof Collection) {
+            adaptedValues.addAll((Collection<?>) newValue);
+        } else {
+            adaptedValues.add(newValue);
+        }
+    }
+
     private Object processData(Object element) {
         if (isNode(element)) {
             return buildNode(element);
@@ -62,9 +71,16 @@ public abstract class RestModelAdapter extends BaseAdapter
         if (isRelationship(element)) {
             return buildRelationship(element);
         }
+        if (element instanceof Iterable) {
+            List<Object> adaptedValues = new ArrayList<>();
+            Iterable collection = (Iterable) element;
+            for (Object nestedElement : collection) {
+                handleAdaptedValue(adaptedValues, processData(nestedElement));
+            }
+            return adaptedValues;
+        }
         return element;
     }
-
     private NodeModel buildNode(Object node) {
         NodeModel nodeModel = new NodeModel(nodeId(node));
         List<String> labels = labels(node);

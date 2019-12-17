@@ -32,8 +32,9 @@ import org.neo4j.ogm.response.model.RelationshipModel;
 /**
  * This adapter will transform an embedded response into a json response
  *
- * @author vince
+ * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public abstract class GraphModelAdapter extends BaseAdapter implements ResultAdapter<Map<String, Object>, GraphModel> {
 

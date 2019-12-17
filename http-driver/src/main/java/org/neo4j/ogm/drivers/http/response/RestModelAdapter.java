@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.drivers.http.response;
 
+import static org.neo4j.ogm.result.adapter.RestModelAdapter.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -32,6 +34,7 @@ import org.neo4j.ogm.result.adapter.ResultAdapter;
  * Adapt HTTP rest response to a NodeModels, RelationshipModels, and objects
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class RestModelAdapter implements ResultAdapter<Object[], Map<String, Object>> {
 
@@ -47,7 +50,7 @@ public class RestModelAdapter implements ResultAdapter<Object[], Map<String, Obj
                 List<Object> adaptedValues = new ArrayList<>();
                 List<Object> values = (List) value;
                 for (Object element : values) {
-                    adaptedValues.add(processData(element));
+                    handleAdaptedValue(adaptedValues, processData(element));
                 }
                 adaptedResults.put(column, adaptedValues);
             } else {
@@ -61,7 +64,8 @@ public class RestModelAdapter implements ResultAdapter<Object[], Map<String, Obj
         if (element instanceof Map) {
             return buildEntity((Map) element);
         }
-        return element;
+
+        return handlePossibleCollections(element, this::processData);
     }
 
     private Object buildEntity(Map entity) {

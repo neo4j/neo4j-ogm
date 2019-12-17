@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
@@ -31,6 +32,7 @@ import org.neo4j.ogm.response.model.RelationshipModel;
  * Adapt embedded response to a NodeModels, RelationshipModels, and objects
  *
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public abstract class RestModelAdapter extends BaseAdapter
     implements ResultAdapter<Map<String, Object>, Map<String, Object>> {
@@ -44,7 +46,7 @@ public abstract class RestModelAdapter extends BaseAdapter
                 Collection<Object> adaptedValues = new ArrayList<>();
                 Collection<Object> values = (List) value;
                 for (Object element : values) {
-                    adaptedValues.add(processData(element));
+                    handleAdaptedValue(adaptedValues, processData(element));
                 }
                 adaptedResults.put(entry.getKey(), adaptedValues);
             } else {
@@ -55,6 +57,39 @@ public abstract class RestModelAdapter extends BaseAdapter
         return adaptedResults;
     }
 
+    /**
+     * Not public API, for internal use only.
+     * @param adaptedValues already prepared values
+     * @param newValue new value to prepare
+     */
+    public static void handleAdaptedValue(Collection<Object> adaptedValues, Object newValue) {
+
+        if (newValue instanceof Collection) {
+            adaptedValues.addAll((Collection<?>) newValue);
+        } else {
+            adaptedValues.add(newValue);
+        }
+    }
+
+    /**
+     * Not public API, for internal use only.
+     * @param element Element that maybe is a collection
+     * @param mappingFunction Mapping function for a single element
+     * @return The element itself or a collection of mapped elements
+     */
+    public static Object handlePossibleCollections(Object element, Function<Object, Object> mappingFunction) {
+
+        if (element instanceof Iterable) {
+            List<Object> adaptedValues = new ArrayList<>();
+            Iterable collection = (Iterable) element;
+            for (Object nestedElement : collection) {
+                handleAdaptedValue(adaptedValues, mappingFunction.apply(nestedElement));
+            }
+            return adaptedValues;
+        }
+        return element;
+    }
+
     private Object processData(Object element) {
         if (isNode(element)) {
             return buildNode(element);
@@ -62,9 +97,9 @@ public abstract class RestModelAdapter extends BaseAdapter
         if (isRelationship(element)) {
             return buildRelationship(element);
         }
-        return element;
-    }
 
+        return handlePossibleCollections(element, this::processData);
+    }
     private NodeModel buildNode(Object node) {
         NodeModel nodeModel = new NodeModel(nodeId(node));
         List<String> labels = labels(node);

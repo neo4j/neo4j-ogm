@@ -312,7 +312,6 @@ public class DomainInfo {
         if (foundKeys.isEmpty()) {
             return null;
         } else if (foundKeys.size() > 1) {
-            System.out.println(foundKeys);
             throw new MappingException("More than one class has simple name: " + fullOrPartialClassName);
         } else {
             return infos.get(foundKeys.get(0));

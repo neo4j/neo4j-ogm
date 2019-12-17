@@ -74,7 +74,7 @@ class SessionExtensionsTest {
 
         session.load<SomeEntity>(23L)
 
-        verify(exactly = 1) { session.load(SomeEntity::class.java, 23L) }
+        verify(exactly = 1) { session.load(SomeEntity::class.java, 23L, 1) }
     }
 
     @Test

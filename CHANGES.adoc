@@ -1,5 +1,19 @@
 = Changes
 
+== 3.2.4
+
+* Pass depth parameter correctly from Kotlin session extension. (#724)
+* Upgrade Java driver to 4.0.0. (#720)
+* Recursively traverse variable length relationship patterns. (#718)
+* Fix inconsistend behaviour when querying parent classes. (#670)
+* Check for contradicting annotations before mapping possible related nodes. (#666)
+* Use all mapped labels when querying domain objects. (#651)
+* Verify update of relationship entities. (#607)
+* Use fully qualified name to find class info. (#552)
+* Make SingleUseEntityMapper aware of nested objects
+  and Ensure that id fields are mapped correctly during adhoc mapping. (#551)
+* Fix lookup of inner, static classes. (#391)
+
 == 3.2.3
 
 * Update Java driver to latest 4.0.0-rc1 release. (#699)

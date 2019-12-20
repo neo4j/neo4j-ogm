@@ -22,12 +22,16 @@ import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
+import org.neo4j.ogm.domain.cineasts.minimum.Role;
+import org.neo4j.ogm.response.model.RelationshipModel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
@@ -38,6 +42,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
  * both of its Related entities.
  *
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class RelationshipEntityPartialMappingTest extends TestContainersTestBase {
 
@@ -70,5 +75,43 @@ public class RelationshipEntityPartialMappingTest extends TestContainersTestBase
         assertThat(session.query("MATCH (a:Actor {name:'Keanu Reeves'}), " +
                 "(m:Movie {name:'The Matrix'}) " +
                 "WHERE (a)-[:ACTS_IN {played:'Neo'}]->(m) return a, m", emptyMap()).queryResults()).hasSize(1);
+    }
+
+    @Test // GH-727
+    public void shouldNotDropUnmappedRelationshipModels() {
+        Session session = sessionFactory.openSession();
+        Actor actor = new Actor("A1");
+        Movie movie = new Movie("M1");
+        Role role = new Role("R1", actor, movie);
+        session.save(role);
+
+        session = sessionFactory.openSession();
+        Iterable<Map<String, Object>> results = session
+            .query("MATCH (m) - [r] - (a) WHERE id(a) = $id RETURN r",
+                Collections.singletonMap("id", actor.getId())).queryResults();
+
+        assertThat(results).hasSize(1);
+        Map<String, Object> row = results.iterator().next();
+        assertThat(row).containsKeys("r");
+        assertThat(row.get("r")).isNotNull().isInstanceOf(RelationshipModel.class);
+    }
+
+    @Test // GH-727
+    public void shouldMapSingleRelationshipModel() {
+        Session session = sessionFactory.openSession();
+        Actor actor = new Actor("A1");
+        Movie movie = new Movie("M1");
+        Role role = new Role("R1", actor, movie);
+        session.save(role);
+
+        session = sessionFactory.openSession();
+        Iterable<Map<String, Object>> results = session
+            .query("MATCH (m) - [r] - (a) WHERE id(a) = $id RETURN m, r, a",
+                Collections.singletonMap("id", actor.getId())).queryResults();
+
+        assertThat(results).hasSize(1);
+        Map<String, Object> row = results.iterator().next();
+        assertThat(row).containsKeys("r");
+        assertThat(row.get("r")).isNotNull().isInstanceOf(Role.class);
     }
 }

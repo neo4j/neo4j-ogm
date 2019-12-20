@@ -24,6 +24,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,10 +80,8 @@ public class RestModelMapper {
         // Build and collect all the graph models.
         List<GraphModel> graphModels = resultRowBuilders.stream()
             .map(ResultRowBuilder::buildGraphModel).collect(toList());
-
         // Run the actual mapping
         delegate.map(Object.class, graphModels);
-
         // Recreate the original structure
         RestStatisticsModel restStatisticsModel = new RestStatisticsModel();
         response.getStatistics().ifPresent(restStatisticsModel::setStatistics);
@@ -117,7 +116,7 @@ public class RestModelMapper {
         /**
          * Stores all relationships extracted from result.
          */
-        private final List<RelationshipModel> relationshipModels = new ArrayList<>();
+        private final Map<Long, RelationshipModel> relationshipModels = new LinkedHashMap<>();
 
         /**
          * The graph model build from the above.
@@ -157,7 +156,14 @@ public class RestModelMapper {
         ResultRowBuilder(BiFunction<Long, DefaultGraphModel, Object> resolveNodeId,
             Function<Long, Object> resolveRelationshipId) {
             this.resolveNodeId = resolveNodeId;
-            this.resolveRelationshipId = resolveRelationshipId;
+            this.resolveRelationshipId = id -> {
+                Object result = resolveRelationshipId.apply(id);
+                if (result == null) {
+                    return relationshipModels.get(id);
+                } else {
+                    return result;
+                }
+            };
         }
 
         /**
@@ -167,7 +173,6 @@ public class RestModelMapper {
          * @param resultObject The result object
          */
         void handle(String alias, Object resultObject) {
-
             if (!canBeMapped(resultObject)) {
                 // The entity mapper can only deal with models
                 this.resultRow.put(alias, convertToTargetContainer(resultObject));
@@ -195,7 +200,8 @@ public class RestModelMapper {
                 this.nodeModels.add((NodeModel) item);
             } else if (item instanceof RelationshipModel) {
                 ids = aliasToRelationshipIdMapping.computeIfAbsent(alias, key -> new ArrayList<>());
-                this.relationshipModels.add((RelationshipModel) item);
+                RelationshipModel relationshipModel = (RelationshipModel) item;
+                this.relationshipModels.put(relationshipModel.getId(), relationshipModel);
             } else {
                 throw new IllegalArgumentException(item + " is not a mappable object!");
             }
@@ -212,7 +218,7 @@ public class RestModelMapper {
 
             this.graphModel = new DefaultGraphModel();
             graphModel.addNodes(nodeModels.toArray(new NodeModel[0]));
-            graphModel.addRelationships(relationshipModels.toArray(new RelationshipModel[0]));
+            graphModel.addRelationships(relationshipModels.values().toArray(new RelationshipModel[0]));
             return graphModel;
         }
 
@@ -221,7 +227,6 @@ public class RestModelMapper {
             if (this.graphModel == null) {
                 throw new IllegalStateException("GraphModel not built yet!");
             }
-
             aliasToNodeIdMapping.forEach((k, v) -> {
                 Object entity;
                 if (!aliasesOfListResults.contains(k) && v.size() == 1) {

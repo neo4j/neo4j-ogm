@@ -46,6 +46,7 @@ import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.typed_relationships.SomeEntity;
 import org.neo4j.ogm.domain.typed_relationships.TypedEntity;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.response.model.RelationshipModel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
@@ -507,6 +508,25 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
             Collections.emptyMap()).queryResults();
         assertThat(actual).hasSize(1);
         assertThat(actual.iterator().next()).containsEntry("relTwo", true);
+    }
+
+    @Test // GH-727
+    public void shouldNotDropUnmappedRelationshipModels() {
+
+        Session session = sessionFactory.openSession();
+        Voter voter = new Voter("V");
+        voter.candidateVotedFor = new Candidate("C");
+        session.save(voter);
+
+        session = sessionFactory.openSession();
+        Iterable<Map<String, Object>> results = session
+            .query("MATCH (v) - [r] - (c) WHERE id(v) = $id RETURN r",
+                Collections.singletonMap("id", voter.getId())).queryResults();
+
+        assertThat(results).hasSize(1);
+        Map<String, Object> row = results.iterator().next();
+        assertThat(row).containsKeys("r");
+        assertThat(row.get("r")).isNotNull().isInstanceOf(RelationshipModel.class);
     }
 
     @Test // GH-666

@@ -318,8 +318,8 @@ public class GraphEntityMapper {
 
             if (source == null || target == null) {
                 String messageFormat
-                    = "Relationship {} cannot be hydrated because one or more required node types are not mapped to entity classes";
-                logger.debug(messageFormat, edge);
+                    = "Relationship {} cannot be fully hydrated because one or more required node entities have not been part of the result set.";
+                logger.warn(messageFormat, edge);
             } else {
                 mappedRelationshipIds.add(edge.getId());
 

@@ -48,6 +48,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.domain.gh726.package_a.SameClass;
 import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.domain.nested.NestingClass;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
@@ -80,7 +81,8 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         session = new SessionFactory(getDriver(),
             "org.neo4j.ogm.domain.cineasts.annotated",
             "org.neo4j.ogm.domain.nested",
-            "org.neo4j.ogm.domain.linkedlist"
+            "org.neo4j.ogm.domain.linkedlist",
+            "org.neo4j.ogm.domain.gh726"
         ).openSession();
         session.purgeDatabase();
         session.clear();
@@ -783,6 +785,31 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             .isNotNull()
             .extracting(Item::getName)
             .containsExactly("A", "B", "C", "D");
+    }
+
+
+    @Test // GH-726
+    public void shouldMapCorrectlyIfTwoClassesWithTheSameSimpleNameExist() {
+        // org.neo4j.ogm.domain.gh726.package_a.SameClass
+        SameClass sameClassA = new SameClass();
+        session.save(sameClassA);
+
+        SameClass loadedSameClassA = session.query(SameClass.class,
+            "MATCH (s:SameClassA) WHERE id(s) = {id} RETURN s",
+            Collections.singletonMap("id", sameClassA.getId())).iterator().next();
+
+        assertThat(loadedSameClassA).isInstanceOf(SameClass.class);
+
+        // org.neo4j.ogm.domain.gh726.package_b.SameClass
+        org.neo4j.ogm.domain.gh726.package_b.SameClass sameClassB = new org.neo4j.ogm.domain.gh726.package_b.SameClass();
+        session.save(sameClassB);
+
+        org.neo4j.ogm.domain.gh726.package_b.SameClass loadedSameClassB =
+            session.query(org.neo4j.ogm.domain.gh726.package_b.SameClass.class,
+                "MATCH (s:SameClassB) WHERE id(s) = {id} RETURN s",
+                Collections.singletonMap("id", sameClassB.getId())).iterator().next();
+
+        assertThat(loadedSameClassB).isInstanceOf(org.neo4j.ogm.domain.gh726.package_b.SameClass.class);
     }
 
     private static boolean checkForMichal(Map<String, Object> result) {

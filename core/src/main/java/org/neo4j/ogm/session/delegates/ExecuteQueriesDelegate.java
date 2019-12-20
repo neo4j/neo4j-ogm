@@ -136,7 +136,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
     private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters) {
 
         return session.<Iterable<T>>doInTransaction(() -> {
-            if (type != null && session.metaData().classInfo(deriveSimpleName(type)) != null) {
+            if (type != null && session.metaData().classInfo(type.getName()) != null) {
                 // Things that can be mapped to entities
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {

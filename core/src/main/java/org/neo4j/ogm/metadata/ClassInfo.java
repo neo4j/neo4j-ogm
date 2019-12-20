@@ -198,7 +198,7 @@ public class ClassInfo {
         return deriveSimpleName(this.cls);
     }
 
-    public static String deriveSimpleName(Class<?> clazz) {
+    private static String deriveSimpleName(Class<?> clazz) {
 
         String className = clazz.getName();
         return className.substring(className.lastIndexOf('.') + 1);

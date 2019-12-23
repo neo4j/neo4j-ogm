@@ -46,6 +46,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.domain.gh726.package_a.SameClass;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.session.Session;
@@ -68,7 +69,10 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated").openSession();
+        session = new SessionFactory(driver,
+            "org.neo4j.ogm.domain.cineasts.annotated",
+            "org.neo4j.ogm.domain.gh726")
+            .openSession();
         session.purgeDatabase();
         session.clear();
         importCineasts();
@@ -714,6 +718,30 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     public void shouldNotThrowExceptionIfTypeIsSuperTypeOfResultObject() {
         session.queryForObject(Long.class, "MATCH (n:User) return count(n)", Collections.EMPTY_MAP);
         session.queryForObject(Number.class, "MATCH (n:User) return count(n)", Collections.EMPTY_MAP);
+    }
+
+    @Test // GH-726
+    public void shouldMapCorrectlyIfTwoClassesWithTheSameSimpleNameExist() {
+        // org.neo4j.ogm.domain.gh726.package_a.SameClass
+        SameClass sameClassA = new SameClass();
+        session.save(sameClassA);
+
+        SameClass loadedSameClassA = session.query(SameClass.class,
+            "MATCH (s:SameClassA) WHERE id(s) = $id RETURN s",
+            Collections.singletonMap("id", sameClassA.getId())).iterator().next();
+
+        assertThat(loadedSameClassA).isInstanceOf(SameClass.class);
+
+        // org.neo4j.ogm.domain.gh726.package_b.SameClass
+        org.neo4j.ogm.domain.gh726.package_b.SameClass sameClassB = new org.neo4j.ogm.domain.gh726.package_b.SameClass();
+        session.save(sameClassB);
+
+        org.neo4j.ogm.domain.gh726.package_b.SameClass loadedSameClassB =
+            session.query(org.neo4j.ogm.domain.gh726.package_b.SameClass.class,
+                "MATCH (s:SameClassB) WHERE id(s) = $id RETURN s",
+                Collections.singletonMap("id", sameClassB.getId())).iterator().next();
+
+        assertThat(loadedSameClassB).isInstanceOf(org.neo4j.ogm.domain.gh726.package_b.SameClass.class);
     }
 
     private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {

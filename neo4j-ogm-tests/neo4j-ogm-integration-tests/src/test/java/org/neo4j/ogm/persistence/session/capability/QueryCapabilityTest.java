@@ -795,7 +795,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         session.save(sameClassA);
 
         SameClass loadedSameClassA = session.query(SameClass.class,
-            "MATCH (s:SameClassA) WHERE id(s) = {id} RETURN s",
+            "MATCH (s:SameClassA) WHERE id(s) = $id RETURN s",
             Collections.singletonMap("id", sameClassA.getId())).iterator().next();
 
         assertThat(loadedSameClassA).isInstanceOf(SameClass.class);
@@ -806,7 +806,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
 
         org.neo4j.ogm.domain.gh726.package_b.SameClass loadedSameClassB =
             session.query(org.neo4j.ogm.domain.gh726.package_b.SameClass.class,
-                "MATCH (s:SameClassB) WHERE id(s) = {id} RETURN s",
+                "MATCH (s:SameClassB) WHERE id(s) = $id RETURN s",
                 Collections.singletonMap("id", sameClassB.getId())).iterator().next();
 
         assertThat(loadedSameClassB).isInstanceOf(org.neo4j.ogm.domain.gh726.package_b.SameClass.class);

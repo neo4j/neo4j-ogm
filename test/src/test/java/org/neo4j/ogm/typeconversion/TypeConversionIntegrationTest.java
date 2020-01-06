@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2019 "Neo4j,"
+ * Copyright (c) 2002-2020 "Neo4j,"
  * Neo4j Sweden AB [http://neo4j.com]
  *
  * This file is part of Neo4j.
@@ -77,7 +77,7 @@ public class TypeConversionIntegrationTest extends MultiDriverTestClass {
 
         session.save(album);
         session.clear();
-        
+
         final Date latestReleases = session.queryForObject(Date.class, "MATCH (n:`l'album`) RETURN MAX(n.releasedAt)", new HashMap<>());
         Assertions.assertThat(latestReleases).isEqualTo(queen2ReleaseDate);
     }

@@ -77,12 +77,21 @@ public class DomainInfo {
         Predicate<Class<?>> classIsMappable = clazz -> !(clazz.isAnnotation() || clazz.isAnonymousClass() || clazz
             .equals(Object.class));
 
+        // We cannot use the ClassGraph class loader as the order of class loaders used is broken since
+        // ClassGraph 4.8.19 again when `org.springframework.boot.devtools.restart.classloader.RestartClassLoader`
+        // is present.
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try (ScanResult scanResult = findClasses(packages)) {
-            for (Class<?> clazz : scanResult.getAllClasses().loadClasses(true)) {
-                if (!classIsMappable.test(clazz)) {
-                    continue;
+            for (String className : scanResult.getAllClasses().getNames()) {
+                try {
+                    Class<?> clazz = Class.forName(className, false, contextClassLoader);
+                    if (!classIsMappable.test(clazz)) {
+                        continue;
+                    }
+                    domainInfo.addClass(clazz);
+                } catch (ClassNotFoundException e) {
+                    LOGGER.warn("Could not load class {}", className);
                 }
-                domainInfo.addClass(clazz);
             }
         } finally {
             domainInfo.finish();

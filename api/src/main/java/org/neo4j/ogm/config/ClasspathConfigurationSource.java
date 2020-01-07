@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.neo4j.ogm.support.ClassUtils;
-
 /**
  * {@link ConfigurationSource} reading configuration from classpath files.
  *
@@ -36,7 +34,7 @@ public class ClasspathConfigurationSource implements ConfigurationSource {
 
     public ClasspathConfigurationSource(String propertiesFileName) {
 
-        try (InputStream is = ClassUtils.getDefaultClassLoader().getResourceAsStream(propertiesFileName)) {
+        try (InputStream is = ConfigurationUtils.getResourceAsStream(propertiesFileName)) {
             properties.load(is);
         } catch (IOException e) {
             throw new RuntimeException("Could not load properties file: " + propertiesFileName, e);

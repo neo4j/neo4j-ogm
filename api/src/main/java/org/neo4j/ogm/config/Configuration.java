@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.config;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -32,7 +33,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
 
-import org.neo4j.ogm.support.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +47,14 @@ import org.slf4j.LoggerFactory;
 public class Configuration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+
+    /**
+     * The class loader that should be used for loading domain entities, custom converters etc. This shall be used for
+     * driver, domain objects and custom converters. Resourced that are needed before this shall be loaded via the
+     * {@link ConfigurationUtils}. <strong>Don't consider this field public API, it must be used only internally and it
+     * is not meant to be configurable (yet).</strong>
+     */
+    public static final ClassLoader OGM_CLASS_LOADER = new DelegatingClassLoader();
     private static final int DEFAULT_SESSION_POOL_SIZE = 50;
 
     private String uri;
@@ -211,7 +219,7 @@ public class Configuration {
         boolean isEmbeddedHA = false;
         if (this.neo4jConfLocation != null) {
             try {
-                URL url = ResourceUtils.getResourceUrl(neo4jConfLocation);
+                URL url = ConfigurationUtils.getResourceUrl(neo4jConfLocation);
 
                 Properties neo4Properties = new Properties();
                 neo4Properties.load(url.openStream());
@@ -223,6 +231,11 @@ public class Configuration {
         }
 
         return isEmbeddedHA;
+    }
+
+    public URL getResourceUrl(String resourceLocation) throws FileNotFoundException {
+
+        return ConfigurationUtils.getResourceUrl(resourceLocation);
     }
 
     public Credentials getCredentials() {

@@ -103,7 +103,7 @@ public class ClassInfo {
     private volatile MethodInfo postLoadMethod;
     private volatile Collection<String> staticLabels;
     private boolean primaryIndexFieldChecked = false;
-    private Class<?> cls;
+    private final Class<?> cls;
     private Class<? extends IdStrategy> idStrategyClass;
     private IdStrategy idStrategy;
 
@@ -836,14 +836,7 @@ public class ClassInfo {
     private synchronized Map<String, FieldInfo> initIndexFields() {
         Map<String, FieldInfo> indexes = new HashMap<>();
 
-        // No way to get declared fields from current byte code impl. Using reflection instead.
-        Field[] declaredFields;
-        try {
-            declaredFields = Class.forName(className, false, Thread.currentThread().getContextClassLoader())
-                .getDeclaredFields();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Could not reflectively read declared fields", e);
-        }
+        Field[] declaredFields = cls.getDeclaredFields();
 
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (isDeclaredField(declaredFields, fieldInfo.getName()) &&
@@ -880,13 +873,6 @@ public class ClassInfo {
         // init property fields to be able to check existence of properties
         propertyFields();
 
-        if (cls == null) {
-            try {
-                cls = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Could not get annotation info for class " + className, e);
-            }
-        }
         CompositeIndex[] annotations = cls.getDeclaredAnnotationsByType(CompositeIndex.class);
         ArrayList<CompositeIndex> result = new ArrayList<>(annotations.length);
 

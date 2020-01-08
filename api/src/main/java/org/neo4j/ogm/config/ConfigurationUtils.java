@@ -35,7 +35,7 @@ final class ConfigurationUtils {
     private static final String CLASSPATH_URL_PREFIX = "classpath:";
 
     /**
-     * Strips of <pre>classpath:</pre> and treats the rest as an absolute resource path before trying to open an inputestream.
+     * Strips of <pre>classpath:</pre> and treats the rest as an absolute resource path before trying to open an input stream.
      *
      * @param name
      * @return

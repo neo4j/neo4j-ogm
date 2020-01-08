@@ -32,7 +32,7 @@ import java.util.Set;
  * This class loader delegates to a list of class loaders, which is by default a singleton list containing the class loader
  * that has been used to load this class.
  * <p>
- * Before consulting the delegates, this the current threads class loader is used (if available). When neither that class loader
+ * Before consulting the delegates, the current threads class loader is used (if available). When neither the class loader
  * nor any of the delegates is able to resolve a class or resource, the system class loader is used.
  *
  * @author Michael J. Simons

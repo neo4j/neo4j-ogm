@@ -19,50 +19,9 @@
 package org.neo4j.ogm.support;
 
 /**
- *  The following methods are a 1:1 copy of {@code org.springframework.util.ClassUtils} in version 5.1.3:
- *
- *  <ul>
- *      <li>{@link #getDefaultClassLoader()}</li>
- *  </ul>
+ * @author Michael J. Simons
  */
 public final class ClassUtils {
-
-    /**
-     * Return the default ClassLoader to use: typically the thread context
-     * ClassLoader, if available; the ClassLoader that loaded the ClassUtils
-     * class will be used as fallback.
-     * <p>Call this method if you intend to use the thread context ClassLoader
-     * in a scenario where you clearly prefer a non-null ClassLoader reference:
-     * for example, for class path resource loading (but not necessarily for
-     * {@code Class.forName}, which accepts a {@code null} ClassLoader
-     * reference as well).
-     *
-     * @return the default ClassLoader (only {@code null} if even the system
-     * ClassLoader isn't accessible)
-     * @see Thread#getContextClassLoader()
-     * @see ClassLoader#getSystemClassLoader()
-     */
-    public static ClassLoader getDefaultClassLoader() {
-        ClassLoader cl = null;
-        try {
-            cl = Thread.currentThread().getContextClassLoader();
-        } catch (Throwable ex) {
-            // Cannot access thread context ClassLoader - falling back...
-        }
-        if (cl == null) {
-            // No thread context class loader -> use class loader of this class.
-            cl = ClassUtils.class.getClassLoader();
-            if (cl == null) {
-                // getClassLoader() returning null indicates the bootstrap ClassLoader
-                try {
-                    cl = ClassLoader.getSystemClassLoader();
-                } catch (Throwable ex) {
-                    // Cannot access system ClassLoader - oh well, maybe the caller can live with null...
-                }
-            }
-        }
-        return cl;
-    }
 
     /**
      * See https://github.com/neo4j/neo4j-ogm/issues/643. An enum instance that overrides methods of the enum itself

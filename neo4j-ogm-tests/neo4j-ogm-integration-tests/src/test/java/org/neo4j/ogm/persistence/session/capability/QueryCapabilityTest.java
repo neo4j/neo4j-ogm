@@ -71,6 +71,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QueryCapabilityTest extends TestContainersTestBase {
 
+    private SessionFactory sessionFactory;
     private Session session;
 
     @Rule
@@ -78,12 +79,13 @@ public class QueryCapabilityTest extends TestContainersTestBase {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(getDriver(),
+        sessionFactory = new SessionFactory(getDriver(),
             "org.neo4j.ogm.domain.cineasts.annotated",
             "org.neo4j.ogm.domain.nested",
             "org.neo4j.ogm.domain.linkedlist",
             "org.neo4j.ogm.domain.gh726"
-        ).openSession();
+        );
+        session = sessionFactory.openSession();
         session.purgeDatabase();
         session.clear();
         importCineasts();
@@ -424,13 +426,13 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     @Test // GH-651
     public void shouldBeAbleToMapRelationshipEntitiesByIds() {
         List<Long> ratingIds = new ArrayList<>();
-        for (Map<String, Object> row : session
+        for (Map<String, Object> row : sessionFactory.openSession()
             .query("MATCH ()-[r:RATED]->() RETURN id(r) as r", Collections.emptyMap())
             .queryResults()) {
             ratingIds.add((Long) row.get("r"));
         }
 
-        Collection<Rating> ratings = session.loadAll(Rating.class, ratingIds);
+        Collection<Rating> ratings = sessionFactory.openSession().loadAll(Rating.class, ratingIds);
         assertThat(ratings).extracting(Rating::getId).containsExactlyInAnyOrderElementsOf(ratingIds);
     }
 

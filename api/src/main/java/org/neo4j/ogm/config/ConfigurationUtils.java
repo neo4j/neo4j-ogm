@@ -16,9 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.support;
+package org.neo4j.ogm.config;
 
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
@@ -26,12 +27,28 @@ import java.util.Objects;
 /**
  * @author Michael J. Simons
  */
-public final class ResourceUtils {
+final class ConfigurationUtils {
 
     /**
      * Pseudo URL prefix for loading from the class path: "classpath:".
      */
     private static final String CLASSPATH_URL_PREFIX = "classpath:";
+
+    /**
+     * Strips of <pre>classpath:</pre> and treats the rest as an absolute resource path before trying to open an input stream.
+     *
+     * @param name
+     * @return
+     */
+    static InputStream getResourceAsStream(String name) {
+
+        String path = name;
+        if (path.startsWith(CLASSPATH_URL_PREFIX)) {
+            path = path.substring(CLASSPATH_URL_PREFIX.length());
+        }
+
+        return Configuration.OGM_CLASS_LOADER.getResourceAsStream(createRelativePathIfNecessary(path));
+    }
 
     /**
      * Extracts an URL from the name of a resource. The idea is similar to Springs
@@ -42,7 +59,7 @@ public final class ResourceUtils {
      * @return URL of the given resource location
      * @throws FileNotFoundException In all cases where an URL cannot be determined
      */
-    public static URL getResourceUrl(String resourceLocation) throws FileNotFoundException {
+    static URL getResourceUrl(String resourceLocation) throws FileNotFoundException {
 
         Objects.requireNonNull(resourceLocation, "Resource location must not be null");
 
@@ -61,8 +78,10 @@ public final class ResourceUtils {
     }
 
     private static URL getClasspathResourceUrl(String path) throws FileNotFoundException {
-        ClassLoader cl = ClassUtils.getDefaultClassLoader();
-        URL url = (cl != null ? cl.getResource(path) : ClassLoader.getSystemResource(path));
+
+        String pathToUse = createRelativePathIfNecessary(path);
+
+        URL url = Configuration.OGM_CLASS_LOADER.getResource(pathToUse);
         if (url == null) {
             String description = "class path resource [" + path + "]";
             throw new FileNotFoundException(description +
@@ -71,6 +90,11 @@ public final class ResourceUtils {
         return url;
     }
 
-    private ResourceUtils() {
+    private static String createRelativePathIfNecessary(String path) {
+
+        return path.startsWith("/") ? path.substring(1) : path;
+    }
+
+    private ConfigurationUtils() {
     }
 }

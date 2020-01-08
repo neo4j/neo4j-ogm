@@ -12,7 +12,8 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.support.ClassUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.Neo4jContainer;
 
 /**
@@ -20,6 +21,8 @@ import org.testcontainers.containers.Neo4jContainer;
  * @author Michael J. Simons
  */
 public class TestContainersTestBase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestContainersTestBase.class);
 
     private static final Driver driver;
 
@@ -143,9 +146,12 @@ public class TestContainersTestBase {
     private static boolean isEmbeddedEnterpriseEdition() {
         try {
             Class.forName("org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory", false,
-                ClassUtils.getDefaultClassLoader());
+                TestContainersTestBase.class.getClassLoader());
             return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         } catch (Exception e) {
+            LOGGER.warn("Could not reliable determine wether HighlyAvailableGraphDatabaseFactory is available or not, assuming not.", e);
             return false;
         }
     }

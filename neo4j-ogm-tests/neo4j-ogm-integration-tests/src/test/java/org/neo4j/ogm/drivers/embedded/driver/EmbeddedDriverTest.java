@@ -251,7 +251,7 @@ public class EmbeddedDriverTest {
     private static boolean canRunHATests() {
         try {
             Class.forName("org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory", false,
-                ClassUtils.getDefaultClassLoader());
+                EmbeddedDriverTest.class.getClassLoader());
             return true;
         } catch (ClassNotFoundException e) {
             return false;

@@ -31,7 +31,7 @@ import org.neo4j.ogm.annotation.typeconversion.DateLong;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.annotation.typeconversion.EnumString;
 import org.neo4j.ogm.annotation.typeconversion.NumberString;
-import org.neo4j.ogm.support.ClassUtils;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.typeconversion.DateLongConverter;
 import org.neo4j.ogm.typeconversion.DateStringConverter;
 import org.neo4j.ogm.typeconversion.EnumStringConverter;
@@ -82,8 +82,8 @@ public class ObjectAnnotations {
             }
 
             try {
-                Class<?> clazz = Class.forName(classDescriptor, false, ClassUtils.getDefaultClassLoader());
-                return clazz.newInstance();
+                Class<?> clazz = Class.forName(classDescriptor, false, Configuration.OGM_CLASS_LOADER);
+                return clazz.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -108,7 +108,7 @@ public class ObjectAnnotations {
         if (enumStringConverterInfo != null) {
             String classDescriptor = enumStringConverterInfo.get(EnumString.TYPE, null);
             try {
-                Class clazz = Class.forName(classDescriptor, false, ClassUtils.getDefaultClassLoader());
+                Class clazz = Class.forName(classDescriptor, false, Configuration.OGM_CLASS_LOADER);
                 return new EnumStringConverter(clazz, isLenientConversion(enumStringConverterInfo));
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -119,7 +119,7 @@ public class ObjectAnnotations {
         if (numberStringConverterInfo != null) {
             String classDescriptor = numberStringConverterInfo.get(NumberString.TYPE, null);
             try {
-                Class clazz = Class.forName(classDescriptor, false, ClassUtils.getDefaultClassLoader());
+                Class clazz = Class.forName(classDescriptor, false, Configuration.OGM_CLASS_LOADER);
                 return new NumberStringConverter(clazz, isLenientConversion(numberStringConverterInfo));
             } catch (Exception e) {
                 throw new RuntimeException(e);

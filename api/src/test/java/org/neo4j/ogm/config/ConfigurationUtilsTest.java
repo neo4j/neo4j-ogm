@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.support;
+package org.neo4j.ogm.config;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -31,17 +31,29 @@ import org.junit.Test;
 /**
  * @author Michael J. Simons
  */
-public class ResourceUtilsTest {
+public class ConfigurationUtilsTest {
 
     @Test
     public void protocollessUrlsShouldBeTreatedAsClasspathUrls() throws FileNotFoundException {
-        URL url = ResourceUtils.getResourceUrl("some.properties");
+        URL url = ConfigurationUtils.getResourceUrl("some.properties");
+        assertThat(url).isNotNull();
+    }
+
+    @Test
+    public void absoluteUrlsShouldWorkWith() throws FileNotFoundException {
+        URL url = ConfigurationUtils.getResourceUrl("/some.properties");
         assertThat(url).isNotNull();
     }
 
     @Test
     public void classpathUrlsShouldWork() throws FileNotFoundException {
-        URL url = ResourceUtils.getResourceUrl("classpath:some.properties");
+        URL url = ConfigurationUtils.getResourceUrl("classpath:some.properties");
+        assertThat(url).isNotNull();
+    }
+
+    @Test
+    public void absoluteUrlsShouldWorkWithProtocol() throws FileNotFoundException {
+        URL url = ConfigurationUtils.getResourceUrl("classpath:/some.properties");
         assertThat(url).isNotNull();
     }
 
@@ -49,7 +61,7 @@ public class ResourceUtilsTest {
     public void fileUrlsShouldWork() throws IOException {
 
         Path path = Files.createTempFile("ResourceUtilsTest", ".properties");
-        URL url = ResourceUtils.getResourceUrl(path.toUri().toURL().toString());
+        URL url = ConfigurationUtils.getResourceUrl(path.toUri().toURL().toString());
         assertThat(url).isNotNull();
     }
 
@@ -57,13 +69,13 @@ public class ResourceUtilsTest {
     public void shouldThrowFileNotFoundOnInvalidUrls() {
 
         assertThatExceptionOfType(FileNotFoundException.class)
-            .isThrownBy(() -> ResourceUtils.getResourceUrl("invalid://test.com"));
+            .isThrownBy(() -> ConfigurationUtils.getResourceUrl("invalid://test.com"));
     }
 
     @Test
     public void shouldThrowFileNotFoundOnInvalidResources() {
 
         assertThatExceptionOfType(FileNotFoundException.class)
-            .isThrownBy(() -> ResourceUtils.getResourceUrl("idontexists"));
+            .isThrownBy(() -> ConfigurationUtils.getResourceUrl("idontexists"));
     }
 }

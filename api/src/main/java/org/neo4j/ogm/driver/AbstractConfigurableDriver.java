@@ -36,7 +36,6 @@ import java.util.stream.StreamSupport;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.ParameterConversion.DefaultParameterConversion;
 import org.neo4j.ogm.spi.CypherModificationProvider;
-import org.neo4j.ogm.support.ClassUtils;
 
 /**
  * The AbstractConfigurableDriver is used by all drivers to register themselves.
@@ -155,7 +154,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
 
         try {
             Class<TypeSystem> nativeTypesClass = (Class<TypeSystem>) Class
-                .forName(nativeTypesImplementation, true, ClassUtils.getDefaultClassLoader());
+                .forName(nativeTypesImplementation, true, Configuration.OGM_CLASS_LOADER);
 
             Constructor<TypeSystem> ctor = nativeTypesClass.getDeclaredConstructor();
             ctor.setAccessible(true);

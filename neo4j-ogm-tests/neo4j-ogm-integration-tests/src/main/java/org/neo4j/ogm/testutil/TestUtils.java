@@ -23,10 +23,9 @@ import java.net.ServerSocket;
 import java.util.Iterator;
 import java.util.Scanner;
 
-import org.neo4j.ogm.support.ClassUtils;
-
 /**
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public final class TestUtils {
 
@@ -52,7 +51,7 @@ public final class TestUtils {
 
         StringBuilder cypher = new StringBuilder();
         try (Scanner scanner = new Scanner(
-            ClassUtils.getDefaultClassLoader().getResourceAsStream(cqlFileName))) {
+            Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFileName))) {
             scanner.useDelimiter(System.getProperty("line.separator"));
             while (scanner.hasNext()) {
                 cypher.append(scanner.next()).append(' ');

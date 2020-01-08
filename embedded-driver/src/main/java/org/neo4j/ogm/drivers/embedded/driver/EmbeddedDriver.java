@@ -45,7 +45,6 @@ import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.request.Request;
-import org.neo4j.ogm.support.ResourceUtils;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -119,7 +118,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
             String neo4jConfLocation = newConfiguration.getNeo4jConfLocation();
             if (neo4jConfLocation != null) {
-                URL neo4ConfUrl = ResourceUtils.getResourceUrl(neo4jConfLocation);
+                URL neo4ConfUrl = newConfiguration.getResourceUrl(neo4jConfLocation);
                 graphDatabaseBuilder = graphDatabaseBuilder.loadPropertiesFromURL(neo4ConfUrl);
             }
 

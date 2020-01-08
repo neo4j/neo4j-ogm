@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -80,11 +81,10 @@ public class DomainInfo {
         // We cannot use the ClassGraph class loader as the order of class loaders used is broken since
         // ClassGraph 4.8.19 again when `org.springframework.boot.devtools.restart.classloader.RestartClassLoader`
         // is present.
-        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try (ScanResult scanResult = findClasses(packages)) {
             for (String className : scanResult.getAllClasses().getNames()) {
                 try {
-                    Class<?> clazz = Class.forName(className, false, contextClassLoader);
+                    Class<?> clazz = Class.forName(className, false, Configuration.OGM_CLASS_LOADER);
                     if (!classIsMappable.test(clazz)) {
                         continue;
                     }

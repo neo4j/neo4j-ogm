@@ -1,5 +1,10 @@
 = Changes
 
+== 3.2.5
+* Return unmapped relationship models. (#727)
+* Don't rely on simple class names for entity mapping. (#726)
+* Improve class loading mechanism. (#729, #728)
+
 == 3.2.4
 
 * Pass depth parameter correctly from Kotlin session extension. (#724)

@@ -49,10 +49,9 @@ public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
     /**
-     * The class loader that should be used for loading domain entities, custom converters etc. This shall be used for
-     * driver, domain objects and custom converters. Resourced that are needed before this shall be loaded via the
-     * {@link ConfigurationUtils}. <strong>Don't consider this field public API, it must be used only internally and it
-     * is not meant to be configurable (yet).</strong>
+     * The class loader that should be used for loading domain entities, custom converters etc. Resources  needed before
+     * this shall be loaded via the {@link ConfigurationUtils}.<strong>Don't consider this field public API, it must be
+     * used only internally and it is not (yet) meant to be configurable.</strong>
      */
     public static final ClassLoader OGM_CLASS_LOADER = new DelegatingClassLoader();
     private static final int DEFAULT_SESSION_POOL_SIZE = 50;

@@ -25,10 +25,10 @@ import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -55,6 +55,9 @@ public class DomainInfo {
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
+    // Yep, Optionals as field values are said to be evil, but in this case useful. DomainInfo isn't serializable anyway
+    // and we need a marker for a lookup that couldn't be found.
+    private final Map<String, Optional<String>> fqnLookup = new ConcurrentHashMap<>();
     private final Set<Class> enumTypes = new HashSet<>();
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
@@ -306,16 +309,20 @@ public class DomainInfo {
             return infos.get(fullOrPartialClassName);
         }
 
-        Pattern partialClassNamePattern = Pattern.compile(".+[\\\\.\\$]" + Pattern.quote(fullOrPartialClassName) + "$");
-        List<String> foundKeys = infos.keySet().stream().filter(partialClassNamePattern.asPredicate())
-            .collect(Collectors.toList());
-        if (foundKeys.isEmpty()) {
-            return null;
-        } else if (foundKeys.size() > 1) {
-            throw new MappingException("More than one class has simple name: " + fullOrPartialClassName);
-        } else {
-            return infos.get(foundKeys.get(0));
-        }
+        Optional<String> foundKey = fqnLookup.computeIfAbsent(fullOrPartialClassName, k -> {
+            Pattern partialClassNamePattern = Pattern.compile(".+[\\\\.\\$]" + Pattern.quote(k) + "$");
+            String matchingKey = null;
+            for (String key : infos.keySet()) {
+                if (partialClassNamePattern.matcher(key).matches()) {
+                    if (matchingKey != null) {
+                        throw new MappingException("More than one class has simple name: " + fullOrPartialClassName);
+                    }
+                    matchingKey = key;
+                }
+            }
+            return Optional.ofNullable(matchingKey);
+        });
+        return foundKey.map(infos::get).orElse(null);
     }
 
     List<ClassInfo> getClassInfosWithAnnotation(String annotation) {

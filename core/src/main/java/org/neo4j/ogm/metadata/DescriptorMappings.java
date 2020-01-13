@@ -76,27 +76,23 @@ public final class DescriptorMappings {
      * @return reified class for the parameter or null
      */
     public static Class<?> getType(String descriptor) {
-        Optional<Class<?>> optionalType = descriptorsToTypeMappingCache.get(descriptor);
 
-        // Recompute type when it has not been computed or the cached version was loaded with a different classloader then the OGM class loader.
-        boolean needsRecomputation = optionalType == null;
-        if (!needsRecomputation && optionalType.isPresent()) {
+        Optional<Class<?>> optionalType = descriptorsToTypeMappingCache
+            .computeIfAbsent(descriptor, k -> Optional.ofNullable(computeType(descriptor)));
 
-            Class<?> aClass = optionalType.get();
-            needsRecomputation =
-                aClass.getClassLoader() != null && aClass.getClassLoader() != Configuration.getDefaultClassLoader();
-        }
+        // Recompute type when it has not been computed or the cached version was loaded with a different classloader.
+        boolean needsRecomputation = optionalType
+            .map(t -> t.getClassLoader() != null && t.getClassLoader() != Configuration.getDefaultClassLoader())
+            .orElse(false);
+
         if (needsRecomputation) {
-            try {
-                optionalType = Optional.ofNullable(computeType(descriptor));
-                descriptorsToTypeMappingCache.put(descriptor, optionalType);
-            } catch (Throwable t) {
-            }
+            optionalType = Optional.ofNullable(computeType(descriptor));
+            descriptorsToTypeMappingCache.put(descriptor, optionalType);
         }
         return optionalType.orElse(null);
     }
 
-    private static Class<?> computeType(String descriptor) throws ClassNotFoundException {
+    private static Class<?> computeType(String descriptor) {
 
         if (descriptor == null) {
             return null;
@@ -116,11 +112,15 @@ public final class DescriptorMappings {
             return Object.class;
         }
 
-        return Class.forName(rawDescriptor, true, Configuration.getDefaultClassLoader());
+        try {
+            return Class.forName(rawDescriptor, true, Configuration.getDefaultClassLoader());
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            return null;
+        }
     }
 
     private static String stripArraySuffix(String descriptor) {
-        return descriptor.replaceAll("\\[\\]$", "");
+        return descriptor.replaceAll("(\\[\\])+$", "");
     }
 
     private DescriptorMappings() {

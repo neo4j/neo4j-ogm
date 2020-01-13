@@ -47,7 +47,7 @@ final class ConfigurationUtils {
             path = path.substring(CLASSPATH_URL_PREFIX.length());
         }
 
-        return Configuration.OGM_CLASS_LOADER.getResourceAsStream(createRelativePathIfNecessary(path));
+        return Configuration.getDefaultClassLoader().getResourceAsStream(createRelativePathIfNecessary(path));
     }
 
     /**
@@ -81,7 +81,7 @@ final class ConfigurationUtils {
 
         String pathToUse = createRelativePathIfNecessary(path);
 
-        URL url = Configuration.OGM_CLASS_LOADER.getResource(pathToUse);
+        URL url = Configuration.getDefaultClassLoader().getResource(pathToUse);
         if (url == null) {
             String description = "class path resource [" + path + "]";
             throw new FileNotFoundException(description +

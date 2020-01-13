@@ -154,7 +154,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
 
         try {
             Class<TypeSystem> nativeTypesClass = (Class<TypeSystem>) Class
-                .forName(nativeTypesImplementation, true, Configuration.OGM_CLASS_LOADER);
+                .forName(nativeTypesImplementation, true, Configuration.getDefaultClassLoader());
 
             Constructor<TypeSystem> ctor = nativeTypesClass.getDeclaredConstructor();
             ctor.setAccessible(true);

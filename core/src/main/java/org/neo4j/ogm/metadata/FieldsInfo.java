@@ -63,7 +63,7 @@ public class FieldsInfo {
                 ObjectAnnotations objectAnnotations = ObjectAnnotations.of(field.getDeclaredAnnotations());
                 if (!objectAnnotations.has(Transient.class)) {
 
-                    String typeParameterDescriptor = findTypeParameterDescriptor(field, clazz, objectAnnotations);
+                    String typeParameterDescriptor = findTypeParameterDescriptor(field, clazz);
                     fields.put(field.getName(),
                         new FieldInfo(classInfo, delegateHolder, field, typeParameterDescriptor, objectAnnotations,
                             typeSystem::supportsAsNativeType));
@@ -72,7 +72,7 @@ public class FieldsInfo {
         }
     }
 
-    private static String findTypeParameterDescriptor(Field field, Class<?> clazz, ObjectAnnotations objectAnnotations) {
+    private static String findTypeParameterDescriptor(Field field, Class<?> clazz) {
 
         String typeParameterDescriptor = null;
 

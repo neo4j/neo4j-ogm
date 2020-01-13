@@ -23,8 +23,11 @@ import static java.util.stream.Collectors.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+
+import org.neo4j.ogm.config.Configuration;
 
 /**
  * Utility class helping with descriptor to type mappings, especially providing maps of primitives and their
@@ -55,7 +58,7 @@ public final class DescriptorMappings {
     /**
      * Contains the mapping of all other descriptors and is filled dynamically.
      */
-    private static Map<String, Class<?>> descriptorsToTypeMappingCache = new ConcurrentHashMap<>();
+    private static Map<String, Optional<Class<?>>> descriptorsToTypeMappingCache = new ConcurrentHashMap<>();
 
     static boolean describesPrimitve(String descriptor) {
         return DESCRIPTORS_OF_PRIMITIVES.containsKey(stripArraySuffix(descriptor));
@@ -73,16 +76,24 @@ public final class DescriptorMappings {
      * @return reified class for the parameter or null
      */
     public static Class<?> getType(String descriptor) {
-        Class<?> type = descriptorsToTypeMappingCache.get(descriptor);
-        // Recompute type when it has not been computed or the cached version was loaded with a different classloader.
-        if (type == null || type.getClassLoader() != Thread.currentThread().getContextClassLoader()) {
+        Optional<Class<?>> optionalType = descriptorsToTypeMappingCache.get(descriptor);
+
+        // Recompute type when it has not been computed or the cached version was loaded with a different classloader then the OGM class loader.
+        boolean needsRecomputation = optionalType == null;
+        if (!needsRecomputation && optionalType.isPresent()) {
+
+            Class<?> aClass = optionalType.get();
+            needsRecomputation =
+                aClass.getClassLoader() != null && aClass.getClassLoader() != Configuration.getDefaultClassLoader();
+        }
+        if (needsRecomputation) {
             try {
-                type = computeType(descriptor);
-                descriptorsToTypeMappingCache.put(descriptor, type);
+                optionalType = Optional.ofNullable(computeType(descriptor));
+                descriptorsToTypeMappingCache.put(descriptor, optionalType);
             } catch (Throwable t) {
             }
         }
-        return type;
+        return optionalType.orElse(null);
     }
 
     private static Class<?> computeType(String descriptor) throws ClassNotFoundException {
@@ -105,7 +116,7 @@ public final class DescriptorMappings {
             return Object.class;
         }
 
-        return Class.forName(rawDescriptor, false, Thread.currentThread().getContextClassLoader());
+        return Class.forName(rawDescriptor, true, Configuration.getDefaultClassLoader());
     }
 
     private static String stripArraySuffix(String descriptor) {

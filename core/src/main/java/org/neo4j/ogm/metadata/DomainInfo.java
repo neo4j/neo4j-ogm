@@ -84,10 +84,11 @@ public class DomainInfo {
         // We cannot use the ClassGraph class loader as the order of class loaders used is broken since
         // ClassGraph 4.8.19 again when `org.springframework.boot.devtools.restart.classloader.RestartClassLoader`
         // is present.
+        ClassLoader classLoader = Configuration.getDefaultClassLoader();
         try (ScanResult scanResult = findClasses(packages)) {
             for (String className : scanResult.getAllClasses().getNames()) {
                 try {
-                    Class<?> clazz = Class.forName(className, false, Configuration.OGM_CLASS_LOADER);
+                    Class<?> clazz = Class.forName(className, false, classLoader);
                     if (!classIsMappable.test(clazz)) {
                         continue;
                     }

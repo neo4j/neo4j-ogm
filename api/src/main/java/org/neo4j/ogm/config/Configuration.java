@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
 
+import org.neo4j.ogm.support.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +49,50 @@ public class Configuration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
-    /**
-     * The class loader that should be used for loading domain entities, custom converters etc. Resources  needed before
-     * this shall be loaded via the {@link ConfigurationUtils}.<strong>Don't consider this field public API, it must be
-     * used only internally and it is not (yet) meant to be configurable.</strong>
-     */
-    public static final ClassLoader OGM_CLASS_LOADER = new DelegatingClassLoader();
     private static final int DEFAULT_SESSION_POOL_SIZE = 50;
+
+    /**
+     * Configuration to change the precedence from the current threads context
+     */
+    public enum ClassLoaderPrecedence {
+        /**
+         * Use the current threads context class loader.
+         */
+        CONTEXT_CLASS_LOADER,
+        /**
+         * Use the class loader into which OGM was loaded.
+         */
+        OGM_CLASS_LOADER
+    }
+
+    public static final ThreadLocal<ClassLoaderPrecedence> CLASS_LOADER_PRECEDENCE = ThreadLocal
+        .withInitial(() -> ClassLoaderPrecedence.CONTEXT_CLASS_LOADER);
+
+    /**
+     * @return The classloader to be used by OGM.
+     */
+    public static ClassLoader getDefaultClassLoader() {
+
+        ClassLoaderPrecedence precedence = Configuration.CLASS_LOADER_PRECEDENCE.get();
+        boolean ctclFirst = precedence == null || precedence == ClassLoaderPrecedence.CONTEXT_CLASS_LOADER;
+        ClassLoader cl = null;
+        try {
+            cl = ctclFirst ? Thread.currentThread().getContextClassLoader() : ClassUtils.class.getClassLoader();
+        } catch (Throwable ex) {
+        }
+        if (cl == null) {
+            cl = ctclFirst ? ClassUtils.class.getClassLoader() : Thread.currentThread().getContextClassLoader();
+            if (cl == null) {
+                // getClassLoader() returning null indicates the bootstrap ClassLoader
+                try {
+                    cl = ClassLoader.getSystemClassLoader();
+                } catch (Throwable ex) {
+                    // Cannot access system ClassLoader - oh well, maybe the caller can live with null...
+                }
+            }
+        }
+        return cl;
+    }
 
     private String uri;
     private String[] uris;

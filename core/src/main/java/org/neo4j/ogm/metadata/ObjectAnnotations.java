@@ -82,7 +82,7 @@ public class ObjectAnnotations {
             }
 
             try {
-                Class<?> clazz = Class.forName(classDescriptor, false, Configuration.OGM_CLASS_LOADER);
+                Class<?> clazz = Class.forName(classDescriptor, false, Configuration.getDefaultClassLoader());
                 return clazz.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -108,7 +108,7 @@ public class ObjectAnnotations {
         if (enumStringConverterInfo != null) {
             String classDescriptor = enumStringConverterInfo.get(EnumString.TYPE, null);
             try {
-                Class clazz = Class.forName(classDescriptor, false, Configuration.OGM_CLASS_LOADER);
+                Class clazz = Class.forName(classDescriptor, false, Configuration.getDefaultClassLoader());
                 return new EnumStringConverter(clazz, isLenientConversion(enumStringConverterInfo));
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -119,7 +119,7 @@ public class ObjectAnnotations {
         if (numberStringConverterInfo != null) {
             String classDescriptor = numberStringConverterInfo.get(NumberString.TYPE, null);
             try {
-                Class clazz = Class.forName(classDescriptor, false, Configuration.OGM_CLASS_LOADER);
+                Class clazz = Class.forName(classDescriptor, false, Configuration.getDefaultClassLoader());
                 return new NumberStringConverter(clazz, isLenientConversion(numberStringConverterInfo));
             } catch (Exception e) {
                 throw new RuntimeException(e);

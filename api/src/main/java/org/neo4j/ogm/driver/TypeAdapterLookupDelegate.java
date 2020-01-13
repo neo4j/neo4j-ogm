@@ -56,7 +56,9 @@ public final class TypeAdapterLookupDelegate {
 
     private Optional<Function<Object, Object>> findAdapterFor(Class<?> clazz) {
 
-        if (this.registeredTypeAdapter.containsKey(clazz)) {
+        if (clazz == null) {
+            return Optional.empty();
+        } else if (this.registeredTypeAdapter.containsKey(clazz)) {
             return Optional.of(registeredTypeAdapter.get(clazz));
         } else {
             return registeredTypeAdapter.entrySet()

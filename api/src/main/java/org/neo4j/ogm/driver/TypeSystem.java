@@ -39,7 +39,7 @@ public interface TypeSystem {
      */
     default boolean supportsAsNativeType(Class<?> clazz) {
 
-        return AbstractConfigurableDriver.DEFAULT_SUPPORTED_TYPES.stream()
+        return clazz == null ? false : AbstractConfigurableDriver.DEFAULT_SUPPORTED_TYPES.stream()
             .filter(st -> st.isAssignableFrom(clazz)).findAny().isPresent();
     }
 

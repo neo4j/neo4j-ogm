@@ -42,11 +42,14 @@ import org.neo4j.ogm.domain.gh666.MessedUpNode1;
 import org.neo4j.ogm.domain.gh666.MessedUpNode2;
 import org.neo4j.ogm.domain.gh666.MessedUpNode3;
 import org.neo4j.ogm.domain.gh704.Country;
+import org.neo4j.ogm.domain.gh737.Gh737Node1;
+import org.neo4j.ogm.domain.gh737.Gh737Node2;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.typed_relationships.SomeEntity;
 import org.neo4j.ogm.domain.typed_relationships.TypedEntity;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.RelationshipModel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -71,6 +74,7 @@ public class RelationshipMappingTest extends TestContainersTestBase {
             "org.neo4j.ogm.domain.gh656",
             "org.neo4j.ogm.domain.gh666",
             "org.neo4j.ogm.domain.gh704",
+            "org.neo4j.ogm.domain.gh737",
             "org.neo4j.ogm.domain.policy",
             "org.neo4j.ogm.domain.typed_relationships");
     }
@@ -538,6 +542,43 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         Map<String, Object> row = results.iterator().next();
         assertThat(row).containsKeys("r");
         assertThat(row.get("r")).isNotNull().isInstanceOf(RelationshipModel.class);
+    }
+
+    @Test // GH-737
+    public void patternComprehensionShouldBeMappedToCorrectRelationships() {
+
+        Map<String, Object> ids = sessionFactory.openSession().query(""
+                + "CREATE (n1:Gh737Node1) - [:RELATION_A] -> (n2:Gh737Node2) RETURN id(n1) AS idn1, id(n2) AS idn2",
+            Collections.emptyMap()
+        ).queryResults().iterator().next();
+
+        Session session;
+        session = sessionFactory.openSession();
+
+        // Assert preconditions
+        Gh737Node1 node1 = session.load(Gh737Node1.class, (Long) ids.get("idn1"));
+        Gh737Node2 node2 = session.load(Gh737Node2.class, (Long) ids.get("idn2"));
+        assertThat(node1).isNotNull();
+        assertThat(node2).isNotNull();
+        assertThat(node1.getRef()).isEqualTo(node2);
+
+        String query = "MATCH (n:Gh737Node1) RETURN n, [(n)-[rn:RELATION_A]-(n2) | [rn, n2]]";
+
+        // Query for dedicated class
+        session = sessionFactory.openSession();
+        node1 = session.queryForObject(Gh737Node1.class, query, Collections.emptyMap());
+        assertThat(node1).isNotNull();
+        assertThat(node1.getRef()).isNotNull();
+
+        // Generic query
+        session = sessionFactory.openSession();
+        Result result = session.query(query, Collections.emptyMap(), true);
+        assertThat(result.iterator().hasNext()).isTrue();
+        result.forEach(m -> {
+            Gh737Node1 n = (Gh737Node1) m.get("n");
+            assertThat(n).isNotNull();
+            assertThat(n.getRef()).isNotNull();
+        });
     }
 
     @Test // GH-666

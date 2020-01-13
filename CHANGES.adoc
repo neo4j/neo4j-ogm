@@ -10,7 +10,7 @@
 * Pass depth parameter correctly from Kotlin session extension. (#724)
 * Upgrade Java driver to 4.0.0. (#720)
 * Recursively traverse variable length relationship patterns. (#718)
-* Fix inconsistend behaviour when querying parent classes. (#670)
+* Fix inconsistent behaviour when querying parent classes. (#670)
 * Check for contradicting annotations before mapping possible related nodes. (#666)
 * Use all mapped labels when querying domain objects. (#651)
 * Verify update of relationship entities. (#607)

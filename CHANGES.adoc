@@ -2,7 +2,16 @@
 
 == 3.2
 
+=== 3.2.6
+
+* Improve performance of fully qualified class name lookup. (#738)
+* Make OGM more resilient against scanning the root package. (#686)
+* Fix IllegalArgumentException on first reload with Spring Boot DevTools. (#743)
+* Avoid possible NPEs with bad domain model. (#741)
+* Make database configurable. (#744)
+
 === 3.2.5
+
 * Return unmapped relationship models. (#727)
 * Don't rely on simple class names for entity mapping. (#726)
 * Improve class loading mechanism. (#729, #728)

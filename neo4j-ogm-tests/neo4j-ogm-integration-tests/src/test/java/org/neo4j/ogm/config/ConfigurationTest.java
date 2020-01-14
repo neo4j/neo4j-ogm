@@ -70,6 +70,23 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void shouldConfigureDatabase() {
+        Configuration configuration;
+
+        configuration = new Configuration.Builder().database(null).build();
+        assertThat(configuration.getDatabase()).isNull();
+
+        configuration = new Configuration.Builder().database("").build();
+        assertThat(configuration.getDatabase()).isNull();
+
+        configuration = new Configuration.Builder().database("  ").build();
+        assertThat(configuration.getDatabase()).isNull();
+
+        configuration = new Configuration.Builder().database("someDatabase").build();
+        assertThat(configuration.getDatabase()).isEqualTo("someDatabase");
+    }
+
+    @Test
     public void shouldConfigureCredentialsFromURIWithUTF8Characters() {
         Configuration configuration = new Configuration.Builder()
             .uri("http://franti\u0161ek:Pass123@localhost:8080")

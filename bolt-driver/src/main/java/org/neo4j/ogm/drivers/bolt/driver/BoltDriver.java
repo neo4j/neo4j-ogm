@@ -19,8 +19,8 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static java.util.Objects.*;
-import static org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction.*;
 import static java.util.stream.Collectors.*;
+import static org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction.*;
 
 import java.io.File;
 import java.net.URI;
@@ -80,6 +80,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
     private volatile Driver boltDriver;
     private Credentials credentials;
     private Config driverConfig;
+    /**
+     * The database to use, defaults to {@literal null} (Use Neo4j default).
+     */
+    private String database = null;
 
     // required for service loader mechanism
     public BoltDriver() {
@@ -111,6 +115,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
         this.driverConfig = buildDriverConfig();
         this.credentials = this.configuration.getCredentials();
+        this.database = this.configuration.getDatabase();
 
         if (this.configuration.getVerifyConnection()) {
             checkDriverInitialized();
@@ -269,9 +274,12 @@ public class BoltDriver extends AbstractConfigurableDriver {
         Session boltSession;
         try {
             AccessMode accessMode = type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ : AccessMode.WRITE;
-            boltSession = boltDriver.session(
-                SessionConfig.builder().withDefaultAccessMode(accessMode)
-                    .withBookmarks(bookmarksFromStrings(bookmarks)).build());
+            SessionConfig.Builder sessionConfigBuilder = SessionConfig.builder().withDefaultAccessMode(accessMode)
+                .withBookmarks(bookmarksFromStrings(bookmarks));
+            if (this.database != null) {
+                sessionConfigBuilder = sessionConfigBuilder.withDatabase(database);
+            }
+            boltSession = boltDriver.session(sessionConfigBuilder.build());
         } catch (ClientException ce) {
             throw new ConnectionException(
                 "Error connecting to graph database using Bolt: " + ce.code() + ", " + ce.getMessage(), ce);

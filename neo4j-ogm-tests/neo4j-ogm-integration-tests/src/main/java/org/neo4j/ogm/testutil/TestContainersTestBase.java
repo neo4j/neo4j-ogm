@@ -116,7 +116,7 @@ public class TestContainersTestBase {
     }
 
     protected static Configuration.Builder getBaseConfigurationBuilder() {
-        return baseConfigurationBuilder;
+        return Configuration.Builder.copy(baseConfigurationBuilder);
     }
 
     protected static boolean useEnterpriseEdition() {

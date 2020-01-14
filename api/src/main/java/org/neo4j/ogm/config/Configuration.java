@@ -127,6 +127,7 @@ public class Configuration {
      * of packages with the programmatically registered packages to scan.
      */
     private String[] basePackages;
+    private String database;
 
     /**
      * Protected constructor of the Configuration class.
@@ -152,6 +153,7 @@ public class Configuration {
         this.useNativeTypes = builder.useNativeTypes;
         this.basePackages = builder.basePackages;
         this.useStrictQuerying = builder.useStrictQuerying;
+        this.database = Optional.ofNullable(builder.database).map(String::trim).filter(s -> !s.isEmpty()).orElse(null);
 
         URI parsedUri = getSingleURI();
 
@@ -246,6 +248,10 @@ public class Configuration {
 
     public String getNeo4jConfLocation() {
         return this.neo4jConfLocation;
+    }
+
+    public String getDatabase() {
+        return database;
     }
 
     /**
@@ -367,6 +373,7 @@ public class Configuration {
         private static final String USE_NATIVE_TYPES = "use-native-types";
         private static final String BASE_PACKAGES = "base-packages";
         private static final String USE_STRICT_QUERYING = "use-strict-querying";
+        private static final String DATABASE = "database";
         private String uri;
         private String[] uris;
         private Integer connectionPoolSize;
@@ -385,6 +392,7 @@ public class Configuration {
         private Map<String, Object> customProperties = new HashMap<>();
         private String[] basePackages;
         private boolean useStrictQuerying = false;
+        private String database;
 
         /**
          * Creates new Configuration builder
@@ -455,6 +463,11 @@ public class Configuration {
                             this.useStrictQuerying = Boolean.valueOf(value);
                         }
                         break;
+                    case DATABASE:
+                        if (value != null && !value.trim().isEmpty()) {
+                            this.database = value.trim();
+                        }
+                        break;
                     default:
                         LOGGER.warn("Could not process property with key: {}", entry.getKey());
                 }
@@ -475,6 +488,7 @@ public class Configuration {
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
                 .neo4jConfLocation(builder.neo4jConfLocation)
                 .credentials(builder.username, builder.password)
+                .database(builder.database)
                 .customProperties(new HashMap<>(builder.customProperties));
 
             if (builder.useStrictQuerying) {
@@ -671,7 +685,7 @@ public class Configuration {
         }
 
         /**
-         * Creates a new builder with a list of base packages to scan.
+         * Configures the builder with a list of base packages to scan.
          *
          * @param basePackages The new base backages.
          * @return the changed builder
@@ -679,6 +693,20 @@ public class Configuration {
          */
         public Builder withBasePackages(String... basePackages) {
             this.basePackages = basePackages;
+            return this;
+        }
+
+        /**
+         * Configures the database to use. This is only applicable with the bolt transport connected against a
+         * 4.0 database.
+         *
+         * @param database The default database to use, maybe {@literal null} but not empty. {@literal null} indicates
+         *                 default database.
+         * @return the changed builder
+         * @since 3.2.6
+         */
+        public Builder database(String database) {
+            this.database = database;
             return this;
         }
 

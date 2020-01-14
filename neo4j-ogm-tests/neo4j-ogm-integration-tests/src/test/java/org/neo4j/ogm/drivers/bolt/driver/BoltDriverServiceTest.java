@@ -19,16 +19,21 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assume.*;
+
+import java.util.Collections;
 
 import org.junit.Test;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class BoltDriverServiceTest extends TestContainersTestBase {
 
@@ -42,4 +47,17 @@ public class BoltDriverServiceTest extends TestContainersTestBase {
         sf.close();
     }
 
+    @Test
+    public void databaseShouldBeConfigurable() {
+
+        assumeTrue("This test requires a 4.0 database", isVersionOrGreater("4.0.0"));
+
+        Configuration driverConfiguration = getBaseConfigurationBuilder().database("system").build();
+        SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
+
+        // This is a command only valid in system db
+        Result result = sf.openSession().query("SHOW DATABASES;", Collections.emptyMap());
+        assertThat(result.iterator().hasNext());
+        sf.close();
+    }
 }

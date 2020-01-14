@@ -488,8 +488,8 @@ public class Configuration {
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
                 .neo4jConfLocation(builder.neo4jConfLocation)
                 .credentials(builder.username, builder.password)
-                .customProperties(new HashMap<>(builder.customProperties))
-                .database(builder.database);
+                .database(builder.database)
+                .customProperties(new HashMap<>(builder.customProperties));
 
             if (builder.useStrictQuerying) {
                 copiedBuilder.strictQuerying();

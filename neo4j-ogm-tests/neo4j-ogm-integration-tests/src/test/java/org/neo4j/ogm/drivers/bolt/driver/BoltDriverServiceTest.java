@@ -54,6 +54,7 @@ public class BoltDriverServiceTest extends TestContainersTestBase {
 
         Configuration driverConfiguration = getBaseConfigurationBuilder().database("system").build();
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
+        assumeTrue("This test requires the BoltDriver", sf.unwrap(Driver.class) instanceof BoltDriver);
 
         // This is a command only valid in system db
         Result result = sf.openSession().query("SHOW DATABASES;", Collections.emptyMap());

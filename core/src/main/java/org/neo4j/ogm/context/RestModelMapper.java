@@ -231,19 +231,23 @@ public class RestModelMapper {
                 Object entity;
                 if (!aliasesOfListResults.contains(k) && v.size() == 1) {
                     entity = resolveNodeId.apply(v.get(0), graphModel);
+                    resultRow.put(k, entity);
                 } else {
                     entity = v.stream().map(id -> resolveNodeId.apply(id, graphModel)).collect(toList());
+                    List<Object> entityList = (List<Object>) resultRow.computeIfAbsent(k, key -> new ArrayList<>());
+                    entityList.addAll((List) entity);
                 }
-                resultRow.put(k, entity);
             });
             aliasToRelationshipIdMapping.forEach((k, v) -> {
                 Object entity;
                 if (!aliasesOfListResults.contains(k) && v.size() == 1) {
                     entity = resolveRelationshipId.apply(v.get(0));
+                    resultRow.put(k, entity);
                 } else {
                     entity = v.stream().map(resolveRelationshipId).collect(toList());
+                    List<Object> entityList = (List<Object>) resultRow.computeIfAbsent(k, key -> new ArrayList<>());
+                    entityList.addAll((List) entity);
                 }
-                resultRow.put(k, entity);
             });
 
             return resultRow;

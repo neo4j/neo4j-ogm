@@ -46,6 +46,7 @@ import org.junit.runners.model.Statement;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.domain.cineasts.annotated.Pet;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.gh726.package_a.SameClass;
@@ -55,6 +56,7 @@ import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.NodeModel;
+import org.neo4j.ogm.response.model.RelationshipModel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -812,6 +814,17 @@ public class QueryCapabilityTest extends TestContainersTestBase {
                 Collections.singletonMap("id", sameClassB.getId())).iterator().next();
 
         assertThat(loadedSameClassB).isInstanceOf(org.neo4j.ogm.domain.gh726.package_b.SameClass.class);
+    }
+
+    @Test // GH-737
+    public void shouldReturnListOfNodesAndRelationshipModelForUnknownRelationshipLists() {
+        Result result = session
+            .query("MATCH (n:Movie{title:'Pulp Fiction'}) return n, [(n)-[r:UNKNOWN]-(p) | [r,p]] as relAndNode", emptyMap());
+        Map<String, Object> returnedRow = result.queryResults().iterator().next();
+
+        assertThat(returnedRow.get("n")).isInstanceOf(Movie.class);
+        assertThat(((List)returnedRow.get("relAndNode")).get(0)).isInstanceOf(Pet.class);
+        assertThat(((List)returnedRow.get("relAndNode")).get(1)).isInstanceOf(RelationshipModel.class);
     }
 
     private static boolean checkForMichal(Map<String, Object> result) {

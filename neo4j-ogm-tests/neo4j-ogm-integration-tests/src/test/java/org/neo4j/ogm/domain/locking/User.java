@@ -88,6 +88,11 @@ public class User {
         return friendOf;
     }
 
+    public void addFriend(FriendOf friendOf) {
+        friends.add(friendOf);
+        friendOf.setTo(this);
+    }
+
     public void clearFriends() {
         friends.clear();
     }

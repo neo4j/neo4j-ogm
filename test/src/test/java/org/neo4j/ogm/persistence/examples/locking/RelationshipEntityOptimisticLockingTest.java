@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.persistence.examples.locking;
 
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
@@ -225,6 +226,32 @@ public class RelationshipEntityOptimisticLockingTest extends MultiDriverTestClas
         michael.clearFriends();
 
         session.save(michael);
+
+        ensureFriendsOfRelationshipsHaveCount(0);
+    }
+
+    @Test // GH-746
+    public void updateVersionedRelationship() {
+        User michael = new User("Michael");
+        User oliver = new User("Oliver");
+        FriendOf friendOf = michael.addFriend(oliver);
+
+        session.save(michael);
+
+        oliver.clearFriends();
+
+        User george = new User("George");
+        george.addFriend(friendOf);
+        session.save(michael);
+
+        ensureFriendsOfRelationshipsHaveCount(1);
+    }
+
+    private void ensureFriendsOfRelationshipsHaveCount(long count) {
+        session.clear();
+        Long relationshipCount = (Long) session.query("MATCH ()-[r:FRIEND_OF]->() return count(r) as c", emptyMap())
+            .queryResults().iterator().next().get("c");
+        assertThat(relationshipCount).isEqualTo(count);
     }
 
 }

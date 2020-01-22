@@ -120,23 +120,26 @@ public class SingleUseEntityMapper {
 
     private void writeProperty(ClassInfo classInfo, Object instance, Map.Entry<String, Object> property) {
 
-        FieldInfo writer = classInfo.getFieldInfo(property.getKey());
+        String key = property.getKey();
+        FieldInfo writer = classInfo.getFieldInfo(key);
 
         if (writer == null) {
-            FieldInfo fieldInfo = classInfo.relationshipFieldByName(property.getKey());
+            FieldInfo fieldInfo = classInfo.relationshipFieldByName(key);
             if (fieldInfo != null) {
                 writer = fieldInfo;
             }
         }
 
         if (writer == null) {
-            logger.warn("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
+            logger.warn("Unable to find property: {} on class: {} for writing", key, classInfo.name());
         } else {
             Class elementType = DescriptorMappings.getType(writer.getTypeDescriptor());
             boolean targetIsCollection = writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type());
 
-            Object value = mapKnownNestedClasses(elementType, property.getKey(), property.getValue(),
-                targetIsCollection);
+            Object value = property.getValue();
+            if (metadata.classInfo(elementType) != null) {
+                value = mapKnownEntityType(elementType, key, value, targetIsCollection);
+            }
 
             // merge iterable / arrays and co-erce to the correct attribute type
             if (targetIsCollection) {
@@ -158,43 +161,46 @@ public class SingleUseEntityMapper {
     }
 
     /**
+     * If the element type is a known class, it will be mapped, either into a single value or into a collection of things.
+     * If the element type is unknown or cannot be mapped to a single property, the original value is returned.
+     *
      * @param elementType  The target type, must not be null
      * @param property     The name of the property
      * @param value        The value (can be null)
      * @param asCollection whether to create a collection or not
      * @return The mapped value
      */
-    Object mapKnownNestedClasses(Class elementType, String property, Object value, boolean asCollection) {
+    Object mapKnownEntityType(Class elementType, String property, Object value, boolean asCollection) {
 
-        Object mappedValue = value;
-        if (metadata.classInfo(elementType) != null) {
-            List<Object> nestedObjects = new ArrayList<>();
+        List<Object> nestedObjects = new ArrayList<>();
 
-            for (Object nestedPropertyMap : iterableOf(value)) {
-                if (nestedPropertyMap instanceof Map) {
-                    // Recursively map maps
-                    nestedObjects.add(map(elementType, (Map<String, Object>) nestedPropertyMap));
-                } else if (elementType.isInstance(nestedPropertyMap) || ClassUtils.isEnum(elementType)) {
-                    // Add fitting types and enums directly
-                    nestedObjects.add(nestedPropertyMap);
-                } else {
-                    logger.warn("Cannot map {} to a nested result object for property {}", nestedPropertyMap,
-                        property);
-                }
-            }
-            if (asCollection) {
-                mappedValue = nestedObjects;
-            } else if (nestedObjects.isEmpty()) {
-                mappedValue = Collections.emptyList();
-            } else if (nestedObjects.size() == 1) {
-                mappedValue = nestedObjects.get(0);
+        for (Object nestedPropertyMap : iterableOf(value)) {
+            if (nestedPropertyMap instanceof Map) {
+                // Recursively map maps
+                nestedObjects.add(map(elementType, (Map<String, Object>) nestedPropertyMap));
+            } else if (elementType.isInstance(nestedPropertyMap) || ClassUtils.isEnum(elementType)) {
+                // Add fitting types and enums directly
+                nestedObjects.add(nestedPropertyMap);
             } else {
+                logger.warn("Cannot map {} to a nested result object for property {}", nestedPropertyMap, property);
+            }
+        }
+
+        if (asCollection) {
+            return nestedObjects;
+        } else {
+            if (nestedObjects.size() == 1) {
+                // There's a unique element
+                return nestedObjects.get(0);
+            } else if (nestedObjects.size() > 1) {
+                // We cannot do anything as we cannot decide which element of the list map to a skalar property
                 logger.warn(
                     "Cannot map property {} from result set: The result contains more than one entry for the property.",
                     property);
             }
+            // Return null in both cases (undecided and already null in the mapping)
+            return null;
         }
-        return mappedValue;
     }
 
     Iterable iterableOf(Object thingToIterator) {

@@ -544,7 +544,7 @@ public class EntityGraphMapper implements EntityMapper {
             if (relationshipIsNew || relationshipEndsChanged) {
                 relationshipBuilder = cypherBuilder.newRelationship(directedRelationship.type());
                 if (relationshipEndsChanged) {
-                    // since this relationship will get recreated but all properties will be copied
+                    // since this relationship will get recreated and all properties will be copied in the process,
                     // we have to reset the control fields for version and identifier.
                     FieldInfo versionField = metaData.classInfo(entity).getVersionField();
                     if (versionField != null) {

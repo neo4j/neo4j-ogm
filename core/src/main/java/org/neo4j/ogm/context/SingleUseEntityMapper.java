@@ -188,22 +188,21 @@ public class SingleUseEntityMapper {
 
         if (asCollection) {
             return nestedObjects;
+        } else if (nestedObjects.size() > 1) {
+            logger.warn(
+                "Cannot map property {} from result set: The result contains more than one entry for the property.",
+                property);
+            // Returning the original value here is done on purpose to not change in edge cases in SDN
+            // for which we don't have tests yet. Edge cases can be weird queries with weird query result classes
+            // that fit together non the less.
+            return value;
         } else {
-            if (nestedObjects.size() == 1) {
-                // There's a unique element
-                return nestedObjects.get(0);
-            } else if (nestedObjects.size() > 1) {
-                // We cannot do anything as we cannot decide which element of the list map to a skalar property
-                logger.warn(
-                    "Cannot map property {} from result set: The result contains more than one entry for the property.",
-                    property);
-            }
-            // Return null in both cases (undecided and already null in the mapping)
-            return null;
+            return nestedObjects.isEmpty() ? null : nestedObjects.get(0);
         }
     }
 
     Iterable iterableOf(Object thingToIterator) {
+
         if (thingToIterator == null) {
             return Collections.emptyList();
         } else if (thingToIterator instanceof Iterable) {

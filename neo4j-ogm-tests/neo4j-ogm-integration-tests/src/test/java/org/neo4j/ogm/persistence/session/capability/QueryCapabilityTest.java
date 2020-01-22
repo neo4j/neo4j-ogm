@@ -21,10 +21,6 @@ package org.neo4j.ogm.persistence.session.capability;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +28,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.assertj.core.api.Condition;
 import org.junit.After;
@@ -40,9 +35,6 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
@@ -60,9 +52,9 @@ import org.neo4j.ogm.response.model.RelationshipModel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.testutil.LoggerRule;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.testutil.TestUtils;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Andreas Berger
@@ -837,43 +829,5 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             }
         }
         return false;
-    }
-
-    static class LoggerRule implements TestRule {
-
-        private final ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-        private final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-
-        @Override
-        public Statement apply(Statement base, Description description) {
-            return new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    setup();
-                    base.evaluate();
-                    teardown();
-                }
-            };
-        }
-
-        private void setup() {
-            logger.addAppender(listAppender);
-            listAppender.start();
-        }
-
-        private void teardown() {
-            listAppender.stop();
-            listAppender.list.clear();
-            logger.detachAppender(listAppender);
-        }
-
-        public List<String> getMessages() {
-            return listAppender.list.stream().map(e -> e.getMessage()).collect(Collectors.toList());
-        }
-
-        public List<String> getFormattedMessages() {
-            return listAppender.list.stream().map(e -> e.getFormattedMessage()).collect(Collectors.toList());
-        }
-
     }
 }

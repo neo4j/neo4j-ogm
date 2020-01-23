@@ -2,6 +2,12 @@
 
 == 3.2
 
+=== 3.2.7
+
+* Return relationship and nodes with unknown relationship types. (#737)
+* Fix optimistic locking for relationship entities. (#746)
+* Fix return type for known entity classes in case of an empty result. (#748)
+
 === 3.2.6
 
 * Improve performance of fully qualified class name lookup. (#738)

@@ -34,7 +34,7 @@ import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.EntityFactory;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.session.EntityInstantiator;
-import org.neo4j.ogm.utils.ClassUtils;
+import org.neo4j.ogm.support.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +82,7 @@ public class SingleUseEntityMapper {
      * @param type        The {@link Class} denoting the type of object to create
      * @param columnNames The names of the columns in each row of the result
      * @param rowModel    The {@link org.neo4j.ogm.model.RowModel} containing the data to map
-     * @return A new instance of <tt>T</tt> populated with the data in the specified row model
+     * @return A new instance of {@code T} populated with the data in the specified row model
      */
     public <T> T map(Class<T> type, String[] columnNames, RowModel rowModel) {
         Map<String, Object> properties = new HashMap<>();
@@ -119,7 +119,8 @@ public class SingleUseEntityMapper {
 
     private void writeProperty(ClassInfo classInfo, Object instance, Map.Entry<String, Object> property) {
 
-        FieldInfo writer = classInfo.getFieldInfo(property.getKey());
+        String key = property.getKey();
+        FieldInfo writer = classInfo.getFieldInfo(key);
 
         if (writer == null) {
             FieldInfo fieldInfo = classInfo.relationshipFieldByName(property.getKey());
@@ -131,13 +132,24 @@ public class SingleUseEntityMapper {
         }
 
         if (writer == null) {
-            logger.warn("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
+            logger.warn("Unable to find property: {} on class: {} for writing", key, classInfo.name());
         } else {
-            Class elementType = ClassUtils.getType(writer.getTypeDescriptor());
-            boolean targetIsCollection = writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type());
+            // That's what we're gonna write too
+            Class<?> effectiveFieldType = writer.type();
 
-            Object value = mapKnownNestedClasses(elementType, property.getKey(), property.getValue(),
-                targetIsCollection);
+            // This takes attribute and composite converters into consideration.
+            Class<?> elementType = writer.convertedType();
+            if (elementType == null) {
+                // If it is not a converted type, we retrieve the element type (not the field type, which maybe a collection)
+                elementType = org.neo4j.ogm.utils.ClassUtils.getType(writer.getTypeDescriptor());
+            }
+
+            boolean targetIsCollection = effectiveFieldType.isArray() || Iterable.class.isAssignableFrom(effectiveFieldType);
+
+            Object value = property.getValue();
+            if (metadata.classInfo(elementType) != null) {
+                value = mapKnownEntityType(elementType, key, value, targetIsCollection);
+            }
 
             // merge iterable / arrays and co-erce to the correct attribute type
             if (targetIsCollection) {
@@ -147,11 +159,10 @@ public class SingleUseEntityMapper {
                     value = Arrays.asList((Object[]) value);
                 }
 
-                Class<?> paramType = writer.type();
-                if (paramType.isArray()) {
-                    value = EntityAccessManager.merge(paramType, value, new Object[] {}, elementType);
+                if (effectiveFieldType.isArray()) {
+                    value = EntityAccessManager.merge(effectiveFieldType, value, new Object[] {}, elementType);
                 } else {
-                    value = EntityAccessManager.merge(paramType, value, Collections.emptyList(), elementType);
+                    value = EntityAccessManager.merge(effectiveFieldType, value, Collections.emptyList(), elementType);
                 }
             }
             writer.write(instance, value);
@@ -159,46 +170,49 @@ public class SingleUseEntityMapper {
     }
 
     /**
+     * If the element type is a known class, it will be mapped, either into a single value or into a collection of things.
+     * If the element type is unknown or cannot be mapped to a single property, the original value is returned.
+     *
      * @param elementType  The target type, must not be null
      * @param property     The name of the property
      * @param value        The value (can be null)
      * @param asCollection whether to create a collection or not
      * @return The mapped value
      */
-    Object mapKnownNestedClasses(Class elementType, String property, Object value, boolean asCollection) {
+    Object mapKnownEntityType(Class elementType, String property, Object value, boolean asCollection) {
 
-        Object mappedValue = value;
-        if (metadata.classInfo(elementType) != null) {
-            List<Object> nestedObjects = new ArrayList<>();
+        List<Object> nestedObjects = new ArrayList<>();
 
-            for (Object nestedPropertyMap : iterableOf(value)) {
-                if (nestedPropertyMap instanceof Map) {
-                    // Recursively map maps
-                    nestedObjects.add(map(elementType, (Map<String, Object>) nestedPropertyMap));
-                } else if (elementType.isInstance(nestedPropertyMap) || org.neo4j.ogm.support.ClassUtils.isEnum(elementType)) {
-                    // Add fitting types and enums directly
-                    nestedObjects.add(nestedPropertyMap);
-                } else {
-                    logger.warn("Cannot map {} to a nested result object for property {}", nestedPropertyMap,
-                        property);
-                }
-            }
-            if (asCollection) {
-                mappedValue = nestedObjects;
-            } else if (nestedObjects.isEmpty()) {
-                mappedValue = Collections.emptyList();
-            } else if (nestedObjects.size() == 1) {
-                mappedValue = nestedObjects.get(0);
+        for (Object nestedPropertyMap : iterableOf(value)) {
+            if (nestedPropertyMap instanceof Map) {
+                // Recursively map maps
+                nestedObjects.add(map(elementType, (Map<String, Object>) nestedPropertyMap));
+            } else if (elementType.isInstance(nestedPropertyMap) || ClassUtils.isEnum(elementType)) {
+                // Add fitting types and enums directly
+                nestedObjects.add(nestedPropertyMap);
             } else {
-                logger.warn(
-                    "Cannot map property {} from result set: The result contains more than one entry for the property.",
-                    property);
+                System.out.println(nestedPropertyMap.getClass());
+                logger.warn("Cannot map {} to a nested result object for property {}", nestedPropertyMap, property);
             }
         }
-        return mappedValue;
+
+        if (asCollection) {
+            return nestedObjects;
+        } else if (nestedObjects.size() > 1) {
+            logger.warn(
+                "Cannot map property {} from result set: The result contains more than one entry for the property.",
+                property);
+            // Returning the original value here is done on purpose to not change in edge cases in SDN
+            // for which we don't have tests yet. Edge cases can be weird queries with weird query result classes
+            // that fit together non the less.
+            return value;
+        } else {
+            return nestedObjects.isEmpty() ? null : nestedObjects.get(0);
+        }
     }
 
     Iterable iterableOf(Object thingToIterator) {
+
         if (thingToIterator == null) {
             return Collections.emptyList();
         } else if (thingToIterator instanceof Iterable) {

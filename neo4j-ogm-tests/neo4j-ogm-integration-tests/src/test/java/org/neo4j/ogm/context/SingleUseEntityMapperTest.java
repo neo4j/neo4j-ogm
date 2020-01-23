@@ -27,7 +27,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.assertj.core.api.Condition;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
@@ -35,13 +37,16 @@ import org.neo4j.ogm.domain.cineasts.minimum.Role;
 import org.neo4j.ogm.domain.cineasts.minimum.SomeQueryResult;
 import org.neo4j.ogm.domain.gh391.SomeContainer;
 import org.neo4j.ogm.domain.gh551.AnotherThing;
+import org.neo4j.ogm.domain.gh551.ThingEntity;
 import org.neo4j.ogm.domain.gh551.ThingResult;
+import org.neo4j.ogm.domain.gh551.ThingResult2;
 import org.neo4j.ogm.domain.gh551.ThingWIthId;
 import org.neo4j.ogm.domain.gh552.Thing;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.LoggerRule;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
@@ -51,6 +56,9 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 public class SingleUseEntityMapperTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
+
+    @Rule
+    public final LoggerRule loggerRule = new LoggerRule();
 
     @BeforeClass
     public static void oneTimeSetUp() {
@@ -91,6 +99,89 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
             .hasSize(10)
             .extracting(AnotherThing::getName)
             .allSatisfy(s -> s.startsWith("Thing"));
+    }
+
+    @Test // GH-748
+    public void singleUseEntityMapperShouldWorkWithNullableNestedNodeEntities() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("WITH 'a name' AS something OPTIONAL MATCH (t:ThingEntity {na:false}) RETURN something, t as entity",
+                EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        ThingResult2 thingResult = entityMapper.map(ThingResult2.class, results.iterator().next());
+        assertThat(thingResult.getSomething()).isEqualTo("a name");
+        assertThat(thingResult.getEntity()).isNull();
+    }
+
+    @Test // GH-748
+    public void singleUseEntityMapperShouldWorkWithNonNullNestedNodeEntities() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query(
+                "WITH 'a name' AS something OPTIONAL MATCH (t:ThingEntity {name: 'Thing 7'}) RETURN something, t as entity",
+                EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        ThingResult2 thingResult = entityMapper.map(ThingResult2.class, results.iterator().next());
+        assertThat(thingResult.getSomething()).isEqualTo("a name");
+        assertThat(thingResult.getEntity()).isNotNull().extracting(ThingEntity::getName).isEqualTo("Thing 7");
+    }
+
+    @Test // GH-748
+    public void shouldFailOnIncompatibleProperties() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("WITH 'a name' AS something OPTIONAL MATCH (t:ThingEntity) RETURN something, COLLECT(t) as entity",
+                EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        assertThatIllegalArgumentException()
+            .isThrownBy(() -> entityMapper.map(ThingResult2.class, results.iterator().next()))
+            .withMessageContaining(
+                "Can not set org.neo4j.ogm.domain.gh551.ThingEntity field org.neo4j.ogm.domain.gh551.ThingResult2.entity to java.util.ArrayList");
+        Condition<String> stringMatches = new Condition<>(s -> s.contains(
+            "Cannot map property entity from result set: The result contains more than one entry for the property."),
+            "String matches");
+        assertThat(loggerRule.getFormattedMessages()).areAtLeastOne(stringMatches);
+    }
+
+    @Test // GH-748
+    public void shouldBeLenientWithSingleValuedCollectionsForSkalarPropertiesMode() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query(
+                "WITH 'a name' AS something OPTIONAL MATCH (t:ThingEntity {name: 'Thing 7'}) RETURN something, COLLECT(t) as entity",
+                EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        ThingResult2 thingResult = entityMapper.map(ThingResult2.class, results.iterator().next());
+        assertThat(thingResult.getSomething()).isEqualTo("a name");
+        assertThat(thingResult.getEntity()).isNotNull().extracting(ThingEntity::getName).isEqualTo("Thing 7");
     }
 
     @Test // GH-718

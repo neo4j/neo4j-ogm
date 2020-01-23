@@ -42,6 +42,7 @@ import org.neo4j.ogm.domain.gh551.ThingResult;
 import org.neo4j.ogm.domain.gh551.ThingResult2;
 import org.neo4j.ogm.domain.gh551.ThingWIthId;
 import org.neo4j.ogm.domain.gh552.Thing;
+import org.neo4j.ogm.domain.gh750.ThingResult3;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.Session;
@@ -63,7 +64,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
     @BeforeClass
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391",
-            "org.neo4j.ogm.domain.cineasts.minimum");
+        		ThingResult3.class.getPackage().getName(), "org.neo4j.ogm.domain.cineasts.minimum");
 
         // Prepare test data
         Session session = sessionFactory.openSession();
@@ -99,6 +100,24 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
             .hasSize(10)
             .extracting(AnotherThing::getName)
             .allSatisfy(s -> s.startsWith("Thing"));
+    }
+
+    @Test // GH-750
+    public void singleUseEntityMapperShouldWorkWithCustomConverters() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("RETURN 'foo' AS foobar", EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        ThingResult3 thingResult = entityMapper.map(ThingResult3.class, results.iterator().next());
+        assertThat(thingResult.getFoobar()).isNotNull();
+        assertThat(thingResult.getFoobar().getValue()).isEqualTo(15);
     }
 
     @Test // GH-748

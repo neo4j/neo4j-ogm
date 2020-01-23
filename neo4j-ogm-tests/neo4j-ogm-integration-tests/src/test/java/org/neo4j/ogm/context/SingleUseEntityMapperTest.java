@@ -117,7 +117,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
 
         ThingResult3 thingResult = entityMapper.map(ThingResult3.class, results.iterator().next());
         assertThat(thingResult.getFoobar()).isNotNull();
-        assertThat(thingResult.getFoobar().getValue()).isEqualTo(15);
+        assertThat(thingResult.getFoobar().getValue()).isEqualTo("foo");
     }
 
     @Test // GH-748

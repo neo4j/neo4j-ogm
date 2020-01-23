@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.context;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import org.neo4j.ogm.metadata.reflect.EntityFactory;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.session.EntityInstantiator;
 import org.neo4j.ogm.support.ClassUtils;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Adam George
  * @author Luanne Misquitta
  * @author Michael J. Simons
+ * @author Niels Oertel
  */
 public class SingleUseEntityMapper {
 
@@ -138,7 +141,11 @@ public class SingleUseEntityMapper {
 
             Object value = property.getValue();
             if (metadata.classInfo(elementType) != null) {
-                value = mapKnownEntityType(elementType, key, value, targetIsCollection);
+                if (null == writer.getPropertyConverter()) {
+                    value = mapKnownEntityType(elementType, key, value, targetIsCollection);
+                } else {
+                    value = mapKnownEntityType(elementTypeFromConverter(writer), key, value, targetIsCollection);
+                }
             }
 
             // merge iterable / arrays and co-erce to the correct attribute type
@@ -158,6 +165,23 @@ public class SingleUseEntityMapper {
             }
             writer.write(instance, value);
         }
+    }
+
+    /**
+     * Determine the parameter type which the {@link AttributeConverter} for the field expects as input.
+     *
+     * @param fieldInfo The field info from which the element type should be extracted.
+     * @return The element type that is expected as input for the mapping.
+     */
+    Class<?> elementTypeFromConverter(FieldInfo fieldInfo) {
+        Class<?> converterClass = fieldInfo.getPropertyConverter().getClass();
+        for (Method m : converterClass.getDeclaredMethods()) {
+            if (m.getName().equals("toEntityAttribute") && !m.isBridge()) {
+                return m.getParameterTypes()[0];
+            }
+        }
+        // this is basically dead code as this cannot happen
+        throw new MappingException("Could not determine element type. Maybe " + AttributeConverter.class.getName() + " was refactored?");
     }
 
     /**

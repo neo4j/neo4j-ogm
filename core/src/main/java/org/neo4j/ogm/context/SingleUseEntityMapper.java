@@ -133,7 +133,12 @@ public class SingleUseEntityMapper {
         if (writer == null) {
             logger.warn("Unable to find property: {} on class: {} for writing", key, classInfo.name());
         } else {
-            Class elementType = DescriptorMappings.getType(writer.getTypeDescriptor());
+            // This takes attribute and composite converters into consideration.
+            Class<?> elementType = writer.convertedType();
+            if (elementType == null) {
+                // If it is not a converted type, we retrieve the element type (not the field type, which maybe a collection)
+                elementType = DescriptorMappings.getType(writer.getTypeDescriptor());
+            }
             boolean targetIsCollection = writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type());
 
             Object value = property.getValue();

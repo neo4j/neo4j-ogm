@@ -42,6 +42,8 @@ import org.neo4j.ogm.domain.gh551.ThingResult;
 import org.neo4j.ogm.domain.gh551.ThingResult2;
 import org.neo4j.ogm.domain.gh551.ThingWIthId;
 import org.neo4j.ogm.domain.gh552.Thing;
+import org.neo4j.ogm.domain.gh750.ThingResult3;
+import org.neo4j.ogm.domain.gh750.ThingResult4;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.Session;
@@ -63,7 +65,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
     @BeforeClass
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391",
-            "org.neo4j.ogm.domain.cineasts.minimum");
+            "org.neo4j.ogm.domain.gh750", "org.neo4j.ogm.domain.cineasts.minimum");
 
         // Prepare test data
         Session session = sessionFactory.openSession();
@@ -182,6 +184,39 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         ThingResult2 thingResult = entityMapper.map(ThingResult2.class, results.iterator().next());
         assertThat(thingResult.getSomething()).isEqualTo("a name");
         assertThat(thingResult.getEntity()).isNotNull().extracting(ThingEntity::getName).isEqualTo("Thing 7");
+    }
+
+    @Test // GH-750
+    public void shouldWorkWithCustomConverters() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("RETURN 'foo' AS foobar", EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        ThingResult3 thingResult = entityMapper.map(ThingResult3.class, results.iterator().next());
+        assertThat(thingResult.getFoobar()).isNotNull();
+        assertThat(thingResult.getFoobar().getValue()).isEqualTo("foo");
+    }
+
+    @Test // GH-750
+    public void shouldWorkWithCustomConvertersOnListProperty() {
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("RETURN ['foo', 'bar'] AS foobar", EMPTY_MAP)
+            .queryResults();
+        assertThat(results).hasSize(1);
+        ThingResult4 thingResult = entityMapper.map(ThingResult4.class, results.iterator().next());
+        assertThat(thingResult.getFoobar()).hasSize(2);
+        assertThat(thingResult.getFoobar().get(0).getValue()).isEqualTo("foo");
+        assertThat(thingResult.getFoobar().get(1).getValue()).isEqualTo("bar");
     }
 
     @Test // GH-718

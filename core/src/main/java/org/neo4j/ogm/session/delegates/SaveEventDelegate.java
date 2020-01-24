@@ -234,7 +234,7 @@ final class SaveEventDelegate extends SessionDelegate {
 
         Long id = session.context().nativeId(parent);
         String type = reader.relationshipType();
-        Class endNodeType = DescriptorMappings.getType(reader.typeDescriptor());
+        Class endNodeType = DescriptorMappings.getType(reader.getTypeDescriptor());
 
         if (reader.relationshipDirection().equals(Relationship.INCOMING)) {
             deregisterIncomingRelationship(id, type, endNodeType);

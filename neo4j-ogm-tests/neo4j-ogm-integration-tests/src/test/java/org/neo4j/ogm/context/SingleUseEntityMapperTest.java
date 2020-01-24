@@ -43,7 +43,6 @@ import org.neo4j.ogm.domain.gh551.ThingResult2;
 import org.neo4j.ogm.domain.gh551.ThingWIthId;
 import org.neo4j.ogm.domain.gh552.Thing;
 import org.neo4j.ogm.domain.gh750.ThingResult3;
-import org.neo4j.ogm.domain.gh750.ThingResult4;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.Session;
@@ -210,13 +209,11 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
             new SingleUseEntityMapper(sessionFactory.metaData(),
                 new ReflectionEntityInstantiator(sessionFactory.metaData()));
         Iterable<Map<String, Object>> results = sessionFactory.openSession()
-            .query("RETURN ['foo', 'bar'] AS foobar", EMPTY_MAP)
+            .query("RETURN ['foo', 'bar'] AS foobars", EMPTY_MAP)
             .queryResults();
         assertThat(results).hasSize(1);
-        ThingResult4 thingResult = entityMapper.map(ThingResult4.class, results.iterator().next());
-        assertThat(thingResult.getFoobar()).hasSize(2);
-        assertThat(thingResult.getFoobar().get(0).getValue()).isEqualTo("foo");
-        assertThat(thingResult.getFoobar().get(1).getValue()).isEqualTo("bar");
+        ThingResult3 thingResult = entityMapper.map(ThingResult3.class, results.iterator().next());
+        assertThat(thingResult.getFoobars()).extracting(ThingResult3.FooBar::getValue).containsExactlyInAnyOrder("foo", "bar");
     }
 
     @Test // GH-718

@@ -18,11 +18,16 @@
  */
 package org.neo4j.ogm.domain.gh750;
 
+import static java.util.stream.Collectors.*;
+
+import java.util.List;
+
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 /**
  * @author Niels Oertel
+ * @author Michael J. Simons
  */
 public class ThingResult3 {
 
@@ -60,8 +65,24 @@ public class ThingResult3 {
         }
     }
 
+    public static class FooBarListConverter implements AttributeConverter<List<FooBar>, List<String>> {
+
+        @Override
+        public List<String> toGraphProperty(List<FooBar> foobar) {
+            return foobar == null ? null : foobar.stream().map(FooBar::getValue).collect(toList());
+        }
+
+        @Override
+        public List<FooBar> toEntityAttribute(List<String> value) {
+            return value == null ? null : value.stream().map(FooBar::new).collect(toList());
+        }
+    }
+
     @Convert(FooBarConverter.class)
     private FooBar foobar;
+
+    @Convert(FooBarListConverter.class)
+    private List<FooBar> foobars;
 
     public FooBar getFoobar() {
         return foobar;
@@ -71,4 +92,11 @@ public class ThingResult3 {
         this.foobar = foobar;
     }
 
+    public List<FooBar> getFoobars() {
+        return foobars;
+    }
+
+    public void setFoobars(List<FooBar> foobars) {
+        this.foobars = foobars;
+    }
 }

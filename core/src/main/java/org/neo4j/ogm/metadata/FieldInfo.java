@@ -390,6 +390,9 @@ public class FieldInfo {
         write(field, instance, value);
     }
 
+    /**
+     * @return The field type (may be List, while the mapped type is retrievable from {@link #getTypeDescriptor()} ()}).
+     */
     public Class<?> type() {
         Class convertedType = convertedType();
         if (convertedType != null) {
@@ -400,10 +403,6 @@ public class FieldInfo {
 
     public boolean forScalar() {
         return !Iterable.class.isAssignableFrom(type()) && !type().isArray();
-    }
-
-    public String typeParameterDescriptor() {
-        return getTypeDescriptor();
     }
 
     public Object read(Object instance) {
@@ -453,10 +452,6 @@ public class FieldInfo {
             }
         }
         return Relationship.UNDIRECTED;
-    }
-
-    public String typeDescriptor() {
-        return getTypeDescriptor();
     }
 
     public Field getField() {

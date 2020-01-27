@@ -373,7 +373,7 @@ public class EntityGraphMapper implements EntityMapper {
             String relationshipType = reader.relationshipType();
             String relationshipDirection = reader.relationshipDirection();
             Class startNodeType = srcInfo.getUnderlyingClass();
-            Class endNodeType = DescriptorMappings.getType(reader.typeDescriptor());
+            Class endNodeType = DescriptorMappings.getType(reader.getTypeDescriptor());
 
             LOGGER.debug("{}: mapping reference type: {}", entity, relationshipType);
 
@@ -910,7 +910,7 @@ public class EntityGraphMapper implements EntityMapper {
             //If its a rel entity then we want to rebase the startClass to the @StartNode of the rel entity and the endClass to the rel entity
             if (metaData.isRelationshipEntity(tgtClass.getName())) {
                 srcClass = tgtClass;
-                String start = metaData.classInfo(tgtClass.getName()).getStartNodeReader().typeDescriptor();
+                String start = metaData.classInfo(tgtClass.getName()).getStartNodeReader().getTypeDescriptor();
                 tgtClass = DescriptorMappings.getType(start);
             }
             reallyCreateRelationship(context, tgt, relationshipBuilder, src, tgtClass, srcClass);

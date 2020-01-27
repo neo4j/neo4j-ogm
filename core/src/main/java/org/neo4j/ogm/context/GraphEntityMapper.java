@@ -364,7 +364,7 @@ public class GraphEntityMapper {
                 writer.write(source, relationshipEntity);
                 mappingContext.addRelationship(
                     new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(),
-                        source.getClass(), DescriptorMappings.getType(writer.typeParameterDescriptor())));
+                        source.getClass(), DescriptorMappings.getType(writer.getTypeDescriptor())));
             } else {
                 oneToMany.add(edge);
             }
@@ -451,20 +451,20 @@ public class GraphEntityMapper {
                 FieldInfo outgoingWriter = findIterableWriter(instance, relationshipEntity, edge.getType(), OUTGOING);
                 if (outgoingWriter != null) {
                     entityCollector.collectRelationship(edge.getStartNode(),
-                        DescriptorMappings.getType(outgoingWriter.typeParameterDescriptor()), edge.getType(), OUTGOING,
+                        DescriptorMappings.getType(outgoingWriter.getTypeDescriptor()), edge.getType(), OUTGOING,
                         edge.getId(), edge.getEndNode(), relationshipEntity);
                     relationshipsToRegister.add(
                         new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(),
-                            instance.getClass(), DescriptorMappings.getType(outgoingWriter.typeParameterDescriptor())));
+                            instance.getClass(), DescriptorMappings.getType(outgoingWriter.getTypeDescriptor())));
                 }
                 FieldInfo incomingWriter = findIterableWriter(parameter, relationshipEntity, edge.getType(), INCOMING);
                 if (incomingWriter != null) {
                     entityCollector.collectRelationship(edge.getEndNode(),
-                        DescriptorMappings.getType(incomingWriter.typeParameterDescriptor()), edge.getType(), INCOMING,
+                        DescriptorMappings.getType(incomingWriter.getTypeDescriptor()), edge.getType(), INCOMING,
                         edge.getId(), edge.getStartNode(), relationshipEntity);
                     relationshipsToRegister.add(
                         new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(),
-                            instance.getClass(), DescriptorMappings.getType(incomingWriter.typeParameterDescriptor())));
+                            instance.getClass(), DescriptorMappings.getType(incomingWriter.getTypeDescriptor())));
                 }
             } else {
 
@@ -475,7 +475,7 @@ public class GraphEntityMapper {
                 if (outgoingWriter != null) {
                     if (!outgoingWriter.forScalar()) {
                         entityCollector.collectRelationship(edge.getStartNode(),
-                            DescriptorMappings.getType(outgoingWriter.typeParameterDescriptor()), edge.getType(),
+                            DescriptorMappings.getType(outgoingWriter.getTypeDescriptor()), edge.getType(),
                             OUTGOING,
                             edge.getEndNode(), parameter);
                     } else {
@@ -483,7 +483,7 @@ public class GraphEntityMapper {
                     }
                     MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(),
                         edge.getEndNode(), null, instance.getClass(),
-                        DescriptorMappings.getType(outgoingWriter.typeParameterDescriptor()));
+                        DescriptorMappings.getType(outgoingWriter.getTypeDescriptor()));
                     relationshipsToRegister.add(mappedRelationship);
                 }
                 FieldInfo incomingWriter = getRelationalWriter(metadata.classInfo(parameter), edge.getType(), INCOMING,
@@ -491,7 +491,7 @@ public class GraphEntityMapper {
                 if (incomingWriter != null) {
                     if (!incomingWriter.forScalar()) {
                         entityCollector.collectRelationship(edge.getEndNode(),
-                            DescriptorMappings.getType(incomingWriter.typeParameterDescriptor()), edge.getType(),
+                            DescriptorMappings.getType(incomingWriter.getTypeDescriptor()), edge.getType(),
                             INCOMING,
                             edge.getStartNode(), instance);
                     } else {
@@ -499,7 +499,7 @@ public class GraphEntityMapper {
                     }
                     relationshipsToRegister.add(
                         new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), null,
-                            instance.getClass(), DescriptorMappings.getType(incomingWriter.typeParameterDescriptor())));
+                            instance.getClass(), DescriptorMappings.getType(incomingWriter.getTypeDescriptor())));
                 }
             }
         }

@@ -133,8 +133,17 @@ public class SingleUseEntityMapper {
         if (writer == null) {
             logger.warn("Unable to find property: {} on class: {} for writing", key, classInfo.name());
         } else {
-            Class elementType = DescriptorMappings.getType(writer.getTypeDescriptor());
-            boolean targetIsCollection = writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type());
+            // That's what we're gonna write too
+            Class<?> effectiveFieldType = writer.type();
+
+            // This takes attribute and composite converters into consideration.
+            Class<?> elementType = writer.convertedType();
+            if (elementType == null) {
+                // If it is not a converted type, we retrieve the element type (not the field type, which maybe a collection)
+                elementType = DescriptorMappings.getType(writer.getTypeDescriptor());
+            }
+
+            boolean targetIsCollection = effectiveFieldType.isArray() || Iterable.class.isAssignableFrom(effectiveFieldType);
 
             Object value = property.getValue();
             if (metadata.classInfo(elementType) != null) {
@@ -149,11 +158,10 @@ public class SingleUseEntityMapper {
                     value = Arrays.asList((Object[]) value);
                 }
 
-                Class<?> paramType = writer.type();
-                if (paramType.isArray()) {
-                    value = EntityAccessManager.merge(paramType, value, new Object[] {}, elementType);
+                if (effectiveFieldType.isArray()) {
+                    value = EntityAccessManager.merge(effectiveFieldType, value, new Object[] {}, elementType);
                 } else {
-                    value = EntityAccessManager.merge(paramType, value, Collections.emptyList(), elementType);
+                    value = EntityAccessManager.merge(effectiveFieldType, value, Collections.emptyList(), elementType);
                 }
             }
             writer.write(instance, value);

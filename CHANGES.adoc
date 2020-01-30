@@ -2,6 +2,11 @@
 
 == 3.2
 
+=== 3.2.8
+
+* Add explicit support for AttributeConverter used in Spring Data 
+  `@QueryResult`-classes in SingleEntityMapper. (#752)
+
 === 3.2.7
 
 * Return relationship and nodes with unknown relationship types. (#737)

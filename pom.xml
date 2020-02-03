@@ -188,7 +188,7 @@
 
         <assertj.version>3.11.1</assertj.version>
         <caffeine.version>2.6.2</caffeine.version>
-        <checkstyle.version>8.18</checkstyle.version>
+        <checkstyle.version>8.29</checkstyle.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.8</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
@@ -208,7 +208,7 @@
         <neo4j-java-driver.version>4.0.0</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
         <maven-jar-plugin.version>3.0.1</maven-jar-plugin.version>
-        <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
+        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>

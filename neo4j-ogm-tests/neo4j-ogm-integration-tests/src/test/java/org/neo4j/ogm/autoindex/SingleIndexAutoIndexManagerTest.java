@@ -20,7 +20,6 @@ package org.neo4j.ogm.autoindex;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.After;
 import org.junit.Test;
 import org.neo4j.ogm.domain.autoindex.SingleIndexEntity;
 
@@ -50,11 +49,7 @@ public class SingleIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestCla
 
         runAutoIndex("update");
 
-        executeForIndexes(indexes -> {
-            assertThat(indexes).hasSize(1);
-        });
-        executeForConstraints(constraints -> {
-            assertThat(constraints).isEmpty();
-        });
+        executeForIndexes(indexes -> assertThat(indexes).hasSize(1 + expectedNumberOfAdditionalIndexes));
+        executeForConstraints(constraints -> assertThat(constraints).isEmpty());
     }
 }

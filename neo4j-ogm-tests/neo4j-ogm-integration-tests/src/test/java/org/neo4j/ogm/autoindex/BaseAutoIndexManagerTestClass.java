@@ -87,11 +87,15 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
     private String[] statements;
     private String[] expectedIndexDefinitions;
 
+    protected final int expectedNumberOfAdditionalIndexes;
+
     protected SessionFactory sessionFactory;
 
     BaseAutoIndexManagerTestClass(String[] expectedIndexDefinitions, Class<?>... packages) {
-        sessionFactory = new SessionFactory(getDriver(), Arrays.stream(packages).map(Class::getName).toArray(String[]::new));
+        sessionFactory = new SessionFactory(getDriver(),
+            Arrays.stream(packages).map(Class::getName).toArray(String[]::new));
         this.expectedIndexDefinitions = expectedIndexDefinitions;
+        this.expectedNumberOfAdditionalIndexes = supportsFulltextIndex() ? 2 : 0;
     }
 
     private static boolean supportsFulltextIndex() {
@@ -183,12 +187,8 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
     public void testAutoIndexNoneNoIndexIsCreated() {
         runAutoIndex("none");
 
-        executeForIndexes(indexes -> {
-            assertThat(indexes).isEmpty();
-        });
-        executeForConstraints(constraints -> {
-            assertThat(constraints).isEmpty();
-        });
+        executeForIndexes(indexes -> assertThat(indexes).hasSize(this.expectedNumberOfAdditionalIndexes));
+        executeForConstraints(constraints -> assertThat(constraints).isEmpty());
     }
 
     @Test
@@ -197,12 +197,9 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
 
         runAutoIndex("none");
 
-        executeForIndexes(indexes -> {
-            assertThat(indexes).hasSize(this.indexes.length);
-        });
-        executeForConstraints(constraints -> {
-            assertThat(constraints).hasSize(this.constraints.length);
-        });
+        executeForIndexes(
+            indexes -> assertThat(indexes).hasSize(this.indexes.length + this.expectedNumberOfAdditionalIndexes));
+        executeForConstraints(constraints -> assertThat(constraints).hasSize(this.constraints.length));
     }
 
     @Test

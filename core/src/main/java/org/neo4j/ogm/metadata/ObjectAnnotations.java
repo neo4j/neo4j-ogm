@@ -23,7 +23,7 @@ import static java.util.stream.Collectors.*;
 import java.lang.annotation.Annotation;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -32,10 +32,12 @@ import org.neo4j.ogm.annotation.typeconversion.DateLong;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.annotation.typeconversion.EnumString;
 import org.neo4j.ogm.annotation.typeconversion.NumberString;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.DateLongConverter;
 import org.neo4j.ogm.typeconversion.DateStringConverter;
 import org.neo4j.ogm.typeconversion.EnumStringConverter;
 import org.neo4j.ogm.typeconversion.InstantLongConverter;
+import org.neo4j.ogm.typeconversion.InstantStringConverter;
 import org.neo4j.ogm.typeconversion.NumberStringConverter;
 
 /**
@@ -101,7 +103,14 @@ public class ObjectAnnotations {
         AnnotationInfo dateStringConverterInfo = get(DateString.class);
         if (dateStringConverterInfo != null) {
             String format = dateStringConverterInfo.get(DateString.FORMAT, DateString.ISO_8601);
-            return new DateStringConverter(format, isLenientConversion(dateStringConverterInfo));
+
+            if (fieldType == Date.class) {
+                return new DateStringConverter(format, isLenientConversion(dateStringConverterInfo));
+            } else if (fieldType == Instant.class) {
+                return new InstantStringConverter(format, isLenientConversion(dateStringConverterInfo));
+            } else {
+                throw new MappingException("Cannot use @DateString with attribute of type " + fieldType);
+            }
         }
 
         AnnotationInfo enumStringConverterInfo = get(EnumString.class);

@@ -66,6 +66,6 @@ public class InstantStringConverter implements AttributeConverter<Instant, Strin
         if (value == null || (lenient && StringUtils.isBlank(value))) {
             return null;
         }
-        return Instant.parse(value);
+        return Instant.from(formatter.parse(value));
     }
 }

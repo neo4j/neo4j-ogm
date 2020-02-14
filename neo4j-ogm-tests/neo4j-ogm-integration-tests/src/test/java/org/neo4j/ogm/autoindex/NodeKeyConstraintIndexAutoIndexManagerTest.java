@@ -63,11 +63,7 @@ public class NodeKeyConstraintIndexAutoIndexManagerTest extends BaseAutoIndexMan
 
         runAutoIndex("update");
 
-        executeForIndexes(indexes -> {
-            assertThat(indexes).isEmpty();
-        });
-        executeForConstraints(constraints -> {
-            assertThat(constraints).hasSize(1);
-        });
+        executeForIndexes(indexes -> assertThat(indexes).hasSize(expectedNumberOfAdditionalIndexes));
+        executeForConstraints(constraints -> assertThat(constraints).hasSize(1));
     }
 }

@@ -44,7 +44,7 @@ public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTe
 
         runAutoIndex("update");
 
-        executeForIndexes(indexes -> assertThat(indexes).isEmpty());
+        executeForIndexes(indexes -> assertThat(indexes).hasSize(expectedNumberOfAdditionalIndexes));
         executeForConstraints(constraints -> assertThat(constraints).hasSize(1));
     }
 

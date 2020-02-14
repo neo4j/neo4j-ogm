@@ -87,11 +87,19 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
     private String[] statements;
     private String[] expectedIndexDefinitions;
 
+    protected final int expectedNumberOfAdditionalIndexes;
+
     protected SessionFactory sessionFactory;
 
     BaseAutoIndexManagerTestClass(String[] expectedIndexDefinitions, Class<?>... packages) {
-        sessionFactory = new SessionFactory(getDriver(), Arrays.stream(packages).map(Class::getName).toArray(String[]::new));
+        sessionFactory = new SessionFactory(getDriver(),
+            Arrays.stream(packages).map(Class::getName).toArray(String[]::new));
         this.expectedIndexDefinitions = expectedIndexDefinitions;
+        this.expectedNumberOfAdditionalIndexes = supportsFulltextIndex() ? 2 : 0;
+    }
+
+    private static boolean supportsFulltextIndex() {
+        return isVersionOrGreater("3.5.0");
     }
 
     /**
@@ -126,6 +134,17 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
             constraints = COMMUNITY_CONSTRAINTS;
             statements = Stream.of(COMMUNITY_INDEXES, COMMUNITY_CONSTRAINTS).flatMap(Stream::of).toArray(String[]::new);
         }
+
+        if (supportsFulltextIndex()) {
+            // Add an index that OGM doesn't understand.
+            session.query(
+                "CALL db.index.fulltext.createRelationshipIndex('unknown_index_rel_ft', ['SOME_TYPE'], ['someProperty'])",
+                emptyMap());
+            session.query(
+                "CALL db.index.fulltext.createNodeIndex('unknown_index_node_rel',['SomeLabel'],['somePropertyA', 'somePropertyB'])",
+                emptyMap()
+            );
+        }
     }
 
     @After
@@ -133,6 +152,13 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
         silentTearDown(() -> {
             executeDrop(expectedIndexDefinitions);
             executeDrop(statements);
+
+            if (supportsFulltextIndex()) {
+                Session session = sessionFactory.openSession();
+
+                session.query("CALL db.index.fulltext.drop('unknown_index_rel_ft')", emptyMap());
+                session.query("CALL db.index.fulltext.drop('unknown_index_node_rel')", emptyMap());
+            }
         });
 
         silentTearDown(this::additionalTearDown);
@@ -161,12 +187,8 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
     public void testAutoIndexNoneNoIndexIsCreated() {
         runAutoIndex("none");
 
-        executeForIndexes(indexes -> {
-            assertThat(indexes).isEmpty();
-        });
-        executeForConstraints(constraints -> {
-            assertThat(constraints).isEmpty();
-        });
+        executeForIndexes(indexes -> assertThat(indexes).hasSize(this.expectedNumberOfAdditionalIndexes));
+        executeForConstraints(constraints -> assertThat(constraints).isEmpty());
     }
 
     @Test
@@ -175,12 +197,9 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
 
         runAutoIndex("none");
 
-        executeForIndexes(indexes -> {
-            assertThat(indexes).hasSize(this.indexes.length);
-        });
-        executeForConstraints(constraints -> {
-            assertThat(constraints).hasSize(this.constraints.length);
-        });
+        executeForIndexes(
+            indexes -> assertThat(indexes).hasSize(this.indexes.length + this.expectedNumberOfAdditionalIndexes));
+        executeForConstraints(constraints -> assertThat(constraints).hasSize(this.constraints.length));
     }
 
     @Test
@@ -212,7 +231,7 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
         executeForIndexes(all::addAll);
         executeForConstraints(all::addAll);
 
-        assertThat(all).hasSize(this.expectedIndexDefinitions.length);
+        assertThat(all).hasSize(this.expectedIndexDefinitions.length + this.expectedNumberOfAdditionalIndexes);
     }
 
     @Test
@@ -226,7 +245,7 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
         executeForIndexes(all::addAll);
         executeForConstraints(all::addAll);
 
-        int expectedNumberOfIndexes = this.indexes.length + this.constraints.length + this.expectedIndexDefinitions.length;
+        int expectedNumberOfIndexes = this.indexes.length + this.constraints.length + this.expectedIndexDefinitions.length + this.expectedNumberOfAdditionalIndexes;
         assertThat(all).hasSize(expectedNumberOfIndexes);
     }
 
@@ -241,7 +260,7 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
         executeForIndexes(all::addAll);
         executeForConstraints(all::addAll);
 
-        assertThat(all).hasSize(this.expectedIndexDefinitions.length);
+        assertThat(all).hasSize(this.expectedIndexDefinitions.length + this.expectedNumberOfAdditionalIndexes);
     }
 
     @Test

@@ -94,6 +94,10 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
         this.expectedIndexDefinitions = expectedIndexDefinitions;
     }
 
+    private static boolean supportsFulltextIndex() {
+        return isVersionOrGreater("3.5.0");
+    }
+
     /**
      * Avoid logging of database exceptions on bolt protocol level
      */
@@ -126,6 +130,17 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
             constraints = COMMUNITY_CONSTRAINTS;
             statements = Stream.of(COMMUNITY_INDEXES, COMMUNITY_CONSTRAINTS).flatMap(Stream::of).toArray(String[]::new);
         }
+
+        if (supportsFulltextIndex()) {
+            // Add an index that OGM doesn't understand.
+            session.query(
+                "CALL db.index.fulltext.createRelationshipIndex('unknown_index_rel_ft', ['SOME_TYPE'], ['someProperty'])",
+                emptyMap());
+            session.query(
+                "CALL db.index.fulltext.createNodeIndex('unknown_index_node_rel',['SomeLabel'],['somePropertyA', 'somePropertyB'])",
+                emptyMap()
+            );
+        }
     }
 
     @After
@@ -133,6 +148,13 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
         silentTearDown(() -> {
             executeDrop(expectedIndexDefinitions);
             executeDrop(statements);
+
+            if (supportsFulltextIndex()) {
+                Session session = sessionFactory.openSession();
+
+                session.query("CALL db.index.fulltext.drop('unknown_index_rel_ft')", emptyMap());
+                session.query("CALL db.index.fulltext.drop('unknown_index_node_rel')", emptyMap());
+            }
         });
 
         silentTearDown(this::additionalTearDown);

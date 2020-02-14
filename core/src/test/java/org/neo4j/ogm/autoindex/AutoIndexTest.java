@@ -142,4 +142,28 @@ public class AutoIndexTest {
             assertThat(index.getDescription()).isEqualTo("INDEX ON :`X`(`deprecated`)");
         });
     }
+
+    @Test // GH-759
+    public void shouldNotFailOnUnknownIndexType() {
+
+        indexRow.put("description", "INDEX ON NODE:User(givenName, familyName)");
+        indexRow.put("indexName", "name");
+        indexRow.put("tokenNames", new String[] { "User" });
+        indexRow.put("properties", new String[] { "givenName", "familyName" });
+        indexRow.put("state", "ONLINE");
+        indexRow.put("type", "node_fulltext");
+        indexRow.put("progress", 100.0);
+        Map<String, String> provider = new HashMap<>();
+        provider.put("version", "1.0");
+        provider.put("key", "fulltext");
+        indexRow.put("provider", provider);
+        indexRow.put("id", 3);
+        indexRow.put("failureMessage", "");
+
+        Optional<AutoIndex> optionalAutoIndex = AutoIndex.parseIndex(indexRow, "3.5");
+        assertThat(optionalAutoIndex).isEmpty();
+
+        optionalAutoIndex = AutoIndex.parseIndex(indexRow, "4.0");
+        assertThat(optionalAutoIndex).isEmpty();
+    }
 }

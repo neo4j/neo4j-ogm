@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.domain.convertible.date;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
 
@@ -53,6 +54,9 @@ public class Memo {
 
     @DateLong
     private Date closed;
+
+    @DateString
+    private Instant actionedAsInstant;
 
     // uses default ISO 8601 date format
     private Date[] escalations;
@@ -93,6 +97,14 @@ public class Memo {
 
     public void setActioned(Date actioned) {
         this.actioned = actioned;
+    }
+
+    public Instant getActionedAsInstant() {
+        return actionedAsInstant;
+    }
+
+    public void setActionedAsInstant(Instant actionedAsInstant) {
+        this.actionedAsInstant = actionedAsInstant;
     }
 
     public Date getModified() {

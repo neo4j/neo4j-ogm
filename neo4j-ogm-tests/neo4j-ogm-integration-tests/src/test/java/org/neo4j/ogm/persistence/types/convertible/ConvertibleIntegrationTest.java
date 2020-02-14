@@ -121,11 +121,8 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
             .equals(Education.PHD)).isTrue();
     }
 
-    /**
-     * @see DATAGRAPH-550
-     */
-    @Test
-    public void shouldSaveAndRetrieveDates() throws ParseException {
+    @Test // DATAGRAPH-550 GH-758
+    public void shouldSaveAndRetrieveDates() {
         SimpleDateFormat simpleDateISO8601format = new SimpleDateFormat(DateString.ISO_8601);
         simpleDateISO8601format.setTimeZone(TimeZone.getTimeZone("UTC"));
 
@@ -152,6 +149,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         memo.setEscalations(escalations);
         memo.setActioned(actioned.getTime());
         memo.setClosed(new Date());
+        memo.setActionedAsInstant(actioned.toInstant());
         session.save(memo);
 
         Memo loadedMemo = session.loadAll(Memo.class, new Filter("memo", ComparisonOperator.EQUALS, "theMemo"))
@@ -162,6 +160,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         assertThat(loadedCal.get(Calendar.DAY_OF_MONTH)).isEqualTo(actioned.get(Calendar.DAY_OF_MONTH));
         assertThat(loadedCal.get(Calendar.MONTH)).isEqualTo(actioned.get(Calendar.MONTH));
         assertThat(loadedCal.get(Calendar.YEAR)).isEqualTo(actioned.get(Calendar.YEAR));
+        assertThat(loadedMemo.getActionedAsInstant()).isEqualTo(actioned.toInstant());
 
         assertThat(loadedMemo.getImplementations()).hasSize(2);
         Iterator<Date> implementationsIter = loadedMemo.getImplementations().iterator();

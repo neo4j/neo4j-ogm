@@ -24,23 +24,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * Test for parsing the index/constraint description to {@link org.neo4j.ogm.autoindex.AutoIndex}
  *
  * @author Frantisek Hartman
+ * @author Gerrit Meier
  * @author Michael J. Simons
  */
 public class AutoIndexTest {
 
-    private static Map<String, Object> indexRow = new HashMap<>();
-    private static Map<String, Object> constraintRow = new HashMap<>();
+    private Map<String, Object> indexRow;
+    private Map<String, Object> constraintRow;
 
-    @BeforeClass
-    public static void prepare() {
+    @Before
+    public void prepare() {
+
+        indexRow = new HashMap<>();
         indexRow.put("type", "node_label_property");
+        constraintRow = new HashMap<>();
         constraintRow.put("type", "node_unique_property");
     }
 

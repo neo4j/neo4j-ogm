@@ -231,7 +231,7 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
         executeForIndexes(all::addAll);
         executeForConstraints(all::addAll);
 
-        assertThat(all).hasSize(this.expectedIndexDefinitions.length);
+        assertThat(all).hasSize(this.expectedIndexDefinitions.length + this.expectedNumberOfAdditionalIndexes);
     }
 
     @Test
@@ -245,7 +245,7 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
         executeForIndexes(all::addAll);
         executeForConstraints(all::addAll);
 
-        int expectedNumberOfIndexes = this.indexes.length + this.constraints.length + this.expectedIndexDefinitions.length;
+        int expectedNumberOfIndexes = this.indexes.length + this.constraints.length + this.expectedIndexDefinitions.length + this.expectedNumberOfAdditionalIndexes;
         assertThat(all).hasSize(expectedNumberOfIndexes);
     }
 
@@ -260,7 +260,7 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
         executeForIndexes(all::addAll);
         executeForConstraints(all::addAll);
 
-        assertThat(all).hasSize(this.expectedIndexDefinitions.length);
+        assertThat(all).hasSize(this.expectedIndexDefinitions.length + this.expectedNumberOfAdditionalIndexes);
     }
 
     @Test

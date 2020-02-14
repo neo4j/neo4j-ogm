@@ -281,20 +281,22 @@ class AutoIndex {
         logger.warn("Could not parse constraint description {}", description);
         return empty();
     }
+
     static Optional<AutoIndex> parseIndex(Map<String, Object> indexRow, String version) {
 
         Pattern pattern;
         Matcher matcher;
 
+        String description = (String) indexRow.get("description");
+        String indexType = (String) indexRow.get("type");
+
         if (version.compareTo("4.0") < 0) {
             // skip unique properties index because they will get processed within
             // the collection of constraints.
-            String indexType = (String) indexRow.get("type");
             if (indexType.equals("node_unique_property")) {
                 return empty();
             }
 
-            String description = (String) indexRow.get("description");
             pattern = compile("INDEX ON :(?<label>.*)\\((?<property>.*)\\)");
             matcher = pattern.matcher(description);
             if (matcher.matches()) {
@@ -309,22 +311,27 @@ class AutoIndex {
                     return of(new AutoIndex(SINGLE_INDEX, label, properties));
                 }
             }
-            logger.warn("Could not parse index description {}", description);
         }
 
         // skip unique properties index because they will get processed within
         // the collection of constraints.
-        String indexUniqueness = (String) indexRow.get("uniqueness");
-        if (indexUniqueness.equals("UNIQUE")) {
-            return empty();
+        if (indexRow.containsKey("uniqueness")) {
+            String indexUniqueness = (String) indexRow.get("uniqueness");
+            if (indexUniqueness.equals("UNIQUE")) {
+                return empty();
+            }
         }
 
-        String[] indexProperties = (String[]) indexRow.get("properties");
-        String indexLabel = ((String[]) indexRow.get("labelsOrTypes"))[0];
+        if (indexRow.containsKey("properties") && indexRow.containsKey("labelsOrTypes")) {
+            String[] indexProperties = (String[]) indexRow.get("properties");
+            String indexLabel = ((String[]) indexRow.get("labelsOrTypes"))[0];
 
-        return of(new AutoIndex(indexProperties.length > 1 ? COMPOSITE_INDEX : SINGLE_INDEX,
-            indexLabel, indexProperties));
+            return of(new AutoIndex(indexProperties.length > 1 ? COMPOSITE_INDEX : SINGLE_INDEX,
+                indexLabel, indexProperties));
+        }
 
+        logger.warn("Could not parse index of type {} with description {}", indexType, description);
+        return empty();
     }
 
     @Override

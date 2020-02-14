@@ -21,6 +21,9 @@ package org.neo4j.ogm.typeconversion;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
+import org.apache.commons.lang3.StringUtils;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
+
 /**
  * Converter to convert between {@link Instant} and {@link String}.
  * Stores values in database as string in format specified by
@@ -29,13 +32,25 @@ import java.time.format.DateTimeFormatter;
  *
  * @author Nicolas Mervaillie
  * @author Róbert Papp
+ * @author Michael J. Simons
  */
 public class InstantStringConverter implements AttributeConverter<Instant, String> {
 
     private final DateTimeFormatter formatter;
+    private final boolean lenient;
 
     public InstantStringConverter() {
-        formatter = DateTimeFormatter.ISO_INSTANT;
+
+        this.formatter = DateTimeFormatter.ISO_INSTANT;
+        this.lenient = false;
+    }
+
+    public InstantStringConverter(String userDefinedFormat, boolean lenient) {
+
+        this.formatter = DateString.ISO_8601.equals(userDefinedFormat) ?
+            DateTimeFormatter.ISO_INSTANT :
+            DateTimeFormatter.ofPattern(userDefinedFormat);
+        this.lenient = lenient;
     }
 
     @Override
@@ -48,7 +63,7 @@ public class InstantStringConverter implements AttributeConverter<Instant, Strin
 
     @Override
     public Instant toEntityAttribute(String value) {
-        if (value == null) {
+        if (value == null || (lenient && StringUtils.isBlank(value))) {
             return null;
         }
         return Instant.parse(value);

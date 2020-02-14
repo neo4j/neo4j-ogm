@@ -24,6 +24,7 @@ import static java.util.regex.Pattern.*;
 import static org.neo4j.ogm.autoindex.IndexType.*;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -289,6 +290,11 @@ class AutoIndex {
 
         String description = (String) indexRow.get("description");
         String indexType = (String) indexRow.get("type");
+
+        if (indexType != null && indexType.toLowerCase(Locale.ENGLISH).contains("fulltext")) {
+            logger.warn("Ignoring unsupported index type {}.", indexType);
+            return Optional.empty();
+        }
 
         if (version.compareTo("4.0") < 0) {
             // skip unique properties index because they will get processed within

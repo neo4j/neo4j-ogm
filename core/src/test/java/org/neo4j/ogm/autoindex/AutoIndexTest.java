@@ -22,6 +22,8 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
 /**
  * Test for parsing the index/constraint description to {@link org.neo4j.ogm.autoindex.AutoIndex}
  * @author Frantisek Hartman
@@ -76,5 +78,12 @@ public class AutoIndexTest {
         assertThat(index.getOwningType()).isEqualTo("LIKED");
         assertThat(index.getProperties()).containsOnly("stars");
         assertThat(index.getType()).isEqualTo(IndexType.REL_PROP_EXISTENCE_CONSTRAINT);
+    }
+
+    @Test // GH-759
+    public void shouldNotFailOnUnknownIndexType() {
+
+        Optional<AutoIndex> optionalAutoIndex = AutoIndex.parse("INDEX ON NODE:User(givenName, familyName)");
+        assertThat(optionalAutoIndex).isEmpty();
     }
 }

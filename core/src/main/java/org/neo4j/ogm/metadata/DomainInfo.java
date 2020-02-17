@@ -81,9 +81,10 @@ public class DomainInfo {
         Predicate<Class<?>> classIsMappable = clazz -> !(clazz.isAnnotation() || clazz.isAnonymousClass() || clazz
             .equals(Object.class));
 
-        // We cannot use the ClassGraph class loader as the order of class loaders used is broken since
-        // ClassGraph 4.8.19 again when `org.springframework.boot.devtools.restart.classloader.RestartClassLoader`
-        // is present.
+        // We only use ClassGraph for scanning classes and than use our default class loader to load them.
+        // There's some chance that our configuration might not be able to find or load the classes.
+        // On the other hand, we were not able to override ClassGraph's class loader in such a way that
+        // when classes have been loaded from class graph, they would work with Spring Boot devtools.
         ClassLoader classLoader = Configuration.getDefaultClassLoader();
         try (ScanResult scanResult = findClasses(packages)) {
             for (String className : scanResult.getAllClasses().getNames()) {

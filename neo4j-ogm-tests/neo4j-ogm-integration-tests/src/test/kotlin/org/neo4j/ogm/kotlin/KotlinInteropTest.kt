@@ -79,7 +79,7 @@ class KotlinInteropTest {
         }
     }
 
-    val names = listOf("Brian", "Roger", "John", "Freddie", "Farin", "Rod", "Bela")
+    private val names = listOf("Brian", "Roger", "John", "Freddie", "Farin", "Rod", "Bela")
 
     @Before
     fun prepareData() {
@@ -131,10 +131,10 @@ class KotlinInteropTest {
         val nodes = sessionFactory.openSession().loadAll<KotlinAImpl>()
         assertThat(nodes.map { it.baseName }).containsExactly("someValue")
 
-        sessionFactory.openSession().save(KotlinAImpl());
+        sessionFactory.openSession().save(KotlinAImpl())
 
         driver.session().use {
-            val resultList = it.run("MATCH (n:A:Base) RETURN count(n) as n ").single()["n"].asLong();
+            val resultList = it.run("MATCH (n:A:Base) RETURN count(n) as n ").single()["n"].asLong()
             assertThat(resultList).isEqualTo(2L)
         }
     }
@@ -145,7 +145,7 @@ class KotlinInteropTest {
         val nodes = sessionFactory.openSession().loadAll<ZooKotlin>()
         assertThat(nodes).hasSize(1)
         assertThat(nodes.first().animals).hasSize(2)
-        assertThat(nodes.first().animals!!.map { it::class.java }).containsExactlyInAnyOrder(Lion::class.java, Zebra::class.java);
+        assertThat(nodes.first().animals!!.map { it::class.java }).containsExactlyInAnyOrder(Lion::class.java, Zebra::class.java)
     }
 
     @Test

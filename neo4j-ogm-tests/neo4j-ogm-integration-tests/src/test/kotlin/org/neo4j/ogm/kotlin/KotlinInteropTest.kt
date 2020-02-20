@@ -39,6 +39,7 @@ import org.neo4j.ogm.domain.gh696.Lion
 import org.neo4j.ogm.domain.gh696.Zebra
 import org.neo4j.ogm.domain.gh696.ZooKotlin
 import org.neo4j.ogm.session.*
+import kotlin.test.assertNotNull
 
 /**
  * @author Michael J. Simons
@@ -103,15 +104,16 @@ class KotlinInteropTest {
     @Test
     fun basicMappingShouldWork() {
 
-        var myNode = MyNode(name = "Node1", description = "A node", otherNodes = listOf(OtherNode(name = "o1"), OtherNode(name = "o2")))
-            sessionFactory.openSession().save(myNode)
+        val myNode = MyNode(name = "Node1", description = "A node", otherNodes = listOf(OtherNode(name = "o1"), OtherNode(name = "o2")))
+        sessionFactory.openSession().save(myNode)
 
-        myNode = sessionFactory.openSession().load(myNode.dbId!!)
-            assertThat(myNode.name).isEqualTo("Node1")
-            assertThat(myNode.description).isEqualTo("A node")
-            assertThat(myNode.otherNodes)
-                    .hasSize(2)
-                    .extracting("name").containsExactlyInAnyOrder("o1", "o2")
+        val loadedNode: MyNode? = sessionFactory.openSession().load(myNode.dbId!!)
+        assertNotNull(loadedNode)
+        assertThat(loadedNode.name).isEqualTo("Node1")
+        assertThat(loadedNode.description).isEqualTo("A node")
+        assertThat(loadedNode.otherNodes)
+                .hasSize(2)
+                .extracting("name").containsExactlyInAnyOrder("o1", "o2")
 
         driver.session().use {
             val resultList = it.run("MATCH (n:MyNode) WHERE id(n) = \$id RETURN n", Values.parameters("id", myNode.dbId)).list()
@@ -200,7 +202,8 @@ class KotlinInteropTest {
     @Test
     fun `queryForObject should work`() {
 
-        val farin : MyNode = sessionFactory.openSession().queryForObject("MATCH (n:MyNode {name: \$name}) RETURN n", mapOf(Pair("name", "Farin")))
+        val farin : MyNode? = sessionFactory.openSession().queryForObject("MATCH (n:MyNode {name: \$name}) RETURN n", mapOf(Pair("name", "Farin")))
+        assertNotNull(farin)
         assertThat(farin.name).isEqualTo("Farin")
     }
 

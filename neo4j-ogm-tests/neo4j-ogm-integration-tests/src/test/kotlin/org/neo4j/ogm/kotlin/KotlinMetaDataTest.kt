@@ -42,7 +42,7 @@ class KotlinMetaDataTest {
         val kotlinClassInfo = metaData.classInfo("KotlinAImpl")
 
         assertThat<String>(kotlinClassInfo.staticLabels()).containsExactlyInAnyOrderElementsOf(javaClassInfo.staticLabels())
-        assertThat<String>(kotlinClassInfo.fieldsInfo().fields().stream().map { it.name })
+        assertThat<String>(kotlinClassInfo.fieldsInfo().fields().map { it.name })
                 .containsExactlyInAnyOrderElementsOf(javaFields)
         assertThat(kotlinClassInfo.postLoadMethodOrNull()).isNotNull
 

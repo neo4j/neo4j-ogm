@@ -39,9 +39,11 @@ import org.neo4j.ogm.domain.gh696.Lion
 import org.neo4j.ogm.domain.gh696.Zebra
 import org.neo4j.ogm.domain.gh696.ZooKotlin
 import org.neo4j.ogm.session.*
+import kotlin.test.assertNotNull
 
 /**
  * @author Michael J. Simons
+ * @author Róbert Papp
  */
 class KotlinInteropTest {
 
@@ -78,7 +80,7 @@ class KotlinInteropTest {
         }
     }
 
-    val names = listOf("Brian", "Roger", "John", "Freddie", "Farin", "Rod", "Bela")
+    private val names = listOf("Brian", "Roger", "John", "Freddie", "Farin", "Rod", "Bela")
 
     @Before
     fun prepareData() {
@@ -103,15 +105,16 @@ class KotlinInteropTest {
     @Test
     fun basicMappingShouldWork() {
 
-        var myNode = MyNode(name = "Node1", description = "A node", otherNodes = listOf(OtherNode(name = "o1"), OtherNode(name = "o2")))
-            sessionFactory.openSession().save(myNode)
+        val myNode = MyNode(name = "Node1", description = "A node", otherNodes = listOf(OtherNode(name = "o1"), OtherNode(name = "o2")))
+        sessionFactory.openSession().save(myNode)
 
-        myNode = sessionFactory.openSession().load(myNode.dbId!!)
-            assertThat(myNode.name).isEqualTo("Node1")
-            assertThat(myNode.description).isEqualTo("A node")
-            assertThat(myNode.otherNodes)
-                    .hasSize(2)
-                    .extracting("name").containsExactlyInAnyOrder("o1", "o2")
+        val loadedNode: MyNode? = sessionFactory.openSession().load(myNode.dbId!!)
+        assertNotNull(loadedNode)
+        assertThat(loadedNode.name).isEqualTo("Node1")
+        assertThat(loadedNode.description).isEqualTo("A node")
+        assertThat(loadedNode.otherNodes)
+                .hasSize(2)
+                .extracting("name").containsExactlyInAnyOrder("o1", "o2")
 
         driver.session().use {
             val resultList = it.run("MATCH (n:MyNode) WHERE id(n) = \$id RETURN n", Values.parameters("id", myNode.dbId)).list()
@@ -129,10 +132,10 @@ class KotlinInteropTest {
         val nodes = sessionFactory.openSession().loadAll<KotlinAImpl>()
         assertThat(nodes.map { it.baseName }).containsExactly("someValue")
 
-        sessionFactory.openSession().save(KotlinAImpl());
+        sessionFactory.openSession().save(KotlinAImpl())
 
         driver.session().use {
-            val resultList = it.run("MATCH (n:A:Base) RETURN count(n) as n ").single()["n"].asLong();
+            val resultList = it.run("MATCH (n:A:Base) RETURN count(n) as n ").single()["n"].asLong()
             assertThat(resultList).isEqualTo(2L)
         }
     }
@@ -143,7 +146,7 @@ class KotlinInteropTest {
         val nodes = sessionFactory.openSession().loadAll<ZooKotlin>()
         assertThat(nodes).hasSize(1)
         assertThat(nodes.first().animals).hasSize(2)
-        assertThat(nodes.first().animals!!.map { it::class.java }).containsExactlyInAnyOrder(Lion::class.java, Zebra::class.java);
+        assertThat(nodes.first().animals!!.map { it::class.java }).containsExactlyInAnyOrder(Lion::class.java, Zebra::class.java)
     }
 
     @Test
@@ -200,7 +203,8 @@ class KotlinInteropTest {
     @Test
     fun `queryForObject should work`() {
 
-        val farin : MyNode = sessionFactory.openSession().queryForObject("MATCH (n:MyNode {name: \$name}) RETURN n", mapOf(Pair("name", "Farin")))
+        val farin : MyNode? = sessionFactory.openSession().queryForObject("MATCH (n:MyNode {name: \$name}) RETURN n", mapOf(Pair("name", "Farin")))
+        assertNotNull(farin)
         assertThat(farin.name).isEqualTo("Farin")
     }
 

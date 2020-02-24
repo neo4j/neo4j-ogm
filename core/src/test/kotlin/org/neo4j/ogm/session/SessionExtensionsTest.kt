@@ -18,8 +18,10 @@
  */
 package org.neo4j.ogm.session
 
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Assert.assertNull
 import org.junit.Test
 import org.neo4j.ogm.cypher.Filter
 import org.neo4j.ogm.cypher.Filters
@@ -78,6 +80,16 @@ class SessionExtensionsTest {
     }
 
     @Test
+    fun `load(id) extension should call its Java counterpart and allow null to be returned`() {
+        every { session.load(any<Class<*>>(), any<Long>(), any()) } returns(null)
+
+        val result = session.load<SomeEntity>(23L)
+
+        verify(exactly = 1) { session.load(SomeEntity::class.java, 23L, 1) }
+        assertNull(result)
+    }
+
+    @Test
     fun `deleteAll extension should call its Java counterpart`() {
 
         session.deleteAll<SomeEntity>()
@@ -101,6 +113,17 @@ class SessionExtensionsTest {
         session.queryForObject<SomeEntity>(cypher)
 
         verify(exactly = 1) { session.queryForObject(SomeEntity::class.java, cypher, emptyMap<String, Any>()) }
+    }
+
+    @Test
+    fun `queryForObject extension should call its Java counterpart and allow null to be returned`() {
+        every { session.queryForObject(any<Class<*>>(), any(), any()) } returns(null)
+
+        val cypher = "MATCH (n:SomeEntity) RETURN n LIMIT 1"
+        val result = session.queryForObject<SomeEntity>(cypher)
+
+        verify(exactly = 1) { session.queryForObject(SomeEntity::class.java, cypher, emptyMap<String, Any>()) }
+        assertNull(result)
     }
 
     @Test

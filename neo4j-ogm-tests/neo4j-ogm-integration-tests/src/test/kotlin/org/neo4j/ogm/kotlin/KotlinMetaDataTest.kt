@@ -34,16 +34,15 @@ class KotlinMetaDataTest {
         val metaData = MetaData("org.neo4j.ogm.domain.gh685", "org.neo4j.ogm.domain.delegation")
 
         val javaClassInfo = metaData.classInfo("JavaAImpl")
-        assertThat<String>(javaClassInfo.staticLabels()).containsExactlyInAnyOrder("Base", "A")
+        assertThat(javaClassInfo.staticLabels()).containsExactlyInAnyOrder("Base", "A")
         val javaFields = javaClassInfo.fieldsInfo().fields().map { it.name }
-        assertThat<String>(javaFields).containsExactlyInAnyOrder("id", "ownAttr", "baseName")
+        assertThat(javaFields).containsExactlyInAnyOrder("id", "ownAttr", "baseName")
         assertThat(javaClassInfo.postLoadMethodOrNull()).isNotNull
 
         val kotlinClassInfo = metaData.classInfo("KotlinAImpl")
-
-        assertThat<String>(kotlinClassInfo.staticLabels()).containsExactlyInAnyOrderElementsOf(javaClassInfo.staticLabels())
-        assertThat<String>(kotlinClassInfo.fieldsInfo().fields().stream().map { it.name })
-                .containsExactlyInAnyOrderElementsOf(javaFields)
+        assertThat(kotlinClassInfo.staticLabels()).containsExactlyInAnyOrderElementsOf(javaClassInfo.staticLabels())
+        val kotlinFields = kotlinClassInfo.fieldsInfo().fields().map { it.name }
+        assertThat(kotlinFields).containsExactlyInAnyOrderElementsOf(javaFields)
         assertThat(kotlinClassInfo.postLoadMethodOrNull()).isNotNull
 
         val aKotlinClass = KotlinAImpl()

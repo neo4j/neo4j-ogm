@@ -156,6 +156,11 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         assertThat(someTime1).isEqualTo(someTime2);
         assertThat(someTime2).isEqualTo(someTime3);
         assertThat(someTime3).isEqualTo(someTime4);
+
+        String withDifferentMillis = "2024-05-01T21:18:15.651+07:00";
+        OffsetDateTime a = OffsetDateTime.parse(withDifferentMillis);
+        OffsetDateTime b = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(withDifferentMillis, OffsetDateTime::from);
+        assertThat(a).isEqualTo(b);
     }
 
     @Test // GH-766

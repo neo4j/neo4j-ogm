@@ -136,8 +136,7 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         parameters.put("rows", Collections.singletonList(row));
 
         Result result = session.query(
-            // same query as ouput by org.neo4j.ogm.drivers.bolt.request.BoltRequest(BoltRequest.java:178)
-            "UNWIND {rows} AS row CREATE (n:`Data`) SET n=row.props RETURN row.nodeRef AS ref, id(n) AS id, {type} AS type",
+            "UNWIND $rows AS row CREATE (n:`Data`) SET n=row.props RETURN row.nodeRef AS ref, id(n) AS id, $type AS type",
             parameters);
 
         verify((Long) result.queryResults().iterator().next().get("id"), someTime, someLocalDateTime, someLocalDate);

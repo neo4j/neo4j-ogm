@@ -43,6 +43,7 @@ import kotlin.test.assertNotNull
 
 /**
  * @author Michael J. Simons
+ * @author Róbert Papp
  */
 class KotlinInteropTest {
 

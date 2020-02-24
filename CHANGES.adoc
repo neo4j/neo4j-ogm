@@ -1,5 +1,25 @@
 = Changes
 
+== 3.2.9
+
+* Update to latest version of HttpClient and Core. (#754)
+* Ignore existing full text indexes when using the auto index manager. (#760)
+* Support `@DateString` on `java.time.Instant` attributes. (#761)
+* Update to latest Classgraph, improving memory usage in low-memory environments. (#762)
+* Return correct nullable references from Kotlin extension methods. (#765)
+* Fix inconsistent behaviour of Driver.unwrap(). (#767)
+* Explicitly use ISO based date- and timeformatters. (#768)
+
+WARNING: The Kotlin extension methods `Session.load(id: Serializable, depth: Int = 1)`,
+         `Session.queryForObject(cypher: String, parameters: Map<String, Any> = emptyMap())` and
+         `SessionFactory.unwrap()` now return nullable references to be compatible with the actual
+         Java methods. This is a breaking change but avoids `IllegalStateException` during runtime.
+         Please see #765 for a discussion.
+         `Driver.unwrap()` will no return `null` as long as the driver hasn't been used or has not been
+         initialised through `verifyConnection(true)` on the configuration.
+
+Thanks to our reporters and contributors @emptyfruit, @aslakagens and @TWiStErRob and also @lukehutch for your input.
+
 == 3.2.8
 
 * Add explicit support for AttributeConverter used in Spring Data 

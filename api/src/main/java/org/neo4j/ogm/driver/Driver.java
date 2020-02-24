@@ -88,11 +88,16 @@ public interface Driver extends AutoCloseable {
 
     /**
      * Unwraps this Neo4j-OGM specific driver into it's underlying physical driver of type {@code T} if the concrete driver's
-     * transport is compatible with the speficied class.
+     * transport is compatible with the specified class.
+     * <p>
+     * A call to this method won't initialize a driver. Depending on the actual type, the underlying driver will be null
+     * if it had not been used beforehand or {@link Configuration.Builder#verifyConnection(Boolean)} hat been set to {@literal true}.
+     * <p>
+     * This method won't return {@literal null} once the driver has been initialized until {@link #close()} has been called.
      *
      * @param clazz The class into which the driver should be unwrapped
      * @param <T>   Type of the class
-     * @return The unwrapped driver
+     * @return The unwrapped driver or null if the driver has not been initialized beforehand.
      * @throws IllegalArgumentException if this driver cannot be unwrapped into the given class.
      */
     default <T> T unwrap(Class<T> clazz) {

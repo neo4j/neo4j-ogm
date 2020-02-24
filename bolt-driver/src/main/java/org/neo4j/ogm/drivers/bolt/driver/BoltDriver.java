@@ -244,6 +244,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
             try {
                 LOGGER.info("Shutting down Bolt driver {} ", boltDriver);
                 boltDriver.close();
+                boltDriver = null;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -263,7 +264,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
     public <T> T unwrap(Class<T> clazz) {
 
         if (clazz == Driver.class) {
-            checkDriverInitialized();
             return (T) boltDriver;
         } else {
             return super.unwrap(clazz);

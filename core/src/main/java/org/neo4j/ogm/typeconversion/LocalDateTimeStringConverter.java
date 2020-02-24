@@ -19,6 +19,7 @@
 package org.neo4j.ogm.typeconversion;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Converter to convert between {@link LocalDateTime} and {@link String}.
@@ -27,15 +28,18 @@ import java.time.LocalDateTime;
  *
  * @author Frantisek Hartman
  * @author Róbert Papp
+ * @author Michael J. Simons
  */
 public class LocalDateTimeStringConverter implements AttributeConverter<LocalDateTime, String> {
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Override
     public String toGraphProperty(LocalDateTime value) {
         if (value == null) {
             return null;
         }
-        return value.toString();
+        return formatter.format(value);
     }
 
     @Override
@@ -43,6 +47,6 @@ public class LocalDateTimeStringConverter implements AttributeConverter<LocalDat
         if (value == null) {
             return null;
         }
-        return LocalDateTime.parse(value);
+        return formatter.parse(value, LocalDateTime::from);
     }
 }

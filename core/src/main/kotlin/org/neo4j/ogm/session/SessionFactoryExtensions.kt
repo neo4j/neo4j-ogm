@@ -21,4 +21,4 @@ package org.neo4j.ogm.session
 /**
  * Extension for [SessionFactory.unwrap] leveraging reified type parameters.
  */
-inline fun <reified T : Any> SessionFactory.unwrap(): T = unwrap(T::class.java)
+inline fun <reified T : Any> SessionFactory.unwrap(): T? = unwrap(T::class.java)

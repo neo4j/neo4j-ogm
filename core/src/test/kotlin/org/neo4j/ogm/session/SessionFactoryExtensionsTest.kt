@@ -18,10 +18,12 @@
  */
 package org.neo4j.ogm.session
 
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Test
 import org.neo4j.ogm.driver.Driver
+import kotlin.test.assertNotNull
 
 /**
  * @author Michael J. Simons
@@ -29,12 +31,15 @@ import org.neo4j.ogm.driver.Driver
 class SessionFactoryExtensionsTest {
 
     val sessionFactory = mockk<SessionFactory>(relaxed = true)
+    val driver = mockk<Driver>()
 
     @Test
     fun `unwrap extension should call its Java counterpart`() {
 
-        sessionFactory.unwrap<Driver>()
+        every { sessionFactory.unwrap<Driver>()} returns driver
+        val driver = sessionFactory.unwrap<Driver>()!!
 
+        assertNotNull(driver)
         verify(exactly = 1) { sessionFactory.unwrap(Driver::class.java) }
     }
 }

@@ -66,7 +66,7 @@ inline fun <reified T : Any> Session.loadAll(
 /**
  * Extension for [Session.load] leveraging reified type parameters.
  */
-inline fun <reified T : Any> Session.load(id: Serializable, depth: Int = 1): T =
+inline fun <reified T : Any> Session.load(id: Serializable, depth: Int = 1): T? =
         load(T::class.java, id, depth)
 
 /**
@@ -87,7 +87,7 @@ inline fun <reified T : Any> Session.delete(filters : Iterable<Filter>, listResu
 inline fun <reified T : Any> Session.queryForObject(
         cypher: String,
         parameters: Map<String, Any> = emptyMap()
-): T = queryForObject(T::class.java, cypher, parameters)
+): T? = queryForObject(T::class.java, cypher, parameters)
 
 /**
  * Extension for [Session.query] leveraging reified type parameters.

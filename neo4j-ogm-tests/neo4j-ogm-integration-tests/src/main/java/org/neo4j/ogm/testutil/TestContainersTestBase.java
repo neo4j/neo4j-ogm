@@ -77,6 +77,7 @@ public class TestContainersTestBase {
 
                 baseConfigurationBuilder = new Configuration.Builder()
                     .uri(neo4jServer.getBoltUrl())
+                    .verifyConnection(true)
                     .withCustomProperty(BoltDriver.CONFIG_PARAMETER_BOLT_LOGGING, Logging.slf4j());
 
                 driver.configure(baseConfigurationBuilder.build());

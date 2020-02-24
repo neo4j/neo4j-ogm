@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Logging;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
@@ -100,6 +102,14 @@ public class TestContainersTestBase {
 
             version = extractVersionFromEmbedded();
         }
+    }
+
+    protected static final org.neo4j.driver.Driver getBoltConnection() {
+
+        if (neo4jServer != null) {
+            return GraphDatabase.driver(neo4jServer.getBoltUrl(), AuthTokens.none());
+        }
+        throw new IllegalStateException("Bolt connection can only be provided into a test container.");
     }
 
     private static boolean hasAcceptedAndWantsToUseCommercialEdition() {

@@ -19,6 +19,7 @@
 package org.neo4j.ogm.typeconversion;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Converter to convert between {@link OffsetDateTime} and {@link String}.
@@ -27,15 +28,18 @@ import java.time.OffsetDateTime;
  *
  * @author Frantisek Hartman
  * @author Róbert Papp
+ * @author Michael J. Simons
  */
 public class OffsettDateTimeStringConverter implements AttributeConverter<OffsetDateTime, String> {
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @Override
     public String toGraphProperty(OffsetDateTime value) {
         if (value == null) {
             return null;
         }
-        return value.toString();
+        return formatter.format(value);
     }
 
     @Override
@@ -43,6 +47,6 @@ public class OffsettDateTimeStringConverter implements AttributeConverter<Offset
         if (value == null) {
             return null;
         }
-        return OffsetDateTime.parse(value);
+        return formatter.parse(value, OffsetDateTime::from);
     }
 }

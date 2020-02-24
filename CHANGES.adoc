@@ -1,5 +1,17 @@
 = Changes
 
+== 3.1.17
+
+* Recursively traverse variable length relationship patterns. (#718)
+* Do not rely on simple class names. (#726)
+* Improve computation of id fields in ClassInfo. (#729)
+* Add tests to ensure correct mapping of pattern comprehension based queries. (#737)
+* Improve performance of fully qualified class name lookup. (#738)
+* Fix optimistic locking for relationship entities. (#747)
+* Use latest versions of HttpClient and Core. (#754)
+* Select correct string converter. (#761)
+* Explicitly use ISO based date- and timeformatters. (#768)
+
 == 3.1.16
 
 * Check for contradicting annotations before mapping possible related nodes. (#666)

@@ -19,6 +19,7 @@
 package org.neo4j.ogm.typeconversion;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Converter to convert between {@link LocalDate} and {@link String}.
@@ -27,20 +28,23 @@ import java.time.LocalDate;
  *
  * @author Nicolas Mervaillie
  * @author Róbert Papp
+ * @author Michael J. Simons
  */
 public class LocalDateStringConverter implements AttributeConverter<LocalDate, String> {
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
     @Override
     public String toGraphProperty(LocalDate value) {
         if (value == null)
             return null;
-        return value.toString();
+        return formatter.format(value);
     }
 
     @Override
     public LocalDate toEntityAttribute(String value) {
         if (value == null)
             return null;
-        return LocalDate.parse(value);
+        return formatter.parse(value, LocalDate::from);
     }
 }

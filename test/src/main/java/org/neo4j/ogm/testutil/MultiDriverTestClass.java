@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.BeforeClass;
+import org.neo4j.driver.v1.AuthTokens;
+import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
@@ -98,6 +100,15 @@ public class MultiDriverTestClass {
     public static Configuration.Builder getBaseConfiguration() {
         return Configuration.Builder.copy(baseConfiguration);
     }
+
+    protected static final org.neo4j.driver.v1.Driver getBoltConnection() {
+
+        if (testServer != null) {
+            return GraphDatabase.driver(testServer.getUri(), AuthTokens.none());
+        }
+        throw new IllegalStateException("Bolt connection can only be provided into a test server.");
+    }
+
 
     public static GraphDatabaseService getGraphDatabaseService() {
         // if using an embedded config, return the db from the driver

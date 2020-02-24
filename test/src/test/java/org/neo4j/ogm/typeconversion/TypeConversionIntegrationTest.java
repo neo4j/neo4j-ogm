@@ -18,19 +18,34 @@
  */
 package org.neo4j.ogm.typeconversion;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.v1.Record;
+import org.neo4j.driver.v1.Value;
+import org.neo4j.driver.v1.Values;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
+import org.neo4j.ogm.domain.music.TimeHolder;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -78,7 +93,147 @@ public class TypeConversionIntegrationTest extends MultiDriverTestClass {
         session.save(album);
         session.clear();
 
-        final Date latestReleases = session.queryForObject(Date.class, "MATCH (n:`l'album`) RETURN MAX(n.releasedAt)", new HashMap<>());
-        Assertions.assertThat(latestReleases).isEqualTo(queen2ReleaseDate);
+        final Date latestReleases = session
+            .queryForObject(Date.class, "MATCH (n:`l'album`) RETURN MAX(n.releasedAt)", new HashMap<>());
+        assertThat(latestReleases).isEqualTo(queen2ReleaseDate);
+    }
+
+    @Test // GH-766
+    public void savedTimestampAsMappingIsReadBackAsIs() {
+
+        OffsetDateTime someTime = OffsetDateTime.parse("2024-05-01T21:18:15.650+07:00");
+        LocalDateTime someLocalDateTime = LocalDateTime.parse("2024-05-01T21:18:15");
+        LocalDate someLocalDate = LocalDate.parse("2024-05-01");
+
+        TimeHolder timeHolder = new TimeHolder();
+        timeHolder.setSomeTime(someTime);
+        timeHolder.setSomeLocalDateTime(someLocalDateTime);
+        timeHolder.setSomeLocalDate(someLocalDate);
+
+        session.save(timeHolder);
+
+        verify(timeHolder.getGraphId(), someTime, someLocalDateTime, someLocalDate);
+    }
+
+    @Test // GH-766
+    public void savedTimestampAsParameterToBatchedCreateIsReadBackAsIs() {
+
+        String someTimeStringValue = "2024-05-01T21:18:15.65+07:00";
+        OffsetDateTime someTime = OffsetDateTime.parse(someTimeStringValue);
+        String someLocalDateTimeStringValue = "2024-05-01T21:18:15";
+        LocalDateTime someLocalDateTime = LocalDateTime.parse(someLocalDateTimeStringValue);
+        String someLocalDateStringValue = "2024-05-01";
+        LocalDate someLocalDate = LocalDate.parse(someLocalDateStringValue);
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("someTime", someTimeStringValue);
+        props.put("someLocalDateTime", someLocalDateTimeStringValue);
+        props.put("someLocalDate", someLocalDateStringValue);
+
+        Map<String, Object> row = new HashMap<>();
+        row.put("nodeRef", -1);
+        row.put("props", props);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("type", "node");
+        parameters.put("rows", Collections.singletonList(row));
+
+        Result result = session.query(
+            // same query as ouput by org.neo4j.ogm.drivers.bolt.request.BoltRequest(BoltRequest.java:178)
+            "UNWIND {rows} AS row CREATE (n:`Data`) SET n=row.props RETURN row.nodeRef AS ref, id(n) AS id, {type} AS type",
+            parameters);
+
+        verify((Long) result.queryResults().iterator().next().get("id"), someTime, someLocalDateTime, someLocalDate);
+    }
+
+    @Test // GH-766
+    public void dataStoredInNotRealIsoFormatShouldStillBeParsed() {
+
+        OffsetDateTime someTime1 = OffsetDateTime.parse("2024-05-01T21:18:15.650+07:00");
+        OffsetDateTime someTime2 = OffsetDateTime.parse("2024-05-01T21:18:15.65+07:00");
+        OffsetDateTime someTime3 = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            .parse("2024-05-01T21:18:15.650+07:00", OffsetDateTime::from);
+        OffsetDateTime someTime4 = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            .parse("2024-05-01T21:18:15.65+07:00", OffsetDateTime::from);
+
+        assertThat(someTime1).isEqualTo(someTime2);
+        assertThat(someTime2).isEqualTo(someTime3);
+        assertThat(someTime3).isEqualTo(someTime4);
+
+        String withDifferentMillis = "2024-05-01T21:18:15.651+07:00";
+        OffsetDateTime a = OffsetDateTime.parse(withDifferentMillis);
+        OffsetDateTime b = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(withDifferentMillis, OffsetDateTime::from);
+        assertThat(a).isEqualTo(b);
+    }
+
+    @Test // GH-766
+    public void savedTimestampAsParameterToSimpleCreateIsReadBackAsIs() {
+
+        String someTimeStringValue = "2024-05-01T21:18:15.65+07:00";
+        OffsetDateTime someTime = OffsetDateTime.parse(someTimeStringValue);
+        String someLocalDateTimeStringValue = "2024-05-01T21:18:15";
+        LocalDateTime someLocalDateTime = LocalDateTime.parse(someLocalDateTimeStringValue);
+        String someLocalDateStringValue = "2024-05-01";
+        LocalDate someLocalDate = LocalDate.parse(someLocalDateStringValue);
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("someTime", someTimeStringValue);
+        props.put("someLocalDateTime", someLocalDateTimeStringValue);
+        props.put("someLocalDate", someLocalDateStringValue);
+
+        TimeHolder timeHolder = session.queryForObject(
+            TimeHolder.class,
+            "CREATE (d:Data {someTime: $someTime, someLocalDateTime: $someLocalDateTime, someLocalDate: $someLocalDate}) RETURN d",
+            props
+        );
+        verify(timeHolder.getGraphId(), someTime, someLocalDateTime, someLocalDate);
+    }
+
+    private void verify(Long graphId, OffsetDateTime expectedOffsetDateTime, LocalDateTime expectedLocalDateTime,
+        LocalDate expectedLocalDate) {
+
+        // opening a new Session to prevent shared data
+        TimeHolder reloaded = sessionFactory.openSession().load(TimeHolder.class, graphId);
+
+        assertThat(reloaded.getSomeTime()).isEqualTo(expectedOffsetDateTime);
+        assertThat(reloaded.getSomeLocalDateTime()).isEqualTo(expectedLocalDateTime);
+        assertThat(reloaded.getSomeLocalDate()).isEqualTo(expectedLocalDate);
+
+        String offsetDateTimeValue = null;
+        String localDateTimeValue = null;
+        String localDateValue = null;
+
+        try (Driver driver = getBoltConnection()) {
+            try (org.neo4j.driver.v1.Session driverSession = driver.session()) {
+                Record record = driverSession
+                    .run("MATCH (n) WHERE id(n) = $id RETURN n", Values.parameters("id", graphId)).single();
+
+                Value n = record.get("n");
+                offsetDateTimeValue = n.get("someTime").asString();
+                localDateTimeValue = n.get("someLocalDateTime").asString();
+                localDateValue = n.get("someLocalDate").asString();
+            }
+        } catch (IllegalStateException e) {
+
+            GraphDatabaseService graphDatabaseService = getGraphDatabaseService();
+            try (Transaction tx = graphDatabaseService.beginTx()) {
+
+                Node node = graphDatabaseService.getNodeById(graphId);
+                offsetDateTimeValue = node.getProperty("someTime").toString();
+                localDateTimeValue = node.getProperty("someLocalDateTime").toString();
+                localDateValue = node.getProperty("someLocalDate").toString();
+            }
+        }
+
+        String expectedStringValue;
+
+        expectedStringValue = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(expectedOffsetDateTime);
+        assertThat(offsetDateTimeValue).isEqualTo(expectedStringValue);
+
+        expectedStringValue = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(expectedLocalDateTime);
+        assertThat(localDateTimeValue).isEqualTo(expectedStringValue);
+
+        expectedStringValue = DateTimeFormatter.ISO_LOCAL_DATE.format(expectedLocalDate);
+        assertThat(localDateValue).isEqualTo(expectedStringValue);
     }
 }

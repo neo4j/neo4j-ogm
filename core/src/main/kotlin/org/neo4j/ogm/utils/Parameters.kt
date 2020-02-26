@@ -21,6 +21,18 @@ package org.neo4j.ogm.utils
 // A couple of extension methods that escapes $parameterNames inside multiline strings.
 // See ParameterTest.kt for an example how to use them.
 
+/**
+ * Extension on [String] returning the string itself prefixed with an escaped `$`.
+ *
+ * @author Michael J. Simons
+ * @since 1.0
+ */
 inline fun String.asParam() = "\$" + this
 
+/**
+ * Extension on [String]'s companion object returning the string passed to it prefixed with an escaped `$`.
+ *
+ * @author Michael J. Simons
+ * @since 1.0
+ */
 infix fun String.Companion.asParam(s: String) = "\$" + s

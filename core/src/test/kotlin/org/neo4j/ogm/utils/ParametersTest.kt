@@ -21,11 +21,10 @@ package org.neo4j.ogm.utils
 import org.junit.Test
 import kotlin.test.assertEquals
 
-
 /**
  * @author Michael J. Simons
  */
-class ParameterTest {
+class ParametersTest {
 
     @Test
     fun `named parameters in multiline strings shouldn't be that hard`() {

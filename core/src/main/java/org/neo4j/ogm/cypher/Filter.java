@@ -191,7 +191,7 @@ public class Filter implements FilterWithRelationship {
             throw new IllegalStateException("ignoreCase is only supported for a filter based on property comparison");
         } else {
             PropertyComparison propertyComparision = (PropertyComparison) this.function;
-            if (!EnumSet.of(EQUALS, CONTAINING).contains(propertyComparision.getOperator())) {
+            if (!EnumSet.of(EQUALS, CONTAINING, STARTING_WITH, ENDING_WITH).contains(propertyComparision.getOperator())) {
                 throw new IllegalStateException(
                     String.format("ignoreCase is only supported for %s or %s comparison", EQUALS.name(),
                         CONTAINING.name())

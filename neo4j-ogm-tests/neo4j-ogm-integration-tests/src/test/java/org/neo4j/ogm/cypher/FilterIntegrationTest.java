@@ -58,10 +58,43 @@ public class FilterIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void ignoreCaseShouldNotBeApplicableToComparisonOtherThanEquals() {
+    public void ignoreCaseShouldBeApplicableToEquals() {
         final String emi = "EMI Studios, London";
         session.save(new Studio(emi));
         final Filter nameFilter = new Filter("name", ComparisonOperator.EQUALS, "eMi Studios, London").ignoreCase();
+        assertThat(session.loadAll(Studio.class, nameFilter, 0))
+            .hasSize(1)
+            .extracting(Studio::getName)
+            .containsExactly(emi);
+    }
+
+    @Test
+    public void ignoreCaseShouldBeApplicableToContaining() {
+        final String emi = "EMI Studios, London";
+        session.save(new Studio(emi));
+        final Filter nameFilter = new Filter("name", ComparisonOperator.CONTAINING, "STUDIO").ignoreCase();
+        assertThat(session.loadAll(Studio.class, nameFilter, 0))
+            .hasSize(1)
+            .extracting(Studio::getName)
+            .containsExactly(emi);
+    }
+
+    @Test
+    public void ignoreCaseShouldBeApplicableToStartingWith() {
+        final String emi = "EMI Studios, London";
+        session.save(new Studio(emi));
+        final Filter nameFilter = new Filter("name", ComparisonOperator.STARTING_WITH, "em").ignoreCase();
+        assertThat(session.loadAll(Studio.class, nameFilter, 0))
+            .hasSize(1)
+            .extracting(Studio::getName)
+            .containsExactly(emi);
+    }
+
+    @Test
+    public void ignoreCaseShouldBeApplicableToEndingWith() {
+        final String emi = "EMI Studios, London";
+        session.save(new Studio(emi));
+        final Filter nameFilter = new Filter("name", ComparisonOperator.ENDING_WITH, "london").ignoreCase();
         assertThat(session.loadAll(Studio.class, nameFilter, 0))
             .hasSize(1)
             .extracting(Studio::getName)

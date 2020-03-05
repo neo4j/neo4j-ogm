@@ -133,6 +133,28 @@ public class FilterTest {
     }
 
     @Test
+    public void startingWithComparisionShouldWork() {
+        final String value = "someOtherThing";
+        Filter filter = new Filter("thing", ComparisonOperator.STARTING_WITH, value);
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` STARTS WITH $`thing_0` ");
+
+        filter = new Filter("thing", ComparisonOperator.STARTING_WITH, value);
+        filter.ignoreCase();
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE toLower(n.`thing`) STARTS WITH toLower($`thing_0`) ");
+    }
+
+    @Test
+    public void endingWithComparisionShouldWork() {
+        final String value = "someOtherThing";
+        Filter filter = new Filter("thing", ComparisonOperator.ENDING_WITH, value);
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` ENDS WITH $`thing_0` ");
+
+        filter = new Filter("thing", ComparisonOperator.ENDING_WITH, value);
+        filter.ignoreCase();
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE toLower(n.`thing`) ENDS WITH toLower($`thing_0`) ");
+    }
+
+    @Test
     public void containingComparisionShouldWork() {
         final String value = "someOtherThing";
         Filter filter = new Filter("thing", ComparisonOperator.CONTAINING, value);

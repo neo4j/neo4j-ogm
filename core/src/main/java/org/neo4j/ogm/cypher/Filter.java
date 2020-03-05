@@ -227,7 +227,7 @@ public class Filter implements FilterWithRelationship {
     public Filter ignoreCase() {
         if (!(this.function instanceof PropertyComparison)) {
             throw new IllegalStateException("ignoreCase is only supported for a filter based on property comparison");
-        } else if (!this.getComparisonOperator().isOneOf(EQUALS, CONTAINING)) {
+        } else if (!this.getComparisonOperator().isOneOf(EQUALS, CONTAINING, STARTING_WITH, ENDING_WITH)) {
             throw new IllegalStateException(
                 String.format("ignoreCase is only supported for %s or %s comparison", EQUALS.name(), CONTAINING.name())
             );

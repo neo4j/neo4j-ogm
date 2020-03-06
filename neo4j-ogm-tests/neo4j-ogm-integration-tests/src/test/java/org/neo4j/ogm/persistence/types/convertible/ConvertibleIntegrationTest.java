@@ -23,13 +23,14 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -52,13 +53,14 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class ConvertibleIntegrationTest extends TestContainersTestBase {
 
     private static Session session;
 
     @BeforeClass
-    public static void init() throws IOException {
+    public static void init() {
         session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.convertible").openSession();
     }
 
@@ -67,10 +69,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         session.purgeDatabase();
     }
 
-    /**
-     * @see DATAGRAPH-550
-     */
-    @Test
+    @Test // DATAGRAPH-550
     public void shouldSaveAndRetrieveEnums() {
         List<Education> completed = new ArrayList<>();
         completed.add(Education.HIGHSCHOOL);
@@ -121,7 +120,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
             .equals(Education.PHD)).isTrue();
     }
 
-    @Test // DATAGRAPH-550 GH-758
+    @Test // DATAGRAPH-550 GH-758 GH-771
     public void shouldSaveAndRetrieveDates() {
         SimpleDateFormat simpleDateISO8601format = new SimpleDateFormat(DateString.ISO_8601);
         simpleDateISO8601format.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -186,6 +185,32 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         assertThat(loadedCal.get(Calendar.YEAR)).isEqualTo(date100000.get(Calendar.YEAR));
     }
 
+    @Test // GH-771
+    public void instantsWithCustomFormatAndTZShouldWork() {
+
+        Memo memo = new Memo();
+        memo.setMemo("theMemo");
+        Instant actionedInstant = ZonedDateTime.of(2020, 3, 6, 16, 6, 23, 0, ZoneId.of("Europe/Berlin")).toInstant();
+        memo.setActionedAsInstant(actionedInstant);
+        memo.setActionedAsInstantWithCustomFormat1(actionedInstant);
+        memo.setActionedAsInstantWithCustomFormat2(actionedInstant);
+        session.save(memo);
+
+        Memo loadedMemo = session.loadAll(Memo.class, new Filter("memo", ComparisonOperator.EQUALS, "theMemo"))
+            .iterator().next();
+
+        assertThat(loadedMemo.getActionedAsInstantWithCustomFormat1()).isEqualTo(actionedInstant);
+        assertThat(loadedMemo.getActionedAsInstantWithCustomFormat2()).isEqualTo(actionedInstant);
+
+        Iterable<Map<String, Object>> results = session.query(
+            "MATCH (m:Memo) WHERE id(m) = $id RETURN m.actionedAsInstantWithCustomFormat1 as a1, m.actionedAsInstantWithCustomFormat2 as a2",
+            Collections.singletonMap("id", loadedMemo.getId())).queryResults();
+        assertThat(results).hasSize(1);
+        Map<String, Object> result = results.iterator().next();
+        assertThat(result).containsEntry("a1", "2020-03-06 15:06:23");
+        assertThat(result).containsEntry("a2", "2020-03-06 16:06:23");
+    }
+
     @Test
     public void shouldSaveAndRetrieveJava8Dates() {
 
@@ -209,7 +234,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveListOfLocalDate() throws Exception {
+    public void shouldSaveListOfLocalDate() {
 
         Java8DatesMemo memo = new Java8DatesMemo();
 
@@ -231,7 +256,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveLocalDateTime() throws Exception {
+    public void shouldSaveLocalDateTime() {
 
         Java8DatesMemo memo = new Java8DatesMemo();
 
@@ -361,28 +386,5 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         session.save(account);
         loadedAccount = session.load(Account.class, account.getId());
         assertThat(loadedAccount.getLimit()).isEqualTo(account.getLimit());
-    }
-
-    public void assertSameArray(Object[] as, Object[] bs) {
-
-        if (as == null || bs == null) {
-            fail("null arrays not allowed");
-        }
-        if (as.length != bs.length) {
-            fail("arrays are not same length");
-        }
-
-        for (Object a : as) {
-            boolean found = false;
-            for (Object b : bs) {
-                if (b.toString().equals(a.toString())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                fail("array contents are not the same: " + as + ", " + bs);
-            }
-        }
     }
 }

@@ -40,7 +40,18 @@ public @interface DateString {
 
     String ISO_8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
+    String DEFAULT_ZONE_ID = "UTC";
+
     String value() default ISO_8601;
+
+    /**
+     * Some temporals like {@link java.time.Instant}, representing an instantaneous point in time cannot be formatted
+     * with a given {@link java.time.ZoneId}. In case you want to format an instant or similar with a default pattern,
+     * we assume a zone with the given id and default to {@literal UTC} which is the same assumption that the predefined
+     * patterns in {@link java.time.format.DateTimeFormatter} take.
+     * @return The zone id to use when applying a custom pattern to an instant temporal.
+     */
+    String zoneId() default DEFAULT_ZONE_ID;
 
     /**
      * Toggle lenient conversion mode by setting this flag to true (defaults to false).

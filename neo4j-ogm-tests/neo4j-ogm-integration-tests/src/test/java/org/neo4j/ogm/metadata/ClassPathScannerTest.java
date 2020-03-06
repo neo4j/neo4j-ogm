@@ -49,7 +49,7 @@ public class ClassPathScannerTest {
     public void nestedDirectoryShouldBeScanned() {
         final DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.convertible");
 
-        assertThat(domainInfo.getClassInfoMap()).hasSize(21);
+        assertThat(domainInfo.getClassInfoMap()).hasSize(20);
 
         Set<String> classNames = domainInfo.getClassInfoMap().keySet();
         assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.bytes.Photo")).isTrue();

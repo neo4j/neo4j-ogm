@@ -19,6 +19,7 @@
 package org.neo4j.ogm.typeconversion;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,11 +46,11 @@ public class InstantStringConverter implements AttributeConverter<Instant, Strin
         this.lenient = false;
     }
 
-    public InstantStringConverter(String userDefinedFormat, boolean lenient) {
+    public InstantStringConverter(String userDefinedFormat, String zoneId, boolean lenient) {
 
         this.formatter = DateString.ISO_8601.equals(userDefinedFormat) ?
             DateTimeFormatter.ISO_INSTANT :
-            DateTimeFormatter.ofPattern(userDefinedFormat);
+            DateTimeFormatter.ofPattern(userDefinedFormat).withZone(ZoneId.of(zoneId));
         this.lenient = lenient;
     }
 

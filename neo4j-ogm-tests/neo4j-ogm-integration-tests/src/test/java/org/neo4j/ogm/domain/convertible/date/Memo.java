@@ -58,6 +58,12 @@ public class Memo {
     @DateString
     private Instant actionedAsInstant;
 
+    @DateString(value = "yyyy-MM-dd HH:mm:ss")
+    private Instant actionedAsInstantWithCustomFormat1;
+
+    @DateString(value = "yyyy-MM-dd HH:mm:ss", zoneId = "Europe/Berlin")
+    private Instant actionedAsInstantWithCustomFormat2;
+
     // uses default ISO 8601 date format
     private Date[] escalations;
 
@@ -153,5 +159,21 @@ public class Memo {
 
     public void setImplementations(Set<Date> implementations) {
         this.implementations = implementations;
+    }
+
+    public Instant getActionedAsInstantWithCustomFormat1() {
+        return actionedAsInstantWithCustomFormat1;
+    }
+
+    public void setActionedAsInstantWithCustomFormat1(Instant actionedAsInstantWithCustomFormat1) {
+        this.actionedAsInstantWithCustomFormat1 = actionedAsInstantWithCustomFormat1;
+    }
+
+    public Instant getActionedAsInstantWithCustomFormat2() {
+        return actionedAsInstantWithCustomFormat2;
+    }
+
+    public void setActionedAsInstantWithCustomFormat2(Instant actionedAsInstantWithCustomFormat2) {
+        this.actionedAsInstantWithCustomFormat2 = actionedAsInstantWithCustomFormat2;
     }
 }

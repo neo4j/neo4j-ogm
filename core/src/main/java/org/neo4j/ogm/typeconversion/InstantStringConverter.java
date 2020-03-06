@@ -19,6 +19,7 @@
 package org.neo4j.ogm.typeconversion;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,11 +46,21 @@ public class InstantStringConverter implements AttributeConverter<Instant, Strin
         this.lenient = false;
     }
 
+    /**
+     * @param userDefinedFormat
+     * @param lenient
+     * @deprecated Since 3.2.10, will be removed in 4.0. Use {@link #InstantStringConverter(String, String, boolean)}.
+     */
+    @Deprecated
     public InstantStringConverter(String userDefinedFormat, boolean lenient) {
+        this(userDefinedFormat, DateString.DEFAULT_ZONE_ID, lenient);
+    }
+
+    public InstantStringConverter(String userDefinedFormat, String zoneId, boolean lenient) {
 
         this.formatter = DateString.ISO_8601.equals(userDefinedFormat) ?
             DateTimeFormatter.ISO_INSTANT :
-            DateTimeFormatter.ofPattern(userDefinedFormat);
+            DateTimeFormatter.ofPattern(userDefinedFormat).withZone(ZoneId.of(zoneId));
         this.lenient = lenient;
     }
 

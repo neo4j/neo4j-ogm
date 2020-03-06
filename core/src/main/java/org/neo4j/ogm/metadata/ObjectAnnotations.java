@@ -108,7 +108,7 @@ public class ObjectAnnotations {
             if (fieldType == Date.class) {
                 return new DateStringConverter(format, isLenientConversion(dateStringConverterInfo));
             } else if (fieldType == Instant.class) {
-                return new InstantStringConverter(format, isLenientConversion(dateStringConverterInfo));
+                return new InstantStringConverter(format, dateStringConverterInfo.get("zoneId"), isLenientConversion(dateStringConverterInfo));
             } else {
                 throw new MappingException("Cannot use @DateString with attribute of type " + fieldType);
             }

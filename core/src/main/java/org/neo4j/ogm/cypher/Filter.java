@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.cypher;
 
+import static org.neo4j.ogm.cypher.ComparisonOperator.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -30,8 +32,6 @@ import org.neo4j.ogm.cypher.function.PropertyComparison;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
-
-import static org.neo4j.ogm.cypher.ComparisonOperator.EQUALS;
 
 /**
  * A parameter along with filter information to be added to a query.
@@ -218,11 +218,12 @@ public class Filter implements FilterWithRelationship {
     public Filter ignoreCase() {
         if (!(this.function instanceof PropertyComparison)) {
             throw new IllegalStateException("ignoreCase is only supported for a filter based on property comparison");
-        } else if (this.getComparisonOperator() != EQUALS) {
+        } else if (this.getComparisonOperator() != EQUALS && this.getComparisonOperator() != STARTING_WITH
+            && this.getComparisonOperator() != ENDING_WITH && this.getComparisonOperator() != CONTAINING ) {
             throw new IllegalStateException(
                 String.format("ignoreCase is only supported for %s comparison", ComparisonOperator.EQUALS.name()));
         }
-        this.function = new CaseInsensitiveEqualsComparison((PropertyComparison) this.function);
+        this.function = new CaseInsensitiveEqualsComparison((PropertyComparison) this.function, this.getComparisonOperator());
         return this;
     }
 
@@ -461,8 +462,13 @@ public class Filter implements FilterWithRelationship {
      * Internal class for modifying an EQUALS comparison to ignore the case of both attribute and parameter.
      */
     static final class CaseInsensitiveEqualsComparison extends PropertyComparison {
-        private CaseInsensitiveEqualsComparison(final PropertyComparison propertyComparison) {
+        private final ComparisonOperator comparisonOperator;
+
+        private CaseInsensitiveEqualsComparison(final PropertyComparison propertyComparison,
+            ComparisonOperator comparisonOperator) {
+
             super(propertyComparison.getValue());
+            this.comparisonOperator = comparisonOperator;
             super.setFilter(propertyComparison.getFilter());
         }
 
@@ -470,7 +476,7 @@ public class Filter implements FilterWithRelationship {
         public String expression(final String nodeIdentifier) {
             final Filter filter = this.getFilter();
             return String.format("toLower(%s.`%s`) %s toLower({ `%s` }) ", nodeIdentifier, filter.getPropertyName(),
-                ComparisonOperator.EQUALS.getValue(), filter.uniqueParameterName());
+                comparisonOperator.getValue(), filter.uniqueParameterName());
         }
     }
 }

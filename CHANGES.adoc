@@ -1,5 +1,10 @@
 = Changes
 
+== 3.1.18
+
+* Update Neo4j 3.5 to 3.5.16.
+* IgnoreCase filter support for starts/ends with.
+
 == 3.1.17
 
 * Recursively traverse variable length relationship patterns. (#718)

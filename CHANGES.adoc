@@ -1,5 +1,13 @@
 = Changes
 
+== 3.2.10
+
+* Update Java Driver to 4.0.1.
+* Update Neo4j 3.5 to 3.5.16.
+* Add zoneId to `@DateString`. (#773)
+* IgnoreCase filter support for starts/ends with.
+* Kotlin support: Add String.asParam(). (#769)
+
 == 3.2.9
 
 * Update to latest version of HttpClient and Core. (#754)

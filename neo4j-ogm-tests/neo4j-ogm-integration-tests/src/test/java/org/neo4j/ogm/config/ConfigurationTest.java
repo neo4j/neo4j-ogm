@@ -20,6 +20,7 @@ package org.neo4j.ogm.config;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.junit.Test;
@@ -157,6 +158,49 @@ public class ConfigurationTest {
         assertThat(configuration.getDriverClassName())
             .isEqualTo("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
         assertThat(configuration.getURI()).isEqualTo("FILE:///somewhere");
+    }
+
+    @Test
+    public void shouldDetectSimpleBoltSchemes() {
+
+        for (String aSimpleScheme : Arrays.asList("bolt", "Bolt", "neo4j", "Neo4J")) {
+            String uri = String.format("%s://localhost:7687", aSimpleScheme);
+            Configuration configuration = new Configuration.Builder()
+                .uri(uri)
+                .build();
+
+            assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
+            assertThat(configuration.getURI()).isEqualTo(uri);
+        }
+    }
+
+    @Test
+    public void shouldDetectAdvancedBoltSchemes() {
+
+        for (String anAdvancedScheme : Arrays.asList("bolt+s", "Bolt+ssc", "neo4j+s", "Neo4J+ssc")) {
+            String uri = String.format("%s://localhost:7687", anAdvancedScheme);
+            Configuration configuration = new Configuration.Builder()
+                .uri(uri)
+                .build();
+
+            assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
+            assertThat(configuration.getURI()).isEqualTo(uri);
+        }
+    }
+
+    @Test
+    public void shouldFailEarlyOnInvalidSchemes() {
+
+        for (String invalidScheme : Arrays.asList("bolt+x", "neo4j+wth")) {
+            String uri = String.format("%s://localhost:7687", invalidScheme);
+
+            assertThatIllegalArgumentException()
+                .isThrownBy(() -> new Configuration.Builder()
+                    .uri(uri)
+                    .build())
+                .withMessage(
+                    "A URI Scheme must be one of: bolt, bolt+routing, bolt+s, bolt+ssc, neo4j, neo4j+s, neo4j+ssc, file, http, https.");
+        }
     }
 
     @Test

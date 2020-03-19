@@ -38,18 +38,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.neo4j.driver.AccessMode;
-import org.neo4j.driver.AuthToken;
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Bookmark;
-import org.neo4j.driver.Config;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Logging;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.SessionConfig;
+import org.neo4j.driver.*;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.ServiceUnavailableException;
+import org.neo4j.driver.internal.Scheme;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
@@ -149,6 +141,18 @@ public class BoltDriver extends AbstractConfigurableDriver {
         }
     }
 
+    static boolean isSimpleScheme(String scheme) {
+
+        String lowerCaseScheme = scheme.toLowerCase(Locale.ENGLISH);
+        try {
+            Scheme.validateScheme(lowerCaseScheme);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException(String.format("'%s' is not a supported scheme.", scheme));
+        }
+
+        return lowerCaseScheme.equals("bolt") || lowerCaseScheme.equals("neo4j");
+    }
+
     private void initializeDriver() {
 
         final String serviceUnavailableMessage = "Could not create driver instance";
@@ -156,7 +160,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
             Driver driver;
             if (credentials != null) {
                 UsernamePasswordCredentials usernameAndPassword = (UsernamePasswordCredentials) this.credentials;
-                AuthToken authToken = AuthTokens.basic(usernameAndPassword.getUsername(), usernameAndPassword.getPassword());
+                AuthToken authToken = AuthTokens
+                    .basic(usernameAndPassword.getUsername(), usernameAndPassword.getPassword());
                 driver = createDriver(authToken);
             } else {
                 LOGGER.debug("Bolt Driver credentials not supplied");
@@ -308,53 +313,12 @@ public class BoltDriver extends AbstractConfigurableDriver {
             Config.ConfigBuilder configBuilder = Config.builder();
             configBuilder.withMaxConnectionPoolSize(configuration.getConnectionPoolSize());
 
-            if (configuration.getEncryptionLevel() != null && "REQUIRED"
-                .equals(configuration.getEncryptionLevel().toUpperCase(Locale.ENGLISH).trim())) {
-                configBuilder.withEncryption();
-            } else {
-                configBuilder.withoutEncryption();
+            // GraphDatabase.routingDriver asserts `neo4j` scheme for each URI, so our trust settings
+            // have to be applied in this case. Otherwise we check if it comes with the scheme or not.
+            if (isRoutingConfig() || isSimpleScheme(this.getSingleURI().getScheme())) {
+                applyEncryptionAndTrustSettings(configBuilder);
             }
 
-            Config.TrustStrategy.Strategy trustStrategy;
-            if (configuration.getTrustStrategy() != null) {
-
-                String configuredTrustStrategy = configuration.getTrustStrategy().toUpperCase(Locale.ENGLISH).trim();
-                if (Arrays.asList("TRUST_ON_FIRST_USE", "TRUST_SIGNED_CERTIFICATES")
-                    .contains(configuredTrustStrategy)) {
-                    String validNames = Arrays.stream(Config.TrustStrategy.Strategy.values()).map(
-                        Config.TrustStrategy.Strategy::name).collect(joining(", "));
-                    throw new IllegalArgumentException(
-                        "Truststrategy " + configuredTrustStrategy + " is no longer supported, please choose one of "
-                            + validNames);
-                }
-
-                try {
-                    trustStrategy = Config.TrustStrategy.Strategy.valueOf(configuredTrustStrategy);
-                } catch (IllegalArgumentException iae) {
-                    LOGGER.debug("Invalid configuration for the Bolt Driver Trust Strategy: {}",
-                        configuration.getTrustStrategy());
-                    throw iae;
-                }
-
-                switch (trustStrategy) {
-                    case TRUST_ALL_CERTIFICATES:
-                        configBuilder.withTrustStrategy(Config.TrustStrategy.trustAllCertificates());
-                        break;
-                    case TRUST_SYSTEM_CA_SIGNED_CERTIFICATES:
-                        configBuilder.withTrustStrategy(Config.TrustStrategy.trustSystemCertificates());
-                        break;
-                    case TRUST_CUSTOM_CA_SIGNED_CERTIFICATES:
-                        if (configuration.getTrustCertFile() == null) {
-                            throw new IllegalArgumentException(
-                                "Configured trust strategy requires a certificate file.");
-                        }
-                        configBuilder.withTrustStrategy(Config.TrustStrategy
-                            .trustCustomCertificateSignedBy(new File(new URI(configuration.getTrustCertFile()))));
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unknown strategy." + trustStrategy);
-                }
-            }
             if (configuration.getConnectionLivenessCheckTimeout() != null) {
                 configBuilder.withConnectionLivenessCheckTimeout(configuration.getConnectionLivenessCheckTimeout(),
                     TimeUnit.MILLISECONDS);
@@ -365,6 +329,56 @@ public class BoltDriver extends AbstractConfigurableDriver {
             return configBuilder.build();
         } catch (Exception e) {
             throw new ConnectionException("Unable to build driver configuration", e);
+        }
+    }
+
+    private void applyEncryptionAndTrustSettings(Config.ConfigBuilder configBuilder) {
+        if (configuration.getEncryptionLevel() != null && "REQUIRED"
+            .equals(configuration.getEncryptionLevel().toUpperCase(Locale.ENGLISH).trim())) {
+            configBuilder.withEncryption();
+        } else {
+            configBuilder.withoutEncryption();
+        }
+
+        Config.TrustStrategy.Strategy trustStrategy;
+        if (configuration.getTrustStrategy() != null) {
+
+            String configuredTrustStrategy = configuration.getTrustStrategy().toUpperCase(Locale.ENGLISH).trim();
+            if (Arrays.asList("TRUST_ON_FIRST_USE", "TRUST_SIGNED_CERTIFICATES")
+                .contains(configuredTrustStrategy)) {
+                String validNames = Arrays.stream(Config.TrustStrategy.Strategy.values()).map(
+                    Config.TrustStrategy.Strategy::name).collect(joining(", "));
+                throw new IllegalArgumentException(
+                    "Truststrategy " + configuredTrustStrategy + " is no longer supported, please choose one of "
+                        + validNames);
+            }
+
+            try {
+                trustStrategy = Config.TrustStrategy.Strategy.valueOf(configuredTrustStrategy);
+            } catch (IllegalArgumentException iae) {
+                LOGGER.debug("Invalid configuration for the Bolt Driver Trust Strategy: {}",
+                    configuration.getTrustStrategy());
+                throw iae;
+            }
+
+            switch (trustStrategy) {
+                case TRUST_ALL_CERTIFICATES:
+                    configBuilder.withTrustStrategy(Config.TrustStrategy.trustAllCertificates());
+                    break;
+                case TRUST_SYSTEM_CA_SIGNED_CERTIFICATES:
+                    configBuilder.withTrustStrategy(Config.TrustStrategy.trustSystemCertificates());
+                    break;
+                case TRUST_CUSTOM_CA_SIGNED_CERTIFICATES:
+                    if (configuration.getTrustCertFile() == null) {
+                        throw new IllegalArgumentException(
+                            "Configured trust strategy requires a certificate file.");
+                    }
+                    configBuilder.withTrustStrategy(Config.TrustStrategy
+                        .trustCustomCertificateSignedBy(new File(URI.create(configuration.getTrustCertFile()))));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown strategy." + trustStrategy);
+            }
         }
     }
 

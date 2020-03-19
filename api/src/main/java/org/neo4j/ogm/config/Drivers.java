@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 enum Drivers {
 
-    BOLT("org.neo4j.ogm.drivers.bolt.driver.BoltDriver", "bolt", "bolt+routing", "neo4j"),
+    BOLT("org.neo4j.ogm.drivers.bolt.driver.BoltDriver", "bolt", "bolt+routing", "bolt+s", "bolt+ssc", "neo4j", "neo4j+s", "neo4j+ssc"),
     EMBEDDED("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver", "file"),
     HTTP("org.neo4j.ogm.drivers.http.driver.HttpDriver", "http", "https");
 
@@ -49,7 +49,7 @@ enum Drivers {
                 }
             }
         }
-        throw new RuntimeException(UNSUPPORTED_SCHEME_MESSAGE);
+        throw new IllegalArgumentException(UNSUPPORTED_SCHEME_MESSAGE);
     }
 
     String driverClassName() {

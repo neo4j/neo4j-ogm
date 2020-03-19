@@ -23,10 +23,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.id.UuidStrategy;
 import org.neo4j.ogm.typeconversion.UuidStringConverter;
 
 /**
@@ -37,10 +40,10 @@ import org.neo4j.ogm.typeconversion.UuidStringConverter;
 @NodeEntity
 public class Movie {
 
-    Long id;
 
+    @Id
+    @GeneratedValue(strategy = UuidStrategy.class)
     @Convert(UuidStringConverter.class)
-    @Index(unique = true, primary = true)
     private UUID uuid;
 
     @Index
@@ -63,17 +66,8 @@ public class Movie {
     }
 
     public Movie(String title, int year) {
-        this.uuid = UUID.randomUUID();
         this.title = title;
         this.year = year;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getTitle() {

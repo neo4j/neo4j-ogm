@@ -198,10 +198,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(dieHard.getRoles()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-714
-     */
-    @Test
+    @Test // DATAGRAPH-714
     public void shouldBeAbleToModifyRating() {
         Movie movie = new Movie("Harry Potter and the Philosophers Stone", 2003);
 
@@ -268,10 +265,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(rating.getStars()).isEqualTo(1);
     }
 
-    /**
-     * @see DATAGRAPH-567
-     */
-    @Test
+    @Test // DATAGRAPH-567
     public void shouldSaveRelationshipEntityWithCamelCaseStartEndNodes() {
         Actor bruce = new Actor("Bruce");
         Actor jim = new Actor("Jim");
@@ -292,12 +286,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(actor.getKnows().iterator().next().getSecondActor().getName()).isEqualTo("Jim");
     }
 
-    /**
-     * @see DATAGRAPH-552
-     */
-    @Test
+    @Test // DATAGRAPH-552
     public void shouldSaveAndRetrieveRelationshipEntitiesDirectly() {
-        // we need some guff in the database
+        // we need some stuff in the database
         session.query(
             "CREATE " +
                 "(nc:NotAClass {name:'Colin'}), " +
@@ -325,13 +316,10 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
             .isEqualTo(filmRating.getStars());
         assertThat(loadedRating.getMovie().getTitle()).as("The rated film wasn't saved correctly")
             .isEqualTo(film.getTitle());
-        assertThat(loadedRating.getUser().getId()).as("The critic wasn't saved correctly").isEqualTo(critic.getId());
+        assertThat(loadedRating.getUser().getLogin()).as("The critic wasn't saved correctly").isEqualTo(critic.getLogin());
     }
 
-    /**
-     * @see DATAGRAPH-552
-     */
-    @Test
+    @Test // DATAGRAPH-552
     public void shouldSaveAndRetrieveRelationshipEntitiesPreExistingDirectly() {
 
         session.query(
@@ -348,10 +336,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(loadedRating.getUser().getName()).as("The critic wasn't saved correctly").isEqualTo("Gary");
     }
 
-    /**
-     * @see DATAGRAPH-569
-     */
-    @Test
+    @Test // DATAGRAPH-569
     public void shouldBeAbleToSaveAndUpdateMultipleUserRatings() {
         Set<Rating> gobletRatings = new HashSet<>();
         Set<Rating> phoenixRatings = new HashSet<>();
@@ -420,10 +405,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(goblet.getRatings()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-586
-     */
-    @Test
+    @Test // DATAGRAPH-586
     public void shouldBeAbleToDeleteAllRatings() {
         Set<Rating> gobletRatings = new HashSet<>();
         Set<Rating> phoenixRatings = new HashSet<>();
@@ -479,10 +461,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(adam.getRatings()).isNull();
     }
 
-    /**
-     * @see DATAGRAPH-586
-     */
-    @Test
+    @Test // DATAGRAPH-586
     public void shouldBeAbleToDeleteOneRating() {
         Set<Rating> gobletRatings = new HashSet<>();
         Set<Rating> phoenixRatings = new HashSet<>();
@@ -540,10 +519,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(adam.getRatings()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-610
-     */
-    @Test
+    @Test // DATAGRAPH-610
     public void shouldSaveRelationshipEntityWithNullProperty() {
         Actor bruce = new Actor("Bruce");
         Actor jim = new Actor("Jim");
@@ -578,10 +554,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(actor.getKnows().iterator().next().getSince()).isNull();
     }
 
-    /**
-     * @see DATAGRAPH-616
-     */
-    @Test
+    @Test // DATAGRAPH-616
     public void shouldLoadRelationshipEntityWithSameStartEndNodeType() {
         Actor bruce = new Actor("Bruce");
         Actor jim = new Actor("Jim");
@@ -605,12 +578,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(actor.getKnows().iterator().next().getSecondActor().getName()).isEqualTo("Jim");
     }
 
-    /**
-     * @see DATAGRAPH-552
-     */
-    @Test
+    @Test // DATAGRAPH-552
     public void shouldHydrateTheEndNodeOfAnRECorrectly() {
-        //TODO add some more end node hydration tests
+        
         Movie movie = new Movie("Pulp Fiction", 1994);
         Actor actor = new Actor("John Travolta");
         actor.playedIn(movie, "Vincent");

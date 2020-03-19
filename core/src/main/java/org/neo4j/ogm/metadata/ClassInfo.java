@@ -21,7 +21,6 @@ package org.neo4j.ogm.metadata;
 import static java.util.stream.Collectors.*;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -617,18 +616,6 @@ public class ClassInfo {
     }
 
     /**
-     * Returns the Method corresponding to the supplied MethodInfo as declared by the class represented by this ClassInfo
-     *
-     * @param methodInfo the MethodInfo used to obtain the Method
-     * @return a Method
-     * @deprecated since 3.2.3, please use MethodInfo directly.
-     */
-    @Deprecated
-    public Method getMethod(MethodInfo methodInfo) {
-        return methodInfo.getMethod();
-    }
-
-    /**
      * Find all FieldInfos for the specified ClassInfo whose type matches the supplied fieldType
      *
      * @param fieldType The field type to look for
@@ -933,11 +920,8 @@ public class ClassInfo {
         boolean hasStrategyOtherThanInternal = !fieldInfo.hasAnnotation(GeneratedValue.class)
             || !((GeneratedValue) fieldInfo.getAnnotations().get(GeneratedValue.class).getAnnotation()).strategy()
             .equals(InternalIdStrategy.class);
-        boolean hasPrimaryIndexAnnotation =
-            fieldInfo.hasAnnotation(Index.class) && ((Index) fieldInfo.getAnnotations().get(Index.class)
-                .getAnnotation()).primary();
 
-        return hasIdAnnotation && hasStrategyOtherThanInternal || hasPrimaryIndexAnnotation;
+        return hasIdAnnotation && hasStrategyOtherThanInternal;
     }
 
     private void instantiateIdStrategy() {

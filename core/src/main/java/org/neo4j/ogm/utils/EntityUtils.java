@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
@@ -67,6 +69,11 @@ public class EntityUtils {
         if (classInfo.hasIdentityField()) {
             FieldInfo identityField = classInfo.identityField();
             identityField.write(entity, identity);
+        } else if (identity == null) {
+            // Reset any generated field if the new value is null in case the generated values is not an internal id.
+            classInfo.fieldsInfo().fields().stream().filter(f -> f.getAnnotations().has(Id.class) &&
+                f.getAnnotations().has(GeneratedValue.class)).findFirst()
+                .ifPresent(generatedField -> generatedField.write(entity, null));
         }
     }
 

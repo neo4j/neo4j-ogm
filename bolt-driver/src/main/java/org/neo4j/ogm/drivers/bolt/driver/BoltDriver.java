@@ -309,13 +309,29 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     private Config buildDriverConfig() {
+
+        // Done outside the try/catch and explicity catch the illegalargument exception of singleURI
+        // so that exception semantics are not changed since we introduced that feature.
+        //
+        // GraphDatabase.routingDriver asserts `neo4j` scheme for each URI, so our trust settings
+        // have to be applied in this case.
+        final boolean shouldApplyEncryptionAndTrustSettings;
+        if (isRoutingConfig()) {
+            shouldApplyEncryptionAndTrustSettings = true;
+        } else { // Otherwise we check if it comes with the scheme or not.
+            URI singleUri = null;
+            try {
+                singleUri = getSingleURI();
+            } catch (IllegalArgumentException e) {
+            }
+            shouldApplyEncryptionAndTrustSettings = singleUri == null || isSimpleScheme(singleUri.getScheme());
+        }
+
         try {
             Config.ConfigBuilder configBuilder = Config.builder();
             configBuilder.withMaxConnectionPoolSize(configuration.getConnectionPoolSize());
 
-            // GraphDatabase.routingDriver asserts `neo4j` scheme for each URI, so our trust settings
-            // have to be applied in this case. Otherwise we check if it comes with the scheme or not.
-            if (isRoutingConfig() || isSimpleScheme(this.getSingleURI().getScheme())) {
+            if (shouldApplyEncryptionAndTrustSettings) {
                 applyEncryptionAndTrustSettings(configBuilder);
             }
 

@@ -555,7 +555,7 @@ public class Configuration {
 
         /**
          * Required encryption level for the connection to the database.
-         * See org.neo4j.driver.v1.Config.EncryptionLevel for possible values.
+         * Possible values are  {@literal REQUIRED}, {@literal OPTIONAL}, {@literal DISABLED}.
          *
          * @param encryptionLevel required encryption level
          * @return the changed builder

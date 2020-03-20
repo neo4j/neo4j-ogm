@@ -18,17 +18,20 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import static org.neo4j.ogm.metadata.ClassInfo.*;
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.context.EntityRowModelMapper;
 import org.neo4j.ogm.context.GraphRowModelMapper;
 import org.neo4j.ogm.context.RestModelMapper;
 import org.neo4j.ogm.context.RestStatisticsModel;
@@ -51,8 +54,11 @@ import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.QueryResultModel;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.strategy.impl.CountStatements;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
+import org.neo4j.ogm.typeconversion.ConvertibleTypes;
 
 /**
  * @author Vince Bickers
@@ -64,6 +70,7 @@ import org.neo4j.ogm.transaction.Transaction;
 public class ExecuteQueriesDelegate extends SessionDelegate {
 
     private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP)\\b");
+    private static final Set<Class<?>> VOID_TYPES = new HashSet<>(Arrays.asList(Void.class, void.class));
 
     public ExecuteQueriesDelegate(Neo4jSession session) {
         super(session);
@@ -148,10 +155,40 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
                 // Scalar mappings
                 RowModelRequest request = new DefaultRowModelRequest(cypher, parameters);
                 try (Response<RowModel> response = session.requestHandler().execute(request)) {
-                    return new EntityRowModelMapper().map(type, response);
+                    return mapScalarResponse(type, response);
                 }
             }
         }, Transaction.Type.READ_WRITE);
+    }
+
+    private static <T> Iterable<T> mapScalarResponse(Class<T> type, Response<RowModel> response) {
+
+        // We need to execute the request in any case, but can skip processing the result when
+        // it's not assignable to the requested type.
+        Collection<T> result;
+        if (VOID_TYPES.contains(type)) {
+            result = Collections.emptyList();
+        } else {
+            result = new ArrayList<>();
+            RowModel model;
+            while ((model = response.next()) != null) {
+                result.add(extractColumnValue(type, model));
+            }
+        }
+        return result;
+    }
+
+    private static <T> T extractColumnValue(Class<T> type, RowModel model) {
+
+        if (model.variables().length > 1) {
+            throw new RuntimeException(
+                "Scalar response queries must only return one column. Make sure your cypher query only returns one item.");
+        }
+        final Object o = model.getValues()[0];
+        return Optional.ofNullable(ConvertibleTypes.REGISTRY.get(type.getCanonicalName()))
+            .map(ac -> (AttributeConverter<T, Object>) (type.isArray() ? ac.forArray : ac.forScalar))
+            .map(c -> c.toEntityAttribute(o))
+            .orElse((T) Utils.coerceTypes(type, o));
     }
 
     public long countEntitiesOfType(Class<?> entity) {

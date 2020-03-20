@@ -28,6 +28,7 @@ import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.id.UuidStrategy;
 import org.neo4j.ogm.typeconversion.UuidStringConverter;
 
 /**
@@ -38,11 +39,9 @@ import org.neo4j.ogm.typeconversion.UuidStringConverter;
 @NodeEntity
 public class Actor {
 
-    @Id @GeneratedValue
-    private Long id;
-
+    @Id
+    @GeneratedValue(strategy = UuidStrategy.class)
     @Convert(UuidStringConverter.class)
-    @Index(unique = true, primary = true)
     private UUID uuid;
 
     @Index
@@ -63,12 +62,7 @@ public class Actor {
     }
 
     public Actor(String name) {
-        this.uuid = UUID.randomUUID();
         this.name = name;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public Role playedIn(Movie movie, String roleName) {

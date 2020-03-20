@@ -58,12 +58,4 @@ public @interface Index {
      * false.
      */
     boolean unique() default false;
-
-    /**
-     * Indicates this constraint (unique index) should be used as the key for merges and loading by id.
-     *
-     * @deprecated Use @Id instead.
-     */
-    @Deprecated
-    boolean primary() default false;
 }

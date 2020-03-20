@@ -22,6 +22,7 @@ import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -182,19 +183,6 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
         assertThat(retrievedActor.getName()).isEqualTo(actor.getName());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void exceptionRaisedWhenLookupIsDoneWithGraphIdAndThereIsAPrimaryIndexPresent() {
-
-        final Session session1 = sessionFactory.openSession();
-
-        User user1 = new User("login1", "Name 1", "password");
-        session1.save(user1);
-
-        final Session session2 = sessionFactory.openSession();
-
-        session2.load(User.class, user1.getId());
-    }
-
     /**
      * This test makes sure that if the primary key is a Long, it isn't mixed up with the Graph Id.
      */
@@ -207,20 +195,22 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
 
         Invoice retrievedInvoice = session2.load(Invoice.class, 223L);
         assertThat(retrievedInvoice).isNotNull();
-        assertThat(retrievedInvoice.getId()).isEqualTo(invoice.getId());
     }
 
     /**
-     * Case where primary key is of type Long and entity with such graph id exists - DATAGRAPH-1008
+     * Case where primary key is of type Long and entity with such graph id exists
      */
-    @Test
+    @Test // DATAGRAPH-1008
     public void loadShouldNotMixLongPrimaryIndexAndGraphId() throws Exception {
 
         Invoice invoice1 = new Invoice(223L, "Company", 100000L);
         session.save(invoice1);
 
+        long graphId = session.query(Long.class, "MATCH (i:Invoice) WHERE i.invoice_number = $invoice_number RETURN id(i)",
+            Collections.singletonMap("invoice_number", 223L)).iterator().next();
+
         // use graph id value as primary key of type long
-        Invoice invoice2 = new Invoice(invoice1.getId(), "Company", 100000L);
+        Invoice invoice2 = new Invoice(graphId, "Company", 100000L);
         session.save(invoice2);
 
         // return `invoice 2`, not `invoice 1`
@@ -232,7 +222,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void exceptionRaisedWhenLookupDoneByNonLongKeyAndThereIsNoPrimaryIndex() throws Exception {
+    public void exceptionRaisedWhenLookupDoneByNonLongKeyAndThereIsNoPrimaryIndex() {
         SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.partial");
         Session session1 = sessionFactory.openSession();
 
@@ -243,7 +233,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     }
 
     @Test
-    public void loadShouldNotMixPrimaryKeysOfDifferentLabels() throws Exception {
+    public void loadShouldNotMixPrimaryKeysOfDifferentLabels() {
 
         User user = new User("login", "name", "password");
         session.save(user);

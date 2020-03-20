@@ -37,13 +37,8 @@ public class InvalidAnnotations {
         public String property;
     }
 
-    public static class BothIdAndPrimaryIndexOnDifferentProperty {
-        @Id public String identifier;
-        @Index(primary = true, unique = true) public String other;
-    }
-
     public static class ChildHasPrimaryIndexExtendsAndParentHasId extends ValidAnnotations.Basic {
-        @Index(primary = true, unique = true) public String other;
+        @Id public String other;
     }
 
     public static class GeneratedValueWithoutID {

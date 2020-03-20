@@ -28,34 +28,28 @@ public class InvalidIdAnnotationTest {
     private MetaData metaData;
 
     @Test(expected = MetadataException.class)
-    public void shouldRejectTwoIdsOnSameClass() throws Exception {
+    public void shouldRejectTwoIdsOnSameClass() {
         createMetadataAndCheckIdentityField(InvalidAnnotations.TwoIdsOnSameClass.class.getName());
     }
 
     @Test(expected = MetadataException.class)
-    public void shouldRejectNeitherGraphIdOrId() throws Exception {
+    public void shouldRejectNeitherGraphIdOrId() {
         createMetadataAndCheckIdentityField(InvalidAnnotations.NeitherGraphIdOrId.class.getName());
     }
 
     @Test(expected = MetadataException.class)
-    public void shouldRejectBothIdAndPrimaryIndexOnDifferentProperty() throws Exception {
-        createMetadataAndCheckIdentityField(
-            InvalidAnnotations.BothIdAndPrimaryIndexOnDifferentProperty.class.getName());
-    }
-
-    @Test(expected = MetadataException.class)
-    public void shouldRejectChildHasPrimaryIndexExtendsAndParentHasId() throws Exception {
+    public void shouldRejectChildHasPrimaryIndexExtendsAndParentHasId() {
         metaData = new MetaData(ValidAnnotations.Basic.class.getName(),
             InvalidAnnotations.ChildHasPrimaryIndexExtendsAndParentHasId.class.getName());
     }
 
     @Test(expected = MetadataException.class)
-    public void shouldRejectUuidGenerationStrategyWithIdTypeNotUuid() throws Exception {
+    public void shouldRejectUuidGenerationStrategyWithIdTypeNotUuid() {
         createMetadataAndCheckIdentityField(InvalidAnnotations.UuidGenerationStrategyWithIdTypeNotUuid.class.getName());
     }
 
     @Test(expected = MetadataException.class)
-    public void shouldRejectGeneratedValueWithoutID() throws Exception {
+    public void shouldRejectGeneratedValueWithoutID() {
         createMetadataAndCheckIdentityField(InvalidAnnotations.GeneratedValueWithoutID.class.getName());
     }
 

@@ -39,14 +39,11 @@ import org.neo4j.ogm.typeconversion.UuidStringConverter;
 @NodeEntity
 public class User {
 
-    @Id @GeneratedValue
-    Long id;
-
     @Convert(UuidStringConverter.class)
     @Index(unique = true)
     private UUID uuid;
 
-    @Index(unique = true, primary = true)
+    @Id
     String login;
 
     String name;
@@ -86,14 +83,6 @@ public class User {
         this.login = login;
         this.name = name;
         this.password = password;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getLogin() {

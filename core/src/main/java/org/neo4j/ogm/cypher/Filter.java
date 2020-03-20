@@ -142,11 +142,6 @@ public class Filter implements FilterWithRelationship {
         return propertyName;
     }
 
-    @Deprecated
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
-    }
-
     public BooleanOperator getBooleanOperator() {
         return booleanOperator;
     }

@@ -33,10 +33,7 @@ import org.neo4j.ogm.annotation.Property;
 @NodeEntity
 public class Invoice {
 
-    @Id @GeneratedValue
-    private Long id;
-
-    @Index(unique = true, primary = true)
+    @Id
     @Property(name = "invoice_number")
     private Long number;
 
@@ -53,10 +50,6 @@ public class Invoice {
         this.number = number;
         this.company = company;
         this.amountInCents = amountInCents;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public Long getNumber() {

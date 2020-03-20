@@ -18,54 +18,12 @@
  */
 package org.neo4j.ogm.session;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
 public class Utils {
-
-    /**
-     * @param keysAndValues The list of key and values, must be an even number
-     * @return A map.
-     * @deprecated since 3.2.3, no replacement. Use Collections.singletonMap or emptyMap, or Map builders on JDK 9+
-     */
-    @Deprecated
-    public static Map<String, Object> map(final Object... keysAndValues) {
-
-        Map<String, Object> newMap = new HashMap<>(keysAndValues.length / 2);
-        for (int i = 0; i < keysAndValues.length; i += 2) {
-            newMap.put(String.valueOf(keysAndValues[i]), keysAndValues[i + 1]);
-        }
-
-        return newMap;
-    }
-
-    /**
-     * @param iterable The iterable who's size should be determined.
-     * @return The size of the iterable.
-     * @deprecated Since 3.2.3, no replacement.
-     */
-    @Deprecated
-    public static int size(Iterable<?> iterable) {
-        return (iterable instanceof Collection)
-            ? ((Collection<?>) iterable).size()
-            : size(iterable.iterator());
-    }
-
-    private static int size(Iterator<?> iterator) {
-        int count = 0;
-        while (iterator.hasNext()) {
-            iterator.next();
-            count++;
-        }
-        return count;
-    }
 
     /**
      * Coerce numeric types when mapping properties from nodes to entities.

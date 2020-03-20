@@ -143,7 +143,9 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
 
     @Test
     public void disposeFromMappingContextOnDeleteWithRelationshipEntityTest() {
-        assertThat(session.context().getNodeEntity(actor1.getId()).getClass() == Actor.class).isTrue();
+        long actorId = session.context().nativeId(actor1);
+
+        assertThat(session.context().getNodeEntity(actorId).getClass() == Actor.class).isTrue();
         Object objectRel = session.context().getRelationshipEntity(knows.id);
         assertThat(objectRel.getClass() == Knows.class).isTrue();
 
@@ -151,12 +153,12 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
 
         Result result = session.query("MATCH (n) RETURN n", Collections.EMPTY_MAP);
         // check that the mapping context does not hold a reference to the deleted entity anymore
-        Object object = session.context().getNodeEntity(actor1.getId());
+        Object object = session.context().getNodeEntity(actorId);
         assertThat(object == null).isTrue();
         // check for a defined RelationshipEntity; the relationship should also be removed from the mappingContext
         objectRel = session.context().getRelationshipEntity(knows.id);
         assertThat(objectRel == null).isTrue();
-        assertThat(session.context().getNodeEntity(actor1.getId()) == null).isTrue();
+        assertThat(session.context().getNodeEntity(actorId) == null).isTrue();
         // does it exist in the session?
         Knows inSessionKnows = session.load(Knows.class, knows.id);
         assertThat(inSessionKnows == null).isTrue();
@@ -174,14 +176,16 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
 
     @Test
     public void testDetachNode() {
-        assertThat(session.detachNodeEntity(actor1.getId())).isTrue();
-        assertThat(session.detachNodeEntity(actor1.getId())).isFalse();
+        long actorId = session.context().nativeId(actor1);
+        assertThat(session.detachNodeEntity(actorId)).isTrue();
+        assertThat(session.detachNodeEntity(actorId)).isFalse();
     }
 
     @Test
     public void testDetachNode2() {
-        assertThat(session.detachNodeEntity(actor2.getId())).isTrue();
-        assertThat(session.detachNodeEntity(actor2.getId())).isFalse();
+        long actorId = session.context().nativeId(actor2);
+        assertThat(session.detachNodeEntity(actorId)).isTrue();
+        assertThat(session.detachNodeEntity(actorId)).isFalse();
     }
 
     @Test
@@ -205,15 +209,15 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
 
             session.save(maryKnowsJohn);
 
-            assertThat(mary.getId()).isNotNull();
+            assertThat(mary.getUuid()).isNotNull();
             assertThat(maryKnowsJohn.id).isNotNull();
-            assertThat(john.getId()).isNotNull();
+            assertThat(john.getUuid()).isNotNull();
 
             tx.rollback();
 
-            assertThat(mary.getId()).isNull();
+            assertThat(mary.getUuid()).isNull();
             assertThat(maryKnowsJohn.id).isNull();
-            assertThat(john.getId()).isNull();
+            assertThat(john.getUuid()).isNull();
         }
     }
 

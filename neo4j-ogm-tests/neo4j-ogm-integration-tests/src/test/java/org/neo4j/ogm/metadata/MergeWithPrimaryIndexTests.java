@@ -74,7 +74,6 @@ public class MergeWithPrimaryIndexTests {
     @Test
     public void newNodeUsesPrimaryIndexWhenPresent() {
         User newUser = new User("bachmania", "Michal Bachman", "password");
-        assertThat(newUser.getId()).isNull();
         Compiler compiler = mapAndCompile(newUser);
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
         assertThat(compiler.createNodesStatements().get(0).getStatement()).isEqualTo(

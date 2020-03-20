@@ -15,14 +15,6 @@ A class inheriting from a super-class and declaring an index on a field shadowin
 A non-abstract super-class will index that field on it’s corresponding label as well.
 In cases where there is no index definition in a sub-class at al, the first index-defining super class will define the index on its label in the database.
 
-[[reference:indexing:primary-constraints]]
-== Primary Constraints
-
-[WARNING]
-The `primary` property of the `@Index` annotation is deprecated since Neo4j-OGM 3 and should not be used.
-The primary key is solely provided by the `@Id` annotation.
-See <<reference:annotating-entities:entity-identifier, Entity identifier>> for more information.
-
 [[reference:indexing:composite]]
 == Composite Indexes and Node Key Constraints
 Composite indexes based on label and multiple properties are supported with `@CompositeIndex` annotation.

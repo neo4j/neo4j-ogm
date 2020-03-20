@@ -30,10 +30,10 @@ public class BadClass {
     @Id @GeneratedValue
     private Long id;
 
-    @Index(unique = true, primary = true)
+    @Id
     private Long number;
 
-    @Index(unique = true, primary = true)
+    @Id
     private String companyEmail;
 
     private Long amountInCents;

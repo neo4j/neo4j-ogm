@@ -167,13 +167,17 @@ public abstract class EventTestBaseClass extends TestContainersTestBase {
         }
 
         public boolean captured(Object o, Event.TYPE lifecycle) {
+            return get(o, lifecycle) != null;
+        }
+
+        public Event get(Object o, Event.TYPE lifecycle) {
             Event event = new PersistenceEvent(o, lifecycle);
             for (Event captured : eventsCaptured) {
                 if (captured.toString().equals(event.toString())) {
-                    return true;
+                    return captured;
                 }
             }
-            return false;
+            return null;
         }
 
         public int count() {
@@ -186,7 +190,7 @@ public abstract class EventTestBaseClass extends TestContainersTestBase {
     }
 
     @After
-    public void clean() throws IOException {
+    public void clean() {
         session.purgeDatabase();
     }
 }

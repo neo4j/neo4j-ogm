@@ -26,6 +26,8 @@ import java.util.Random;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
 import org.neo4j.ogm.session.event.Event;
+import org.neo4j.ogm.session.event.PostSaveEvent;
+import org.neo4j.ogm.session.event.PreSaveEvent;
 
 /**
  * @author vince
@@ -83,11 +85,17 @@ public class RelationshipEntityTest extends EventTestBaseClass {
         session.save(bruce);
 
         assertThat(eventListener.captured(knowsBS, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(((PreSaveEvent) eventListener.get(knowsBS, Event.TYPE.PRE_SAVE)).isNew()).isTrue();
         assertThat(eventListener.captured(knowsBS, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(((PostSaveEvent) eventListener.get(knowsBS, Event.TYPE.POST_SAVE)).wasNew()).isTrue();
         assertThat(eventListener.captured(bruce, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(((PreSaveEvent) eventListener.get(bruce, Event.TYPE.PRE_SAVE)).isNew()).isFalse();
         assertThat(eventListener.captured(bruce, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(((PostSaveEvent) eventListener.get(bruce, Event.TYPE.POST_SAVE)).wasNew()).isFalse();
         assertThat(eventListener.captured(stan, Event.TYPE.PRE_SAVE)).isTrue();
+        assertThat(((PreSaveEvent) eventListener.get(stan, Event.TYPE.PRE_SAVE)).isNew()).isFalse();
         assertThat(eventListener.captured(stan, Event.TYPE.POST_SAVE)).isTrue();
+        assertThat(((PostSaveEvent) eventListener.get(stan, Event.TYPE.POST_SAVE)).wasNew()).isFalse();
 
         assertThat(eventListener.count()).isEqualTo(6);
     }

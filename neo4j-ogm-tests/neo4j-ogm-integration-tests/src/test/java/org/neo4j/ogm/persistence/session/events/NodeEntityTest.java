@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.event.Event;
+import org.neo4j.ogm.session.event.PostSaveEvent;
+import org.neo4j.ogm.session.event.PreSaveEvent;
 
 /**
  * @author vince
@@ -53,8 +55,12 @@ public class NodeEntityTest extends EventTestBaseClass {
 
         assertThat(eventListener.count()).isEqualTo(2);
 
-        assertThat(eventListener.captured(e, Event.TYPE.PRE_SAVE)).isTrue();
-        assertThat(eventListener.captured(e, Event.TYPE.POST_SAVE)).isTrue();
+        Event captured = eventListener.get(e, Event.TYPE.PRE_SAVE);
+        assertThat(captured).isNotNull();
+        assertThat(((PreSaveEvent) captured).isNew()).isTrue();
+        captured = eventListener.get(e, Event.TYPE.POST_SAVE);
+        assertThat(captured).isNotNull();
+        assertThat(((PostSaveEvent) captured).wasNew()).isTrue();
     }
 
     @Test
@@ -65,8 +71,12 @@ public class NodeEntityTest extends EventTestBaseClass {
 
         assertThat(eventListener.count()).isEqualTo(2);
 
-        assertThat(eventListener.captured(a, Event.TYPE.PRE_SAVE)).isTrue();
-        assertThat(eventListener.captured(a, Event.TYPE.POST_SAVE)).isTrue();
+        Event captured = eventListener.get(a, Event.TYPE.PRE_SAVE);
+        assertThat(captured).isNotNull();
+        assertThat(((PreSaveEvent) captured).isNew()).isFalse();
+        captured = eventListener.get(a, Event.TYPE.POST_SAVE);
+        assertThat(captured).isNotNull();
+        assertThat(((PostSaveEvent) captured).wasNew()).isFalse();
     }
 
     @Test

@@ -21,19 +21,21 @@ package org.neo4j.ogm.session.delegates;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.event.Event;
-import org.neo4j.ogm.session.event.PersistenceEvent;
+import org.neo4j.ogm.session.event.PostSaveEvent;
+import org.neo4j.ogm.session.event.PreSaveEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,7 @@ final class SaveEventDelegate extends SessionDelegate {
     private static final Logger logger = LoggerFactory.getLogger(SaveEventDelegate.class);
 
     private final Set<Object> visited;
-    private final Set<Object> preSaved;
+    private final Map<Object, Boolean> preSaved;
     private final Set<MappedRelationship> registeredRelationships;
     private final Set<MappedRelationship> addedRelationships;
     private final Set<MappedRelationship> deletedRelationships;
@@ -55,7 +57,7 @@ final class SaveEventDelegate extends SessionDelegate {
         super(session);
 
         this.visited = new HashSet<>();
-        this.preSaved = new HashSet<>();
+        this.preSaved = new HashMap<>();
 
         this.registeredRelationships = new HashSet<>(session.context().getRelationships());
         this.addedRelationships = new HashSet<>();
@@ -83,9 +85,9 @@ final class SaveEventDelegate extends SessionDelegate {
     }
 
     void postSave() {
-        for (Object object : this.preSaved) {
-            fire(Event.TYPE.POST_SAVE, object);
-        }
+        this.preSaved.entrySet().stream()
+            .map(e -> new PostSaveEvent(e.getKey(), e.getValue()))
+            .forEach(session::notifyListeners);
     }
 
     private void preSaveCheck(Object object) {
@@ -104,16 +106,14 @@ final class SaveEventDelegate extends SessionDelegate {
     }
 
     private void firePreSave(Object object) {
-        fire(Event.TYPE.PRE_SAVE, object);
-        this.preSaved.add(object);
-    }
 
-    private void fire(Event.TYPE eventType, Object object) {
-        this.session.notifyListeners(new PersistenceEvent(object, eventType));
+        boolean isNew = session.context().nativeId(object) < 0;
+        this.session.notifyListeners(new PreSaveEvent(object, isNew));
+        this.preSaved.put(object, isNew);
     }
 
     private boolean preSaveFired(Object object) {
-        return this.preSaved.contains(object);
+        return this.preSaved.containsKey(object);
     }
 
     private Set<Object> touched() {

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.junit.BeforeClass;
@@ -38,6 +39,7 @@ import org.neo4j.ogm.domain.gh551.AnotherThing;
 import org.neo4j.ogm.domain.gh551.ThingResult;
 import org.neo4j.ogm.domain.gh551.ThingWIthId;
 import org.neo4j.ogm.domain.gh552.Thing;
+import org.neo4j.ogm.domain.gh777.UserSearchDto;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.Session;
@@ -54,7 +56,7 @@ public class SingleUseEntityMapperTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391",
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391", "org.neo4j.ogm.domain.gh777",
             "org.neo4j.ogm.domain.cineasts.minimum");
 
         // Prepare test data
@@ -204,5 +206,47 @@ public class SingleUseEntityMapperTest extends MultiDriverTestClass {
         profile.put("connectionType", "connectionType");
 
         return Collections.singletonList(Collections.singletonMap("profile", profile));
+    }
+
+    @Test // GH-777
+    public void assertThatNullOrEmptyObjectsAreMappedCorrectly() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query(
+                "OPTIONAL MATCH (ui:UserInfo {email: 'idontexists@here.com'}) RETURN 4711 AS id, 'infoIsNull' AS status, coalesce(ui, null) as info\n"
+                    +
+                    "UNION\n" +
+                    "OPTIONAL MATCH (ui:UserInfo {email: 'idontexists@either.com'}) RETURN 4712 AS id, 'infoIsEmptyStringApocWhen' AS status, coalesce(ui, '') as info\n"
+                    +
+                    "UNION\n" +
+                    "OPTIONAL MATCH (ui:UserInfo {email: 'i@do.com'}) RETURN 4713 AS id, 'existingMatch' AS status, coalesce(ui, '') as info\n",
+                EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(3);
+
+        UserSearchDto userSearchDto;
+        Iterator<Map<String, Object>> iterator = results.iterator();
+
+        userSearchDto = entityMapper.map(UserSearchDto.class, iterator.next());
+        assertThat(userSearchDto.getId()).isEqualTo(4711L);
+        assertThat(userSearchDto.getStatus()).isEqualTo("infoIsNull");
+        assertThat(userSearchDto.getInfo()).isNull();
+
+        userSearchDto = entityMapper.map(UserSearchDto.class, iterator.next());
+        assertThat(userSearchDto.getId()).isEqualTo(4712L);
+        assertThat(userSearchDto.getStatus()).isEqualTo("infoIsEmptyStringApocWhen");
+        assertThat(userSearchDto.getInfo()).isNull();
+
+        userSearchDto = entityMapper.map(UserSearchDto.class, iterator.next());
+        assertThat(userSearchDto.getId()).isEqualTo(4713L);
+        assertThat(userSearchDto.getStatus()).isEqualTo("existingMatch");
+        assertThat(userSearchDto.getInfo()).isNotNull();
+        assertThat(userSearchDto.getInfo().getFirstName()).isEqualTo("Foo");
+        assertThat(userSearchDto.getInfo().getLastName()).isEqualTo("Bar");
     }
 }

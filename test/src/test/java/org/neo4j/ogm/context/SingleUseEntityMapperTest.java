@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.junit.BeforeClass;
@@ -34,10 +35,13 @@ import org.neo4j.ogm.domain.cineasts.minimum.Movie;
 import org.neo4j.ogm.domain.cineasts.minimum.Role;
 import org.neo4j.ogm.domain.cineasts.minimum.SomeQueryResult;
 import org.neo4j.ogm.domain.gh391.SomeContainer;
-import org.neo4j.ogm.domain.gh551.AnotherThing;
+import org.neo4j.ogm.domain.gh551.ThingEntity;
 import org.neo4j.ogm.domain.gh551.ThingResult;
+import org.neo4j.ogm.domain.gh551.ThingResult2;
 import org.neo4j.ogm.domain.gh551.ThingWIthId;
 import org.neo4j.ogm.domain.gh552.Thing;
+import org.neo4j.ogm.domain.gh777.UserInfo;
+import org.neo4j.ogm.domain.gh777.UserSearchDto;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.Session;
@@ -54,7 +58,7 @@ public class SingleUseEntityMapperTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391",
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391", "org.neo4j.ogm.domain.gh777",
             "org.neo4j.ogm.domain.cineasts.minimum");
 
         // Prepare test data
@@ -70,6 +74,87 @@ public class SingleUseEntityMapperTest extends MultiDriverTestClass {
         movie = new Movie("M2");
         role = new Role("R2", actor, movie);
         session.save(role);
+
+        session.save(new UserInfo("Foo", "Bar", "i@do.com"));
+    }
+
+    @Test // GH-748
+    public void singleUseEntityMapperShouldWorkWithNullableNestedNodeEntities() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("WITH 'a name' AS something OPTIONAL MATCH (t:ThingEntity {na:false}) RETURN something, t as entity",
+                EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        ThingResult2 thingResult = entityMapper.map(ThingResult2.class, results.iterator().next());
+        assertThat(thingResult.getSomething()).isEqualTo("a name");
+        assertThat(thingResult.getEntity()).isNull();
+    }
+
+    @Test // GH-748
+    public void singleUseEntityMapperShouldWorkWithNonNullNestedNodeEntities() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query(
+                "WITH 'a name' AS something OPTIONAL MATCH (t:ThingEntity {name: 'Thing 7'}) RETURN something, t as entity",
+                EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        ThingResult2 thingResult = entityMapper.map(ThingResult2.class, results.iterator().next());
+        assertThat(thingResult.getSomething()).isEqualTo("a name");
+        assertThat(thingResult.getEntity()).isNotNull().extracting(ThingEntity::getName).containsOnly("Thing 7");
+    }
+
+    @Test // GH-748
+    public void shouldFailOnIncompatibleProperties() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("WITH 'a name' AS something OPTIONAL MATCH (t:ThingEntity) RETURN something, COLLECT(t) as entity",
+                EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        assertThatIllegalArgumentException()
+            .isThrownBy(() -> entityMapper.map(ThingResult2.class, results.iterator().next()))
+            .withMessageContaining(
+                "Can not set org.neo4j.ogm.domain.gh551.ThingEntity field org.neo4j.ogm.domain.gh551.ThingResult2.entity to java.util.ArrayList");
+    }
+
+    @Test // GH-748
+    public void shouldBeLenientWithSingleValuedCollectionsForSkalarPropertiesMode() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query(
+                "WITH 'a name' AS something OPTIONAL MATCH (t:ThingEntity {name: 'Thing 7'}) RETURN something, COLLECT(t) as entity",
+                EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        ThingResult2 thingResult = entityMapper.map(ThingResult2.class, results.iterator().next());
+        assertThat(thingResult.getSomething()).isEqualTo("a name");
+        assertThat(thingResult.getEntity()).isNotNull().extracting(ThingEntity::getName).containsOnly("Thing 7");
     }
 
     @Test // GH-551
@@ -204,5 +289,47 @@ public class SingleUseEntityMapperTest extends MultiDriverTestClass {
         profile.put("connectionType", "connectionType");
 
         return Collections.singletonList(Collections.singletonMap("profile", profile));
+    }
+
+    @Test // GH-777
+    public void assertThatNullOrEmptyObjectsAreMappedCorrectly() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query(
+                "OPTIONAL MATCH (ui:UserInfo {email: 'idontexists@here.com'}) RETURN 4711 AS id, 'infoIsNull' AS status, coalesce(ui, null) as info\n"
+                    +
+                    "UNION\n" +
+                    "OPTIONAL MATCH (ui:UserInfo {email: 'idontexists@either.com'}) RETURN 4712 AS id, 'infoIsEmptyStringApocWhen' AS status, coalesce(ui, '') as info\n"
+                    +
+                    "UNION\n" +
+                    "OPTIONAL MATCH (ui:UserInfo {email: 'i@do.com'}) RETURN 4713 AS id, 'existingMatch' AS status, coalesce(ui, '') as info\n",
+                EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(3);
+
+        UserSearchDto userSearchDto;
+        Iterator<Map<String, Object>> iterator = results.iterator();
+
+        userSearchDto = entityMapper.map(UserSearchDto.class, iterator.next());
+        assertThat(userSearchDto.getId()).isEqualTo(4711L);
+        assertThat(userSearchDto.getStatus()).isEqualTo("infoIsNull");
+        assertThat(userSearchDto.getInfo()).isNull();
+
+        userSearchDto = entityMapper.map(UserSearchDto.class, iterator.next());
+        assertThat(userSearchDto.getId()).isEqualTo(4712L);
+        assertThat(userSearchDto.getStatus()).isEqualTo("infoIsEmptyStringApocWhen");
+        assertThat(userSearchDto.getInfo()).isNull();
+
+        userSearchDto = entityMapper.map(UserSearchDto.class, iterator.next());
+        assertThat(userSearchDto.getId()).isEqualTo(4713L);
+        assertThat(userSearchDto.getStatus()).isEqualTo("existingMatch");
+        assertThat(userSearchDto.getInfo()).isNotNull();
+        assertThat(userSearchDto.getInfo().getFirstName()).isEqualTo("Foo");
+        assertThat(userSearchDto.getInfo().getLastName()).isEqualTo("Bar");
     }
 }

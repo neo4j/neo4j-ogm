@@ -35,6 +35,7 @@ import org.neo4j.ogm.cypher.compiler.MultiStatementCypherCompiler;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.cypher.compiler.PropertyContainerBuilder;
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
+import org.neo4j.ogm.exception.core.InvalidRelationshipTargetException;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -415,6 +416,12 @@ public class EntityGraphMapper implements EntityMapper {
                 relNodes.sourceId = srcIdentity;
                 Boolean mapBothWays = null;
                 for (Object tgtObject : CollectionUtils.iterableOf(relatedObject)) {
+
+                    if (tgtObject == null) {
+                        throw new InvalidRelationshipTargetException(startNodeType, relationshipType, reader.getName(),
+                            endNodeType);
+                    }
+
                     if (mapBothWays == null) {
                         mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject,
                             relationshipDirection);

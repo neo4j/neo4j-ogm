@@ -47,6 +47,7 @@ import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.types.EntityWithUnmanagedFieldType;
+import org.neo4j.ogm.exception.core.InvalidRelationshipTargetException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.session.Session;
@@ -57,6 +58,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 /**
  * @author Adam George
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class EntityGraphMapperTest extends TestContainersTestBase {
 
@@ -718,14 +720,27 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowMeaningfulErrorMessageWhenLoadingUnscannedEntity() throws Exception {
+    public void shouldThrowMeaningfulErrorMessageWhenLoadingUnscannedEntity() {
 
         session.load(Post.class, 1L);
     }
 
-    // see issue #347
-    @Test
-    public void shouldNotThrowNpeOnUnknownEntityFieldType() throws Exception {
+    @Test // GH-781
+    public void shouldThrowInvalidRelationshipTargetExceptionOnNullElements() {
+
+        Course course = new Course("Some course");
+        Student student1 = new Student("A student");
+        Student student2 = new Student("Another student");
+        course.setStudents(Arrays.asList(student1, null, student2));
+
+        assertThatExceptionOfType(InvalidRelationshipTargetException.class)
+            .isThrownBy(() -> session.save(course))
+            .withMessage("The relationship 'STUDENTS' from 'org.neo4j.ogm.domain.education.Course' to 'org.neo4j.ogm.domain.education.Student' stored on '#students' contains 'null', which is an invalid target for this relationship.'");
+
+    }
+
+    @Test // GH-347
+    public void shouldNotThrowNpeOnUnknownEntityFieldType() {
 
         EntityWithUnmanagedFieldType entity = new EntityWithUnmanagedFieldType();
         ZonedDateTime now = ZonedDateTime.now();

@@ -32,6 +32,7 @@ import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
+import org.neo4j.ogm.support.CollectionUtils;
 
 /**
  * This adapter will transform an embedded response into a json response
@@ -88,15 +89,10 @@ public class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, 
             variables.add(key);
 
             Object value = data.get(key);
-            boolean generatedNodes = AdapterUtils.describesGeneratedNode(key);
+            boolean generatedNodes = ResultAdapter.describesGeneratedNode(key);
 
-            if (value != null && value.getClass().isArray()) {
-                Iterable<Object> collection = AdapterUtils.convertToIterable(value);
-                for (Object element : collection) {
-                    adapt(element, graphModel, values, nodeIdentities, edgeIdentities, generatedNodes);
-                }
-            } else {
-                adapt(value, graphModel, values, nodeIdentities, edgeIdentities, generatedNodes);
+            for (Object element : CollectionUtils.iterableOf(value)) {
+                adapt(element, graphModel, values, nodeIdentities, edgeIdentities, generatedNodes);
             }
         }
     }

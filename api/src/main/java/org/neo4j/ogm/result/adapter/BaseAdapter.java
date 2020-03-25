@@ -21,8 +21,11 @@ package org.neo4j.ogm.result.adapter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.neo4j.ogm.support.CollectionUtils;
+
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class BaseAdapter {
 
@@ -31,7 +34,7 @@ public class BaseAdapter {
         for (String k : properties.keySet()) {
             Object v = properties.get(k);
             if (v.getClass().isArray()) {
-                props.put(k, AdapterUtils.convertToIterable(v));
+                props.put(k, CollectionUtils.iterableOf(v));
             } else {
                 props.put(k, v);
             }

@@ -36,6 +36,7 @@ import org.neo4j.ogm.metadata.reflect.EntityFactory;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.session.EntityInstantiator;
 import org.neo4j.ogm.support.ClassUtils;
+import org.neo4j.ogm.support.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,7 +183,7 @@ public class SingleUseEntityMapper {
 
         List<Object> nestedObjects = new ArrayList<>();
 
-        for (Object nestedPropertyMap : iterableOf(value)) {
+        for (Object nestedPropertyMap : CollectionUtils.iterableOf(value)) {
             if (nestedPropertyMap instanceof Map) {
                 // Recursively map maps
                 nestedObjects.add(map(elementType, (Map<String, Object>) nestedPropertyMap));
@@ -206,19 +207,6 @@ public class SingleUseEntityMapper {
             return value;
         } else {
             return nestedObjects.isEmpty() ? null : nestedObjects.get(0);
-        }
-    }
-
-    Iterable iterableOf(Object thingToIterator) {
-
-        if (thingToIterator == null) {
-            return Collections.emptyList();
-        } else if (thingToIterator instanceof Iterable) {
-            return ((Iterable) thingToIterator);
-        } else if (thingToIterator.getClass().isArray()) {
-            return Arrays.asList((Object[]) thingToIterator);
-        } else {
-            return Collections.singletonList(thingToIterator);
         }
     }
 }

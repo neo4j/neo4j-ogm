@@ -26,6 +26,7 @@ import java.util.Map;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
+import org.neo4j.ogm.support.CollectionUtils;
 
 /**
  * This adapter will transform a Map&lt;String,Object&gt; typically representing an Embedded or Bolt response into a {@link RowModel} response
@@ -67,7 +68,7 @@ public abstract class RowModelAdapter implements ResultAdapter<Map<String, Objec
             variables.add(key);
 
             if (value != null && value.getClass().isArray()) {
-                values.add(AdapterUtils.convertToIterable(value));
+                values.add(CollectionUtils.iterableOf(value));
             }
 
             values.add(value);

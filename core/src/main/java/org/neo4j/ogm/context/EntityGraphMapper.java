@@ -41,6 +41,7 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.support.CollectionUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -410,30 +411,15 @@ public class EntityGraphMapper implements EntityMapper {
                     }
                 }
 
-                RelationshipNodes relNodes = new RelationshipNodes(entity, relatedObject, startNodeType, endNodeType);
+                RelationshipNodes relNodes = new RelationshipNodes(entity, null, startNodeType, endNodeType);
                 relNodes.sourceId = srcIdentity;
                 Boolean mapBothWays = null;
-                if (relatedObject instanceof Iterable) {
-                    for (Object tgtObject : (Iterable<?>) relatedObject) {
-                        if (mapBothWays == null) {
-                            mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject,
-                                relationshipDirection);
-                        }
-                        relNodes.target = tgtObject;
-                        link(directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
+                for (Object tgtObject : CollectionUtils.iterableOf(relatedObject)) {
+                    if (mapBothWays == null) {
+                        mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject,
+                            relationshipDirection);
                     }
-                } else if (relatedObject.getClass().isArray()) {
-                    for (Object tgtObject : (Object[]) relatedObject) {
-                        if (mapBothWays == null) {
-                            mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject,
-                                relationshipDirection);
-                        }
-                        relNodes.target = tgtObject;
-                        link(directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
-                    }
-                } else {
-                    mapBothWays = bothWayMappingRequired(entity, relationshipType, relatedObject,
-                        relationshipDirection);
+                    relNodes.target = tgtObject;
                     link(directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
                 }
             }

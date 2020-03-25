@@ -58,7 +58,7 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
             final Object value = mapEntry.getValue();
 
             String resultKey = mapEntry.getKey();
-            boolean generatedNodes = AdapterUtils.describesGeneratedNode(resultKey);
+            boolean generatedNodes = ResultAdapter.describesGeneratedNode(resultKey);
 
             adaptInternal(nodeIdentities, edgeIdentities, graphModel, value, generatedNodes);
         }

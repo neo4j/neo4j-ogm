@@ -130,6 +130,9 @@ public class FieldInfo {
         }
     }
 
+    /**
+     * @return The name of the underlying field
+     */
     public String getName() {
         return name;
     }

@@ -53,14 +53,14 @@ public class RelationalReaderWriterTest {
         UserV1 instance = new UserV1();
         UserV1 relatedObject = new UserV1();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWN_BY, Relationship.OUTGOING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWN_BY, Relationship.OUTGOING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWN_BY, Relationship.Direction.OUTGOING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWN_BY, Relationship.Direction.OUTGOING, relatedObject))
             .isNull();
 
         FieldInfo relationalReader = EntityAccessManager
-            .getRelationalReader(classInfo, KNOWN_BY, Relationship.INCOMING);
+            .getRelationalReader(classInfo, KNOWN_BY, Relationship.Direction.INCOMING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWN_BY, Relationship.INCOMING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWN_BY, Relationship.Direction.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getKnownBy()).isEqualTo(relatedObject);
@@ -77,13 +77,13 @@ public class RelationalReaderWriterTest {
         UserV2 instance = new UserV2();
         UserV2 relatedObject = new UserV2();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getKnows()).isEqualTo(relatedObject);
@@ -100,13 +100,13 @@ public class RelationalReaderWriterTest {
         UserV3 instance = new UserV3();
         UserV3 relatedObject = new UserV3();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getFriend()).isEqualTo(relatedObject);
@@ -123,13 +123,13 @@ public class RelationalReaderWriterTest {
         UserV4 instance = new UserV4();
         UserV4 relatedObject = new UserV4();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getFriend()).isEqualTo(relatedObject);
@@ -146,13 +146,13 @@ public class RelationalReaderWriterTest {
         UserV5 instance = new UserV5();
         UserV5 relatedObject = new UserV5();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getFriend()).isEqualTo(relatedObject);
@@ -169,13 +169,13 @@ public class RelationalReaderWriterTest {
         UserV6 instance = new UserV6();
         UserV6 relatedObject = new UserV6();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject);
 
-        relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING);
         relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getKnowsPerson()).isEqualTo(relatedObject);
@@ -192,13 +192,13 @@ public class RelationalReaderWriterTest {
         UserV7 instance = new UserV7();
         UserV7 relatedObject = new UserV7();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getKnows()).isEqualTo(relatedObject);
@@ -215,13 +215,13 @@ public class RelationalReaderWriterTest {
         UserV8 instance = new UserV8();
         UserV8 relatedObject = new UserV8();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getKnows()).isEqualTo(relatedObject);
@@ -238,17 +238,17 @@ public class RelationalReaderWriterTest {
         UserV9 relatedObjectOut = new UserV9();
         UserV9 relatedObjectIn = new UserV9();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
+            .getRelationalWriter(classInfo, LIKES, Relationship.Direction.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertThat(instance.getLikes()).isEqualTo(relatedObjectOut);
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObjectOut);
 
-        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.Direction.INCOMING);
         relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
+            .getRelationalWriter(classInfo, LIKES, Relationship.Direction.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertThat(instance.getLikedBy()).isEqualTo(relatedObjectIn);
@@ -265,17 +265,17 @@ public class RelationalReaderWriterTest {
         UserV10 relatedObjectOut = new UserV10();
         UserV10 relatedObjectIn = new UserV10();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
+            .getRelationalWriter(classInfo, LIKES, Relationship.Direction.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertThat(instance.getLikes()).isEqualTo(relatedObjectOut);
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObjectOut);
 
-        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.Direction.INCOMING);
         relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
+            .getRelationalWriter(classInfo, LIKES, Relationship.Direction.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertThat(instance.getLikedBy()).isEqualTo(relatedObjectIn);
@@ -292,17 +292,17 @@ public class RelationalReaderWriterTest {
         UserV11 relatedObjectOut = new UserV11();
         UserV11 relatedObjectIn = new UserV11();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
+            .getRelationalWriter(classInfo, LIKES, Relationship.Direction.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertThat(instance.getFriend()).isEqualTo(relatedObjectOut);
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObjectOut);
 
-        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.Direction.INCOMING);
         relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
+            .getRelationalWriter(classInfo, LIKES, Relationship.Direction.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertThat(instance.getFriendOf()).isEqualTo(relatedObjectIn);
@@ -319,17 +319,17 @@ public class RelationalReaderWriterTest {
         UserV12 relatedObjectOut = new UserV12();
         UserV12 relatedObjectIn = new UserV12();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
+            .getRelationalWriter(classInfo, LIKES, Relationship.Direction.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertThat(instance.getFriend()).isEqualTo(relatedObjectOut);
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObjectOut);
 
-        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.Direction.INCOMING);
         relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
+            .getRelationalWriter(classInfo, LIKES, Relationship.Direction.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertThat(instance.getFriendOf()).isEqualTo(relatedObjectIn);
@@ -346,13 +346,13 @@ public class RelationalReaderWriterTest {
         UserV13 instance = new UserV13();
         UserV13 relatedObject = new UserV13();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getKnows()).isEqualTo(relatedObject);
@@ -369,13 +369,13 @@ public class RelationalReaderWriterTest {
         UserV14 instance = new UserV14();
         UserV14 relatedObject = new UserV14();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.knows).isEqualTo(relatedObject);
@@ -392,9 +392,9 @@ public class RelationalReaderWriterTest {
         UserV15 relatedObjectOut = new UserV15();
         UserV15 relatedObjectIn = new UserV15();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObjectOut);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertThat(instance.getKnows()).isEqualTo(relatedObjectOut);
@@ -402,9 +402,9 @@ public class RelationalReaderWriterTest {
 
         instance = new UserV15();
 
-        relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING);
         relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObjectIn);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertThat(instance.getKnows()).isEqualTo(relatedObjectIn);
@@ -421,9 +421,9 @@ public class RelationalReaderWriterTest {
         UserV16 relatedObjectOut = new UserV16();
         UserV16 relatedObjectIn = new UserV16();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObjectOut);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertThat(instance.getKnows()).isEqualTo(relatedObjectOut);
@@ -431,9 +431,9 @@ public class RelationalReaderWriterTest {
 
         instance = new UserV16();
 
-        relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING);
         relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObjectIn);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertThat(instance.getKnows()).isEqualTo(relatedObjectIn);
@@ -449,13 +449,13 @@ public class RelationalReaderWriterTest {
         UserV17 instance = new UserV17();
         UserV17 relatedObject = new UserV17();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.knows).isEqualTo(relatedObject);
@@ -472,13 +472,13 @@ public class RelationalReaderWriterTest {
         UserV18 instance = new UserV18();
         UserV18 relatedObject = new UserV18();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getKnows()).isEqualTo(relatedObject);
@@ -495,13 +495,13 @@ public class RelationalReaderWriterTest {
         UserV19 instance = new UserV19();
         UserV19 relatedObject = new UserV19();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject))
             .isNull();
 
-        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING);
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getKnows()).isEqualTo(relatedObject);
@@ -519,21 +519,21 @@ public class RelationalReaderWriterTest {
         UserV20 relatedObject = new UserV20();
         PlainUser otherRelatedObject = new PlainUser();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.OUTGOING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject))
             .isNull();
 
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getUser()).isEqualTo(relatedObject);
 
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject))
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, otherRelatedObject))
             .isNull();
 
         relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, otherRelatedObject);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertThat(instance.getPlainUser()).isEqualTo(otherRelatedObject);
@@ -550,21 +550,21 @@ public class RelationalReaderWriterTest {
         UserV21 relatedObject = new UserV21();
         PlainUser otherRelatedObject = new PlainUser();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject))
             .isNull();
 
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getUser()).isEqualTo(relatedObject);
 
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject))
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, otherRelatedObject))
             .isNull();
 
         relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, otherRelatedObject);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertThat(instance.getPlainUser()).isEqualTo(otherRelatedObject);
@@ -581,21 +581,21 @@ public class RelationalReaderWriterTest {
         UserV22 relatedObject = new UserV22();
         PlainUser otherRelatedObject = new PlainUser();
 
-        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING)).isNull();
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject))
+        assertThat(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.Direction.INCOMING)).isNull();
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, relatedObject))
             .isNull();
 
         FieldInfo relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertThat(instance.getUser()).isEqualTo(relatedObject);
 
-        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject))
+        assertThat(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.Direction.INCOMING, otherRelatedObject))
             .isNull();
 
         relationalWriter = EntityAccessManager
-            .getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
+            .getRelationalWriter(classInfo, KNOWS, Relationship.Direction.OUTGOING, otherRelatedObject);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertThat(instance.getPlainUser()).isEqualTo(otherRelatedObject);

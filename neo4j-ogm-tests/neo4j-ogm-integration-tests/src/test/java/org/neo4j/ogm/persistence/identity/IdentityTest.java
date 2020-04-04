@@ -207,7 +207,7 @@ public class IdentityTest extends TestContainersTestBase {
         @Relationship(type = "EDGE")
         Edge link;
 
-        @Relationship(type = "RELATED", direction = OUTGOING)
+        @Relationship(type = "RELATED", direction = Direction.OUTGOING)
         List<Node> related;
 
         @Override

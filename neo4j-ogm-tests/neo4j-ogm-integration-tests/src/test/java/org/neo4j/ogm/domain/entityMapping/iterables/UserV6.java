@@ -29,7 +29,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV6 extends Entity {
 
-    @Relationship(type = "KNOWS", direction = "UNDIRECTED")
+    @Relationship(type = "KNOWS", direction = Relationship.Direction.UNDIRECTED)
     private Set<UserV6> knowsPeople;
 
     public Set<UserV6> getKnowsPeople() {

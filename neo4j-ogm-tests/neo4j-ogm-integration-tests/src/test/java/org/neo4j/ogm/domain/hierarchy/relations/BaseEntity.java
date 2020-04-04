@@ -36,9 +36,9 @@ public abstract class BaseEntity {
     private Long graphId;
     public String name;
 
-    @Relationship(type = "RELATED_TO", direction = "OUTGOING")
+    @Relationship(type = "RELATED_TO", direction = Relationship.Direction.OUTGOING)
     private List<BaseEntity> outgoing = new ArrayList<>();
-    @Relationship(type = "RELATED_TO", direction = "INCOMING")
+    @Relationship(type = "RELATED_TO", direction = Relationship.Direction.INCOMING)
     private List<BaseEntity> incoming = new ArrayList<>();
 
     public Long getGraphId() {

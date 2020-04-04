@@ -40,19 +40,19 @@ public class Pizza {
     private Long id;
     private String name;
 
-    @Relationship(type = "FOR", direction = "INCOMING")
+    @Relationship(type = "FOR", direction = Relationship.Direction.INCOMING)
     private Crust crust;
 
-    @Relationship(type = "FOR", direction = "INCOMING")
+    @Relationship(type = "FOR", direction = Relationship.Direction.INCOMING)
     private List<Topping> toppings;
 
-    @Relationship(type = "FOR", direction = "INCOMING")
+    @Relationship(type = "FOR", direction = Relationship.Direction.INCOMING)
     private PizzaSauce pizzaSauce;
 
-    @Relationship(type = "HAS", direction = "OUTGOING")
+    @Relationship(type = "HAS", direction = Relationship.Direction.OUTGOING)
     private Set<PizzaSeasoning> seasonings = new HashSet<>();
 
-    @Relationship(type = "HAS", direction = "OUTGOING")
+    @Relationship(type = "HAS", direction = Relationship.Direction.OUTGOING)
     private Set<PizzaCheese> cheeses = new HashSet<>();
 
     @Labels

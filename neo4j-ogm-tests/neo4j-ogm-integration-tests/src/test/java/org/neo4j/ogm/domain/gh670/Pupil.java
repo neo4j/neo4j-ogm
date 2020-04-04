@@ -6,7 +6,7 @@ import org.neo4j.ogm.annotation.Relationship;
 
 public class Pupil extends Person {
 
-    @Relationship(value = "TAUGHT_BY", direction = Relationship.INCOMING)
+    @Relationship(value = "TAUGHT_BY", direction = Relationship.Direction.INCOMING)
     private Teacher taughtBy;
 
     @Relationship(value = "TAKES")

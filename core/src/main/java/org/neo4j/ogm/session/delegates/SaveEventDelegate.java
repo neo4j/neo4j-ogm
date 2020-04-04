@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.*;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
@@ -236,9 +236,9 @@ final class SaveEventDelegate extends SessionDelegate {
         String type = reader.relationshipType();
         Class endNodeType = DescriptorMappings.getType(reader.getTypeDescriptor());
 
-        if (reader.relationshipDirection().equals(Relationship.INCOMING)) {
+        if (reader.relationshipDirection().equals(Direction.INCOMING)) {
             deregisterIncomingRelationship(id, type, endNodeType);
-        } else if (reader.relationshipDirection().equals(Relationship.OUTGOING)) {
+        } else if (reader.relationshipDirection().equals(Direction.OUTGOING)) {
             deregisterOutgoingRelationship(id, type, endNodeType);
         } else {
             deregisterOutgoingRelationship(id, type, endNodeType);
@@ -350,7 +350,7 @@ final class SaveEventDelegate extends SessionDelegate {
         Object reference) {
 
         String type = reader.relationshipType();
-        String direction = reader.relationshipDirection();
+        Direction direction = reader.relationshipDirection();
 
         ClassInfo parentInfo = this.session.metaData().classInfo(parent);
         Long parentId = session.context().nativeId(parent);
@@ -363,7 +363,7 @@ final class SaveEventDelegate extends SessionDelegate {
 
             if (!referenceInfo.isRelationshipEntity()) {
 
-                if (direction.equals(Relationship.OUTGOING)) {
+                if (direction.equals(Direction.OUTGOING)) {
                     MappedRelationship edge = new MappedRelationship(parentId, type, referenceId,
                         null, parentInfo.getUnderlyingClass(), referenceInfo.getUnderlyingClass());
                     mappedRelationships.add(edge);

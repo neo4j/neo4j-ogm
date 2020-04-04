@@ -33,10 +33,10 @@ public class Company {
     Long id;
     private String name;
 
-    @Relationship(type = "OWNER", direction = "INCOMING")
+    @Relationship(type = "OWNER", direction = Relationship.Direction.INCOMING)
     private Set<Person> owners;
 
-    @Relationship(type = "EMPLOYEE", direction = "INCOMING")
+    @Relationship(type = "EMPLOYEE", direction = Relationship.Direction.INCOMING)
     private Set<Person> employees;
 
     public Company() {

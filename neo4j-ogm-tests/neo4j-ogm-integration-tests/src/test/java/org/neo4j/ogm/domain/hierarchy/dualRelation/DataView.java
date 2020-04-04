@@ -33,10 +33,10 @@ public class DataView {
     public Long id;
     String name;
 
-    @Relationship(type = "OWNER", direction = Relationship.OUTGOING)
+    @Relationship(type = "OWNER", direction = Relationship.Direction.OUTGOING)
     public Thing owner;
 
-    @Relationship(type = "SHARED_WITH", direction = Relationship.OUTGOING)
+    @Relationship(type = "SHARED_WITH", direction = Relationship.Direction.OUTGOING)
     public List<Thing> sharedWith = new ArrayList<>();
 
     public Long getId() {

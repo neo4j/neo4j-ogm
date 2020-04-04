@@ -31,7 +31,7 @@ public class Device {
     @Id @GeneratedValue
     private Long id;
 
-    @Relationship(type = "DEVICE", direction = Relationship.UNDIRECTED)
+    @Relationship(type = "DEVICE", direction = Relationship.Direction.UNDIRECTED)
     private Person person;
 
     public Person getPerson() {

@@ -51,7 +51,7 @@ public class AnnotatedFieldAndNonAnnotatedSetterTest {
         parameter.addAll(Arrays.asList(relEntity));
 
         FieldInfo objectAccess = EntityAccessManager
-            .getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
+            .getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.Direction.INCOMING, relEntity);
 
         assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
         assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
@@ -93,7 +93,7 @@ public class AnnotatedFieldAndNonAnnotatedSetterTest {
 
         Long id;
         String name;
-        @Relationship(type = "REL_ENTITY_TYPE", direction = "OUTGOING")
+        @Relationship(type = "REL_ENTITY_TYPE", direction = Relationship.Direction.OUTGOING)
         Set<RelEntity> relEntities;
 
         public Start() {
@@ -104,7 +104,7 @@ public class AnnotatedFieldAndNonAnnotatedSetterTest {
 
         Long id;
         String name;
-        @Relationship(type = "REL_ENTITY_TYPE", direction = "INCOMING")
+        @Relationship(type = "REL_ENTITY_TYPE", direction = Relationship.Direction.INCOMING)
         Set<RelEntity> relEntities;
 
         public End() {

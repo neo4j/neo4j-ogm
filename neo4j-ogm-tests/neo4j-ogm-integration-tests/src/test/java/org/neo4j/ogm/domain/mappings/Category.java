@@ -30,7 +30,7 @@ public class Category extends Entity {
 
     private String name;
 
-    @Relationship(type = "HAS", direction = Relationship.INCOMING)
+    @Relationship(type = "HAS", direction = Relationship.Direction.INCOMING)
     private Set<Event> events = new HashSet<Event>();
 
     public Category() {

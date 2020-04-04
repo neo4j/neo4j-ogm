@@ -25,7 +25,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class Document extends FileSystemEntity {
 
-    @Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
+    @Relationship(type = "CONTAINS", direction = Relationship.Direction.INCOMING)
     private Folder folder;
 
     public Folder getFolder() {

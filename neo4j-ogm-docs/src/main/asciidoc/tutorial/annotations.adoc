@@ -83,13 +83,13 @@ class Department {
 class Subject {
     String name;
 
-    @Relationship(type="CURRICULUM", direction = Relationship.INCOMING)
+    @Relationship(type="CURRICULUM", direction = Relationship.Direction.INCOMING)
     Department department;
 
     @Relationship(type = "TAUGHT_BY")
     Set<Teacher> teachers;
 
-    @Relationship(type = "SUBJECT_TAUGHT", direction = "INCOMING")
+    @Relationship(type = "SUBJECT_TAUGHT", direction = Relationship.Direction.INCOMING)
     Set<Course> courses;
 }
 
@@ -100,7 +100,7 @@ class Teacher {
      @Relationship(type="TEACHES_CLASS")
      Set<Course> courses;
 
-     @Relationship(type="TAUGHT_BY", direction = Relationship.INCOMING)
+     @Relationship(type="TAUGHT_BY", direction = Relationship.Direction.INCOMING)
      Set<Subject> subjects;
 }
 
@@ -111,10 +111,10 @@ class Course {
      @Relationship(type= "SUBJECT_TAUGHT")
      Subject subject;
 
-     @Relationship(type= "TEACHES_CLASS", direction=Relationship.INCOMING)
+     @Relationship(type= "TEACHES_CLASS", direction=Relationship.Direction.INCOMING)
      Teacher teacher;
 
-     @Relationship(type= "ENROLLED", direction=Relationship.INCOMING)
+     @Relationship(type= "ENROLLED", direction=Relationship.Direction.INCOMING)
      Set<Enrollment> enrollments = new HashSet<>();
 }
 
@@ -125,7 +125,7 @@ class Student {
     @Relationship(type = "ENROLLED")
     Set<Enrollment> enrollments;
 
-    @Relationship(type = "BUDDY", direction = Relationship.INCOMING)
+    @Relationship(type = "BUDDY", direction = Relationship.Direction.INCOMING)
     Set<StudyBuddy> studyBuddies;
 }
 ----

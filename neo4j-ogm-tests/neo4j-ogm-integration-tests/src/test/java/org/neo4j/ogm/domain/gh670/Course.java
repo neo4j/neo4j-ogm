@@ -28,7 +28,7 @@ public class Course {
     private Long id;
     private String title;
 
-    @Relationship(value = "TAKES", direction = Relationship.INCOMING)
+    @Relationship(value = "TAKES", direction = Relationship.Direction.INCOMING)
     private List<Pupil> takenBy;
 
     public Long getId() {

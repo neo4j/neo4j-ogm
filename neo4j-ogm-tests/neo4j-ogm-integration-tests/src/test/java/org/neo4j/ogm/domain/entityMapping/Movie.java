@@ -30,6 +30,6 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity(label = "Movie")
 public class Movie extends Entity {
 
-    @Relationship(type = "RATED", direction = Relationship.INCOMING)
+    @Relationship(type = "RATED", direction = Relationship.Direction.INCOMING)
     public List<Rating> ratings = new ArrayList<>();
 }

@@ -28,10 +28,10 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class Folder extends FileSystemEntity {
 
-    @Relationship(type = "CONTAINS", direction = Relationship.OUTGOING)
+    @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
     private Collection<Document> documents = new ArrayList<>();
 
-    @Relationship(type = "ARCHIVED", direction = Relationship.OUTGOING)
+    @Relationship(type = "ARCHIVED", direction = Relationship.Direction.OUTGOING)
     private Collection<Document> archived = new ArrayList<>();
 
     public Collection<Document> getDocuments() {

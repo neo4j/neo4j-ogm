@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.*;
 import org.neo4j.ogm.context.DirectedRelationship;
 import org.neo4j.ogm.context.DirectedRelationshipForType;
 import org.neo4j.ogm.metadata.AnnotationInfo;
@@ -287,7 +288,7 @@ public class EntityAccessManager {
      * @return a valid FieldWriter or null if none is found
      */
     public static FieldInfo getRelationalWriter(ClassInfo classInfo, String relationshipType,
-        String relationshipDirection, Object scalarValue) {
+        Direction relationshipDirection, Object scalarValue) {
         return getRelationalWriter(classInfo, relationshipType, relationshipDirection, scalarValue.getClass());
     }
 
@@ -301,7 +302,7 @@ public class EntityAccessManager {
      * @return a valid FieldWriter or null if none is found
      */
     public static FieldInfo getRelationalWriter(ClassInfo classInfo, String relationshipType,
-        String relationshipDirection, Class<?> objectType) {
+        Direction relationshipDirection, Class<?> objectType) {
 
         final DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType,
             relationshipDirection, objectType);
@@ -329,7 +330,7 @@ public class EntityAccessManager {
 
             //If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
             //If it's outgoing, then proceed to find other matches
-            if (!relationshipDirection.equals(Relationship.INCOMING)) {
+            if (!relationshipDirection.equals(Direction.INCOMING)) {
 
                 // 2nd, try to find a scalar or vector field annotated as the neo4j relationship type and direction, allowing for implied relationships
                 final Set<FieldInfo> candidateRelationshipFields = classInfo
@@ -362,7 +363,7 @@ public class EntityAccessManager {
                 if (fieldInfos.size() == 1) {
                     FieldInfo candidateField = fieldInfos.iterator().next();
 
-                    if (!candidateField.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
+                    if (!candidateField.relationshipDirectionOrDefault(Direction.UNDIRECTED).equals(Direction.INCOMING)) {
 
                         if (candidateField.relationshipTypeAnnotation() == null) {
                             typeFieldInfoMap.put(directedRelationship, candidateField);
@@ -386,7 +387,7 @@ public class EntityAccessManager {
      * @return A FieldInfo or null if none exists
      */
     public static FieldInfo getRelationalReader(ClassInfo classInfo, String relationshipType,
-        String relationshipDirection) {
+        Direction relationshipDirection) {
 
         final DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,
             relationshipDirection);
@@ -407,7 +408,7 @@ public class EntityAccessManager {
 
             //If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
             //If it's outgoing, then proceed to find other matches
-            if (!relationshipDirection.equals(Relationship.INCOMING)) {
+            if (!relationshipDirection.equals(Direction.INCOMING)) {
 
                 // 3rd, try to find a field  annotated with the neo4j relationship type and direction, allowing for implied relationships
                 fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
@@ -437,7 +438,7 @@ public class EntityAccessManager {
      * @return a valid FieldWriter or null if none is found
      */
     public static FieldInfo getIterableField(ClassInfo classInfo, Class<?> parameterType, String relationshipType,
-        String relationshipDirection) {
+        Direction relationshipDirection) {
 
         final ClassInfo lookupClassInfo = classInfo;
         final DirectedRelationshipForType directedRelationshipForType = new DirectedRelationshipForType(
@@ -463,7 +464,7 @@ public class EntityAccessManager {
 
             // If relationshipDirection=INCOMING, we should have found an annotated field already
 
-            if (!relationshipDirection.equals(Relationship.INCOMING)) {
+            if (!relationshipDirection.equals(Direction.INCOMING)) {
 
                 //3rd, find a field with implied type and direction
                 fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection,
@@ -481,45 +482,45 @@ public class EntityAccessManager {
 
     // TODO: lookup via classinfo hierarchy
     private static FieldInfo getIterableFieldInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType,
-        String relationshipDirection, boolean strict) {
-        List<FieldInfo> fieldInfos = classInfo
-            .findIterableFields(parameterType, relationshipType, relationshipDirection, strict);
-        if (fieldInfos.size() == 0) {
-            if (!strict) {
-                fieldInfos = classInfo.findIterableFields(parameterType);
-            }
-        }
-        if (fieldInfos.size() == 1) {
-            FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
-            if (candidateFieldInfo.hasAnnotation(Relationship.class)) {
-                AnnotationInfo relationshipAnnotation = candidateFieldInfo.getAnnotations().get(Relationship.class);
-                if (!relationshipType.equals(relationshipAnnotation.get(Relationship.TYPE, null))) {
-                    return null;
+        Direction relationshipDirection, boolean strict) {
+            List<FieldInfo> fieldInfos = classInfo
+                .findIterableFields(parameterType, relationshipType, relationshipDirection, strict);
+            if (fieldInfos.size() == 0) {
+                if (!strict) {
+                    fieldInfos = classInfo.findIterableFields(parameterType);
                 }
             }
-            //If the relationshipDirection is incoming and the candidateFieldInfo is also incoming or undirected
-            if (relationshipDirection.equals(Relationship.INCOMING) &&
-                (candidateFieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)) ||
-                (candidateFieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED))) {
-                return candidateFieldInfo;
+            if (fieldInfos.size() == 1) {
+                FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
+                if (candidateFieldInfo.hasAnnotation(Relationship.class)) {
+                    AnnotationInfo relationshipAnnotation = candidateFieldInfo.getAnnotations().get(Relationship.class);
+                    if (!relationshipType.equals(relationshipAnnotation.get(Relationship.TYPE, null))) {
+                        return null;
+                    }
+                }
+                //If the relationshipDirection is incoming and the candidateFieldInfo is also incoming or undirected
+                if (relationshipDirection.equals(Direction.INCOMING) &&
+                    (candidateFieldInfo.relationshipDirectionOrDefault(Direction.OUTGOING).equals(Direction.INCOMING)) ||
+                    (candidateFieldInfo.relationshipDirectionOrDefault(Direction.OUTGOING).equals(Direction.UNDIRECTED))) {
+                    return candidateFieldInfo;
+                }
+                //If the relationshipDirection is not incoming and the candidateFieldInfo is not incoming
+                if (!relationshipDirection.equals(Direction.INCOMING) && !candidateFieldInfo
+                    .relationshipDirectionOrDefault(Direction.OUTGOING).equals(Direction.INCOMING)) {
+                    return candidateFieldInfo;
+                }
             }
-            //If the relationshipDirection is not incoming and the candidateFieldInfo is not incoming
-            if (!relationshipDirection.equals(Relationship.INCOMING) && !candidateFieldInfo
-                .relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)) {
-                return candidateFieldInfo;
+
+            if (fieldInfos.size() > 0) {
+                LOGGER.warn("Cannot map iterable of {} to instance of {}. More than one potential matching field found.",
+                    parameterType, classInfo.name());
             }
-        }
 
-        if (fieldInfos.size() > 0) {
-            LOGGER.warn("Cannot map iterable of {} to instance of {}. More than one potential matching field found.",
-                parameterType, classInfo.name());
-        }
-
-        return null;
+            return null;
     }
 
     private static void cacheIterableFieldWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType,
-        String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, FieldInfo fieldInfo,
+        Direction relationshipDirection, DirectedRelationshipForType directedRelationshipForType, FieldInfo fieldInfo,
         FieldInfo fieldAccessor) {
         if (fieldInfo.isParameterisedTypeOf(parameterType)) {
             //Cache the writer for the superclass used in the type param

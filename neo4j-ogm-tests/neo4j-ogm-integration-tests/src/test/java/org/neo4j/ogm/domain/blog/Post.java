@@ -30,7 +30,7 @@ public class Post {
     private Long id;
     private String title;
 
-    @Relationship(type = "NEXT", direction = Relationship.OUTGOING)
+    @Relationship(type = "NEXT", direction = Relationship.Direction.OUTGOING)
     private Post next;
 
     @Transient

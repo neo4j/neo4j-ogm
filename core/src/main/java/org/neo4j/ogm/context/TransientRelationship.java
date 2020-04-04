@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.context;
 
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.*;
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 
 /**
@@ -61,11 +61,11 @@ public class TransientRelationship {
         Boolean singleton = builder.isSingleton();
         if (this.rel.equals(builder.type())) {
             if (singleton) {
-                if (builder.hasDirection(Relationship.OUTGOING)) {
+                if (builder.hasDirection(Direction.OUTGOING)) {
                     if (this.src.equals(otherSrc) && this.tgt.equals(otherTgt)) {
                         return true;
                     }
-                } else if (builder.hasDirection(Relationship.INCOMING)) {
+                } else if (builder.hasDirection(Direction.INCOMING)) {
                     if (this.src.equals(otherTgt) && this.tgt.equals(otherSrc)) {
                         return true;
                     }

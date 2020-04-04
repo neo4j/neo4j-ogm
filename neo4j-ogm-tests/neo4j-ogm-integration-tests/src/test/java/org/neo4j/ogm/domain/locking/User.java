@@ -40,7 +40,7 @@ public class User {
     @Version
     private Long version;
 
-    @Relationship(type = "FRIEND_OF", direction = UNDIRECTED)
+    @Relationship(type = "FRIEND_OF", direction = Direction.UNDIRECTED)
     Set<FriendOf> friends = new HashSet<>();
 
     public User() {

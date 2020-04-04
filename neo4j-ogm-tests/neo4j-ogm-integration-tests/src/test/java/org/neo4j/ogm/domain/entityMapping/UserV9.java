@@ -30,7 +30,7 @@ public class UserV9 extends Entity {
     @Relationship(type = "LIKES")
     private UserV9 likes;
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
+    @Relationship(type = "LIKES", direction = Relationship.Direction.INCOMING)
     private UserV9 likedBy;
 
     public UserV9() {

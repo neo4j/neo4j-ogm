@@ -27,6 +27,6 @@ public class Mortal {
     private Long id;
     private String name;
 
-    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
+    @Relationship(type = "KNOWN_BY", direction = Relationship.Direction.INCOMING)
     private Set<Mortal> knownBy;
 }

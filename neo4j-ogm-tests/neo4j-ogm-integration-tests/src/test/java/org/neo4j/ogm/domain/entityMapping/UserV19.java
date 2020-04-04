@@ -27,7 +27,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV19 {
 
-    @Relationship(direction = "INCOMING")
+    @Relationship(direction = Relationship.Direction.INCOMING)
     private UserV19 knows;
 
     public UserV19() {

@@ -30,10 +30,10 @@ public class SomeEntity {
 
     private Long id;
 
-    @Relationship(type = "IRRELEVANT", direction = Relationship.INCOMING)
+    @Relationship(type = "IRRELEVANT", direction = Relationship.Direction.INCOMING)
     private TypedEntity<?> thing;
 
-    @Relationship(type = "ALSO_IRRELEVANT", direction = Relationship.INCOMING)
+    @Relationship(type = "ALSO_IRRELEVANT", direction = Relationship.Direction.INCOMING)
     private List<TypedEntity<?>> moreThings;
 
     protected List<String> someOtherStuff;

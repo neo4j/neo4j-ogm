@@ -31,7 +31,7 @@ public class SomethingRelated {
     LocalDate localDate;
     private Long id;
 
-    @Relationship(value = "REL", direction = Relationship.INCOMING)
+    @Relationship(value = "REL", direction = Relationship.Direction.INCOMING)
     private Collection<SomethingRelationship> rels = new ArrayList<>();
 
     public Collection<SomethingRelationship> getRels() {

@@ -18,7 +18,9 @@
  */
 package org.neo4j.ogm.cypher;
 
+import org.neo4j.ogm.annotation.Relationship.*;
+
 public interface FilterWithRelationship {
     void setRelationshipType(String type);
-    void setRelationshipDirection(String direction);
+    void setRelationshipDirection(Direction direction);
 }

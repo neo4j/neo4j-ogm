@@ -32,10 +32,10 @@ public class DataViewOwned extends AbstractNamedOwnedObject {
 
     String name;
 
-    @Relationship(type = "OWNER", direction = Relationship.OUTGOING)
+    @Relationship(type = "OWNER", direction = Relationship.Direction.OUTGOING)
     public ThingOwned owner;
 
-    @Relationship(type = "SHARED_WITH", direction = Relationship.OUTGOING)
+    @Relationship(type = "SHARED_WITH", direction = Relationship.Direction.OUTGOING)
     public List<ThingOwned> sharedWith = new ArrayList<>();
 
     public Long getId() {

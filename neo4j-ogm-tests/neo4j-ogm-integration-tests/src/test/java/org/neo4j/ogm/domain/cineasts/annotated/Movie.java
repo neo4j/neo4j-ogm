@@ -51,10 +51,10 @@ public class Movie {
 
     int year;
 
-    @Relationship(type = "ACTS_IN", direction = "INCOMING")
+    @Relationship(type = "ACTS_IN", direction = Relationship.Direction.INCOMING)
     Set<Role> roles = new HashSet<>();
 
-    @Relationship(type = "RATED", direction = Relationship.INCOMING)
+    @Relationship(type = "RATED", direction = Relationship.Direction.INCOMING)
     Set<Rating> ratings;
 
     Set<Nomination> nominations;

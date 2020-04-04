@@ -155,7 +155,7 @@ public class AATest extends TestContainersTestBase {
     @NodeEntity(label = "A")
     public static class A extends E {
 
-        @Relationship(type = "EDGE", direction = Relationship.INCOMING)
+        @Relationship(type = "EDGE", direction = Relationship.Direction.INCOMING)
         A a;
     }
 

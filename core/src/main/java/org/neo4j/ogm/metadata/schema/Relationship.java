@@ -35,7 +35,7 @@ public interface Relationship {
      *
      * @return direction
      */
-    String direction(Node node);
+    org.neo4j.ogm.annotation.Relationship.Direction direction(Node node);
 
     /**
      * Return start node of this relationship

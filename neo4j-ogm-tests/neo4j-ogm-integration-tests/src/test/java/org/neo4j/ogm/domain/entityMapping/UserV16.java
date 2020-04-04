@@ -27,7 +27,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV16 extends Entity {
 
-    @Relationship(type = "KNOWS", direction = "UNDIRECTED")
+    @Relationship(type = "KNOWS", direction = Relationship.Direction.UNDIRECTED)
     private UserV16 knows;
 
     public UserV16 getKnows() {

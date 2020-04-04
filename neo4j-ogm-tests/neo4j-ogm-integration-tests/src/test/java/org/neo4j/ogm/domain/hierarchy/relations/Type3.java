@@ -28,10 +28,10 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class Type3 extends BaseEntity {
 
-    @Relationship(type = "TYPE_TO", direction = "OUTGOING")
+    @Relationship(type = "TYPE_TO", direction = Relationship.Direction.OUTGOING)
     private Set<Type3> type3Out = new HashSet<>();
 
-    @Relationship(type = "TYPE_TO", direction = "INCOMING")
+    @Relationship(type = "TYPE_TO", direction = Relationship.Direction.INCOMING)
     private Set<Type3> type3In = new HashSet<>();
 
     public Set<Type3> getType3Out() {

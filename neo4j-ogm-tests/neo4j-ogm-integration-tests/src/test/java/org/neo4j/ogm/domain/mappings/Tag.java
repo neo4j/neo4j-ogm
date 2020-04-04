@@ -31,7 +31,7 @@ public class Tag extends Entity {
 
     private String name;
 
-    @Relationship(type = "HAS", direction = Relationship.INCOMING)
+    @Relationship(type = "HAS", direction = Relationship.Direction.INCOMING)
     private Set<Entity> entities = new HashSet<Entity>();
 
     public Tag() {

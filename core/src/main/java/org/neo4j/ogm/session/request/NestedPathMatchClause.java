@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.session.request;
 
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.*;
 import org.neo4j.ogm.cypher.Filter;
 
 /**
@@ -42,7 +42,7 @@ public class NestedPathMatchClause implements MatchClause {
             boolean nestedRelationshipEntity = segment.isNestedRelationshipEntity();
 
             if (!wasPreviousSegmentRelationshipEntity) {
-                if (segment.getRelationshipDirection().equals(Relationship.INCOMING)) {
+                if (segment.getRelationshipDirection().equals(Direction.INCOMING)) {
                     clause.append("<");
                 }
 
@@ -51,7 +51,7 @@ public class NestedPathMatchClause implements MatchClause {
                         nestedRelationshipEntity && isLastSegment(filter, segment) ? "r" + index : "",
                         segment.getRelationshipType()));
 
-                if (segment.getRelationshipDirection().equals(Relationship.OUTGOING)) {
+                if (segment.getRelationshipDirection().equals(Direction.OUTGOING)) {
                     clause.append(">");
                 }
             }

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -330,13 +331,13 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
 
         Filter moonParam = new Filter("name", ComparisonOperator.EQUALS, "Moon");
         moonParam.setNestedPropertyName("moon");
         moonParam.setNestedEntityTypeLabel("Moon");
         moonParam.setRelationshipType("ORBITS");
-        moonParam.setRelationshipDirection("INCOMING");
+        moonParam.setRelationshipDirection(Relationship.Direction.INCOMING);
 
         assertThat(queryStatements.findByType("Asteroid",
             new Filters().add(planetParam).and(moonParam), 1).getStatement())
@@ -453,7 +454,7 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement()).isEqualTo(
             "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_0` MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
@@ -467,7 +468,7 @@ public class NodeQueryStatementsTest {
         filter.setNestedPropertyName("collidesWith");
         filter.setNestedEntityTypeLabel("Asteroid");
         filter.setRelationshipType("COLLIDES");
-        filter.setRelationshipDirection("OUTGOING");
+        filter.setRelationshipDirection(Relationship.Direction.OUTGOING);
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(filter), 1).getStatement()).isEqualTo(
             "MATCH (n:`Asteroid`) MATCH (m0:`Asteroid`) WHERE m0.`name` = $`collidesWith_name_0` MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
@@ -481,7 +482,7 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("INCOMING");
+        planetParam.setRelationshipDirection(Relationship.Direction.INCOMING);
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement()).isEqualTo(
             "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_0` MATCH (n)<-[:`COLLIDES`]-(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
@@ -495,7 +496,7 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("UNDIRECTED");
+        planetParam.setRelationshipDirection(Relationship.Direction.UNDIRECTED);
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement()).isEqualTo(
             "MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_0` MATCH (n)-[:`COLLIDES`]-(m0) WITH DISTINCT n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
@@ -512,7 +513,7 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(planetParam), 1).getStatement())
             .isEqualTo(
@@ -531,7 +532,7 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(planetParam), -1)
             .getStatement()).isEqualTo(
             "MATCH (n:`Asteroid`) WHERE n.`diameter` > $`diameter_0` MATCH (m0:`Planet`) WHERE m0.`name` = $`collidesWith_name_1` MATCH (n)-[:`COLLIDES`]->(m0) WITH DISTINCT n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
@@ -550,7 +551,7 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(planetParam), 1).getStatement())
             .isEqualTo(
@@ -570,7 +571,7 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
 
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(planetParam), 0).getStatement())
@@ -588,7 +589,7 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedEntityTypeLabel("Collision"); //Collision is an RE
         planetParam.setNestedRelationshipEntity(true);
         planetParam.setRelationshipType("COLLIDES"); //assume COLLIDES is the RE type
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
         planetParam.setNestedRelationshipEntity(true);
 
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement())
@@ -607,7 +608,7 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedEntityTypeLabel("Collision"); //Collision is an RE
         planetParam.setNestedRelationshipEntity(true);
         planetParam.setRelationshipType("COLLIDES"); //assume COLLIDES is the RE type
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
         planetParam.setNestedRelationshipEntity(true);
 
         Filter satelliteParam = new Filter("signalStrength", ComparisonOperator.GREATER_THAN_EQUAL, "400");
@@ -616,7 +617,7 @@ public class NodeQueryStatementsTest {
         satelliteParam.setNestedEntityTypeLabel("Satellite"); //Collision is an RE
         satelliteParam.setNestedRelationshipEntity(true);
         satelliteParam.setRelationshipType("MONITORED_BY"); //assume COLLIDES is the RE type
-        satelliteParam.setRelationshipDirection("INCOMING");
+        satelliteParam.setRelationshipDirection(Relationship.Direction.INCOMING);
         satelliteParam.setNestedRelationshipEntity(true);
 
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam).add(satelliteParam), 1)
@@ -636,14 +637,14 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedEntityTypeLabel("Collision"); //Collision is an RE
         planetParam.setNestedRelationshipEntity(true);
         planetParam.setRelationshipType("COLLIDES"); //assume COLLIDES is the RE type
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
         planetParam.setNestedRelationshipEntity(true);
 
         Filter moonParam = new Filter("name", ComparisonOperator.EQUALS, "Moon");
         moonParam.setNestedPropertyName("moon");
         moonParam.setNestedEntityTypeLabel("Moon");
         moonParam.setRelationshipType("ORBITS");
-        moonParam.setRelationshipDirection("INCOMING");
+        moonParam.setRelationshipDirection(Relationship.Direction.INCOMING);
         moonParam.setBooleanOperator(BooleanOperator.AND);
 
         assertThat(queryStatements.findByType("Asteroid", new Filters().add(planetParam, moonParam), 1).getStatement())
@@ -661,13 +662,13 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
 
         Filter moonParam = new Filter("name", ComparisonOperator.EQUALS, "Moon");
         moonParam.setNestedPropertyName("moon");
         moonParam.setNestedEntityTypeLabel("Moon");
         moonParam.setRelationshipType("ORBITS");
-        moonParam.setRelationshipDirection("INCOMING");
+        moonParam.setRelationshipDirection(Relationship.Direction.INCOMING);
         moonParam.setBooleanOperator(BooleanOperator.AND);
         assertThat(queryStatements.findByType("Asteroid",
             new Filters().add(planetParam).add(moonParam), 1).getStatement())
@@ -687,13 +688,13 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
 
         Filter moonParam = new Filter("name", ComparisonOperator.EQUALS, "Moon");
         moonParam.setNestedPropertyName("moon");
         moonParam.setNestedEntityTypeLabel("Moon");
         moonParam.setRelationshipType("ORBITS");
-        moonParam.setRelationshipDirection("INCOMING");
+        moonParam.setRelationshipDirection(Relationship.Direction.INCOMING);
         moonParam.setBooleanOperator(BooleanOperator.OR);
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(planetParam).add(moonParam), 1).getStatement())
@@ -710,13 +711,13 @@ public class NodeQueryStatementsTest {
         planetParam.setNestedPropertyName("collidesWith");
         planetParam.setNestedEntityTypeLabel("Planet");
         planetParam.setRelationshipType("COLLIDES");
-        planetParam.setRelationshipDirection("OUTGOING");
+        planetParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
 
         Filter moonParam = new Filter("size", ComparisonOperator.EQUALS, "5");
         moonParam.setNestedPropertyName("collidesWith");
         moonParam.setNestedEntityTypeLabel("Planet");
         moonParam.setRelationshipType("COLLIDES");
-        moonParam.setRelationshipDirection("OUTGOING");
+        moonParam.setRelationshipDirection(Relationship.Direction.OUTGOING);
         moonParam.setBooleanOperator(BooleanOperator.AND);
         assertThat(
             queryStatements.findByType("Asteroid", new Filters().add(planetParam).add(moonParam), 1).getStatement())

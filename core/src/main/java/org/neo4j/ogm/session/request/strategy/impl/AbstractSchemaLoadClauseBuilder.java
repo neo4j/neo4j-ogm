@@ -78,7 +78,7 @@ public abstract class AbstractSchemaLoadClauseBuilder {
     private void listComprehension(StringBuilder sb, String fromNodeVar, Relationship relationship, Node node,
         int level, int depth) {
 
-        String direction = relationship.direction(node);
+        Direction direction = relationship.direction(node);
         Node toNode = relationship.other(node);
 
         String relVar = relVariableName(relationship, level);

@@ -30,7 +30,7 @@ public class UserV12 extends Entity {
     @Relationship(type = "LIKES")
     private UserV12 friend;
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
+    @Relationship(type = "LIKES", direction = Relationship.Direction.INCOMING)
     private UserV12 friendOf;
 
     public UserV12() {

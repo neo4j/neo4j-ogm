@@ -40,7 +40,7 @@ public class World {
 
     private Long updated;
 
-    @Relationship(type = REACHABLE_BY_ROCKET, direction = "UNDIRECTED")
+    @Relationship(type = REACHABLE_BY_ROCKET, direction = Relationship.Direction.UNDIRECTED)
     private Set<World> reachableByRocket = new HashSet<>();
 
     public Long getUpdated() {

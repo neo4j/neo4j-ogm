@@ -19,7 +19,7 @@
 package org.neo4j.ogm.context;
 
 import static java.util.stream.Collectors.*;
-import static org.neo4j.ogm.annotation.Relationship.*;
+import static org.neo4j.ogm.annotation.Relationship.Direction.*;
 import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -29,6 +29,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.*;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -524,7 +526,7 @@ public class GraphEntityMapper {
      * @return FieldWriter or null if none exists
      */
     private FieldInfo findIterableWriter(Object instance, Object parameter, String relationshipType,
-        String relationshipDirection) {
+        Direction relationshipDirection) {
         ClassInfo classInfo = metadata.classInfo(instance);
         return EntityAccessManager
             .getIterableField(classInfo, parameter.getClass(), relationshipType, relationshipDirection);
@@ -540,7 +542,7 @@ public class GraphEntityMapper {
      * @param relationshipType the relationship type associated with these values
      */
     private void mapOneToMany(Object instance, Class<?> valueType, Object values, String relationshipType,
-        String relationshipDirection) {
+        Direction relationshipDirection) {
 
         ClassInfo classInfo = metadata.classInfo(instance);
 
@@ -645,7 +647,7 @@ public class GraphEntityMapper {
      * @param relationshipDirection the direction of the relationship
      * @return true if 'by' declares the specified relationship on 'to', false otherwise
      */
-    private boolean declaresRelationshipTo(Class to, Class by, String relationshipName, String relationshipDirection) {
+    private boolean declaresRelationshipTo(Class to, Class by, String relationshipName, Relationship.Direction relationshipDirection) {
         return EntityAccessManager
             .getRelationalWriter(metadata.classInfo(by.getName()), relationshipName, relationshipDirection, to) != null;
     }

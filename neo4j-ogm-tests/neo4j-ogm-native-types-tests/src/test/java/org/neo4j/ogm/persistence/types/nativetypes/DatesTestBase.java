@@ -345,7 +345,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
         LocalDate localDate;
         private Long id;
 
-        @Relationship(value = "REL", direction = Relationship.INCOMING)
+        @Relationship(value = "REL", direction = Relationship.Direction.INCOMING)
         private Collection<SometimeRelationship> rels = new ArrayList<>();
 
     }

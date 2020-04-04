@@ -36,12 +36,12 @@ public class Person extends Entity {
     @Relationship("LIKES")
     public List<Person> peopleILike = new ArrayList<>();
 
-    @Relationship(type = "LIKES", direction = Relationship.INCOMING)
+    @Relationship(type = "LIKES", direction = Relationship.Direction.INCOMING)
     public List<Person> peopleWhoLikeMe = new ArrayList<>();
 
     @Relationship("FOLLOWS")
     public List<Person> peopleIFollow = new ArrayList<>();
 
-    @Relationship(type = "FOLLOWS", direction = Relationship.INCOMING)
+    @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
     public List<Person> peopleWhoFollowMe = new ArrayList<>();
 }

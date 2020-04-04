@@ -26,6 +26,6 @@ public class Vertex {
 
     Long id;
 
-    @Relationship(type = "EDGE", direction = Relationship.OUTGOING)
+    @Relationship(type = "EDGE", direction = Relationship.Direction.OUTGOING)
     Vertex[] vertices;
 }

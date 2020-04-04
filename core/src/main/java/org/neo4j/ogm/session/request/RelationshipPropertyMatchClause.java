@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.session.request;
 
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.*;
 import org.neo4j.ogm.cypher.Filter;
 
 /**
@@ -39,12 +39,12 @@ public class RelationshipPropertyMatchClause implements MatchClause {
     public MatchClause append(Filter filter) {
         if (clause == null) {
             clause = new StringBuilder("MATCH (n)");
-            if (filter.getRelationshipDirection().equals(Relationship.INCOMING)) {
+            if (filter.getRelationshipDirection().equals(Direction.INCOMING)) {
                 clause.append("<");
             }
             //			String relationshipIdentifier = filter.isNestedRelationshipEntity() ? relationshipIdentifier() : "";
             clause.append(String.format("-[%s:`%s`]-", relationshipIdentifier(), this.relationshipType));
-            if (filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
+            if (filter.getRelationshipDirection().equals(Direction.OUTGOING)) {
                 clause.append(">");
             }
             clause.append(String.format("(%s) ", nodeIdentifier()));

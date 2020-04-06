@@ -26,7 +26,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.annotation.Relationship.*;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.function.PropertyComparison;

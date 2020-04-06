@@ -39,7 +39,7 @@ import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.Relationship.*;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.annotation.Version;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.InternalIdStrategy;

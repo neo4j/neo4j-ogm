@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.annotation.Relationship.*;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.exception.core.MissingOperatorException;
@@ -91,7 +91,7 @@ public class FilteredQueryBuilder {
                     relationshipDirection = firstNestedPathSegment.getRelationshipDirection();
                 }
 
-                if (relationshipDirection.equals(Direction.OUTGOING)) {
+                if (relationshipDirection == Direction.OUTGOING) {
                     if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
                         if (noneOperatorEncounteredInStartFilters) {
                             throw new MissingOperatorException(

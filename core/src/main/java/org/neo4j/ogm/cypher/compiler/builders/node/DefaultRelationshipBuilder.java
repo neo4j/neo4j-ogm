@@ -20,7 +20,7 @@ package org.neo4j.ogm.cypher.compiler.builders.node;
 
 import java.util.Optional;
 
-import org.neo4j.ogm.annotation.Relationship.*;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.response.model.PropertyModel;

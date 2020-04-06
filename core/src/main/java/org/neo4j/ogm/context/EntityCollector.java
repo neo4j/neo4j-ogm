@@ -19,7 +19,7 @@
 package org.neo4j.ogm.context;
 
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.Relationship.*;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 
 import static java.util.Objects.*;
 import static java.util.stream.Collectors.*;

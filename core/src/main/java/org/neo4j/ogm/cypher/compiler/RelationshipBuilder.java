@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.cypher.compiler;
 
-import org.neo4j.ogm.annotation.Relationship.*;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.model.Edge;
 
 /**

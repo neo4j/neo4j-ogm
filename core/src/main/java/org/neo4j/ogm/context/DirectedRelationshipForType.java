@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.context;
 
-import org.neo4j.ogm.annotation.Relationship.*;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 
 /**
  * A DirectedRelationship mapping to objects of a particular type.

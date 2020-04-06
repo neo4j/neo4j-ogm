@@ -227,7 +227,7 @@ public class FieldInfo {
             if (annotationInfo == null) {
                 return defaultDirection;
             }
-            return annotationInfo.getEnum(Relationship.DIRECTION, defaultDirection);
+            return Direction.valueOf(annotationInfo.get(Relationship.DIRECTION, defaultDirection.name()));
         }
         throw new RuntimeException("relationship direction call invalid");
     }

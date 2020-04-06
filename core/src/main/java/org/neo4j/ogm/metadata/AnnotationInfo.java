@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.ValueFor;
+import org.neo4j.ogm.support.ClassUtils;
 
 /**
  * @author Vince Bickers
@@ -41,7 +42,7 @@ public class AnnotationInfo {
             return String.valueOf(value);
         } else if (returnType.equals(Class.class)) {
             return ((Class) value).getName();
-        } else if (Enum.class.isAssignableFrom(returnType)) {
+        } else if (ClassUtils.isEnum(returnType)) {
             return ((Enum<?>) value).name();
         } else {
             final String result = value.toString();
@@ -105,27 +106,10 @@ public class AnnotationInfo {
     }
 
     public String get(String key, String defaultValue) {
-        elements.putIfAbsent(key, defaultValue);
-        return get(key);
+        return elements.computeIfAbsent(key, k -> defaultValue);
     }
 
     public String get(String key) {
         return elements.get(key);
     }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Enum<T>> T getEnum(String key, T defaultValue) {
-        elements.putIfAbsent(key, defaultValue.name());
-        return (T) getEnum(defaultValue.getClass(), key);
-    }
-
-    public <T extends Enum<T>> T getEnum(Class<T> enumType, String key) {
-        String currentValue = elements.get(key);
-        if (currentValue == null) {
-            return null;
-        }
-
-        return T.valueOf(enumType, currentValue);
-    }
-
 }

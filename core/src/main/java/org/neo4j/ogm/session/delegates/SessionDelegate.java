@@ -24,7 +24,7 @@ import java.util.List;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.Relationship.*;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.FilterWithRelationship;
@@ -112,7 +112,9 @@ abstract class SessionDelegate {
             AnnotationInfo annotation = fieldInfo.getAnnotations().get(Relationship.class);
             if (annotation != null) {
                 filter.setRelationshipType(annotation.get(Relationship.TYPE, relationshipType));
-                filter.setRelationshipDirection(annotation.getEnum(Relationship.DIRECTION, Direction.UNDIRECTED));
+                Direction direction = Direction
+                    .valueOf(annotation.get(Relationship.DIRECTION, Direction.UNDIRECTED.name()));
+                filter.setRelationshipDirection(direction);
             }
             if (fieldInfo.getAnnotations().get(StartNode.class) != null) {
                 filter.setRelationshipDirection(Direction.OUTGOING);

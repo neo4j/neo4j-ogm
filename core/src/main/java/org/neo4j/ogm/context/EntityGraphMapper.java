@@ -27,6 +27,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.compiler.SrcTargetKey;
 import org.neo4j.ogm.cypher.compiler.CompileContext;
@@ -145,7 +146,7 @@ public class EntityGraphMapper implements EntityMapper {
                 AnnotationInfo annotationInfo = reInfo.annotationsInfo().get(RelationshipEntity.class);
                 String relationshipType = annotationInfo.get(RelationshipEntity.TYPE, null);
                 DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,
-                    Relationship.OUTGOING);
+                    Direction.OUTGOING);
 
                 RelationshipBuilder relationshipBuilder = getRelationshipBuilder(compiler, entity, directedRelationship,
                     false);
@@ -373,7 +374,7 @@ public class EntityGraphMapper implements EntityMapper {
         for (FieldInfo reader : srcInfo.relationshipFields()) {
 
             String relationshipType = reader.relationshipType();
-            String relationshipDirection = reader.relationshipDirection();
+            Direction relationshipDirection = reader.relationshipDirection();
             Class startNodeType = srcInfo.getUnderlyingClass();
             Class endNodeType = DescriptorMappings.getType(reader.getTypeDescriptor());
 
@@ -445,23 +446,26 @@ public class EntityGraphMapper implements EntityMapper {
      */
     private boolean clearContextRelationships(CompileContext compileContext, Long identity, Class endNodeType,
         DirectedRelationship directedRelationship) {
-        if (directedRelationship.direction().equals(Relationship.INCOMING)) {
-            LOGGER.debug("context-del: ({})<-[:{}]-()", identity, directedRelationship.type());
-            return compileContext.deregisterIncomingRelationships(identity, directedRelationship.type(), endNodeType,
-                metaData.isRelationshipEntity(endNodeType.getName()));
-        } else if (directedRelationship.direction().equals(Relationship.OUTGOING)) {
-            LOGGER.debug("context-del: ({})-[:{}]->()", identity, directedRelationship.type());
-            return compileContext.deregisterOutgoingRelationships(identity, directedRelationship.type(), endNodeType);
-        } else {
-            //An undirected relationship, clear both directions
-            LOGGER.debug("context-del: ({})<-[:{}]-()", identity, directedRelationship.type());
-            LOGGER.debug("context-del: ({})-[:{}]->()", identity, directedRelationship.type());
-            boolean clearedIncoming = compileContext
-                .deregisterIncomingRelationships(identity, directedRelationship.type(), endNodeType,
+        switch (directedRelationship.direction()) {
+            case INCOMING:
+                LOGGER.debug("context-del: ({})<-[:{}]-()", identity, directedRelationship.type());
+                return compileContext.deregisterIncomingRelationships(identity, directedRelationship.type(), endNodeType,
                     metaData.isRelationshipEntity(endNodeType.getName()));
-            boolean clearedOutgoing = compileContext
-                .deregisterOutgoingRelationships(identity, directedRelationship.type(), endNodeType);
-            return clearedIncoming || clearedOutgoing;
+
+            case OUTGOING:
+                LOGGER.debug("context-del: ({})-[:{}]->()", identity, directedRelationship.type());
+                return compileContext.deregisterOutgoingRelationships(identity, directedRelationship.type(), endNodeType);
+
+            default:
+                //An undirected relationship, clear both directions
+                LOGGER.debug("context-del: ({})<-[:{}]-()", identity, directedRelationship.type());
+                LOGGER.debug("context-del: ({})-[:{}]->()", identity, directedRelationship.type());
+                boolean clearedIncoming = compileContext
+                    .deregisterIncomingRelationships(identity, directedRelationship.type(), endNodeType,
+                        metaData.isRelationshipEntity(endNodeType.getName()));
+                boolean clearedOutgoing = compileContext
+                    .deregisterOutgoingRelationships(identity, directedRelationship.type(), endNodeType);
+                return clearedIncoming || clearedOutgoing;
         }
     }
 
@@ -771,14 +775,14 @@ public class EntityGraphMapper implements EntityMapper {
         MappedRelationship mappedRelationshipIncoming = new MappedRelationship(relNodes.targetId,
             relationshipBuilder.type(), relNodes.sourceId, isRelationshipEntity ? relationshipBuilder.reference() : null, relNodes.sourceType,
             relNodes.targetType);
-        if (relationshipBuilder.hasDirection(Relationship.UNDIRECTED)) {
+        if (relationshipBuilder.hasDirection(Direction.UNDIRECTED)) {
             if (mappingContext.containsRelationship(mappedRelationshipIncoming)) {
                 return mappedRelationshipIncoming;
             }
             return mappedRelationshipOutgoing;
         }
 
-        if (relationshipBuilder.hasDirection(Relationship.INCOMING)) {
+        if (relationshipBuilder.hasDirection(Direction.INCOMING)) {
             return mappedRelationshipIncoming;
         }
 
@@ -809,7 +813,7 @@ public class EntityGraphMapper implements EntityMapper {
         CompileContext context = compiler.context();
 
         boolean alreadyVisitedNode = context.visited(relNodes.target, horizon);
-        boolean selfReferentialUndirectedRelationship = relationshipBuilder.hasDirection(Relationship.UNDIRECTED)
+        boolean selfReferentialUndirectedRelationship = relationshipBuilder.hasDirection(Direction.UNDIRECTED)
             && relNodes.source.getClass() == relNodes.target.getClass();
         boolean relationshipFromExplicitlyMappedObject = level == 1;
 
@@ -898,7 +902,7 @@ public class EntityGraphMapper implements EntityMapper {
             return;
         }
 
-        if (relationshipBuilder.hasDirection(Relationship.INCOMING)) {
+        if (relationshipBuilder.hasDirection(Direction.INCOMING)) {
             //Still create a mapped relationship from src->tgt but we need to reconcile the types too
             //If its a rel entity then we want to rebase the startClass to the @StartNode of the rel entity and the endClass to the rel entity
             if (metaData.isRelationshipEntity(tgtClass.getName())) {
@@ -983,7 +987,7 @@ public class EntityGraphMapper implements EntityMapper {
      * @return true if the relationship should be mapped both ways, false otherwise
      */
     private boolean bothWayMappingRequired(Object srcObject, String relationshipType, Object tgtObject,
-        String relationshipDirection) {
+        Relationship.Direction relationshipDirection) {
         boolean mapBothWays = false;
 
         ClassInfo tgtInfo = metaData.classInfo(tgtObject);
@@ -993,17 +997,14 @@ public class EntityGraphMapper implements EntityMapper {
             return false;
         }
         for (FieldInfo tgtRelReader : tgtInfo.relationshipFields()) {
-            String tgtRelationshipDirection = tgtRelReader.relationshipDirection();
-            if ((tgtRelationshipDirection.equals(Relationship.OUTGOING) || tgtRelationshipDirection
-                .equals(Relationship.INCOMING)) //The relationship direction must be explicitly incoming or outgoing
-                && tgtRelReader.relationshipType().equals(
-                relationshipType)) { //The source must have the same relationship type to the target as the target to the source
-                //Moreover, the source must be related to the target and vice versa in the SAME direction
-                if (relationshipDirection.equals(tgtRelationshipDirection)) {
-
-                    Object target = tgtRelReader.read(tgtObject);
-                    mapBothWays = targetEqualsSource(target, srcObject);
-                }
+            Direction tgtRelationshipDirection = tgtRelReader.relationshipDirection();
+            // The relationship direction must be explicitly incoming or outgoing,
+            // the source must have the same relationship type to the target as the target to the source
+            // and the source must be related to the target and vice versa in the SAME direction
+            if (tgtRelationshipDirection != Direction.UNDIRECTED && tgtRelReader.relationshipType()
+                .equals(relationshipType) && relationshipDirection.equals(tgtRelationshipDirection)) {
+                Object target = tgtRelReader.read(tgtObject);
+                mapBothWays = targetEqualsSource(target, srcObject);
             }
 
             // We don't need any other field if we already found a match.

@@ -29,7 +29,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV18 {
 
-    @Relationship(direction = "OUTGOING")
+    @Relationship(direction = Relationship.Direction.OUTGOING)
     private Set<UserV18> knows;
 
     public UserV18() {

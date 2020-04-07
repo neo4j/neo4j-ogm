@@ -32,7 +32,7 @@ public class Template extends BaseDomainObject {
 
     public String name;
 
-    @Relationship(type = "special", direction = "INCOMING")
+    @Relationship(type = "special", direction = Relationship.Direction.INCOMING)
     protected Set<UsedBy> usedBy = new HashSet<>();
 
     public String getName() {

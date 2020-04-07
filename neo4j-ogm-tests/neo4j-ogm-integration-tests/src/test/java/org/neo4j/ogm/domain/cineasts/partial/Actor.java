@@ -35,10 +35,10 @@ public class Actor {
     public Long id;
     String name;
 
-    @Relationship(type = "ACTS_IN", direction = "OUTGOING")
+    @Relationship(type = "ACTS_IN", direction = Relationship.Direction.OUTGOING)
     private List<Role> roles;
 
-    @Relationship(type = "KNOWS", direction = "OUTGOING")
+    @Relationship(type = "KNOWS", direction = Relationship.Direction.OUTGOING)
     public Set<Knows> knows = new HashSet<>();
 
     public Actor() {

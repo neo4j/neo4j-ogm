@@ -25,6 +25,7 @@ import static org.neo4j.ogm.cypher.ComparisonOperator.*;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -175,7 +176,7 @@ public class RelationshipQueryStatementsTest {
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
         planetFilter.setRelationshipType("ORBITS");
-        planetFilter.setRelationshipDirection("OUTGOING");
+        planetFilter.setRelationshipDirection(Relationship.Direction.OUTGOING);
         assertThat(query.findByType("ORBITS", new Filters().add(planetFilter), 4).getStatement())
             .isEqualTo("MATCH (n:`Planet`) WHERE n.`name` = $`world_name_0` " +
                 "MATCH (n)-[r0:`ORBITS`]->(m)  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
@@ -195,7 +196,7 @@ public class RelationshipQueryStatementsTest {
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
         planetFilter.setRelationshipType("ORBITS");
-        planetFilter.setRelationshipDirection("INCOMING");
+        planetFilter.setRelationshipDirection(Relationship.Direction.INCOMING);
         assertThat(query.findByType("ORBITS", new Filters().add(planetFilter), 4).getStatement())
             .isEqualTo("MATCH (m:`Planet`) WHERE m.`name` = $`world_name_0` MATCH (n)-[r0:`ORBITS`]->(m)  " +
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
@@ -214,13 +215,13 @@ public class RelationshipQueryStatementsTest {
         planetNameFilter.setNestedPropertyName("world");
         planetNameFilter.setNestedEntityTypeLabel("Planet");
         planetNameFilter.setRelationshipType("ORBITS");
-        planetNameFilter.setRelationshipDirection("OUTGOING");
+        planetNameFilter.setRelationshipDirection(Relationship.Direction.OUTGOING);
 
         Filter planetMoonsFilter = new Filter("moons", ComparisonOperator.EQUALS, "Earth");
         planetMoonsFilter.setNestedPropertyName("moons");
         planetMoonsFilter.setNestedEntityTypeLabel("Planet");
         planetMoonsFilter.setRelationshipType("ORBITS");
-        planetMoonsFilter.setRelationshipDirection("OUTGOING");
+        planetMoonsFilter.setRelationshipDirection(Relationship.Direction.OUTGOING);
         planetMoonsFilter.setBooleanOperator(BooleanOperator.AND);
 
         assertThat(query.findByType("ORBITS", new Filters().add(planetNameFilter, planetMoonsFilter), 4).getStatement())
@@ -243,13 +244,13 @@ public class RelationshipQueryStatementsTest {
         moonFilter.setNestedPropertyName("world");
         moonFilter.setNestedEntityTypeLabel("Moon");
         moonFilter.setRelationshipType("ORBITS");
-        moonFilter.setRelationshipDirection("OUTGOING");
+        moonFilter.setRelationshipDirection(Relationship.Direction.OUTGOING);
 
         Filter planetFilter = new Filter("colour", ComparisonOperator.EQUALS, "Red");
         planetFilter.setNestedPropertyName("colour");
         planetFilter.setNestedEntityTypeLabel("Planet");
         planetFilter.setRelationshipType("ORBITS");
-        planetFilter.setRelationshipDirection("INCOMING");
+        planetFilter.setRelationshipDirection(Relationship.Direction.INCOMING);
 
         assertThat(query.findByType("ORBITS", new Filters().add(moonFilter, planetFilter), 4).getStatement()).isEqualTo(
             "MATCH (n:`Moon`) WHERE n.`name` = $`world_name_0` MATCH (m:`Planet`) WHERE m.`colour` = $`colour_colour_1` "
@@ -338,7 +339,7 @@ public class RelationshipQueryStatementsTest {
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
         planetFilter.setRelationshipType("ORBITS");
-        planetFilter.setRelationshipDirection("OUTGOING");
+        planetFilter.setRelationshipDirection(Relationship.Direction.OUTGOING);
         Filter time = new Filter("time", ComparisonOperator.EQUALS, 3600);
         time.setBooleanOperator(BooleanOperator.AND);
         assertThat(query.findByType("ORBITS", new Filters().add(planetFilter, time), 4).getStatement())
@@ -360,7 +361,7 @@ public class RelationshipQueryStatementsTest {
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
         planetFilter.setRelationshipType("ORBITS");
-        planetFilter.setRelationshipDirection("INCOMING");
+        planetFilter.setRelationshipDirection(Relationship.Direction.INCOMING);
         Filter time = new Filter("time", ComparisonOperator.EQUALS, 3600);
         assertThat(query.findByType("ORBITS", new Filters().add(planetFilter, time), 4).getStatement())
             .isEqualTo("MATCH (m:`Planet`) WHERE m.`name` = $`world_name_0` " +
@@ -381,13 +382,13 @@ public class RelationshipQueryStatementsTest {
         moonFilter.setNestedPropertyName("world");
         moonFilter.setNestedEntityTypeLabel("Moon");
         moonFilter.setRelationshipType("ORBITS");
-        moonFilter.setRelationshipDirection("OUTGOING");
+        moonFilter.setRelationshipDirection(Relationship.Direction.OUTGOING);
 
         Filter planetFilter = new Filter("colour", ComparisonOperator.EQUALS, "Red");
         planetFilter.setNestedPropertyName("colour");
         planetFilter.setNestedEntityTypeLabel("Planet");
         planetFilter.setRelationshipType("ORBITS");
-        planetFilter.setRelationshipDirection("INCOMING");
+        planetFilter.setRelationshipDirection(Relationship.Direction.INCOMING);
 
         Filter time = new Filter("time", ComparisonOperator.EQUALS, 3600);
         time.setBooleanOperator(BooleanOperator.AND);
@@ -425,13 +426,13 @@ public class RelationshipQueryStatementsTest {
         planetNameFilter.setNestedPropertyName("world");
         planetNameFilter.setNestedEntityTypeLabel("Planet");
         planetNameFilter.setRelationshipType("ORBITS");
-        planetNameFilter.setRelationshipDirection("OUTGOING");
+        planetNameFilter.setRelationshipDirection(Relationship.Direction.OUTGOING);
 
         Filter planetMoonsFilter = new Filter("moons", ComparisonOperator.EQUALS, "Earth");
         planetMoonsFilter.setNestedPropertyName("moons");
         planetMoonsFilter.setNestedEntityTypeLabel("Planet");
         planetMoonsFilter.setRelationshipType("ORBITS");
-        planetMoonsFilter.setRelationshipDirection("OUTGOING");
+        planetMoonsFilter.setRelationshipDirection(Relationship.Direction.OUTGOING);
 
         query.findByType("ORBITS", new Filters().add(planetNameFilter, planetMoonsFilter), 4).getStatement();
     }

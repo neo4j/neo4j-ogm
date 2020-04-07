@@ -22,7 +22,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.DomainInfo;
@@ -87,7 +87,7 @@ public class DomainInfoSchemaBuilder {
 
                     NodeImpl start = getNodeByFieldAndContainingClass(classInfo, classInfo.getStartNodeReader());
                     NodeImpl end = getNodeByFieldAndContainingClass(classInfo, classInfo.getEndNodeReader());
-                    schema.addRelationship(new RelationshipImpl(type, "OUTGOING", start, end));
+                    schema.addRelationship(new RelationshipImpl(type, Direction.OUTGOING, start, end));
                 }
             }
         }
@@ -120,7 +120,7 @@ public class DomainInfoSchemaBuilder {
         NodeImpl toNode;
         if (otherClassInfo.isRelationshipEntity()) {
 
-            if (relFieldInfo.relationshipDirection().equals(Relationship.OUTGOING)) {
+            if (relFieldInfo.relationshipDirection() == Direction.OUTGOING) {
                 toNode = getNodeByFieldAndContainingClass(otherClassInfo, otherClassInfo.getEndNodeReader());
             } else {
                 // this will cover both incoming and UNDIRECTED

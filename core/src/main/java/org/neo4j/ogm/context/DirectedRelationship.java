@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.context;
 
+import org.neo4j.ogm.annotation.Relationship;
+
 /**
  * Represents a relationship type along with a direction.
  *
@@ -26,9 +28,14 @@ package org.neo4j.ogm.context;
 public class DirectedRelationship {
 
     private String relationshipType;
-    private String relationshipDirection;
+    private Relationship.Direction relationshipDirection;
 
-    public DirectedRelationship(String relationshipType, String relationshipDirection) {
+    /**
+     *
+     * @param relationshipType The relationship type
+     * @param relationshipDirection The relationship direction
+     */
+    public DirectedRelationship(String relationshipType, Relationship.Direction relationshipDirection) {
         this.relationshipType = relationshipType;
         this.relationshipDirection = relationshipDirection;
     }
@@ -37,7 +44,7 @@ public class DirectedRelationship {
         return relationshipType;
     }
 
-    public String direction() {
+    public Relationship.Direction direction() {
         return relationshipDirection;
     }
 

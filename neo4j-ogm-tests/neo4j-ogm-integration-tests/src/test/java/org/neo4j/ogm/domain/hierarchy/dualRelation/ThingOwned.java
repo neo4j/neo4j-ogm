@@ -33,7 +33,7 @@ public class ThingOwned extends AbstractNamedOwnedObject {
 
     public String uuid;
 
-    @Relationship(type = "SHARED_WITH", direction = Relationship.OUTGOING)
+    @Relationship(type = "SHARED_WITH", direction = Relationship.Direction.OUTGOING)
     public Set<ThingOwned> sharedWith;
 
     public Long getId() {

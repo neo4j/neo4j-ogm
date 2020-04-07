@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.ValueFor;
+import org.neo4j.ogm.support.ClassUtils;
 
 /**
  * @author Vince Bickers
@@ -41,6 +42,8 @@ public class AnnotationInfo {
             return String.valueOf(value);
         } else if (returnType.equals(Class.class)) {
             return ((Class) value).getName();
+        } else if (ClassUtils.isEnum(returnType)) {
+            return ((Enum<?>) value).name();
         } else {
             final String result = value.toString();
             if (result.isEmpty()) {
@@ -103,8 +106,7 @@ public class AnnotationInfo {
     }
 
     public String get(String key, String defaultValue) {
-        elements.putIfAbsent(key, defaultValue);
-        return get(key);
+        return elements.computeIfAbsent(key, k -> defaultValue);
     }
 
     public String get(String key) {

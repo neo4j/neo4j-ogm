@@ -35,10 +35,10 @@ public class Author {
     @Id @GeneratedValue
     public Long id;
 
-    @Relationship(type = "AUTHORED_BY", direction = Relationship.INCOMING)
+    @Relationship(type = "AUTHORED_BY", direction = Relationship.Direction.INCOMING)
     public Set<Post> posts;
 
-    @Relationship(type = "COMMENT_BY", direction = Relationship.INCOMING)
+    @Relationship(type = "COMMENT_BY", direction = Relationship.Direction.INCOMING)
     public Set<Comment> comments = new HashSet<>();
 
     public Author() {

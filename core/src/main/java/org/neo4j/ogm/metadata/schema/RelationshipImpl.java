@@ -30,12 +30,12 @@ class RelationshipImpl implements Relationship {
     private final String type;
 
     // Direction in regards to start and end node
-    private final String direction;
+    private final Direction direction;
 
     private final NodeImpl start;
     private final NodeImpl end;
 
-    RelationshipImpl(String type, String direction, NodeImpl start, NodeImpl end) {
+    RelationshipImpl(String type, Direction direction, NodeImpl start, NodeImpl end) {
         this.type = requireNonNull(type);
         this.direction = requireNonNull(direction);
         this.start = requireNonNull(start);
@@ -48,7 +48,7 @@ class RelationshipImpl implements Relationship {
     }
 
     @Override
-    public String direction(Node node) {
+    public Direction direction(Node node) {
         if (!(start == node || end == node)) {
             throw new IllegalArgumentException("Given node " + node +
                 " is neither start or end node of this relationship");
@@ -58,20 +58,20 @@ class RelationshipImpl implements Relationship {
 
         switch (direction) {
             case UNDIRECTED:
-                return UNDIRECTED;
+                return Direction.UNDIRECTED;
 
             case OUTGOING:
                 if (start == node) {
-                    return OUTGOING;
+                    return Direction.OUTGOING;
                 } else {
-                    return INCOMING;
+                    return Direction.INCOMING;
                 }
 
             case INCOMING:
                 if (end == node) {
-                    return OUTGOING;
+                    return Direction.OUTGOING;
                 } else {
-                    return INCOMING;
+                    return Direction.INCOMING;
                 }
 
             default:

@@ -35,7 +35,7 @@ public class RefField {
     @Id @GeneratedValue
     private Long id;
 
-    @Relationship(type = "HAS_FIELD", direction = Relationship.INCOMING)
+    @Relationship(type = "HAS_FIELD", direction = Relationship.Direction.INCOMING)
     private List<CyclicNodeType> nodeTypes;
 
     public RefField setNodeTypes(List<CyclicNodeType> nodeTypes) {

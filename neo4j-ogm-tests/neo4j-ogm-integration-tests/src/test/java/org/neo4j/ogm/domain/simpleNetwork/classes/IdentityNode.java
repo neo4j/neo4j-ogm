@@ -30,7 +30,7 @@ import org.neo4j.ogm.domain.simpleNetwork.abstractions.AbstractIdentityNode;
 @NodeEntity(label = "IdentityNode")
 public class IdentityNode extends AbstractIdentityNode<TimeRelation> {
 
-    @Relationship(direction = "OUTGOING", type = "IDENTITY_STATE")
+    @Relationship(direction = Relationship.Direction.OUTGOING, type = "IDENTITY_STATE")
     private Set<TimeRelation> identityStates;
 
     @Override

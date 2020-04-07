@@ -45,7 +45,7 @@ public class RelationshipWriterAnnotatedFieldsTest {
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
         FieldInfo objectAccess = EntityAccessManager
-            .getRelationalWriter(classInfo, "LIST", Relationship.OUTGOING, new T());
+            .getRelationalWriter(classInfo, "LIST", Relationship.Direction.OUTGOING, new T());
         assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
         assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
         assertThat(objectAccess.relationship()).isEqualTo("LIST");
@@ -58,7 +58,7 @@ public class RelationshipWriterAnnotatedFieldsTest {
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
         FieldInfo objectAccess = EntityAccessManager
-            .getRelationalWriter(classInfo, "SCALAR", Relationship.OUTGOING, new T());
+            .getRelationalWriter(classInfo, "SCALAR", Relationship.Direction.OUTGOING, new T());
         assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
         assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
         assertThat(objectAccess.relationship()).isEqualTo("SCALAR");
@@ -71,7 +71,7 @@ public class RelationshipWriterAnnotatedFieldsTest {
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
         FieldInfo objectAccess = EntityAccessManager
-            .getRelationalWriter(classInfo, "ARRAY", Relationship.OUTGOING, new T());
+            .getRelationalWriter(classInfo, "ARRAY", Relationship.Direction.OUTGOING, new T());
         assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();
         assertThat(objectAccess instanceof FieldInfo).as("The access mechanism should be via the field").isTrue();
         assertThat(objectAccess.relationship()).isEqualTo("ARRAY");
@@ -109,13 +109,13 @@ public class RelationshipWriterAnnotatedFieldsTest {
 
         Long id;
 
-        @Relationship(type = "LIST", direction = Relationship.OUTGOING)
+        @Relationship(type = "LIST", direction = Relationship.Direction.OUTGOING)
         List<T> list;
 
-        @Relationship(type = "ARRAY", direction = Relationship.OUTGOING)
+        @Relationship(type = "ARRAY", direction = Relationship.Direction.OUTGOING)
         T[] array;
 
-        @Relationship(type = "SCALAR", direction = Relationship.OUTGOING)
+        @Relationship(type = "SCALAR", direction = Relationship.Direction.OUTGOING)
         T scalar;
     }
 

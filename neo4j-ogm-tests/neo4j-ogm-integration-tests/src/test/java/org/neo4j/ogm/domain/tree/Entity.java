@@ -32,10 +32,10 @@ public class Entity implements Comparable {
     private Long id;
     private String name;
 
-    @Relationship(type = "REL", direction = "OUTGOING")
+    @Relationship(type = "REL", direction = Relationship.Direction.OUTGOING)
     private Entity parent;
 
-    @Relationship(type = "REL", direction = "INCOMING")
+    @Relationship(type = "REL", direction = Relationship.Direction.INCOMING)
     private SortedSet<Entity> children = new TreeSet<>();
 
     public Entity() {

@@ -33,7 +33,7 @@ public class Ingredient {
     private Long id;
     private String name;
 
-    @Relationship(type = "PAIRS_WITH", direction = "UNDIRECTED")
+    @Relationship(type = "PAIRS_WITH", direction = Relationship.Direction.UNDIRECTED)
     private Set<Pairing> pairings = new HashSet<>();
 
     public Ingredient() {

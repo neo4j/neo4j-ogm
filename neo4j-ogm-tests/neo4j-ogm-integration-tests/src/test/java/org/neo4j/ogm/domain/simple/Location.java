@@ -33,7 +33,7 @@ public class Location {
 
     Long id;
 
-    @Relationship(type = "LIVES_AT", direction = INCOMING)
+    @Relationship(type = "LIVES_AT", direction = Direction.INCOMING)
     Set<Person> residents;
 
 }

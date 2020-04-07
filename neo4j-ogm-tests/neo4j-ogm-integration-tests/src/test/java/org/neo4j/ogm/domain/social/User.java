@@ -34,7 +34,7 @@ public class User {
     private Long id;
     private String name;
 
-    @Relationship(type = "FRIEND", direction = "UNDIRECTED")
+    @Relationship(type = "FRIEND", direction = Relationship.Direction.UNDIRECTED)
     private List<User> friends = new ArrayList<>();
 
     public User() {

@@ -311,7 +311,7 @@ public class RelationshipEntityTest extends TestContainersTestBase {
 
         Long id;
         String name;
-        @Relationship(type = "EDGE", direction = Relationship.OUTGOING)
+        @Relationship(type = "EDGE", direction = Relationship.Direction.OUTGOING)
         Set<R> rset = new HashSet<>();
 
         public U() {
@@ -351,7 +351,7 @@ public class RelationshipEntityTest extends TestContainersTestBase {
 
         Long id;
         String title;
-        @Relationship(type = "EDGE", direction = Relationship.INCOMING)
+        @Relationship(type = "EDGE", direction = Relationship.Direction.INCOMING)
         Set<R> rset = new HashSet<>();
 
         public M() {

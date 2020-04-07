@@ -77,7 +77,7 @@ public class DomainInfoSchemaBuilderTest {
         Relationship employer = relationships.get("employer");
         assertThat(employer).isNotNull();
         assertThat(employer.type()).isEqualTo("EMPLOYED_BY");
-        assertThat(employer.direction(person)).isEqualTo(OUTGOING);
+        assertThat(employer.direction(person)).isEqualTo(Direction.OUTGOING);
         assertThat(employer.other(person)).isEqualTo(schema.findNode("Organisation"));
     }
 
@@ -89,7 +89,7 @@ public class DomainInfoSchemaBuilderTest {
         Relationship organisations = relationships.get("organisations");
         assertThat(organisations).isNotNull();
         assertThat(organisations.type()).isEqualTo("FOUNDED");
-        assertThat(organisations.direction(person)).isEqualTo(OUTGOING);
+        assertThat(organisations.direction(person)).isEqualTo(Direction.OUTGOING);
         assertThat(organisations.other(person)).isEqualTo(schema.findNode("Organisation"));
     }
 
@@ -101,13 +101,13 @@ public class DomainInfoSchemaBuilderTest {
         Relationship locationRel = person.relationships().get("location");
         assertThat(locationRel).isNotNull();
         assertThat(locationRel.type()).isEqualTo("LIVES_AT");
-        assertThat(locationRel.direction(person)).isEqualTo(OUTGOING);
+        assertThat(locationRel.direction(person)).isEqualTo(Direction.OUTGOING);
         assertThat(locationRel.other(person)).isEqualTo(location);
 
         Relationship residents = location.relationships().get("residents");
         assertThat(residents).isNotNull();
         assertThat(residents.type()).isEqualTo("LIVES_AT");
-        assertThat(residents.direction(location)).isEqualTo(INCOMING);
+        assertThat(residents.direction(location)).isEqualTo(Direction.INCOMING);
         assertThat(residents.other(location)).isEqualTo(person);
     }
 
@@ -136,7 +136,7 @@ public class DomainInfoSchemaBuilderTest {
         Relationship organisations = relationships.get("organisations");
         assertThat(organisations).isNotNull();
         assertThat(organisations.type()).isEqualTo("FOUNDED");
-        assertThat(organisations.direction(person)).isEqualTo(OUTGOING);
+        assertThat(organisations.direction(person)).isEqualTo(Direction.OUTGOING);
         assertThat(organisations.other(person)).isEqualTo(schema.findNode("Organisation"));
     }
 
@@ -161,7 +161,7 @@ public class DomainInfoSchemaBuilderTest {
 
         Node mortal = schema.findNode("Mortal");
         Relationship knownBy = mortal.relationships().get("knownBy");
-        assertThat(knownBy.direction(mortal)).isEqualTo(INCOMING);
+        assertThat(knownBy.direction(mortal)).isEqualTo(Direction.INCOMING);
     }
 
     @Test
@@ -172,7 +172,7 @@ public class DomainInfoSchemaBuilderTest {
         Node node = schema.findNode("Vertex");
         Relationship nodes = node.relationships().get("vertices");
         assertThat(nodes.type()).isEqualTo("EDGE");
-        assertThat(nodes.direction(node)).isEqualTo(OUTGOING);
+        assertThat(nodes.direction(node)).isEqualTo(Direction.OUTGOING);
         assertThat(nodes.other(node)).isEqualTo(node);
     }
 

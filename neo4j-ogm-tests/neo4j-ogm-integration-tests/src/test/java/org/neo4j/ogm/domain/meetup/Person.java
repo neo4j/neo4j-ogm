@@ -37,10 +37,10 @@ public class Person {
 
     private String name;
 
-    @Relationship(type = "ORGANISER", direction = Relationship.INCOMING)
+    @Relationship(type = "ORGANISER", direction = Relationship.Direction.INCOMING)
     private Set<Meetup> meetupOrganised = new HashSet<>(); //must be a collection
 
-    @Relationship(type = "ATTENDEE", direction = Relationship.INCOMING)
+    @Relationship(type = "ATTENDEE", direction = Relationship.Direction.INCOMING)
     private Set<Meetup> meetupsAttended = new HashSet<>();
 
     public Person() {

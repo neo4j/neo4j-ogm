@@ -28,6 +28,6 @@ data class MyNode (
     @Id @GeneratedValue var dbId: Long? = null,
     @Index(unique = true) val name: String,
     val description: String,
-    @Relationship("IS_LINKED_TO", direction = Relationship.OUTGOING)
+    @Relationship("IS_LINKED_TO", direction = Relationship.Direction.OUTGOING)
     val otherNodes: List<OtherNode> = emptyList()
 )

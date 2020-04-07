@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.metadata.schema;
 
+import org.neo4j.ogm.annotation.Relationship.Direction;
+
 /**
  * Relationship in a {@link Schema}
  *
@@ -35,7 +37,7 @@ public interface Relationship {
      *
      * @return direction
      */
-    String direction(Node node);
+    Direction direction(Node node);
 
     /**
      * Return start node of this relationship

@@ -21,17 +21,18 @@ package org.neo4j.ogm.domain.social;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.server.rest.AutoIndexWithNonDefaultConfigurationThroughRESTAPIIT;
 
 /**
  * @author Luanne Misquitta
  */
 public class SocialUser {
 
-    @Relationship(type = "HAS_AS_FRIEND", direction = Relationship.OUTGOING)
+    @Relationship(type = "HAS_AS_FRIEND", direction = Relationship.Direction.OUTGOING)
     Set<SocialUser> friends;
-    @Relationship(type = "FOLLOWING", direction = Relationship.OUTGOING)
+    @Relationship(type = "FOLLOWING", direction = Relationship.Direction.OUTGOING)
     Set<SocialUser> following;
-    @Relationship(type = "IS_FOLLOWED_BY", direction = Relationship.INCOMING)
+    @Relationship(type = "IS_FOLLOWED_BY", direction = Relationship.Direction.INCOMING)
     Set<SocialUser> followers;
     private Long id;
     private String name;

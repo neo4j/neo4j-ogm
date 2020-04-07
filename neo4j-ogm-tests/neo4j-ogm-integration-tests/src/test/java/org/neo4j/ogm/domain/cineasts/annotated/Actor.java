@@ -49,12 +49,12 @@ public class Actor {
 
     private Set<Movie> filmography;
 
-    @Relationship(type = "ACTS_IN", direction = "OUTGOING")
+    @Relationship(type = "ACTS_IN", direction = Relationship.Direction.OUTGOING)
     private Set<Role> roles;
 
     private Set<Nomination> nominations = new HashSet<>();
 
-    @Relationship(type = "KNOWS", direction = "OUTGOING")
+    @Relationship(type = "KNOWS", direction = Relationship.Direction.OUTGOING)
     public Set<Knows> knows = new HashSet<>();
 
     Actor() {

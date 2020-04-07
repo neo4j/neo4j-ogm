@@ -35,10 +35,10 @@ public class CyclicNodeType {
     @Id @GeneratedValue
     private Long id;
 
-    @Relationship(type = "HAS_FIELD", direction = Relationship.OUTGOING)
+    @Relationship(type = "HAS_FIELD", direction = Relationship.Direction.OUTGOING)
     private List<RefField> refFields;
 
-    @Relationship(type = "SUBORDINATE", direction = Relationship.INCOMING)
+    @Relationship(type = "SUBORDINATE", direction = Relationship.Direction.INCOMING)
     private List<CyclicNodeType> subordinateNodeTypes;
 
     public CyclicNodeType setRefFields(List<RefField> refFields) {

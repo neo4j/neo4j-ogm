@@ -35,13 +35,13 @@ public class Person {
 
     private String name;
 
-    @Relationship(type = "EMPLOYEE", direction = "OUTGOING")
+    @Relationship(type = "EMPLOYEE", direction = Relationship.Direction.OUTGOING)
     private Company employer;
 
-    @Relationship(type = "OWNER", direction = "OUTGOING")
+    @Relationship(type = "OWNER", direction = Relationship.Direction.OUTGOING)
     private Set<Company> owns;
 
-    @Relationship(type = "DEVICE", direction = Relationship.UNDIRECTED)
+    @Relationship(type = "DEVICE", direction = Relationship.Direction.UNDIRECTED)
     private Set<Device> devices;
 
     public Person() {

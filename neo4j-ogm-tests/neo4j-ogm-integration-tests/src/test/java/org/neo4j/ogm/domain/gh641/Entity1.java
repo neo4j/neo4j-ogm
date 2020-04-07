@@ -31,7 +31,7 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity
 public class Entity1 {
     @Id @GeneratedValue private Long id;
-    @Relationship(type = "MY_RELATIONSHIP", direction = Relationship.OUTGOING)
+    @Relationship(type = "MY_RELATIONSHIP", direction = Relationship.Direction.OUTGOING)
     private ArrayList<MyRelationship> entries;
 
     public ArrayList<MyRelationship> getEntries() {

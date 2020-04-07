@@ -38,10 +38,10 @@ public class MyNodeWithAssignedId {
     @Id
     private String name;
 
-    @Relationship(type = "REL_ONE", direction = INCOMING)
+    @Relationship(type = "REL_ONE", direction = Direction.INCOMING)
     private MyNodeWithAssignedId refOne;
 
-    @Relationship(type = "REL_TWO", direction = UNDIRECTED)
+    @Relationship(type = "REL_TWO", direction = Direction.UNDIRECTED)
     private List<MyNodeWithAssignedId> refTwo = new ArrayList<>();
 
     public MyNodeWithAssignedId(String name) {

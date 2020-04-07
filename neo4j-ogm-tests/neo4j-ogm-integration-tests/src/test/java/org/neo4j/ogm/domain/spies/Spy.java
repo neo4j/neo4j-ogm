@@ -30,10 +30,10 @@ public class Spy {
     private Long id;
     private String name;
 
-    @Relationship(type = "SPY", direction = Relationship.OUTGOING)
+    @Relationship(type = "SPY", direction = Relationship.Direction.OUTGOING)
     private Target spiesOn;
 
-    @Relationship(type = "SPY", direction = Relationship.INCOMING)
+    @Relationship(type = "SPY", direction = Relationship.Direction.INCOMING)
     private Target spiedOnBy;
 
     public Spy() {

@@ -35,7 +35,7 @@ public class User {
 
     Long id;
 
-    @Relationship(type = "FRIEND_OF", direction = UNDIRECTED)
+    @Relationship(type = "FRIEND_OF", direction = Direction.UNDIRECTED)
     private Set<User> friends;
 
     public static int getPostLoadCount() {

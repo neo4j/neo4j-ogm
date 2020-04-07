@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.session.request;
 
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.cypher.Filter;
 
 /**
@@ -28,8 +28,8 @@ import org.neo4j.ogm.cypher.Filter;
  */
 public class PathMatchClause implements MatchClause {
 
-    private int index;
-    private StringBuilder clause;
+    private final int index;
+    private final StringBuilder clause;
 
     PathMatchClause(int index) {
         this.index = index;
@@ -38,7 +38,7 @@ public class PathMatchClause implements MatchClause {
 
     @Override
     public MatchClause append(Filter filter) {
-        if (filter.getRelationshipDirection().equals(Relationship.INCOMING)) {
+        if (filter.getRelationshipDirection() == Direction.INCOMING) {
             clause.append("<");
         }
 
@@ -46,7 +46,7 @@ public class PathMatchClause implements MatchClause {
             String.format("-[%s:`%s`]-", filter.isNestedRelationshipEntity() ? "r" : "", filter.getRelationshipType())
         );
 
-        if (filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
+        if (filter.getRelationshipDirection() == Direction.OUTGOING) {
             clause.append(">");
         }
 

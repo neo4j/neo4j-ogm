@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.cypher.compiler;
 
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.model.Edge;
 
 /**
@@ -37,9 +38,9 @@ public interface RelationshipBuilder extends PropertyContainerBuilder<Relationsh
 
     void relate(Long startNodeId, Long endNodeId);
 
-    RelationshipBuilder direction(String direction);
+    RelationshipBuilder direction(Direction direction);
 
-    boolean hasDirection(String direction);
+    boolean hasDirection(Direction direction);
 
     boolean isBidirectional();
 

@@ -27,12 +27,12 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity
 public class Item {
 
-    @Relationship(type = "NEXT", direction = Relationship.OUTGOING)
+    @Relationship(type = "NEXT", direction = Relationship.Direction.OUTGOING)
     public Item next;
-    @Relationship(type = "NEXT", direction = Relationship.INCOMING)
+    @Relationship(type = "NEXT", direction = Relationship.Direction.INCOMING)
     public Item previous;
 
-    @Relationship(type = "BELONGS_TO", direction = Relationship.OUTGOING)
+    @Relationship(type = "BELONGS_TO", direction = Relationship.Direction.OUTGOING)
     public Item belongsTo;
 
     private Long id;

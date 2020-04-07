@@ -20,6 +20,7 @@ package org.neo4j.ogm.domain.music;
 
 import java.util.Date;
 
+import org.mockito.configuration.IMockitoConfiguration;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
@@ -35,13 +36,13 @@ public class Album {
     private Long id;
     private String name;
 
-    @Relationship(type = "HAS-ALBUM", direction = "INCOMING")
+    @Relationship(type = "HAS-ALBUM", direction = Relationship.Direction.INCOMING)
     private Artist artist; //none of those compilations allowed
 
     @Relationship(type = "RECORDED-AT")
     private Recording recording;
 
-    @Relationship(type = "GUEST_ALBUM", direction = "INCOMING")
+    @Relationship(type = "GUEST_ALBUM", direction = Relationship.Direction.INCOMING)
     private Artist guestArtist; //we only tolerate one guest artist
 
     private Date recordedAt;

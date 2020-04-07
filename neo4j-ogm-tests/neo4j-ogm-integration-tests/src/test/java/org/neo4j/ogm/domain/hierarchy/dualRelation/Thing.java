@@ -34,7 +34,7 @@ public class Thing {
 
     public String uuid;
 
-    @Relationship(type = "SHARED_WITH", direction = Relationship.OUTGOING)
+    @Relationship(type = "SHARED_WITH", direction = Relationship.Direction.OUTGOING)
     public Set<Thing> sharedWith;
 
     public Long getId() {

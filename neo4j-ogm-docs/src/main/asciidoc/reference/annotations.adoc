@@ -33,7 +33,7 @@ public class Actor extends DomainObject {
    @Property("age") // using value attribute to have a shorter definition
    private int age;
 
-   @Relationship(type="ACTED_IN", direction=Relationship.OUTGOING)
+   @Relationship(type="ACTED_IN", direction=Relationship.Direction.OUTGOING)
    private List<Movie> filmography;
 
 }
@@ -216,7 +216,7 @@ Neo4j-OGM supports the following types of entity collections:
 @NodeEntity
 public class Actor {
     ...
-    @Relationship(type = "TOP_ACTOR", direction = Relationship.INCOMING)
+    @Relationship(type = "TOP_ACTOR", direction = Relationship.Direction.INCOMING)
     private Set<Movie> topActorIn;
 
     @Relationship("ACTS_IN") // same meaning as above but using the value attribute
@@ -234,7 +234,7 @@ Neo4j-OGM ensures by default that there is only one relationship of a given type
 The exception to this rule is when a relationship is specified as either `OUTGOING` or `INCOMING` between two entities of the same type.
 In this case, it is possible to have two relationships of the given type between the two entities, one relationship in either direction.
 
-If you don't care about the direction then you can specify `direction=Relationship.UNDIRECTED` which will guarantee that the path between two node entities is navigable from either side.
+If you don't care about the direction then you can specify `direction=Relationship.Direction.UNDIRECTED` which will guarantee that the path between two node entities is navigable from either side.
 
 For example, consider the `PARTNER` relationship between two companies, where `(A)-[:PARTNER_OF]->(B)` implies `(B)-[:PARTNER_OF]->(A)`.
 The direction of the relationship does not matter; only the fact that a `PARTNER_OF` relationship exists between these two companies is of importance.

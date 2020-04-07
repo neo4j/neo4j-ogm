@@ -44,7 +44,7 @@ public class Beverage {
     @Relationship(type = "CONTAINS")
     private Set<Ingredient> ingredients;
 
-    @Relationship(type = "MAKES", direction = INCOMING)
+    @Relationship(type = "MAKES", direction = Direction.INCOMING)
     private Manufacturer manufacturer;
 
     public Beverage() {

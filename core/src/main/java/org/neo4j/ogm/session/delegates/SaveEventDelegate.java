@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
@@ -236,13 +236,17 @@ final class SaveEventDelegate extends SessionDelegate {
         String type = reader.relationshipType();
         Class endNodeType = DescriptorMappings.getType(reader.getTypeDescriptor());
 
-        if (reader.relationshipDirection().equals(Relationship.INCOMING)) {
-            deregisterIncomingRelationship(id, type, endNodeType);
-        } else if (reader.relationshipDirection().equals(Relationship.OUTGOING)) {
-            deregisterOutgoingRelationship(id, type, endNodeType);
-        } else {
-            deregisterOutgoingRelationship(id, type, endNodeType);
-            deregisterIncomingRelationship(id, type, endNodeType);
+        switch (reader.relationshipDirection()) {
+            case INCOMING:
+                deregisterIncomingRelationship(id, type, endNodeType);
+                return;
+            case OUTGOING:
+                deregisterOutgoingRelationship(id, type, endNodeType);
+                return;
+            default:
+                deregisterOutgoingRelationship(id, type, endNodeType);
+                deregisterIncomingRelationship(id, type, endNodeType);
+                return;
         }
     }
 
@@ -350,7 +354,7 @@ final class SaveEventDelegate extends SessionDelegate {
         Object reference) {
 
         String type = reader.relationshipType();
-        String direction = reader.relationshipDirection();
+        Direction direction = reader.relationshipDirection();
 
         ClassInfo parentInfo = this.session.metaData().classInfo(parent);
         Long parentId = session.context().nativeId(parent);
@@ -363,7 +367,7 @@ final class SaveEventDelegate extends SessionDelegate {
 
             if (!referenceInfo.isRelationshipEntity()) {
 
-                if (direction.equals(Relationship.OUTGOING)) {
+                if (direction == Direction.OUTGOING) {
                     MappedRelationship edge = new MappedRelationship(parentId, type, referenceId,
                         null, parentInfo.getUnderlyingClass(), referenceInfo.getUnderlyingClass());
                     mappedRelationships.add(edge);

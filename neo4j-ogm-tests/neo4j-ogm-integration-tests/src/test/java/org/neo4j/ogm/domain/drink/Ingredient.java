@@ -36,7 +36,7 @@ public class Ingredient {
 
     private String name;
 
-    @Relationship(type = "CONTAINS", direction = INCOMING)
+    @Relationship(type = "CONTAINS", direction = Direction.INCOMING)
     private Set<Beverage> beverages;
 
     public Ingredient() {

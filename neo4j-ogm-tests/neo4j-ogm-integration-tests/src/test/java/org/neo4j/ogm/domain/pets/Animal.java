@@ -28,7 +28,7 @@ public class Animal {
     private Long id;
     private String name;
 
-    @Relationship(type = "HAS_PET", direction = "INCOMING")
+    @Relationship(type = "HAS_PET", direction = Relationship.Direction.INCOMING)
     private Kid owner;
 
     public Animal() {

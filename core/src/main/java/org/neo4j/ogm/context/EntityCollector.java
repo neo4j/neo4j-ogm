@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.context;
 
+import org.neo4j.ogm.annotation.Relationship.Direction;
+
 import static java.util.Objects.*;
 import static java.util.stream.Collectors.*;
 
@@ -52,7 +54,7 @@ class EntityCollector {
      * @param target                The element to add to the collection that will eventually be set on the owning type
      */
     public void collectRelationship(Long sourceId, Class startPropertyType, String relationshipType,
-        String relationshipDirection, long relationshipId, long targetId, Object target) {
+        Direction relationshipDirection, long relationshipId, long targetId, Object target) {
         record(sourceId, startPropertyType, relationshipType, relationshipDirection,
             new TargetTriple(relationshipId, targetId, target));
     }
@@ -68,13 +70,13 @@ class EntityCollector {
      * @param target                The element to add to the collection that will eventually be set on the owning type
      */
     public void collectRelationship(Long sourceId, Class startPropertyType, String relationshipType,
-        String relationshipDirection, long targetId, Object target) {
+        Direction relationshipDirection, long targetId, Object target) {
         record(sourceId, startPropertyType, relationshipType, relationshipDirection,
             new TargetTriple(targetId, target));
     }
 
     private void record(Long owningEntityId, Class startPropertyType, String relationshipType,
-        String relationshipDirection, TargetTriple triple) {
+        Direction relationshipDirection, TargetTriple triple) {
         this.collected.computeIfAbsent(owningEntityId, k -> new HashMap<>());
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
         this.collected.get(owningEntityId).computeIfAbsent(directedRelationship, k -> new HashMap<>());
@@ -89,7 +91,7 @@ class EntityCollector {
 
             relationshipMap.forEach((relationship, targetTypeMap) -> {
                 String type = relationship.type();
-                String direction = relationship.direction();
+                Direction direction = relationship.direction();
 
                 targetTypeMap.forEach((targetType, entityTriples) -> {
 
@@ -106,7 +108,7 @@ class EntityCollector {
 
     interface CollectedHandler {
 
-        void handle(Long sourceId, String type, String direction, Class targetType, Collection<Object> entities);
+        void handle(Long sourceId, String type, Direction direction, Class targetType, Collection<Object> entities);
     }
 
     /**

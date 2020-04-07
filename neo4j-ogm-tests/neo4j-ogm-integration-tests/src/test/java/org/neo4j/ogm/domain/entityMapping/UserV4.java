@@ -27,7 +27,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV4 extends Entity {
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
+    @Relationship(type = "KNOWS", direction = Relationship.Direction.INCOMING)
     private UserV4 friend;
 
     public UserV4 getFriend() {

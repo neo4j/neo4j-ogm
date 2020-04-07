@@ -18,7 +18,6 @@
  */
 package org.neo4j.ogm.metadata;
 
-import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.rules.ExpectedException.*;
 import static org.neo4j.ogm.annotation.Relationship.*;
@@ -439,30 +438,30 @@ public class ClassInfoTest {
     @Test // DATAGRAPH-690
     public void testTypeParameterDescriptorForRelationships() {
         ClassInfo classInfo = metaData.classInfo("Topic");
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", OUTGOING)).isEqualTo(Post.class);
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", INCOMING)).isNull();
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("DOES_NOT_EXIST", OUTGOING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", Direction.OUTGOING)).isEqualTo(Post.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", Direction.INCOMING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("DOES_NOT_EXIST", Direction.OUTGOING)).isNull();
 
         classInfo = metaData.classInfo("Member");
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_ACTIVITY", OUTGOING))
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_ACTIVITY", Direction.OUTGOING))
             .isEqualTo(Activity.class);
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWERS", OUTGOING)).isEqualTo(Member.class);
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWEES", OUTGOING)).isEqualTo(Member.class);
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_ACTIVITY", INCOMING)).isNull();
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWERS", INCOMING)).isNull();
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWEES", INCOMING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWERS", Direction.OUTGOING)).isEqualTo(Member.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWEES", Direction.OUTGOING)).isEqualTo(Member.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_ACTIVITY", Direction.INCOMING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWERS", Direction.INCOMING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWEES", Direction.INCOMING)).isNull();
 
         classInfo = metaData.classInfo("Actor");
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", OUTGOING)).isEqualTo(Role.class);
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("KNOWS", OUTGOING)).isEqualTo(Knows.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Direction.OUTGOING)).isEqualTo(Role.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("KNOWS", Direction.OUTGOING)).isEqualTo(Knows.class);
 
         classInfo = metaData.classInfo("Movie");
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", INCOMING)).isEqualTo(Role.class);
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("RATED", INCOMING)).isEqualTo(Rating.class);
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", OUTGOING)).isNull();
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", OUTGOING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Direction.INCOMING)).isEqualTo(Role.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("RATED", Direction.INCOMING)).isEqualTo(Rating.class);
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Direction.OUTGOING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Direction.OUTGOING)).isNull();
 
-        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS", OUTGOING)).isNull();
+        assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS", Direction.OUTGOING)).isNull();
     }
 
     @Test

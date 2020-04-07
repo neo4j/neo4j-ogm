@@ -39,6 +39,7 @@ import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.annotation.Version;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.InternalIdStrategy;
@@ -220,13 +221,13 @@ public class FieldInfo {
         return compositeConverter != null;
     }
 
-    public String relationshipDirection(String defaultDirection) {
+    public Direction relationshipDirectionOrDefault(Direction defaultDirection) {
         if (relationship() != null) {
             AnnotationInfo annotationInfo = getAnnotations().get(Relationship.class);
             if (annotationInfo == null) {
                 return defaultDirection;
             }
-            return annotationInfo.get(Relationship.DIRECTION, defaultDirection);
+            return Direction.valueOf(annotationInfo.get(Relationship.DIRECTION, defaultDirection.name()));
         }
         throw new RuntimeException("relationship direction call invalid");
     }
@@ -445,16 +446,8 @@ public class FieldInfo {
         return hasCompositeConverter();
     }
 
-    public String relationshipDirection() {
-
-        ObjectAnnotations annotationOfField = getAnnotations();
-        if (annotationOfField != null) {
-            AnnotationInfo relationshipAnnotation = annotationOfField.get(Relationship.class);
-            if (relationshipAnnotation != null) {
-                return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
-            }
-        }
-        return Relationship.UNDIRECTED;
+    public Direction relationshipDirection() {
+        return relationshipDirectionOrDefault(Direction.UNDIRECTED);
     }
 
     public Field getField() {

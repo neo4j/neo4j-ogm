@@ -30,18 +30,42 @@ import java.lang.annotation.Target;
  * @author Vince Bickers
  * @author Frantisek Hartman
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @Inherited
 public @interface Relationship {
 
+    /**
+     * Enumeration of the direction a relationship can take.
+     */
+    enum Direction {
+
+        /**
+         * Describes an outgoing relationship.
+         */
+        OUTGOING,
+
+        /**
+         * Describes an incoming relationship.
+         */
+        INCOMING,
+
+        /**
+         * Describes an undirected relationship.
+         */
+        UNDIRECTED
+
+    }
+
     String TYPE = "type";
     String DIRECTION = "direction";
 
-    String INCOMING = "INCOMING";
-    String OUTGOING = "OUTGOING";
-    String UNDIRECTED = "UNDIRECTED";
+    // Alias for the enum constants. These allow for some compatibility between 3.2 and 4.0
+    Direction INCOMING = Direction.INCOMING;
+    Direction OUTGOING = Direction.OUTGOING;
+    Direction UNDIRECTED = Direction.UNDIRECTED;
 
     @ValueFor(TYPE)
     String value() default "";
@@ -53,8 +77,8 @@ public @interface Relationship {
 
     /**
      * Direction of the relationship. Defaults to OUTGOING.
-     * Possible values are {@link #OUTGOING}, {@link #INCOMING}, {@link #UNDIRECTED}.
+     * Possible values are {@link Direction#OUTGOING}, {@link Direction#INCOMING} and {@link Direction#UNDIRECTED}.
      */
-    String direction() default OUTGOING;
+    Direction direction() default Direction.OUTGOING;
 
 }

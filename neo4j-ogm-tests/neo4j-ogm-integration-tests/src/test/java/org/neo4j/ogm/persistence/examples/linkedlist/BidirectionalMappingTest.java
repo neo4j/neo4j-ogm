@@ -43,9 +43,9 @@ import org.neo4j.ogm.transaction.Transaction;
  * <pre>
  * <code>
  * class Item {
- *      @{literal @}Relationship(type='NEXT', direction=Relationship.INCOMING)
+ *      @{literal @}Relationship(type='NEXT', direction=Relationship.Direction.INCOMING)
  *      Item previous;
- *      @{literal @}Relationship(type='NEXT', direction=Relationship.OUTGOING)
+ *      @{literal @}Relationship(type='NEXT', direction=Relationship.Direction.OUTGOING)
  *      Item next;
  * }
  * </code>

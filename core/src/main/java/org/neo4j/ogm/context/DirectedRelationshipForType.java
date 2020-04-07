@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.context;
 
+import org.neo4j.ogm.annotation.Relationship.Direction;
+
 /**
  * A DirectedRelationship mapping to objects of a particular type.
  *
@@ -25,9 +27,9 @@ package org.neo4j.ogm.context;
  */
 public class DirectedRelationshipForType extends DirectedRelationship {
 
-    Class type;
+    private final Class type;
 
-    public DirectedRelationshipForType(String relationshipType, String relationshipDirection, Class type) {
+    public DirectedRelationshipForType(String relationshipType, Direction relationshipDirection, Class type) {
         super(relationshipType, relationshipDirection);
         this.type = type;
     }

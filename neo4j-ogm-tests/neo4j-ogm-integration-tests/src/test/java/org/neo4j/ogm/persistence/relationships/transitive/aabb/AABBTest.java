@@ -327,14 +327,14 @@ public class AABBTest extends TestContainersTestBase {
     @NodeEntity(label = "A")
     public static class A extends E {
 
-        @Relationship(type = "EDGE", direction = Relationship.OUTGOING)
+        @Relationship(type = "EDGE", direction = Relationship.Direction.OUTGOING)
         R[] r;
     }
 
     @NodeEntity(label = "B")
     public static class B extends E {
 
-        @Relationship(type = "EDGE", direction = Relationship.INCOMING)
+        @Relationship(type = "EDGE", direction = Relationship.Direction.INCOMING)
         R[] r;
     }
 

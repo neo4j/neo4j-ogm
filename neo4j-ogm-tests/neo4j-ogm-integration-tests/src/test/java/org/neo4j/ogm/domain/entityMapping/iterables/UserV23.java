@@ -29,10 +29,10 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV23 {
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
+    @Relationship(type = "KNOWS", direction = Relationship.Direction.INCOMING)
     public PlainUser plainUsers;
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
+    @Relationship(type = "KNOWS", direction = Relationship.Direction.INCOMING)
     public List<UserV23> user;
 
     public UserV23() {

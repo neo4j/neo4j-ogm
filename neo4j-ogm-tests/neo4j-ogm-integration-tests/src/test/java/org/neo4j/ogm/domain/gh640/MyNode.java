@@ -41,10 +41,10 @@ public class MyNode {
 
     private String name;
 
-    @Relationship(type = "REL_ONE", direction = INCOMING)
+    @Relationship(type = "REL_ONE", direction = Direction.INCOMING)
     private MyNode refOne;
 
-    @Relationship(type = "REL_TWO", direction = UNDIRECTED)
+    @Relationship(type = "REL_TWO", direction = Direction.UNDIRECTED)
     private List<MyNode> refTwo = new ArrayList<>();
 
     public MyNode(String name) {

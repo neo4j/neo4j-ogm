@@ -39,7 +39,7 @@ public class Meetup {
 
     private Person organiser;
 
-    @Relationship(type = "ATTENDEE", direction = Relationship.OUTGOING)
+    @Relationship(type = "ATTENDEE", direction = Relationship.Direction.OUTGOING)
     private Set<Person> attendees = new HashSet<>();
 
     public Meetup() {

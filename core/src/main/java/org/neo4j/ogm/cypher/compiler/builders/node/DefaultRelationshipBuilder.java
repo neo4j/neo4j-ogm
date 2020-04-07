@@ -20,6 +20,7 @@ package org.neo4j.ogm.cypher.compiler.builders.node;
 
 import java.util.Optional;
 
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.response.model.PropertyModel;
@@ -33,7 +34,7 @@ import org.neo4j.ogm.utils.EntityUtils;
 public class DefaultRelationshipBuilder extends AbstractPropertyContainerBuilder<RelationshipBuilder, RelationshipModel>
     implements RelationshipBuilder {
 
-    private String direction;
+    private Direction direction;
     private boolean singleton = true; // will be false if the relationship can be mapped multiple times between two instances
     private boolean bidirectional = false;
     private boolean relationshipEntity = false;
@@ -77,7 +78,7 @@ public class DefaultRelationshipBuilder extends AbstractPropertyContainerBuilder
     }
 
     @Override
-    public boolean hasDirection(String possibleDirection) {
+    public boolean hasDirection(Direction possibleDirection) {
         return this.direction != null && this.direction.equals(possibleDirection);
     }
 
@@ -107,7 +108,7 @@ public class DefaultRelationshipBuilder extends AbstractPropertyContainerBuilder
     }
 
     @Override
-    public RelationshipBuilder direction(String newDirection) {
+    public RelationshipBuilder direction(Direction newDirection) {
         this.direction = newDirection;
         return this;
     }

@@ -33,7 +33,7 @@ public class Person {
     private Long id;
     private String name;
 
-    @Relationship(type = "LIKES", direction = "OUTGOING")
+    @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<Person> peopleILike = new ArrayList<>();
 
     public Person() {

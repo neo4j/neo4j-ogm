@@ -26,6 +26,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
@@ -91,7 +92,7 @@ public class Filter implements FilterWithRelationship {
     /**
      * The relationship direction from the parent entity to the nested property
      */
-    private String relationshipDirection;
+    private Direction relationshipDirection;
 
     private AttributeConverter propertyConverter;
 
@@ -130,11 +131,11 @@ public class Filter implements FilterWithRelationship {
         filter.propertyName = propertyName;
     }
 
-    public String getRelationshipDirection() {
+    public Direction getRelationshipDirection() {
         return relationshipDirection;
     }
 
-    public void setRelationshipDirection(String relationshipDirection) {
+    public void setRelationshipDirection(Direction relationshipDirection) {
         this.relationshipDirection = relationshipDirection;
     }
 
@@ -270,7 +271,7 @@ public class Filter implements FilterWithRelationship {
         private final Class propertyType;
 
         private String relationshipType;
-        private String relationshipDirection;
+        private Direction relationshipDirection;
         private String nestedEntityTypeLabel;
         private boolean nestedRelationshipEntity;
 
@@ -295,11 +296,11 @@ public class Filter implements FilterWithRelationship {
             this.relationshipType = relationshipType;
         }
 
-        public void setRelationshipDirection(String relationshipDirection) {
+        public void setRelationshipDirection(Direction relationshipDirection) {
             this.relationshipDirection = relationshipDirection;
         }
 
-        public String getRelationshipDirection() {
+        public Direction getRelationshipDirection() {
             return relationshipDirection;
         }
 

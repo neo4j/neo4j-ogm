@@ -31,6 +31,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.exception.core.InvalidPropertyFieldException;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -533,19 +534,16 @@ public class ClassInfo {
      * Finds the relationship field with a specific name and direction from the ClassInfo's relationship fields
      *
      * @param relationshipName      the relationshipName of the field to find
-     * @param relationshipDirection the direction of the relationship
+     * @param relationshipDirection the direction of the relationship represented by a string
      * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return A FieldInfo object describing the required relationship field, or null if it doesn't exist.
      */
-    public FieldInfo relationshipField(String relationshipName, String relationshipDirection, boolean strict) {
+    public FieldInfo relationshipField(String relationshipName, Direction relationshipDirection, boolean strict) {
         for (FieldInfo fieldInfo : relationshipFields()) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
             if (relationshipName.equalsIgnoreCase(relationship)) {
-                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo
-                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED))
-                    && (relationshipDirection.equals(Relationship.INCOMING)))
-                    || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo
-                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
+                Direction declaredDirection = fieldInfo.relationshipDirectionOrDefault(Direction.OUTGOING);
+                if (isActualDirectionCompatibleWithDeclaredDirection(relationshipDirection, declaredDirection)) {
                     return fieldInfo;
                 }
             }
@@ -561,17 +559,14 @@ public class ClassInfo {
      * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return Set of  FieldInfo objects describing the required relationship field, or empty set if it doesn't exist.
      */
-    public Set<FieldInfo> candidateRelationshipFields(String relationshipName, String relationshipDirection,
+    public Set<FieldInfo> candidateRelationshipFields(String relationshipName, Direction relationshipDirection,
         boolean strict) {
         Set<FieldInfo> candidateFields = new HashSet<>();
         for (FieldInfo fieldInfo : relationshipFields()) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
             if (relationshipName.equalsIgnoreCase(relationship)) {
-                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo
-                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED))
-                    && (relationshipDirection.equals(Relationship.INCOMING)))
-                    || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo
-                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
+                Direction declaredDirection = fieldInfo.relationshipDirectionOrDefault(Direction.OUTGOING);
+                if (isActualDirectionCompatibleWithDeclaredDirection(relationshipDirection, declaredDirection)) {
                     candidateFields.add(fieldInfo);
                 }
             }
@@ -708,23 +703,25 @@ public class ClassInfo {
      * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
-    public List<FieldInfo> findIterableFields(Class iteratedType, String relationshipType, String relationshipDirection,
+    public List<FieldInfo> findIterableFields(Class<?> iteratedType, String relationshipType, Direction relationshipDirection,
         boolean strict) {
 
         List<FieldInfo> iterableFields = new ArrayList<>();
         for (FieldInfo fieldInfo : findIterableFields(iteratedType)) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
             if (relationshipType.equals(relationship)) {
-                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo
-                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED))
-                    && relationshipDirection.equals(Relationship.INCOMING))
-                    || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo
-                    .relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
+                Direction declaredDirection = fieldInfo.relationshipDirectionOrDefault(Direction.OUTGOING);
+                if (isActualDirectionCompatibleWithDeclaredDirection(relationshipDirection, declaredDirection)) {
                     iterableFields.add(fieldInfo);
                 }
             }
         }
         return iterableFields;
+    }
+
+    private static boolean isActualDirectionCompatibleWithDeclaredDirection(Direction actual, Direction declared) {
+        return ((declared == Direction.INCOMING || declared == Direction.UNDIRECTED) && actual == Direction.INCOMING) ||
+            (declared != Direction.INCOMING && actual == Direction.OUTGOING);
     }
 
     public boolean isTransient() {
@@ -780,7 +777,7 @@ public class ClassInfo {
      * @param relationshipDirection the relationship direction
      * @return class of the type parameter descriptor or null if it could not be determined
      */
-    Class getTypeParameterDescriptorForRelationship(String relationshipType, String relationshipDirection) {
+    Class<?> getTypeParameterDescriptorForRelationship(String relationshipType, Direction relationshipDirection) {
         final boolean STRICT_MODE = true; //strict mode for matching methods and fields, will only look for explicit annotations
         final boolean INFERRED_MODE = false; //inferred mode for matching methods and fields, will infer the relationship type from the getter/setter/property
 
@@ -790,7 +787,7 @@ public class ClassInfo {
                 return DescriptorMappings.getType(fieldInfo.getTypeDescriptor());
             }
 
-            if (!relationshipDirection.equals(Relationship.INCOMING)) { //we always expect an annotation for INCOMING
+            if (relationshipDirection != Direction.INCOMING) { //we always expect an annotation for INCOMING
                 fieldInfo = relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
                 if (fieldInfo != null && fieldInfo.getTypeDescriptor() != null) {
                     return DescriptorMappings.getType(fieldInfo.getTypeDescriptor());

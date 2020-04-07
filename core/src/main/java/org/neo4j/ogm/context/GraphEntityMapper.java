@@ -19,7 +19,6 @@
 package org.neo4j.ogm.context;
 
 import static java.util.stream.Collectors.*;
-import static org.neo4j.ogm.annotation.Relationship.Direction.*;
 import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -29,7 +28,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -358,7 +356,7 @@ public class GraphEntityMapper {
 
         // If the source has a writer for an outgoing relationship for the rel entity, then write the rel entity on the source if it's a scalar writer
         ClassInfo sourceInfo = metadata.classInfo(source);
-        FieldInfo writer = getRelationalWriter(sourceInfo, edge.getType(), OUTGOING, relationshipEntity);
+        FieldInfo writer = getRelationalWriter(sourceInfo, edge.getType(), Direction.OUTGOING, relationshipEntity);
         if (writer == null) {
             logger.debug("No writer for {}", target);
         } else {
@@ -374,7 +372,7 @@ public class GraphEntityMapper {
 
         //If the target has a writer for an incoming relationship for the rel entity, then write the rel entity on the target if it's a scalar writer
         ClassInfo targetInfo = metadata.classInfo(target);
-        writer = getRelationalWriter(targetInfo, edge.getType(), INCOMING, relationshipEntity);
+        writer = getRelationalWriter(targetInfo, edge.getType(), Direction.INCOMING, relationshipEntity);
 
         if (writer == null) {
             logger.debug("No writer for {}", target);
@@ -450,19 +448,21 @@ public class GraphEntityMapper {
             Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
             if (relationshipEntity != null) {
                 // establish a relationship between
-                FieldInfo outgoingWriter = findIterableWriter(instance, relationshipEntity, edge.getType(), OUTGOING);
+                FieldInfo outgoingWriter =
+                    findIterableWriter(instance, relationshipEntity, edge.getType(), Direction.OUTGOING);
                 if (outgoingWriter != null) {
                     entityCollector.collectRelationship(edge.getStartNode(),
-                        DescriptorMappings.getType(outgoingWriter.getTypeDescriptor()), edge.getType(), OUTGOING,
+                        DescriptorMappings.getType(outgoingWriter.getTypeDescriptor()), edge.getType(), Direction.OUTGOING,
                         edge.getId(), edge.getEndNode(), relationshipEntity);
                     relationshipsToRegister.add(
                         new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(),
                             instance.getClass(), DescriptorMappings.getType(outgoingWriter.getTypeDescriptor())));
                 }
-                FieldInfo incomingWriter = findIterableWriter(parameter, relationshipEntity, edge.getType(), INCOMING);
+                FieldInfo incomingWriter =
+                    findIterableWriter(parameter, relationshipEntity, edge.getType(), Direction.INCOMING);
                 if (incomingWriter != null) {
                     entityCollector.collectRelationship(edge.getEndNode(),
-                        DescriptorMappings.getType(incomingWriter.getTypeDescriptor()), edge.getType(), INCOMING,
+                        DescriptorMappings.getType(incomingWriter.getTypeDescriptor()), edge.getType(), Direction.INCOMING,
                         edge.getId(), edge.getStartNode(), relationshipEntity);
                     relationshipsToRegister.add(
                         new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(),
@@ -472,13 +472,13 @@ public class GraphEntityMapper {
 
                 // Use getRelationalWriter instead of findIterableWriter
                 // findIterableWriter will return matching iterable even when there is better matching single field
-                FieldInfo outgoingWriter = getRelationalWriter(metadata.classInfo(instance), edge.getType(), OUTGOING,
-                    parameter);
+                FieldInfo outgoingWriter =
+                    getRelationalWriter(metadata.classInfo(instance), edge.getType(), Direction.OUTGOING, parameter);
                 if (outgoingWriter != null) {
                     if (!outgoingWriter.forScalar()) {
                         entityCollector.collectRelationship(edge.getStartNode(),
                             DescriptorMappings.getType(outgoingWriter.getTypeDescriptor()), edge.getType(),
-                            OUTGOING,
+                            Direction.OUTGOING,
                             edge.getEndNode(), parameter);
                     } else {
                         outgoingWriter.write(instance, parameter);
@@ -488,13 +488,13 @@ public class GraphEntityMapper {
                         DescriptorMappings.getType(outgoingWriter.getTypeDescriptor()));
                     relationshipsToRegister.add(mappedRelationship);
                 }
-                FieldInfo incomingWriter = getRelationalWriter(metadata.classInfo(parameter), edge.getType(), INCOMING,
-                    instance);
+                FieldInfo incomingWriter
+                    = getRelationalWriter(metadata.classInfo(parameter), edge.getType(), Direction.INCOMING, instance);
                 if (incomingWriter != null) {
                     if (!incomingWriter.forScalar()) {
                         entityCollector.collectRelationship(edge.getEndNode(),
                             DescriptorMappings.getType(incomingWriter.getTypeDescriptor()), edge.getType(),
-                            INCOMING,
+                            Direction.INCOMING,
                             edge.getStartNode(), instance);
                     } else {
                         incomingWriter.write(parameter, instance);
@@ -594,11 +594,11 @@ public class GraphEntityMapper {
             // if the source OR the target (or one of their superclasses) declares the relationship
             // back to the relationshipEntityClass, we've found a match
             Class relationshipEntityClass = classInfo.getUnderlyingClass();
-            if (declaresRelationshipTo(relationshipEntityClass, source.getClass(), edge.getType(), OUTGOING)) {
+            if (declaresRelationshipTo(relationshipEntityClass, source.getClass(), edge.getType(), Direction.OUTGOING)) {
                 return classInfo;
             }
 
-            if (declaresRelationshipTo(relationshipEntityClass, target.getClass(), edge.getType(), INCOMING)) {
+            if (declaresRelationshipTo(relationshipEntityClass, target.getClass(), edge.getType(), Direction.INCOMING)) {
                 return classInfo;
             }
         }
@@ -647,7 +647,7 @@ public class GraphEntityMapper {
      * @param relationshipDirection the direction of the relationship
      * @return true if 'by' declares the specified relationship on 'to', false otherwise
      */
-    private boolean declaresRelationshipTo(Class to, Class by, String relationshipName, Relationship.Direction relationshipDirection) {
+    private boolean declaresRelationshipTo(Class to, Class by, String relationshipName, Direction relationshipDirection) {
         return EntityAccessManager
             .getRelationalWriter(metadata.classInfo(by.getName()), relationshipName, relationshipDirection, to) != null;
     }

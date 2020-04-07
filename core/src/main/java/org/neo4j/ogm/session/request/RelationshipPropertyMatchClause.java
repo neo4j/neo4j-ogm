@@ -42,7 +42,7 @@ public class RelationshipPropertyMatchClause implements MatchClause {
             if (filter.getRelationshipDirection() == Direction.INCOMING) {
                 clause.append("<");
             }
-            //			String relationshipIdentifier = filter.isNestedRelationshipEntity() ? relationshipIdentifier() : "";
+            // String relationshipIdentifier = filter.isNestedRelationshipEntity() ? relationshipIdentifier() : "";
             clause.append(String.format("-[%s:`%s`]-", relationshipIdentifier(), this.relationshipType));
             if (filter.getRelationshipDirection() == Direction.OUTGOING) {
                 clause.append(">");
@@ -50,7 +50,7 @@ public class RelationshipPropertyMatchClause implements MatchClause {
             clause.append(String.format("(%s) ", nodeIdentifier()));
         }
 
-        //TODO this implies support for querying by one relationship entity only
+        // TODO this implies support for querying by one relationship entity only
         clause.append(filter.toCypher(relationshipIdentifier(), clause.indexOf(" WHERE ") == -1));
         return this;
     }

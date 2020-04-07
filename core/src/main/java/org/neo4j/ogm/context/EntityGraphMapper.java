@@ -998,16 +998,13 @@ public class EntityGraphMapper implements EntityMapper {
         }
         for (FieldInfo tgtRelReader : tgtInfo.relationshipFields()) {
             Direction tgtRelationshipDirection = tgtRelReader.relationshipDirection();
-            if ((tgtRelationshipDirection == Direction.OUTGOING || tgtRelationshipDirection
-                 == Direction.INCOMING) //The relationship direction must be explicitly incoming or outgoing
-                && tgtRelReader.relationshipType().equals(
-                relationshipType)) { //The source must have the same relationship type to the target as the target to the source
-                //Moreover, the source must be related to the target and vice versa in the SAME direction
-                if (relationshipDirection.equals(tgtRelationshipDirection)) {
-
-                    Object target = tgtRelReader.read(tgtObject);
-                    mapBothWays = targetEqualsSource(target, srcObject);
-                }
+            // The relationship direction must be explicitly incoming or outgoing,
+            // the source must have the same relationship type to the target as the target to the source
+            // and the source must be related to the target and vice versa in the SAME direction
+            if (tgtRelationshipDirection != Direction.UNDIRECTED && tgtRelReader.relationshipType()
+                .equals(relationshipType) && relationshipDirection.equals(tgtRelationshipDirection)) {
+                Object target = tgtRelReader.read(tgtObject);
+                mapBothWays = targetEqualsSource(target, srcObject);
             }
 
             // We don't need any other field if we already found a match.

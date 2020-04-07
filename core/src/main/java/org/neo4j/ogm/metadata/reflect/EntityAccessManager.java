@@ -330,7 +330,7 @@ public class EntityAccessManager {
 
             //If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
             //If it's outgoing, then proceed to find other matches
-            if (!(relationshipDirection == Direction.INCOMING)) {
+            if (relationshipDirection != Direction.INCOMING) {
 
                 // 2nd, try to find a scalar or vector field annotated as the neo4j relationship type and direction, allowing for implied relationships
                 final Set<FieldInfo> candidateRelationshipFields = classInfo
@@ -363,7 +363,7 @@ public class EntityAccessManager {
                 if (fieldInfos.size() == 1) {
                     FieldInfo candidateField = fieldInfos.iterator().next();
 
-                    if (!(candidateField.relationshipDirectionOrDefault(Direction.UNDIRECTED) == Direction.INCOMING)) {
+                    if (candidateField.relationshipDirectionOrDefault(Direction.UNDIRECTED) != Direction.INCOMING) {
 
                         if (candidateField.relationshipTypeAnnotation() == null) {
                             typeFieldInfoMap.put(directedRelationship, candidateField);
@@ -408,7 +408,7 @@ public class EntityAccessManager {
 
             //If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
             //If it's outgoing, then proceed to find other matches
-            if (!(relationshipDirection == Direction.INCOMING)) {
+            if (relationshipDirection != Direction.INCOMING) {
 
                 // 3rd, try to find a field  annotated with the neo4j relationship type and direction, allowing for implied relationships
                 fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
@@ -464,7 +464,7 @@ public class EntityAccessManager {
 
             // If relationshipDirection=INCOMING, we should have found an annotated field already
 
-            if (!(relationshipDirection == Direction.INCOMING)) {
+            if (relationshipDirection != Direction.INCOMING) {
 
                 //3rd, find a field with implied type and direction
                 fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection,
@@ -498,15 +498,15 @@ public class EntityAccessManager {
                         return null;
                     }
                 }
-                //If the relationshipDirection is incoming and the candidateFieldInfo is also incoming or undirected
-                if ((relationshipDirection == Direction.INCOMING) &&
-                    (candidateFieldInfo.relationshipDirectionOrDefault(Direction.OUTGOING) == Direction.INCOMING) ||
-                    (candidateFieldInfo.relationshipDirectionOrDefault(Direction.OUTGOING) == Direction.UNDIRECTED)) {
+                // If the relationshipDirection is incoming and the candidateFieldInfo is also incoming or undirected
+                if (relationshipDirection == Direction.INCOMING &&
+                    candidateFieldInfo.relationshipDirectionOrDefault(Direction.OUTGOING) == Direction.INCOMING ||
+                    candidateFieldInfo.relationshipDirectionOrDefault(Direction.OUTGOING) == Direction.UNDIRECTED) {
                     return candidateFieldInfo;
                 }
-                //If the relationshipDirection is not incoming and the candidateFieldInfo is not incoming
-                if (!(relationshipDirection == Direction.INCOMING) && !(candidateFieldInfo
-                    .relationshipDirectionOrDefault(Direction.OUTGOING) == Direction.INCOMING)) {
+                // If the relationshipDirection is not incoming and the candidateFieldInfo is not incoming
+                if (relationshipDirection != Direction.INCOMING && candidateFieldInfo
+                    .relationshipDirectionOrDefault(Direction.OUTGOING) != Direction.INCOMING) {
                     return candidateFieldInfo;
                 }
             }
@@ -523,7 +523,7 @@ public class EntityAccessManager {
         Direction relationshipDirection, DirectedRelationshipForType directedRelationshipForType, FieldInfo fieldInfo,
         FieldInfo fieldAccessor) {
         if (fieldInfo.isParameterisedTypeOf(parameterType)) {
-            //Cache the writer for the superclass used in the type param
+            // Cache the writer for the superclass used in the type param
             directedRelationshipForType = new DirectedRelationshipForType(relationshipType, relationshipDirection,
                 DescriptorMappings.getType(fieldInfo.getTypeDescriptor()));
         }

@@ -27,7 +27,7 @@ import org.neo4j.ogm.annotation.Relationship.Direction;
  */
 public class DirectedRelationshipForType extends DirectedRelationship {
 
-    Class type;
+    private final Class type;
 
     public DirectedRelationshipForType(String relationshipType, Direction relationshipDirection, Class type) {
         super(relationshipType, relationshipDirection);

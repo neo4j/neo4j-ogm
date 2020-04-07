@@ -18,7 +18,6 @@
  */
 package org.neo4j.ogm.context;
 
-import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Relationship.Direction;
 
 import static java.util.Objects.*;
@@ -55,7 +54,7 @@ class EntityCollector {
      * @param target                The element to add to the collection that will eventually be set on the owning type
      */
     public void collectRelationship(Long sourceId, Class startPropertyType, String relationshipType,
-        Relationship.Direction relationshipDirection, long relationshipId, long targetId, Object target) {
+        Direction relationshipDirection, long relationshipId, long targetId, Object target) {
         record(sourceId, startPropertyType, relationshipType, relationshipDirection,
             new TargetTriple(relationshipId, targetId, target));
     }

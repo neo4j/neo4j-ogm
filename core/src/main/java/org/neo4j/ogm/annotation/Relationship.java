@@ -30,6 +30,7 @@ import java.lang.annotation.Target;
  * @author Vince Bickers
  * @author Frantisek Hartman
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -60,6 +61,11 @@ public @interface Relationship {
 
     String TYPE = "type";
     String DIRECTION = "direction";
+
+    // Alias for the enum constants. These allow for some compatibility between 3.2 and 4.0
+    Direction INCOMING = Direction.INCOMING;
+    Direction OUTGOING = Direction.OUTGOING;
+    Direction UNDIRECTED = Direction.UNDIRECTED;
 
     @ValueFor(TYPE)
     String value() default "";

@@ -28,8 +28,8 @@ import org.neo4j.ogm.cypher.Filter;
  */
 public class PathMatchClause implements MatchClause {
 
-    private int index;
-    private StringBuilder clause;
+    private final int index;
+    private final StringBuilder clause;
 
     PathMatchClause(int index) {
         this.index = index;

@@ -33,7 +33,7 @@ import org.neo4j.ogm.exception.core.MissingOperatorException;
  * Cypher to this class
  * The FilteredQueryBuilder, as its name suggests, returns instances of {@link FilteredQuery}
  *
- * @author vince
+ * @author Vince Bickers
  */
 public class FilteredQueryBuilder {
 

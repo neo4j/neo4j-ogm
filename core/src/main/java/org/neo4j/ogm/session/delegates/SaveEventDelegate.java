@@ -236,13 +236,17 @@ final class SaveEventDelegate extends SessionDelegate {
         String type = reader.relationshipType();
         Class endNodeType = DescriptorMappings.getType(reader.getTypeDescriptor());
 
-        if (reader.relationshipDirection() == Direction.INCOMING) {
-            deregisterIncomingRelationship(id, type, endNodeType);
-        } else if (reader.relationshipDirection() == Direction.OUTGOING) {
-            deregisterOutgoingRelationship(id, type, endNodeType);
-        } else {
-            deregisterOutgoingRelationship(id, type, endNodeType);
-            deregisterIncomingRelationship(id, type, endNodeType);
+        switch (reader.relationshipDirection()) {
+            case INCOMING:
+                deregisterIncomingRelationship(id, type, endNodeType);
+                return;
+            case OUTGOING:
+                deregisterOutgoingRelationship(id, type, endNodeType);
+                return;
+            default:
+                deregisterOutgoingRelationship(id, type, endNodeType);
+                deregisterIncomingRelationship(id, type, endNodeType);
+                return;
         }
     }
 

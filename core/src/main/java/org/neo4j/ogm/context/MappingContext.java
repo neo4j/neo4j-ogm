@@ -100,7 +100,8 @@ public class MappingContext {
         }
 
         // direct match
-        Object node = primaryIndexNodeRegister.get(new LabelPrimaryId(classInfo, id));
+        final LabelPrimaryId key = new LabelPrimaryId(classInfo, id);
+        Object node = primaryIndexNodeRegister.get(key);
         if (node != null) {
             return node;
         }

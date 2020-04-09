@@ -69,7 +69,9 @@ public class LoadByIdsDelegate extends SessionDelegate {
         }
 
         QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
-        PagingAndSortingQuery qry = queryStatements.findAllByType(labelsOrType.get(), ids, depth)
+
+        ClassInfo classInfo = session.metaData().classInfo(type.getName());
+        PagingAndSortingQuery qry = queryStatements.findAllByType(labelsOrType.get(), convertIfNeeded(classInfo, ids), depth)
             .setSortOrder(sortOrder)
             .setPagination(pagination);
 

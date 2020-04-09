@@ -19,6 +19,7 @@
 package org.neo4j.ogm.session.delegates;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.neo4j.ogm.annotation.EndNode;
@@ -34,6 +35,7 @@ import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;
 
 /**
@@ -87,6 +89,25 @@ abstract class SessionDelegate {
 
             }
         }
+    }
+
+    <X extends Object> X convertIfNeeded(ClassInfo classInfo, X id) {
+        if (classInfo.hasPrimaryIndexField() && classInfo.primaryIndexField().hasPropertyConverter()) {
+         return (X) classInfo.primaryIndexField().getPropertyConverter().toGraphProperty(id); // this is fine
+        }
+        return id;
+    }
+
+    <X extends Object> Collection<X> convertIfNeeded(ClassInfo classInfo, Collection<X> ids) {
+        if (classInfo.hasPrimaryIndexField() && classInfo.primaryIndexField().hasPropertyConverter()) {
+            final AttributeConverter propertyConverter = classInfo.primaryIndexField().getPropertyConverter();
+            List<X> convertedIds = new ArrayList<>();
+            for (X id : ids) {
+                convertedIds.add((X) propertyConverter.toGraphProperty(id));
+            }
+            return convertedIds;
+        }
+        return ids;
     }
 
     private void resolveRelationshipType(Filter filter) {

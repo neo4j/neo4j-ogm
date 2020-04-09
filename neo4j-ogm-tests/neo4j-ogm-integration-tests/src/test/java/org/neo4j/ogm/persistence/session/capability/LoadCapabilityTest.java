@@ -37,6 +37,8 @@ import org.neo4j.ogm.domain.education.DomainObject;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.gh368.User;
+import org.neo4j.ogm.domain.gh787.EntityWithCustomIdConverter;
+import org.neo4j.ogm.domain.gh787.MyVeryOwnIdType;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.Recording;
@@ -741,5 +743,31 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(allUsers)
             .extracting(User::getFirstName)
             .containsExactly("Anna", "Bob", "Charlie");
+    }
+
+    @Test // GH-787
+    public void shouldLoadSingleEntityWithCustomId() {
+        SessionFactory sf = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh787");
+        Session sessionForIdConverter = sf.openSession();
+
+        MyVeryOwnIdType id = new MyVeryOwnIdType("1234");
+        sessionForIdConverter.save(new EntityWithCustomIdConverter(id));
+
+        sessionForIdConverter.clear();
+
+        assertThat(sessionForIdConverter.load(EntityWithCustomIdConverter.class, id)).isNotNull();
+    }
+
+    @Test // GH-787
+    public void shouldLoadMultipleEntitiesWithCustomId() {
+        SessionFactory sf = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh787");
+        Session sessionForIdConverter = sf.openSession();
+
+        MyVeryOwnIdType id = new MyVeryOwnIdType("1234");
+        sessionForIdConverter.save(new EntityWithCustomIdConverter(id));
+
+        sessionForIdConverter.clear();
+
+        assertThat(sessionForIdConverter.loadAll(EntityWithCustomIdConverter.class, Collections.singleton(id))).hasSize(1);
     }
 }

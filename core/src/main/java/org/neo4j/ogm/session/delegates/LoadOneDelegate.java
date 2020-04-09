@@ -79,7 +79,8 @@ public class LoadOneDelegate extends SessionDelegate {
         }
 
         QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
-        PagingAndSortingQuery qry = queryStatements.findOneByType(labelsOrType.get(), id, depth);
+
+        PagingAndSortingQuery qry = queryStatements.findOneByType(labelsOrType.get(), convertIfNeeded(classInfo, id), depth);
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
 

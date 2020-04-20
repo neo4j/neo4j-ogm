@@ -23,6 +23,8 @@ import static java.util.Objects.*;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
@@ -63,23 +65,41 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
         return findOneByType("", id, depth);
     }
 
+    private String computePrimaryIndexToUse(ID id) {
+
+        String primaryIndexToUse = primaryIndex;
+        if (id != null && id instanceof Map) {
+            primaryIndexToUse = ((Map<String, Object>) id).keySet().stream().collect(Collectors.joining(","));
+        }
+        return primaryIndexToUse;
+    }
+
     @Override
     public PagingAndSortingQuery findOneByType(String label, ID id, int depth) {
+
+        String primaryIndexToUse = computePrimaryIndexToUse(id);
+
         String matchClause;
         if (primaryIndex != null) {
-            matchClause = idMatchClauseBuilder.build(label, primaryIndex);
+            matchClause = idMatchClauseBuilder.build(label, primaryIndexToUse);
         } else {
             matchClause = idMatchClauseBuilder.build(label);
         }
         String returnClause = loadClauseBuilder.build(label, depth);
-        return new PagingAndSortingQuery(matchClause, returnClause, Collections.singletonMap("id", id), depth != 0, false);
+        return new PagingAndSortingQuery(matchClause, returnClause, Collections.singletonMap("id", id), depth != 0,
+            false);
     }
 
     @Override
     public PagingAndSortingQuery findAllByType(String label, Collection<ID> ids, int depth) {
+
+        // We assume maps with the same keys for all ids if this is a composite. Otherwise
+        // this method would not make sense for a composite key.
+        String primaryIndexToUse = computePrimaryIndexToUse(ids.isEmpty() ? null : ids.iterator().next());
+
         String matchClause;
         if (primaryIndex != null) {
-            matchClause = idCollectionMatchClauseBuilder.build(label, primaryIndex);
+            matchClause = idCollectionMatchClauseBuilder.build(label, primaryIndexToUse);
         } else {
             matchClause = idCollectionMatchClauseBuilder.build(label);
         }

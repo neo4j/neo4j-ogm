@@ -21,6 +21,7 @@ package org.neo4j.ogm.cypher.compiler.builders.statement;
 import static java.util.stream.Collectors.*;
 import static org.neo4j.ogm.cypher.compiler.builders.statement.OptimisticLockingUtils.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,8 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
 
             queryBuilder.append("UNWIND $rows as row ");
 
-            if (firstNode.getPrimaryIndex() != null) {
+            boolean hasPrimaryIndex = firstNode.getPrimaryIndex() != null;
+            if (hasPrimaryIndex) {
                 queryBuilder.append("MERGE (n");
             } else {
                 queryBuilder.append("CREATE (n");
@@ -69,16 +71,15 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
                 queryBuilder.append(":`").append(label).append("`");
             }
 
-            if (firstNode.getPrimaryIndex() != null) {
-                queryBuilder.append("{")
-                    .append(firstNode.getPrimaryIndex())
-                    .append(": row.props.")
-                    .append(firstNode.getPrimaryIndex())
-                    .append("}");
+            if (hasPrimaryIndex) {
+                String propertiesToMergeOn = Arrays.stream(firstNode.getPrimaryIndex().split(","))
+                    .map(p -> p + ": row.props." + p)
+                    .collect(joining(",", "{", "}"));
+                queryBuilder.append(propertiesToMergeOn);
             }
             queryBuilder.append(") "); // Closing MERGE or CREATE
 
-            if (firstNode.hasVersionProperty() && firstNode.getPrimaryIndex() != null) {
+            if (firstNode.hasVersionProperty() && hasPrimaryIndex) {
                 queryBuilder.append(getFragmentForNewOrExistingNodes(firstNode, "n"));
             }
 

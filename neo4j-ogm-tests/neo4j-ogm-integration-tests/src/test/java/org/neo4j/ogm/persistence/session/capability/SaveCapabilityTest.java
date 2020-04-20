@@ -22,6 +22,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +33,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.cypher.compiler.CompileContext;
+import org.neo4j.ogm.domain.gh787.EntityWithCustomIdConverter;
+import org.neo4j.ogm.domain.gh787.MyVeryOwnIdType;
+import org.neo4j.ogm.domain.gh789.Entity;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.Recording;
@@ -42,6 +47,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class SaveCapabilityTest extends TestContainersTestBase {
 
@@ -52,7 +58,8 @@ public class SaveCapabilityTest extends TestContainersTestBase {
 
     @Before
     public void init() throws IOException {
-        SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
+        SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music",
+            "org.neo4j.ogm.domain.gh787", "org.neo4j.ogm.domain.gh789");
         session = sessionFactory.openSession();
         session.purgeDatabase();
         aerosmith = new Artist("Aerosmith");
@@ -65,10 +72,7 @@ public class SaveCapabilityTest extends TestContainersTestBase {
         session.purgeDatabase();
     }
 
-    /**
-     * @see Issue #84
-     */
-    @Test
+    @Test // GH-84
     public void saveCollectionShouldSaveLists() {
         Album nineLives = new Album("Nine Lives");
         aerosmith.addAlbum(nineLives);
@@ -81,10 +85,7 @@ public class SaveCapabilityTest extends TestContainersTestBase {
         assertThat(session.countEntitiesOfType(Album.class)).isEqualTo(2);
     }
 
-    /**
-     * @see Issue #84
-     */
-    @Test
+    @Test // GH-84
     public void saveCollectionShouldSaveSets() {
         Set<Artist> artists = new HashSet<>();
         artists.add(aerosmith);
@@ -95,10 +96,7 @@ public class SaveCapabilityTest extends TestContainersTestBase {
         assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(3);
     }
 
-    /**
-     * @see Issue #84
-     */
-    @Test
+    @Test // GH-84
     public void saveCollectionShouldSaveArrays() {
         Artist[] artists = new Artist[] { aerosmith, bonJovi, defLeppard };
         session.save(artists);
@@ -186,5 +184,46 @@ public class SaveCapabilityTest extends TestContainersTestBase {
         session.save(recording2);
 
         assertThat(session.countEntitiesOfType(Recording.class)).isEqualTo(2);
+    }
+
+    @Test // GH-789
+    public void saveWithCustomKeyConverterShouldWork() {
+
+        EntityWithCustomIdConverter entity = new EntityWithCustomIdConverter(new MyVeryOwnIdType("asd"));
+        session.save(entity);
+        session.clear();
+
+        // Should be retrievable as well
+        entity = session.load(EntityWithCustomIdConverter.class, entity.getKey());
+        assertThat(entity).isNotNull();
+    }
+
+    @Test // GH-789
+    public void safeWithCompositeKey() {
+
+        Entity entity = Entity.from("first", "second");
+
+        session.save(entity);
+        session.clear();
+
+        // Should be retrievable
+        entity = session.load(Entity.class, entity.getKey());
+        session.clear();
+        assertThat(entity).isNotNull();
+        assertThat(entity.getKey()).isNotNull();
+
+        // Also in a collection
+        Collection<Entity> entities = session.loadAll(Entity.class, Collections.singletonList(entity.getKey()));
+        session.clear();
+        assertThat(entities).hasSize(1);
+
+        // Also needs to be updateble
+        entity = entities.iterator().next();
+        entity.setSome("Some value");
+        session.save(entity);
+        session.clear();
+
+        entity = session.load(Entity.class, entity.getKey());
+        assertThat(entity.getSome()).isEqualTo("Some value");
     }
 }

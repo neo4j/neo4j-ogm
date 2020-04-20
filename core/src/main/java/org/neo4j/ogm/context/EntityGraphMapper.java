@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Relationship.Direction;
@@ -330,8 +331,18 @@ public class EntityGraphMapper implements EntityMapper {
         Long id = mappingContext.nativeId(entity);
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
-        final String primaryIndex =
-            classInfo.primaryIndexField() != null ? classInfo.primaryIndexField().property() : null;
+        FieldInfo primaryIndexField = classInfo.primaryIndexField();
+        String primaryIndex = null;
+        if (primaryIndexField != null) {
+            if (primaryIndexField.hasCompositeConverter()) {
+                // This is fine. There is no other way to get the composite primary index into the new node builder
+                // without changing the api once again.
+                Map<String, ?> convertedIndex = primaryIndexField.readComposite(entity);
+                primaryIndex = convertedIndex.keySet().stream().collect(Collectors.joining(","));
+            } else {
+                primaryIndex = primaryIndexField.property();
+            }
+        }
 
         NodeBuilder nodeBuilder;
         if (id < 0) {

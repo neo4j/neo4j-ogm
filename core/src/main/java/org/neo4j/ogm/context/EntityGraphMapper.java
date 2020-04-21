@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.context;
 
+import static org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements.*;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,7 +27,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Relationship.Direction;
@@ -331,17 +332,11 @@ public class EntityGraphMapper implements EntityMapper {
         Long id = mappingContext.nativeId(entity);
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
-        FieldInfo primaryIndexField = classInfo.primaryIndexField();
         String primaryIndex = null;
-        if (primaryIndexField != null) {
-            if (primaryIndexField.hasCompositeConverter()) {
-                // This is fine. There is no other way to get the composite primary index into the new node builder
-                // without changing the api once again.
-                Map<String, ?> convertedIndex = primaryIndexField.readComposite(entity);
-                primaryIndex = convertedIndex.keySet().stream().collect(Collectors.joining(","));
-            } else {
-                primaryIndex = primaryIndexField.property();
-            }
+        if (classInfo.hasPrimaryIndexField()) {
+            FieldInfo primaryIndexField = classInfo.primaryIndexField();
+            primaryIndex = joinPrimaryIndexAttributesIfNecessary(primaryIndexField.property(),
+                primaryIndexField.hasCompositeConverter() ? primaryIndexField.readComposite(entity) : null);
         }
 
         NodeBuilder nodeBuilder;

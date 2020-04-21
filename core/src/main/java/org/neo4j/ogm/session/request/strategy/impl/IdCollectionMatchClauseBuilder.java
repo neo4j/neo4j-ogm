@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import static org.neo4j.ogm.session.request.strategy.impl.IdMatchClauseBuilder.*;
+import static org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements.*;
 
 import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
 
@@ -35,7 +35,7 @@ public class IdCollectionMatchClauseBuilder implements MatchClauseBuilder {
     @Override
     public String build(String label, String property) {
 
-        String propertiesToMatchOn = computePropertiesToMatchOn(property);
+        String propertiesToMatchOn = splitPrimaryIndexAttributes(property);
         return "MATCH (n:`" + label + "`) WHERE " + propertiesToMatchOn + " IN $ids WITH n";
     }
 }

@@ -18,8 +18,7 @@
  */
 package org.neo4j.ogm.session.request.strategy.impl;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import static org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements.*;
 
 import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
 
@@ -41,22 +40,11 @@ public class IdMatchClauseBuilder implements MatchClauseBuilder {
     @Override
     public String build(String label, String property) {
 
-        String propertiesToMatchOn = computePropertiesToMatchOn(property);
+        String propertiesToMatchOn = splitPrimaryIndexAttributes(property);
         if (label == null || label.isEmpty()) {
             return "MATCH (n) WHERE " + propertiesToMatchOn + " = $id WITH n";
         } else {
             return "MATCH (n:`" + label + "`) WHERE " + propertiesToMatchOn + " = $id WITH n";
-        }
-    }
-
-    static String computePropertiesToMatchOn(String property) {
-
-        if (property.contains(",")) {
-            return Arrays.stream(property.split(","))
-                .map(p -> "`" + p + "`: n.`" + p + "`")
-                .collect(Collectors.joining(",", "{", "}"));
-        } else {
-            return  "n.`" + property + "`";
         }
     }
 }

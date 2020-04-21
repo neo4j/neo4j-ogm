@@ -19,8 +19,10 @@
 package org.neo4j.ogm.session.request.strategy.impl;
 
 import static java.util.Objects.*;
+import static java.util.stream.Collectors.*;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -43,6 +45,51 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  */
 public class NodeQueryStatements<ID extends Serializable> implements QueryStatements<ID> {
 
+    /**
+     * Some arbitrary characters that hopefully are not used in a {@link org.neo4j.ogm.annotation.Property @Property}.
+     * We use them to separate the properties in composite primary keys when passing them through the existing API.
+     * This constant is not to be used outside OGM.
+     */
+    public static final String PROPERTY_SEPARATOR = "4f392f2f-24b6-4f83-a474-b942a77cd01a";
+
+    /**
+     * This method concatenates the keys of an id into one string in case the id is a map, aka a composite key.
+     * <p>
+     * This method is the obverse of {@link #splitPrimaryIndexAttributes(String)}
+     *
+     * @param defaultPrimaryIndex The default primary index to use (the one applicable when the id is not a composite key)
+     * @param id                  The actual id
+     * @return The concatenated keys or the default, primary index to use
+     * (the name of the property annotated with {@link org.neo4j.ogm.annotation.Id @Id}
+     * or {@link org.neo4j.ogm.annotation.Index @Index}.
+     */
+    public static String joinPrimaryIndexAttributesIfNecessary(String defaultPrimaryIndex, Object id) {
+
+        String primaryIndexToUse = defaultPrimaryIndex;
+        if (id != null && id instanceof Map) {
+            primaryIndexToUse = ((Map<String, Object>) id).keySet().stream()
+                .collect(joining(PROPERTY_SEPARATOR));
+        }
+        return primaryIndexToUse;
+    }
+
+    /**
+     * This joins properties separated by {@link #PROPERTY_SEPARATOR} into a literal map to be used to match on..
+     *
+     * @param property The property that may contain multiple, separated properties.
+     * @return A literal map or a single property reference
+     */
+    public static String splitPrimaryIndexAttributes(String property) {
+
+        if (property.contains(PROPERTY_SEPARATOR)) {
+            return Arrays.stream(property.split(PROPERTY_SEPARATOR))
+                .map(p -> "`" + p + "`: n.`" + p + "`")
+                .collect(Collectors.joining(",", "{", "}"));
+        } else {
+            return "n.`" + property + "`";
+        }
+    }
+
     private final String primaryIndex;
 
     private final MatchClauseBuilder idMatchClauseBuilder = new IdMatchClauseBuilder();
@@ -50,6 +97,7 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
     private final MatchClauseBuilder labelMatchClauseBuilder = new LabelMatchClauseBuilder();
 
     private final LoadClauseBuilder loadClauseBuilder;
+
 
     public NodeQueryStatements() {
         this(null, new PathNodeLoadClauseBuilder());
@@ -65,19 +113,10 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
         return findOneByType("", id, depth);
     }
 
-    private String computePrimaryIndexToUse(ID id) {
-
-        String primaryIndexToUse = primaryIndex;
-        if (id != null && id instanceof Map) {
-            primaryIndexToUse = ((Map<String, Object>) id).keySet().stream().collect(Collectors.joining(","));
-        }
-        return primaryIndexToUse;
-    }
-
     @Override
     public PagingAndSortingQuery findOneByType(String label, ID id, int depth) {
 
-        String primaryIndexToUse = computePrimaryIndexToUse(id);
+        String primaryIndexToUse = joinPrimaryIndexAttributesIfNecessary(primaryIndex, id);
 
         String matchClause;
         if (primaryIndex != null) {
@@ -95,7 +134,10 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
 
         // We assume maps with the same keys for all ids if this is a composite. Otherwise
         // this method would not make sense for a composite key.
-        String primaryIndexToUse = computePrimaryIndexToUse(ids.isEmpty() ? null : ids.iterator().next());
+        String primaryIndexToUse = joinPrimaryIndexAttributesIfNecessary(
+            primaryIndex,
+            ids.isEmpty() ? null : ids.iterator().next()
+        );
 
         String matchClause;
         if (primaryIndex != null) {
@@ -103,8 +145,10 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
         } else {
             matchClause = idCollectionMatchClauseBuilder.build(label);
         }
+
         String returnClause = loadClauseBuilder.build(label, depth);
-        return new PagingAndSortingQuery(matchClause, returnClause, Collections.singletonMap("ids", ids), depth != 0, false);
+        return new PagingAndSortingQuery(
+            matchClause, returnClause, Collections.singletonMap("ids", ids), depth != 0, false);
     }
 
     @Override

@@ -20,6 +20,7 @@ package org.neo4j.ogm.cypher.compiler.builders.statement;
 
 import static java.util.stream.Collectors.*;
 import static org.neo4j.ogm.cypher.compiler.builders.statement.OptimisticLockingUtils.*;
+import static org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -72,7 +73,7 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
             }
 
             if (hasPrimaryIndex) {
-                String propertiesToMergeOn = Arrays.stream(firstNode.getPrimaryIndex().split(","))
+                String propertiesToMergeOn = Arrays.stream(firstNode.getPrimaryIndex().split(PROPERTY_SEPARATOR))
                     .map(p -> p + ": row.props." + p)
                     .collect(joining(",", "{", "}"));
                 queryBuilder.append(propertiesToMergeOn);

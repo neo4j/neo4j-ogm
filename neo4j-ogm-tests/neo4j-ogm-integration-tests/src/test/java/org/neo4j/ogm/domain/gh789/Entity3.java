@@ -20,6 +20,7 @@ package org.neo4j.ogm.domain.gh789;
 
 import org.neo4j.ogm.annotation.CompositeIndex;
 import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
@@ -27,23 +28,23 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
  * @author Michael J. Simons
  */
 @NodeEntity
-@CompositeIndex(properties = { "key.first", "key.second" }, unique = true)
-public class Entity {
+public class Entity3 {
 
     @Id
+    @Index(unique = true)
     @Convert(KeyConverter.class)
     private Key key;
     private String some;
 
-    public static Entity from(final String first, final String second) {
-        return new Entity(Key.build(first, second));
+    public static Entity3 from(final String first, final String second) {
+        return new Entity3(Key.build(first, second));
     }
 
-    private Entity(Key key) {
+    private Entity3(Key key) {
         this.key = key;
     }
 
-    public Entity() {
+    public Entity3() {
     }
 
     public Key getKey() {

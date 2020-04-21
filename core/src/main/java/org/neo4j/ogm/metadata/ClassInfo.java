@@ -806,7 +806,7 @@ public class ClassInfo {
      * @return If this class contains any fields/properties annotated with @Index.
      */
     public boolean containsIndexes() {
-        return !getIndexFields().isEmpty() || !getCompositeIndexes().isEmpty();
+        return !(getIndexFields().isEmpty() && getCompositeIndexes().isEmpty());
     }
 
     /**

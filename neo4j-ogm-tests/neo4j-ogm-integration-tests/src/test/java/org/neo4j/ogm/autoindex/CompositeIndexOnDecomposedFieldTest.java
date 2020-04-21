@@ -75,7 +75,9 @@ public class CompositeIndexOnDecomposedFieldTest extends TestContainersTestBase 
     }
 
     private static long countIndexes(Session session, String primaryLabel) {
-        return session.queryForObject(Long.class, "CALL db.indexes() YIELD labelsOrTypes, properties \n"
+
+        String labelsOrTypes = isVersionOrGreater("4.0.0") ? "labelsOrTypes" : "tokenNames";
+        return session.queryForObject(Long.class, "CALL db.indexes() YIELD " + labelsOrTypes + " AS labelsOrTypes, properties \n"
             + "WHERE labelsOrTypes = [$label]\n"
             + "UNWIND properties AS p\n"
             + "WITH p\n"

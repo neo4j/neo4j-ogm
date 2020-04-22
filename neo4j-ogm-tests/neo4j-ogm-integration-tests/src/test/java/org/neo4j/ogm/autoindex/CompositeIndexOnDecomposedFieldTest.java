@@ -23,6 +23,7 @@ import static org.junit.Assume.*;
 
 import java.util.Collections;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.config.AutoIndexMode;
@@ -74,13 +75,30 @@ public class CompositeIndexOnDecomposedFieldTest extends TestContainersTestBase 
         assertThat(countIndexes(sessionFactory.openSession(), "Entity3")).isEqualTo(0L);
     }
 
+    /**
+     * It appears that the index tests are somewhat interdependent, especially on embedded. Indexes created through
+     * this tests make a couple of other tests, for example the {@link NodeKeyConstraintIndexAutoIndexManagerTest} fail.
+     * The easiest solution to get rid of the indexes created here and <strong>not</strong> involving inheriting
+     * {@link BaseAutoIndexManagerTestClass} is to scan a non existing package so that no entities are found and than
+     * run the index manager in assert mode.
+     */
+    @AfterClass
+    public static void tearDown() {
+
+        SessionFactory sessionFactory = new SessionFactory(getDriver(),
+            "org.neo4j.ogm.domain.gh789.non_existing_package");
+        Configuration configuration = new Configuration.Builder().autoIndex(AutoIndexMode.ASSERT.getName()).build();
+        sessionFactory.runAutoIndexManager(configuration);
+    }
+
     private static long countIndexes(Session session, String primaryLabel) {
 
         String labelsOrTypes = isVersionOrGreater("4.0.0") ? "labelsOrTypes" : "tokenNames";
-        return session.queryForObject(Long.class, "CALL db.indexes() YIELD " + labelsOrTypes + " AS labelsOrTypes, properties \n"
-            + "WHERE labelsOrTypes = [$label]\n"
-            + "UNWIND properties AS p\n"
-            + "WITH p\n"
-            + "RETURN COUNT(p) as cnt", Collections.singletonMap("label", primaryLabel));
+        return session
+            .queryForObject(Long.class, "CALL db.indexes() YIELD " + labelsOrTypes + " AS labelsOrTypes, properties \n"
+                + "WHERE labelsOrTypes = [$label]\n"
+                + "UNWIND properties AS p\n"
+                + "WITH p\n"
+                + "RETURN COUNT(p) as cnt", Collections.singletonMap("label", primaryLabel));
     }
 }

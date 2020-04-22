@@ -28,10 +28,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.annotation.Relationship.Direction;
+import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.exception.core.InvalidPropertyFieldException;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -804,7 +806,7 @@ public class ClassInfo {
      * @return If this class contains any fields/properties annotated with @Index.
      */
     public boolean containsIndexes() {
-        return !getIndexFields().isEmpty() || !getCompositeIndexes().isEmpty();
+        return !(getIndexFields().isEmpty() && getCompositeIndexes().isEmpty());
     }
 
     /**
@@ -869,6 +871,12 @@ public class ClassInfo {
             }
 
             for (String property : properties) {
+                // Determine the original field in case the user uses a MapCompositeConverter.
+                Matcher m = AutoIndexManager.COMPOSITE_KEY_MAP_COMPOSITE_PATTERN.matcher(property);
+                if (m.matches()) {
+                    property = m.group(1);
+                }
+
                 FieldInfo fieldInfo = propertyFields.get(property);
                 if (fieldInfo == null) {
                     throw new MetadataException("Incorrect CompositeIndex definition on " + className + ". Property " +

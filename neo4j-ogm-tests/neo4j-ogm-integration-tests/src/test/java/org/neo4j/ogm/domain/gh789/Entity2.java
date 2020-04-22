@@ -16,26 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.session.request.strategy.impl;
+package org.neo4j.ogm.domain.gh789;
 
-import static org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements.*;
-
-import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
+import org.neo4j.ogm.annotation.CompositeIndex;
+import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.Index;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
- * @author Frantisek Hartman
  * @author Michael J. Simons
  */
-public class IdCollectionMatchClauseBuilder implements MatchClauseBuilder {
-    @Override
-    public String build(String label) {
-        return "MATCH (n:`" + label + "`) WHERE ID(n) IN $ids WITH n";
-    }
+@NodeEntity
+@CompositeIndex(properties = { "key.first", "key.second" }, unique = true)
+public class Entity2 {
 
-    @Override
-    public String build(String label, String property) {
+    @Id
+    private String theRealPrimaryKey;
 
-        String propertiesToMatchOn = splitPrimaryIndexAttributes(property);
-        return "MATCH (n:`" + label + "`) WHERE " + propertiesToMatchOn + " IN $ids WITH n";
-    }
+    @Index
+    private String justAnotherBrickInTheWall;
+
+    @Convert(KeyConverter.class)
+    private Key key;
+    private String some;
 }

@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.context;
 
+import static org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements.*;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -330,8 +332,12 @@ public class EntityGraphMapper implements EntityMapper {
         Long id = mappingContext.nativeId(entity);
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
-        final String primaryIndex =
-            classInfo.primaryIndexField() != null ? classInfo.primaryIndexField().property() : null;
+        String primaryIndex = null;
+        if (classInfo.hasPrimaryIndexField()) {
+            FieldInfo primaryIndexField = classInfo.primaryIndexField();
+            primaryIndex = joinPrimaryIndexAttributesIfNecessary(primaryIndexField.property(),
+                primaryIndexField.hasCompositeConverter() ? primaryIndexField.readComposite(entity) : null);
+        }
 
         NodeBuilder nodeBuilder;
         if (id < 0) {

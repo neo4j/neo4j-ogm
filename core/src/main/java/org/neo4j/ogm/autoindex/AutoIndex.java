@@ -26,6 +26,7 @@ import static org.neo4j.ogm.autoindex.IndexType.*;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -348,24 +349,16 @@ class AutoIndex {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         AutoIndex autoIndex = (AutoIndex) o;
-
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(properties, autoIndex.properties)) {
-            return false;
-        }
-        if (!owningType.equals(autoIndex.owningType)) {
-            return false;
-        }
-        return type == autoIndex.type;
+        return Arrays.equals(properties, autoIndex.properties) &&
+            owningType.equals(autoIndex.owningType) &&
+            type == autoIndex.type;
     }
 
     @Override
     public int hashCode() {
-        int result = Arrays.hashCode(properties);
-        result = 31 * result + owningType.hashCode();
-        result = 31 * result + type.hashCode();
+        int result = Objects.hash(owningType, type);
+        result = 31 * result + Arrays.hashCode(properties);
         return result;
     }
 

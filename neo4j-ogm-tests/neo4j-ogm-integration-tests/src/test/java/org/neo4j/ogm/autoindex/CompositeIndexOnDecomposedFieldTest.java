@@ -43,8 +43,8 @@ public class CompositeIndexOnDecomposedFieldTest extends TestContainersTestBase 
         assumeTrue("This test uses composite index and node key constraint and can only be run on enterprise edition",
             useEnterpriseEdition());
 
-        assumeTrue("This tests uses composite index and can only be run on Neo4j 3.2.0 and later",
-            isVersionOrGreater("3.2.0"));
+        assumeTrue("This test uses db.indexes() which does not contain all required information prior to 3.3",
+            isVersionOrGreater("3.3"));
     }
 
     @Test // GH-789
@@ -96,8 +96,8 @@ public class CompositeIndexOnDecomposedFieldTest extends TestContainersTestBase 
     private static long countIndexes(Session session, String primaryLabel) {
 
         String query;
-        if (isVersionOrGreater("3.5.0")) {
-            String labelsOrTypes = isVersionOrGreater("4.0.0") ? "labelsOrTypes" : "tokenNames";
+        if (isVersionOrGreater("3.5")) {
+            String labelsOrTypes = isVersionOrGreater("4.0") ? "labelsOrTypes" : "tokenNames";
             query = "CALL db.indexes() YIELD " + labelsOrTypes + " AS labelsOrTypes, properties \n"
                 + "WHERE labelsOrTypes = [$label]\n"
                 + "UNWIND properties AS p\n"

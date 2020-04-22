@@ -96,7 +96,7 @@ public class CompositeIndexOnDecomposedFieldTest extends TestContainersTestBase 
     private static long countIndexes(Session session, String primaryLabel) {
 
         String query;
-        if (isVersionOrGreater("3.3")) {
+        if (isVersionOrGreater("3.4")) {
             String labelsOrTypes = isVersionOrGreater("4.0") ? "labelsOrTypes" : "tokenNames";
             query = "CALL db.indexes() YIELD " + labelsOrTypes + " AS labelsOrTypes, properties \n"
                 + "WHERE labelsOrTypes = [$label]\n"

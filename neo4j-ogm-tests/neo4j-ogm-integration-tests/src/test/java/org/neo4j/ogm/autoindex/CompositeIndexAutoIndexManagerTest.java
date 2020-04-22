@@ -54,8 +54,8 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
         assumeTrue("This test uses composite index and node key constraint and can only be run on enterprise edition",
             useEnterpriseEdition());
 
-        assumeTrue("This tests uses composite index and can only be run on Neo4j 3.2.0 and later",
-            isVersionOrGreater("3.2.0"));
+        assumeTrue("This test uses db.indexes() which does not contain all required information prior to 3.3",
+            isVersionOrGreater("3.3"));
     }
 
     @Override
@@ -66,7 +66,6 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
 
     @Test
     public void testAutoIndexManagerUpdateConstraintChangedToIndex() {
-        assumeTrue(isVersionOrGreater("3.3"));
         executeCreate(CONSTRAINT);
 
         runAutoIndex("update");
@@ -80,7 +79,6 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
 
     @Test
     public void testMultipleCompositeIndexAnnotations() {
-        assumeTrue(isVersionOrGreater("3.3"));
         try {
             runAutoIndex("update");
             executeForIndexes(indexes ->

@@ -16,26 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.session.request.strategy.impl;
+package org.neo4j.ogm.domain.gh789;
 
-import static org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
+import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 
 /**
- * @author Frantisek Hartman
  * @author Michael J. Simons
  */
-public class IdCollectionMatchClauseBuilder implements MatchClauseBuilder {
+public class KeyConverter implements CompositeAttributeConverter<Key> {
+
     @Override
-    public String build(String label) {
-        return "MATCH (n:`" + label + "`) WHERE ID(n) IN $ids WITH n";
+    public Map<String, String> toGraphProperties(Key value) {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("first", value.getFirst());
+        properties.put("second", value.getSecond());
+        return properties;
     }
 
     @Override
-    public String build(String label, String property) {
-
-        String propertiesToMatchOn = splitPrimaryIndexAttributes(property);
-        return "MATCH (n:`" + label + "`) WHERE " + propertiesToMatchOn + " IN $ids WITH n";
+    public Key toEntityAttribute(Map<String, ?> value) {
+        String first = (String) value.get("first");
+        String second = (String) value.get("second");
+        return Key.build(first, second);
     }
 }

@@ -21,6 +21,8 @@ package org.neo4j.ogm.session.delegates;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
@@ -34,7 +36,6 @@ import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;
 
 /**
@@ -91,20 +92,28 @@ abstract class SessionDelegate {
     }
 
     <X extends Object> X convertIfNeeded(ClassInfo classInfo, X id) {
-        if (classInfo.hasPrimaryIndexField() && classInfo.primaryIndexField().hasPropertyConverter()) {
-         return (X) classInfo.primaryIndexField().getPropertyConverter().toGraphProperty(id); // this is fine
+        if (classInfo.hasPrimaryIndexField()) {
+            FieldInfo primaryIndexField = classInfo.primaryIndexField();
+            if (primaryIndexField.hasPropertyConverter()) {
+                return (X) primaryIndexField.getPropertyConverter().toGraphProperty(id); // this is fine
+            } else if (primaryIndexField.hasCompositeConverter()) {
+                return (X) primaryIndexField.getCompositeConverter().toGraphProperties(id); // this as well
+            }
         }
         return id;
     }
 
     <X extends Object> Collection<X> convertIfNeeded(ClassInfo classInfo, Collection<X> ids) {
-        if (classInfo.hasPrimaryIndexField() && classInfo.primaryIndexField().hasPropertyConverter()) {
-            final AttributeConverter propertyConverter = classInfo.primaryIndexField().getPropertyConverter();
-            List<X> convertedIds = new ArrayList<>();
-            for (X id : ids) {
-                convertedIds.add((X) propertyConverter.toGraphProperty(id));
+        if (classInfo.hasPrimaryIndexField()) {
+            Function<Object, Object> converter = null;
+            if (classInfo.primaryIndexField().hasPropertyConverter()) {
+                converter = classInfo.primaryIndexField().getPropertyConverter()::toGraphProperty;
+            } else if (classInfo.primaryIndexField().hasCompositeConverter()) {
+                converter = classInfo.primaryIndexField().getCompositeConverter()::toGraphProperties;
             }
-            return convertedIds;
+            if (converter != null) {
+                return ids.stream().map(converter).map(v -> (X) v).collect(Collectors.toList());
+            }
         }
         return ids;
     }

@@ -246,24 +246,20 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         Artist pinkFloyd = new Artist("Pink Floyd");
         assertThat(context.isDirty(pinkFloyd)).isTrue();     // new object not saved is always dirty
 
-        //System.out.println("saving new object: pinkFloyd");
         session.save(pinkFloyd);
         assertThat(context.isDirty(pinkFloyd)).isFalse();    // object hash updated by save.
 
         session.clear();                            // forget everything we've done
 
-        //System.out.println("reloading object: pinkFloyd");
         pinkFloyd = session.load(Artist.class, pinkFloyd.getId());
         assertThat(context.isDirty(pinkFloyd)).isFalse();    // a freshly loaded object is never dirty
 
         pinkFloyd.setName("Purple Floyd");
         assertThat(context.isDirty(pinkFloyd)).isTrue();     // we changed the name so it is now dirty
 
-        //System.out.println("saving changed object: pinkFloyd->purpleFloyd");
         session.save(pinkFloyd);
         assertThat(context.isDirty(pinkFloyd)).isFalse();    // object saved, no longer dirty
 
-        //System.out.println("reloading object: purpleFloyd");
         Artist purpleFloyd = session.load(Artist.class, pinkFloyd.getId()); // load the same identity, but to a copy ref
         assertThat(context.isDirty(purpleFloyd)).isFalse();  // nothing has changed, so it should not be dirty
 
@@ -285,24 +281,20 @@ public class LoadCapabilityTest extends TestContainersTestBase {
 
         assertThat(context.isDirty(recording)).isTrue();     // new object not saved is always dirty
 
-        //System.out.println("saving new object: recording");
         session.save(recording);
         assertThat(context.isDirty(recording)).isFalse();    // object hash updated by save.
 
         session.clear();                            // forget everything we've done
 
-        //System.out.println("reloading object: recording");
         recording = session.load(Recording.class, recording.getId(), 2);
         assertThat(context.isDirty(recording)).isFalse();    // a freshly loaded object is never dirty
 
         recording.setYear(1995);
         assertThat(context.isDirty(recording)).isTrue();     // we changed the year so it is now dirty
 
-        //System.out.println("saving changed recording year: 1994->1995");
         session.save(recording);
         assertThat(context.isDirty(recording)).isFalse();    // object saved, no longer dirty
 
-        //System.out.println("reloading recording as recording1995");
         Recording recording1995 = session
             .load(Recording.class, recording.getId(), 2); // load the same identity, but to a copy ref
         assertThat(context.isDirty(recording1995)).isFalse();  // nothing has changed, so it should not be dirty

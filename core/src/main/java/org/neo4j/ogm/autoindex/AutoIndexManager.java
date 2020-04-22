@@ -27,9 +27,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.neo4j.ogm.annotation.CompositeIndex;
 import org.neo4j.ogm.config.AutoIndexMode;
@@ -55,6 +60,11 @@ import org.slf4j.LoggerFactory;
  * @author Gerrit Meier
  */
 public class AutoIndexManager {
+
+    /**
+     * This pattern is used to detect composite keys on attributes that are converted to a map.
+     */
+    public static final Pattern COMPOSITE_KEY_MAP_COMPOSITE_PATTERN = Pattern.compile("(.+)\\.(.+)");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoIndexManager.class);
 
@@ -252,19 +262,46 @@ public class AutoIndexManager {
             final String owningType = classInfo.neo4jName();
 
             if (needsToBeIndexed(classInfo)) {
-                for (FieldInfo fieldInfo : getIndexFields(classInfo)) {
-                    IndexType type = fieldInfo.isConstraint() ? IndexType.UNIQUE_CONSTRAINT : IndexType.SINGLE_INDEX;
-                    final AutoIndex autoIndex = new AutoIndex(type, owningType,
-                        new String[] { fieldInfo.property() });
-                    LOGGER.debug("Adding Index [description={}]", autoIndex);
+
+                // We build the composite index first, to find out whether an @Id or @Index annotated field
+                // is actually decomposed by a MapCompositeConverter AND has a defined composite index.
+                Set<String> decomposedFields = new HashSet<>();
+                for (CompositeIndex index : classInfo.getCompositeIndexes()) {
+                    IndexType type = index.unique() ? IndexType.NODE_KEY_CONSTRAINT : IndexType.COMPOSITE_INDEX;
+                    List<String> properties = new ArrayList<>();
+                    Stream.of(index.value().length > 0 ? index.value() : index.properties())
+                        .forEach(p -> {
+                            Matcher m = COMPOSITE_KEY_MAP_COMPOSITE_PATTERN.matcher(p);
+                            if (m.matches()) {
+                                decomposedFields.add(m.group(1));
+                                properties.add(m.group(2));
+                            } else {
+                                properties.add(p);
+                            }
+                        });
+                    AutoIndex autoIndex = new AutoIndex(type, owningType,
+                        properties.toArray(new String[properties.size()]));
+                    LOGGER.debug("Adding composite index [description={}]", autoIndex);
                     indexMetadata.add(autoIndex);
                 }
 
-                for (CompositeIndex index : classInfo.getCompositeIndexes()) {
-                    IndexType type = index.unique() ? IndexType.NODE_KEY_CONSTRAINT : IndexType.COMPOSITE_INDEX;
-                    String[] properties = index.value().length > 0 ? index.value() : index.properties();
-                    AutoIndex autoIndex = new AutoIndex(type, owningType, properties);
-                    LOGGER.debug("Adding composite index [description={}]", autoIndex);
+                for (FieldInfo fieldInfo : getIndexFields(classInfo)) {
+
+                    IndexType type = fieldInfo.isConstraint() ? IndexType.UNIQUE_CONSTRAINT : IndexType.SINGLE_INDEX;
+
+                    if (fieldInfo.hasCompositeConverter()) {
+                        if (!decomposedFields.contains(fieldInfo.getName())) {
+                            LOGGER.warn("\n"
+                                    + "The field {} of {} should be indexed with an index of type {}.\n"
+                                    + "This is not supported on a composite field (a field that is decomposed into a set of properties), no index will be created.\n"
+                                    + "Use a @CompositeIndex on the class instead and prefix the properties with `{}.`.",
+                                fieldInfo.getName(), classInfo.getUnderlyingClass(), type, fieldInfo.getName());
+                        }
+                        continue;
+                    }
+
+                    final AutoIndex autoIndex = new AutoIndex(type, owningType, new String[] { fieldInfo.property() });
+                    LOGGER.debug("Adding Index [description={}]", autoIndex);
                     indexMetadata.add(autoIndex);
                 }
             }

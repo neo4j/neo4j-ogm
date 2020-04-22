@@ -215,7 +215,7 @@ public class EntityAccessManagerTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         DummyDomainObject domainObject = new DummyDomainObject();
-        domainObject.nonAnnotatedTestProperty = new Double(30.16);
+        domainObject.nonAnnotatedTestProperty = 30.16;
 
         FieldInfo objectAccess = classInfo.getFieldInfo("nonAnnotatedTestProperty");
         assertThat(objectAccess).as("The resultant object accessor shouldn't be null").isNotNull();

@@ -135,7 +135,21 @@ public class TestContainersTestBase {
     }
 
     protected static boolean isVersionOrGreater(String requiredVersion) {
-        return version.compareTo(requiredVersion) >= 0;
+        if (version.equals(requiredVersion)) {
+            return true;
+        }
+        String[] serverVersionParts = version.split("\\.");
+        String[] requiredVersionParts = requiredVersion.split("\\.");
+        int length = Math.max(serverVersionParts.length, requiredVersionParts.length);
+
+        for(int i = 0; i < length; i++) {
+            int serverVersionPart = i < serverVersionParts.length ? Integer.parseInt(serverVersionParts[i]) : 0;
+            int requiredVersionPart = i < requiredVersionParts.length ? Integer.parseInt(requiredVersionParts[i]) : 0;
+            if(serverVersionPart < requiredVersionPart) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected static boolean isBoltDriver() {

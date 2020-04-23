@@ -1,5 +1,9 @@
 = Changes
 
+== 3.1.19
+
+* Fix return type for known entity classes in case of an empty result. (Backport of #748)
+
 == 3.1.18
 
 * Update Neo4j 3.5 to 3.5.16.

@@ -1,5 +1,16 @@
 = Changes
 
+== 3.2.11
+
+* Update ClassGraph to 4.8.72.
+* Upgrade Neo4j 3.5 to 3.5.17.
+* Support advanced Neo4j URL schemes (`bolt+s`, `bolt+ssc`, `neo4j+s`, `neo4j+ssc`). (#775)
+* Enhance Pre- and PostSave events to include the saved object's state. (#778)
+* Add additional tests for SingleUseEntityMapper. (#779)
+* Prevent NPE when 1:n relationships contains null elements. (#782)
+* Use converter for id based loading. (#787)
+* Treat composite keys correct during load and save operations. (#790)
+
 == 3.2.10
 
 * Update Java Driver to 4.0.1.

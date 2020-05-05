@@ -18,8 +18,9 @@
  */
 package org.neo4j.ogm.support;
 
-import java.util.Arrays;
+import java.lang.reflect.Array;
 import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * Utilities around collections.
@@ -43,12 +44,34 @@ public final class CollectionUtils {
         } else if (thingToIterable instanceof Iterable) {
             return ((Iterable) thingToIterable);
         } else if (thingToIterable.getClass().isArray()) {
-            return Arrays.asList((Object[]) thingToIterable);
+            return () -> new ArrayIterator(thingToIterable);
         } else {
             return Collections.singletonList(thingToIterable);
         }
     }
 
     private CollectionUtils() {
+    }
+
+    private static class ArrayIterator implements Iterator<Object> {
+        private final Object source;
+        private final int length;
+
+        private int index = 0;
+
+        private ArrayIterator(Object source) {
+            this.source = source;
+            this.length = Array.getLength(source);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return index < length;
+        }
+
+        @Override
+        public Object next() {
+            return Array.get(source, index++);
+        }
     }
 }

@@ -111,7 +111,7 @@ public class EntityAccessManager {
 
         // create the desired type of collection and use it for the merge
         Collection newCollection = createTargetCollection(parameterType,
-            mergeAndCoerce(elementType, (Collection) newValues, currentValues));
+            mergeAndCoerce(elementType, (Iterable) newValues, currentValues));
         if (newCollection != null) {
             return newCollection;
         }

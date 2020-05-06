@@ -33,6 +33,7 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.support.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,22 +80,27 @@ public class EntityAccessManager {
     public static Object merge(Class<?> parameterType, Object newValues, Collection currentValues, Class elementType) {
 
         // While we expect newValues to be an iterable, there are a couple of exceptions
-
         if (newValues != null) {
-            // 1. A primitive array cannot be cast directly to Iterable
-            newValues = boxPrimitiveArray(newValues);
+            // 1. This happens only in case of the HTTP transport, that insists of representing primitive byte arrays as
+            //    base64 encoded string
+            if ((elementType == byte.class || elementType == Byte.class) && newValues instanceof String) {
+                newValues = CollectionUtils.iterableOf(Base64.getDecoder().decode((String) newValues));
+            } else {
+                // 2. A primitive array cannot be cast directly to Iterable
+                newValues = boxPrimitiveArray(newValues);
 
-            // 2. A char[] may come in as a String or an array of String[]
-            newValues = stringToCharacterIterable(newValues, parameterType, elementType);
+                // 3. A char[] may come in as a String or an array of String[]
+                newValues = stringToCharacterIterable(newValues, parameterType, elementType);
+            }
         }
 
-        // Array needs a different cooersion and special treatment to properyl reassign the existing collection
+        // Array needs a different coercion and special treatment to properly reassign the existing collection
         if (parameterType.isArray()) {
 
             Class<?> componentType = parameterType.getComponentType();
 
             // Merge and coerce is done directly on the component type
-            Collection<Object> mergedValues = mergeAndCoerce(componentType, (Collection) newValues, currentValues);
+            Collection<Object> mergedValues = mergeAndCoerce(componentType, (Iterable) newValues, currentValues);
 
             Object targetArray = Array.newInstance(componentType, mergedValues.size());
             AtomicInteger cnt = new AtomicInteger(0);
@@ -104,7 +110,7 @@ public class EntityAccessManager {
 
         // create the desired type of collection and use it for the merge
         Collection newCollection = createTargetCollection(parameterType,
-            mergeAndCoerce(elementType, (Collection) newValues, currentValues));
+            mergeAndCoerce(elementType, (Iterable) newValues, currentValues));
         if (newCollection != null) {
             return newCollection;
         }
@@ -121,12 +127,13 @@ public class EntityAccessManager {
      * Merges and coerces two collections. The elements in right have precedence over the left, so the right collection
      * dominates the order. That is mostly due to the fact that the call stack leading here when completly hydrating new
      * collections from queries puts the freshly hydrated elements into the right.
+     *
      * @param elementType
      * @param left
      * @param right
      * @return The merged collection with no duplicates
      */
-    private static Collection<Object> mergeAndCoerce(Class elementType, Collection left, Collection right) {
+    private static Collection<Object> mergeAndCoerce(Class elementType, Iterable<Object> left, Iterable<Object> right) {
 
         // Turn each collection into the correct target type
         Collection<Object> coercedLeft = coerceCollection(elementType, left);
@@ -142,17 +149,20 @@ public class EntityAccessManager {
         return result;
     }
 
-    private static Collection<Object> coerceCollection(Class<Object> targetType, Collection<Object> source) {
-        Collection<Object> target;
-        if (source == null || source.isEmpty()) {
-            target = Collections.emptyList();
+    private static Collection<Object> coerceCollection(Class<Object> targetType, Iterable<Object> source) {
+
+        if (source == null) {
+            return Collections.emptyList();
         } else {
-            target = new ArrayList<>(source.size());
-            for (Object object : source) {
-                target.add(Utils.coerceTypes(targetType, object));
+            Iterator<Object> it = source.iterator();
+            if (!it.hasNext()) {
+                return Collections.emptyList();
+            } else {
+                Collection<Object> target = new ArrayList<>();
+                it.forEachRemaining(v -> target.add(Utils.coerceTypes(targetType, v)));
+                return target;
             }
         }
-        return target;
     }
 
     private static Collection<?> createTargetCollection(Class<?> parameterType, Collection collection) {

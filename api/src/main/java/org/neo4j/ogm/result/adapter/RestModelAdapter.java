@@ -104,7 +104,7 @@ public abstract class RestModelAdapter extends BaseAdapter
         NodeModel nodeModel = new NodeModel(nodeId(node));
         List<String> labels = labels(node);
         nodeModel.setLabels(labels.toArray(new String[labels.size()]));
-        nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
+        nodeModel.setProperties(convertArrayPropertiesToCollection(properties(node)));
         return nodeModel;
     }
 

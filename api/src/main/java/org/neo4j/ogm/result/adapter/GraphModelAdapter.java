@@ -110,7 +110,7 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
         List<String> labels = labels(node);
 
         nodeModel.setLabels(labels.toArray(new String[0]));
-        nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
+        nodeModel.setProperties(convertArrayPropertiesToCollection(properties(node)));
         nodeModel.setGeneratedNode(generatedNode);
 
         graphModel.addNode(nodeModel);
@@ -129,7 +129,7 @@ public abstract class GraphModelAdapter extends BaseAdapter implements ResultAda
         edgeModel.setStartNode(startNodeId(relationship));
         edgeModel.setEndNode(endNodeId(relationship));
 
-        edgeModel.setProperties(convertArrayPropertiesToIterable(properties(relationship)));
+        edgeModel.setProperties(convertArrayPropertiesToCollection(properties(relationship)));
 
         graphModel.addRelationship(edgeModel);
     }

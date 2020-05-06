@@ -18,7 +18,8 @@
  */
 package org.neo4j.ogm.result.adapter;
 
-import java.util.HashMap;
+import static java.util.stream.Collectors.*;
+
 import java.util.Map;
 
 import org.neo4j.ogm.support.CollectionUtils;
@@ -29,16 +30,18 @@ import org.neo4j.ogm.support.CollectionUtils;
  */
 public class BaseAdapter {
 
-    public Map<String, Object> convertArrayPropertiesToIterable(Map<String, Object> properties) {
-        Map<String, Object> props = new HashMap<>();
-        for (String k : properties.keySet()) {
-            Object v = properties.get(k);
-            if (v.getClass().isArray()) {
-                props.put(k, CollectionUtils.iterableOf(v));
-            } else {
-                props.put(k, v);
-            }
+    public Map<String, Object> convertArrayPropertiesToCollection(Map<String, Object> properties) {
+        return properties.entrySet().stream()
+            .collect(toMap(Map.Entry::getKey, BaseAdapter::convertOrReturnSelf));
+    }
+
+    private static Object convertOrReturnSelf(Map.Entry<String, Object> entry) {
+
+        Object entryValue = entry.getValue();
+        if (entryValue != null && entryValue.getClass().isArray()) {
+            return CollectionUtils.materializeIterableIf(CollectionUtils.iterableOf(entryValue));
+        } else {
+            return entryValue;
         }
-        return props;
     }
 }

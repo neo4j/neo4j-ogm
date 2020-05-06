@@ -103,9 +103,7 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
             if (entryValue instanceof Map) {
                 addMapToProperties((Map<?, ?>) entryValue, graphProperties, entryKey + delimiter);
             } else {
-                if (isCypherType(entryValue) ||
-                    (allowCast && canCastType(entryValue))) {
-
+                if (isCypherType(entryValue) || (allowCast && canCastType(entryValue))) {
                     graphProperties.put(entryKey, entryValue);
                 } else {
                     throw new MappingException("Could not map key=" + entryPrefix + entry.getKey() + ", " +

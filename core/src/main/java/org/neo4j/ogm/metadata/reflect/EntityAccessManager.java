@@ -95,7 +95,7 @@ public class EntityAccessManager {
             }
         }
 
-        // Array needs a different coercion and special treatment to pproperlyreassign the existing collection
+        // Array needs a different coercion and special treatment to properly reassign the existing collection
         if (parameterType.isArray()) {
 
             Class<?> componentType = parameterType.getComponentType();

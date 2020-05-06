@@ -25,8 +25,11 @@ import static org.neo4j.ogm.support.ClassUtils.*;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -98,14 +101,12 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
 
     private void addMapToProperties(Map<?, ?> fieldValue, Map<String, Object> graphProperties, String entryPrefix) {
         for (Map.Entry<?, ?> entry : fieldValue.entrySet()) {
-            Object entryValue = entry.getValue();
+            Object entryValue = materializeIterableIfNecessary(entry.getValue());
             String entryKey = entryPrefix + keyInstanceToString(entry.getKey());
             if (entryValue instanceof Map) {
                 addMapToProperties((Map<?, ?>) entryValue, graphProperties, entryKey + delimiter);
             } else {
-                if (isCypherType(entryValue) ||
-                    (allowCast && canCastType(entryValue))) {
-
+                if (isCypherType(entryValue) || (allowCast && canCastType(entryValue))) {
                     graphProperties.put(entryKey, entryValue);
                 } else {
                     throw new MappingException("Could not map key=" + entryPrefix + entry.getKey() + ", " +
@@ -114,6 +115,30 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
                 }
             }
         }
+    }
+
+    /**
+     * When the {@link org.neo4j.ogm.result.adapter.BaseAdapter} created an iterable based on an array, we must
+     * materialize it into a real collection at this point. For normal properties, this is done through the
+     * {@link org.neo4j.ogm.metadata.reflect.EntityAccessManager}, but that doesn't apply here.
+     * <p>
+     * In the end, this is a necessity due to the fact that while {@code AdapterUtils} prior to 3.2.11 returned
+     * a concrete {@link List} for arrays even though they said {@code convertToIterable}.
+     * <p>
+     * The later method has been refactored into {@link org.neo4j.ogm.support.CollectionUtils#iterableOf(Object)} which
+     * actually does what the name says, so we need to adapt here.
+     *
+     * @param entryValue The value that might be an iterable but not a collection
+     * @return A collection if {@code value} had been iterable, the value itself otherwise.
+     */
+    private static Object materializeIterableIfNecessary(Object entryValue) {
+
+        if (entryValue instanceof Iterable && !(entryValue instanceof Collection)) {
+            List hlp = new ArrayList<>();
+            ((Iterable) entryValue).forEach(hlp::add);
+            entryValue = hlp;
+        }
+        return entryValue;
     }
 
     private boolean canCastType(Object value) {

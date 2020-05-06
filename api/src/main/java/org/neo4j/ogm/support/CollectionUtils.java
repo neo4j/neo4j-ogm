@@ -19,8 +19,11 @@
 package org.neo4j.ogm.support;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Utilities around collections.
@@ -48,6 +51,20 @@ public final class CollectionUtils {
         } else {
             return Collections.singletonList(thingToIterable);
         }
+    }
+
+    /**
+     * @param entryValue A value that is needed as a collection.
+     * @return Returns a collection if {@code entryValue} is iterable but not already a collection.
+     */
+    public static Object materializeIterableIf(Object entryValue) {
+
+        if (entryValue instanceof Iterable && !(entryValue instanceof Collection)) {
+            List hlp = new ArrayList<>();
+            ((Iterable) entryValue).forEach(hlp::add);
+            entryValue = hlp;
+        }
+        return entryValue;
     }
 
     private CollectionUtils() {

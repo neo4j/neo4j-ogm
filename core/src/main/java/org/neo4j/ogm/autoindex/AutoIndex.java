@@ -304,7 +304,7 @@ class AutoIndex {
                 return empty();
             }
 
-            pattern = compile("INDEX ON :(?<label>.*)\\((?<property>.*)\\)");
+            pattern = compile("INDEX ON (NODE)?:(?<label>.*)\\((?<property>.*)\\)");
             matcher = pattern.matcher(description);
             if (matcher.matches()) {
                 String label = matcher.group("label");

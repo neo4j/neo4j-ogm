@@ -70,35 +70,38 @@ public class EntityAccessManager {
      * Merges the contents of <em>collection</em> with <em>hydrated</em> ensuring no duplicates and returns the result as an
      * instance of the given parameter type.
      *
-     * @param parameterType The type of Iterable or array to return
+     * @param collectionType The type of Iterable or array to return
      * @param newValues     The objects to merge into a collection of the given parameter type, which may not necessarily be of a
-     *                      type assignable from <em>parameterType</em> already
+     *                      type assignable from <em>collectionType</em> already
      * @param currentValues The Iterable to merge into, which may be <code>null</code> if a new collection needs creating
-     * @param elementType   The type of the element in the array or collection
+     * @param elementType   The type of the element in the array or collection (After conversion has been applied)
      * @return The result of the merge, as an instance of the specified parameter type
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Object merge(Class<?> parameterType, Object newValues, Collection currentValues, Class elementType) {
+    public static Object merge(Class<?> collectionType, Object newValues, Collection currentValues, Class elementType) {
+
+        boolean targetIsArray = collectionType.isArray();
 
         // While we expect newValues to be an iterable, there are a couple of exceptions
         if (newValues != null) {
+            boolean needsByteArray = targetIsArray && (collectionType.getComponentType() == byte.class || collectionType.getComponentType() == Byte.class);
             // 1. This happens only in case of the HTTP transport, that insists of representing primitive byte arrays as
             //    base64 encoded string
-            if ((elementType == byte.class || elementType == Byte.class) && newValues instanceof String) {
+            if (needsByteArray && newValues instanceof String) {
                 newValues = CollectionUtils.iterableOf(Base64.getDecoder().decode((String) newValues));
             } else {
                 // 2. A primitive array cannot be cast directly to Iterable
                 newValues = boxPrimitiveArray(newValues);
 
                 // 3. A char[] may come in as a String or an array of String[]
-                newValues = stringToCharacterIterable(newValues, parameterType, elementType);
+                newValues = stringToCharacterIterable(newValues, collectionType, elementType);
             }
         }
 
         // Array needs a different coercion and special treatment to properly reassign the existing collection
-        if (parameterType.isArray()) {
+        if (targetIsArray) {
 
-            Class<?> componentType = parameterType.getComponentType();
+            Class<?> componentType = collectionType.getComponentType();
 
             // Merge and coerce is done directly on the component type
             Collection<Object> mergedValues = mergeAndCoerce(componentType, (Iterable) newValues, currentValues);
@@ -110,18 +113,18 @@ public class EntityAccessManager {
         }
 
         // create the desired type of collection and use it for the merge
-        Collection newCollection = createTargetCollection(parameterType,
+        Collection newCollection = createTargetCollection(collectionType,
             mergeAndCoerce(elementType, (Iterable) newValues, currentValues));
         if (newCollection != null) {
             return newCollection;
         }
 
         // hydrated is unusable at this point so we can just set the other collection if it's compatible
-        if (newValues != null && parameterType.isAssignableFrom(newValues.getClass())) {
+        if (newValues != null && collectionType.isAssignableFrom(newValues.getClass())) {
             return newValues;
         }
 
-        throw new RuntimeException("Unsupported: " + parameterType.getName());
+        throw new RuntimeException("Unsupported: " + collectionType.getName());
     }
 
     /**
@@ -129,16 +132,16 @@ public class EntityAccessManager {
      * dominates the order. That is mostly due to the fact that the call stack leading here when completly hydrating new
      * collections from queries puts the freshly hydrated elements into the right.
      *
-     * @param elementType
+     * @param targetElementType
      * @param left
      * @param right
      * @return The merged collection with no duplicates
      */
-    private static Collection<Object> mergeAndCoerce(Class elementType, Iterable<Object> left, Iterable<Object> right) {
+    private static Collection<Object> mergeAndCoerce(Class targetElementType, Iterable<Object> left, Iterable<Object> right) {
 
         // Turn each collection into the correct target type
-        Collection<Object> coercedLeft = coerceCollection(elementType, left);
-        Collection<Object> coercedRight = coerceCollection(elementType, right);
+        Collection<Object> coercedLeft = coerceCollection(targetElementType, left);
+        Collection<Object> coercedRight = coerceCollection(targetElementType, right);
 
         // Remove duplicates
         coercedRight.removeAll(coercedLeft);
@@ -150,7 +153,7 @@ public class EntityAccessManager {
         return result;
     }
 
-    private static Collection<Object> coerceCollection(Class<Object> targetType, Iterable<Object> source) {
+    private static Collection<Object> coerceCollection(Class<Object> targetElementType, Iterable<Object> source) {
 
         if (source == null) {
             return Collections.emptyList();
@@ -160,23 +163,23 @@ public class EntityAccessManager {
                 return Collections.emptyList();
             } else {
                 Collection<Object> target = new ArrayList<>();
-                it.forEachRemaining(v -> target.add(Utils.coerceTypes(targetType, v)));
+                it.forEachRemaining(v -> target.add(Utils.coerceTypes(targetElementType, v)));
                 return target;
             }
         }
     }
 
-    private static Collection<?> createTargetCollection(Class<?> parameterType, Collection collection) {
-        if (Vector.class.isAssignableFrom(parameterType)) {
+    private static Collection<?> createTargetCollection(Class<?> collectionType, Collection collection) {
+        if (Vector.class.isAssignableFrom(collectionType)) {
             return collection instanceof Vector ? collection : new Vector<>(collection);
         }
-        if (List.class.isAssignableFrom(parameterType)) {
+        if (List.class.isAssignableFrom(collectionType)) {
             return collection instanceof ArrayList ? collection : new ArrayList<>(collection);
         }
-        if (SortedSet.class.isAssignableFrom(parameterType)) {
+        if (SortedSet.class.isAssignableFrom(collectionType)) {
             return collection instanceof TreeSet ? collection : new TreeSet<>(collection);
         }
-        if (Set.class.isAssignableFrom(parameterType)) {
+        if (Set.class.isAssignableFrom(collectionType)) {
             return collection instanceof HashSet ? collection : new HashSet<>(collection);
         }
         return null;

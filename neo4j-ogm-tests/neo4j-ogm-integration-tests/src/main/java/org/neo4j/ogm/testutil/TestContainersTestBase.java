@@ -147,6 +147,8 @@ public class TestContainersTestBase {
             int requiredVersionPart = i < requiredVersionParts.length ? Integer.parseInt(requiredVersionParts[i]) : 0;
             if(serverVersionPart < requiredVersionPart) {
                 return false;
+            } else if (i == 0 && serverVersionPart > requiredVersionPart) {
+                return true;
             }
         }
         return true;

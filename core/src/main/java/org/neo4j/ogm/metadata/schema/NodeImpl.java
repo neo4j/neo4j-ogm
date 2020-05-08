@@ -18,7 +18,6 @@
  */
 package org.neo4j.ogm.metadata.schema;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -34,12 +33,10 @@ import org.neo4j.ogm.utils.RelationshipUtils;
 class NodeImpl implements Node {
 
     private final String label;
-    private final Collection<String> labels;
     private final Map<String, Relationship> relationships = new HashMap<>();
 
-    NodeImpl(String label, Collection<String> labels) {
+    NodeImpl(String label) {
         this.label = label;
-        this.labels = labels;
     }
 
     @Override
@@ -47,12 +44,7 @@ class NodeImpl implements Node {
         return Optional.ofNullable(label);
     }
 
-    @Override
-    public Collection<String> labels() {
-        return labels;
-    }
-
-    @Override
+     @Override
     public Map<String, Relationship> relationships() {
         return relationships;
     }
@@ -68,8 +60,7 @@ class NodeImpl implements Node {
     @Override
     public String toString() {
         return "NodeImpl{" +
-            "label='" + label + '\'' +
-            ", labels=" + labels +
+            "label='" + label +
             '}';
     }
 }

@@ -18,7 +18,6 @@
  */
 package org.neo4j.ogm.metadata.schema;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,13 +34,6 @@ public interface Node {
      * @return label
      */
     Optional<String> label();
-
-    /**
-     * Labels this node has, usually only 1
-     *
-     * @return labels
-     */
-    Collection<String> labels();
 
     /**
      * Relationships declared on this node

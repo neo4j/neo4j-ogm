@@ -21,8 +21,6 @@ package org.neo4j.ogm.metadata.schema;
 import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.annotation.Relationship.*;
 
-import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,8 +38,8 @@ public class RelationshipImplTest {
 
     @Before
     public void setUp() {
-        start = new NodeImpl("Person", Collections.singleton("Person"));
-        end = new NodeImpl("Person", Collections.singleton("Person"));
+        start = new NodeImpl("Person");
+        end = new NodeImpl("Person");
 
         outgoing = new RelationshipImpl("FRIEND_OF", Direction.OUTGOING, start, end);
         incoming = new RelationshipImpl("FRIEND_OF", Direction.INCOMING, start, end);

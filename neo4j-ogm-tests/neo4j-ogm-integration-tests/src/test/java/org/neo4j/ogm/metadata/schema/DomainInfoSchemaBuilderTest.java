@@ -50,7 +50,7 @@ public class DomainInfoSchemaBuilderTest {
     public void givenNodeEntity_thenNodeHasLabelFromEntity() {
         Node person = schema.findNode("Person");
         assertThat(person).isNotNull();
-        assertThat(person.labels()).containsOnly("Person");
+        assertThat(person.label().get()).isEqualTo("Person");
     }
 
     @Test
@@ -58,7 +58,7 @@ public class DomainInfoSchemaBuilderTest {
         // label provided in annotation
         Node company = schema.findNode("Happening");
         assertThat(company).isNotNull();
-        assertThat(company.labels()).containsOnly("Happening");
+        assertThat(company.label().get()).isEqualTo("Happening");
     }
 
     @Test
@@ -149,7 +149,6 @@ public class DomainInfoSchemaBuilderTest {
 
         Node entity = schema.findNode("Entity");
         assertThat(entity.label().get()).isEqualTo("Entity");
-        assertThat(entity.labels()).containsExactly("Entity");
 
         schema.findNode("Company");
     }

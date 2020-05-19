@@ -138,7 +138,7 @@ public class TestContainersTestBase {
         if (version.equals(requiredVersion)) {
             return true;
         }
-        String[] serverVersionParts = version.split("\\.");
+        String[] serverVersionParts = version.split("-drop")[0].split("\\.");
         String[] requiredVersionParts = requiredVersion.split("\\.");
         int length = Math.max(serverVersionParts.length, requiredVersionParts.length);
 

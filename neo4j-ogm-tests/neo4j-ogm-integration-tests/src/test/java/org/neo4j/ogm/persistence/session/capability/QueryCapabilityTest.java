@@ -52,7 +52,6 @@ import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.LoggerRule;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.testutil.TestUtils;
@@ -125,12 +124,17 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     public void readOnlyQueryMustBeReadOnly() {
 
         session.save(new Actor("Jeff"));
-        session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true);
+        if (isVersionOrGreater("4.1")) { // 4.1+ will fail on any attempt to write in a read-only transaction.
+            assertThatThrownBy(() -> session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true))
+                .hasMessageStartingWith("Writing in read access mode not allowed.");
+        } else {
+            session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true);
 
-        Condition<String> stringMatches = new Condition<>(s -> s.contains(
-            "Cypher query contains keywords that indicate a writing query but OGM is going to use a read only transaction as requested, so the query might fail."),
-            "String matches");
-        assertThat(loggerRule.getFormattedMessages()).areAtLeastOne(stringMatches);
+            Condition<String> stringMatches = new Condition<>(s -> s.contains(
+                "Cypher query contains keywords that indicate a writing query but OGM is going to use a read only transaction as requested, so the query might fail."),
+                "String matches");
+            assertThat(loggerRule.getFormattedMessages()).areAtLeastOne(stringMatches);
+        }
     }
 
     @Test // DATAGRAPH-697

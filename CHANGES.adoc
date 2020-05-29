@@ -2,6 +2,11 @@
 
 == 3.2
 
+=== 3.2.12
+
+* GH-793 - Fix reading of Neo4j literal byte[] arrays.
+* Prepare tests for Neo4j 4.1
+
 === 3.2.11
 
 * Update ClassGraph to 4.8.72.

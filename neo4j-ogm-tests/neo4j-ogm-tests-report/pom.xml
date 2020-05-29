@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.neo4j</groupId>
         <artifactId>neo4j-ogm-tests</artifactId>
-        <version>3.2.12-SNAPSHOT</version>
+        <version>3.2.13-SNAPSHOT</version>
     </parent>
 
     <artifactId>neo4j-ogm-tests-report</artifactId>
@@ -40,37 +40,37 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-api</artifactId>
-            <version>3.2.12-SNAPSHOT</version>
+            <version>3.2.13-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-core</artifactId>
-            <version>3.2.12-SNAPSHOT</version>
+            <version>3.2.13-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-bolt-driver</artifactId>
-            <version>3.2.12-SNAPSHOT</version>
+            <version>3.2.13-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-embedded-driver</artifactId>
-            <version>3.2.12-SNAPSHOT</version>
+            <version>3.2.13-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-http-driver</artifactId>
-            <version>3.2.12-SNAPSHOT</version>
+            <version>3.2.13-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-integration-tests</artifactId>
-            <version>3.2.12-SNAPSHOT</version>
+            <version>3.2.13-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -100,17 +100,17 @@
                 <dependency>
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-ogm-bolt-native-types</artifactId>
-                    <version>3.2.12-SNAPSHOT</version>
+                    <version>3.2.13-SNAPSHOT</version>
                 </dependency>
                 <dependency>
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-ogm-embedded-native-types</artifactId>
-                    <version>3.2.12-SNAPSHOT</version>
+                    <version>3.2.13-SNAPSHOT</version>
                 </dependency>
                 <dependency>
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-ogm-native-types-tests</artifactId>
-                    <version>3.2.12-SNAPSHOT</version>
+                    <version>3.2.13-SNAPSHOT</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -122,17 +122,17 @@
                 <dependency>
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-ogm-bolt-native-types</artifactId>
-                    <version>3.2.12-SNAPSHOT</version>
+                    <version>3.2.13-SNAPSHOT</version>
                 </dependency>
                 <dependency>
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-ogm-embedded-native-types</artifactId>
-                    <version>3.2.12-SNAPSHOT</version>
+                    <version>3.2.13-SNAPSHOT</version>
                 </dependency>
                 <dependency>
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-ogm-native-types-tests</artifactId>
-                    <version>3.2.12-SNAPSHOT</version>
+                    <version>3.2.13-SNAPSHOT</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>

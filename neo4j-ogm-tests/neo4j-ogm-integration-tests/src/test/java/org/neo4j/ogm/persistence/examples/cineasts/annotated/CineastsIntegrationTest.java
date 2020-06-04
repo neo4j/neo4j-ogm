@@ -26,14 +26,19 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.function.UnaryOperator;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.PropertyValueTransformer;
+import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Pet;
@@ -44,7 +49,6 @@ import org.neo4j.ogm.domain.cineasts.annotated.Title;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.testutil.TestUtils;
 
@@ -54,6 +58,7 @@ import org.neo4j.ogm.testutil.TestUtils;
  * @author Michal Bachman
  * @author Adam George
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class CineastsIntegrationTest extends TestContainersTestBase {
 
@@ -214,8 +219,8 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
 
         Collection<Rating> ratings = session.loadAll(Rating.class, userNameFilter.and(ratingFilter));
         assertThat(ratings).hasSize(1);
-
     }
+
     @Test
     public void loadRatingByUserNameAndStars() {
         Filter userNameFilter = new Filter("name", ComparisonOperator.EQUALS, "Michal");
@@ -261,10 +266,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
         assertThat(vince.getTitles().get(0)).isEqualTo(Title.MR);
     }
 
-    /**
-     * @see DATAGRAPH-614
-     */
-    @Test
+    @Test // DATAGRAPH-614
     public void saveAndRetrieveUserWithDifferentCharset() {
         User user = new User();
         user.setLogin("aki");
@@ -350,11 +352,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
         assertThat(user.getNicknames()[1]).isEqualTo("robin");
     }
 
-    /**
-     * @throws MalformedURLException
-     * @see Issue #128
-     */
-    @Test
+    @Test // GH-128
     public void shouldBeAbleToSetNodePropertiesToNull() throws MalformedURLException {
         Movie movie = new Movie("Zootopia", 2016);
         movie.setImdbUrl(new URL("http://www.imdb.com/title/tt2948356/"));
@@ -372,5 +370,100 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
         movie = session.load(Movie.class, movie.getUuid());
         assertThat(movie.getTitle()).isNull();
         assertThat(movie.getImdbUrl()).isNull();
+    }
+
+    @Test
+    public void nestedFilteringMustThrowExceptionWithOrInThePipeline() {
+        // rated by the user who doesn't own Catty or by the user who owns Catty
+        Filter filterA = new Filter("name", ComparisonOperator.EQUALS, "Catty");
+        filterA.setNestedPath(
+            new Filter.NestedPathSegment("ratings", Rating.class),
+            new Filter.NestedPathSegment("user", User.class),
+            new Filter.NestedPathSegment("pets", Pet.class)
+        );
+
+        filterA.setNegated(true);
+
+        Filter alwaysTrueFilter = new Filter(new FilterFunction() {
+
+            private Filter theFilter;
+
+            @Override public Filter getFilter() {
+                return theFilter;
+            }
+
+            @Override public void setFilter(Filter filter) {
+                theFilter = filter;
+            }
+
+            @Override public Object getValue() {
+                return null;
+            }
+
+            @Override public String expression(String nodeIdentifier) {
+                return expression(nodeIdentifier, null, null);
+            }
+
+            @Override public Map<String, Object> parameters() {
+                return parameters(null, null);
+            }
+
+            @Override
+            public Map<String, Object> parameters(UnaryOperator createUniqueParameterName,
+                PropertyValueTransformer valueTransformer) {
+                return Collections.emptyMap();
+            }
+
+            @Override
+            public String expression(String nodeIdentifier, String filteredProperty,
+                UnaryOperator createUniqueParameterName) {
+                return "1 = 1 ";
+            }
+
+        });
+        alwaysTrueFilter.setBooleanOperator(BooleanOperator.OR);
+
+        Filter filterB = new Filter("name", ComparisonOperator.EQUALS, "Catty");
+        filterB.setNestedPath(
+            new Filter.NestedPathSegment("ratings", Rating.class),
+            new Filter.NestedPathSegment("user", User.class),
+            new Filter.NestedPathSegment("pets", Pet.class)
+        );
+        filterB.setBooleanOperator(BooleanOperator.AND);
+        Filters filters = new Filters(filterA, alwaysTrueFilter, filterB);
+
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> session.loadAll(Movie.class, filters))
+            .withMessage("Filters containing nested paths cannot be combined via the logical OR operator.");
+    }
+
+    @Test
+    public void nestedFilteringCanBeTheOneAndOnlyOredFilter() {
+        Filter filterB = new Filter("name", ComparisonOperator.EQUALS, "Catty");
+        filterB.setNestedPath(
+            new Filter.NestedPathSegment("ratings", Rating.class),
+            new Filter.NestedPathSegment("user", User.class),
+            new Filter.NestedPathSegment("pets", Pet.class)
+        );
+        filterB.setBooleanOperator(BooleanOperator.OR);
+        Filters filters = new Filters(filterB);
+        Collection<Movie> films = session.loadAll(Movie.class, filters);
+        assertThat(films).hasSize(2);
+    }
+
+    @Test
+    public void nestedFilteringMustThrowExceptionWithOrInThePipelineForRelationshipEntities() {
+        Filter userNameFilter = new Filter("name", ComparisonOperator.EQUALS, "Michal");
+        userNameFilter.setBooleanOperator(BooleanOperator.OR);
+
+        Filter ratingFilter = new Filter("stars", ComparisonOperator.EQUALS, 5);
+
+        userNameFilter.setNestedPath(
+            new Filter.NestedPathSegment("user", User.class)
+        );
+
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> session.loadAll(Rating.class, userNameFilter.and(ratingFilter)))
+            .withMessage("Filters containing nested paths cannot be combined via the logical OR operator.");
     }
 }

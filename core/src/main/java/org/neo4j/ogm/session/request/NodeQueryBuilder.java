@@ -29,6 +29,7 @@ import org.neo4j.ogm.exception.core.MissingOperatorException;
 
 /**
  * @author Jasper Blues
+ * @author Michael J. Simons
  */
 public class NodeQueryBuilder {
 
@@ -78,9 +79,6 @@ public class NodeQueryBuilder {
     }
 
     private void appendNestedFilter(Filter filter) {
-        if (filter.getBooleanOperator().equals(BooleanOperator.OR)) {
-            throw new UnsupportedOperationException("OR is not supported for nested properties on an entity");
-        }
         if (filter.isNestedRelationshipEntity()) {
             MatchClause clause = relationshipPropertyClauseFor(filter.getRelationshipType());
             if (clause == null) {
@@ -101,11 +99,9 @@ public class NodeQueryBuilder {
     }
 
     private void appendDeepNestedFilter(Filter filter) {
-        if (filter.getBooleanOperator().equals(BooleanOperator.OR)) {
-            throw new UnsupportedOperationException("OR is not supported for nested properties on an entity");
-        }
         Filter.NestedPathSegment lastPathSegment = filter.getNestedPath().get(filter.getNestedPath().size() - 1);
-        MatchClause clause = new NestedPropertyPathMatchClause(matchClauseId, lastPathSegment.getNestedEntityTypeLabel(), lastPathSegment.isNestedRelationshipEntity());
+        MatchClause clause = new NestedPropertyPathMatchClause(matchClauseId,
+            lastPathSegment.getNestedEntityTypeLabel(), lastPathSegment.isNestedRelationshipEntity());
 
         pathClauses.add(new NestedPathMatchClause(matchClauseId).append(filter));
         nestedClauses.add(clause);

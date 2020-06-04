@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
 import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.cypher.BooleanOperator;
@@ -37,6 +38,26 @@ import org.neo4j.ogm.exception.core.MissingOperatorException;
  */
 public class FilteredQueryBuilder {
 
+    private static void validateNestedFilters(Iterable<Filter> filters) {
+
+        // Doesn't matter if the one filter has an or or not.
+        long count = StreamSupport.stream(filters.spliterator(), false).count();
+        if (count < 2) {
+            return;
+        }
+
+        boolean orIsPresent = StreamSupport.stream(filters.spliterator(), false)
+            .anyMatch(f -> BooleanOperator.OR == f.getBooleanOperator());
+        boolean nestedOrDeepNestedFilterPresent = StreamSupport.stream(filters.spliterator(), false)
+            .anyMatch(f -> f.isNested() || f.isDeepNested());
+
+        if (orIsPresent && nestedOrDeepNestedFilterPresent) {
+            throw new UnsupportedOperationException(
+                "Filters containing nested paths cannot be combined via the logical OR operator.");
+        }
+
+    }
+
     /**
      * Create a {@link FilteredQuery} which matches nodes filtered by one or more property expressions
      *
@@ -45,6 +66,8 @@ public class FilteredQueryBuilder {
      * @return a {@link FilteredQuery} whose statement() method contains the appropriate Cypher
      */
     public static FilteredQuery buildNodeQuery(String nodeLabel, Iterable<Filter> filterList) {
+
+        validateNestedFilters(filterList);
         return new NodeQueryBuilder(nodeLabel, filterList).build();
     }
 
@@ -56,6 +79,9 @@ public class FilteredQueryBuilder {
      * @return a {@link FilteredQuery} whose statement() method contains the appropriate Cypher
      */
     public static FilteredQuery buildRelationshipQuery(String relationshipType, Iterable<Filter> filterList) {
+
+        validateNestedFilters(filterList);
+
         Map<String, Object> properties = new HashMap<>();
         StringBuilder sb = constructRelationshipQuery(relationshipType, filterList, properties);
         return new FilteredQuery(sb, properties);
@@ -73,10 +99,6 @@ public class FilteredQueryBuilder {
 
         for (Filter filter : filters) {
             if (filter.isNested() || filter.isDeepNested()) {
-                if (filter.getBooleanOperator().equals(BooleanOperator.OR)) {
-                    throw new UnsupportedOperationException(
-                        "OR is not supported for nested properties on a relationship entity");
-                }
                 String startNestedEntityTypeLabel = filter.getNestedEntityTypeLabel();
                 String endNestedEntityTypeLabel = filter.getNestedEntityTypeLabel();
                 Direction relationshipDirection = filter.getRelationshipDirection();

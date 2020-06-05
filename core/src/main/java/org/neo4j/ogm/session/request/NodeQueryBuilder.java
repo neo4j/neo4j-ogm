@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -80,14 +81,16 @@ public class NodeQueryBuilder {
 
     private void appendNestedFilter(Filter filter) {
         if (filter.isNestedRelationshipEntity()) {
-            MatchClause clause = relationshipPropertyClauseFor(filter.getRelationshipType());
+            MatchClause clause = findExistingNestedClause(RelationshipPropertyMatchClause.class,
+                c -> c.getRelationshipType().equals(filter.getRelationshipType()));
             if (clause == null) {
                 clause = new RelationshipPropertyMatchClause(matchClauseId, filter.getRelationshipType());
                 nestedClauses.add(clause);
             }
             clause.append(filter);
         } else {
-            MatchClause clause = relatedNodeClauseFor(filter.getNestedEntityTypeLabel());
+            MatchClause clause = findExistingNestedClause(RelatedNodePropertyMatchClause.class,
+                c -> c.getLabel().equals(filter.getNestedEntityTypeLabel()));
             if (clause == null) {
                 clause = new RelatedNodePropertyMatchClause(filter.getNestedEntityTypeLabel(), matchClauseId);
                 nestedClauses.add(clause);
@@ -100,11 +103,21 @@ public class NodeQueryBuilder {
 
     private void appendDeepNestedFilter(Filter filter) {
         Filter.NestedPathSegment lastPathSegment = filter.getNestedPath().get(filter.getNestedPath().size() - 1);
-        MatchClause clause = new NestedPropertyPathMatchClause(matchClauseId,
-            lastPathSegment.getNestedEntityTypeLabel(), lastPathSegment.isNestedRelationshipEntity());
-
+        MatchClause clause;
+        if (lastPathSegment.isNestedRelationshipEntity()) {
+            clause = findExistingNestedClause(NestedPropertyPathMatchClause.class,
+                c -> c.getLabel().equals(lastPathSegment.getRelationshipType()));
+        } else {
+            clause = findExistingNestedClause(NestedPropertyPathMatchClause.class,
+                c -> c.getLabel().equals(lastPathSegment.getNestedEntityTypeLabel()));
+        }
+        if (clause == null) {
+            clause = new NestedPropertyPathMatchClause(matchClauseId,
+                lastPathSegment.getNestedEntityTypeLabel(), lastPathSegment.isNestedRelationshipEntity());
+            nestedClauses.add(clause);
+        }
         pathClauses.add(new NestedPathMatchClause(matchClauseId).append(filter));
-        nestedClauses.add(clause);
+        //nestedClauses.add(clause);
         clause.append(filter);
 
         matchClauseId++;
@@ -114,24 +127,12 @@ public class NodeQueryBuilder {
         return principalClause;
     }
 
-    private RelatedNodePropertyMatchClause relatedNodeClauseFor(String label) {
+    private <T> T findExistingNestedClause(Class<T> targetClass, Predicate<T> predicate) {
         for (MatchClause clause : nestedClauses) {
-            if (clause instanceof RelatedNodePropertyMatchClause) {
-                RelatedNodePropertyMatchClause nestedPropClause = (RelatedNodePropertyMatchClause) clause;
-                if (nestedPropClause.getLabel().equals(label)) {
+            if (targetClass.isInstance(clause)) {
+                T nestedPropClause = (T) clause;
+                if (predicate.test(nestedPropClause)) {
                     return nestedPropClause;
-                }
-            }
-        }
-        return null;
-    }
-
-    private RelationshipPropertyMatchClause relationshipPropertyClauseFor(String relationshipType) {
-        for (MatchClause clause : nestedClauses) {
-            if (clause instanceof RelationshipPropertyMatchClause) {
-                RelationshipPropertyMatchClause relPropClause = (RelationshipPropertyMatchClause) clause;
-                if (relPropClause.getRelationshipType().equals(relationshipType)) {
-                    return relPropClause;
                 }
             }
         }

@@ -22,6 +22,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Spliterator;
+import java.util.TreeMap;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.neo4j.ogm.annotation.Relationship.Direction;
@@ -35,27 +39,63 @@ import org.neo4j.ogm.exception.core.MissingOperatorException;
  * The FilteredQueryBuilder, as its name suggests, returns instances of {@link FilteredQuery}
  *
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class FilteredQueryBuilder {
 
     private static void validateNestedFilters(Iterable<Filter> filters) {
 
-        // Doesn't matter if the one filter has an or or not.
-        long count = StreamSupport.stream(filters.spliterator(), false).count();
-        if (count < 2) {
-            return;
+        Predicate<Filter> byIsNested = f -> (f.isNested() || f.isDeepNested());
+
+        // Find all non nested filters for later reference
+        List<Filter> other = StreamSupport
+            .stream(filters::spliterator, Spliterator.ORDERED, false)
+            .filter(byIsNested.negate()).collect(Collectors.toList());
+
+        // Group the nested filter like the final query builder would do.
+        // Ors in one inner nested filter are fine
+        Map<String, List<Filter>> groupedFilters = StreamSupport
+            .stream(filters::spliterator, Spliterator.ORDERED, false)
+            .filter(byIsNested)
+            .collect(Collectors.groupingBy(
+                filter -> {
+                    if (filter.isNested()) {
+                        return filter.isNestedRelationshipEntity() ?
+                            filter.getRelationshipType() :
+                            filter.getNestedEntityTypeLabel();
+                    } else if (filter.isDeepNested()) {
+                        return filter.getNestedPath().get(filter.getNestedPath().size() - 1).getNestedEntityTypeLabel();
+                    } else {
+                        throw new RuntimeException("¯\\_(ツ)_/¯");
+                    }
+                },
+                TreeMap::new,
+                Collectors.toList()
+            ));
+
+        Predicate<Filter> hasBooleanOperator = filter -> BooleanOperator.OR == filter.getBooleanOperator();
+        boolean throwException = false;
+
+        if (other.isEmpty()) {
+            // If there are only nested filters, we can check if there's more than one and if they should be ordered together
+            if (groupedFilters.size() > 1) {
+                throwException = groupedFilters
+                    .values().stream()
+                    .anyMatch(l -> hasBooleanOperator.test(l.get(0)));
+            }
+        } else if (!groupedFilters.isEmpty()) {
+            // Otherwise we have to have a look whether there's at least one nested filter that is support to be or'ed with
+            // other filters.
+            throwException = other.stream().anyMatch(hasBooleanOperator)
+                || groupedFilters.values().stream()
+                .map(groupedFilter -> groupedFilter.get(0))
+                .anyMatch(hasBooleanOperator);
         }
 
-        boolean orIsPresent = StreamSupport.stream(filters.spliterator(), false)
-            .anyMatch(f -> BooleanOperator.OR == f.getBooleanOperator());
-        boolean nestedOrDeepNestedFilterPresent = StreamSupport.stream(filters.spliterator(), false)
-            .anyMatch(f -> f.isNested() || f.isDeepNested());
-
-        if (orIsPresent && nestedOrDeepNestedFilterPresent) {
+        if (throwException) {
             throw new UnsupportedOperationException(
                 "Filters containing nested paths cannot be combined via the logical OR operator.");
         }
-
     }
 
     /**

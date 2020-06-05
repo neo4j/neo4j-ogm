@@ -118,7 +118,7 @@ public class EntityWithNativeByteArrays {
             if (value == null) {
                 return null;
             }
-                System.out.println(new String(value, StandardCharsets.UTF_8));
+
             String[] tmp = new String(value, StandardCharsets.UTF_8).split("@");
 
             return new SomeTuple(tmp[0], tmp[1]);

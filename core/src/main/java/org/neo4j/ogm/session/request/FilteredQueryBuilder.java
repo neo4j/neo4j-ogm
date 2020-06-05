@@ -63,17 +63,15 @@ public class FilteredQueryBuilder {
                         return filter.isNestedRelationshipEntity() ?
                             filter.getRelationshipType() :
                             filter.getNestedEntityTypeLabel();
-                    } else if (filter.isDeepNested()) {
-                        return filter.getNestedPath().get(filter.getNestedPath().size() - 1).getNestedEntityTypeLabel();
                     } else {
-                        throw new RuntimeException("¯\\_(ツ)_/¯");
+                        return filter.getNestedPath().get(filter.getNestedPath().size() - 1).getNestedEntityTypeLabel();
                     }
                 },
                 TreeMap::new,
                 Collectors.toList()
             ));
 
-        Predicate<Filter> hasBooleanOperator = filter -> BooleanOperator.OR == filter.getBooleanOperator();
+        Predicate<Filter> hasOrOperator = filter -> BooleanOperator.OR == filter.getBooleanOperator();
         boolean throwException = false;
 
         if (other.isEmpty()) {
@@ -81,15 +79,15 @@ public class FilteredQueryBuilder {
             if (groupedFilters.size() > 1) {
                 throwException = groupedFilters
                     .values().stream()
-                    .anyMatch(l -> hasBooleanOperator.test(l.get(0)));
+                    .anyMatch(l -> hasOrOperator.test(l.get(0)));
             }
         } else if (!groupedFilters.isEmpty()) {
             // Otherwise we have to have a look whether there's at least one nested filter that is support to be or'ed with
-            // other filters.
-            throwException = other.stream().anyMatch(hasBooleanOperator)
+            // other filters.Wi
+            throwException = other.stream().anyMatch(hasOrOperator)
                 || groupedFilters.values().stream()
                 .map(groupedFilter -> groupedFilter.get(0))
-                .anyMatch(hasBooleanOperator);
+                .anyMatch(hasOrOperator);
         }
 
         if (throwException) {

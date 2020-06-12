@@ -109,8 +109,8 @@ public class DomainInfo {
         // .enableExternalClasses() is not needed, as the super classes are loaded anywhere when the class is loaded.
         return new ClassGraph()
             .ignoreClassVisibility()
-            .whitelistPackages(packagesOrClasses)
-            .whitelistClasses(packagesOrClasses)
+            .acceptPackages(packagesOrClasses)
+            .acceptClasses(packagesOrClasses)
             .scan();
     }
 

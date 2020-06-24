@@ -150,7 +150,10 @@ public class SingleUseEntityMapper {
             boolean targetIsCollection = isCollectionLike.test(effectiveFieldType);
 
             Object value = property.getValue();
-            // In case we haven determined a collection from the the field but the field is generic
+
+            // In case we have not been able to determine a collection type from the the field
+            // but the field is generic and we received something collection like we treat
+            // the field as a collection anyway.
             if (!targetIsCollection && GenericUtils.isGenericField(writer.getField())
                 && value != null && isCollectionLike.test(value.getClass())) {
                 targetIsCollection = true;

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -33,6 +34,7 @@ import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.EntityFactory;
+import org.neo4j.ogm.metadata.reflect.GenericUtils;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.session.EntityInstantiator;
 import org.neo4j.ogm.support.ClassUtils;
@@ -144,9 +146,19 @@ public class SingleUseEntityMapper {
                 elementType = DescriptorMappings.getType(writer.getTypeDescriptor());
             }
 
-            boolean targetIsCollection = effectiveFieldType.isArray() || Iterable.class.isAssignableFrom(effectiveFieldType);
+            Predicate<Class<?>> isCollectionLike = c -> c != null && c.isArray() || Iterable.class.isAssignableFrom(c);
+            boolean targetIsCollection = isCollectionLike.test(effectiveFieldType);
 
             Object value = property.getValue();
+
+            // In case we have not been able to determine a collection type from the the field
+            // but the field is generic and we received something collection like we treat
+            // the field as a collection anyway.
+            if (!targetIsCollection && GenericUtils.isGenericField(writer.getField())
+                && value != null && isCollectionLike.test(value.getClass())) {
+                targetIsCollection = true;
+            }
+
             if (metadata.classInfo(elementType) != null) {
                 value = mapKnownEntityType(elementType, key, value, targetIsCollection);
             }

@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Condition;
@@ -38,6 +39,7 @@ import org.neo4j.ogm.domain.cineasts.minimum.Role;
 import org.neo4j.ogm.domain.cineasts.minimum.SomeQueryResult;
 import org.neo4j.ogm.domain.gh391.SomeContainer;
 import org.neo4j.ogm.domain.gh551.AnotherThing;
+import org.neo4j.ogm.domain.gh551.GenericQueryResultWrapper;
 import org.neo4j.ogm.domain.gh551.ThingEntity;
 import org.neo4j.ogm.domain.gh551.ThingResult;
 import org.neo4j.ogm.domain.gh551.ThingResult2;
@@ -84,6 +86,78 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         session.save(role);
 
         session.save(new UserInfo("Foo", "Bar", "i@do.com"));
+    }
+
+    @Test
+    public void genericTargetTypesWithCollectionsOfUnkownThings() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results;
+        GenericQueryResultWrapper<List<Long>> genericQueryResultWrapper;
+
+        results = sessionFactory.openSession()
+            .query("unwind  range (0,1) as x return collect(x) as result", EMPTY_MAP)
+            .queryResults();
+        assertThat(results).hasSize(1);
+        genericQueryResultWrapper = entityMapper.map(GenericQueryResultWrapper.class, results.iterator().next());
+        assertThat(genericQueryResultWrapper.getResult())
+            .containsExactly(0L, 1L);
+
+        results = sessionFactory.openSession()
+            .query("unwind  range (0,0) as x return collect(x) as result", EMPTY_MAP)
+            .queryResults();
+        assertThat(results).hasSize(1);
+        genericQueryResultWrapper = entityMapper.map(GenericQueryResultWrapper.class, results.iterator().next());
+        assertThat(genericQueryResultWrapper.getResult())
+            .containsExactly(0L);
+
+        results = sessionFactory.openSession()
+            .query("unwind  range (0,-1) as x return collect(x) as result", EMPTY_MAP)
+            .queryResults();
+        assertThat(results).hasSize(1);
+        genericQueryResultWrapper = entityMapper.map(GenericQueryResultWrapper.class, results.iterator().next());
+        assertThat(genericQueryResultWrapper.getResult()).isEmpty();
+    }
+
+    @Test
+    public void genericTargetTypesWithCollectionsOfKownThings() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results;
+        GenericQueryResultWrapper<List<ThingEntity>> genericQueryResultWrapper;
+
+        results = sessionFactory.openSession()
+            .query("match (r:ThingEntity) return collect (r) as result", EMPTY_MAP)
+            .queryResults();
+        assertThat(results).hasSize(1);
+        genericQueryResultWrapper = entityMapper.map(GenericQueryResultWrapper.class, results.iterator().next());
+        assertThat(genericQueryResultWrapper.getResult())
+            .hasSize(10)
+            .extracting(ThingEntity::getName)
+            .allSatisfy(s -> s.startsWith("Thing"));
+
+        results = sessionFactory.openSession()
+            .query("match (r:ThingEntity {name: 'Thing 1'}) return collect (r) as result", EMPTY_MAP)
+            .queryResults();
+        assertThat(results).hasSize(1);
+        genericQueryResultWrapper = entityMapper.map(GenericQueryResultWrapper.class, results.iterator().next());
+        assertThat(genericQueryResultWrapper.getResult())
+            .hasSize(1)
+            .extracting(ThingEntity::getName)
+            .allSatisfy(s -> s.startsWith("Thing"));
+
+        results = sessionFactory.openSession()
+            .query("unwind  range (0,-1) as x return collect(x) as result", EMPTY_MAP)
+            .queryResults();
+        assertThat(results).hasSize(1);
+        genericQueryResultWrapper = entityMapper.map(GenericQueryResultWrapper.class, results.iterator().next());
+        assertThat(genericQueryResultWrapper.getResult()).isEmpty();
     }
 
     @Test // GH-551
@@ -218,7 +292,8 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
             .queryResults();
         assertThat(results).hasSize(1);
         ThingResult3 thingResult = entityMapper.map(ThingResult3.class, results.iterator().next());
-        assertThat(thingResult.getFoobars()).extracting(ThingResult3.FooBar::getValue).containsExactlyInAnyOrder("foo", "bar");
+        assertThat(thingResult.getFoobars()).extracting(ThingResult3.FooBar::getValue)
+            .containsExactlyInAnyOrder("foo", "bar");
     }
 
     @Test // GH-718
@@ -294,7 +369,8 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
 
         assertThat(results).hasSize(1);
 
-        SomeContainer.StaticInnerThingResult thingResult = entityMapper.map(SomeContainer.StaticInnerThingResult.class, results.iterator().next());
+        SomeContainer.StaticInnerThingResult thingResult = entityMapper
+            .map(SomeContainer.StaticInnerThingResult.class, results.iterator().next());
         assertThat(thingResult.getSomething()).isEqualTo("a name");
     }
 

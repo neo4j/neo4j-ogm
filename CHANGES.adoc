@@ -1,5 +1,13 @@
 = Changes
 
+== 3.2.13
+
+* GH-799, GH-800: Improve nested filtering: Nested filters will now always collapse when they target the same leaf node. This allows for using logical `OR` inside nested filters. We also make sure that in all scenarios, in which semantically wrong Cypher would be created, an `UnsupportedOperationException` is thrown, regardless if one tries to combined `NestedFilterOrOtherFilter` or `OtherFilterOrNestedFilter`. This may affect some derived finder methods in Spring Data Neo4j.
+* GH-803: Introduce some heuristics for mapping result lists to generic fields whose types have been erased.
+* Dependency upgrades
+** Neo4j 3.4.18 and 3.5.19
+** Neo4j Java Driver 4.0.2
+
 == 3.2.12
 
 * GH-793 - Fix reading of Neo4j literal byte[] arrays.

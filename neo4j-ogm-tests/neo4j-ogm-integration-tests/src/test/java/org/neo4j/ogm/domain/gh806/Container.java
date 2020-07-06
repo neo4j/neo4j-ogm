@@ -36,13 +36,13 @@ public class Container {
 
     String name;
 
-    @Relationship(type = "RELATES_TO", direction = "INCOMING")
+    @Relationship(type = "RELATES_TO", direction = Relationship.Direction.INCOMING)
     Set<Element> element;
 
     /**
      * This is added to ensure we don't delete unrelated relationships.
      */
-    @Relationship(type = "RELATES_TO_TOO", direction = "INCOMING")
+    @Relationship(type = "RELATES_TO_TOO", direction = Relationship.Direction.INCOMING)
     Set<ConcreteElement> elementsOfAnotherRelationship;
 
     public Container() {

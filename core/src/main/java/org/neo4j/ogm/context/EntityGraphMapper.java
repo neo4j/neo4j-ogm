@@ -18,8 +18,10 @@
  */
 package org.neo4j.ogm.context;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -389,7 +391,22 @@ public class EntityGraphMapper implements EntityMapper {
             CompileContext context = compiler.context();
 
             if (srcIdentity >= 0) {
-                boolean cleared = clearContextRelationships(context, srcIdentity, endNodeType, directedRelationship);
+                List<Class<?>> potentiallyRelated = new ArrayList<>();
+                potentiallyRelated.add(endNodeType);
+
+                ClassInfo endNodeTypeClassInfo = metaData.classInfo(endNodeType);
+                if (endNodeTypeClassInfo != null) {
+                    endNodeTypeClassInfo.directSubclasses()
+                        .stream().map(ClassInfo::getUnderlyingClass).forEach(potentiallyRelated::add);
+                }
+
+                boolean cleared = false;
+                for (Class<?> clazz : potentiallyRelated) {
+                    if (clearContextRelationships(context, srcIdentity, clazz, directedRelationship)) {
+                        cleared = true;
+                    }
+                }
+
                 if (!cleared) {
                     LOGGER.debug("this relationship is already being managed: {}-{}-{}-()", entity, relationshipType,
                         relationshipDirection);

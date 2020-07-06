@@ -22,7 +22,10 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
 import org.junit.After;
@@ -32,10 +35,14 @@ import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.activity.Activity;
 import org.neo4j.ogm.domain.forum.activity.Comment;
 import org.neo4j.ogm.domain.forum.activity.Post;
+import org.neo4j.ogm.domain.gh806.ConcreteElement;
+import org.neo4j.ogm.domain.gh806.Container;
+import org.neo4j.ogm.domain.gh806.Element;
 import org.neo4j.ogm.domain.hierarchy.relations.BaseEntity;
 import org.neo4j.ogm.domain.hierarchy.relations.Type1;
 import org.neo4j.ogm.domain.hierarchy.relations.Type2;
 import org.neo4j.ogm.domain.hierarchy.relations.Type3;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -43,6 +50,7 @@ import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class HierarchyRelsTest extends MultiDriverTestClass {
 
@@ -50,8 +58,8 @@ public class HierarchyRelsTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.relations", "org.neo4j.ogm.domain.forum")
-            .openSession();
+        session = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.relations",
+            "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.gh806").openSession();
         session.purgeDatabase();
     }
 
@@ -61,10 +69,51 @@ public class HierarchyRelsTest extends MultiDriverTestClass {
         session.clear();
     }
 
-    /**
-     * @see Issue #152
-     */
-    @Test
+    @Test // GH-806
+    public void relationshipsToSubclassesShouldBeClearedAsWell() {
+
+        inheritanceImpl(s -> new Element(s));
+        inheritanceImpl(s -> new ConcreteElement(s));
+    }
+
+    void inheritanceImpl(Function<String, Element> portProvider) {
+
+        session.query("MATCH (n) DETACH DELETE n", Collections.emptyMap());
+        session.clear();
+
+        // Setup initial relationships in one tx
+        Container card = new Container("container");
+        Element port1 = portProvider.apply("e1");
+        Element port2 = portProvider.apply("e2");
+        card.setElement(new HashSet<>(Arrays.asList(port1, port2)));
+
+        card.setElementsOfAnotherRelationship(Collections.singleton(new ConcreteElement("oe")));
+
+        session.save(card);
+        session.clear();
+
+        // Verify state
+        String verificationQuery = "match (c:Container) <- [:RELATES_TO|RELATES_TO_TOO] - (p:Element) return c.name as c, p.name as p";
+        Result r;
+        r = session.query(verificationQuery, Collections.emptyMap());
+        assertThat(r.queryResults()).hasSize(3);
+        assertThat(r.queryResults()).extracting(m -> m.get("p")).containsExactlyInAnyOrder("e1", "e2", "oe");
+
+        // Reload in cleared session for fresh tx
+        card = session.load(Container.class, card.getId());
+        Element port3 = portProvider.apply("e3");
+
+        // Replace associations
+        card.setElement(Collections.singleton(port3));
+        session.save(card);
+        session.clear();
+
+        r = session.query(verificationQuery, Collections.emptyMap());
+        assertThat(r.queryResults()).hasSize(2);
+        assertThat(r.queryResults()).extracting(m -> m.get("p")).containsExactlyInAnyOrder("e3", "oe");
+    }
+
+    @Test // GH-152
     public void saveMultipleRelationshipsToBase() {
         Type1 node1 = new Type1();
         node1.name = "type1";
@@ -111,8 +160,7 @@ public class HierarchyRelsTest extends MultiDriverTestClass {
         assertThat(type3_2.getType3Out()).hasSize(1);
     }
 
-    // See #404
-    @Test
+    @Test // GH-404
     public void shouldLoadRelationByAbstractParent() {
 
         Post post = new Post();

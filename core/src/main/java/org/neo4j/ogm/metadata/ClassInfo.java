@@ -62,6 +62,7 @@ public class ClassInfo {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
 
     private final List<ClassInfo> directSubclasses = new ArrayList<>();
+    private volatile Set<ClassInfo> allSubclasses;
     private final List<ClassInfo> directInterfaces = new ArrayList<>();
     private final List<ClassInfo> directImplementingClasses = new ArrayList<>();
     private String className;
@@ -225,6 +226,39 @@ public class ClassInfo {
 
     public List<ClassInfo> directSubclasses() {
         return directSubclasses;
+    }
+
+    /**
+     * @return A list of all implementing and extending subclasses.
+     * @since 3.1.20
+     */
+    public Collection<ClassInfo> allSubclasses() {
+
+        Set<ClassInfo> computedSubclasses = this.allSubclasses;
+        if (computedSubclasses == null) {
+            synchronized (this) {
+                computedSubclasses = this.allSubclasses;
+                if (computedSubclasses == null) {
+                    this.allSubclasses = computeSubclasses();
+                    computedSubclasses = this.allSubclasses;
+                }
+            }
+        }
+        return computedSubclasses;
+    }
+
+    private Set<ClassInfo> computeSubclasses() {
+
+        Set<ClassInfo> computedSubclasses = new HashSet<>();
+        for (ClassInfo classInfo : this.directSubclasses()) {
+            computedSubclasses.add(classInfo);
+            computedSubclasses.addAll(classInfo.allSubclasses());
+        }
+        for (ClassInfo classInfo : this.directImplementingClasses()) {
+            computedSubclasses.add(classInfo);
+            computedSubclasses.addAll(classInfo.allSubclasses());
+        }
+        return Collections.unmodifiableSet(computedSubclasses);
     }
 
     List<ClassInfo> directImplementingClasses() {

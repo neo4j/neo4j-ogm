@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.domain.gh806;
 
-import java.util.Set;
-
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -29,29 +27,20 @@ import org.neo4j.ogm.annotation.Relationship;
  * @author Michael J. Simons
  */
 @NodeEntity
-public class Container {
+public class IElementImpl1 implements IElement{
 
     @Id @GeneratedValue
     Long id;
 
     String name;
 
-    @Relationship(type = "RELATES_TO", direction = "INCOMING")
-    Set<Element> element;
+    @Relationship(type = "RELATES_TO")
+    Container container;
 
-    @Relationship(type = "RELATES_TO_AS_WELL", direction = "INCOMING")
-    Set<IElement> element2;
-
-    /**
-     * This is added to ensure we don't delete unrelated relationships.
-     */
-    @Relationship(type = "RELATES_TO_TOO", direction = "INCOMING")
-    Set<ConcreteElement> elementsOfAnotherRelationship;
-
-    public Container() {
+    public IElementImpl1() {
     }
 
-    public Container(String name) {
+    public IElementImpl1(String name) {
         this.name = name;
     }
 
@@ -67,32 +56,11 @@ public class Container {
         this.name = name;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Container getContainer() {
+        return container;
     }
 
-    public Set<Element> getElement() {
-        return element;
-    }
-
-    public void setElement(Set<Element> element) {
-        this.element = element;
-    }
-
-    public Set<ConcreteElement> getElementsOfAnotherRelationship() {
-        return elementsOfAnotherRelationship;
-    }
-
-    public void setElementsOfAnotherRelationship(
-        Set<ConcreteElement> elementsOfAnotherRelationship) {
-        this.elementsOfAnotherRelationship = elementsOfAnotherRelationship;
-    }
-
-    public Set<IElement> getElement2() {
-        return element2;
-    }
-
-    public void setElement2(Set<IElement> element2) {
-        this.element2 = element2;
+    public void setContainer(Container container) {
+        this.container = container;
     }
 }

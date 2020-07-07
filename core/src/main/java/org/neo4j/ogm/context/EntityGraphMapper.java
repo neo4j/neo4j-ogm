@@ -396,7 +396,7 @@ public class EntityGraphMapper implements EntityMapper {
 
                 ClassInfo endNodeTypeClassInfo = metaData.classInfo(endNodeType);
                 if (endNodeTypeClassInfo != null) {
-                    endNodeTypeClassInfo.directSubclasses()
+                    endNodeTypeClassInfo.allSubclasses()
                         .stream().map(ClassInfo::getUnderlyingClass).forEach(potentiallyRelated::add);
                 }
 

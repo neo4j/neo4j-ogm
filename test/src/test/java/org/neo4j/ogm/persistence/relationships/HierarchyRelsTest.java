@@ -25,6 +25,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
@@ -38,6 +42,10 @@ import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.gh806.ConcreteElement;
 import org.neo4j.ogm.domain.gh806.Container;
 import org.neo4j.ogm.domain.gh806.Element;
+import org.neo4j.ogm.domain.gh806.EvenMoreConcreteElement;
+import org.neo4j.ogm.domain.gh806.IElementImpl1;
+import org.neo4j.ogm.domain.gh806.IElementImpl1A;
+import org.neo4j.ogm.domain.gh806.VeryConcreteElementA;
 import org.neo4j.ogm.domain.hierarchy.relations.BaseEntity;
 import org.neo4j.ogm.domain.hierarchy.relations.Type1;
 import org.neo4j.ogm.domain.hierarchy.relations.Type2;
@@ -65,27 +73,32 @@ public class HierarchyRelsTest extends MultiDriverTestClass {
 
     @After
     public void cleanup() {
-        session.purgeDatabase();
+        //r  session.purgeDatabase();
         session.clear();
     }
 
     @Test // GH-806
     public void relationshipsToSubclassesShouldBeClearedAsWell() {
 
-        inheritanceImpl(s -> new Element(s));
-        inheritanceImpl(s -> new ConcreteElement(s));
+        inheritanceImpl(s -> new Element(s), Container::setElement);
+        inheritanceImpl(s -> new ConcreteElement(s), Container::setElement);
+        inheritanceImpl(s -> new VeryConcreteElementA(s), Container::setElement);
+        inheritanceImpl(s -> new EvenMoreConcreteElement(s), Container::setElement);
+
+        inheritanceImpl(s -> new IElementImpl1(s), Container::setElement2);
+        inheritanceImpl(s -> new IElementImpl1A(s), Container::setElement2);
     }
 
-    void inheritanceImpl(Function<String, Element> portProvider) {
+    <T> void inheritanceImpl(Function<String, T> portProvider, BiConsumer<Container, Set<T>> elementConsumer) {
 
         session.query("MATCH (n) DETACH DELETE n", Collections.emptyMap());
         session.clear();
 
         // Setup initial relationships in one tx
         Container card = new Container("container");
-        Element port1 = portProvider.apply("e1");
-        Element port2 = portProvider.apply("e2");
-        card.setElement(new HashSet<>(Arrays.asList(port1, port2)));
+        T port1 = portProvider.apply("e1");
+        T port2 = portProvider.apply("e2");
+        elementConsumer.accept(card, new HashSet<>(Arrays.asList(port1, port2)));
 
         card.setElementsOfAnotherRelationship(Collections.singleton(new ConcreteElement("oe")));
 
@@ -93,22 +106,26 @@ public class HierarchyRelsTest extends MultiDriverTestClass {
         session.clear();
 
         // Verify state
-        String verificationQuery = "match (c:Container) <- [:RELATES_TO|RELATES_TO_TOO] - (p:Element) return c.name as c, p.name as p";
+        String verificationQuery = "match (c:Container) <- [:RELATES_TO|RELATES_TO_TOO|RELATES_TO_AS_WELL] - (p) "
+            + "where any (label in labels(p) where label in $expectedLabels) return c.name as c, p.name as p";
+        Set<String> expectedLabels = new HashSet<>(Arrays.asList(ConcreteElement.class.getSimpleName(), port1.getClass().getSimpleName()));
+        Map<String, Object> parameters = Collections.singletonMap("expectedLabels", expectedLabels);
+
         Result r;
-        r = session.query(verificationQuery, Collections.emptyMap());
+        r = session.query(verificationQuery, parameters);
         assertThat(r.queryResults()).hasSize(3);
         assertThat(r.queryResults()).extracting(m -> m.get("p")).containsExactlyInAnyOrder("e1", "e2", "oe");
 
         // Reload in cleared session for fresh tx
         card = session.load(Container.class, card.getId());
-        Element port3 = portProvider.apply("e3");
+        T port3 = portProvider.apply("e3");
 
         // Replace associations
-        card.setElement(Collections.singleton(port3));
+        elementConsumer.accept(card, new HashSet<>(Arrays.asList(port3)));
         session.save(card);
         session.clear();
 
-        r = session.query(verificationQuery, Collections.emptyMap());
+        r = session.query(verificationQuery, parameters);
         assertThat(r.queryResults()).hasSize(2);
         assertThat(r.queryResults()).extracting(m -> m.get("p")).containsExactlyInAnyOrder("e3", "oe");
     }

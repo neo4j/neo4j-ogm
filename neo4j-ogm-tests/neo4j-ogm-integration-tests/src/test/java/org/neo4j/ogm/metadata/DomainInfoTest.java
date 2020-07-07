@@ -35,7 +35,7 @@ public class DomainInfoTest {
 
     @Before
     public void setUp() {
-        domainInfo = DomainInfo.create("org.neo4j.ogm.domain.forum");
+        domainInfo = DomainInfo.create("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.gh806");
     }
 
     @Test
@@ -45,6 +45,32 @@ public class DomainInfoTest {
 
         assertThat(classInfo).isNotNull();
         assertThat(classInfo.directImplementingClasses()).hasSize(5);
+    }
+
+    @Test // GH-806
+    public void shouldFindAllSubclasses() {
+
+        ClassInfo classInfo = domainInfo.getClassSimpleName("Element");
+
+        assertThat(classInfo.allSubclasses())
+            .containsExactlyInAnyOrder(
+                domainInfo.getClassSimpleName("ConcreteElement"),
+                domainInfo.getClassSimpleName("VeryConcreteElementA"),
+                domainInfo.getClassSimpleName("VeryConcreteElementB"),
+                domainInfo.getClassSimpleName("EvenMoreConcreteElement")
+            );
+    }
+
+    @Test // GH-806
+    public void shouldFindAllImplementingClasses() {
+
+        ClassInfo classInfo = domainInfo.getClassSimpleName("IElement");
+
+        assertThat(classInfo.allSubclasses())
+            .containsExactlyInAnyOrder(
+                domainInfo.getClassSimpleName("IElementImpl1"),
+                domainInfo.getClassSimpleName("IElementImpl1A")
+            );
     }
 
     @Test

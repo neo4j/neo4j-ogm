@@ -39,6 +39,9 @@ public class Container {
     @Relationship(type = "RELATES_TO", direction = Relationship.Direction.INCOMING)
     Set<Element> element;
 
+    @Relationship(type = "RELATES_TO_AS_WELL", direction = Relationship.Direction.INCOMING)
+    Set<IElement> element2;
+
     /**
      * This is added to ensure we don't delete unrelated relationships.
      */
@@ -83,5 +86,13 @@ public class Container {
     public void setElementsOfAnotherRelationship(
         Set<ConcreteElement> elementsOfAnotherRelationship) {
         this.elementsOfAnotherRelationship = elementsOfAnotherRelationship;
+    }
+
+    public Set<IElement> getElement2() {
+        return element2;
+    }
+
+    public void setElement2(Set<IElement> element2) {
+        this.element2 = element2;
     }
 }

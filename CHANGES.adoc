@@ -2,6 +2,10 @@
 
 == 3.2
 
+=== 3.2.14
+
+* Relationships incoming from an inheritance tree are not deleted. (#806)
+
 === 3.2.13
 
 * GH-799, GH-800: Improve nested filtering: Nested filters will now always collapse when they target the same leaf node. This allows for using logical `OR` inside nested filters. We also make sure that in all scenarios, in which semantically wrong Cypher would be created, an `UnsupportedOperationException` is thrown, regardless if one tries to combined `NestedFilterOrOtherFilter` or `OtherFilterOrNestedFilter`. This may affect some derived finder methods in Spring Data Neo4j.
@@ -149,6 +153,10 @@ and Ensure that id fields are mapped correctly during adhoc mapping. (#551)
 * Add some useful Kotlin extensions to Session. (#661)
 
 == 3.1
+
+=== 3.1.20
+
+* Relationships incoming from an inheritance tree are not deleted. (#806)
 
 === 3.1.19
 

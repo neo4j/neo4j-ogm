@@ -1,5 +1,9 @@
 = Changes
 
+== 3.1.20
+
+* Relationships incoming from an inheritance tree are not deleted. (#806)
+
 == 3.1.19
 
 * Fix return type for known entity classes in case of an empty result. (Backport of #748)

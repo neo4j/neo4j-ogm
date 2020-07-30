@@ -313,11 +313,24 @@ public class DomainInfo {
             Pattern partialClassNamePattern = Pattern.compile(".+[\\\\.\\$]" + Pattern.quote(k) + "$");
             String matchingKey = null;
             for (String key : infos.keySet()) {
-                if (partialClassNamePattern.matcher(key).matches()) {
+                boolean isCandidate = partialClassNamePattern.matcher(key).matches();
+                if (isCandidate) {
+                    ClassInfo candidate = infos.get(key);
+                    String candidateNeo4jName = candidate.neo4jName() != null ? candidate.neo4jName() : key;
                     if (matchingKey != null) {
-                        throw new MappingException("More than one class has simple name: " + fullOrPartialClassName);
+                        ClassInfo existingMatch = infos.get(matchingKey);
+                        String previousMatchNeo4jName =
+                            existingMatch.neo4jName() != null ? existingMatch.neo4jName() : key;
+
+                        boolean sameLabel = candidateNeo4jName.equals(previousMatchNeo4jName);
+
+                        if (sameLabel) {
+                            throw new MappingException("More than one class has simple name: " + fullOrPartialClassName);
+                        }
                     }
-                    matchingKey = key;
+                    if (matchingKey == null || candidateNeo4jName.equals(fullOrPartialClassName)) {
+                        matchingKey = key;
+                    }
                 }
             }
             return Optional.ofNullable(matchingKey);

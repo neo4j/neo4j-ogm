@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.domain.gh809.package1.TestEntity;
 
 /**
  * see DATAGRAPH-590 - Metadata resolves to an abstract class for an interface
@@ -35,7 +36,10 @@ public class DomainInfoTest {
 
     @Before
     public void setUp() {
-        domainInfo = DomainInfo.create("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.gh806");
+        domainInfo = DomainInfo.create(
+            "org.neo4j.ogm.domain.forum",
+            "org.neo4j.ogm.domain.gh806",
+            "org.neo4j.ogm.domain.gh809");
     }
 
     @Test
@@ -87,5 +91,11 @@ public class DomainInfoTest {
         ClassInfo classInfo = domainInfo.getClassSimpleName("SilverMembership");
         assertThat(classInfo).isNotNull();
         assertThat(classInfo.interfacesInfo().list()).hasSize(1);
+    }
+
+    @Test
+    public void shouldCorrectlyFindMultipleClassesWithSimpleNameIfAnnotated() {
+        ClassInfo classInfo = domainInfo.getClassSimpleName("TestEntity");
+        assertThat(classInfo.getUnderlyingClass()).isSameAs(TestEntity.class);
     }
 }

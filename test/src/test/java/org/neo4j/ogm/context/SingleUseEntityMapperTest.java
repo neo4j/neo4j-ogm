@@ -26,7 +26,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,6 +45,8 @@ import org.neo4j.ogm.domain.gh551.ThingWIthId;
 import org.neo4j.ogm.domain.gh552.Thing;
 import org.neo4j.ogm.domain.gh777.UserInfo;
 import org.neo4j.ogm.domain.gh777.UserSearchDto;
+import org.neo4j.ogm.domain.gh813.Container;
+import org.neo4j.ogm.domain.gh813.RowModel;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.Session;
@@ -59,7 +64,7 @@ public class SingleUseEntityMapperTest extends MultiDriverTestClass {
     @BeforeClass
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391", "org.neo4j.ogm.domain.gh777",
-            "org.neo4j.ogm.domain.cineasts.minimum");
+            "org.neo4j.ogm.domain.cineasts.minimum", "org.neo4j.ogm.domain.gh813");
 
         // Prepare test data
         Session session = sessionFactory.openSession();
@@ -76,6 +81,56 @@ public class SingleUseEntityMapperTest extends MultiDriverTestClass {
         session.save(role);
 
         session.save(new UserInfo("Foo", "Bar", "i@do.com"));
+    }
+
+    @Test
+    public void gh813() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results;
+
+        results = sessionFactory.openSession()
+            .query(
+                "RETURN 'containerName' AS name, [i IN RANGE(0,3) | {a:{id: i, name:'a'+i}, b:{id: i, name:'b'+i}, c:{id: i, name:'c'+i}}] AS rows",
+                EMPTY_MAP)
+            .queryResults();
+        assertThat(results).hasSize(1);
+        Container container = entityMapper.map(Container.class, results.iterator().next());
+        assertContainer(container, 4);
+
+        results = sessionFactory.openSession()
+            .query(
+                "WITH {a: {id: 0, name: 'a0'}, b: {id:0, name:'b0'}, c: {id:0, name: 'c0'}} AS i RETURN 'containerName' as name, collect(i) as rows",
+                EMPTY_MAP)
+            .queryResults();
+        assertThat(results).hasSize(1);
+        container = entityMapper.map(Container.class, results.iterator().next());
+        assertContainer(container, 1);
+    }
+
+    private void assertContainer(Container container, int expectedNumberOfRows) {
+
+        Function<Integer, Consumer<RowModel>> rowRequirements = i -> r -> {
+            assertThat(r.getA().getId()).isEqualTo(i);
+            assertThat(r.getA().getName()).isEqualTo("a" + i);
+            assertThat(r.getB().getId()).isEqualTo(i);
+            assertThat(r.getB().getName()).isEqualTo("b" + i);
+            assertThat(r.getC().getId()).isEqualTo(i);
+            assertThat(r.getC().getName()).isEqualTo("c" + i);
+        };
+
+        assertThat(container).isNotNull();
+        assertThat(container.getName()).isEqualTo("containerName");
+        List<RowModel> rows = container.getRows();
+        assertThat(rows).hasSize(expectedNumberOfRows);
+
+        for (int i = 0; i < rows.size(); ++i) {
+            assertThat(rows.get(i)).satisfies(rowRequirements.apply(i));
+        }
+
     }
 
     @Test // GH-748

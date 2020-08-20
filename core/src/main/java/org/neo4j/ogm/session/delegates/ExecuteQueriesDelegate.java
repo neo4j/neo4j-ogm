@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import static org.neo4j.ogm.metadata.ClassInfo.*;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -137,6 +135,11 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
 
         return session.<Iterable<T>>doInTransaction(() -> {
             if (type != null && session.metaData().classInfo(type.getName()) != null) {
+
+                if (mayBeReadWrite(cypher)) {
+                    session.clear();
+                }
+
                 // Things that can be mapped to entities
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {

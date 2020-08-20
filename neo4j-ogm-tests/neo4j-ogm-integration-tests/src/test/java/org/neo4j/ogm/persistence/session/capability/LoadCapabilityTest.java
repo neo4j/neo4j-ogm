@@ -405,6 +405,7 @@ public class LoadCapabilityTest extends TestContainersTestBase {
 
         //Load the Artist to depth 0 in the first session
         Artist ledZeppelin = session.load(Artist.class, led.getId(), 0);
+        System.out.println(((Neo4jSession)session).context().getNodeEntity(ledZeppelin.getId()).hashCode());
         assertThat(ledZeppelin).isNotNull();
         assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
         assertThat(ledZeppelin.getAlbums()).isEmpty();
@@ -412,11 +413,14 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         //In session 2, update the name of the artist
         Session session2 = sessionFactory.openSession();
         Artist ledZepp = session2.load(Artist.class, led.getId(), 0);
+        System.out.println(((Neo4jSession)session2).context().getNodeEntity(ledZeppelin.getId()).hashCode());
         ledZepp.setName("Led Zepp");
         session2.save(ledZepp);
+        System.out.println(">1 " + ((Neo4jSession)session).context().getNodeEntity(ledZeppelin.getId()));
 
         //Back in the first session, load the artist to depth 1
         ledZeppelin = session.load(Artist.class, led.getId(), 1);
+        System.out.println(">2 " + ((Neo4jSession)session).context().getNodeEntity(ledZeppelin.getId()));
         assertThat(ledZeppelin).isNotNull();
         assertThat(ledZeppelin.getName()).isEqualTo(led.getName());
         assertThat(ledZeppelin.getAlbums()).hasSize(1);

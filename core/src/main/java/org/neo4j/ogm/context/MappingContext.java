@@ -39,6 +39,7 @@ import org.neo4j.ogm.utils.EntityUtils;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class MappingContext {
 

@@ -60,7 +60,7 @@ import org.neo4j.ogm.utils.ClassUtils;
  */
 public class ExecuteQueriesDelegate extends SessionDelegate {
 
-    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP)\\b");
+    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b");
 
     public ExecuteQueriesDelegate(Neo4jSession session) {
         super(session);
@@ -127,7 +127,15 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         ResponseMapper mapper) {
 
         return session.<Iterable<T>>doInTransaction( () -> {
+
+            // While an update query may not return objects, it has enough changes
+            // to modify all entities in the context, so we must flush it either way.
+            if (mayBeReadWrite(cypher)) {
+                session.clear();
+            }
+
             if (type != null && session.metaData().classInfo(type.getName()) != null) {
+
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {
                     return new GraphEntityMapper(session.metaData(), session.context(), session.getEntityInstantiator()).map(type, response);

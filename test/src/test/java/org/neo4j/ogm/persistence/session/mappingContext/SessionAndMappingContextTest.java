@@ -22,13 +22,18 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
+import org.neo4j.ogm.domain.gh817.Bike;
+import org.neo4j.ogm.domain.gh817.Rider;
+import org.neo4j.ogm.domain.gh817.Trip;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.Recording;
@@ -36,13 +41,14 @@ import org.neo4j.ogm.domain.music.ReleaseFormat;
 import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Mihai Raulea
- * @see ISSUE-86
+ * @author Michael J. Simons
  */
 public class SessionAndMappingContextTest extends MultiDriverTestClass {
 
@@ -57,10 +63,17 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     private Actor actor2;
     private Knows knows, knows2;
 
+    private static SessionFactory sessionFactory;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music",
+            "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.gh817");
+    }
+
     @Before
     public void init() throws IOException {
-        session = (Neo4jSession) new SessionFactory(driver, "org.neo4j.ogm.domain.music",
-            "org.neo4j.ogm.domain.cineasts.annotated").openSession();
+        session = (Neo4jSession) sessionFactory.openSession();
 
         artist1 = new Artist();
         artist1.setName("MainArtist");
@@ -215,31 +228,81 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldWhat() {
-
-        Actor mary = new Actor("Mary");
-
-        Knows maryKnowsMary = new Knows();
-
-        maryKnowsMary.setFirstActor(mary);
-        maryKnowsMary.setSecondActor(mary);
-
-        mary.getKnows().add(maryKnowsMary);
-
-        try (Transaction tx = session.beginTransaction()) {
-
-            session.save(mary);
-
-            session.context().reset(mary);
-        }
-    }
-
-    @Test
     public void shouldNotThrowConcurrentModificationException() {
 
         try (Transaction tx = session.beginTransaction()) {
             session.save(new Actor("Mary"));
             session.deleteAll(Actor.class);
         }
+    }
+
+    @Test // GH-817
+    public void shouldRefreshUpdatedEntities() {
+        sessionFactory.openSession().purgeDatabase();
+
+        Session sessionForCreation = sessionFactory.openSession();
+        try (Transaction tx = sessionForCreation.beginTransaction()) {
+            Stream.of(new Bike("Bike1"), new Bike("Bike2")).forEach(sessionForCreation::save);
+            tx.commit();
+        }
+
+        Session sessionForLoadingAndUpdate = sessionFactory.openSession();
+        Iterable<Bike> loadedBikes = sessionForLoadingAndUpdate.loadAll(Bike.class);
+        assertThat(loadedBikes).hasSize(2).extracting(Bike::isDamaged).containsOnly(false);
+
+        Iterable<Bike> updatedBikes = sessionForLoadingAndUpdate
+            .query(Bike.class, "MATCH (c:Bike) SET c.damaged = true RETURN c", Collections.emptyMap());
+
+        assertThat(updatedBikes).hasSize(2).extracting(Bike::isDamaged).containsOnly(true);
+    }
+
+    @Test // GH-817
+    public void shouldFlushSessionWithoutReturningNodes() {
+        sessionFactory.openSession().purgeDatabase();
+
+        Session sessionForCreation = sessionFactory.openSession();
+        try (Transaction tx = sessionForCreation.beginTransaction()) {
+            Stream.of(new Bike("Bike1"), new Bike("Bike2")).forEach(sessionForCreation::save);
+            tx.commit();
+        }
+
+        Session sessionForLoadingAndUpdate = sessionFactory.openSession();
+        Iterable<Bike> loadedBikes = sessionForLoadingAndUpdate.loadAll(Bike.class);
+        assertThat(loadedBikes).hasSize(2).extracting(Bike::isDamaged).containsOnly(false);
+
+        sessionForLoadingAndUpdate
+            .query(void.class, "MATCH (c:Bike) SET c.damaged = true", Collections.emptyMap());
+
+        loadedBikes = sessionForLoadingAndUpdate.loadAll(Bike.class);
+        assertThat(loadedBikes).hasSize(2).extracting(Bike::isDamaged).containsOnly(true);
+    }
+
+    @Test // GH-817
+    public void shouldRefreshUpdatedRelationshipEntities() {
+        sessionFactory.openSession().purgeDatabase();
+
+        Session sessionForCreation = sessionFactory.openSession();
+        Rider rider = new Rider("Michael");
+        Bike bike1 = new Bike("Bike1");
+        Bike bike2 = new Bike("Bike2");
+        rider.getTrips().add(new Trip(rider, bike1, "n/a"));
+        rider.getTrips().add(new Trip(rider, bike2, "n/a"));
+        try (Transaction tx = sessionForCreation.beginTransaction()) {
+            sessionForCreation.save(rider);
+            tx.commit();
+        }
+
+        Session sessionForLoadingAndUpdate = sessionFactory.openSession();
+        Iterable<Trip> loadedBikes = sessionForLoadingAndUpdate.loadAll(Trip.class);
+        assertThat(loadedBikes).hasSize(2).extracting(Trip::getName).containsOnly("n/a");
+
+        String name = "A nice trip";
+        Iterable<Trip> updatedBikes = sessionForLoadingAndUpdate
+            .query(Trip.class, "MATCH (r:Rider) - [t:RODE] -> (c:Bike) SET t.name = $newName RETURN *", Collections.singletonMap("newName", name));
+
+        Rider loadedRider = sessionForLoadingAndUpdate.load(Rider.class, rider.getId());
+
+        assertThat(updatedBikes).hasSize(2).extracting(Trip::getName).containsOnly(name);
+        assertThat(loadedRider.getTrips()).hasSize(2).extracting(Trip::getName).containsOnly(name);
     }
 }

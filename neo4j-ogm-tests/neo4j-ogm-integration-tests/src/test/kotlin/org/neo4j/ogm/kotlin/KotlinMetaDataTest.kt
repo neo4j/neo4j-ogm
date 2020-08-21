@@ -67,4 +67,13 @@ class KotlinMetaDataTest {
         assertThat(kotlinZoo.getFieldInfo("animals").typeDescriptor).isEqualTo("org.neo4j.ogm.domain.gh696.Animal")
         assertThat(kotlinZoo.getFieldInfo("zookeepers").typeDescriptor).isEqualTo("org.neo4j.ogm.domain.gh696.Zookeeper")
     }
+
+    @Test // GH-822
+    fun `OGM should detect the inlines class underlying value type`() {
+        val metaData = MetaData("org.neo4j.ogm.domain.gh822")
+        val userClassInfo = metaData.classInfo("User")
+
+        assertThat(userClassInfo).isNotNull
+        assertThat(userClassInfo.getFieldInfo("userId").typeDescriptor).isEqualTo("java.lang.String")
+    }
 }

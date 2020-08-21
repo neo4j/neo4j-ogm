@@ -63,10 +63,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveUndirectedSavesOutgoingRelationship() {
         User userA = new User("A");
         User userB = new User("B");
@@ -77,10 +74,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
             "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'}) CREATE (a)-[:FRIEND]->(b)");
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveUnmarkedSavesOutgoingRelationship() {
         Individual individualA = new Individual();
         individualA.setName("A");
@@ -93,10 +87,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
             "CREATE (a:Individual {name:'A', age: 0, code:0, bankBalance:0.0}) CREATE (b:Individual {name:'B', age:0, code:0, bankBalance:0.0}) CREATE (a)-[:FRIENDS]->(b)");
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveOutgoingSavesOutgoingRelationship() {
         Person personA = new Person("A");
         Person personB = new Person("B");
@@ -106,10 +97,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
             "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (a)-[:LIKES]->(b)");
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveIncomingSavesIncomingRelationship() {
         Mortal mortalA = new Mortal("A");
         Mortal mortalB = new Mortal("B");
@@ -119,10 +107,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
             "CREATE (a:Mortal {name:'A'}) CREATE (b:Mortal {name:'B'}) CREATE (a)<-[:KNOWN_BY]-(b)");
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveOutgoingSavesOutgoingRelationshipInBothDirections() {
         Person personA = new Person("A");
         Person personB = new Person("B");
@@ -134,10 +119,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
             "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveOutgoingToExistingNodesSavesOutgoingRelationshipInBothDirections() {
         Person personA = new Person("A");
         Person personB = new Person("B");
@@ -150,10 +132,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
             "CREATE (a)-[:LIKES]->(b) CREATE (b)-[:LIKES]->(a)");
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void updateOutgoingRelSavesOutgoingRelationshipInBothDirections() {
         Person personA = new Person("A");
         Person personB = new Person("B");
@@ -173,10 +152,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
                 " CREATE (a)-[:LIKES]->(c) CREATE (c)-[:LIKES]->(a) CREATE (b)-[:LIKES]->(a)");
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void updateOutgoingRelInListSavesOutgoingRelationshipInBothDirections() {
         Person personA = new Person("A");
         Person personB = new Person("B");
@@ -197,10 +173,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
                 "CREATE (a)-[:LIKES]->(b) CREATE (a)-[:LIKES]->(c) CREATE (b)-[:LIKES]->(a) CREATE (d)-[:LIKES]->(a)");
     }
 
-    /**
-     * @see DATAGRAPH-636, DATAGRAPH-665 (equals() on SocialUser includes every field)
-     */
-    @Test
+    @Test // DATAGRAPH-636, DATAGRAPH-665 (equals() on SocialUser includes every field)
     public void shouldManageRelationshipsToTheSameNodeType() {
         SocialUser userA = new SocialUser("A");
         SocialUser userB = new SocialUser("B");
@@ -236,10 +209,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         assertThat(userA.getFollowing()).hasSize(2);
     }
 
-    /**
-     * @see Issue #61
-     */
-    @Test
+    @Test // GH-61
     public void shouldUseOptimizedQueryToSaveExistingRelations() {
         SocialUser userA = new SocialUser("A");
         SocialUser userB = new SocialUser("B");
@@ -274,10 +244,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         assertThat(userA.getFollowing()).hasSize(2);
     }
 
-    /**
-     * @see issue #112
-     */
-    @Test
+    @Test // GH-112
     public void removeUndirectedRelationship() {
         User userA = new User("A");
         User userB = new User("B");
@@ -292,10 +259,7 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         assertSameGraph(getGraphDatabaseService(), "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'})");
     }
 
-    /**
-     * @see <a href="https://github.com/neo4j/neo4j-ogm/issues/305">issue 305</a>
-     */
-    @Test
+    @Test // GH-305
     public void shouldBePossibleToDeleteRelationshipToPurgedNodeWithEventListener() throws Exception {
         session.register(new EventListenerAdapter());
 
@@ -309,10 +273,10 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         session.save(a1);
         session.save(a2);
 
-        a1.setPeopleILike(Collections.<Person>emptyList());
+        a1.setPeopleILike(Collections.emptyList());
         session.save(a1);
 
-        a2.setPeopleILike(Collections.<Person>emptyList());
+        a2.setPeopleILike(Collections.emptyList());
         session.save(a2);
     }
 }

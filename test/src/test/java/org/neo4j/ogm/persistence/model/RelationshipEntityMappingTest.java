@@ -105,7 +105,7 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldBeAbleToSaveAndLoadRelationshipEntityWithNullProperties() throws Exception {
+    public void shouldBeAbleToSaveAndLoadRelationshipEntityWithNullProperties() {
         Actor keanu = new Actor("Keanu Reeves");
 
         Movie matrix = new Movie("The Matrix", 1999);
@@ -119,7 +119,7 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
         Map<String, Object> params = new HashMap<>();
         params.put("actorId", keanu.getId());
         Result result = session.query("MATCH (a:Actor)-[r:ACTS_IN]-(m:Movie) WHERE ID(a) = {actorId} RETURN r as rel",
-            params);
+            params, true);
 
         Iterator<Map<String, Object>> iterator = result.iterator();
 

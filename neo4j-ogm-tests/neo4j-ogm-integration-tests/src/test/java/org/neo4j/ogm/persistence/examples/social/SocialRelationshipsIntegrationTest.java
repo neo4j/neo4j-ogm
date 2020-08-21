@@ -64,10 +64,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.purgeDatabase();
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveUndirectedSavesOutgoingRelationship() {
         User userA = new User("A");
         User userB = new User("B");
@@ -79,10 +76,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
             + "return a,b", emptyMap()).queryResults()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveUnmarkedSavesOutgoingRelationship() {
         Individual individualA = new Individual();
         individualA.setName("A");
@@ -100,10 +94,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
             .hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveOutgoingSavesOutgoingRelationship() {
         Person personA = new Person("A");
         Person personB = new Person("B");
@@ -115,10 +106,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
             + "return a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveIncomingSavesIncomingRelationship() {
         Mortal mortalA = new Mortal("A");
         Mortal mortalB = new Mortal("B");
@@ -130,10 +118,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
             + "return a,b", emptyMap()).queryResults()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveOutgoingSavesOutgoingRelationshipInBothDirections() {
         Person personA = new Person("A");
         Person personB = new Person("B");
@@ -146,10 +131,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
             "WHERE (a)-[:LIKES]->(b) and (b)-[:LIKES]->(a) return a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void saveOutgoingToExistingNodesSavesOutgoingRelationshipInBothDirections() {
         Person personA = new Person("A");
         Person personB = new Person("B");
@@ -164,10 +146,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
             "WHERE (a)-[:LIKES]->(b) and (b)-[:LIKES]->(a) return a,b", emptyMap()).queryResults()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void updateOutgoingRelSavesOutgoingRelationshipInBothDirections() {
         Person personA = new Person("A");
         Person personB = new Person("B");
@@ -191,10 +170,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
             .queryResults()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-594
-     */
-    @Test
+    @Test // DATAGRAPH-594
     public void updateOutgoingRelInListSavesOutgoingRelationshipInBothDirections() {
         Person personA = new Person("A");
         Person personB = new Person("B");
@@ -217,10 +193,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
             "return a, b, c, d", emptyMap()).queryResults()).hasSize(1);
     }
 
-    /**
-     * @see DATAGRAPH-636, DATAGRAPH-665 (equals() on SocialUser includes every field)
-     */
-    @Test
+    @Test // DATAGRAPH-636, DATAGRAPH-665 (equals() on SocialUser includes every field)
     public void shouldManageRelationshipsToTheSameNodeType() {
         SocialUser userA = new SocialUser("A");
         SocialUser userB = new SocialUser("B");
@@ -256,10 +229,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         assertThat(userA.getFollowing()).hasSize(2);
     }
 
-    /**
-     * @see Issue #61
-     */
-    @Test
+    @Test // GH-61
     public void shouldUseOptimizedQueryToSaveExistingRelations() {
         SocialUser userA = new SocialUser("A");
         SocialUser userB = new SocialUser("B");
@@ -294,10 +264,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         assertThat(userA.getFollowing()).hasSize(2);
     }
 
-    /**
-     * @see issue #112
-     */
-    @Test
+    @Test // GH-112
     public void removeUndirectedRelationship() {
         User userA = new User("A");
         User userB = new User("B");
@@ -305,18 +272,15 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.save(userA);
 
         assertThat(session.query("MATCH (a:User {name:'A'}), (b:User {name:'B'}) WHERE (a)-[:FRIEND]->(b) return a,b",
-            emptyMap()).queryResults()).hasSize(1);
+            emptyMap(), true).queryResults()).hasSize(1);
 
         userA.unfriend(userB);
         session.save(userA);
         assertThat(session.query("MATCH (a:User {name:'A'}), (b:User {name:'B'}) WHERE (a)-[:FRIEND]->(b) return a, b",
-            emptyMap()).queryResults()).hasSize(0);
+            emptyMap(), true).queryResults()).hasSize(0);
     }
 
-    /**
-     * @see <a href="https://github.com/neo4j/neo4j-ogm/issues/305">issue 305</a>
-     */
-    @Test
+    @Test // GH-305
     public void shouldBePossibleToDeleteRelationshipToPurgedNodeWithEventListener() throws Exception {
         session.register(new EventListenerAdapter());
 
@@ -330,10 +294,10 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.save(a1);
         session.save(a2);
 
-        a1.setPeopleILike(Collections.<Person>emptyList());
+        a1.setPeopleILike(Collections.emptyList());
         session.save(a1);
 
-        a2.setPeopleILike(Collections.<Person>emptyList());
+        a2.setPeopleILike(Collections.emptyList());
         session.save(a2);
     }
 }

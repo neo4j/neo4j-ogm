@@ -131,7 +131,7 @@ public class RelationshipEntityMappingTest extends TestContainersTestBase {
         Map<String, Object> params = new HashMap<>();
         params.put("actorId", keanu.getUuid());
         Result result = session.query("MATCH (a:Actor)-[r:ACTS_IN]-(m:Movie) WHERE a.uuid = $actorId RETURN r as rel",
-            params);
+            params, true);
 
         Iterator<Map<String, Object>> iterator = result.iterator();
 

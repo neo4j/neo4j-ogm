@@ -117,7 +117,7 @@ public class DirtyObjectsTest extends TestContainersTestBase {
         session.save(d);
 
         // perform an out-of-session update on the object
-        session.query("MATCH (n) SET n.name='Document'", Collections.emptyMap());
+        sessionFactory.openSession().query("MATCH (n) SET n.name='Document'", Collections.emptyMap());
 
         // get a copy of the document into a different session
         Document d2 = sessionFactory.openSession().load(Document.class, d.getId());

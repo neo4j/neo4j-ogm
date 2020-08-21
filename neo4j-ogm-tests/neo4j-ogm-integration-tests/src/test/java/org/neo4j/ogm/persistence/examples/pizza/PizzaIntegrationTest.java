@@ -534,7 +534,7 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
 
 
     private void assertOneRelationshipInDb() {
-        Result result = session.query("MATCH (p:Pizza)-[r]-() return count(r) as c", new HashMap<String, Object>());
+        Result result = sessionFactory.openSession().query("MATCH (p:Pizza)-[r]-() return count(r) as c", new HashMap<>());
         Map<String, Object> row = result.iterator().next();
         Number count = (Number) row.get("c");
         assertThat(count.longValue()).isEqualTo(1L);

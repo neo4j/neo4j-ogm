@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import static org.neo4j.ogm.metadata.ClassInfo.*;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -63,7 +61,7 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class ExecuteQueriesDelegate extends SessionDelegate {
 
-    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP)\\b");
+    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b");
 
     public ExecuteQueriesDelegate(Neo4jSession session) {
         super(session);
@@ -136,7 +134,15 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
     private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters) {
 
         return session.<Iterable<T>>doInTransaction(() -> {
+
+            // While an update query may not return objects, it has enough changes
+            // to modify all entities in the context, so we must flush it either way.
+            if (mayBeReadWrite(cypher)) {
+                session.clear();
+            }
+
             if (type != null && session.metaData().classInfo(type.getName()) != null) {
+
                 // Things that can be mapped to entities
                 GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
                 try (Response<GraphModel> response = session.requestHandler().execute(request)) {

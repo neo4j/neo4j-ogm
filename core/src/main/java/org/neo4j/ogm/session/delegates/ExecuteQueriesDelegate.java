@@ -112,7 +112,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
 
     public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {
         validateQuery(cypher, parameters, false); //we'll allow modifying statements
-        if (type == null || type.equals(Void.class)) {
+        if (type == null || VOID_TYPES.contains(type)) {
             throw new RuntimeException("Supplied type must not be null or void.");
         }
         return executeAndMap(type, cypher, parameters);

@@ -277,8 +277,7 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
         Iterable<Bike> loadedBikes = sessionForLoadingAndUpdate.loadAll(Bike.class);
         assertThat(loadedBikes).hasSize(2).extracting(Bike::isDamaged).containsOnly(false);
 
-        sessionForLoadingAndUpdate
-            .query(void.class, "MATCH (c:Bike) SET c.damaged = true", Collections.emptyMap());
+        sessionForLoadingAndUpdate.query("MATCH (c:Bike) SET c.damaged = true", Collections.emptyMap());
 
         loadedBikes = sessionForLoadingAndUpdate.loadAll(Bike.class);
         assertThat(loadedBikes).hasSize(2).extracting(Bike::isDamaged).containsOnly(true);

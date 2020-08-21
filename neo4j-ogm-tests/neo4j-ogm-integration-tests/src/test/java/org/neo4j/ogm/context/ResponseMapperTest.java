@@ -64,7 +64,7 @@ public class ResponseMapperTest {
             Session session = sessionFactory.openSession();
             // The call would have been successfull if the procedure would have returned a stream of
             // things with at max 1 attribute, but in the end, that would be what was requested for.
-            session.query(void.class, "CALL apoc.periodic.iterate('MATCH (d:Document) RETURN d', "
+            session.query("CALL apoc.periodic.iterate('MATCH (d:Document) RETURN d', "
                 + " 'SET d.thisIsAProperty = 0'"
                 + " ,{batchSize:200, parallel:false, iterateList:true}) ", new HashMap<>());
         } finally {

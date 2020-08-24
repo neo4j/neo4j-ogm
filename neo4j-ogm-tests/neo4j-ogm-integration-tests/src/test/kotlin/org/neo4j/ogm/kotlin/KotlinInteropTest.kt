@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.kotlin
 
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.*
 import org.neo4j.driver.AuthTokens
@@ -27,6 +28,7 @@ import org.neo4j.driver.Values
 import org.neo4j.harness.ServerControls
 import org.neo4j.harness.TestServerBuilders
 import org.neo4j.ogm.config.Configuration
+import org.neo4j.ogm.config.ObjectMapperFactory
 import org.neo4j.ogm.cypher.ComparisonOperator
 import org.neo4j.ogm.cypher.Filter
 import org.neo4j.ogm.cypher.Filters
@@ -38,6 +40,7 @@ import org.neo4j.ogm.domain.delegation.KotlinAImpl
 import org.neo4j.ogm.domain.gh696.Lion
 import org.neo4j.ogm.domain.gh696.Zebra
 import org.neo4j.ogm.domain.gh696.ZooKotlin
+import org.neo4j.ogm.domain.gh822.*
 import org.neo4j.ogm.session.*
 import kotlin.test.assertNotNull
 
@@ -67,8 +70,13 @@ class KotlinInteropTest {
             sessionFactory = SessionFactory(ogmConfiguration,
                     MyNode::class.java.`package`.name,
                     KotlinAImpl::class.java.`package`.name,
-                    ZooKotlin::class.java.`package`.name
+                    ZooKotlin::class.java.`package`.name,
+                    User::class.java.`package`.name
             )
+
+            ObjectMapperFactory.objectMapper()
+                    .registerModule(KotlinModule())
+                    .registerModule(IdTypesModule())
         }
 
         @AfterClass
@@ -227,5 +235,21 @@ class KotlinInteropTest {
 
         val numberOfMyNodes = sessionFactory.openSession().count<MyNode>(listOf(Filter("name", ComparisonOperator.EQUALS, "Brian")))
         assertThat(numberOfMyNodes).isEqualTo(1)
+    }
+
+    @Test // GH-822
+    fun `inline classes should work with dedicated serializers`() {
+
+        val userId = StringID("aUserId")
+        val userToSave = User(userId, "Danger Dan");
+
+        sessionFactory.openSession().save(userToSave);
+
+        val nameFilter = Filter("userId", ComparisonOperator.EQUALS, userId).ignoreCase()
+        val loadedUsers = sessionFactory.openSession().loadAll(User::class.java, nameFilter);
+        assertThat(loadedUsers).hasSize(1).extracting<StringID>(User::userId).containsOnly(userId)
+
+        val loadedUser = sessionFactory.openSession().queryForObject<User>("MATCH (u:User) RETURN u", mapOf(Pair("userId", userId)))!!
+        assertThat(loadedUser).isNotNull().extracting(User::userId).isEqualTo(userId)
     }
 }

@@ -18,12 +18,13 @@
  */
 package org.neo4j.ogm.result.adapter;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
@@ -43,32 +44,13 @@ public abstract class RestModelAdapter extends BaseAdapter
         for (Map.Entry<String, Object> entry : result.entrySet()) {
             Object value = entry.getValue();
             if (value instanceof Collection) {
-                Collection<Object> adaptedValues = new ArrayList<>();
-                Collection<Object> values = (List) value;
-                for (Object element : values) {
-                    handleAdaptedValue(adaptedValues, processData(element));
-                }
-                adaptedResults.put(entry.getKey(), adaptedValues);
+                adaptedResults.put(entry.getKey(), ((Collection) value).stream().map(this::processData).collect(Collectors.toList()));
             } else {
                 adaptedResults.put(entry.getKey(), processData(value));
             }
         }
 
         return adaptedResults;
-    }
-
-    /**
-     * Not public API, for internal use only.
-     * @param adaptedValues already prepared values
-     * @param newValue new value to prepare
-     */
-    public static void handleAdaptedValue(Collection<Object> adaptedValues, Object newValue) {
-
-        if (newValue instanceof Collection) {
-            adaptedValues.addAll((Collection<?>) newValue);
-        } else {
-            adaptedValues.add(newValue);
-        }
     }
 
     /**
@@ -80,12 +62,7 @@ public abstract class RestModelAdapter extends BaseAdapter
     public static Object handlePossibleCollections(Object element, Function<Object, Object> mappingFunction) {
 
         if (element instanceof Iterable) {
-            List<Object> adaptedValues = new ArrayList<>();
-            Iterable collection = (Iterable) element;
-            for (Object nestedElement : collection) {
-                handleAdaptedValue(adaptedValues, mappingFunction.apply(nestedElement));
-            }
-            return adaptedValues;
+            return StreamSupport.stream(((Iterable) element).spliterator(), false).map(mappingFunction).collect(Collectors.toList());
         }
         return element;
     }

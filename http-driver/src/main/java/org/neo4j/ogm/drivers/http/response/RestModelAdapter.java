@@ -20,11 +20,11 @@ package org.neo4j.ogm.drivers.http.response;
 
 import static org.neo4j.ogm.result.adapter.RestModelAdapter.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
@@ -47,12 +47,8 @@ public class RestModelAdapter implements ResultAdapter<Object[], Map<String, Obj
             String column = columns[i];
             Object value = result[i];
             if (value instanceof Collection) {
-                List<Object> adaptedValues = new ArrayList<>();
-                List<Object> values = (List) value;
-                for (Object element : values) {
-                    handleAdaptedValue(adaptedValues, processData(element));
-                }
-                adaptedResults.put(column, adaptedValues);
+                adaptedResults.put(column, ((Collection) value).stream().map(this::processData).collect(
+                    Collectors.toList()));
             } else {
                 adaptedResults.put(column, processData(value));
             }

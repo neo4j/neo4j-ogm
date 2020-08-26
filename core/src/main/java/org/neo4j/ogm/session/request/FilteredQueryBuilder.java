@@ -130,14 +130,15 @@ public class FilteredQueryBuilder {
 
         // Filters are created in 3 steps: For deep nested filter, the improved version
         // NodeQueryBuilder is used. For the others the old approach still applies.
-        FiltersAtStartNode deepNestedFilters = new FiltersAtStartNode();
+        FiltersAtStartNode outgoingDeepNestedFilters = new FiltersAtStartNode();
+        FiltersAtStartNode incomingDeepNestedFilters = new FiltersAtStartNode();
 
         FiltersAtStartNode outgoingFilters = new FiltersAtStartNode();
-
         FiltersAtStartNode incomingFilters = new FiltersAtStartNode();
 
         List<Filter> relationshipFilters = new ArrayList<>();
 
+        String initialDirection = null;
         for (Filter filter : filters) {
             if (filter.isNested() || filter.isDeepNested()) {
                 if (filter.isDeepNested()) {
@@ -146,26 +147,41 @@ public class FilteredQueryBuilder {
                     Filter.NestedPathSegment firstNestedPathSegment = nestedPath.get(0);
                     filter.setOwnerEntityType(firstNestedPathSegment.getPropertyType());
 
+                    FiltersAtStartNode target;
+                    if (Relationship.OUTGOING.equals(firstNestedPathSegment.getRelationshipDirection())) {
+                        target = outgoingDeepNestedFilters;
+                    } else {
+                        target = incomingDeepNestedFilters;
+                    }
+
                     Filter.NestedPathSegment[] newPath = new Filter.NestedPathSegment[nestedPath.size() - 1];
                     if (nestedPath.size() > 1) {
                         // The first element will represent the owning entity, so we need to get rid of it.
                         nestedPath.subList(1, nestedPath.size()).toArray(newPath);
-                        filter.setNestedPath(newPath);
                     } else {
                         // The list of deep nested filters need an anchor only for relationships with one
                         // nested segments.
-                        deepNestedFilters.startNodeLabel = firstNestedPathSegment.getNestedEntityTypeLabel();
+                        target.startNodeLabel = firstNestedPathSegment.getNestedEntityTypeLabel();
                     }
                     filter.setNestedPath(newPath);
-                    deepNestedFilters.content.add(filter);
+                    target.content.add(filter);
+
+                    if (initialDirection == null) {
+                        initialDirection = firstNestedPathSegment.getRelationshipDirection();
+                    }
                 } else {
                     FiltersAtStartNode target;
                     String relationshipDirection = filter.getRelationshipDirection();
-                    if (relationshipDirection == Relationship.OUTGOING) {
+                    if (Relationship.OUTGOING.equals(relationshipDirection)) {
                         target = outgoingFilters;
                     } else {
                         target = incomingFilters;
                     }
+
+                    if (initialDirection == null) {
+                        initialDirection = filter.getRelationshipDirection();
+                    }
+
                     addFilterToList(target, filter);
                 }
             } else {
@@ -182,15 +198,27 @@ public class FilteredQueryBuilder {
         }
 
         StringBuilder query = new StringBuilder();
-        if (!deepNestedFilters.content.isEmpty()) {
-            NodeQueryBuilder nqb = new NodeQueryBuilder(deepNestedFilters.startNodeLabel, deepNestedFilters.content);
+        boolean outgoingDeepNested = !outgoingDeepNestedFilters.content.isEmpty();
+        if (outgoingDeepNested) {
+            NodeQueryBuilder nqb = new NodeQueryBuilder(outgoingDeepNestedFilters.startNodeLabel,
+                outgoingDeepNestedFilters.content, "n");
             FilteredQuery filteredQuery = nqb.build();
             query.append(filteredQuery.statement()).append(" ");
             properties.putAll(filteredQuery.parameters());
         }
+        if (!incomingDeepNestedFilters.content.isEmpty()) {
+            NodeQueryBuilder nqb = new NodeQueryBuilder(incomingDeepNestedFilters.startNodeLabel,
+                incomingDeepNestedFilters.content, outgoingDeepNested ? "m" : "n");
+            FilteredQuery filteredQuery = nqb.build();
+            query.append(filteredQuery.statement()).append(" ");
+            if (outgoingDeepNested) {
+                query.append(", n ");
+            }
+            properties.putAll(filteredQuery.parameters());
+        }
         createNodeMatchSubquery(properties, outgoingFilters, query, "n");
         createNodeMatchSubquery(properties, incomingFilters, query, "m");
-        createRelationSubquery(type, properties, relationshipFilters, query);
+        createRelationSubquery(type, properties, relationshipFilters, query, initialDirection);
         return query;
     }
 
@@ -219,8 +247,13 @@ public class FilteredQueryBuilder {
     }
 
     private static void createRelationSubquery(String type, Map<String, Object> properties,
-        List<Filter> relationshipFilters, StringBuilder query) {
-        query.append(String.format("MATCH (n)-[r0:`%s`]->(m) ", type));
+        List<Filter> relationshipFilters, StringBuilder query, String initialDirection) {
+
+        if (initialDirection == null || initialDirection.equals(Relationship.OUTGOING)) {
+            query.append(String.format("MATCH (n)-[r0:`%s`]->(m) ", type));
+        } else {
+            query.append(String.format("MATCH (n)<-[r0:`%s`]-(m) ", type));
+        }
         if (relationshipFilters.size() > 0) {
             query.append("WHERE ");
             appendFilters(relationshipFilters, "r0", query, properties);

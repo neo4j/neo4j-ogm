@@ -15,29 +15,25 @@
 <!--- If describing a bug, tell us what happens instead of the expected behavior -->
 <!--- If suggesting a change/improvement, explain the difference from current behavior -->
 
-## Possible Solution
-<!--- Not obligatory, but suggest a fix/reason for the bug, -->
-<!--- or ideas how to implement the addition or change -->
-
-## Steps to Reproduce (for bugs)
-<!--- Provide a link to a live example, or an unambiguous set of steps to -->
-<!--- reproduce this bug. Include code to reproduce, if relevant -->
-<!-- Additionally, include (as appropriate) log-files, stacktraces, and other debug output. -->
-<!-- There are templates to help reproducing issues here : https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template. -->
-1. ...
-2. ...
-3. ...
-4. ...
-
 ## Context
 <!--- How has this issue affected you? What are you trying to accomplish? -->
 <!--- Providing context helps us come up with a solution that is most useful in the real world -->
 
 ## Your Environment
-<!--- Include as many relevant details about the environment you experienced the bug in -->
-- OGM Version used:
-- Java Version used:
-- Neo4J Version used:
-- Bolt Driver Version used (if applicable):
-- Operating System and Version:
+<!--- Include as many relevant details about the environment you experienced the bug in. -->
+- Java version:
+- Neo4j version (The version of the database):
+- OGM Version (The version of this software):
+- OGM Transport used (One of Bolt, HTTP or embedded):
+- Neo4j Java Driver version (in case of Bolt transport):
 - Link to your project:
+
+<!--- If you can't link your project, a `pom.xml` or `build.gradle` answers a lot of those questions for us. -->
+<!--- Please share your domain classes (everything `@NodeEntity` or `@RelationshipEntity`) that are involved in the bug if possible. -->
+
+## Steps to Reproduce
+<!--- Provide a link to a live example, or an unambiguous set of steps to -->
+<!--- reproduce this bug. Include code to reproduce, if relevant -->
+<!-- Additionally, include (as appropriate) log-files, stacktraces, and other debug output. -->
+<!-- There are templates to help reproducing issues here : https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template. -->
+

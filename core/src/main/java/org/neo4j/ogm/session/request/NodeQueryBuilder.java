@@ -44,7 +44,7 @@ public class NodeQueryBuilder {
     private boolean hasRelationshipMatch = false;
 
     NodeQueryBuilder(String principalLabel, Iterable<Filter> filters) {
-        this.principalClause = new PrincipalNodeMatchClause(principalLabel);
+        this.principalClause = principalLabel == null ? null : new PrincipalNodeMatchClause(principalLabel);
         this.filters = filters;
         this.nestedClauses = new ArrayList<>();
         this.pathClauses = new ArrayList<>();
@@ -67,7 +67,7 @@ public class NodeQueryBuilder {
                 } else if (filter.isDeepNested()) {
                     appendDeepNestedFilter(filter);
                     hasRelationshipMatch = true;
-                } else {
+                } else if (principalClause != null) {
                     //If the filter is not nested, it belongs to the node we're returning
                     principalClause().append(filter);
                 }
@@ -117,7 +117,6 @@ public class NodeQueryBuilder {
             nestedClauses.add(clause);
         }
         pathClauses.add(new NestedPathMatchClause(matchClauseId).append(filter));
-        //nestedClauses.add(clause);
         clause.append(filter);
 
         matchClauseId++;
@@ -140,7 +139,11 @@ public class NodeQueryBuilder {
     }
 
     private StringBuilder toCypher() {
-        StringBuilder stringBuilder = new StringBuilder(principalClause.toCypher());
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (principalClause != null) {
+            stringBuilder.append(principalClause.toCypher());
+        }
 
         for (MatchClause matchClause : nestedClauses) {
             stringBuilder.append(matchClause.toCypher());

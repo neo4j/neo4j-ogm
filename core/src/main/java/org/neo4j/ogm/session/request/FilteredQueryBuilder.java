@@ -127,61 +127,50 @@ public class FilteredQueryBuilder {
 
     private static StringBuilder constructRelationshipQuery(String type, Iterable<Filter> filters,
         Map<String, Object> properties) {
-        List<Filter> startNodeFilters = new ArrayList<>(); //All filters that apply to the start node
-        List<Filter> endNodeFilters = new ArrayList<>(); //All filters that apply to the end node
-        List<Filter> relationshipFilters = new ArrayList<>(); //All filters that apply to the relationship
-        String startNodeLabel = null;
-        String endNodeLabel = null;
-        boolean noneOperatorEncounteredInStartFilters = false;
-        boolean noneOperatorEncounteredInEndFilters = false;
+
+        // Filters are created in 3 steps: For deep nested filter, the improved version
+        // NodeQueryBuilder is used. For the others the old approach still applies.
+        FiltersAtStartNode deepNestedFilters = new FiltersAtStartNode();
+
+        FiltersAtStartNode outgoingFilters = new FiltersAtStartNode();
+
+        FiltersAtStartNode incomingFilters = new FiltersAtStartNode();
+
+        List<Filter> relationshipFilters = new ArrayList<>();
 
         for (Filter filter : filters) {
             if (filter.isNested() || filter.isDeepNested()) {
-                String startNestedEntityTypeLabel = filter.getNestedEntityTypeLabel();
-                String endNestedEntityTypeLabel = filter.getNestedEntityTypeLabel();
-                String relationshipDirection = filter.getRelationshipDirection();
-
                 if (filter.isDeepNested()) {
                     List<Filter.NestedPathSegment> nestedPath = filter.getNestedPath();
+
                     Filter.NestedPathSegment firstNestedPathSegment = nestedPath.get(0);
-                    Filter.NestedPathSegment lastNestedPathSegment = nestedPath.get(nestedPath.size() - 1);
+                    filter.setOwnerEntityType(firstNestedPathSegment.getPropertyType());
 
-                    startNestedEntityTypeLabel = firstNestedPathSegment.getNestedEntityTypeLabel();
-                    endNestedEntityTypeLabel = lastNestedPathSegment.getNestedEntityTypeLabel();
-                    relationshipDirection = firstNestedPathSegment.getRelationshipDirection();
-                }
-
-                if (relationshipDirection.equals(Relationship.OUTGOING)) {
-                    if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
-                        if (noneOperatorEncounteredInStartFilters) {
-                            throw new MissingOperatorException(
-                                "BooleanOperator missing for filter with property name " + filter.getPropertyName());
-                        }
-                        noneOperatorEncounteredInStartFilters = true;
+                    Filter.NestedPathSegment[] newPath = new Filter.NestedPathSegment[nestedPath.size() - 1];
+                    if (nestedPath.size() > 1) {
+                        // The first element will represent the owning entity, so we need to get rid of it.
+                        nestedPath.subList(1, nestedPath.size()).toArray(newPath);
+                        filter.setNestedPath(newPath);
+                    } else {
+                        // The list of deep nested filters need an anchor only for relationships with one
+                        // nested segments.
+                        deepNestedFilters.startNodeLabel = firstNestedPathSegment.getNestedEntityTypeLabel();
                     }
-                    if (startNodeLabel == null) {
-                        startNodeLabel = startNestedEntityTypeLabel;
-                        filter.setBooleanOperator(BooleanOperator.NONE); //the first filter for the start node
-                    }
-                    startNodeFilters.add(filter);
+                    filter.setNestedPath(newPath);
+                    deepNestedFilters.content.add(filter);
                 } else {
-                    if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
-                        if (noneOperatorEncounteredInEndFilters) {
-                            throw new MissingOperatorException(
-                                "BooleanOperator missing for filter with property name " + filter.getPropertyName());
-                        }
-                        noneOperatorEncounteredInEndFilters = true;
+                    FiltersAtStartNode target;
+                    String relationshipDirection = filter.getRelationshipDirection();
+                    if (relationshipDirection == Relationship.OUTGOING) {
+                        target = outgoingFilters;
+                    } else {
+                        target = incomingFilters;
                     }
-                    if (endNodeLabel == null) {
-                        endNodeLabel = endNestedEntityTypeLabel;
-                        filter.setBooleanOperator(BooleanOperator.NONE); //the first filter for the end node
-                    }
-                    endNodeFilters.add(filter);
+                    addFilterToList(target, filter);
                 }
             } else {
                 if (relationshipFilters.size() == 0) {
-                    filter.setBooleanOperator(
-                        BooleanOperator.NONE); //TODO think about the importance of the first filter and stop using this as a condition to test against
+                    filter.setBooleanOperator(BooleanOperator.NONE);
                 } else {
                     if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
                         throw new MissingOperatorException(
@@ -193,10 +182,40 @@ public class FilteredQueryBuilder {
         }
 
         StringBuilder query = new StringBuilder();
-        createNodeMatchSubquery(properties, startNodeFilters, startNodeLabel, query, "n");
-        createNodeMatchSubquery(properties, endNodeFilters, endNodeLabel, query, "m");
+        if (!deepNestedFilters.content.isEmpty()) {
+            NodeQueryBuilder nqb = new NodeQueryBuilder(deepNestedFilters.startNodeLabel, deepNestedFilters.content);
+            FilteredQuery filteredQuery = nqb.build();
+            query.append(filteredQuery.statement()).append(" ");
+            properties.putAll(filteredQuery.parameters());
+        }
+        createNodeMatchSubquery(properties, outgoingFilters, query, "n");
+        createNodeMatchSubquery(properties, incomingFilters, query, "m");
         createRelationSubquery(type, properties, relationshipFilters, query);
         return query;
+    }
+
+    static class FiltersAtStartNode {
+
+        String startNodeLabel;
+
+        List<Filter> content = new ArrayList<>();
+    }
+
+    /**
+     * Adds a filter to list, checking if all filters but the first have an operator.
+     *
+     * @param target The target filters
+     * @param filter The filter to add
+     */
+    private static void addFilterToList(FiltersAtStartNode target, Filter filter) {
+        if (filter.getBooleanOperator().equals(BooleanOperator.NONE) && !target.content.isEmpty()) {
+            throw new MissingOperatorException(
+                "BooleanOperator missing for filter with property name " + filter.getPropertyName());
+        }
+        target.content.add(filter);
+        if (target.startNodeLabel == null) {
+            target.startNodeLabel = filter.getNestedEntityTypeLabel();
+        }
     }
 
     private static void createRelationSubquery(String type, Map<String, Object> properties,
@@ -208,9 +227,11 @@ public class FilteredQueryBuilder {
         }
     }
 
-    private static void createNodeMatchSubquery(Map<String, Object> properties, List<Filter> nodeFilters,
-        String nodeLabel, StringBuilder query, String nodeIdentifier) {
-        if (nodeLabel != null) {
+    private static void createNodeMatchSubquery(Map<String, Object> properties, FiltersAtStartNode filtersAtStartNode,
+        StringBuilder query, String nodeIdentifier) {
+        String nodeLabel = filtersAtStartNode.startNodeLabel;
+        List<Filter> nodeFilters = filtersAtStartNode.content;
+        if (!(nodeLabel == null || nodeFilters.isEmpty())) {
             query.append(String.format("MATCH (%s:`%s`) WHERE ", nodeIdentifier, nodeLabel));
             appendFilters(nodeFilters, nodeIdentifier, query, properties);
         }
@@ -220,7 +241,7 @@ public class FilteredQueryBuilder {
         Map<String, Object> properties) {
         for (Filter filter : filters) {
             query.append(filter.toCypher(nodeIdentifier, false));
-            properties.putAll(filter.getFunction().parameters());
+            properties.putAll(filter.parameters());
         }
     }
 }

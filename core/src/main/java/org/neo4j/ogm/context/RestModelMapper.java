@@ -179,10 +179,20 @@ public class RestModelMapper {
             } else if (resultObject instanceof List) {
                 // Mark that result object as list, as it needs to be reconstructed later
                 this.aliasesOfListResults.add(alias);
-                ((List) resultObject).forEach(item -> this.addToGraphModel(alias, item));
+                this.recursivelyAddToGraphModel(alias, (List<Object>) resultObject);
             } else {
                 // Just add the model as is to the graph model
                 this.addToGraphModel(alias, resultObject);
+            }
+        }
+
+        private void recursivelyAddToGraphModel(String alias, List<Object> current) {
+            for (Object o : current) {
+                if (o instanceof List) {
+                    recursivelyAddToGraphModel(alias, (List<Object>) o);
+                } else {
+                    addToGraphModel(alias, o);
+                }
             }
         }
 
@@ -265,13 +275,15 @@ public class RestModelMapper {
             Predicate<Object> isNodeModel = NodeModel.class::isInstance;
             Predicate<Object> isRelationshipModel = RelationshipModel.class::isInstance;
             Predicate<Object> isNodeOrRelationshipModel = isNodeModel.or(isRelationshipModel);
+            Predicate<Object> isListAndEachMemberCanBeMapped = o -> o instanceof List && ((List) o).stream()
+                .allMatch(isNodeOrRelationshipModel);
 
             if (isNodeOrRelationshipModel.test(resultObject)) {
                 return true;
             } else if (resultObject instanceof List) {
                 List listOfResultObjects = (List) resultObject;
                 return listOfResultObjects.size() > 0 && listOfResultObjects.stream()
-                    .allMatch(isNodeOrRelationshipModel);
+                    .allMatch(isNodeOrRelationshipModel.or(isListAndEachMemberCanBeMapped));
             } else {
                 return false;
             }
@@ -282,35 +294,36 @@ public class RestModelMapper {
          * otherwise returns an {@link Object} array if result object is a list containing a mixed set of things,
          * otherwise an array of the one elements class.
          *
-         * @param resultObject The object to convert
+         * @param in The object to convert
          * @return The original object or an array.
          */
-        private static Object convertToTargetContainer(Object resultObject) {
+        private static Object convertToTargetContainer(Object in) {
 
-            if (!(resultObject instanceof List)) {
-                return resultObject;
+            if (!(in instanceof List)) {
+                return in;
             }
 
-            List entityList = (List) resultObject;
+            Class arrayClass = Void.class;
+            List hlp = new ArrayList();
+            for (Object element : ((List) in)) {
+                Object convertedElement = convertToTargetContainer(element);
+                hlp.add(convertedElement);
 
-            Class arrayClass = null;
-            for (Object element : entityList) {
-                Class clazz = element.getClass();
-                if (arrayClass == null) {
+                Class clazz = convertedElement.getClass();
+                if (arrayClass == Void.class) {
                     arrayClass = clazz;
                 } else if (arrayClass != clazz) {
                     arrayClass = null;
-                    break;
                 }
             }
 
             Object array;
             if (arrayClass == null) {
-                array = entityList.toArray();
+                array = hlp.toArray();
             } else {
-                array = Array.newInstance(arrayClass, entityList.size());
-                for (int j = 0; j < entityList.size(); j++) {
-                    Array.set(array, j, Utils.coerceTypes(arrayClass, entityList.get(j)));
+                array = Array.newInstance(arrayClass, hlp.size());
+                for (int i = 0; i < hlp.size(); i++) {
+                    Array.set(array, i, Utils.coerceTypes(arrayClass, hlp.get(i)));
                 }
             }
             return array;

@@ -29,7 +29,6 @@ import java.util.Vector;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
@@ -49,6 +48,7 @@ import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.types.EntityWithUnmanagedFieldType;
 import org.neo4j.ogm.exception.core.InvalidRelationshipTargetException;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -712,11 +712,11 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         // Statements cypher = new Statements(this.mapper.map(immigration, 2).getCompiler().getAllStatements());
         session.clear();
         assertThat(session.query("MATCH (j:Person:DomainObject { name :'jim' }), " +
-                "(h:Policy:DomainObject { name: 'health' }), " +
-                "(i:Policy:DomainObject { name: 'immigration' }) " +
-                "WHERE (j)-[:WRITES_POLICY]->(h) and" +
-                "(j)-[:WRITES_POLICY]->(i) return j, h, i", emptyMap()).queryResults())
-                .hasSize(1);
+            "(h:Policy:DomainObject { name: 'health' }), " +
+            "(i:Policy:DomainObject { name: 'immigration' }) " +
+            "WHERE (j)-[:WRITES_POLICY]->(h) and" +
+            "(j)-[:WRITES_POLICY]->(i) return j, h, i", emptyMap()).queryResults())
+            .hasSize(1);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -735,7 +735,8 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         assertThatExceptionOfType(InvalidRelationshipTargetException.class)
             .isThrownBy(() -> session.save(course))
-            .withMessage("The relationship 'STUDENTS' from 'org.neo4j.ogm.domain.education.Course' to 'org.neo4j.ogm.domain.education.Student' stored on '#students' contains 'null', which is an invalid target for this relationship.'");
+            .withMessage(
+                "The relationship 'STUDENTS' from 'org.neo4j.ogm.domain.education.Course' to 'org.neo4j.ogm.domain.education.Student' stored on '#students' contains 'null', which is an invalid target for this relationship.'");
 
     }
 
@@ -751,4 +752,69 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         assertThat(loaded).isNotNull();
     }
 
+    @Test
+    public void shouldNotMessUpNestedLists() {
+
+        Result result = session.query("RETURN [[0,1,2], [3], [4], [5,6]] as nested_list", Collections.emptyMap());
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object nestedLists = row.get("nested_list");
+            assertThat(nestedLists).isInstanceOf(Long[][].class);
+
+            Long[][] columns = (Long[][]) nestedLists;
+            assertThat(columns).hasSize(4);
+            assertThat(columns[0]).isInstanceOf(Long[].class)
+                .satisfies(c -> assertThat(((Long[]) c)).containsExactly(0L, 1L, 2L));
+            assertThat(columns[1]).isInstanceOf(Long[].class)
+                .satisfies(c -> assertThat(((Long[]) c)).containsExactly(3L));
+        });
+    }
+
+    @Test
+    public void shouldNotMessUpMixedNestedLists() {
+
+        Result result = session.query("RETURN [[0,1,2], [[23,42]], [4], [5,6]] as nested_list", Collections.emptyMap());
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object nestedLists = row.get("nested_list");
+            assertThat(nestedLists).isInstanceOf(Object[].class);
+
+            Object[] columns = (Object[]) nestedLists;
+            assertThat(columns).hasSize(4);
+            assertThat(columns[0]).isInstanceOf(Long[].class)
+                .satisfies(c -> assertThat(((Long[]) c)).containsExactly(0L, 1L, 2L));
+            assertThat(columns[1]).isInstanceOf(Long[][].class)
+                .satisfies(c -> assertThat(((Long[][]) c)[0]).containsExactly(23L, 42L));
+        });
+    }
+
+    @Test
+    public void shouldNotMessUpMixedTypedLists() {
+
+        Teacher jim = new Teacher("Jim");
+        sessionFactory.openSession().save(jim);
+
+        Result result = session
+            .query("MATCH (n:Teacher) RETURN n, [[0,1,2], [[\"a\",\"b\"]], [\"c\"], \"d\"] as nested_list",
+                Collections.emptyMap());
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object nestedLists = row.get("nested_list");
+            assertThat(nestedLists).isInstanceOf(Object[].class);
+
+            Object[] columns = (Object[]) nestedLists;
+            assertThat(columns).hasSize(4);
+            assertThat(columns[0]).isInstanceOf(Long[].class)
+                .satisfies(c -> assertThat(((Long[]) c)).containsExactly(0L, 1L, 2L));
+            assertThat(columns[1]).isInstanceOf(String[][].class)
+                .satisfies(c -> assertThat(((String[][]) c)[0]).containsExactly("a", "b"));
+
+            assertThat(columns[2]).isInstanceOf(String[].class)
+                .satisfies(c -> assertThat(((String[]) c)).containsExactly("c"));
+
+            assertThat(columns[3]).isInstanceOf(String.class)
+                .isEqualTo("d");
+
+            assertThat(row.get("n"))
+                .isInstanceOf(Teacher.class)
+                .extracting("name").first().isEqualTo("Jim");
+        });
+    }
 }

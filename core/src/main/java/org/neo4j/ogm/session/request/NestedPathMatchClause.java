@@ -23,15 +23,21 @@ import org.neo4j.ogm.cypher.Filter;
 
 /**
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
-public class NestedPathMatchClause implements MatchClause {
+class NestedPathMatchClause implements MatchClause {
 
     private int index;
     private StringBuilder clause;
 
     NestedPathMatchClause(int index) {
+        this(index, "n");
+    }
+
+    NestedPathMatchClause(int index, String varName) {
+
         this.index = index;
-        this.clause = new StringBuilder("MATCH (n)");
+        this.clause = new StringBuilder("MATCH (").append(varName).append(")");
     }
 
     @Override

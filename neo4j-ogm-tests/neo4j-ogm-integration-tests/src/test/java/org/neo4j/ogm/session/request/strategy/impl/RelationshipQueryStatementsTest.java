@@ -166,12 +166,8 @@ public class RelationshipQueryStatementsTest {
             .getStatement();
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByNestedPropertyOutgoing() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByNestedPropertyOutgoing() {
         Filter planetFilter = new Filter("name", ComparisonOperator.EQUALS, "Earth");
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
@@ -186,31 +182,23 @@ public class RelationshipQueryStatementsTest {
                 "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByNestedPropertyIncoming() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByNestedPropertyIncoming() {
         Filter planetFilter = new Filter("name", ComparisonOperator.EQUALS, "Earth");
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection(Relationship.Direction.INCOMING);
         assertThat(query.findByType("ORBITS", new Filters().add(planetFilter), 4).getStatement())
-            .isEqualTo("MATCH (m:`Planet`) WHERE m.`name` = $`world_name_0` MATCH (n)-[r0:`ORBITS`]->(m)  " +
+            .isEqualTo("MATCH (m:`Planet`) WHERE m.`name` = $`world_name_0` MATCH (n)<-[r0:`ORBITS`]-(m)  " +
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
                 "MATCH p2 = (m)-[*0..4]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
                 "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByMultipleNestedProperties() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByMultipleNestedProperties() {
         Filter planetNameFilter = new Filter("name", ComparisonOperator.EQUALS, "Earth");
         planetNameFilter.setNestedPropertyName("world");
         planetNameFilter.setNestedEntityTypeLabel("Planet");
@@ -233,12 +221,8 @@ public class RelationshipQueryStatementsTest {
                 "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByMultipleNestedPropertiesOnBothEnds() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByMultipleNestedPropertiesOnBothEnds() {
         Filter moonFilter = new Filter("name", ComparisonOperator.EQUALS, "Earth");
 
         moonFilter.setNestedPropertyName("world");
@@ -261,12 +245,8 @@ public class RelationshipQueryStatementsTest {
                 "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByPropertiesAnded() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByPropertiesAnded() {
         Filter distance = new Filter("distance", ComparisonOperator.EQUALS, 60.2);
         Filter time = new Filter("time", ComparisonOperator.EQUALS, 3600);
         time.setBooleanOperator(BooleanOperator.AND);
@@ -278,12 +258,8 @@ public class RelationshipQueryStatementsTest {
                 "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByPropertiesOred() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByPropertiesOred() {
         Filter distance = new Filter("distance", ComparisonOperator.EQUALS, 60.2);
         Filter time = new Filter("time", ComparisonOperator.EQUALS, 3600);
         time.setBooleanOperator(BooleanOperator.OR);
@@ -295,12 +271,8 @@ public class RelationshipQueryStatementsTest {
                 "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByPropertiesWithDifferentComparisonOperatorsAnded() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByPropertiesWithDifferentComparisonOperatorsAnded() {
         Filter distance = new Filter("distance", ComparisonOperator.LESS_THAN, 60.2);
         Filter time = new Filter("time", ComparisonOperator.EQUALS, 3600);
         time.setBooleanOperator(BooleanOperator.AND);
@@ -312,12 +284,8 @@ public class RelationshipQueryStatementsTest {
                 "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByPropertiesWithDifferentComparisonOperatorsOred() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByPropertiesWithDifferentComparisonOperatorsOred() {
         Filter distance = new Filter("distance", ComparisonOperator.EQUALS, 60.2);
         Filter time = new Filter("time", ComparisonOperator.GREATER_THAN, 3600);
         time.setBooleanOperator(BooleanOperator.OR);
@@ -329,12 +297,8 @@ public class RelationshipQueryStatementsTest {
                 "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByBaseAndNestedPropertyOutgoing() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByBaseAndNestedPropertyOutgoing() {
         Filter planetFilter = new Filter("name", ComparisonOperator.EQUALS, "Earth");
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
@@ -351,12 +315,8 @@ public class RelationshipQueryStatementsTest {
                 "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByBaseAndNestedPropertyIncoming() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByBaseAndNestedPropertyIncoming() {
         Filter planetFilter = new Filter("name", ComparisonOperator.EQUALS, "Earth");
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
@@ -365,19 +325,15 @@ public class RelationshipQueryStatementsTest {
         Filter time = new Filter("time", ComparisonOperator.EQUALS, 3600);
         assertThat(query.findByType("ORBITS", new Filters().add(planetFilter, time), 4).getStatement())
             .isEqualTo("MATCH (m:`Planet`) WHERE m.`name` = $`world_name_0` " +
-                "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`time` = $`time_1`  " +
+                "MATCH (n)<-[r0:`ORBITS`]-(m) WHERE r0.`time` = $`time_1`  " +
                 "WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
                 "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
                 "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
                 "WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-632
-     */
-    @Test
-    public void testFindByBaseAndMultipleNestedPropertiesOnBothEnds() throws Exception {
+    @Test // DATAGRAPH-632
+    public void testFindByBaseAndMultipleNestedPropertiesOnBothEnds() {
         Filter moonFilter = new Filter("name", ComparisonOperator.EQUALS, "Earth");
         moonFilter.setNestedPropertyName("world");
         moonFilter.setNestedEntityTypeLabel("Moon");
@@ -405,23 +361,15 @@ public class RelationshipQueryStatementsTest {
                     "UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
-    /**
-     * @throws Exception
-     * @see Issue #73
-     */
-    @Test(expected = MissingOperatorException.class)
-    public void testFindByPropertiesAndedWithMissingBooleanOperator() throws Exception {
+    @Test(expected = MissingOperatorException.class) // GH-73
+    public void testFindByPropertiesAndedWithMissingBooleanOperator() {
         Filter distance = new Filter("distance", ComparisonOperator.EQUALS, 60.2);
         Filter time = new Filter("time", ComparisonOperator.EQUALS, 3600);
         query.findByType("ORBITS", new Filters().add(distance, time), 4).getStatement();
     }
 
-    /**
-     * @throws Exception
-     * @see Issue #73
-     */
-    @Test(expected = MissingOperatorException.class)
-    public void testFindByMultipleNestedPropertiesMissingBooleanOperator() throws Exception {
+    @Test(expected = MissingOperatorException.class) // GH-73
+    public void testFindByMultipleNestedPropertiesMissingBooleanOperator() {
         Filter planetNameFilter = new Filter("name", ComparisonOperator.EQUALS, "Earth");
         planetNameFilter.setNestedPropertyName("world");
         planetNameFilter.setNestedEntityTypeLabel("Planet");

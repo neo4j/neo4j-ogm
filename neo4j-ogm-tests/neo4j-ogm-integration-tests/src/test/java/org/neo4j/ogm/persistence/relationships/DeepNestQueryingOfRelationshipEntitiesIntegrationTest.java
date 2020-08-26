@@ -53,20 +53,26 @@ public class DeepNestQueryingOfRelationshipEntitiesIntegrationTest extends TestC
 
     @Before
     public void createData() {
-
+        sessionFactory.openSession().purgeDatabase();
         Address a1 = new Address();
         a1.setCode("0001");
         Address a2 = new Address();
         a2.setCode("0002");
-        a2.setCity(new City("Aachen"));
-        User u1 = new User();
+        City aachen = new City("Aachen");
+        City koeln = new City("Köln");
+        a2.setCity(aachen);
+        User u1 = new User("U1");
         u1.setAddress(a1);
         User u2 = new User("Mr. User");
         u2.setAddress(a1);
         User u3 = new User();
         u3.setAddress(a2);
         UserGroup ug1 = new UserGroup();
+        ug1.setCity(aachen);
+        ug1.setName("EuregJUG");
         UserGroup ug2 = new UserGroup();
+        ug2.setCity(koeln);
+        ug2.setName("JUG Köln");
         List<GroupMember> members = Arrays
             .asList(new GroupMember(u1, ug1), new GroupMember(u2, ug2), new GroupMember(u3, ug2));
 
@@ -83,45 +89,114 @@ public class DeepNestQueryingOfRelationshipEntitiesIntegrationTest extends TestC
     @Test
     public void flattenedPathSegmentsShouldWork() {
 
-        Filter playsFilter = new Filter("name", ComparisonOperator.EQUALS, "Mr. User");
-        playsFilter.setOwnerEntityType(GroupMember.class);
+        Filter filter = new Filter("name", ComparisonOperator.EQUALS, "Mr. User");
+        filter.setOwnerEntityType(GroupMember.class);
 
-        playsFilter.setNestedPath(
+        filter.setNestedPath(
             new Filter.NestedPathSegment("user", User.class)
         );
 
-        Collection<GroupMember> films = sessionFactory.openSession().loadAll(GroupMember.class, playsFilter);
-        assertThat(films).hasSize(1);
+        Collection<GroupMember> members = sessionFactory.openSession().loadAll(GroupMember.class, filter);
+        assertThat(members).hasSize(1);
+    }
+
+    @Test
+    public void flattenedPathSegmentsShouldWorkFromTheEnd() {
+
+        Filter filter = new Filter("name", ComparisonOperator.EQUALS, "EuregJUG");
+        filter.setOwnerEntityType(GroupMember.class);
+
+        filter.setNestedPath(
+            new Filter.NestedPathSegment("group", UserGroup.class)
+        );
+
+        Collection<GroupMember> members = sessionFactory.openSession().loadAll(GroupMember.class, filter);
+        assertThat(members).hasSize(1);
+    }
+
+    @Test
+    public void flattenedPathSegmentsShouldWorkFromBothEnds() {
+
+        Filter outgoing = new Filter("name", ComparisonOperator.EQUALS, "U1");
+        outgoing.setOwnerEntityType(GroupMember.class);
+
+        outgoing.setNestedPath(new Filter.NestedPathSegment("user", User.class));
+
+        Filter incoming = new Filter("name", ComparisonOperator.EQUALS, "EuregJUG");
+        incoming.setOwnerEntityType(GroupMember.class);
+
+        incoming.setNestedPath(new Filter.NestedPathSegment("group", UserGroup.class));
+
+        Collection<GroupMember> members = sessionFactory.openSession().loadAll(GroupMember.class, outgoing.and(incoming));
+        assertThat(members).hasSize(1);
     }
 
     @Test
     public void nPathSegmentsShouldWork() {
 
-        Filter playsFilter = new Filter("code", ComparisonOperator.EQUALS, "0001");
-        playsFilter.setOwnerEntityType(GroupMember.class);
+        Filter filter = new Filter("code", ComparisonOperator.EQUALS, "0001");
+        filter.setOwnerEntityType(GroupMember.class);
 
-        playsFilter.setNestedPath(
+        filter.setNestedPath(
             new Filter.NestedPathSegment("user", User.class),
             new Filter.NestedPathSegment("address", Address.class)
         );
 
-        Collection<GroupMember> films = sessionFactory.openSession().loadAll(GroupMember.class, playsFilter);
-        assertThat(films).hasSize(2);
+        Collection<GroupMember> members = sessionFactory.openSession().loadAll(GroupMember.class, filter);
+        assertThat(members).hasSize(2);
+    }
+
+    @Test
+    public void nPathSegmentsShouldWorkFromTheEnd() {
+
+        Filter filter = new Filter("name", ComparisonOperator.EQUALS, "Aachen");
+        filter.setOwnerEntityType(GroupMember.class);
+
+        filter.setNestedPath(
+            new Filter.NestedPathSegment("group", UserGroup.class),
+            new Filter.NestedPathSegment("city", City.class)
+        );
+
+        Collection<GroupMember> members = sessionFactory.openSession().loadAll(GroupMember.class, filter);
+        assertThat(members).hasSize(1);
+    }
+
+    @Test
+    public void nPathSegmentsShouldWorkFromBothEnds() {
+
+        Filter outgoing = new Filter("code", ComparisonOperator.EQUALS, "0001");
+        outgoing.setOwnerEntityType(GroupMember.class);
+
+        outgoing.setNestedPath(
+            new Filter.NestedPathSegment("user", User.class),
+            new Filter.NestedPathSegment("address", Address.class)
+        );
+
+        Filter incoming = new Filter("name", ComparisonOperator.EQUALS, "Aachen");
+        incoming.setOwnerEntityType(GroupMember.class);
+
+        incoming.setNestedPath(
+            new Filter.NestedPathSegment("group", UserGroup.class),
+            new Filter.NestedPathSegment("city", City.class)
+        );
+
+        Collection<GroupMember> members = sessionFactory.openSession().loadAll(GroupMember.class, outgoing.and(incoming));
+        assertThat(members).hasSize(1);
     }
 
     @Test
     public void nPlus1PathSegmentsShouldWork() {
 
-        Filter playsFilter = new Filter("name", ComparisonOperator.EQUALS, "Aachen");
-        playsFilter.setOwnerEntityType(GroupMember.class);
+        Filter filter = new Filter("name", ComparisonOperator.EQUALS, "Aachen");
+        filter.setOwnerEntityType(GroupMember.class);
 
-        playsFilter.setNestedPath(
+        filter.setNestedPath(
             new Filter.NestedPathSegment("user", User.class),
             new Filter.NestedPathSegment("address", Address.class),
             new Filter.NestedPathSegment("city", City.class)
         );
 
-        Collection<GroupMember> films = sessionFactory.openSession().loadAll(GroupMember.class, playsFilter);
-        assertThat(films).hasSize(1);
+        Collection<GroupMember> members = sessionFactory.openSession().loadAll(GroupMember.class, filter);
+        assertThat(members).hasSize(1);
     }
 }

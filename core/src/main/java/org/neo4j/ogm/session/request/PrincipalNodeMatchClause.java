@@ -22,20 +22,27 @@ import org.neo4j.ogm.cypher.Filter;
 
 /**
  * @author Jasper Blues
+ * @author Michael J. Simons
  */
-public class PrincipalNodeMatchClause implements MatchClause {
+class PrincipalNodeMatchClause implements MatchClause {
 
+    private final String varName;
     private StringBuilder clause;
 
-    public PrincipalNodeMatchClause(String label) {
+    PrincipalNodeMatchClause(String label) {
+        this(label, "n");
+    }
 
-        clause = new StringBuilder();
-        clause.append(String.format("MATCH (n:`%s`) ", label));
+    PrincipalNodeMatchClause(String label, String varName) {
+
+        this.varName = varName;
+        this.clause = new StringBuilder();
+        this.clause.append(String.format("MATCH (%s:`%s`) ", varName, label));
     }
 
     @Override
     public MatchClause append(Filter filter) {
-        clause.append(filter.toCypher("n", clause.indexOf(" WHERE ") == -1));
+        clause.append(filter.toCypher(varName, clause.indexOf(" WHERE ") == -1));
         return this;
     }
 

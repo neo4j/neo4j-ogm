@@ -34,6 +34,7 @@ import org.neo4j.ogm.exception.core.MissingOperatorException;
  */
 public class NodeQueryBuilder {
 
+    private final String varName;
     private PrincipalNodeMatchClause principalClause;
     private Iterable<Filter> filters;
     private List<MatchClause> nestedClauses;
@@ -44,7 +45,12 @@ public class NodeQueryBuilder {
     private boolean hasRelationshipMatch = false;
 
     NodeQueryBuilder(String principalLabel, Iterable<Filter> filters) {
-        this.principalClause = principalLabel == null ? null : new PrincipalNodeMatchClause(principalLabel);
+        this(principalLabel, filters, "n");
+    }
+
+    NodeQueryBuilder(String principalLabel, Iterable<Filter> filters, String varName) {
+        this.varName = varName;
+        this.principalClause = principalLabel == null ? null : new PrincipalNodeMatchClause(principalLabel, varName);
         this.filters = filters;
         this.nestedClauses = new ArrayList<>();
         this.pathClauses = new ArrayList<>();
@@ -116,7 +122,7 @@ public class NodeQueryBuilder {
                 lastPathSegment.getNestedEntityTypeLabel(), lastPathSegment.isNestedRelationshipEntity());
             nestedClauses.add(clause);
         }
-        pathClauses.add(new NestedPathMatchClause(matchClauseId).append(filter));
+        pathClauses.add(new NestedPathMatchClause(matchClauseId, this.varName).append(filter));
         clause.append(filter);
 
         matchClauseId++;
@@ -154,10 +160,11 @@ public class NodeQueryBuilder {
         }
 
         if (hasRelationshipMatch) {
-            stringBuilder.append("WITH DISTINCT n");
+            stringBuilder.append("WITH DISTINCT ");
         } else {
-            stringBuilder.append("WITH n");
+            stringBuilder.append("WITH ");
         }
+        stringBuilder.append(this.varName);
 
         return stringBuilder;
     }

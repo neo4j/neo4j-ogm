@@ -21,6 +21,7 @@ package org.neo4j.ogm.domain.gh824;
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Michael J. Simons
@@ -31,11 +32,32 @@ public class UserGroup {
     @Id @GeneratedValue
     private Long id;
 
+    private String name;
+
+    @Relationship("IN")
+    private City city;
+
     public long getId() {
         return id;
     }
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

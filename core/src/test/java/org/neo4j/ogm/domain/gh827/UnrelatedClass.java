@@ -16,13 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.metadata.schema.gh670;
+package org.neo4j.ogm.domain.gh827;
 
-import java.util.List;
-
-import org.neo4j.ogm.annotation.NodeEntity;
-
-@NodeEntity
-public class Teacher extends Person {
-    private List<Course> cources;
+/**
+ * @author Michael J. Simons
+ */
+@PackagePrivateAnnotation
+public class UnrelatedClass {
 }

@@ -16,12 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.metadata.schema.gh670;
+package org.neo4j.ogm.domain.gh827;
 
-import org.neo4j.ogm.annotation.NodeEntity;
-
-@NodeEntity
-public class Person {
-    private Long id;
-    private String name;
+/**
+ * @author Michael J. Simons
+ */
+@PackagePrivateAnnotation("v")
+public class UnrelatedClass {
 }

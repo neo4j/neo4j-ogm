@@ -21,6 +21,8 @@ package org.neo4j.ogm.metadata;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,14 +86,16 @@ public class AnnotationInfo {
         }
     }
 
-    private Object getAttributeValue(Annotation annotation, Method element) {
-        Object value;
-        try {
-            value = element.invoke(annotation);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Could not read value of Annotation " + element.getName(), e);
-        }
-        return value;
+    private static Object getAttributeValue(Annotation annotation, Method element) {
+
+        return AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+            try {
+                element.setAccessible(true);
+                return element.invoke(annotation);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException("Could not read value of Annotation " + element.getName(), e);
+            }
+        });
     }
 
     public String getName() {

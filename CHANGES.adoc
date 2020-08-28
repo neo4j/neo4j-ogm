@@ -1,5 +1,12 @@
 = Changes
 
+== 3.1.21
+
+* [bug] Ensure accessibility of annotation values. (#827)
+* [bug] Solve ambiguous class name collision. (#809)
+* [improvement] Flush mapping context on potentially write queries, both custom and generic. (#818)
+* [tests] Prove that nested adhoc mapping from maps work. (#814)
+
 == 3.1.20
 
 * Relationships incoming from an inheritance tree are not deleted. (#806)

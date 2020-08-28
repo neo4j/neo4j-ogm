@@ -21,6 +21,6 @@ package org.neo4j.ogm.domain.gh827;
 /**
  * @author Michael J. Simons
  */
-@PackagePrivateAnnotation
+@PackagePrivateAnnotation("v")
 public class UnrelatedClass {
 }

@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.metadata;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 import org.neo4j.ogm.domain.gh827.UnrelatedClass;
 
@@ -30,6 +32,6 @@ public class AnnotationsInfoTest {
     public void shouldBeAbleToHandlePackagePrivateAnnotations() {
 
         AnnotationsInfo info = new AnnotationsInfo(UnrelatedClass.class);
-
+        assertThat(info.get("org.neo4j.ogm.domain.gh827.PackagePrivateAnnotation").get("value")).isEqualTo("v");
     }
 }

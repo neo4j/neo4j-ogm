@@ -16,13 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.metadata.schema.gh670;
+package org.neo4j.ogm.metadata;
 
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.neo4j.ogm.annotation.NodeEntity;
+import org.junit.Test;
+import org.neo4j.ogm.domain.gh827.UnrelatedClass;
 
-@NodeEntity
-public class Teacher extends Person {
-    private List<Course> cources;
+/**
+ * @author Michael J. Simons
+ */
+public class AnnotationsInfoTest {
+
+    @Test
+    public void shouldBeAbleToHandlePackagePrivateAnnotations() {
+
+        AnnotationsInfo info = new AnnotationsInfo(UnrelatedClass.class);
+        assertThat(info.get("org.neo4j.ogm.domain.gh827.PackagePrivateAnnotation").get("value")).isEqualTo("v");
+    }
 }

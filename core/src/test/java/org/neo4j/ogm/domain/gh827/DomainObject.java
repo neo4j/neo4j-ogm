@@ -16,12 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.metadata.schema.gh670;
+package org.neo4j.ogm.domain.gh827;
 
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 
+/**
+ * @author Michael J. Simons
+ */
 @NodeEntity
-public class Course {
+public class DomainObject {
+
+    @Id @GeneratedValue
     private Long id;
-    private Long title;
+
 }

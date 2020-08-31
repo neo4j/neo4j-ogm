@@ -25,11 +25,15 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
 import org.neo4j.ogm.exception.core.MappingException;
+import org.neo4j.ogm.support.CollectionUtils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 
@@ -416,8 +420,16 @@ public class Filter implements FilterWithRelationship {
     @Deprecated
     public Object getTransformedPropertyValue() {
         Object value = this.function.getValue();
-        if (this.getPropertyConverter() != null) {
-            value = this.getPropertyConverter().toGraphProperty(value);
+        AttributeConverter applicablePropertyConverter = this.getPropertyConverter();
+        if (applicablePropertyConverter != null) {
+            List<Object> convertedValues = StreamSupport.stream(CollectionUtils.iterableOf(value).spliterator(), false)
+                .map((Function<Object, Object>) applicablePropertyConverter::toGraphProperty)
+                .collect(Collectors.toList());
+            if (convertedValues.size() == 1) {
+                value = convertedValues.get(0);
+            } else {
+                value = convertedValues;
+            }
         } else if (this.getCompositeAttributeConverter() != null) {
             throw new MappingException("Properties with a CompositeAttributeConverter are not supported by " +
                 "Filters in this version of OGM. Consider implementing a custom FilterFunction.");

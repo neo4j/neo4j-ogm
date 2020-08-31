@@ -40,7 +40,7 @@ public final class CollectionUtils {
      * @param thingToIterable A thing that should be iterated over. Can be null.
      * @return An iterable.
      */
-    public static Iterable iterableOf(Object thingToIterable) {
+    public static Iterable<Object> iterableOf(Object thingToIterable) {
 
         if (thingToIterable == null) {
             return Collections.emptyList();

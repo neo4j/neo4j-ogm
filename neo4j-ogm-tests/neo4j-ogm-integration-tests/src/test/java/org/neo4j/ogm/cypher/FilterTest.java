@@ -20,9 +20,14 @@ package org.neo4j.ogm.cypher;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
+import org.assertj.core.api.Condition;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +35,7 @@ import org.junit.rules.ExpectedException;
 import org.neo4j.ogm.cypher.function.ContainsAnyComparison;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
+import org.neo4j.ogm.typeconversion.UuidStringConverter;
 
 /**
  * @author Gerrit Meier
@@ -174,5 +180,32 @@ public class FilterTest {
         filter.ignoreCase();
 
         assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` IS NULL ");
+    }
+
+
+    @Test // GH-829
+    public void convertersShouldBeAppliedToSingleValues() {
+
+        UUID v1 = UUID.randomUUID();
+        Filter filter = new Filter("thing", ComparisonOperator.EQUALS, v1);
+        filter.setPropertyConverter(new UuidStringConverter());
+
+        Map<String, Object> parameters = filter.parameters();
+        assertThat(parameters).hasSize(1).hasValueSatisfying(new Condition<>(o -> v1.toString().equals(o), "Value should have been converted"));
+    }
+
+    @Test // GH-829
+    @SuppressWarnings("deprecation")
+    public void convertersShouldBeAppliedToCollectionValues() {
+
+        UUID v1 = UUID.randomUUID();
+        UUID v2 = UUID.randomUUID();
+        Filter filter = new Filter("thing", ComparisonOperator.EQUALS, Arrays.asList(v1, v2));
+        filter.setPropertyConverter(new UuidStringConverter());
+
+        Map<String, Object> parameters = filter.parameters();
+        assertThat(parameters).hasSize(1).hasValueSatisfying(
+            new Condition<>(o -> o instanceof List && ((List) o).stream().allMatch(e -> e.equals(v1.toString()) || e.equals(v2.toString())),
+                "Values should have been converted"));
     }
 }

@@ -25,11 +25,15 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.neo4j.ogm.annotation.Relationship.Direction;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
+import org.neo4j.ogm.support.CollectionUtils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 /**
@@ -381,11 +385,22 @@ public class Filter implements FilterWithRelationship {
 
     public Map<String, Object> parameters() {
 
+        AttributeConverter applicablePropertyConverter = this.getPropertyConverter();
         PropertyValueTransformer valueTransformer;
-        if (this.propertyConverter == null) {
+        if (applicablePropertyConverter == null) {
             valueTransformer = new NoOpPropertyValueTransformer();
         } else {
-            valueTransformer = value -> this.propertyConverter.toGraphProperty(value);
+            valueTransformer = value -> {
+                List<Object> convertedValues = StreamSupport
+                    .stream(CollectionUtils.iterableOf(value).spliterator(), false)
+                    .map((Function<Object, Object>) applicablePropertyConverter::toGraphProperty)
+                    .collect(Collectors.toList());
+                if (convertedValues.size() == 1) {
+                    return convertedValues.get(0);
+                } else {
+                    return convertedValues;
+                }
+            };
         }
 
         return function.parameters(this::uniqueParameterName, valueTransformer);

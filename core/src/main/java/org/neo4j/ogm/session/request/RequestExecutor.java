@@ -202,11 +202,12 @@ public class RequestExecutor {
             if (!(obj instanceof TransientRelationship)) {
                 ClassInfo classInfo = session.metaData().classInfo(obj);
                 if (!classInfo.isRelationshipEntity()) {
-                    Long id = session.context().nativeId(obj);
-                    if (id >= 0) {
-                        LOGGER.debug("updating existing node id: {}, {}", id, obj);
-                        registerEntity(session.context(), classInfo, id, obj);
-                    }
+                    session.context().optionalNativeId(obj)
+                        .filter(id -> id >= 0)
+                        .ifPresent(id -> {
+                            LOGGER.debug("updating existing node id: {}, {}", id, obj);
+                            registerEntity(session.context(), classInfo, id, obj);
+                        });
                 }
             }
         }

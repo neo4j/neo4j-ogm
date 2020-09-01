@@ -28,10 +28,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.RowModelRequest;
@@ -174,13 +176,15 @@ public class DeleteDelegate extends SessionDelegate {
 
         for (Object object : objects) {
 
-            ClassInfo classInfo = session.metaData().classInfo(object);
+            MetaData metaData = session.metaData();
+            ClassInfo classInfo = metaData.classInfo(object);
 
             if (classInfo == null) {
                 session.warn(object.getClass().getName() + " is not an instance of a persistable class");
             } else {
 
-                Long id = Optional.ofNullable(session.context().nativeId(object))
+                MappingContext mappingContext = session.context();
+                Long id = mappingContext.optionalNativeId(object)
                     .filter(possibleId -> possibleId >= 0)
                     .orElseGet(() -> {
                         session.warn(String.format(
@@ -190,16 +194,14 @@ public class DeleteDelegate extends SessionDelegate {
                         );
                         return classInfo.getPrimaryIndexOrIdReader().apply(object)
                             .map(primaryIndexOrId -> session.load(object.getClass(), (Serializable) primaryIndexOrId))
-                            .map(reloadedObject -> session.context().nativeId(reloadedObject))
+                            .flatMap(reloadedObject -> mappingContext.optionalNativeId(reloadedObject))
                             .orElse(-1L);
                     });
                 if (id >= 0) {
                     Statement request = getDeleteStatement(object, id, classInfo);
-                    if (session.eventsEnabled()) {
-                        if (!notified.contains(object)) {
-                            session.notifyListeners(new PersistenceEvent(object, Event.TYPE.PRE_DELETE));
-                            notified.add(object);
-                        }
+                    if (session.eventsEnabled() && !notified.contains(object)) {
+                        session.notifyListeners(new PersistenceEvent(object, Event.TYPE.PRE_DELETE));
+                        notified.add(object);
                     }
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
                     session.doInTransaction(() -> {
@@ -210,15 +212,16 @@ public class DeleteDelegate extends SessionDelegate {
                                 session.optimisticLockingChecker().checkResultsCount(rowModels, request);
                             }
 
-                            if (session.metaData().isRelationshipEntity(classInfo.name())) {
+                            if (metaData.isRelationshipEntity(classInfo.name())) {
                                 session.detachRelationshipEntity(id);
                             } else {
                                 session.detachNodeEntity(id);
                             }
-                            if (session.eventsEnabled()) {
-                                if (notified.contains(object)) {
-                                    session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
-                                }
+
+                            // This will only be true if the events have been
+                            // enabled in the first place.
+                            if (notified.contains(object)) {
+                                session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
                             }
                         }
                     }, Transaction.Type.READ_WRITE);

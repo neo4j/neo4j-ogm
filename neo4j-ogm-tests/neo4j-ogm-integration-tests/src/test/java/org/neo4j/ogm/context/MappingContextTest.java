@@ -238,7 +238,7 @@ public class MappingContextTest {
     private boolean containsNativeId(ClassInfo classInfo, Object id) {
         try {
             return ((Map) PRIMARY_ID_TO_NATIVE_ID_ACCESSOR.get(this.mappingContext))
-                .containsKey(new LabelPrimaryId(classInfo, id));
+                .containsKey(LabelPrimaryId.of(classInfo, id));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.context;
 
-import static java.util.Objects.*;
-
 import java.util.Objects;
 
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -33,6 +31,7 @@ import org.neo4j.ogm.metadata.ClassInfo;
  * @author Frantisek Hartman
  * @author Jonathan D'Orleans
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 class LabelPrimaryId {
 
@@ -45,9 +44,16 @@ class LabelPrimaryId {
      * @param classInfo class info containing the primary id
      * @param id        the value of the id
      */
-    LabelPrimaryId(ClassInfo classInfo, Object id) {
+    static LabelPrimaryId of(ClassInfo classInfo, Object id) {
+
+        Objects.requireNonNull(classInfo);
+        Objects.requireNonNull(id);
+        return new LabelPrimaryId(classInfo, id);
+    }
+
+    private LabelPrimaryId(ClassInfo classInfo, Object id) {
         this.label = classInfo.neo4jName();
-        this.id = requireNonNull(id);
+        this.id = id;
     }
 
     @Override

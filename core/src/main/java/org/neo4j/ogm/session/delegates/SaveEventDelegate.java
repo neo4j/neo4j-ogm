@@ -18,13 +18,7 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
@@ -164,7 +158,7 @@ final class SaveEventDelegate extends SessionDelegate {
 
     // registers this object as visited and returns true if it was not previously visited, false otherwise
     private boolean visit(Object object) {
-        return this.visited.add(session.context().nativeId(object));
+        return this.visited.add(object);
     }
 
     // returns true if the object in question is dirty (has changed)

@@ -31,6 +31,7 @@ import java.util.Objects;
  * @author Luanne Misquitta
  * @author Andreas Berger
  * @author Michael J. Simons
+ * @author Torsten Kuhnhenne
  */
 public class MappedRelationship implements Mappable {
 
@@ -40,6 +41,7 @@ public class MappedRelationship implements Mappable {
     private final Long relationshipId;
     private final Class startNodeType;
     private final Class endNodeType;
+    private int hash = 0;
 
     public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Long relationshipId,
         Class startNodeType, Class endNodeType) {
@@ -94,7 +96,10 @@ public class MappedRelationship implements Mappable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(startNodeId, relationshipType, endNodeId, relationshipId);
+        if (hash == 0) {
+            hash = Objects.hash(startNodeId, relationshipType, endNodeId, relationshipId);
+        }
+        return hash;
     }
 
     public String toString() {

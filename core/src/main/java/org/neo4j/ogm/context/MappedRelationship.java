@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.context;
 
+import java.util.Objects;
+
 /**
  * Light-weight record of a relationship mapped from the database
  * <code>startNodeId - relationshipId - relationshipType - endNodeId</code>
@@ -27,6 +29,9 @@ package org.neo4j.ogm.context;
  *
  * @author Adam George
  * @author Luanne Misquitta
+ * @author Andreas Berger
+ * @author Michael J. Simons
+ * @author Torsten Kuhnhenne
  */
 public class MappedRelationship implements Mappable {
 
@@ -36,6 +41,7 @@ public class MappedRelationship implements Mappable {
     private final Long relationshipId;
     private final Class startNodeType;
     private final Class endNodeType;
+    private final int hash;
 
     public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Long relationshipId,
         Class startNodeType, Class endNodeType) {
@@ -45,6 +51,7 @@ public class MappedRelationship implements Mappable {
         this.relationshipId = relationshipId;
         this.startNodeType = startNodeType;
         this.endNodeType = endNodeType;
+        this.hash = Objects.hash(startNodeId, relationshipType, endNodeId, relationshipId);
     }
 
     public long getStartNodeId() {
@@ -73,26 +80,24 @@ public class MappedRelationship implements Mappable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         MappedRelationship that = (MappedRelationship) o;
 
         return startNodeId == that.startNodeId
             && endNodeId == that.endNodeId
-            && relationshipType.equals(that.relationshipType)
-            && !(relationshipId != null ? !relationshipId.equals(that.relationshipId) : that.relationshipId != null);
+            && Objects.equals(relationshipType, that.relationshipType)
+            && Objects.equals(relationshipId, that.relationshipId);
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (startNodeId ^ (startNodeId >>> 32));
-        result = 31 * result + relationshipType.hashCode();
-        result = 31 * result + (int) (endNodeId ^ (endNodeId >>> 32));
-        result = 31 * result + (relationshipId != null ? relationshipId.hashCode() : 0);
-        return result;
+        return hash;
     }
 
     public String toString() {

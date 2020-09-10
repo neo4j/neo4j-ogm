@@ -59,6 +59,8 @@ import org.neo4j.ogm.session.request.strategy.impl.CountStatements;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -72,6 +74,10 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
     private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     private static final Set<Class<?>> VOID_TYPES = new HashSet<>(Arrays.asList(Void.class, void.class));
+    // This is using the Neo4jSession on purpose to retrieve the logger.
+    // This delegate here used Neo4jSession#warn to log warnings about possible
+    // write queries.
+    private static final Logger LOGGER = LoggerFactory.getLogger(Neo4jSession.class);
 
     public ExecuteQueriesDelegate(Neo4jSession session) {
         super(session);
@@ -294,9 +300,10 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
 
     private void validateQuery(String cypher, Map<String, ?> parameters, boolean readOnly) {
 
-        if (readOnly && mayBeReadWrite(cypher)) {
-            session.warn(
-                "Cypher query contains keywords that indicate a writing query but OGM is going to use a read only transaction as requested, so the query might fail.");
+        if (LOGGER.isDebugEnabled() && readOnly && mayBeReadWrite(cypher)) {
+            LOGGER.debug(
+                "Thread {}: Cypher query contains keywords that indicate a writing query but OGM is going to use a read only transaction as requested, so the query might fail.",
+                Thread.currentThread().getId());
         }
 
         if (StringUtils.isEmpty(cypher)) {

@@ -21,6 +21,9 @@ package org.neo4j.ogm.persistence.session.capability;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,11 +53,13 @@ import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.LoggerRule;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.testutil.TestUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andreas Berger
@@ -67,6 +72,11 @@ public class QueryCapabilityTest extends TestContainersTestBase {
 
     private SessionFactory sessionFactory;
     private Session session;
+
+    static {
+        LoggerContext logCtx = (LoggerContext) LoggerFactory.getILoggerFactory();
+        logCtx.getLogger(Neo4jSession.class).setLevel(Level.DEBUG);
+    }
 
     @Rule
     public final LoggerRule loggerRule = new LoggerRule();
@@ -124,8 +134,10 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     public void readOnlyQueryMustBeReadOnly() {
 
         session.save(new Actor("Jeff"));
-        if (isVersionOrGreater("4.1") && isBoltDriver()) { // 4.1+ will fail on any attempt to write in a read-only transaction.
-            assertThatThrownBy(() -> session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true))
+        if (isVersionOrGreater("4.1")
+            && isBoltDriver()) { // 4.1+ will fail on any attempt to write in a read-only transaction.
+            assertThatThrownBy(
+                () -> session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true))
                 .hasMessageStartingWith("Writing in read access mode not allowed.");
         } else {
             session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true);
@@ -158,7 +170,8 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
-        Result result = session.query("MATCH (a:Actor) SET a.age=$age RETURN a.name", Collections.singletonMap("age", 5), false);
+        Result result = session
+            .query("MATCH (a:Actor) SET a.age=$age RETURN a.name", Collections.singletonMap("age", 5), false);
         assertThat(result).isNotNull();
         assertThat(result.queryStatistics()).isNotNull();
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(3);
@@ -174,7 +187,8 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(names.contains("John")).isTrue();
         assertThat(names.contains("Colin")).isTrue();
 
-        result = session.query("MATCH (a:Actor) SET a.age=$age RETURN a.name, a.age", Collections.singletonMap("age", 5));
+        result = session
+            .query("MATCH (a:Actor) SET a.age=$age RETURN a.name, a.age", Collections.singletonMap("age", 5));
         assertThat(result).isNotNull();
         assertThat(result.queryStatistics()).isNotNull();
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(3);
@@ -225,7 +239,8 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         params.put("name", "Jeff");
         params.put("age", 40);
 
-        Actor jeff = session.queryForObject(Actor.class, "MATCH (a:Actor {name:$name}) set a.age=$age return a", params);
+        Actor jeff = session
+            .queryForObject(Actor.class, "MATCH (a:Actor {name:$name}) set a.age=$age return a", params);
         assertThat(jeff).isNotNull();
         assertThat(jeff.getName()).isEqualTo("Jeff");
     }
@@ -505,7 +520,8 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     @Test // DATAGRAPH-700
     public void shouldBeAbleToMapVariableDepthRelationshipsWithCompletePaths() {
         Iterator<Map<String, Object>> results = session
-            .query("match (u:User {name:$name}) match (u)-[r*0..1]-(n) return u,r,n", Collections.singletonMap("name", "Vince"))
+            .query("match (u:User {name:$name}) match (u)-[r*0..1]-(n) return u,r,n",
+                Collections.singletonMap("name", "Vince"))
             .iterator();
         assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
@@ -593,7 +609,8 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     @Test // DATAGRAPH-700
     public void shouldBeAbleToMapArrays() {
         Iterator<Map<String, Object>> results = session
-            .query("MATCH (u:User {name:$name}) RETURN u.array as arr", Collections.singletonMap("name", "Christophe")).iterator();
+            .query("MATCH (u:User {name:$name}) RETURN u.array as arr", Collections.singletonMap("name", "Christophe"))
+            .iterator();
         assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
         assertThat(result).isNotNull();
@@ -811,7 +828,6 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             .containsExactly("A", "B", "C", "D");
     }
 
-
     @Test // GH-726
     public void shouldMapCorrectlyIfTwoClassesWithTheSameSimpleNameExist() {
         // org.neo4j.ogm.domain.gh726.package_a.SameClass
@@ -839,12 +855,13 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     @Test // GH-737
     public void shouldReturnListOfNodesAndRelationshipModelForUnknownRelationshipLists() {
         Result result = session
-            .query("MATCH (n:Movie{title:'Pulp Fiction'}) return n, [(n)-[r:UNKNOWN]-(p) | [r,p]] as relAndNode", emptyMap());
+            .query("MATCH (n:Movie{title:'Pulp Fiction'}) return n, [(n)-[r:UNKNOWN]-(p) | [r,p]] as relAndNode",
+                emptyMap());
         Map<String, Object> returnedRow = result.queryResults().iterator().next();
 
         assertThat(returnedRow.get("n")).isInstanceOf(Movie.class);
-        assertThat(((List)returnedRow.get("relAndNode")).get(0)).isInstanceOf(Pet.class);
-        assertThat(((List)returnedRow.get("relAndNode")).get(1)).isInstanceOf(RelationshipModel.class);
+        assertThat(((List) returnedRow.get("relAndNode")).get(0)).isInstanceOf(Pet.class);
+        assertThat(((List) returnedRow.get("relAndNode")).get(1)).isInstanceOf(RelationshipModel.class);
     }
 
     private static boolean checkForMichal(Map<String, Object> result) {

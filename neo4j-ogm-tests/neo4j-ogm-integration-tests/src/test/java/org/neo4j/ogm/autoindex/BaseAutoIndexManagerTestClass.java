@@ -29,8 +29,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -91,9 +93,9 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
 
     protected SessionFactory sessionFactory;
 
-    BaseAutoIndexManagerTestClass(String[] expectedIndexDefinitions, Class<?>... packages) {
+    BaseAutoIndexManagerTestClass(String[] expectedIndexDefinitions, Class<?>... classes) {
         sessionFactory = new SessionFactory(getDriver(),
-            Arrays.stream(packages).map(Class::getName).toArray(String[]::new));
+            Arrays.stream(classes).map(Class::getName).toArray(String[]::new));
         this.expectedIndexDefinitions = expectedIndexDefinitions;
         this.expectedNumberOfAdditionalIndexes = supportsFulltextIndex() ? 2 : 0;
     }

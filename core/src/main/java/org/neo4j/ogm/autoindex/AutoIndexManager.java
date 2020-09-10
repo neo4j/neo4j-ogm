@@ -72,7 +72,7 @@ public class AutoIndexManager {
     private final String dumpDir;
     private final String dumpFilename;
 
-    private final List<AutoIndex> indexes;
+    private final Set<AutoIndex> indexes;
 
     private final Neo4jSession session;
     private DatabaseInformation databaseInfo;
@@ -144,12 +144,12 @@ public class AutoIndexManager {
 
         if (!copyOfIndexes.isEmpty()) {
 
-            String missingIndexes = "[";
+            StringBuilder missingIndexes = new StringBuilder("[");
 
             for (AutoIndex s : copyOfIndexes) {
-                missingIndexes += s.getDescription() + ", ";
+                missingIndexes.append(s.getDescription()).append(", ");
             }
-            missingIndexes += "]";
+            missingIndexes.append("]");
             throw new MissingIndexException(
                 "Validation of Constraints and Indexes failed. Could not find the following : " + missingIndexes);
         }
@@ -253,10 +253,10 @@ public class AutoIndexManager {
         session.doInTransaction(() -> session.requestHandler().execute(request).close(), READ_WRITE);
     }
 
-    private static List<AutoIndex> initialiseAutoIndex(MetaData metaData) {
+    private static Set<AutoIndex> initialiseAutoIndex(MetaData metaData) {
 
         LOGGER.debug("Building Index Metadata.");
-        List<AutoIndex> indexMetadata = new ArrayList<>();
+        Set<AutoIndex> indexMetadata = new HashSet<>();
         for (ClassInfo classInfo : metaData.persistentEntities()) {
 
             final String owningType = classInfo.neo4jName();

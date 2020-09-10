@@ -61,7 +61,8 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class ExecuteQueriesDelegate extends SessionDelegate {
 
-    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b");
+    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     public ExecuteQueriesDelegate(Neo4jSession session) {
         super(session);
@@ -248,7 +249,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
     }
 
     private static boolean mayBeReadWrite(String cypher) {
-        Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
+        Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher);
         return matcher.find();
     }
 

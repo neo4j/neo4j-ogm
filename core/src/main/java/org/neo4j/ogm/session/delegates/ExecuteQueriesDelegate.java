@@ -71,6 +71,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ExecuteQueriesDelegate extends SessionDelegate {
 
+    private static final String OGM_READ_ONLY_HINT = "/*+ OGM READ_ONLY */";
     private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     private static final Set<Class<?>> VOID_TYPES = new HashSet<>(Arrays.asList(Void.class, void.class));
@@ -159,7 +160,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
 
             // While an update query may not return objects, it has enough changes
             // to modify all entities in the context, so we must flush it either way.
-            if (mayBeReadWrite(cypher)) {
+            if (mayBeReadWrite(cypher) && !cypher.contains(OGM_READ_ONLY_HINT)) {
                 session.clear();
             }
 

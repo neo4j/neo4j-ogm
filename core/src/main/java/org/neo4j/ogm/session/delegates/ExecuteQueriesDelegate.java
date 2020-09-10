@@ -69,7 +69,8 @@ import org.neo4j.ogm.typeconversion.ConvertibleTypes;
  */
 public class ExecuteQueriesDelegate extends SessionDelegate {
 
-    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b");
+    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     private static final Set<Class<?>> VOID_TYPES = new HashSet<>(Arrays.asList(Void.class, void.class));
 
     public ExecuteQueriesDelegate(Neo4jSession session) {
@@ -287,7 +288,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
     }
 
     private static boolean mayBeReadWrite(String cypher) {
-        Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
+        Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher);
         return matcher.find();
     }
 

@@ -21,6 +21,9 @@ package org.neo4j.ogm.persistence.session.capability;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,12 +52,14 @@ import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.LoggerRule;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.testutil.TestUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andreas Berger
@@ -67,6 +72,11 @@ public class QueryCapabilityTest extends TestContainersTestBase {
 
     private SessionFactory sessionFactory;
     private Session session;
+
+    static {
+        LoggerContext logCtx = (LoggerContext) LoggerFactory.getILoggerFactory();
+        logCtx.getLogger(Neo4jSession.class).setLevel(Level.DEBUG);
+    }
 
     @Rule
     public final LoggerRule loggerRule = new LoggerRule();

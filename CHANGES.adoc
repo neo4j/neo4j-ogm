@@ -1,5 +1,16 @@
 = Changes
 
+== 3.2.16
+
+* [bug] Convert collection based parameters for filters individually. (#829)
+* [bug] Avoid early population of externally generated ID fields. (#831)
+* [bug] Ignore duplicates in constraint definitions. (#836)
+* [improvement] Update Neo4j 3.5 to 3.5.21.
+* [improvement] Precompute hashCode of MappedRelationship. (#838)
+* [improvement] Compile pattern in case-insensitive mode. (#840)
+* [improvement] Change log level to debug for message about potentially write queries.
+* [new-feature] Check for a read only query hint. (#839)
+
 == 3.2.15
 
 * [bug] Ensure accessibility of annotation values. (#827)

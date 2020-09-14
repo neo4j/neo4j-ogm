@@ -25,6 +25,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +39,8 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
@@ -145,6 +148,31 @@ public class QueryCapabilityTest extends TestContainersTestBase {
                 "String matches");
             assertThat(loggerRule.getFormattedMessages()).areAtLeastOne(stringMatches);
         }
+    }
+
+    @Test
+    public void shouldBeAbleToIndicateSafeCall() throws NoSuchFieldException, IllegalAccessException {
+
+        // Don' think too long about that bloody mess…
+        MappingContext spyOnMappingContext = Mockito.spy(((Neo4jSession) session).context());
+        Field mappingContextField = Neo4jSession.class.getDeclaredField("mappingContext");
+        mappingContextField.setAccessible(true);
+        mappingContextField.set(session, spyOnMappingContext);
+
+        Iterable<String> functionNames = session
+            .query(String.class, "CALL dbms.functions() yield name", Collections.emptyMap());
+        assertThat(functionNames).isNotEmpty();
+        functionNames = session
+            .query(String.class, "CALL dbms.functions() yield name /*+ OGM READ_ONLY */", Collections.emptyMap());
+        assertThat(functionNames).isNotEmpty();
+        functionNames = session
+            .query(String.class, "CALL dbms.functions() yield name \n/*+ OGM READ_ONLY */", Collections.emptyMap());
+        assertThat(functionNames).isNotEmpty();
+        functionNames = session
+            .query(String.class, "CALL /*+ OGM READ_ONLY */ dbms.functions() yield name", Collections.emptyMap());
+        assertThat(functionNames).isNotEmpty();
+
+        Mockito.verify(spyOnMappingContext, Mockito.atMost(1)).clear();
     }
 
     @Test // DATAGRAPH-697

@@ -71,8 +71,10 @@ import org.slf4j.LoggerFactory;
  */
 public class ExecuteQueriesDelegate extends SessionDelegate {
 
-    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b",
-        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    private static final String OGM_READ_ONLY_HINT = "/*+ OGM READ_ONLY */";
+    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern
+        .compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b",
+            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     private static final Set<Class<?>> VOID_TYPES = new HashSet<>(Arrays.asList(Void.class, void.class));
     // This is using the Neo4jSession on purpose to retrieve the logger.
     // This delegate here used Neo4jSession#warn to log warnings about possible
@@ -293,7 +295,10 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         return Long.parseLong(resultMap.get(resultKey).toString());
     }
 
-    private static boolean mayBeReadWrite(String cypher) {
+    static boolean mayBeReadWrite(String cypher) {
+        if (cypher.contains(OGM_READ_ONLY_HINT)) {
+            return false;
+        }
         Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher);
         return matcher.find();
     }

@@ -161,18 +161,18 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         mappingContextField.setAccessible(true);
         mappingContextField.set(session, spyOnMappingContext);
 
-        Iterable<String> functionNames = session
-            .query(String.class, "CALL dbms.functions() yield name", Collections.emptyMap());
-        assertThat(functionNames).isNotEmpty();
-        functionNames = session
-            .query(String.class, "CALL dbms.functions() yield name /*+ OGM READ_ONLY */", Collections.emptyMap());
-        assertThat(functionNames).isNotEmpty();
-        functionNames = session
-            .query(String.class, "CALL dbms.functions() yield name \n/*+ OGM READ_ONLY */", Collections.emptyMap());
-        assertThat(functionNames).isNotEmpty();
-        functionNames = session
-            .query(String.class, "CALL /*+ OGM READ_ONLY */ dbms.functions() yield name", Collections.emptyMap());
-        assertThat(functionNames).isNotEmpty();
+        Iterable<String> results = session
+            .query(String.class, "CALL dbms.procedures() yield name", Collections.emptyMap());
+        assertThat(results).isNotEmpty();
+        results = session
+            .query(String.class, "CALL dbms.procedures() yield name /*+ OGM READ_ONLY */", Collections.emptyMap());
+        assertThat(results).isNotEmpty();
+        results = session
+            .query(String.class, "CALL dbms.procedures() yield name \n/*+ OGM READ_ONLY */", Collections.emptyMap());
+        assertThat(results).isNotEmpty();
+        results = session
+            .query(String.class, "CALL /*+ OGM READ_ONLY */ dbms.procedures() yield name", Collections.emptyMap());
+        assertThat(results).isNotEmpty();
 
         Mockito.verify(spyOnMappingContext, Mockito.atMost(1)).clear();
     }

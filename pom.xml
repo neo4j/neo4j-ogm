@@ -217,6 +217,7 @@
         <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M2</maven-surefire-plugin.version>
+        <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
         <mockito.version>2.23.4</mockito.version>
         <objenesis.version>3.0.1</objenesis.version>
         <powermock.version>2.0.0</powermock.version>

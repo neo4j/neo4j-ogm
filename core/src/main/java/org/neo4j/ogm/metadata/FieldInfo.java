@@ -366,7 +366,7 @@ public class FieldInfo {
                     methodsFound.removeIf(m -> m.getDeclaringClass() != converterClass);
 
                     // If still more than one, remove the ones returning generic objects
-                    if(methodsFound.size() > 1) {
+                    if (methodsFound.size() > 1) {
                         methodsFound.removeIf(m -> m.getReturnType() == Object.class);
                     }
                 }
@@ -447,9 +447,9 @@ public class FieldInfo {
      * @return The field type (may be List, while the mapped type is retrievable from {@link #getTypeDescriptor()} ()}).
      */
     public Class<?> type() {
-        Class convertedType = convertedType();
-        if (convertedType != null) {
-            return convertedType;
+        Class returnedTyped = convertedType();
+        if (returnedTyped != null) {
+            return returnedTyped;
         }
         return fieldType;
     }

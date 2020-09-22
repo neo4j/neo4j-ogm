@@ -20,88 +20,67 @@ package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.IOException;
-import java.util.Set;
-
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class ClassPathScannerTest {
 
     @Test
     public void directoryShouldBeScanned() {
+
         final DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.bike");
-
-        assertThat(domainInfo.getClassInfoMap()).hasSize(5);
-
-        Set<String> classNames = domainInfo.getClassInfoMap().keySet();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.bike.Bike")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.bike.Frame")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.bike.Saddle")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.bike.Wheel")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.bike.WheelWithUUID")).isTrue();
+        assertThat(domainInfo.getClassInfoMap()).containsOnlyKeys(
+            "org.neo4j.ogm.domain.bike.Bike",
+            "org.neo4j.ogm.domain.bike.Frame",
+            "org.neo4j.ogm.domain.bike.Saddle",
+            "org.neo4j.ogm.domain.bike.Wheel",
+            "org.neo4j.ogm.domain.bike.WheelWithUUID");
     }
 
     @Test
     public void nestedDirectoryShouldBeScanned() {
+
         final DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.convertible");
-
-        assertThat(domainInfo.getClassInfoMap()).hasSize(20);
-
-        Set<String> classNames = domainInfo.getClassInfoMap().keySet();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.bytes.Photo")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.bytes.PhotoWrapper")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.date.DateNumericStringConverter")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.date.Memo")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.date.Java8DatesMemo")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Algebra")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Education")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Gender")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.NumberSystem")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.NumberSystemDomainConverter")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Operation")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Person")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Tag")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.TagEntity")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.enums.TagModel")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.numbers.Account")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.JsonNode")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.MapJson")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.StringMapEntity")).isTrue();
-        assertThat(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.StringMapConverter")).isTrue();
+        assertThat(domainInfo.getClassInfoMap()).containsOnlyKeys(
+            "org.neo4j.ogm.domain.convertible.bytes.Photo",
+            "org.neo4j.ogm.domain.convertible.bytes.PhotoWrapper",
+            "org.neo4j.ogm.domain.convertible.date.DateNumericStringConverter",
+            "org.neo4j.ogm.domain.convertible.date.Memo",
+            "org.neo4j.ogm.domain.convertible.date.Java8DatesMemo",
+            "org.neo4j.ogm.domain.convertible.enums.Algebra",
+            "org.neo4j.ogm.domain.convertible.enums.Education",
+            "org.neo4j.ogm.domain.convertible.enums.Gender",
+            "org.neo4j.ogm.domain.convertible.enums.NumberSystem",
+            "org.neo4j.ogm.domain.convertible.enums.NumberSystemDomainConverter",
+            "org.neo4j.ogm.domain.convertible.enums.Operation",
+            "org.neo4j.ogm.domain.convertible.enums.Person",
+            "org.neo4j.ogm.domain.convertible.enums.Tag",
+            "org.neo4j.ogm.domain.convertible.enums.TagEntity",
+            "org.neo4j.ogm.domain.convertible.enums.TagModel",
+            "org.neo4j.ogm.domain.convertible.numbers.Account",
+            "org.neo4j.ogm.domain.convertible.parametrized.JsonNode",
+            "org.neo4j.ogm.domain.convertible.parametrized.MapJson",
+            "org.neo4j.ogm.domain.convertible.parametrized.StringMapEntity",
+            "org.neo4j.ogm.domain.convertible.parametrized.StringMapConverter",
+            "org.neo4j.ogm.domain.convertible.numbers.AbstractListConverter",
+            "org.neo4j.ogm.domain.convertible.numbers.AbstractListConverter$AbstractIntegerListConverter",
+            "org.neo4j.ogm.domain.convertible.numbers.AbstractListConverter$Base36NumberConverter",
+            "org.neo4j.ogm.domain.convertible.numbers.AbstractListConverter$FoobarListConverter",
+            "org.neo4j.ogm.domain.convertible.numbers.Foobar",
+            "org.neo4j.ogm.domain.convertible.numbers.FoobarListConverter",
+            "org.neo4j.ogm.domain.convertible.numbers.FoobarConverter",
+            "org.neo4j.ogm.domain.convertible.numbers.HexadecimalNumberConverter");
     }
 
     @Test
-    public void zipFileWithDomainClassesShouldBeScanned() throws IOException {
+    public void zipFileWithDomainClassesShouldBeScanned() {
+
         final DomainInfo domainInfo = DomainInfo.create("concert.domain");
-        assertThat(domainInfo.getClassInfoMap()).hasSize(2);
-
-        Set<String> classNames = domainInfo.getClassInfoMap().keySet();
-        assertThat(classNames.contains("concert.domain.Concert")).isTrue();
-        assertThat(classNames.contains("concert.domain.Fan")).isTrue();
-    }
-
-    @Test
-    @Ignore("Work with Luke to see what needs to happen here.")
-    public void domainClassesInNestedZipShouldBeScanned() {
-        final DomainInfo domainInfo = DomainInfo.create("radio.domain");
-        assertThat(domainInfo.getClassInfoMap()).hasSize(2);
-
-        Set<String> classNames = domainInfo.getClassInfoMap().keySet();
-        assertThat(classNames.contains("radio.domain.Station")).isTrue();
-        assertThat(classNames.contains("radio.domain.Channel")).isTrue();
-    }
-
-    @Test
-    @Ignore("Work with Luke to see what needs to happen here.")
-    public void domainClassesInDirectoryInNestedZipShouldBeScanned() {
-        final DomainInfo domainInfo = DomainInfo.create("event.domain");
-        assertThat(domainInfo.getClassInfoMap()).hasSize(1);
-
-        Set<String> classNames = domainInfo.getClassInfoMap().keySet();
-        assertThat(classNames.contains("event.domain.Show")).isTrue();
+        assertThat(domainInfo.getClassInfoMap()).containsOnlyKeys(
+            "concert.domain.Concert",
+            "concert.domain.Fan");
     }
 }

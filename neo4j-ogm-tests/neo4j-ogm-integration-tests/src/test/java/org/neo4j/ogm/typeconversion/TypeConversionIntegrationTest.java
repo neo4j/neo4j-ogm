@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,6 +43,8 @@ import org.neo4j.driver.Values;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.ogm.domain.convertible.numbers.Account;
+import org.neo4j.ogm.domain.convertible.numbers.Foobar;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.TimeHolder;
@@ -61,7 +64,8 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music",
+            "org.neo4j.ogm.domain.convertible.numbers");
     }
 
     @Before
@@ -228,5 +232,50 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
 
         expectedStringValue = DateTimeFormatter.ISO_LOCAL_DATE.format(expectedLocalDate);
         assertThat(localDateValue).isEqualTo(expectedStringValue);
+    }
+
+    @Test // GH-845
+    public void converterShouldBeAppliedBothWaysCorrectly() {
+
+        Session localSession = sessionFactory.openSession();
+
+        Account account = new Account();
+        account.setValueA(Collections.singletonList(23));
+        account.setValueB(Collections.singletonList(23));
+        account.setListOfFoobars(Arrays.asList(new Foobar("A"), new Foobar("B")));
+        account.setAnotherListOfFoobars(Arrays.asList(new Foobar("C"), new Foobar("D")));
+        account.setFoobar(new Foobar("Foobar"));
+        account.setNotConverter(4711);
+        localSession.save(account);
+
+        localSession.clear();
+        localSession = sessionFactory.openSession();
+
+        Iterable<Map<String, Object>> result = localSession.query(""
+                + "MATCH (a:Account) WHERE id(a) = $id "
+                + "RETURN a.valueA AS va, a.valueB as vb, a.listOfFoobars as listOfFoobars, a.anotherListOfFoobars as anotherListOfFoobars, a.foobar as foobar, a.notConverter as notConverter",
+            Collections.singletonMap("id", account.getId())
+        );
+        assertThat(result).hasSize(1);
+        assertThat(result).first().satisfies(m -> {
+            assertThat(m).containsEntry("va", "n");
+            assertThat(m).containsEntry("vb", "17");
+            assertThat(m).containsEntry("listOfFoobars", "A,B");
+            assertThat(m).containsEntry("anotherListOfFoobars", "C,D");
+            assertThat(m).containsEntry("foobar", "Foobar");
+            assertThat(m).containsEntry("notConverter", 4711L);
+        });
+
+        localSession.clear();
+        localSession = sessionFactory.openSession();
+
+        account = localSession.load(Account.class, account.getId());
+        assertThat(account).isNotNull();
+        assertThat(account.getValueA()).containsExactly(23);
+        assertThat(account.getValueB()).containsExactly(23);
+        assertThat(account.getListOfFoobars().stream().map(Foobar::getValue)).containsExactlyInAnyOrder("A", "B");
+        assertThat(account.getAnotherListOfFoobars().stream().map(Foobar::getValue))
+            .containsExactlyInAnyOrder("C", "D");
+        assertThat(account.getFoobar().getValue()).isEqualTo("Foobar");
     }
 }

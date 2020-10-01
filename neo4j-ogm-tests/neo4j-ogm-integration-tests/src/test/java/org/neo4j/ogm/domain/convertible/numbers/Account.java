@@ -22,12 +22,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.annotation.typeconversion.NumberString;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 public class Account {
 
@@ -41,6 +43,23 @@ public class Account {
 
     @NumberString(value = Integer.class, lenient = true)
     private Integer futureBalanceLenient;
+
+    @Convert(AbstractListConverter.Base36NumberConverter.class)
+    private List<Integer> valueA;
+
+    @Convert(HexadecimalNumberConverter.class)
+    private List<Integer> valueB;
+
+    @Convert(FoobarListConverter.class)
+    private List<Foobar> listOfFoobars;
+
+    @Convert(AbstractListConverter.FoobarListConverter.class)
+    private List<Foobar> anotherListOfFoobars;
+
+    private Integer notConverter;
+
+    @Convert(FoobarConverter.class)
+    private Foobar foobar;
 
     private List<BigInteger> loans;
     private short code;
@@ -120,5 +139,53 @@ public class Account {
 
     public Long getId() {
         return id;
+    }
+
+    public List<Integer> getValueA() {
+        return valueA;
+    }
+
+    public void setValueA(List<Integer> valueA) {
+        this.valueA = valueA;
+    }
+
+    public List<Integer> getValueB() {
+        return valueB;
+    }
+
+    public void setValueB(List<Integer> valueB) {
+        this.valueB = valueB;
+    }
+
+    public List<Foobar> getListOfFoobars() {
+        return listOfFoobars;
+    }
+
+    public void setListOfFoobars(List<Foobar> listOfFoobars) {
+        this.listOfFoobars = listOfFoobars;
+    }
+
+    public Integer getNotConverter() {
+        return notConverter;
+    }
+
+    public void setNotConverter(Integer notConverter) {
+        this.notConverter = notConverter;
+    }
+
+    public Foobar getFoobar() {
+        return foobar;
+    }
+
+    public void setFoobar(Foobar foobar) {
+        this.foobar = foobar;
+    }
+
+    public List<Foobar> getAnotherListOfFoobars() {
+        return anotherListOfFoobars;
+    }
+
+    public void setAnotherListOfFoobars(List<Foobar> anotherListOfFoobars) {
+        this.anotherListOfFoobars = anotherListOfFoobars;
     }
 }

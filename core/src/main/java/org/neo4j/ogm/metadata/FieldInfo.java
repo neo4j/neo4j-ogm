@@ -27,8 +27,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang3.StringUtils;
@@ -79,6 +81,12 @@ public class FieldInfo {
      * The associated composite attribute converter for this field, if applicable, otherwise null.
      */
     private CompositeAttributeConverter<?> compositeConverter;
+
+    /**
+     * A computed, optional type in case this field has custom converters.
+     * It is lazily computed, depending on the converters that have been set.
+     */
+    private volatile Optional<Class<?>> convertedType;
 
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
@@ -309,24 +317,66 @@ public class FieldInfo {
         return typeParameterDescriptor;
     }
 
+    /**
+     * @return The type that is stored in the graph.
+     */
     public Class<?> convertedType() {
+
+        Optional<Class<?>> loadedConvertedType = this.convertedType;
+        if (loadedConvertedType == null) {
+            synchronized (this) {
+                loadedConvertedType = this.convertedType;
+                if (loadedConvertedType == null) {
+                    this.convertedType = computeConvertedType();
+                    loadedConvertedType = this.convertedType;
+                }
+            }
+        }
+        return loadedConvertedType.orElse(null);
+    }
+
+    private Optional<Class<?>> computeConvertedType() {
+
         if (hasPropertyConverter() || hasCompositeConverter()) {
             Class converterClass = hasPropertyConverter() ?
                 getPropertyConverter().getClass() : getCompositeConverter().getClass();
             String methodName = hasPropertyConverter() ? "toGraphProperty" : "toGraphProperties";
-
             try {
-                for (Method method : converterClass.getDeclaredMethods()) {
-                    //we don't want the method on the AttributeConverter interface
-                    if (method.getName().equals(methodName) && !method.isSynthetic()) {
-                        return method.getReturnType();
+                Set<Method> methodsFound = new HashSet<>();
+                for (Method method : converterClass.getMethods()) {
+                    if (method.getName().equals(methodName)) {
+                        methodsFound.add(method);
                     }
                 }
+
+                // We found more than one method. Can be either one synthetic and one concrete method (interface + implementation),
+                // or concrete class and base implementation, or multiple synthetic methods (nested inheritance).
+                // If there is at least one none synthetic method, we pick this, otherwise we choose the one declared
+                // on the the concrete class.
+                if (methodsFound.size() > 1) {
+
+                    // if we find one none synthetic method, we take this
+                    for (Method m : methodsFound) {
+                        if (!m.isSynthetic()) {
+                            return Optional.of(m.getReturnType());
+                        }
+                    }
+
+                    // if they all are synthetic, we remove all methods declared on classes
+                    // not being the converter class
+                    methodsFound.removeIf(m -> m.getDeclaringClass() != converterClass);
+
+                    // If still more than one, remove the ones returning generic objects
+                    if (methodsFound.size() > 1) {
+                        methodsFound.removeIf(m -> m.getReturnType() == Object.class);
+                    }
+                }
+                return methodsFound.stream().findFirst().map(Method::getReturnType);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -398,9 +448,9 @@ public class FieldInfo {
      * @return The field type (may be List, while the mapped type is retrievable from {@link #getTypeDescriptor()} ()}).
      */
     public Class<?> type() {
-        Class convertedType = convertedType();
-        if (convertedType != null) {
-            return convertedType;
+        Class returnedTyped = convertedType();
+        if (returnedTyped != null) {
+            return returnedTyped;
         }
         return fieldType;
     }

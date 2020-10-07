@@ -2,6 +2,11 @@
 
 == 3.2
 
+=== 3.2.17
+
+* [bug] Fix determination of target graph property type. (#846)
+* [improvement] Log query notifications in Bolt transport. (#847)
+
 === 3.2.16
 
 * [bug] Convert collection based parameters for filters individually. (#829)

@@ -62,6 +62,7 @@ import org.slf4j.LoggerFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  * @author Michael J. Simons
+ * @author Torsten Kuhnhenne
  */
 public class ClassInfo {
 
@@ -105,6 +106,7 @@ public class ClassInfo {
     private volatile boolean isPostLoadMethodMapped = false;
     private volatile MethodInfo postLoadMethod;
     private volatile Collection<String> staticLabels;
+    private volatile Set<FieldInfo> relationshipFields;
     private boolean primaryIndexFieldChecked = false;
     private final Class<?> cls;
     private Class<? extends IdStrategy> idStrategyClass;
@@ -534,6 +536,17 @@ public class ClassInfo {
      * @return A Collection of FieldInfo objects describing the classInfo's relationship fields
      */
     public Collection<FieldInfo> relationshipFields() {
+        if (relationshipFields == null) {
+            initRelationshipFields();
+        }
+        return relationshipFields;
+    }
+
+    @SuppressWarnings("HiddenField")
+    private synchronized void initRelationshipFields() {
+        if (relationshipFields != null) {
+            return;
+        }
 
         FieldInfo optionalIdentityField = identityFieldOrNull();
         Set<FieldInfo> relationshipFields = new HashSet<>();
@@ -548,7 +561,7 @@ public class ClassInfo {
                 }
             }
         }
-        return relationshipFields;
+        this.relationshipFields = relationshipFields;
     }
 
     /**

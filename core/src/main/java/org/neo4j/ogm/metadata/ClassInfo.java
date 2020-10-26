@@ -111,6 +111,8 @@ public class ClassInfo {
     private final Class<?> cls;
     private Class<? extends IdStrategy> idStrategyClass;
     private IdStrategy idStrategy;
+    private volatile Optional<FieldInfo> endNodeReader;
+    private volatile Optional<FieldInfo> startNodeReader;
 
     public ClassInfo(Class<?> cls, TypeSystem typeSystem) {
         this(cls, null, typeSystem);
@@ -1080,16 +1082,27 @@ public class ClassInfo {
      * @return a FieldInfo for the field annotated as the EndNode, or none if not found
      */
     public FieldInfo getEndNodeReader() {
-        if (isRelationshipEntity()) {
-            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                if (fieldInfo.getAnnotations().get(EndNode.class) != null) {
-                    return fieldInfo;
-                }
-            }
-            LOGGER.warn("Failed to find an @EndNode on {}", name());
+        if (endNodeReader == null) {
+            initEndNodeReader();
+        }
+        return endNodeReader.orElse(null);
+    }
+
+    private synchronized void initEndNodeReader() {
+        if (endNodeReader != null) {
+            return;
         }
 
-        return null;
+        if (isRelationshipEntity()) {
+            endNodeReader = fieldsInfo().fields().stream()
+                .filter(fieldInfo -> fieldInfo.getAnnotations().get(EndNode.class) != null)
+                .findFirst();
+            if (!endNodeReader.isPresent()) {
+                LOGGER.warn("Failed to find an @EndNode on {}", name());
+            }
+        } else {
+            endNodeReader = Optional.empty();
+        }
     }
 
     /**
@@ -1098,16 +1111,28 @@ public class ClassInfo {
      * @return a FieldInfo for the field annotated as the StartNode, or none if not found
      */
     public FieldInfo getStartNodeReader() {
-        if (isRelationshipEntity()) {
-
-            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                if (fieldInfo.getAnnotations().get(StartNode.class) != null) {
-                    return fieldInfo;
-                }
-            }
-            LOGGER.warn("Failed to find an @StartNode on {}", name());
+        if (startNodeReader == null) {
+            initStartNodeReader();
         }
-        return null;
+        return startNodeReader.orElse(null);
+    }
+
+    private synchronized void initStartNodeReader() {
+        if (startNodeReader != null) {
+            return;
+        }
+
+        if (isRelationshipEntity()) {
+            startNodeReader = fieldsInfo().fields().stream()
+                .filter(fieldInfo -> fieldInfo.getAnnotations().get(StartNode.class) != null)
+                .findFirst();
+
+            if (!startNodeReader.isPresent()) {
+                LOGGER.warn("Failed to find an @StartNode on {}", name());
+            }
+        } else {
+            startNodeReader = Optional.empty();
+        }
     }
 
     /**

@@ -542,26 +542,25 @@ public class ClassInfo {
         return relationshipFields;
     }
 
-    @SuppressWarnings("HiddenField")
     private synchronized void initRelationshipFields() {
         if (relationshipFields != null) {
             return;
         }
 
         FieldInfo optionalIdentityField = identityFieldOrNull();
-        Set<FieldInfo> relationshipFields = new HashSet<>();
+        Set<FieldInfo> identifiedRelationshipFields = new HashSet<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            if (fieldInfo != optionalIdentityField) {
-                if (!fieldInfo.getAnnotations().has(Relationship.class)) {
-                    if (!fieldInfo.persistableAsProperty()) {
-                        relationshipFields.add(fieldInfo);
-                    }
-                } else {
-                    relationshipFields.add(fieldInfo);
-                }
+            if (fieldInfo == optionalIdentityField) {
+                continue;
+            }
+
+            if (fieldInfo.getAnnotations().has(Relationship.class)) {
+                identifiedRelationshipFields.add(fieldInfo);
+            } else if (!fieldInfo.persistableAsProperty()) {
+                identifiedRelationshipFields.add(fieldInfo);
             }
         }
-        this.relationshipFields = relationshipFields;
+        this.relationshipFields = Collections.unmodifiableSet(identifiedRelationshipFields);
     }
 
     /**

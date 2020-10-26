@@ -65,6 +65,7 @@ public class FieldInfo {
     private final boolean isArray;
     private final boolean isSupportedNativeType;
     private final ClassInfo containingClassInfo;
+    private volatile Optional<String> relationship;
     /**
      * Optional field holding a delegate, from which this method was derived.
      */
@@ -160,17 +161,27 @@ public class FieldInfo {
     }
 
     public String relationship() {
-        if (this.containingClassInfo.relationshipFields().contains(this)) {
-            if (annotations != null) {
-                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
-                if (relationshipAnnotation != null) {
-                    return relationshipAnnotation
-                        .get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
-                }
-            }
-            return RelationshipUtils.inferRelationshipType(getName());
+        if (relationship == null) {
+            initRelationship();
         }
-        return null;
+        return relationship.orElse(null);
+    }
+
+    private synchronized void initRelationship() {
+        if (relationship != null) {
+            return;
+        }
+
+        String identifiedRelationship = null;
+
+        if (containingClassInfo.relationshipFields().contains(this)) {
+            if (annotations != null && annotations.has(Relationship.class)) {
+                identifiedRelationship = annotations.get(Relationship.class).get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
+            } else {
+                identifiedRelationship = RelationshipUtils.inferRelationshipType(getName());
+            }
+        }
+        relationship = Optional.ofNullable(identifiedRelationship);
     }
 
     public String relationshipTypeAnnotation() {

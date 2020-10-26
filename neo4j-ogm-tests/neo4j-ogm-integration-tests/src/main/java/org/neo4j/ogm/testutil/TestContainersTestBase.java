@@ -17,6 +17,7 @@ import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.Neo4jContainer;
+import org.testcontainers.utility.TestcontainersConfiguration;
 
 /**
  * @author Gerrit Meier
@@ -59,7 +60,10 @@ public class TestContainersTestBase {
             isEnterpriseEdition = isDockerEnterpriseEdition(imageName);
             version = extractVersionFromDockerImage(imageName);
 
-            neo4jServer = new Neo4jContainer(imageName);
+            boolean containerReuseSupported = TestcontainersConfiguration
+                .getInstance().environmentSupportsReuse();
+            neo4jServer = new Neo4jContainer<>(imageName)
+                .withReuse(containerReuseSupported);
 
             if (acceptAndUseCommercialEdition) {
                 neo4jServer.withEnv("NEO4J_ACCEPT_LICENSE_AGREEMENT", "yes");

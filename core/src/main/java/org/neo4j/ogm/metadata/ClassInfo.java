@@ -62,6 +62,7 @@ import org.slf4j.LoggerFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  * @author Michael J. Simons
+ * @author Torsten Kuhnhenne
  */
 public class ClassInfo {
 
@@ -105,6 +106,7 @@ public class ClassInfo {
     private volatile boolean isPostLoadMethodMapped = false;
     private volatile MethodInfo postLoadMethod;
     private volatile Collection<String> staticLabels;
+    private volatile Set<FieldInfo> relationshipFields;
     private boolean primaryIndexFieldChecked = false;
     private final Class<?> cls;
     private Class<? extends IdStrategy> idStrategyClass;
@@ -534,21 +536,31 @@ public class ClassInfo {
      * @return A Collection of FieldInfo objects describing the classInfo's relationship fields
      */
     public Collection<FieldInfo> relationshipFields() {
-
-        FieldInfo optionalIdentityField = identityFieldOrNull();
-        Set<FieldInfo> relationshipFields = new HashSet<>();
-        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            if (fieldInfo != optionalIdentityField) {
-                if (!fieldInfo.getAnnotations().has(Relationship.class)) {
-                    if (!fieldInfo.persistableAsProperty()) {
-                        relationshipFields.add(fieldInfo);
-                    }
-                } else {
-                    relationshipFields.add(fieldInfo);
-                }
-            }
+        if (relationshipFields == null) {
+            initRelationshipFields();
         }
         return relationshipFields;
+    }
+
+    private synchronized void initRelationshipFields() {
+        if (relationshipFields != null) {
+            return;
+        }
+
+        FieldInfo optionalIdentityField = identityFieldOrNull();
+        Set<FieldInfo> identifiedRelationshipFields = new HashSet<>();
+        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+            if (fieldInfo == optionalIdentityField) {
+                continue;
+            }
+
+            if (fieldInfo.getAnnotations().has(Relationship.class)) {
+                identifiedRelationshipFields.add(fieldInfo);
+            } else if (!fieldInfo.persistableAsProperty()) {
+                identifiedRelationshipFields.add(fieldInfo);
+            }
+        }
+        this.relationshipFields = Collections.unmodifiableSet(identifiedRelationshipFields);
     }
 
     /**

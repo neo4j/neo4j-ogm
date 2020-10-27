@@ -78,14 +78,10 @@ final class SaveEventDelegate extends SessionDelegate {
             Object cur = stack.pop();
             if (!visited.contains(cur)) {
                 visited.add(cur);
-                if (!preSaveFired(cur) && dirty(cur)) {
+                if (dirty(cur)) {
                     firePreSave(cur);
                 }
-                children(cur).forEach(child -> {
-                    if (!visited.contains(child)) {
-                        stack.push(child);
-                    }
-                });
+                children(cur).forEach(stack::push);
             }
         }
 

@@ -453,9 +453,7 @@ public class ClassInfo {
      *                                       actually persistable as property.
      */
     public Collection<FieldInfo> propertyFields() {
-        if (fieldInfos == null) {
-            initPropertyFields();
-        }
+        initPropertyFields();
         return fieldInfos;
     }
 
@@ -469,9 +467,7 @@ public class ClassInfo {
      *                                       actually persistable as property.
      */
     public FieldInfo propertyField(String propertyName) {
-        if (propertyFields == null) {
-            initPropertyFields();
-        }
+        initPropertyFields();
         return propertyName == null ? null : propertyFields.get(propertyName);
     }
 
@@ -538,9 +534,7 @@ public class ClassInfo {
      * @return A Collection of FieldInfo objects describing the classInfo's relationship fields
      */
     public Collection<FieldInfo> relationshipFields() {
-        if (relationshipFields == null) {
-            initRelationshipFields();
-        }
+        initRelationshipFields();
         return relationshipFields;
     }
 
@@ -609,8 +603,7 @@ public class ClassInfo {
      * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return Set of  FieldInfo objects describing the required relationship field, or empty set if it doesn't exist.
      */
-    public Set<FieldInfo> candidateRelationshipFields(String relationshipName, Direction relationshipDirection,
-        boolean strict) {
+    public Set<FieldInfo> candidateRelationshipFields(String relationshipName, Direction relationshipDirection, boolean strict) {
         Set<FieldInfo> candidateFields = new HashSet<>();
         for (FieldInfo fieldInfo : relationshipFields()) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
@@ -753,8 +746,7 @@ public class ClassInfo {
      * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
-    public List<FieldInfo> findIterableFields(Class<?> iteratedType, String relationshipType, Direction relationshipDirection,
-        boolean strict) {
+    public List<FieldInfo> findIterableFields(Class<?> iteratedType, String relationshipType, Direction relationshipDirection, boolean strict) {
 
         List<FieldInfo> iterableFields = new ArrayList<>();
         for (FieldInfo fieldInfo : findIterableFields(iteratedType)) {
@@ -861,13 +853,15 @@ public class ClassInfo {
      * @return The <code>FieldInfo</code>s representing the Indexed fields in this class.
      */
     public Collection<FieldInfo> getIndexFields() {
-        if (indexFields == null) {
-            indexFields = initIndexFields();
-        }
+        initIndexFields();
         return indexFields.values();
     }
 
-    private synchronized Map<String, FieldInfo> initIndexFields() {
+    private synchronized void initIndexFields() {
+        if (indexFields != null) {
+            return;
+        }
+
         Map<String, FieldInfo> indexes = new HashMap<>();
 
         Field[] declaredFields = cls.getDeclaredFields();
@@ -883,7 +877,7 @@ public class ClassInfo {
                 indexes.put(propertyValue, fieldInfo);
             }
         }
-        return indexes;
+        this.indexFields = Collections.unmodifiableMap(indexes);
     }
 
     private static boolean isDeclaredField(Field[] declaredFields, String name) {
@@ -897,18 +891,20 @@ public class ClassInfo {
     }
 
     public Collection<CompositeIndex> getCompositeIndexes() {
-        if (compositeIndexes == null) {
-            compositeIndexes = initCompositeIndexFields();
-        }
+        initCompositeIndexFields();
         return compositeIndexes;
     }
 
-    private synchronized Collection<CompositeIndex> initCompositeIndexFields() {
+    private synchronized void initCompositeIndexFields() {
+        if (compositeIndexes != null) {
+            return;
+        }
+
         // init property fields to be able to check existence of properties
-        propertyFields();
+        initPropertyFields();
 
         CompositeIndex[] annotations = cls.getDeclaredAnnotationsByType(CompositeIndex.class);
-        ArrayList<CompositeIndex> result = new ArrayList<>(annotations.length);
+        List<CompositeIndex> result = new ArrayList<>(annotations.length);
 
         for (CompositeIndex annotation : annotations) {
             String[] properties = annotation.value().length > 0 ? annotation.value() : annotation.properties();
@@ -933,7 +929,7 @@ public class ClassInfo {
             }
             result.add(annotation);
         }
-        return result;
+        this.compositeIndexes = Collections.unmodifiableList(result);
     }
 
     public FieldInfo primaryIndexField() {
@@ -1150,6 +1146,7 @@ public class ClassInfo {
         if (versionField != null) {
             return;
         }
+
         Collection<FieldInfo> fields = getFieldInfos(FieldInfo::isVersionField);
 
         if (fields.size() > 1) {

@@ -55,6 +55,7 @@ import org.neo4j.ogm.utils.RelationshipUtils;
  * @author Luanne Misquitta
  * @author Mark Angrish
  * @author Michael J. Simons
+ * @author Nicolas Labrot
  */
 public class FieldInfo {
 
@@ -65,7 +66,6 @@ public class FieldInfo {
     private final boolean isArray;
     private final boolean isSupportedNativeType;
     private final ClassInfo containingClassInfo;
-    private volatile Optional<String> relationship;
     /**
      * Optional field holding a delegate, from which this method was derived.
      */
@@ -87,6 +87,11 @@ public class FieldInfo {
      * It is lazily computed, depending on the converters that have been set.
      */
     private volatile Optional<Class<?>> convertedType;
+
+    /**
+     * A lazily computed, optional type in case this field has an identified relationship type.
+     */
+    private volatile Optional<String> relationshipType;
 
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
@@ -161,27 +166,31 @@ public class FieldInfo {
     }
 
     public String relationship() {
-        if (relationship == null) {
-            initRelationship();
-        }
-        return relationship.orElse(null);
-    }
-
-    private synchronized void initRelationship() {
-        if (relationship != null) {
-            return;
-        }
-
-        String identifiedRelationship = null;
-
-        if (containingClassInfo.relationshipFields().contains(this)) {
-            if (annotations != null && annotations.has(Relationship.class)) {
-                identifiedRelationship = annotations.get(Relationship.class).get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
-            } else {
-                identifiedRelationship = RelationshipUtils.inferRelationshipType(getName());
+        Optional<String> localRelationshipType = relationshipType;
+        if (localRelationshipType == null) {
+            synchronized (this) {
+                localRelationshipType = relationshipType;
+                if (localRelationshipType == null) {
+                    localRelationshipType = initRelationship();
+                    relationshipType = localRelationshipType;
+                }
             }
         }
-        relationship = Optional.ofNullable(identifiedRelationship);
+        return localRelationshipType.orElse(null);
+    }
+
+    private Optional<String> initRelationship() {
+        if (this.containingClassInfo.relationshipFields().contains(this)) {
+            if (annotations != null) {
+                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
+                if (relationshipAnnotation != null) {
+                    return Optional.of(relationshipAnnotation
+                        .get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName())));
+                }
+            }
+            return Optional.of(RelationshipUtils.inferRelationshipType(getName()));
+        }
+        return Optional.empty();
     }
 
     public String relationshipTypeAnnotation() {

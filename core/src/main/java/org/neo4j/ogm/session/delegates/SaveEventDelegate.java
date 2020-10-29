@@ -18,14 +18,17 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.Relationship;
@@ -36,6 +39,7 @@ import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.PostSaveEvent;
 import org.neo4j.ogm.session.event.PreSaveEvent;
+import org.neo4j.ogm.support.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,13 +70,30 @@ final class SaveEventDelegate extends SessionDelegate {
 
     void preSave(Object object) {
 
-        this.preSaveCheck(object);
+        Deque<Object> stack = new ArrayDeque<>();
+
+        stack.push(object);
+        while (!stack.isEmpty()) {
+
+            Object cur = stack.pop();
+            if (!visited.contains(cur)) {
+                visited.add(cur);
+                if (dirty(cur)) {
+                    firePreSave(cur);
+                }
+                children(cur).forEach(stack::push);
+            }
+        }
+
+        // It would be nice to add the following directly to the stack instead of doing it in 3 steps.
+        // This is not possible as the unreachable and touched nodes depend on the first step.
 
         // now fire events for any objects whose relationships have been deleted from reachable ones
         // and which therefore have been possibly rendered unreachable from the object graph traversal
         for (Object other : unreachable()) {
-            if (visit(other) && !preSaveFired(other)) { // only if not yet visited and not yet fired
+            if (!(visited.contains(other) || preSaveFired(other))) { // only if not yet visited or fired
                 firePreSave(other);
+                visited.add(other);
             }
         }
 
@@ -88,21 +109,6 @@ final class SaveEventDelegate extends SessionDelegate {
         this.preSaved.entrySet().stream()
             .map(e -> new PostSaveEvent(e.getKey(), e.getValue()))
             .forEach(session::notifyListeners);
-    }
-
-    private void preSaveCheck(Object object) {
-
-        if (visit(object)) {
-            logger.debug("visiting: {}", object);
-            for (Object child : children(object)) {
-                preSaveCheck(child);
-            }
-            if (!preSaveFired(object) && dirty(object)) {
-                firePreSave(object);
-            }
-        } else if (logger.isDebugEnabled()) {
-            logger.debug("already visited: {}", object);
-        }
     }
 
     private void firePreSave(Object object) {
@@ -162,11 +168,6 @@ final class SaveEventDelegate extends SessionDelegate {
         }
     }
 
-    // registers this object as visited and returns true if it was not previously visited, false otherwise
-    private boolean visit(Object object) {
-        return this.visited.add(object);
-    }
-
     // returns true if the object in question is dirty (has changed)
     // an object is dirty if either or both of:
     // - its properties have changed
@@ -179,17 +180,18 @@ final class SaveEventDelegate extends SessionDelegate {
             return true;
         }
 
-        ClassInfo parentClassInfo = this.session.metaData().classInfo(parent);
+        ClassInfo parentInfo = this.session.metaData().classInfo(parent);
+        long parentId = session.context().nativeId(parent);
 
         // an RE cannot contain additional refs because hyperedges are forbidden in Neo4j
-        if (!parentClassInfo.isRelationshipEntity()) {
+        if (!parentInfo.isRelationshipEntity()) {
 
             // build the set of mapped relationships for this object. if there any new ones, the object is dirty
             for (FieldInfo reader : relationalReaders(parent)) {
 
-                clearPreviousRelationships(parent, reader);
+                clearPreviousRelationships(parentId, reader);
 
-                for (MappedRelationship mappable : map(parent, reader)) {
+                for (MappedRelationship mappable : map(parentInfo, parentId, reader.read(parent), reader)) {
                     if (isNew(mappable)) {
                         logger.debug("added new relationship: {} to {}", mappable, parent);
                         this.addedRelationships.add(mappable);
@@ -203,14 +205,14 @@ final class SaveEventDelegate extends SessionDelegate {
             // compare the set of current relationships with the ones in the mapping context
             // if are there any missing from the mapping context, the object is dirty because
             // a previously mapped relationship has been deleted.
+
             for (MappedRelationship previous : session.context().getRelationships()) {
-                if (isDeleted(previous)) {
+                if (isDeleted(previous) && (previous.getStartNodeId() == parentId || previous.getEndNodeId() == parentId)) {
                     logger.debug("deleted: {} from {}", previous, parent);
                     return true;
                 }
             }
         }
-
         return false;
     }
 
@@ -230,19 +232,18 @@ final class SaveEventDelegate extends SessionDelegate {
     // we expect to put them back in again later. Any differences afterwards between
     // current relationships and the main mapping context indicate that relationships
     // have been deleted since the last time the objects were loaded.
-    private void clearPreviousRelationships(Object parent, FieldInfo reader) {
+    private void clearPreviousRelationships(long parentId, FieldInfo reader) {
 
-        Long id = session.context().nativeId(parent);
         String type = reader.relationshipType();
         Class endNodeType = DescriptorMappings.getType(reader.getTypeDescriptor());
 
         if (reader.relationshipDirection().equals(Relationship.INCOMING)) {
-            deregisterIncomingRelationship(id, type, endNodeType);
+            deregisterIncomingRelationship(parentId, type, endNodeType);
         } else if (reader.relationshipDirection().equals(Relationship.OUTGOING)) {
-            deregisterOutgoingRelationship(id, type, endNodeType);
+            deregisterOutgoingRelationship(parentId, type, endNodeType);
         } else {
-            deregisterOutgoingRelationship(id, type, endNodeType);
-            deregisterIncomingRelationship(id, type, endNodeType);
+            deregisterOutgoingRelationship(parentId, type, endNodeType);
+            deregisterIncomingRelationship(parentId, type, endNodeType);
         }
     }
 
@@ -290,28 +291,12 @@ final class SaveEventDelegate extends SessionDelegate {
                 Object reference = reader.read(parent);
 
                 if (reference != null) {
-                    if (reference.getClass().isArray()) {
-                        addChildren(children, Collections.singletonList(reference));
-                    } else if (Collection.class.isAssignableFrom(reference.getClass())) {
-                        addChildren(children, (Collection) reference);
-                    } else {
-                        addChild(children, reference);
-                    }
+                    CollectionUtils.iterableOf(reference).forEach(children::add);
                 }
             }
         }
 
         return children;
-    }
-
-    private void addChildren(Collection<Object> children, Collection references) {
-        for (Object reference : references) {
-            addChild(children, reference);
-        }
-    }
-
-    private void addChild(Collection<Object> children, Object reference) {
-        children.add(reference);
     }
 
     private Collection<FieldInfo> relationalReaders(Object object) {
@@ -324,21 +309,15 @@ final class SaveEventDelegate extends SessionDelegate {
     //
     // note that even if the reference is a singleton, a collection is always
     // returned, to make it easier for the caller to handle the results.
-    private Collection<MappedRelationship> map(Object parent, FieldInfo reader) {
+    private Collection<MappedRelationship> map(ClassInfo parentInfo, long parentId, Object reference, FieldInfo fieldInfo) {
+
+        if (reference == null) {
+            return Collections.emptySet();
+        }
 
         Set<MappedRelationship> mappedRelationships = new HashSet<>();
-
-        Object reference = reader.read(parent);
-
-        if (reference != null) {
-            if (reference.getClass().isArray()) {
-                mapCollection(mappedRelationships, parent, reader, Collections.singletonList(reference));
-            } else if (Collection.class.isAssignableFrom(reference.getClass())) {
-                mapCollection(mappedRelationships, parent, reader, (Collection) reference);
-            } else {
-                mapInstance(mappedRelationships, parent, reader, reference);
-            }
-        }
+        CollectionUtils.iterableOf(reference)
+            .forEach(r -> mapInstance(mappedRelationships, parentInfo, parentId, fieldInfo, r));
 
         return mappedRelationships;
     }
@@ -346,54 +325,53 @@ final class SaveEventDelegate extends SessionDelegate {
     // creates a MappedRelationship between the parent object and the reference. In the case that the reference
     // object is a RE, the relationship is created from the start node and the end node of the RE.
     // a MappedRelationship therefore represents a directed edge between two nodes in the graph.
-    private void mapInstance(Set<MappedRelationship> mappedRelationships, Object parent, FieldInfo reader,
-        Object reference) {
+    // creates a MappedRelationship between the parent object and the reference. In the case that the reference
+    // object is a RE, the relationship is created from the start node and the end node of the RE.
+    // a MappedRelationship therefore represents a directed edge between two nodes in the graph.
+    private void mapInstance(
+        Set<MappedRelationship> mappedRelationships, ClassInfo parentInfo, long parentId, FieldInfo reader,
+        Object reference
+    ) {
 
         String type = reader.relationshipType();
         String direction = reader.relationshipDirection();
 
-        ClassInfo parentInfo = this.session.metaData().classInfo(parent);
-        Long parentId = session.context().nativeId(parent);
-
         ClassInfo referenceInfo = this.session.metaData().classInfo(reference);
+        if (referenceInfo == null) {
+            return;
+        }
 
-        if (referenceInfo != null) {
+        if (referenceInfo.isRelationshipEntity()) {
+            // The relationship entity might just get created and therefore we must be careful not to
+            // trigger the creation of it's id place holder, otherwise we can't check wether it's new or not.
+            Optional<Long> optionalReferenceId = session.context().optionalNativeId(reference);
 
+            // graph relationship is transitive across the RE domain object
+            Object startNode = referenceInfo.getStartNodeReader().read(reference);
+            ClassInfo startNodeInfo = this.session.metaData().classInfo(startNode);
+            Long startNodeId = session.context().nativeId(startNode);
+
+            Object endNode = referenceInfo.getEndNodeReader().read(reference);
+            ClassInfo endNodeInfo = this.session.metaData().classInfo(endNode);
+            Long endNodeId = session.context().nativeId(endNode);
+
+            MappedRelationship edge = new MappedRelationship(startNodeId, type, endNodeId,
+                optionalReferenceId.orElse(null),
+                startNodeInfo.getUnderlyingClass(), endNodeInfo.getUnderlyingClass());
+            mappedRelationships.add(edge);
+        } else {
+            // We assume the existence of the reference here
             Long referenceId = session.context().nativeId(reference);
 
-            if (!referenceInfo.isRelationshipEntity()) {
-
-                if (direction.equals(Relationship.OUTGOING)) {
-                    MappedRelationship edge = new MappedRelationship(parentId, type, referenceId,
-                        null, parentInfo.getUnderlyingClass(), referenceInfo.getUnderlyingClass());
-                    mappedRelationships.add(edge);
-                } else {
-                    MappedRelationship edge = new MappedRelationship(referenceId, type, parentId,
-                        null, referenceInfo.getUnderlyingClass(), parentInfo.getUnderlyingClass());
-                    mappedRelationships.add(edge);
-                }
+            if (direction.equals(Relationship.OUTGOING)) {
+                MappedRelationship edge = new MappedRelationship(parentId, type, referenceId,
+                    null, parentInfo.getUnderlyingClass(), referenceInfo.getUnderlyingClass());
+                mappedRelationships.add(edge);
             } else {
-                // graph relationship is transitive across the RE domain object
-                Object startNode = referenceInfo.getStartNodeReader().read(reference);
-                ClassInfo startNodeInfo = this.session.metaData().classInfo(startNode);
-                Long startNodeId = session.context().nativeId(startNode);
-
-                Object endNode = referenceInfo.getEndNodeReader().read(reference);
-                ClassInfo endNodeInfo = this.session.metaData().classInfo(endNode);
-                Long endNodeId = session.context().nativeId(endNode);
-
-                MappedRelationship edge = new MappedRelationship(startNodeId, type, endNodeId, referenceId,
-                    startNodeInfo.getUnderlyingClass(), endNodeInfo.getUnderlyingClass());
+                MappedRelationship edge = new MappedRelationship(referenceId, type, parentId,
+                    null, referenceInfo.getUnderlyingClass(), parentInfo.getUnderlyingClass());
                 mappedRelationships.add(edge);
             }
-        }
-    }
-
-    private void mapCollection(Set<MappedRelationship> mappedRelationships, Object parent, FieldInfo reader,
-        Collection references) {
-
-        for (Object reference : references) {
-            mapInstance(mappedRelationships, parent, reader, reference);
         }
     }
 }

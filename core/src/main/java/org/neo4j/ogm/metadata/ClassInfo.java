@@ -63,6 +63,7 @@ import org.slf4j.LoggerFactory;
  * @author Mark Angrish
  * @author Michael J. Simons
  * @author Torsten Kuhnhenne
+ * @author Nicolas Labrot
  */
 public class ClassInfo {
 
@@ -1059,9 +1060,7 @@ public class ClassInfo {
      * @return a FieldInfo for the field annotated as the EndNode, or none if not found
      */
     public FieldInfo getEndNodeReader() {
-        if (endNodeReader == null) {
-            initEndNodeReader();
-        }
+        initEndNodeReader();
         return endNodeReader.orElse(null);
     }
 
@@ -1088,9 +1087,7 @@ public class ClassInfo {
      * @return a FieldInfo for the field annotated as the StartNode, or none if not found
      */
     public FieldInfo getStartNodeReader() {
-        if (startNodeReader == null) {
-            initStartNodeReader();
-        }
+        initStartNodeReader();
         return startNodeReader.orElse(null);
     }
 

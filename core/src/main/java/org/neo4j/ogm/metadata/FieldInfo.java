@@ -56,6 +56,7 @@ import org.neo4j.ogm.utils.RelationshipUtils;
  * @author Luanne Misquitta
  * @author Mark Angrish
  * @author Michael J. Simons
+ * @author Nicolas Labrot
  */
 public class FieldInfo {
 
@@ -87,6 +88,11 @@ public class FieldInfo {
      * It is lazily computed, depending on the converters that have been set.
      */
     private volatile Optional<Class<?>> convertedType;
+
+    /**
+     * A lazily computed, optional type in case this field has an identified relationship type.
+     */
+    private volatile Optional<String> relationshipType;
 
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
@@ -161,17 +167,31 @@ public class FieldInfo {
     }
 
     public String relationship() {
+        Optional<String> localRelationshipType = relationshipType;
+        if (localRelationshipType == null) {
+            synchronized (this) {
+                localRelationshipType = relationshipType;
+                if (localRelationshipType == null) {
+                    localRelationshipType = initRelationship();
+                    relationshipType = localRelationshipType;
+                }
+            }
+        }
+        return localRelationshipType.orElse(null);
+    }
+
+    private Optional<String> initRelationship() {
         if (this.containingClassInfo.relationshipFields().contains(this)) {
             if (annotations != null) {
                 AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
                 if (relationshipAnnotation != null) {
-                    return relationshipAnnotation
-                        .get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
+                    return Optional.of(relationshipAnnotation
+                        .get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName())));
                 }
             }
-            return RelationshipUtils.inferRelationshipType(getName());
+            return Optional.of(RelationshipUtils.inferRelationshipType(getName()));
         }
-        return null;
+        return Optional.empty();
     }
 
     public String relationshipTypeAnnotation() {

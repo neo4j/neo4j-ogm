@@ -131,7 +131,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
 
         validateQuery(cypher, parameters, readOnly);
 
-        if (!readOnly) {
+        if (mayBeReadWrite(cypher)) {
             // While an update query may not return objects, it has enough changes
             // to modify all entities in the context, so we must flush it either way.
             session.clear();

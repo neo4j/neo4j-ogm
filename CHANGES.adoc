@@ -1,5 +1,16 @@
 = Changes
 
+== 3.2.18
+
+* [bug] Make consistent use of mayBeReadWrite for deciding to clear the session or not. (#860)
+* [improvement] Cache field information for relationship fields. (#849)
+* [improvement] Cache start and endnode field info for ClassInfo instances describing relationship entities. (#852)
+* [improvement] Cache relationship type. (#853)
+* [improvement] Avoid recursive traversal for computing events. (#854)
+* [improvement] Allow reusable test containers. (#858)
+* [dependencies] Update JUnit to 4.13.1.
+* [dependencies] Upgrade Neo4j 3.5 to 3.5.23.
+
 == 3.2.17
 
 * [bug] Fix determination of target graph property type. (#846)

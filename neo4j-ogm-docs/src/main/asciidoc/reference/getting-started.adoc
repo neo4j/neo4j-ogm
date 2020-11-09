@@ -46,6 +46,8 @@ verify versions used (e.g through `mvn dependency:tree`) and report them as well
 
 ^2^ __These versions are no longer actively developed or supported.__ +
 
+NOTE: Starting with Spring Boot 2.4, Spring Data Neo4j (version 6+) does not include Neo4j-OGM anymore.
+
 [[reference:getting-started:dependency-management]]
 == Dependency Management
 

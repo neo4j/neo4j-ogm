@@ -433,6 +433,11 @@
                 <targetPath>META-INF/services</targetPath>
             </resource>
 
+            <resource>
+                <directory>src/main/resources/META-INF/native-image</directory>
+                <targetPath>META-INF/native-image</targetPath>
+            </resource>
+
         </resources>
         <testResources>
             <testResource>

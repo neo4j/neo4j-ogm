@@ -24,6 +24,9 @@ import static org.neo4j.ogm.support.ClassUtils.*;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -86,8 +89,8 @@ public class DomainInfo {
         // On the other hand, we were not able to override ClassGraph's class loader in such a way that
         // when classes have been loaded from class graph, they would work with Spring Boot devtools.
         ClassLoader classLoader = Configuration.getDefaultClassLoader();
-        try (ScanResult scanResult = findClasses(packages)) {
-            for (String className : scanResult.getAllClasses().getNames()) {
+        try {
+            for (String className : findClasses(packages)) {
                 try {
                     Class<?> clazz = Class.forName(className, false, classLoader);
                     if (!classIsMappable.test(clazz)) {
@@ -104,14 +107,45 @@ public class DomainInfo {
         return domainInfo;
     }
 
-    private static ScanResult findClasses(String[] packagesOrClasses) {
+    private static List<String> findClasses(String[] packagesOrClasses) {
 
+        // Try to find an index first
+        List<String> classes = new ArrayList<>();
+        for (String possiblePackageName : packagesOrClasses) {
+            String indexFile = "/META-INF/resources/" + possiblePackageName.replaceAll("\\.", "/") + "/neo4j-ogm.index";
+            System.out.println("Index file is");
+            InputStream storedIndex = DomainInfo.class.getResourceAsStream(indexFile);
+            if (storedIndex == null) {
+                System.out.println("no such dingens");
+                classes.clear();
+                break;
+            } else {
+                try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(storedIndex))) {
+                    bufferedReader.lines()
+                        .map(String::trim)
+                        .filter(s -> !(s.isEmpty() || s.startsWith("#")))
+                        .forEach(classes::add);
+                } catch (Exception e) {
+                    LOGGER.warn("Could not read stored index", e);
+                }
+            }
+        }
+
+        // Found an index file for each package
+        if (!classes.isEmpty()) {
+            System.out.println("yeah");
+            return classes;
+        }
+        System.out.println("meeeh");
+        // No index file at all or incomplete, so do a full scan.
         // .enableExternalClasses() is not needed, as the super classes are loaded anywhere when the class is loaded.
-        return new ClassGraph()
+        try (ScanResult scanResult = new ClassGraph()
             .ignoreClassVisibility()
             .acceptPackages(packagesOrClasses)
             .acceptClasses(packagesOrClasses)
-            .scan();
+            .scan()) {
+            return scanResult.getAllClasses().getNames();
+        }
     }
 
     /**

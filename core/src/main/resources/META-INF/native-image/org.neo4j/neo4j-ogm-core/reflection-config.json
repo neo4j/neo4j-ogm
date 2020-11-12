@@ -1,0 +1,94 @@
+[
+  {
+    "name": "org.neo4j.ogm.annotation.typeconversion.Convert",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.typeconversion.DateLong",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.typeconversion.DateString",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.typeconversion.EnumString",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.typeconversion.NumberString",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.CompositeIndex",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.CompositeIndexes",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.EndNode",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.GeneratedValue",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.Id",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.Index",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.Labels",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.NodeEntity",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.PostLoad",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.Properties",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.Property",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.Relationship",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.RelationshipEntity",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.Required",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.StartNode",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.Transient",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.ValueFor",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.neo4j.ogm.annotation.Version",
+    "allDeclaredMethods": true
+  }
+]

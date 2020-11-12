@@ -110,34 +110,18 @@ public class DomainInfo {
     private static List<String> findClasses(String[] packagesOrClasses) {
 
         // Try to find an index first
-        List<String> classes = new ArrayList<>();
-        for (String possiblePackageName : packagesOrClasses) {
-            String indexFile = "/META-INF/resources/" + possiblePackageName.replaceAll("\\.", "/") + "/neo4j-ogm.index";
-            System.out.println("Index file is");
-            InputStream storedIndex = DomainInfo.class.getResourceAsStream(indexFile);
-            if (storedIndex == null) {
-                System.out.println("no such dingens");
-                classes.clear();
-                break;
-            } else {
-                try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(storedIndex))) {
-                    bufferedReader.lines()
-                        .map(String::trim)
-                        .filter(s -> !(s.isEmpty() || s.startsWith("#")))
-                        .forEach(classes::add);
-                } catch (Exception e) {
-                    LOGGER.warn("Could not read stored index", e);
-                }
-            }
-        }
+        List<String> classes = tryIndexes(packagesOrClasses);
 
         // Found an index file for each package
-        if (!classes.isEmpty()) {
-            System.out.println("yeah");
+        if (classes != null) {
             return classes;
         }
-        System.out.println("meeeh");
-        // No index file at all or incomplete, so do a full scan.
+
+        return useClassgraph(packagesOrClasses);
+    }
+
+    private static List<String> useClassgraph(String[] packagesOrClasses) {
+
         // .enableExternalClasses() is not needed, as the super classes are loaded anywhere when the class is loaded.
         try (ScanResult scanResult = new ClassGraph()
             .ignoreClassVisibility()
@@ -146,6 +130,32 @@ public class DomainInfo {
             .scan()) {
             return scanResult.getAllClasses().getNames();
         }
+    }
+
+    private static List<String> tryIndexes(String[] packagesOrClasses) {
+
+        List<String> classes = new ArrayList<>();
+        for (String possiblePackageName : packagesOrClasses) {
+            String indexFile = "/META-INF/resources/" + possiblePackageName.replaceAll("\\.", "/") + "/neo4j-ogm.index";
+
+            InputStream storedIndex = DomainInfo.class.getResourceAsStream(indexFile);
+            if (storedIndex == null) {
+                LOGGER.debug("No index for package " + possiblePackageName + ", aborting index scan.");
+                return null;
+            } else {
+                try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(storedIndex))) {
+                    bufferedReader.lines()
+                        .map(String::trim)
+                        .filter(s -> !(s.isEmpty() || s.startsWith("#")))
+                        .forEach(classes::add);
+                } catch (Exception e) {
+                    LOGGER.debug("Could not read stored index for package " + possiblePackageName + ", aborting index scan.");
+                    return null;
+                }
+            }
+        }
+
+        return classes;
     }
 
     /**

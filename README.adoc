@@ -84,7 +84,7 @@ public class Actor {
 	private Long id;
 	private String name;
 
-	@Relationship(type = "ACTS_IN", direction = Relationship.Direction.OUTGOING)
+	@Relationship(type = "ACTS_IN", direction = Relationship.OUTGOING)
 	private Set<Movie> movies = new HashSet<>();
 
 	public Actor() {
@@ -108,8 +108,8 @@ public class Movie {
 	private String title;
 	private int released;
 
-	@Relationship(type = "ACTS_IN", direction = Relationship.Direction.INCOMING)
-	Set<Actor> actors;
+	@Relationship(type = "ACTS_IN", direction = Relationship.INCOMING)
+	Set<Actor> actors = new HashSet<>();
 
 	public Movie() {
 	}

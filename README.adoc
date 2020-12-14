@@ -109,7 +109,7 @@ public class Movie {
 	private int released;
 
 	@Relationship(type = "ACTS_IN", direction = "INCOMING")
-	Set<Actor> actors;
+	Set<Actor> actors = new HashSet<>();
 
 	public Movie() {
 	}

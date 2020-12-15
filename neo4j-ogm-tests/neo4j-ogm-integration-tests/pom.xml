@@ -32,7 +32,8 @@
     <description>Integration tests of Neo4j-OGM Core and API across different transports.</description>
 
     <properties>
-        <testcontainers.version>1.12.3</testcontainers.version>
+        <testcontainers.version>1.15.1</testcontainers.version>
+        <visible-assertions.version>2.1.2</visible-assertions.version>
     </properties>
 
     <dependencies>
@@ -171,7 +172,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <!-- This is a hack to avoid dependency version conflicts rooted in testcontainers -->
+        <dependency>
+            <groupId>org.rnorth.visible-assertions</groupId>
+            <artifactId>visible-assertions</artifactId>
+            <version>${visible-assertions.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.java.dev.jna</groupId>
+                    <artifactId>jna</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <repositories>

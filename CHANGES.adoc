@@ -1,5 +1,9 @@
 = Changes
 
+== 3.2.19
+
+* [improvement] Add shims for GraalVM native image. (#863)
+
 == 3.2.18
 
 * [bug] Make consistent use of mayBeReadWrite for deciding to clear the session or not. (#860)

@@ -147,4 +147,8 @@ public class ObjectAnnotations {
     public boolean has(Class<?> clazz) {
         return annotations.containsKey(clazz.getName());
     }
+
+    public boolean has(String fqn) {
+        return annotations.containsKey(fqn);
+    }
 }

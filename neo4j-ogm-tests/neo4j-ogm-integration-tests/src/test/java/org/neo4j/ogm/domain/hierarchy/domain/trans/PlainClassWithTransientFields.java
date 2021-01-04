@@ -23,6 +23,7 @@ import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainSingleClass;
 
 /**
  * @author Michal Bachman
+ * @author Michael J. Simons
  */
 public class PlainClassWithTransientFields {
 
@@ -32,6 +33,14 @@ public class PlainClassWithTransientFields {
 
     @Transient
     private PlainSingleClass anotherTransientField;
+
+    @Transient
+    private String annotatedWithOGMTransient;
+
+    @org.springframework.data.annotation.Transient
+    private String annotatedWithSpringTransient;
+
+    private String notAnnotated;
 
     private transient PlainSingleClass yetAnotherTransientField;
 
@@ -57,5 +66,29 @@ public class PlainClassWithTransientFields {
 
     public void setYetAnotherTransientField(PlainSingleClass yetAnotherTransientField) {
         this.yetAnotherTransientField = yetAnotherTransientField;
+    }
+
+    public String getAnnotatedWithOGMTransient() {
+        return annotatedWithOGMTransient;
+    }
+
+    public void setAnnotatedWithOGMTransient(String annotatedWithOGMTransient) {
+        this.annotatedWithOGMTransient = annotatedWithOGMTransient;
+    }
+
+    public String getAnnotatedWithSpringTransient() {
+        return annotatedWithSpringTransient;
+    }
+
+    public void setAnnotatedWithSpringTransient(String annotatedWithSpringTransient) {
+        this.annotatedWithSpringTransient = annotatedWithSpringTransient;
+    }
+
+    public String getNotAnnotated() {
+        return notAnnotated;
+    }
+
+    public void setNotAnnotated(String notAnnotated) {
+        this.notAnnotated = notAnnotated;
     }
 }

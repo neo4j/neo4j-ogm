@@ -43,6 +43,7 @@ import org.neo4j.ogm.metadata.reflect.GenericUtils;
  */
 public class FieldsInfo {
 
+    private final static String SDC_TRANSIENT = "org.springframework.data.annotation.Transient";
     private final Map<String, FieldInfo> fields;
 
     FieldsInfo(ClassInfo classInfo, Class<?> clazz, Field delegateHolder, TypeSystem typeSystem) {
@@ -61,7 +62,7 @@ public class FieldsInfo {
             if (!(field.isSynthetic() || Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers))) {
 
                 ObjectAnnotations objectAnnotations = ObjectAnnotations.of(field.getDeclaredAnnotations());
-                if (!objectAnnotations.has(Transient.class)) {
+                if (!(objectAnnotations.has(Transient.class) || objectAnnotations.has(SDC_TRANSIENT))) {
 
                     String typeParameterDescriptor = findTypeParameterDescriptor(field, clazz);
                     fields.put(field.getName(),

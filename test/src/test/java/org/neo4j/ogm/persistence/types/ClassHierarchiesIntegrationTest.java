@@ -529,10 +529,13 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         toSave.setAnotherTransientField(new PlainSingleClass());
         toSave.setTransientField(new PlainChildOfTransientParent());
         toSave.setYetAnotherTransientField(new PlainSingleClass());
+        toSave.setAnnotatedWithOGMTransient("OGM");
+        toSave.setAnnotatedWithSpringTransient("SDN");
+        toSave.setNotAnnotated("NONE");
 
         session.save(toSave);
 
-        assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainClassWithTransientFields)");
+        assertSameGraph(getGraphDatabaseService(), "CREATE (:PlainClassWithTransientFields {notAnnotated: 'NONE'})");
 
         assertThat(session.loadAll(PlainClassWithTransientFields.class).iterator().next()).isNotNull();
     }

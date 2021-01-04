@@ -431,10 +431,20 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         toSave.setAnotherTransientField(new PlainSingleClass());
         toSave.setTransientField(new PlainChildOfTransientParent());
         toSave.setYetAnotherTransientField(new PlainSingleClass());
+        toSave.setAnnotatedWithOGMTransient("OGM");
+        toSave.setAnnotatedWithSpringTransient("SDN");
+        toSave.setNotAnnotated("NONE");
 
         session.save(toSave);
+        session.clear();
 
-        assertThat(session.loadAll(PlainClassWithTransientFields.class).iterator().next()).isNotNull();
+        PlainClassWithTransientFields next = session.loadAll(PlainClassWithTransientFields.class).iterator().next();
+        assertThat(next).isNotNull();
+        assertThat(next.getTransientField()).isNull();
+        assertThat(next.getYetAnotherTransientField()).isNull();
+        assertThat(next.getAnnotatedWithOGMTransient()).isNull();
+        assertThat(next.getAnnotatedWithSpringTransient()).isNull();
+        assertThat(next.getNotAnnotated()).isEqualTo("NONE");
     }
 
     @Test

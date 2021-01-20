@@ -2,6 +2,11 @@
 
 == 3.2
 
+=== 3.2.20
+
+* [improvement] Make OGM aware of org.springframework.data.annotation.Transient. (#866)
+* [dependencies] Upgrade Neo4j 3.5 to 3.5.26.
+
 === 3.2.19
 
 * [improvement] Add shims for GraalVM native image. (#863)

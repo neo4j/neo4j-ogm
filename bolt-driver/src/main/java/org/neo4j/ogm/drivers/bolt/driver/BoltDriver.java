@@ -156,8 +156,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
     private void initializeDriver() {
 
         final String serviceUnavailableMessage = "Could not create driver instance";
+        Driver driver = null;
         try {
-            Driver driver;
             if (credentials != null) {
                 UsernamePasswordCredentials usernameAndPassword = (UsernamePasswordCredentials) this.credentials;
                 AuthToken authToken = AuthTokens
@@ -169,8 +169,13 @@ public class BoltDriver extends AbstractConfigurableDriver {
             }
             driver.verifyConnectivity();
             boltDriver = driver;
+            driver = null; // set null to skip close() in finally
         } catch (ServiceUnavailableException e) {
             throw new ConnectionException(serviceUnavailableMessage, e);
+        } finally {
+            if (driver != null) {
+                driver.close();
+            }
         }
     }
 

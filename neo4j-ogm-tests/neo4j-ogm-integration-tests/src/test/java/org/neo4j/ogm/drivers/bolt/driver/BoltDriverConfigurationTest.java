@@ -29,9 +29,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mockito;
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.exceptions.ServiceUnavailableException;
+import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.TestUtils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -178,6 +183,29 @@ public class BoltDriverConfigurationTest {
         assertThatThrownBy(() -> new BoltDriver().configure(new Configuration.Builder().verifyConnection(true).build()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("You must provide either an URI or at least one URI in the URIS parameter.");
+    }
+
+    @Test(expected = ConnectionException.class)
+    public void shouldCallCloseOnJavaDriverWhenVerifyConnectivityFails() {
+        Driver javaDriver = Mockito.mock(Driver.class);
+        Mockito
+            .when(GraphDatabase.driver(Mockito.any(URI.class), Mockito.any(), Mockito.any()))
+            .thenReturn(javaDriver);
+
+        Mockito
+            .doThrow(ServiceUnavailableException.class)
+            .when(javaDriver).verifyConnectivity();
+
+        try {
+            new BoltDriver().configure(
+                new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties"))
+                    .uri("bolt://localhost:" + TestUtils.getAvailablePort())
+                    .verifyConnection(true)
+                    .build());
+        } finally {
+
+            Mockito.verify(javaDriver).close();
+        }
     }
 
 }

@@ -2,6 +2,10 @@
 
 == 3.2
 
+=== 3.2.21
+
+* [bug] Close Driver if verifyConnectivity fails to avoid resource leak. (#869)
+
 === 3.2.20
 
 * [improvement] Make OGM aware of org.springframework.data.annotation.Transient. (#866)

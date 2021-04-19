@@ -25,13 +25,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
+import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.ObjectAnnotations;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.EntityFactory;
 import org.neo4j.ogm.metadata.reflect.GenericUtils;
@@ -39,6 +43,8 @@ import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.session.EntityInstantiator;
 import org.neo4j.ogm.support.ClassUtils;
 import org.neo4j.ogm.support.CollectionUtils;
+import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
+import org.neo4j.ogm.typeconversion.MapCompositeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +69,7 @@ public class SingleUseEntityMapper {
      * @param mappingMetaData The {@link MetaData} to use for performing mappings
      * @param entityFactory   The entity factory to use.
      */
-    public SingleUseEntityMapper(MetaData mappingMetaData, EntityFactory entityFactory) {
+    public SingleUseEntityMapper(MetaData mappingMetaData, @SuppressWarnings("unused") EntityFactory entityFactory) {
         this.metadata = mappingMetaData;
         this.entityFactory = new EntityFactory(mappingMetaData);
     }
@@ -126,10 +132,19 @@ public class SingleUseEntityMapper {
         String key = property.getKey();
         FieldInfo writer = classInfo.getFieldInfo(key);
 
-        if (writer == null) {
+        if (writer == null) { // Check relationships
             FieldInfo fieldInfo = classInfo.relationshipFieldByName(key);
             if (fieldInfo != null) {
                 writer = fieldInfo;
+            }
+        }
+
+        boolean isComposite = false;
+        if (writer == null) { // Check property maps
+            Optional<FieldInfo> optionalMatchingComposite = findMatchingCompositeField(classInfo, key);
+            if (optionalMatchingComposite.isPresent()) {
+                writer = optionalMatchingComposite.get();
+                isComposite = true;
             }
         }
 
@@ -146,7 +161,7 @@ public class SingleUseEntityMapper {
                 elementType = DescriptorMappings.getType(writer.getTypeDescriptor());
             }
 
-            Predicate<Class<?>> isCollectionLike = c -> c != null && c.isArray() || Iterable.class.isAssignableFrom(c);
+            Predicate<Class<?>> isCollectionLike = c -> c != null && (c.isArray() || Iterable.class.isAssignableFrom(c));
             boolean targetIsCollection = isCollectionLike.test(effectiveFieldType);
 
             Object value = property.getValue();
@@ -161,6 +176,9 @@ public class SingleUseEntityMapper {
 
             if (metadata.classInfo(elementType) != null) {
                 value = mapKnownEntityType(elementType, key, value, targetIsCollection);
+            } else if (isComposite) {
+
+                value = getAndMergeExistingCompositeValue(instance, key, writer, value);
             }
 
             // merge iterable / arrays and co-erce to the correct attribute type
@@ -181,6 +199,43 @@ public class SingleUseEntityMapper {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private Object getAndMergeExistingCompositeValue(Object instance, String key, FieldInfo writer, Object value) {
+
+        // Don't use writer.readProperty() here as that would convert
+        // the property into graph format again, leaving us with prefixed values
+        Map current = (Map) writer.read(instance);
+        Map mergedValues = new HashMap(current == null ? Collections.emptyMap() : current);
+        if (value instanceof Map) {
+            mergedValues.putAll((Map) value);
+        } else {
+            // We must strip the prefix here
+            mergedValues.put(
+                key.replaceAll(
+                    Pattern.quote(((MapCompositeConverter) writer.getCompositeConverter()).getPropertyLookup()), ""),
+                value
+            );
+        }
+        value = mergedValues;
+        return value;
+    }
+
+    private Optional<FieldInfo> findMatchingCompositeField(ClassInfo classInfo, String key) {
+        return classInfo.fieldsInfo().fields().stream().filter(f -> {
+            ObjectAnnotations annotations = f.getAnnotations();
+            if (!annotations.has(Properties.class)) {
+                return false;
+            }
+
+            CompositeAttributeConverter<?> compositeConverter = f.getCompositeConverter();
+            if (!(compositeConverter instanceof MapCompositeConverter)) {
+                return false;
+            }
+
+            return key.startsWith(((MapCompositeConverter) compositeConverter).getPropertyLookup());
+        }).findFirst();
+    }
+
     /**
      * If the element type is a known class, it will be mapped, either into a single value or into a collection of things.
      * If the element type is unknown or cannot be mapped to a single property, the original value is returned.
@@ -191,7 +246,8 @@ public class SingleUseEntityMapper {
      * @param asCollection whether to create a collection or not
      * @return The mapped value
      */
-    Object mapKnownEntityType(Class elementType, String property, Object value, boolean asCollection) {
+    @SuppressWarnings("unchecked")
+    Object mapKnownEntityType(Class<?> elementType, String property, Object value, boolean asCollection) {
 
         List<Object> nestedObjects = new ArrayList<>();
 

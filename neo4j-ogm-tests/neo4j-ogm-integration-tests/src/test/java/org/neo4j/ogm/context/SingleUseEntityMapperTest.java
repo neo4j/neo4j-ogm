@@ -52,6 +52,7 @@ import org.neo4j.ogm.domain.gh777.UserInfo;
 import org.neo4j.ogm.domain.gh777.UserSearchDto;
 import org.neo4j.ogm.domain.gh813.Container;
 import org.neo4j.ogm.domain.gh813.RowModel;
+import org.neo4j.ogm.domain.gh873.MyNode;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.Session;
@@ -74,7 +75,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391",
             "org.neo4j.ogm.domain.gh750", "org.neo4j.ogm.domain.gh777", "org.neo4j.ogm.domain.cineasts.minimum",
-            "org.neo4j.ogm.domain.gh813");
+            "org.neo4j.ogm.domain.gh813", "org.neo4j.ogm.domain.gh873");
 
         // Prepare test data
         Session session = sessionFactory.openSession();
@@ -91,6 +92,13 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         session.save(role);
 
         session.save(new UserInfo("Foo", "Bar", "i@do.com"));
+
+        MyNode myNode = new MyNode();
+        myNode.setId("the-id");
+        myNode.setType("the-type");
+        myNode.getAttributes().put("a1", "v1");
+        myNode.getAttributes().put("a2", "v2");
+        session.save(myNode);
     }
 
     @Test
@@ -376,6 +384,46 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
                 .extracting(Role::getPlayed)
                 .containsExactlyInAnyOrder("R1", "R2");
         }
+    }
+
+    @Test // GH-873
+    public void shouldMapEnumeratedMapProperties() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("MATCH (t:MyNode) RETURN t.id AS id, t.type AS type, t.`attributes.a1` AS `attributes.a1`, t.`attributes.a2` AS `attributes.a2` LIMIT 1", EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        MyNode thingResult = entityMapper.map(MyNode.class, results.iterator().next());
+        assertThat(thingResult.getId()).isEqualTo("the-id");
+        assertThat(thingResult.getType()).isEqualTo("the-type");
+        assertThat(thingResult.getAttributes()).containsEntry("a1", "v1");
+        assertThat(thingResult.getAttributes()).containsEntry("a2", "v2");
+    }
+
+    @Test // GH-873
+    public void shouldMapAggregatedMapProperties() {
+
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+
+        Iterable<Map<String, Object>> results = sessionFactory.openSession()
+            .query("MATCH (t:MyNode) RETURN t.id AS id, t.type AS type, {b1: 'w1', b2: 'w2'} AS attributes LIMIT 1", EMPTY_MAP)
+            .queryResults();
+
+        assertThat(results).hasSize(1);
+
+        MyNode thingResult = entityMapper.map(MyNode.class, results.iterator().next());
+        assertThat(thingResult.getId()).isEqualTo("the-id");
+        assertThat(thingResult.getType()).isEqualTo("the-type");
+        assertThat(thingResult.getAttributes()).containsEntry("b1", "w1");
+        assertThat(thingResult.getAttributes()).containsEntry("b2", "w2");
     }
 
     /**

@@ -18,10 +18,12 @@
  */
 package org.neo4j.ogm.typeconversion;
 
-import static java.util.Collections.*;
-import static java.util.stream.Collectors.*;
-import static org.neo4j.ogm.annotation.Properties.*;
-import static org.neo4j.ogm.support.ClassUtils.*;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toSet;
+import static org.neo4j.ogm.annotation.Properties.NoopTransformation;
+import static org.neo4j.ogm.annotation.Properties.Phase;
+import static org.neo4j.ogm.support.ClassUtils.isEnum;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -56,7 +58,10 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
     private final boolean allowCast;
 
     private final ParameterizedType mapFieldType;
-    private final String firstPart;
+    /**
+     * This is the prefix + delimiter, indicating which properties of the database entity participate in populating the map.
+     */
+    private final String propertyLookup;
 
     private final Predicate<Class<?>> isSupportedNativeType;
 
@@ -65,10 +70,10 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
     /**
      * Create MapCompositeConverter
      *
-     * @param prefix       prefix that is used for all properties
-     * @param delimiter    delimiter that is used between prefix, properties and nested properties
-     * @param allowCast    if casting from non Cypher types should be allowed
-     * @param mapFieldType type information for the field
+     * @param prefix                prefix that is used for all properties
+     * @param delimiter             delimiter that is used between prefix, properties and nested properties
+     * @param allowCast             if casting from non Cypher types should be allowed
+     * @param mapFieldType          type information for the field
      * @param isSupportedNativeType Passed on f
      */
     public MapCompositeConverter(String prefix, String delimiter, boolean allowCast, ParameterizedType mapFieldType,
@@ -77,7 +82,7 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
         this.delimiter = delimiter;
         this.allowCast = allowCast;
         this.mapFieldType = mapFieldType;
-        this.firstPart = prefix + delimiter;
+        this.propertyLookup = prefix + delimiter;
         this.isSupportedNativeType = isSupportedNativeType;
     }
 
@@ -92,10 +97,16 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
             return emptyMap();
         }
         Map<String, Object> graphProperties = new HashMap<>(fieldValue.size());
-        addMapToProperties(fieldValue, graphProperties, firstPart);
+        addMapToProperties(fieldValue, graphProperties, propertyLookup);
         return graphProperties;
     }
 
+    /**
+     * @param fieldValue      The actual domain value
+     * @param graphProperties The properties that will be written to the graph, must be mutable
+     * @param entryPrefix     The prefix for the current map. On top level, this will be {@link #propertyLookup}, all nested
+     *                        maps will have their name + {@link #delimiter} added to this.
+     */
     private void addMapToProperties(Map<?, ?> fieldValue, Map<String, Object> graphProperties, String entryPrefix) {
         for (Map.Entry<?, ?> entry : fieldValue.entrySet()) {
             Object entryValue = entry.getValue();
@@ -127,12 +138,12 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
 
         Set<? extends Map.Entry<String, ?>> prefixedProperties = value.entrySet()
             .stream()
-            .filter(entry -> entry.getKey().startsWith(firstPart))
+            .filter(entry -> entry.getKey().startsWith(propertyLookup))
             .collect(toSet());
 
         Map<Object, Object> result = new HashMap<>();
         for (Map.Entry<String, ?> entry : prefixedProperties) {
-            String propertyKey = entry.getKey().substring(firstPart.length());
+            String propertyKey = entry.getKey().substring(propertyLookup.length());
             putToMap(result, propertyKey, entry.getValue(), mapFieldType);
         }
         return result;
@@ -200,12 +211,16 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
         } else if (keyType.equals(String.class)) {
             return propertyKey;
         } else if (isEnum(keyType)) {
-            @SuppressWarnings({"unchecked", "rawtypes"})
+            @SuppressWarnings({ "unchecked", "rawtypes" })
             Enum key = Enum.valueOf(((Class<Enum>) keyType), enumKeysTransformation.apply(
                 Phase.TO_ENTITY, propertyKey));
             return key;
         }
 
         throw new UnsupportedOperationException("Only String and Enum allowed to be keys, got " + keyType);
+    }
+
+    public String getPropertyLookup() {
+        return propertyLookup;
     }
 }

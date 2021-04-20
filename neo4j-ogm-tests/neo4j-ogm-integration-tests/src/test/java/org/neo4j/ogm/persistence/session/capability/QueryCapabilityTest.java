@@ -41,7 +41,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappingContext;
+import org.neo4j.ogm.cypher.ComparisonOperator;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
@@ -49,6 +53,8 @@ import org.neo4j.ogm.domain.cineasts.annotated.Pet;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.gh726.package_a.SameClass;
+import org.neo4j.ogm.domain.gh851.Airport;
+import org.neo4j.ogm.domain.gh851.Flight;
 import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.domain.nested.NestingClass;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
@@ -90,13 +96,15 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             "org.neo4j.ogm.domain.cineasts.annotated",
             "org.neo4j.ogm.domain.nested",
             "org.neo4j.ogm.domain.linkedlist",
-            "org.neo4j.ogm.domain.gh726"
+            "org.neo4j.ogm.domain.gh726",
+            "org.neo4j.ogm.domain.gh851"
         );
         session = sessionFactory.openSession();
         session.purgeDatabase();
         session.clear();
         importCineasts();
         importFriendships();
+        createFlights();
     }
 
     private void importCineasts() {
@@ -105,6 +113,18 @@ public class QueryCapabilityTest extends TestContainersTestBase {
 
     private void importFriendships() {
         session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/items.cql").toString(), Collections.emptyMap());
+    }
+
+    private void createFlights() {
+        // Create a few airports
+        Airport lhr = new Airport("LHR", "London Heathrow");
+        Airport lax = new Airport("LAX", "Los Angeles");
+        Airport cdg = new Airport("CDG", "Paris Charles de Gaulle");
+
+        // Create some flights
+        session.save(new Flight("FL 001", lhr, lax));
+        session.save(new Flight("FL 002", lhr, cdg));
+        session.save(new Flight("FL 003", lax, lhr));
     }
 
     @After
@@ -890,6 +910,50 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(returnedRow.get("n")).isInstanceOf(Movie.class);
         assertThat(((List) returnedRow.get("relAndNode")).get(0)).isInstanceOf(Pet.class);
         assertThat(((List) returnedRow.get("relAndNode")).get(1)).isInstanceOf(RelationshipModel.class);
+    }
+
+    @Test // GH-851
+    public void nestedFiltersOnSameEntitiesButDifferentRelationsShouldWork() {
+
+        Filters filters = new Filters();
+        Filter filter = new Filter("code", ComparisonOperator.EQUALS, "LHR");
+        filter.setOwnerEntityType(Flight.class);
+        filter.setNestedPropertyType(Airport.class);
+        filter.setNestedPropertyName("departure");
+        filter.setRelationshipType("DEPARTS");
+        filter.setRelationshipDirection(Relationship.OUTGOING);
+        filters.and(filter);
+
+        filter = new Filter("code", ComparisonOperator.EQUALS, "LAX");
+        filter.setOwnerEntityType(Flight.class);
+        filter.setNestedPropertyType(Airport.class);
+        filter.setNestedPropertyName("arrival");
+        filter.setRelationshipType("ARRIVES");
+        filter.setRelationshipDirection(Relationship.OUTGOING);
+        filters.and(filter);
+
+        Collection<Flight> flights = session.loadAll(Flight.class, filters);
+        assertThat(flights).hasSize(1)
+            .first().extracting(Flight::getName).isEqualTo("FL 001");
+    }
+
+    @Test // GH-851
+    public void deepNestedFiltersOnSameEntitiesButDifferentRelationsShouldWork() {
+
+        Filters filters = new Filters();
+        Filter filter = new Filter("code", ComparisonOperator.EQUALS, "LHR");
+        filter.setOwnerEntityType(Flight.class);
+        filter.setNestedPath(new Filter.NestedPathSegment("departure", Airport.class));
+        filters.and(filter);
+
+        filter = new Filter("code", ComparisonOperator.EQUALS, "LAX");
+        filter.setOwnerEntityType(Flight.class);
+        filter.setNestedPath(new Filter.NestedPathSegment("arrival", Airport.class));
+        filters.and(filter);
+
+        Collection<Flight> flights = session.loadAll(Flight.class, filters);
+        assertThat(flights).hasSize(1)
+            .first().extracting(Flight::getName).isEqualTo("FL 001");
     }
 
     private static boolean checkForMichal(Map<String, Object> result) {

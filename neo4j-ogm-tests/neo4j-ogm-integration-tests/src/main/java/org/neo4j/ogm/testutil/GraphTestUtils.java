@@ -24,14 +24,13 @@ import static org.neo4j.helpers.collection.Iterables.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -339,11 +338,10 @@ public final class GraphTestUtils {
     private static String print(Node node) {
         StringBuilder string = new StringBuilder("(");
 
-        List<String> labelNames = new LinkedList<>();
+        Collection<String> labelNames = new TreeSet<>();
         for (Label label : node.getLabels()) {
             labelNames.add(label.name());
         }
-        Collections.sort(labelNames);
 
         for (String labelName : labelNames) {
             string.append(":").append(labelName);
@@ -381,11 +379,10 @@ public final class GraphTestUtils {
 
         StringBuilder string = new StringBuilder("{");
 
-        List<String> propertyKeys = new LinkedList<>();
+        Collection<String> propertyKeys = new TreeSet<>();
         for (String key : propertyContainer.getPropertyKeys()) {
             propertyKeys.add(key);
         }
-        Collections.sort(propertyKeys);
 
         for (String key : propertyKeys) {
             string.append(key).append(": ").append(propertyValueToString(propertyContainer.getProperty(key)))

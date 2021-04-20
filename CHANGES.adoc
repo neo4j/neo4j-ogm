@@ -2,6 +2,12 @@
 
 == 3.2
 
+=== 3.2.22
+
+* [bug] Check if properties belong to the same entity but different relationships. (#851)
+* [improvement] Support `@Properties`-annotated fields in custom query results via SingleUseEntityMapper. (#873)
+* [dependencies] Upgrade Neo4j 3.5 to 3.5.27.
+
 === 3.2.21
 
 * [bug] Close Driver if verifyConnectivity fails to avoid resource leak. (#869)

@@ -96,9 +96,9 @@ public class NodeQueryBuilder {
             clause.append(filter);
         } else {
             MatchClause clause = findExistingNestedClause(RelatedNodePropertyMatchClause.class,
-                c -> c.getLabel().equals(filter.getNestedEntityTypeLabel()));
+                c -> c.getLabel().equals(filter.getNestedEntityTypeLabel()) && c.getProperty().equals(filter.getNestedPropertyName()));
             if (clause == null) {
-                clause = new RelatedNodePropertyMatchClause(filter.getNestedEntityTypeLabel(), matchClauseId);
+                clause = new RelatedNodePropertyMatchClause(filter.getNestedEntityTypeLabel(), filter.getNestedPropertyName(), matchClauseId);
                 nestedClauses.add(clause);
                 pathClauses.add(new PathMatchClause(matchClauseId).append(filter));
             }
@@ -115,11 +115,11 @@ public class NodeQueryBuilder {
                 c -> c.getLabel().equals(lastPathSegment.getRelationshipType()));
         } else {
             clause = findExistingNestedClause(NestedPropertyPathMatchClause.class,
-                c -> c.getLabel().equals(lastPathSegment.getNestedEntityTypeLabel()));
+                c -> c.getLabel().equals(lastPathSegment.getNestedEntityTypeLabel()) && c.getProperty().equals(lastPathSegment.getPropertyName()));
         }
         if (clause == null) {
             clause = new NestedPropertyPathMatchClause(matchClauseId,
-                lastPathSegment.getNestedEntityTypeLabel(), lastPathSegment.isNestedRelationshipEntity());
+                lastPathSegment.getNestedEntityTypeLabel(), lastPathSegment.getPropertyName(), lastPathSegment.isNestedRelationshipEntity());
             nestedClauses.add(clause);
         }
         pathClauses.add(new NestedPathMatchClause(matchClauseId, this.varName).append(filter));

@@ -22,17 +22,20 @@ import org.neo4j.ogm.cypher.Filter;
 
 /**
  * @author Gerrit Meier
+ * @author Michael J. Simons
  */
 public class NestedPropertyPathMatchClause implements MatchClause {
 
-    private int index;
-    private String label;
+    private final int index;
+    private final String label;
+    private final String property;
     private final boolean isRelationship;
-    private StringBuilder clause;
+    private final StringBuilder clause;
 
-    NestedPropertyPathMatchClause(int index, String label, boolean isRelationship) {
+    NestedPropertyPathMatchClause(int index, String label, String property, boolean isRelationship) {
         this.index = index;
         this.label = label;
+        this.property = property;
         this.isRelationship = isRelationship;
         if (isRelationship) {
             clause = new StringBuilder(String.format("MATCH ()-[%s:`%s`]-() ", relationshipIdentifier(), this.label));
@@ -63,7 +66,12 @@ public class NestedPropertyPathMatchClause implements MatchClause {
     private String nodeIdentifier() {
         return "m" + this.index;
     }
+
     private String relationshipIdentifier() {
         return "r" + this.index;
+    }
+
+    String getProperty() {
+        return property;
     }
 }

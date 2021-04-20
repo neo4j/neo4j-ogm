@@ -20,14 +20,20 @@ package org.neo4j.ogm.session.request;
 
 import org.neo4j.ogm.cypher.Filter;
 
+/**
+ * @author Jasper Blues
+ * @author Michael J. Simons
+ */
 public class RelatedNodePropertyMatchClause implements MatchClause {
 
-    private String label;
-    private int index;
-    private StringBuilder clause;
+    private final String label;
+    private final String property;
+    private final int index;
+    private final StringBuilder clause;
 
-    public RelatedNodePropertyMatchClause(String label, int nodeIdentifier) {
+    public RelatedNodePropertyMatchClause(String label, String property, int nodeIdentifier) {
         this.label = label;
+        this.property = property;
         this.index = nodeIdentifier;
         this.clause = new StringBuilder(String.format("MATCH (%s:`%s`) ", nodeIdentifier(), this.label));
     }
@@ -49,5 +55,9 @@ public class RelatedNodePropertyMatchClause implements MatchClause {
 
     private String nodeIdentifier() {
         return "m" + this.index;
+    }
+
+    String getProperty() {
+        return this.property;
     }
 }

@@ -22,7 +22,7 @@ import static java.util.Collections.*;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -103,7 +103,7 @@ public class Neo4jSession implements Session {
      */
     private String bookmark;
 
-    private List<EventListener> registeredEventListeners = new LinkedList<>();
+    private Collection<EventListener> registeredEventListeners = new LinkedHashSet<>();
 
     private final boolean useStrictQuerying;
 
@@ -165,13 +165,7 @@ public class Neo4jSession implements Session {
     @Override
     public boolean dispose(EventListener eventListener) {
 
-        for (EventListener next : registeredEventListeners) {
-            if (eventListener == next) {
-                registeredEventListeners.remove(eventListener);
-                return true;
-            }
-        }
-        return false;
+        return this.registeredEventListeners.remove(eventListener);
     }
 
     /*

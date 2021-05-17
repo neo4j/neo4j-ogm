@@ -108,7 +108,7 @@ public class TestContainersTestBase {
         }
     }
 
-    protected static final org.neo4j.driver.Driver getBoltConnection() {
+    protected static org.neo4j.driver.Driver getBoltConnection() {
 
         if (neo4jServer != null) {
             return GraphDatabase.driver(neo4jServer.getBoltUrl(), AuthTokens.none());

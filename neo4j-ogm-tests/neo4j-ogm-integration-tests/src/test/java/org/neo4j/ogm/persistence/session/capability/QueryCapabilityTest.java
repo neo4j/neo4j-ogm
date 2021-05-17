@@ -54,6 +54,10 @@ import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.gh726.package_a.SameClass;
 import org.neo4j.ogm.domain.gh851.Airport;
 import org.neo4j.ogm.domain.gh851.Flight;
+import org.neo4j.ogm.domain.gh875.AbstractPet;
+import org.neo4j.ogm.domain.gh875.Cat;
+import org.neo4j.ogm.domain.gh875.Kennel;
+import org.neo4j.ogm.domain.gh875.Person;
 import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.domain.nested.NestingClass;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
@@ -97,7 +101,8 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             "org.neo4j.ogm.domain.nested",
             "org.neo4j.ogm.domain.linkedlist",
             "org.neo4j.ogm.domain.gh726",
-            "org.neo4j.ogm.domain.gh851"
+            "org.neo4j.ogm.domain.gh851",
+            "org.neo4j.ogm.domain.gh875"
         );
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -105,6 +110,12 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         importCineasts();
         importFriendships();
         createFlights();
+        createKennels();
+    }
+
+    private void createKennels() {
+        session.query("MERGE (p:Person {name:\"Billy\"})<-[:OWNED_BY]-(d:Dog {name: \"Ralph\", breed: \"Muppet\"})<-[:HOUSES]-(k:Kennel)", Collections.emptyMap());
+        session.query("MERGE (p:Person {name:\"Sally\"})<-[:LIVES_WITH]-(c:Cat {name: \"Mittens\", food: \"Birds\"})<-[:HOUSES]-(k:Kennel)", Collections.emptyMap());
     }
 
     private void importCineasts() {
@@ -924,6 +935,22 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         Collection<Flight> flights = session.loadAll(Flight.class, filters);
         assertThat(flights).hasSize(1)
             .first().extracting(Flight::getName).isEqualTo("FL 001");
+    }
+
+    @Test // GH-875
+    public void polymorphicQueryShouldIncludeAllRelTypes() {
+
+        for(int depth : new int[] {-1, 10}){
+            Collection<Kennel> kennels = sessionFactory.openSession().loadAll(Kennel.class, depth);
+            assertThat(kennels).hasSize(2);
+            assertThat(kennels).allSatisfy(kennel -> {
+                AbstractPet pet = kennel.getPet();
+                String expectedName = pet instanceof Cat ? "Mittens" : "Ralph";
+                String expectedPerson = pet instanceof Cat ? "Sally" : "Billy";
+                assertThat(pet).extracting(AbstractPet::getName).isEqualTo(expectedName);
+                assertThat(pet.getPerson()).isNotNull().extracting(Person::getName).isEqualTo(expectedPerson);
+            });
+        }
     }
 
     private static boolean checkForMichal(Map<String, Object> result) {

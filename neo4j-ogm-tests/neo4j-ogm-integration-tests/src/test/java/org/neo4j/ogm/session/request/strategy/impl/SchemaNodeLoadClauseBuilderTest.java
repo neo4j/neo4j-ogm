@@ -89,23 +89,23 @@ public class SchemaNodeLoadClauseBuilderTest {
         String query;
         query = builder.build("n", "Person", 1); // Most generic query
         assertThat(query).isEqualTo(
-            " RETURN n,[ [ (n)-[r_c1:`COURCES`]-(c1:`Course`) | [ r_c1, c1 ] ], [ (n)-[r_t1:`TAKES`]->(c1:`Course`) | [ r_t1, c1 ] ], [ (n)<-[r_t1:`TAUGHT_BY`]-(t1:`Teacher`) | [ r_t1, t1 ] ], [ (n)-[r_f1:`FRIENDS`]-(p1:`Pupil`) | [ r_f1, p1 ] ] ]");
+            " RETURN n,[ [ (n)-[r_c1:`COURCES`]->(c1:`Course`) | [ r_c1, c1 ] ], [ (n)-[r_t1:`TAKES`]->(c1:`Course`) | [ r_t1, c1 ] ], [ (n)<-[r_t1:`TAUGHT_BY`]-(t1:`Teacher`) | [ r_t1, t1 ] ], [ (n)-[r_f1:`FRIENDS`]->(p1:`Pupil`) | [ r_f1, p1 ] ] ]");
 
         query = builder.build("n", "Pupil", 1); // Only the Klassenclown below
         assertThat(query).isEqualTo(
-            " RETURN n,[ [ (n)-[r_t1:`TAKES`]->(c1:`Course`) | [ r_t1, c1 ] ], [ (n)<-[r_t1:`TAUGHT_BY`]-(t1:`Teacher`) | [ r_t1, t1 ] ], [ (n)-[r_f1:`FRIENDS`]-(p1:`Pupil`) | [ r_f1, p1 ] ] ]");
+            " RETURN n,[ [ (n)-[r_t1:`TAKES`]->(c1:`Course`) | [ r_t1, c1 ] ], [ (n)<-[r_t1:`TAUGHT_BY`]-(t1:`Teacher`) | [ r_t1, t1 ] ], [ (n)-[r_f1:`FRIENDS`]->(p1:`Pupil`) | [ r_f1, p1 ] ] ]");
 
         query = builder.build("n", "Klassenclown", 1); // Is actually the same
         assertThat(query).isEqualTo(
-            " RETURN n,[ [ (n)-[r_t1:`TAKES`]->(c1:`Course`) | [ r_t1, c1 ] ], [ (n)<-[r_t1:`TAUGHT_BY`]-(t1:`Teacher`) | [ r_t1, t1 ] ], [ (n)-[r_f1:`FRIENDS`]-(p1:`Pupil`) | [ r_f1, p1 ] ] ]");
+            " RETURN n,[ [ (n)-[r_t1:`TAKES`]->(c1:`Course`) | [ r_t1, c1 ] ], [ (n)<-[r_t1:`TAUGHT_BY`]-(t1:`Teacher`) | [ r_t1, t1 ] ], [ (n)-[r_f1:`FRIENDS`]->(p1:`Pupil`) | [ r_f1, p1 ] ] ]");
 
         query = builder.build("n", "Teacher", 1); // No inheritance below teacher
-        assertThat(query).isEqualTo(" RETURN n,[ [ (n)-[r_c1:`COURCES`]-(c1:`Course`) | [ r_c1, c1 ] ] ]");
+        assertThat(query).isEqualTo(" RETURN n,[ [ (n)-[r_c1:`COURCES`]->(c1:`Course`) | [ r_c1, c1 ] ] ]");
 
         query = builder.build("n", "Teacher",
             3); // No inheritance below teacher, but triggering the person hierachy with depth 3 (course - takenBy - pupil)
         assertThat(query).isEqualTo(
-            " RETURN n,[ [ (n)-[r_c1:`COURCES`]-(c1:`Course`) | [ r_c1, c1, [ [ (c1)<-[r_t2:`TAKES`]-(p2:`Pupil`) | [ r_t2, p2, [ [ (p2)-[r_t3:`TAKES`]->(c3:`Course`) | [ r_t3, c3 ] ], [ (p2)<-[r_t3:`TAUGHT_BY`]-(t3:`Teacher`) | [ r_t3, t3 ] ], [ (p2)-[r_f3:`FRIENDS`]-(p3:`Pupil`) | [ r_f3, p3 ] ] ] ] ] ] ] ] ]");
+            " RETURN n,[ [ (n)-[r_c1:`COURCES`]->(c1:`Course`) | [ r_c1, c1, [ [ (c1)<-[r_t2:`TAKES`]-(p2:`Pupil`) | [ r_t2, p2, [ [ (p2)-[r_t3:`TAKES`]->(c3:`Course`) | [ r_t3, c3 ] ], [ (p2)<-[r_t3:`TAUGHT_BY`]-(t3:`Teacher`) | [ r_t3, t3 ] ], [ (p2)-[r_f3:`FRIENDS`]->(p3:`Pupil`) | [ r_f3, p3 ] ] ] ] ] ] ] ] ]");
     }
 
     private SchemaNodeLoadClauseBuilder createQueryBuilder() {

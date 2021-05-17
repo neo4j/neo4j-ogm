@@ -524,7 +524,7 @@ public class FieldInfo {
                 return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
             }
         }
-        return Relationship.UNDIRECTED;
+        return Relationship.OUTGOING;
     }
 
     public Field getField() {

@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.metadata.schema;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,6 +27,7 @@ import java.util.Optional;
  * Node in a {@link Schema}
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public interface Node {
 
@@ -43,4 +46,13 @@ public interface Node {
      */
     Map<String, Relationship> relationships();
 
+    /**
+     * @return The types for which the relationship is mapped under {@literal relationshipName} in the schema.
+     */
+    default Collection<String> types(String relationshipName) {
+        if (relationships().containsKey(relationshipName)) {
+            return Collections.singleton(relationships().get(relationshipName).type());
+        }
+        return Collections.emptySet();
+    }
 }

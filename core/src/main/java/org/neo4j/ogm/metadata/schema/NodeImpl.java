@@ -18,11 +18,14 @@
  */
 package org.neo4j.ogm.metadata.schema;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-
-import org.neo4j.ogm.utils.RelationshipUtils;
+import java.util.Set;
 
 /**
  * Node represents nodes in the schema
@@ -34,6 +37,7 @@ class NodeImpl implements Node {
 
     private final String label;
     private final Map<String, Relationship> relationships = new HashMap<>();
+    private final Map<String, Set<String>> typesByRelationship = new HashMap<>();
 
     NodeImpl(String label) {
         this.label = label;
@@ -49,12 +53,33 @@ class NodeImpl implements Node {
         return relationships;
     }
 
-    void addRelationship(Relationship relationship) {
-        relationships.putIfAbsent(RelationshipUtils.inferFieldName(relationship.type()), relationship);
+    @Override
+    public Collection<String> types(String relationshipName) {
+        return typesByRelationship.getOrDefault(relationshipName, Collections.emptySet());
     }
 
     void addRelationship(String name, Relationship relationship) {
-        relationships.putIfAbsent(name, relationship);
+
+        if (relationships.containsKey(name)) {
+            Relationship existingRelationship = relationships.get(name);
+
+            Node existingStart = existingRelationship.start();
+            Node existingEnd = existingRelationship.other(existingStart);
+
+            Node newStart = relationship.start();
+            Node newEnd = relationship.other(newStart);
+
+            if (existingStart.equals(newStart) && existingEnd.equals(newEnd)) {
+                Set<String> types = this.typesByRelationship.computeIfAbsent(name, key -> new HashSet<>());
+                types.add(relationship.type());
+                return;
+            }
+        }
+
+        synchronized (this) {
+            relationships.put(name, relationship);
+            typesByRelationship.put(name, new HashSet<>(Arrays.asList(relationship.type())));
+        }
     }
 
     @Override

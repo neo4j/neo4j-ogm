@@ -20,7 +20,9 @@ package org.neo4j.ogm.session.request.strategy.impl;
 
 import static org.neo4j.ogm.annotation.Relationship.*;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.metadata.schema.Node;
 import org.neo4j.ogm.metadata.schema.Relationship;
@@ -61,7 +63,7 @@ public abstract class AbstractSchemaLoadClauseBuilder {
                 sb.append(", ");
             }
 
-            listComprehension(sb, variable, entry.getValue(), node, level, depth);
+            listComprehension(sb, variable, entry.getValue(), node.types(entry.getKey()), node, level, depth);
         }
     }
 
@@ -75,8 +77,10 @@ public abstract class AbstractSchemaLoadClauseBuilder {
         return false;
     }
 
-    private void listComprehension(StringBuilder sb, String fromNodeVar, Relationship relationship, Node node,
-        int level, int depth) {
+    private void listComprehension(StringBuilder sb, String fromNodeVar,
+        Relationship relationship, Collection<String> types,
+        Node node, int level, int depth
+    ) {
 
         Direction direction = relationship.direction(node);
         Node toNode = relationship.other(node);
@@ -89,15 +93,15 @@ public abstract class AbstractSchemaLoadClauseBuilder {
         sb.append(")");
         switch (direction) {
             case INCOMING:
-                appendRel(sb, relVar, relationship.type(), "<-[", "]-");
+                appendRel(sb, relVar, types, "<-[", "]-");
                 break;
 
             case OUTGOING:
-                appendRel(sb, relVar, relationship.type(), "-[", "]->");
+                appendRel(sb, relVar, types, "-[", "]->");
                 break;
 
             default:
-                appendRel(sb, relVar, relationship.type(), "-[", "]-");
+                appendRel(sb, relVar, types, "-[", "]-");
                 break;
         }
 
@@ -132,12 +136,11 @@ public abstract class AbstractSchemaLoadClauseBuilder {
         return "" + Character.toLowerCase(name) + level;
     }
 
-    private void appendRel(StringBuilder sb, String variable, String type, String start, String end) {
+    private void appendRel(StringBuilder sb, String variable, Collection<String> types, String start, String end) {
         sb.append(start)
             .append(variable)
-            .append(":`")
-            .append(type)
-            .append("`")
+            .append(":")
+            .append(types.stream().map(type -> "`" + type + "`").collect(Collectors.joining("|")))
             .append(end);
     }
 

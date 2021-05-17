@@ -517,7 +517,7 @@ public class FieldInfo {
     }
 
     public Direction relationshipDirection() {
-        return relationshipDirectionOrDefault(Direction.UNDIRECTED);
+        return relationshipDirectionOrDefault(Direction.OUTGOING);
     }
 
     public Field getField() {

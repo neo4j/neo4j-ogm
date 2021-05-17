@@ -2,6 +2,12 @@
 
 == 3.2
 
+=== 3.2.23
+
+* [improvement] Avoid using LinkedList in MappingContext.
+* [bug] Use all available types when retrieving polymorphic mapped relationships. (#875)
+* [dependencies] Upgrade Neo4j 3.5 to 3.5.28.
+
 === 3.2.22
 
 * [bug] Check if properties belong to the same entity but different relationships. (#851)

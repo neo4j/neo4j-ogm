@@ -29,10 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -296,9 +294,15 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
             List<IndexInfo> indexes = new ArrayList<>();
 
             for (Map<String, Object> queryResult : indexResult.queryResults()) {
+
+                if (AutoIndex.isNodeOrRelationshipLookup(queryResult)) {
+                    continue;
+                }
+
                 if (isVersionOrGreater("4.0.0")) {
+                    Object[] labelsOrTypes = (Object[]) queryResult.get("labelsOrTypes");
                     IndexInfo indexInfo = new IndexInfo((String) queryResult.get("uniqueness"),
-                        (String[]) queryResult.get("labelsOrTypes"));
+                        (labelsOrTypes instanceof String[] ? (String[]) labelsOrTypes : new String[0]));
 
                     indexes.add(indexInfo);
                 } else {

@@ -1,12 +1,19 @@
 package org.neo4j.ogm.testutil;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.neo4j.driver.AccessMode;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Logging;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
+import org.neo4j.driver.Value;
+import org.neo4j.driver.Values;
+import org.neo4j.driver.internal.util.ServerVersion;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.ogm.config.Configuration;
@@ -41,6 +48,10 @@ public class TestContainersTestBase {
 
     private static final String SYS_PROPERTY_IMAGE_NAME = "NEO4J_OGM_NEO4J_IMAGE_NAME";
 
+    private static final String SYS_PROPERTY_NEO4J_URL = "NEO4J_OGM_NEO4J_URL";
+
+    private static final String SYS_PROPERTY_NEO4J_PASSWORD = "NEO4J_OGM_NEO4J_PASSWORD";
+
     private static Neo4jContainer neo4jServer;
 
     private static Configuration.Builder baseConfigurationBuilder;
@@ -54,41 +65,58 @@ public class TestContainersTestBase {
 
             boolean acceptAndUseCommercialEdition = hasAcceptedAndWantsToUseCommercialEdition();
 
-            String imageName = Optional.ofNullable(System.getenv(SYS_PROPERTY_IMAGE_NAME))
-                .orElse(DEFAULT_IMAGE+ (acceptAndUseCommercialEdition ? "-enterprise": ""));
 
-            isEnterpriseEdition = isDockerEnterpriseEdition(imageName);
-            version = extractVersionFromDockerImage(imageName);
-
-            boolean containerReuseSupported = TestcontainersConfiguration
-                .getInstance().environmentSupportsReuse();
-            neo4jServer = new Neo4jContainer<>(imageName)
-                .withReuse(containerReuseSupported);
-
-            if (acceptAndUseCommercialEdition) {
-                neo4jServer.withEnv("NEO4J_ACCEPT_LICENSE_AGREEMENT", "yes");
-            }
-            neo4jServer.withoutAuthentication().start();
-
-            if (isHttpDriver()){
-                driver = new HttpDriver();
-
-                baseConfigurationBuilder = new Configuration.Builder()
-                    .uri(neo4jServer.getHttpUrl());
-
-                driver.configure(baseConfigurationBuilder.build());
-
-            } else {
+            String neo4jUrl = Optional.ofNullable(System.getenv(SYS_PROPERTY_NEO4J_URL)).orElse("");
+            String neo4jPassword = Optional.ofNullable(System.getenv(SYS_PROPERTY_NEO4J_PASSWORD)).orElse("").trim();
+            if (!(neo4jUrl.isEmpty() || neo4jPassword.isEmpty()) && isBoltDriver()) {
+                LOGGER.info("Using Neo4j instance at {}.", neo4jUrl);
                 driver = new BoltDriver();
-
                 baseConfigurationBuilder = new Configuration.Builder()
-                    .uri(neo4jServer.getBoltUrl())
+                    .uri(neo4jUrl)
                     .verifyConnection(true)
-                    .withCustomProperty(BoltDriver.CONFIG_PARAMETER_BOLT_LOGGING, Logging.slf4j());
-
+                    .withCustomProperty(BoltDriver.CONFIG_PARAMETER_BOLT_LOGGING, Logging.slf4j())
+                    .credentials("neo4j", neo4jPassword);
                 driver.configure(baseConfigurationBuilder.build());
+                version = extractVersionFromBolt();
+                isEnterpriseEdition = Arrays.asList("commercial", "enterprise").contains(extractEditionFromBolt());
+            } else {
+                LOGGER.info("Using Neo4j test container.");
+                String imageName = Optional.ofNullable(System.getenv(SYS_PROPERTY_IMAGE_NAME))
+                    .orElse(DEFAULT_IMAGE + (acceptAndUseCommercialEdition ? "-enterprise" : ""));
+
+                isEnterpriseEdition = isDockerEnterpriseEdition(imageName);
+                version = extractVersionFromDockerImage(imageName);
+
+                boolean containerReuseSupported = TestcontainersConfiguration
+                    .getInstance().environmentSupportsReuse();
+                neo4jServer = new Neo4jContainer<>(imageName)
+                    .withReuse(containerReuseSupported);
+
+                if (acceptAndUseCommercialEdition) {
+                    neo4jServer.withEnv("NEO4J_ACCEPT_LICENSE_AGREEMENT", "yes");
+                }
+                neo4jServer.withoutAuthentication().start();
+
+                if (isHttpDriver()) {
+                    driver = new HttpDriver();
+
+                    baseConfigurationBuilder = new Configuration.Builder()
+                        .uri(neo4jServer.getHttpUrl());
+
+                    driver.configure(baseConfigurationBuilder.build());
+
+                } else {
+                    driver = new BoltDriver();
+
+                    baseConfigurationBuilder = new Configuration.Builder()
+                        .uri(neo4jServer.getBoltUrl())
+                        .verifyConnection(true)
+                        .withCustomProperty(BoltDriver.CONFIG_PARAMETER_BOLT_LOGGING, Logging.slf4j());
+
+                    driver.configure(baseConfigurationBuilder.build());
+                }
+                Runtime.getRuntime().addShutdownHook(new Thread(neo4jServer::stop));
             }
-            Runtime.getRuntime().addShutdownHook(new Thread(neo4jServer::stop));
 
         } else {
             isEnterpriseEdition = isEmbeddedEnterpriseEdition();
@@ -199,6 +227,37 @@ public class TestContainersTestBase {
         GraphDatabaseService graphDatabaseService = embeddedDriver.unwrap(GraphDatabaseService.class);
         List<String> versions = (List<String>) graphDatabaseService.execute("CALL dbms.components() YIELD versions").next().get("versions");
         return versions.get(0).split("-")[0];
+    }
+
+    private static String extractVersionFromBolt() {
+
+        if (transport != Transport.BOLT) {
+            throw new IllegalStateException("Cannot extract bolt version from non-bolt instance.");
+        }
+        org.neo4j.driver.Driver driver = getDriver().unwrap(org.neo4j.driver.Driver.class);
+
+        String version;
+        SessionConfig sessionConfig = SessionConfig.builder().withDefaultAccessMode(AccessMode.READ).build();
+        try (Session session = driver.session(sessionConfig)) {
+            version = session.run("CALL dbms.components() YIELD versions").single().get("versions").asList(
+                Value::asString).get(0);
+        }
+        return version.toLowerCase(Locale.ENGLISH);
+    }
+
+    private static String extractEditionFromBolt() {
+
+        if (transport != Transport.BOLT) {
+            throw new IllegalStateException("Cannot extract bolt version from non-bolt instance.");
+        }
+        org.neo4j.driver.Driver driver = getDriver().unwrap(org.neo4j.driver.Driver.class);
+
+        String edition;
+        SessionConfig sessionConfig = SessionConfig.builder().withDefaultAccessMode(AccessMode.READ).build();
+        try (Session session = driver.session(sessionConfig)) {
+            edition = session.run("call dbms.components() yield edition").single().get("edition").asString();
+        }
+        return edition.toLowerCase(Locale.ENGLISH);
     }
 
     private enum Transport {

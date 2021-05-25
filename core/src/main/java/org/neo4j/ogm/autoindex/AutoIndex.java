@@ -322,7 +322,7 @@ class AutoIndex {
         }
 
         if (isNodeOrRelationshipLookup(indexRow)) {
-            logger.warn("The Node or Relationship lookups available in Neo4j 4.3 should not be modified. Please do this manually.");
+            logger.info("The Node and Relationship lookups available in Neo4j 4.3+ should not be modified and Neo4j-OGM wont touch it.");
             return Optional.empty();
         }
 

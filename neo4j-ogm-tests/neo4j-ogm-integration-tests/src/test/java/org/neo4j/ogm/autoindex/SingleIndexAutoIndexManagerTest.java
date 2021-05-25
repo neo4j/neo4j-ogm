@@ -19,9 +19,16 @@
 package org.neo4j.ogm.autoindex;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assumptions.*;
 
+import java.util.Collections;
+
+import org.assertj.core.api.Assumptions;
 import org.junit.Test;
+import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.domain.autoindex.SingleIndexEntity;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Frantisek Hartman
@@ -51,5 +58,30 @@ public class SingleIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestCla
 
         executeForIndexes(indexes -> assertThat(indexes).hasSize(1 + expectedNumberOfAdditionalIndexes));
         executeForConstraints(constraints -> assertThat(constraints).isEmpty());
+    }
+
+    @Test
+    public void lookupIndexesMustNotBeDropped() {
+
+        assumeThat(isVersionOrGreater("4.3.0"))
+            .withFailMessage("This test can only run on Neo4j 4.3+")
+            .isTrue();
+        sessionFactory.openSession().query("CREATE (n:JustSoThatALookupIsCreated) RETURN n", Collections.emptyMap());
+
+        assertThat(getLookupIndexesCount()).isEqualTo(2L);
+
+        runAutoIndex(AutoIndexMode.ASSERT.getName());
+        executeForIndexes(indexes -> assertThat(indexes).hasSize(1 + expectedNumberOfAdditionalIndexes));
+        executeForConstraints(constraints -> assertThat(constraints).isEmpty());
+
+        assertThat(getLookupIndexesCount()).isEqualTo(2L);
+    }
+
+    private long getLookupIndexesCount() {
+
+        Session session = sessionFactory.openSession();
+        try (Transaction tx = session.beginTransaction()) {
+            return session.queryForObject(Long.class, "call db.indexes() yield type where type = 'LOOKUP' RETURN count(*)", Collections.emptyMap());
+        }
     }
 }

@@ -19,15 +19,17 @@
 package org.neo4j.ogm.autoindex;
 
 import static java.util.Collections.*;
-import static java.util.Optional.*;
 import static java.util.regex.Pattern.*;
 import static org.neo4j.ogm.autoindex.IndexType.*;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,6 +47,9 @@ import org.slf4j.LoggerFactory;
 class AutoIndex {
 
     private static final Logger logger = LoggerFactory.getLogger(AutoIndex.class);
+
+    private static final Set<String> ENTITIES_IN_LOOKUP_INDIZES = Collections
+        .unmodifiableSet(new HashSet<>(Arrays.asList("node", "relationship")));
 
     private final String[] properties;
 
@@ -191,8 +196,9 @@ class AutoIndex {
         Pattern pattern;
         Matcher matcher;
 
+        String name = constraintRow.containsKey("name") ? (String) constraintRow.get("name") : null;
         String description = (String) constraintRow.get("description");
-        if (version.compareTo("4.0") < 0) {
+        if (isPriorTo4x(version)) {
 
             pattern = compile(
                 "CONSTRAINT ON \\((?<name>.*):(?<label>.*)\\) ASSERT ?\\k<name>.(?<property>.*) IS UNIQUE");
@@ -200,7 +206,7 @@ class AutoIndex {
             if (matcher.matches()) {
                 String label = matcher.group("label").trim();
                 String[] properties = matcher.group("property").split(",");
-                return of(new AutoIndex(IndexType.UNIQUE_CONSTRAINT, label, properties));
+                return Optional.of(new AutoIndex(IndexType.UNIQUE_CONSTRAINT, label, properties));
             }
 
             pattern = compile(
@@ -212,7 +218,7 @@ class AutoIndex {
                 for (int i = 0; i < properties.length; i++) {
                     properties[i] = properties[i].trim().substring(label.length() + 1);
                 }
-                return of(new AutoIndex(IndexType.NODE_KEY_CONSTRAINT, label, properties));
+                return Optional.of(new AutoIndex(IndexType.NODE_KEY_CONSTRAINT, label, properties));
             }
 
             pattern = compile(
@@ -221,7 +227,7 @@ class AutoIndex {
             if (matcher.matches()) {
                 String label = matcher.group("label").trim();
                 String[] properties = matcher.group("property").split(",");
-                return of(new AutoIndex(IndexType.NODE_PROP_EXISTENCE_CONSTRAINT, label, properties));
+                return Optional.of(new AutoIndex(IndexType.NODE_PROP_EXISTENCE_CONSTRAINT, label, properties));
             }
 
             pattern = compile(
@@ -233,18 +239,19 @@ class AutoIndex {
                 for (int i = 0; i < properties.length; i++) {
                     properties[i] = properties[i].trim();
                 }
-                return of(new AutoIndex(IndexType.REL_PROP_EXISTENCE_CONSTRAINT, label, properties));
+                return Optional.of(new AutoIndex(IndexType.REL_PROP_EXISTENCE_CONSTRAINT, label, properties));
             }
 
             logger.warn("Could not parse constraint description {}", description);
         }
+
         pattern = compile(
             "CONSTRAINT ON \\( ?(?<name>.+):(?<label>.+) ?\\) ASSERT \\(\\k<name>\\.(?<property>.*)\\) IS UNIQUE");
         matcher = pattern.matcher(description);
         if (matcher.matches()) {
             String label = matcher.group("label").trim();
             String[] properties = matcher.group("property").split(",");
-            return of(new AutoIndex(IndexType.UNIQUE_CONSTRAINT, label, properties));
+            return Optional.of(new AutoIndex(IndexType.UNIQUE_CONSTRAINT, label, properties));
         }
 
         pattern = compile(
@@ -256,20 +263,20 @@ class AutoIndex {
             for (int i = 0; i < properties.length; i++) {
                 properties[i] = properties[i].trim().substring(label.length() + 1);
             }
-            return of(new AutoIndex(IndexType.NODE_KEY_CONSTRAINT, label, properties));
+            return Optional.of(new AutoIndex(IndexType.NODE_KEY_CONSTRAINT, label, properties));
         }
 
         pattern = compile(
-            "CONSTRAINT ON \\(\\s?(?<name>.*):(?<label>.*)\\s?\\) ASSERT exists\\(?\\k<name>.(?<property>.*)\\)");
+            "CONSTRAINT ON \\(\\s?(?<name>.*):(?<label>.*)\\s?\\) ASSERT (?:exists)?\\(?\\k<name>.(?<property>.*)\\)(?: IS NOT NULL)?");
         matcher = pattern.matcher(description);
         if (matcher.matches()) {
             String label = matcher.group("label").trim();
             String[] properties = matcher.group("property").split(",");
-            return of(new AutoIndex(IndexType.NODE_PROP_EXISTENCE_CONSTRAINT, label, properties));
+            return Optional.of(new AutoIndex(IndexType.NODE_PROP_EXISTENCE_CONSTRAINT, label, properties));
         }
 
         pattern = compile(
-            "CONSTRAINT ON \\(\\)-\\[\\s?(?<name>.*):(?<label>.*)\\s?\\]-\\(\\) ASSERT exists\\(?\\k<name>.(?<property>.*)\\)");
+            "CONSTRAINT ON \\(\\)-\\[\\s?(?<name>.*):(?<label>.*)\\s?]-\\(\\) ASSERT (?:exists)?\\(?\\k<name>.(?<property>.*)\\)(?: IS NOT NULL)?");
         matcher = pattern.matcher(description);
         if (matcher.matches()) {
             String label = matcher.group("label").trim();
@@ -277,11 +284,28 @@ class AutoIndex {
             for (int i = 0; i < properties.length; i++) {
                 properties[i] = properties[i].trim();
             }
-            return of(new AutoIndex(IndexType.REL_PROP_EXISTENCE_CONSTRAINT, label, properties));
+            return Optional.of(new AutoIndex(IndexType.REL_PROP_EXISTENCE_CONSTRAINT, label, properties));
         }
 
         logger.warn("Could not parse constraint description {}", description);
-        return empty();
+        return Optional.empty();
+    }
+
+    static boolean isFulltext(Map<String, Object> indexRow) {
+
+        String indexType = (String) indexRow.get("type");
+
+        return indexType != null && indexType.toLowerCase(Locale.ENGLISH).contains("fulltext");
+    }
+
+    static boolean isNodeOrRelationshipLookup(Map<String, Object> indexRow) {
+
+        String indexType = (String) indexRow.get("type");
+        String entityType = (String) indexRow.get("entityType");
+
+        return indexType != null && entityType != null &&
+            indexType.toLowerCase(Locale.ENGLISH).trim().equals("lookup") && ENTITIES_IN_LOOKUP_INDIZES
+            .contains(entityType.trim().toLowerCase(Locale.ENGLISH));
     }
 
     static Optional<AutoIndex> parseIndex(Map<String, Object> indexRow, String version) {
@@ -292,16 +316,21 @@ class AutoIndex {
         String description = (String) indexRow.get("description");
         String indexType = (String) indexRow.get("type");
 
-        if (indexType != null && indexType.toLowerCase(Locale.ENGLISH).contains("fulltext")) {
-            logger.warn("Ignoring unsupported index type {}.", indexType);
+        if (isFulltext(indexRow)) {
+            logger.warn("Ignoring unsupported fulltext index.");
             return Optional.empty();
         }
 
-        if (version.compareTo("4.0") < 0) {
+        if (isNodeOrRelationshipLookup(indexRow)) {
+            logger.warn("The Node or Relationship lookups available in Neo4j 4.3 should not be modified. Please do this manually.");
+            return Optional.empty();
+        }
+
+        if (isPriorTo4x(version)) {
             // skip unique properties index because they will get processed within
             // the collection of constraints.
             if (indexType.equals("node_unique_property")) {
-                return empty();
+                return Optional.empty();
             }
 
             pattern = compile("INDEX ON :(?<label>.*)\\((?<property>.*)\\)");
@@ -313,9 +342,9 @@ class AutoIndex {
                     properties[i] = properties[i].trim();
                 }
                 if (properties.length > 1) {
-                    return of(new AutoIndex(IndexType.COMPOSITE_INDEX, label, properties));
+                    return Optional.of(new AutoIndex(IndexType.COMPOSITE_INDEX, label, properties));
                 } else {
-                    return of(new AutoIndex(SINGLE_INDEX, label, properties));
+                    return Optional.of(new AutoIndex(SINGLE_INDEX, label, properties));
                 }
             }
         }
@@ -325,20 +354,20 @@ class AutoIndex {
         if (indexRow.containsKey("uniqueness")) {
             String indexUniqueness = (String) indexRow.get("uniqueness");
             if (indexUniqueness.equals("UNIQUE")) {
-                return empty();
+                return Optional.empty();
             }
         }
 
-        if (indexRow.containsKey("properties") && indexRow.containsKey("labelsOrTypes")) {
+        if (indexRow.containsKey("properties") && indexRow.containsKey("labelsOrTypes") && indexRow.get("labelsOrTypes") instanceof String[]) {
             String[] indexProperties = (String[]) indexRow.get("properties");
             String indexLabel = ((String[]) indexRow.get("labelsOrTypes"))[0];
 
-            return of(new AutoIndex(indexProperties.length > 1 ? COMPOSITE_INDEX : SINGLE_INDEX,
+            return Optional.of(new AutoIndex(indexProperties.length > 1 ? COMPOSITE_INDEX : SINGLE_INDEX,
                 indexLabel, indexProperties));
         }
 
         logger.warn("Could not parse index of type {} with description {}", indexType, description);
-        return empty();
+        return Optional.empty();
     }
 
     @Override
@@ -399,5 +428,9 @@ class AutoIndex {
             default:
                 throw new IllegalStateException("Can not create opposite index for type=" + type);
         }
+    }
+
+    static boolean isPriorTo4x(String version) {
+        return version.compareTo("4.0") < 0;
     }
 }

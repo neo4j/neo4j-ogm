@@ -141,6 +141,11 @@ public class LabelDeterminationTest extends TestContainersTestBase {
             List<IndexDescription> indexDescriptions = new ArrayList<>();
             for (Map<String, Object> queryResult : indexResult.queryResults()) {
 
+                // Skip 4.3 node label / rel types
+                if(queryResult.containsKey("type") && queryResult.get("type").equals("LOOKUP")) {
+                    continue;
+                }
+
                 // ensure compatibility with 3.x and 4.x
                 String label = "unknown";
                 if (queryResult.get("label") != null) { // 3.4(-)

@@ -1,4 +1,4 @@
-:version: 3.2.23
+:version: 3.2.24
 
 image:https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg[Maven Central,link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.neo4j%22%20AND%20a%3A%22neo4j-ogm%22]
 image:https://rawgit.com/aleen42/badges/master/src/slack.svg[Slack,link=https://neo4j-users.slack.com/messages/neo4j-sdn-ogm/]

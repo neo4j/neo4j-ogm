@@ -1,5 +1,13 @@
 = Changes
 
+== 3.2.24
+
+* [dependencies] Update Neo4j Java driver to 4.0.3.
+* [dependencies] Upgrade Http Core to 4.4.14.
+* [dependencies] Upgrade Http Client to 4.5.13.
+* [improvement] Ensure compatibility with Neo4j 4.3 (only applicable for the Bolt transport when using a 4.1+ driver).
+* [bug] Properly default to OUTGOING relationship.
+
 == 3.2.23
 
 * [improvement] Avoid using LinkedList in MappingContext.

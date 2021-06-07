@@ -195,7 +195,7 @@
         <dropwizard-metrics.version>4.0.2</dropwizard-metrics.version>
         <classgraph.version>4.8.86</classgraph.version>
         <httpclient.version>4.5.13</httpclient.version>
-        <httpcore.version>4.4.13</httpcore.version>
+        <httpcore.version>4.4.14</httpcore.version>
         <jackson.version>2.9.9</jackson.version>
         <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
         <jline.version>2.14.3</jline.version>

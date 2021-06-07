@@ -205,7 +205,7 @@
         <commonslang>3.8</commonslang>
         <commonsio>2.4</commonsio>
         <jackson>2.9.9</jackson>
-        <httpclient>4.5.11</httpclient>
+        <httpclient>4.5.13</httpclient>
         <junit>4.13.1</junit>
         <assertj>3.8.0</assertj>
         <slf4j.version>1.7.25</slf4j.version>

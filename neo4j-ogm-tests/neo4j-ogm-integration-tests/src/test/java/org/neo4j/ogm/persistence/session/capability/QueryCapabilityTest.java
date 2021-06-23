@@ -18,8 +18,10 @@
  */
 package org.neo4j.ogm.persistence.session.capability;
 
-import static java.util.Collections.*;
-import static org.assertj.core.api.Assertions.*;
+import static java.util.Collections.emptyMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
@@ -59,6 +61,9 @@ import org.neo4j.ogm.domain.gh875.AbstractPet;
 import org.neo4j.ogm.domain.gh875.Cat;
 import org.neo4j.ogm.domain.gh875.Kennel;
 import org.neo4j.ogm.domain.gh875.Person;
+import org.neo4j.ogm.domain.sdn2306.AbstractNodeBImplA;
+import org.neo4j.ogm.domain.sdn2306.SubNodeB;
+import org.neo4j.ogm.domain.sdn2306.SubNodeBImplA;
 import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.domain.nested.NestingClass;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
@@ -102,7 +107,8 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             "org.neo4j.ogm.domain.linkedlist",
             "org.neo4j.ogm.domain.gh726",
             "org.neo4j.ogm.domain.gh851",
-            "org.neo4j.ogm.domain.gh875"
+            "org.neo4j.ogm.domain.gh875",
+            "org.neo4j.ogm.domain.sdn2306"
         );
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -141,6 +147,50 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     @After
     public void clearDatabase() {
         session.purgeDatabase();
+    }
+
+    @Test // SDN-2306
+    public void shouldFillLabelsInComplexInheritanceHierachies() {
+
+        Long id1 = session.queryForObject(Long.class,
+            "create (a:Node:SubNodeA:SubNodeB:SubNodeBImplA {name: 'eins'}) RETURN id(a)",
+            Collections.emptyMap());
+        Long id2 = session.queryForObject(Long.class,
+            "create (a:Node:SubNodeA:SubNodeB:AbstractNodeBImplA:More:Labels {name: 'zwei'})  RETURN id(a)",
+            Collections.emptyMap());
+
+        assertThat(id1).isNotNull();
+        assertThat(id2).isNotNull();
+
+        SubNodeB b1 = session.load(SubNodeB.class, id1);
+        assertThat(b1).isNotNull();
+        assertThat(b1).isInstanceOf(SubNodeBImplA.class);
+        assertThat(b1.getName()).isEqualTo("eins");
+        assertThat(b1.getNeo4jLabels()).isEmpty();
+
+        SubNodeB b2 = session.load(SubNodeB.class, id2);
+        assertThat(b2).isNotNull();
+        assertThat(b2).isInstanceOf(AbstractNodeBImplA.class);
+        assertThat(b2.getName()).isEqualTo("zwei");
+        assertThat(b2.getNeo4jLabels()).containsExactly("More", "Labels");
+
+        b1.getNeo4jLabels().add("X");
+        b1.getNeo4jLabels().add("Y");
+        session.save(b1);
+
+        b2.getNeo4jLabels().add("New1");
+        b2.getNeo4jLabels().add("New2");
+        session.save(b2);
+
+        long cnt = session.queryForObject(Long.class,
+            "match (a:X:Y) WHERE id(a) = $id RETURN count(a)",
+            Collections.singletonMap("id", id1));
+        assertThat(cnt).isEqualTo(1L);
+
+        cnt = session.queryForObject(Long.class,
+            "match (a:New1:New2) WHERE id(a) = $id RETURN count(a)",
+            Collections.singletonMap("id", id2));
+        assertThat(cnt).isEqualTo(1L);
     }
 
     @Test // DATAGRAPH-697

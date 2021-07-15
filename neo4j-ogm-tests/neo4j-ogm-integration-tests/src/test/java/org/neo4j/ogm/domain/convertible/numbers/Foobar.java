@@ -20,7 +20,7 @@ package org.neo4j.ogm.domain.convertible.numbers;
 
 /**
  * An arbitrary object that is not an entity and collections of it should not be treated as
- * assocations as they are annoated with {@link org.neo4j.ogm.annotation.typeconversion.Convert @Convert}.
+ * associations as they are annotated with {@link org.neo4j.ogm.annotation.typeconversion.Convert @Convert}.
  *
  * @author Michael J. Simons
  */

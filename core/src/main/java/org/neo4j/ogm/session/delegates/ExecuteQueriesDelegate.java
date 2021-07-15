@@ -105,7 +105,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
             throw new RuntimeException("Result not of expected size. Expected 1 row but found " + cnt);
         }
 
-        if (type.isAssignableFrom(returnedObject.getClass())) {
+        if (returnedObject == null || type.isAssignableFrom(returnedObject.getClass())) {
             return returnedObject;
         }
 

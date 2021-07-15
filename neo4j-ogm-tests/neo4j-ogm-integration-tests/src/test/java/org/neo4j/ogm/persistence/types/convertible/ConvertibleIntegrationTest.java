@@ -46,6 +46,7 @@ import org.neo4j.ogm.domain.convertible.enums.Education;
 import org.neo4j.ogm.domain.convertible.enums.Gender;
 import org.neo4j.ogm.domain.convertible.enums.Person;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
+import org.neo4j.ogm.domain.convertible.numbers.Foobar;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -58,10 +59,12 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 public class ConvertibleIntegrationTest extends TestContainersTestBase {
 
     private static Session session;
+    private static SessionFactory sessionFactory;
 
     @BeforeClass
     public static void init() {
-        session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.convertible").openSession();
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.convertible");
+        session = sessionFactory.openSession();
     }
 
     @After
@@ -361,6 +364,31 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         assertThat(loadedAccount.getFacility()).isEqualTo(new BigInteger("1000"));
         assertThat(loadedAccount.getLoans()).isEqualTo(loans);
         assertThat(loadedAccount.getDeposits()).isEqualTo(deposits);
+    }
+
+    @Test // GH-880
+    public void shouldDeletePropertiesWhenAttributesAreNull() {
+
+        Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
+        account.setFoobar(new Foobar("A thing"));
+
+        Session localSession = sessionFactory.openSession();
+        localSession.save(account);
+        localSession.clear();
+
+        Map<String, Long> parameters = Collections.singletonMap("id", account.getId());
+        String getFooBarAttributeQuery = "MATCH (n:Account) WHERE id(n) = $id RETURN n.foobar";
+
+        String foobbarValue = localSession.queryForObject(String.class, getFooBarAttributeQuery, parameters);
+        assertThat(foobbarValue).isEqualTo("A thing");
+
+        account.setFoobar(null);
+        localSession = sessionFactory.openSession();
+        localSession.save(account);
+        localSession.clear();
+
+        foobbarValue = localSession.queryForObject(String.class, getFooBarAttributeQuery, parameters);
+        assertThat(foobbarValue).isNull();
     }
 
     @Test // GH-72

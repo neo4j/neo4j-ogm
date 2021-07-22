@@ -87,7 +87,7 @@ public class BookmarkTest {
 
     @Test
     public void shouldPassMultiValueBookmarksToDriver() {
-        Set<String> bookmarkStringRepresentation = new HashSet<>(Arrays.asList("bookmark1", "bookmark2", "bookmark3-part1BSbookmark3-part2"));
+        Set<String> bookmarkStringRepresentation = new HashSet<>(Arrays.asList("bookmark1", "bookmark2", "bookmark3-part1/_BS_/bookmark3-part2"));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_ONLY, bookmarkStringRepresentation);
         ArgumentCaptor<SessionConfig> argumentCaptor = ArgumentCaptor.forClass(SessionConfig.class);
@@ -142,6 +142,6 @@ public class BookmarkTest {
         transaction.close();
 
         String lastBookmark = session.getLastBookmark();
-        assertThat(lastBookmark).isEqualTo("bookmark-part1BSbookmark-part2");
+        assertThat(lastBookmark).isEqualTo("bookmark-part1/_BS_/bookmark-part2");
     }
 }

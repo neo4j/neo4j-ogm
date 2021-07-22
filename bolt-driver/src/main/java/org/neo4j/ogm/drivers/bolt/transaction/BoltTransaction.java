@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BoltTransaction extends AbstractTransaction {
 
-    public static final String BOOKMARK_SEPARATOR = "BS";
+    public static final String BOOKMARK_SEPARATOR = "/_BS_/";
     private static final String NEO_CLIENT_ERROR_SECURITY = "Neo.ClientError.Security";
     private final Transaction nativeTransaction;
     private final Session nativeSession;

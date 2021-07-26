@@ -81,8 +81,8 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -103,29 +103,6 @@
     <profiles>
         <profile>
             <id>neo4j-enterprise</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.neo4j.test</groupId>
-                    <artifactId>neo4j-harness-enterprise</artifactId>
-                    <version>${neo4j.version}</version>
-                    <scope>compile</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>neo4j-3.5</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.neo4j.community</groupId>
-                    <artifactId>it-test-support</artifactId>
-                    <version>${neo4j.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>neo4j-3.5-enterprise</id>
             <dependencies>
                 <dependency>
                     <groupId>com.neo4j.test</groupId>

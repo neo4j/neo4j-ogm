@@ -18,16 +18,15 @@
  */
 package org.neo4j.ogm.persistence.model;
 
-import static java.util.Collections.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
+import static java.util.Collections.emptyMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
@@ -208,11 +207,13 @@ public class LabelDeterminationTest extends TestContainersTestBase {
     @Test // GH-539
     public void labelsShouldBeDeleted() {
         Session throwAwaySession = sessionFactory.openSession();
-        throwAwaySession.query("CREATE (a:EntityWithImplicitPlusAdditionalLabels:Label1:Label2 {id: 'myId'}) RETURN a", emptyMap());
+        throwAwaySession
+            .query("CREATE (a:EntityWithImplicitPlusAdditionalLabels:Label1:Label2 {id: 'myId'}) RETURN a", emptyMap());
         throwAwaySession.clear();
 
         throwAwaySession = sessionFactory.openSession();
-        EntityWithImplicitPlusAdditionalLabels entity = session.load(EntityWithImplicitPlusAdditionalLabels.class, "myId");
+        EntityWithImplicitPlusAdditionalLabels entity = session
+            .load(EntityWithImplicitPlusAdditionalLabels.class, "myId");
         assertThat(entity.getLabels()).containsExactlyInAnyOrder("Label1", "Label2");
         entity.getLabels().remove("Label1");
         throwAwaySession.save(entity);
@@ -252,17 +253,17 @@ public class LabelDeterminationTest extends TestContainersTestBase {
     }
 
     static class IndexDescription {
-        final String label;
+        final String[] labels;
 
         final String[] propertyKeys;
 
         IndexDescription(String label, String... propertyKeys) {
-            this.label = label;
+            this.labels = new String[] { label };
             this.propertyKeys = propertyKeys;
         }
 
         IndexDescription(IndexDefinition indexDefinition) {
-            this.label = indexDefinition.getLabel().name();
+            this.labels = StreamSupport.stream(indexDefinition.getLabels().spliterator(), false).toArray(String[]::new);
             this.propertyKeys = StreamSupport.stream(indexDefinition.getPropertyKeys().spliterator(), false)
                 .toArray(String[]::new);
         }
@@ -272,17 +273,16 @@ public class LabelDeterminationTest extends TestContainersTestBase {
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof IndexDescription)) {
+            if (o == null || getClass() != o.getClass()) {
                 return false;
             }
             IndexDescription that = (IndexDescription) o;
-            return Objects.equals(label, that.label) &&
-                Arrays.equals(propertyKeys, that.propertyKeys);
+            return Arrays.equals(labels, that.labels) && Arrays.equals(propertyKeys, that.propertyKeys);
         }
 
         @Override
         public int hashCode() {
-            int result = Objects.hash(label);
+            int result = Arrays.hashCode(labels);
             result = 31 * result + Arrays.hashCode(propertyKeys);
             return result;
         }
@@ -290,7 +290,7 @@ public class LabelDeterminationTest extends TestContainersTestBase {
         @Override
         public String toString() {
             return "IndexDescription{" +
-                "label='" + label + '\'' +
+                "labels=" + Arrays.toString(labels) +
                 ", propertyKeys=" + Arrays.toString(propertyKeys) +
                 '}';
         }

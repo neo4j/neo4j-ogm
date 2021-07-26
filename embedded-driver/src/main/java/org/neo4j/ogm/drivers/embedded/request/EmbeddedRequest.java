@@ -32,6 +32,7 @@ import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RestModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RowModelResponse;
+import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
@@ -115,7 +116,7 @@ public class EmbeddedRequest implements Request {
         }
 
         final String[] finalColumns = columns;
-        return new Response<RowModel>() {
+        return new Response<>() {
             int currentRow = 0;
 
             @Override
@@ -162,7 +163,11 @@ public class EmbeddedRequest implements Request {
                 LOGGER.debug("Request: {} with params {}", cypher, parameterMap);
             }
 
-            return graphDatabaseService.execute(cypher, parameterMap);
+            if (this.transaction == null) {
+                throw new RuntimeException("Cannot execute request without transaction!");
+            } else {
+                return ((EmbeddedTransaction) transaction).getNativeTransaction().execute(cypher, parameterMap);
+            }
         } catch (QueryExecutionException qee) {
             throw new CypherException(qee.getStatusCode(), qee.getMessage(), qee);
         } catch (Exception e) {

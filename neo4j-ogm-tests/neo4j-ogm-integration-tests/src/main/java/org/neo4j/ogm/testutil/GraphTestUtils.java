@@ -19,7 +19,6 @@
 package org.neo4j.ogm.testutil;
 
 import static org.neo4j.graphdb.Direction.*;
-import static org.neo4j.helpers.collection.Iterables.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,16 +29,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.stream.StreamSupport;
 
 import org.junit.Assert;
+import org.neo4j.configuration.GraphDatabaseSettings;
+import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.test.TestGraphDatabaseFactory;
+import org.neo4j.test.TestDatabaseManagementServiceBuilder;
 import org.parboiled.common.StringUtils;
 
 /**
@@ -51,7 +51,10 @@ import org.parboiled.common.StringUtils;
 @SuppressWarnings("HiddenField")
 public final class GraphTestUtils {
 
-    private static GraphDatabaseService otherDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
+    private static GraphDatabaseService otherDatabase = new TestDatabaseManagementServiceBuilder()
+        .impermanent()
+        .build()
+        .database(GraphDatabaseSettings.DEFAULT_DATABASE_NAME);
 
     private GraphTestUtils() {
         // this class cannot be instantiated
@@ -67,19 +70,19 @@ public final class GraphTestUtils {
      */
     public static synchronized void assertSameGraph(GraphDatabaseService graphDatabase, String sameGraphCypher) {
 
-        otherDatabase.execute(sameGraphCypher);
+        otherDatabase.executeTransactionally(sameGraphCypher);
 
         try {
             try (Transaction tx = graphDatabase.beginTx()) {
                 try (Transaction tx2 = otherDatabase.beginTx()) {
                     doAssertSubgraph(graphDatabase, otherDatabase, "existing database");
                     doAssertSubgraph(otherDatabase, graphDatabase, "Cypher-created database");
-                    tx2.failure();
+                    tx2.rollback();
                 }
-                tx.failure();
+                tx.rollback();
             }
         } finally {
-            otherDatabase.execute("MATCH (n) OPTIONAL MATCH (n) DETACH DELETE n");
+            otherDatabase.executeTransactionally("MATCH (n) OPTIONAL MATCH (n) DETACH DELETE n");
         }
     }
 
@@ -108,28 +111,30 @@ public final class GraphTestUtils {
         Set<Map<Long, Long>> result = new HashSet<>();
         result.add(new HashMap<>());
 
-        for (Map.Entry<Long, Long[]> entry : sameNodesMap.entrySet()) {
+        try (Transaction tx = otherDatabase.beginTx()) {
+            for (Map.Entry<Long, Long[]> entry : sameNodesMap.entrySet()) {
 
-            Set<Map<Long, Long>> newResult = new HashSet<>();
+                Set<Map<Long, Long>> newResult = new HashSet<>();
 
-            for (Long target : entry.getValue()) {
-                for (Map<Long, Long> mapping : result) {
-                    if (!mapping.values().contains(target)) {
-                        Map<Long, Long> newMapping = new HashMap<>(mapping);
-                        newMapping.put(entry.getKey(), target);
-                        newResult.add(newMapping);
+                for (Long target : entry.getValue()) {
+                    for (Map<Long, Long> mapping : result) {
+                        if (!mapping.values().contains(target)) {
+                            Map<Long, Long> newMapping = new HashMap<>(mapping);
+                            newMapping.put(entry.getKey(), target);
+                            newResult.add(newMapping);
+                        }
                     }
                 }
-            }
 
-            if (newResult.isEmpty()) {
-                Assert
-                    .fail("Could not find a node corresponding to: " + print(otherDatabase.getNodeById(entry.getKey()))
-                        + ". There are most likely more nodes with the same characteristics (labels, properties) in your "
-                        + "cypher CREATE statement but fewer in the database.");
-            }
+                if (newResult.isEmpty()) {
+                    Assert
+                        .fail("Could not find a node corresponding to: " + print(tx.getNodeById(entry.getKey()))
+                            + ". There are most likely more nodes with the same characteristics (labels, properties) in your "
+                            + "cypher CREATE statement but fewer in the database.");
+                }
 
-            result = newResult;
+                result = newResult;
+            }
         }
 
         return result;
@@ -255,10 +260,12 @@ public final class GraphTestUtils {
         GraphDatabaseService otherDatabase, Map<Long, Long> mapping, String firstDatabaseName) {
         Set<Long> usedRelationships = new HashSet<>();
 
-        for (Relationship relationship : allRelationships(otherDatabase)) {
-            if (!relationshipMappingExists(database, relationship, mapping, usedRelationships)) {
-                Assert
-                    .fail("No corresponding relationship found to " + print(relationship) + " in " + firstDatabaseName);
+        try (Transaction tx = database.beginTx()) {
+            for (Relationship relationship : allRelationships(otherDatabase)) {
+                if (!relationshipMappingExists(tx, relationship, mapping, usedRelationships)) {
+                    Assert.fail(
+                        "No corresponding relationship found to " + print(relationship) + " in " + firstDatabaseName);
+                }
             }
         }
     }
@@ -266,16 +273,18 @@ public final class GraphTestUtils {
     private static boolean relationshipsMappingExists(GraphDatabaseService database, GraphDatabaseService otherDatabase,
         Map<Long, Long> mapping) {
         Set<Long> usedRelationships = new HashSet<>();
-        for (Relationship relationship : allRelationships(otherDatabase)) {
-            if (!relationshipMappingExists(database, relationship, mapping, usedRelationships)) {
-                return false;
+        try (Transaction tx = database.beginTx()) {
+            for (Relationship relationship : allRelationships(otherDatabase)) {
+                if (!relationshipMappingExists(tx, relationship, mapping, usedRelationships)) {
+                    return false;
+                }
             }
         }
 
         return true;
     }
 
-    private static boolean relationshipMappingExists(GraphDatabaseService database, Relationship relationship,
+    private static boolean relationshipMappingExists(Transaction database, Relationship relationship,
         Map<Long, Long> nodeMapping,
         Set<Long> usedRelationships) {
         for (Relationship candidate : database.getNodeById(nodeMapping.get(relationship.getStartNode().getId()))
@@ -299,6 +308,11 @@ public final class GraphTestUtils {
         return haveSameType(relationship1, relationship2) && haveSameProperties(relationship1, relationship2);
     }
 
+    private static long count(Iterable<?> iterable) {
+
+        return StreamSupport.stream(iterable.spliterator(), false).count();
+    }
+
     public static boolean haveSameLabels(Node node1, Node node2) {
         if (count(node1.getLabels()) != count(node2.getLabels())) {
             return false;
@@ -317,7 +331,7 @@ public final class GraphTestUtils {
         return relationship1.isType(relationship2.getType());
     }
 
-    public static boolean haveSameProperties(PropertyContainer pc1, PropertyContainer pc2) {
+    public static boolean haveSameProperties(Entity pc1, Entity pc2) {
         int pc1KeyCount = 0;
         int pc2KeyCount = 0;
         for (String key : pc1.getPropertyKeys()) {
@@ -372,7 +386,7 @@ public final class GraphTestUtils {
         return string.toString();
     }
 
-    private static String propertiesToString(PropertyContainer propertyContainer) {
+    private static String propertiesToString(Entity propertyContainer) {
         if (!propertyContainer.getPropertyKeys().iterator().hasNext()) {
             return "";
         }

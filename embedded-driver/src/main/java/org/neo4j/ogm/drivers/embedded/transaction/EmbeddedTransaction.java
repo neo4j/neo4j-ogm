@@ -60,7 +60,7 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
                 LOGGER.debug("rolling back native transaction: {}", nativeTransaction);
                 if (transactionIsOpen()) {
-                    nativeTransaction.failure();
+                    nativeTransaction.rollback();
                     nativeTransaction.close();
                 } else {
                     LOGGER.warn("Transaction is already closed");
@@ -79,7 +79,7 @@ public class EmbeddedTransaction extends AbstractTransaction {
             if (transactionManager.canCommit()) {
                 LOGGER.debug("Committing native transaction: {}", nativeTransaction);
                 if (transactionIsOpen()) {
-                    nativeTransaction.success();
+                    nativeTransaction.commit();
                     nativeTransaction.close();
                 } else {
                     throw new IllegalStateException("This transaction has already been completed.");
@@ -97,7 +97,6 @@ public class EmbeddedTransaction extends AbstractTransaction {
     }
 
     public boolean transactionIsOpen() {
-
         try {
             Field transactionField = nativeTransaction.getClass().getDeclaredField("transaction");
             transactionField.setAccessible(true);

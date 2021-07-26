@@ -82,7 +82,7 @@ public class DatesEmbeddedTest extends DatesTestBase {
         session.query("CREATE (n:Test {a: $a, b: $b})", parameters);
 
         Map<String, Object> result = sessionFactory.unwrap(GraphDatabaseService.class)
-            .execute("MATCH (n:Test) RETURN n.a, n.b").next();
+            .executeTransactionally("MATCH (n:Test) RETURN n.a, n.b", Map.of(), r -> r.next());
 
         Object a = result.get("n.a");
         assertThat(a).isInstanceOf(LocalDate.class)
@@ -98,9 +98,9 @@ public class DatesEmbeddedTest extends DatesTestBase {
 
         Map<String, Object> params = createSometimeWithConvertedLocalDate();
         Map<String, Object> result = sessionFactory.unwrap(GraphDatabaseService.class)
-            .execute(
+            .executeTransactionally(
                 "MATCH (n:`DatesTestBase$Sometime`) WHERE id(n) = $id RETURN n.convertedLocalDate AS convertedLocalDate",
-                params).next();
+                params, r -> r.next());
 
         Object a = result.get("convertedLocalDate");
         assertThat(a).isInstanceOf(String.class)

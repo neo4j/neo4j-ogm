@@ -34,7 +34,7 @@ public class EmbeddedCypherExceptionTest extends CypherExceptionTestBase<Embedde
 
     @BeforeClass
     public static void initSessionFactory() {
-        Driver driver = new EmbeddedDriver(serverControls.graph(), new Configuration.Builder().build());
+        Driver driver = new EmbeddedDriver(serverControls.defaultDatabaseService(), new Configuration.Builder().build());
         sessionFactory = new SessionFactory(driver, DOMAIN_PACKAGE);
     }
 

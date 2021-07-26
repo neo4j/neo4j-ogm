@@ -215,7 +215,7 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
             GraphDatabaseService graphDatabaseService = getDriver().unwrap(GraphDatabaseService.class);
             try (Transaction tx = graphDatabaseService.beginTx()) {
 
-                Node node = graphDatabaseService.getNodeById(graphId);
+                Node node = tx.getNodeById(graphId);
                 offsetDateTimeValue = node.getProperty("someTime").toString();
                 localDateTimeValue = node.getProperty("someLocalDateTime").toString();
                 localDateValue = node.getProperty("someLocalDate").toString();

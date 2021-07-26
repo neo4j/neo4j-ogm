@@ -34,6 +34,7 @@
 
     <modules>
         <module>neo4j-ogm-integration-tests</module>
+        <module>neo4j-ogm-native-types-tests</module>
         <module>neo4j-ogm-tests-report</module>
     </modules>
 
@@ -59,20 +60,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>neo4j-3.4</id>
-            <modules>
-                <module>neo4j-ogm-native-types-tests</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>neo4j-3.5</id>
-            <modules>
-                <module>neo4j-ogm-native-types-tests</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>

@@ -21,24 +21,30 @@ package org.neo4j.ogm.drivers.embedded.driver;
 import static java.util.Objects.*;
 import static org.neo4j.ogm.support.FileUtils.*;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.neo4j.configuration.GraphDatabaseSettings;
+import org.neo4j.dbms.api.DatabaseManagementService;
+import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
@@ -59,7 +65,12 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     private static final int TIMEOUT = 60_000;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
+    private DatabaseManagementService databaseManagementService;
     private GraphDatabaseService graphDatabaseService;
+    /**
+     * The database to use, defaults to {@literal null} (Use Neo4j default).
+     */
+    private String database = null;
 
     // required for service loader mechanism
     public EmbeddedDriver() {
@@ -95,6 +106,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     public synchronized void configure(Configuration newConfiguration) {
 
         super.configure(newConfiguration);
+        this.database = this.configuration.getDatabase();
 
         try {
             String fileStoreUri = newConfiguration.getURI();
@@ -113,19 +125,30 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                 throw new RuntimeException("Could not create/open filestore: " + fileStoreUri);
             }
 
-            GraphDatabaseBuilder graphDatabaseBuilder = getGraphDatabaseFactory(newConfiguration)
-                .newEmbeddedDatabaseBuilder(file);
+            DatabaseManagementServiceBuilder graphDatabaseBuilder = getGraphDatabaseFactory(newConfiguration, file);
 
             String neo4jConfLocation = newConfiguration.getNeo4jConfLocation();
             if (neo4jConfLocation != null) {
                 URL neo4ConfUrl = newConfiguration.getResourceUrl(neo4jConfLocation);
-                graphDatabaseBuilder = graphDatabaseBuilder.loadPropertiesFromURL(neo4ConfUrl);
+                Path tmp = Files.createTempFile("neo4j-ogm-embedded", ".conf");
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(neo4ConfUrl.openStream()));
+                    BufferedWriter out = Files.newBufferedWriter(tmp, StandardCharsets.UTF_8)) {
+                    in.transferTo(out);
+                    out.flush();
+                }
+                graphDatabaseBuilder = graphDatabaseBuilder.loadPropertiesFromFile(tmp.toFile().getAbsolutePath());
             }
 
-            this.graphDatabaseService = graphDatabaseBuilder.newGraphDatabase();
+            this.databaseManagementService = graphDatabaseBuilder.build();
+            this.graphDatabaseService = this.databaseManagementService.database(getDatabase());
         } catch (Exception e) {
             throw new ConnectionException("Error connecting to embedded graph", e);
         }
+    }
+
+    private String getDatabase() {
+        return Optional.ofNullable(this.database).filter(s -> !s.isBlank())
+            .map(String::trim).orElse(GraphDatabaseSettings.DEFAULT_DATABASE_NAME);
     }
 
     /**
@@ -136,16 +159,16 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * @return
      * @throws Exception all the exceptions that might happen during dynamic construction of things.
      */
-    private static GraphDatabaseFactory getGraphDatabaseFactory(Configuration configuration) throws Exception {
+    private static DatabaseManagementServiceBuilder getGraphDatabaseFactory(Configuration configuration, File homeDir) throws Exception {
 
-        GraphDatabaseFactory graphDatabaseFactory;
+        DatabaseManagementServiceBuilder graphDatabaseFactory;
         if (!configuration.isEmbeddedHA()) {
-            graphDatabaseFactory = new GraphDatabaseFactory();
+            graphDatabaseFactory = new DatabaseManagementServiceBuilder(homeDir);
         } else {
-            String classnameOfHaFactory = "org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory";
-            Class<GraphDatabaseFactory> haFactoryClass = (Class<GraphDatabaseFactory>) Class
+            String classnameOfHaFactory = "com.neo4j.dbms.api.EnterpriseDatabaseManagementServiceBuilder";
+            Class<? extends DatabaseManagementServiceBuilder> haFactoryClass = (Class<? extends DatabaseManagementServiceBuilder>) Class
                 .forName(classnameOfHaFactory);
-            graphDatabaseFactory = haFactoryClass.getDeclaredConstructor().newInstance();
+            graphDatabaseFactory = haFactoryClass.getDeclaredConstructor(File.class).newInstance(homeDir);
         }
 
         return graphDatabaseFactory;
@@ -171,11 +194,13 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     @Override
     public synchronized void close() {
 
-        if (graphDatabaseService != null) {
-            logger.info("Shutting down Embedded driver {} ", graphDatabaseService);
-            graphDatabaseService.shutdown();
-            graphDatabaseService = null;
+        if (databaseManagementService != null) {
+            logger.info("Shutting down Embedded driver {} ", databaseManagementService);
+            databaseManagementService.shutdown();
+            databaseManagementService = null;
         }
+
+        graphDatabaseService = null;
     }
 
     public <T> T unwrap(Class<T> clazz) {

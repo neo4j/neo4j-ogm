@@ -25,8 +25,8 @@ import org.neo4j.driver.AuthTokens
 import org.neo4j.driver.Driver
 import org.neo4j.driver.GraphDatabase
 import org.neo4j.driver.Values
-import org.neo4j.harness.ServerControls
-import org.neo4j.harness.TestServerBuilders
+import org.neo4j.harness.Neo4j
+import org.neo4j.harness.Neo4jBuilders
 import org.neo4j.ogm.config.Configuration
 import org.neo4j.ogm.config.ObjectMapperFactory
 import org.neo4j.ogm.cypher.ComparisonOperator
@@ -52,7 +52,7 @@ class KotlinInteropTest {
 
     companion object {
         @JvmStatic
-        private lateinit var server: ServerControls
+        private lateinit var server: Neo4j
 
         private lateinit var driver: Driver
 
@@ -61,7 +61,7 @@ class KotlinInteropTest {
         @BeforeClass
         @JvmStatic
         fun setup() {
-            server = TestServerBuilders.newInProcessBuilder().newServer()
+            server = Neo4jBuilders.newInProcessBuilder().build()
             driver = GraphDatabase.driver(server.boltURI(), AuthTokens.none())
 
             val ogmConfiguration = Configuration.Builder()

@@ -1,5 +1,11 @@
 = Changes
 
+== 3.2.25
+
+* [bug] Fix possible `NullpointerException`. (#880)
+* [bug] Use a more unique bookmark separator. (#882)
+* [dependencies] Upgrade Neo4j 3.5 to 3.5.29.
+
 == 3.2.24
 
 * [dependencies] Update Neo4j Java driver to 4.0.3.

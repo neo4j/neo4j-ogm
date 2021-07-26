@@ -18,10 +18,7 @@
  */
 package org.neo4j.ogm.drivers.embedded.transaction;
 
-import java.lang.reflect.Field;
-
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.kernel.api.KernelTransaction;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -30,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class EmbeddedTransaction extends AbstractTransaction {
 
@@ -47,9 +45,10 @@ public class EmbeddedTransaction extends AbstractTransaction {
      * @param type               the {@link org.neo4j.ogm.transaction.Transaction.Type} of this transaction
      */
     public EmbeddedTransaction(TransactionManager transactionManager, Transaction nativeTransaction, Type type) {
+
         super(transactionManager);
         this.nativeTransaction = nativeTransaction;
-        this.type = type; // TODO: implement when support for Embedded in HA Mode has been done
+        this.type = type;
     }
 
     @Override
@@ -59,12 +58,8 @@ public class EmbeddedTransaction extends AbstractTransaction {
             if (transactionManager.canRollback()) {
 
                 LOGGER.debug("rolling back native transaction: {}", nativeTransaction);
-                if (transactionIsOpen()) {
-                    nativeTransaction.rollback();
-                    nativeTransaction.close();
-                } else {
-                    LOGGER.warn("Transaction is already closed");
-                }
+                nativeTransaction.rollback();
+                nativeTransaction.close();
             }
         } catch (Exception e) {
             throw new TransactionException(e.getLocalizedMessage(), e);
@@ -75,15 +70,13 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
     @Override
     public void commit() {
+
         try {
             if (transactionManager.canCommit()) {
+
                 LOGGER.debug("Committing native transaction: {}", nativeTransaction);
-                if (transactionIsOpen()) {
-                    nativeTransaction.commit();
-                    nativeTransaction.close();
-                } else {
-                    throw new IllegalStateException("This transaction has already been completed.");
-                }
+                nativeTransaction.commit();
+                nativeTransaction.close();
             }
         } catch (Exception e) {
             throw new TransactionException(e.getLocalizedMessage(), e);
@@ -94,16 +87,5 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
     public org.neo4j.graphdb.Transaction getNativeTransaction() {
         return nativeTransaction;
-    }
-
-    public boolean transactionIsOpen() {
-        try {
-            Field transactionField = nativeTransaction.getClass().getDeclaredField("transaction");
-            transactionField.setAccessible(true);
-            KernelTransaction kernelTransaction = (KernelTransaction) transactionField.get(nativeTransaction);
-            return kernelTransaction.isOpen();
-        } catch (Exception e) {
-            return false;
-        }
     }
 }

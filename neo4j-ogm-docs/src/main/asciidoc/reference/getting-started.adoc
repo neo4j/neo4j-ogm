@@ -112,8 +112,7 @@ In the `<dependencies>` section of your `pom.xml` add the following:
 </dependency>
 ----
 
-Please also have a look at <<reference:native-property-types:supported-drivers, the native type system>> to take advantage of Neo4j-OGM's support for native temporal and spatial types
-and how to use the modules `neo4j-ogm-bolt-native-types` and `neo4j-ogm-embedded-native-types`.
+Please also have a look at <<reference:native-property-types:supported-drivers, the native type system>> to take advantage of Neo4j-OGM's support for native temporal and spatial types.
 
 [[reference:getting-started:dependency-management:gradle]]
 === Gradle

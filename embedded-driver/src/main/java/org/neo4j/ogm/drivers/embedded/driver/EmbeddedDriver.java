@@ -127,6 +127,9 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
             DatabaseManagementServiceBuilder graphDatabaseBuilder = getGraphDatabaseFactory(newConfiguration, file);
             graphDatabaseBuilder.setConfigRaw(Collections.singletonMap("dbms.backup.enabled", "false"));
+            graphDatabaseBuilder.setConfigRaw(Collections.singletonMap("dbms.clustering.enable", "false"));
+            graphDatabaseBuilder.setConfigRaw(Collections.singletonMap("dbms.memory.pagecache.warmup.enable", "false"));
+            graphDatabaseBuilder.setConfigRaw(Collections.singletonMap("metrics.enabled", "false"));
 
             String neo4jConfLocation = newConfiguration.getNeo4jConfLocation();
             if (neo4jConfLocation != null) {
@@ -171,7 +174,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             try {
                 graphDatabaseFactoryClass = (Class<? extends DatabaseManagementServiceBuilder>) Class
                     .forName("com.neo4j.dbms.api.EnterpriseDatabaseManagementServiceBuilder");
-            } catch (NoClassDefFoundError e) {
+            } catch (ClassNotFoundException e) {
                 graphDatabaseFactoryClass = DatabaseManagementServiceBuilder.class;
             }
         }

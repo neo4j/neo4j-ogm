@@ -121,9 +121,6 @@ public class TestContainersTestBase {
 
             // credentials from TestServer config
             baseConfigurationBuilder = new Configuration.Builder().credentials("neo4j", "password");
-            if (isEnterpriseEdition) {
-                baseConfigurationBuilder = baseConfigurationBuilder.neo4jConfLocation("classpath:custom-neo4j-ha.conf");
-            }
             final Neo4j embedServerControls = new TestHarnessSupplier().get().build();
             final Configuration embeddedConfiguration = baseConfigurationBuilder.build();
             driver = new EmbeddedDriver(embedServerControls.defaultDatabaseService(), embeddedConfiguration);
@@ -207,7 +204,7 @@ public class TestContainersTestBase {
         } catch (ClassNotFoundException e) {
             return false;
         } catch (Exception e) {
-            LOGGER.warn("Could not reliable determine wether HighlyAvailableGraphDatabaseFactory is available or not, assuming not.", e);
+            LOGGER.warn("Could not reliable determine weather HighlyAvailableGraphDatabaseFactory is available or not, assuming not.", e);
             return false;
         }
     }

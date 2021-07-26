@@ -32,6 +32,10 @@
     <description>Support for native Neo4j types in Bolt transport mode.</description>
     <url>https://neo4j.com/developer/neo4j-ogm</url>
 
+    <properties>
+        <java-module-name>org.neo4j.ogm.drivers.bolt.types</java-module-name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>

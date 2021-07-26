@@ -126,6 +126,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             }
 
             DatabaseManagementServiceBuilder graphDatabaseBuilder = getGraphDatabaseFactory(newConfiguration, file);
+            graphDatabaseBuilder.setConfigRaw(Collections.singletonMap("dbms.backup.enabled", "false"));
 
             String neo4jConfLocation = newConfiguration.getNeo4jConfLocation();
             if (neo4jConfLocation != null) {
@@ -159,19 +160,23 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * @return
      * @throws Exception all the exceptions that might happen during dynamic construction of things.
      */
-    private static DatabaseManagementServiceBuilder getGraphDatabaseFactory(Configuration configuration, File homeDir) throws Exception {
+    static DatabaseManagementServiceBuilder getGraphDatabaseFactory(Configuration configuration, File homeDir) throws Exception {
 
-        DatabaseManagementServiceBuilder graphDatabaseFactory;
-        if (!configuration.isEmbeddedHA()) {
-            graphDatabaseFactory = new DatabaseManagementServiceBuilder(homeDir);
+        Class<? extends DatabaseManagementServiceBuilder> graphDatabaseFactoryClass;
+
+        if (configuration.isEmbeddedHA()) {
+            graphDatabaseFactoryClass = (Class<? extends DatabaseManagementServiceBuilder>) Class
+                .forName("com.neo4j.dbms.api.ClusterDatabaseManagementServiceBuilder");
         } else {
-            String classnameOfHaFactory = "com.neo4j.dbms.api.EnterpriseDatabaseManagementServiceBuilder";
-            Class<? extends DatabaseManagementServiceBuilder> haFactoryClass = (Class<? extends DatabaseManagementServiceBuilder>) Class
-                .forName(classnameOfHaFactory);
-            graphDatabaseFactory = haFactoryClass.getDeclaredConstructor(File.class).newInstance(homeDir);
+            try {
+                graphDatabaseFactoryClass = (Class<? extends DatabaseManagementServiceBuilder>) Class
+                    .forName("com.neo4j.dbms.api.EnterpriseDatabaseManagementServiceBuilder");
+            } catch (NoClassDefFoundError e) {
+                graphDatabaseFactoryClass = DatabaseManagementServiceBuilder.class;
+            }
         }
 
-        return graphDatabaseFactory;
+        return graphDatabaseFactoryClass.getDeclaredConstructor(File.class).newInstance(homeDir);
     }
 
     @Override

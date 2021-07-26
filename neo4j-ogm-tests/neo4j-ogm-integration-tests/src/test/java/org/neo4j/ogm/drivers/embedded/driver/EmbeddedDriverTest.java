@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.driver.Driver;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
@@ -46,9 +47,6 @@ import org.neo4j.test.TestDatabaseManagementServiceBuilder;
  * @author Michael J. Simons
  */
 public class EmbeddedDriverTest {
-
-    // TODO... Do we want to bring up embedded cc? I surely don't think so
-    private static final String NAME_OF_HA_DATABASE_CLASS = "HighlyAvailableGraphDatabase";
 
     @BeforeClass
     public static void setUp() {
@@ -237,21 +235,19 @@ public class EmbeddedDriverTest {
     }
 
     @Test
-    public void shouldLoadHaBasedOnNeo4ConfFile() {
+    public void shouldLoadHaBasedOnNeo4ConfFile() throws Exception {
 
         assumeTrue(canRunHATests());
 
-        try (EmbeddedDriver driver = new EmbeddedDriver()) {
-            driver.configure(new Configuration.Builder().neo4jConfLocation("classpath:custom-neo4j-ha.conf").build());
-
-            GraphDatabaseService databaseService = driver.unwrap(GraphDatabaseService.class);
-            assertThat(databaseService.getClass().getSimpleName()).isEqualTo(NAME_OF_HA_DATABASE_CLASS);
-        }
+        Path path = Files.createTempDirectory("neo4jTmpEmbedded.db");
+        DatabaseManagementServiceBuilder databaseManagementServiceBuilder = EmbeddedDriver.getGraphDatabaseFactory(
+            new Configuration.Builder().neo4jConfLocation("classpath:custom-neo4j-ha.conf").build(), path.toFile());
+        assertThat(databaseManagementServiceBuilder.getClass().getSimpleName()).isEqualTo("ClusterDatabaseManagementServiceBuilder");
     }
 
     private static boolean canRunHATests() {
         try {
-            Class.forName("org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory", false,
+            Class.forName("com.neo4j.dbms.api.ClusterDatabaseManagementServiceFactory", false,
                 EmbeddedDriverTest.class.getClassLoader());
             return true;
         } catch (ClassNotFoundException e) {

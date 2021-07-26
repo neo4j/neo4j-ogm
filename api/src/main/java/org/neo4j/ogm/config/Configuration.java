@@ -267,7 +267,7 @@ public class Configuration {
                 Properties neo4Properties = new Properties();
                 neo4Properties.load(url.openStream());
 
-                isEmbeddedHA = "HA".equalsIgnoreCase(neo4Properties.getProperty("dbms.mode", "-"));
+                isEmbeddedHA = !"SINGLE".equalsIgnoreCase(neo4Properties.getProperty("dbms.mode", "SINGLE"));
             } catch (IOException e) {
                 throw new UncheckedIOException("Could not load neo4j.conf at location " + neo4jConfLocation, e);
             }

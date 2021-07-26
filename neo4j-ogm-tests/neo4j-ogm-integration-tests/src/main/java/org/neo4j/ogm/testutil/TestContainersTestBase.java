@@ -13,11 +13,7 @@ import org.neo4j.driver.Logging;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Value;
-import org.neo4j.driver.Values;
-import org.neo4j.driver.internal.util.ServerVersion;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.ResultTransformer;
 import org.neo4j.harness.Neo4j;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
@@ -45,7 +41,7 @@ public class TestContainersTestBase {
 
     private static final boolean isEnterpriseEdition;
 
-    private static final String DEFAULT_IMAGE = "neo4j:3.5.12";
+    private static final String DEFAULT_IMAGE = "neo4j:4.2.9";
 
     private static final String SYS_PROPERTY_ACCEPT_AND_USE_COMMERCIAL_EDITION = "NEO4J_OGM_NEO4J_ACCEPT_AND_USE_COMMERCIAL_EDITION";
 
@@ -67,7 +63,6 @@ public class TestContainersTestBase {
         if (!isEmbeddedDriver()) {
 
             boolean acceptAndUseCommercialEdition = hasAcceptedAndWantsToUseCommercialEdition();
-
 
             String neo4jUrl = Optional.ofNullable(System.getenv(SYS_PROPERTY_NEO4J_URL)).orElse("");
             String neo4jPassword = Optional.ofNullable(System.getenv(SYS_PROPERTY_NEO4J_PASSWORD)).orElse("").trim();
@@ -207,8 +202,7 @@ public class TestContainersTestBase {
 
     private static boolean isEmbeddedEnterpriseEdition() {
         try {
-            Class.forName("org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory", false,
-                TestContainersTestBase.class.getClassLoader());
+            Class.forName("com.neo4j.dbms.api.ClusterDatabaseManagementServiceFactory", false, TestContainersTestBase.class.getClassLoader());
             return true;
         } catch (ClassNotFoundException e) {
             return false;

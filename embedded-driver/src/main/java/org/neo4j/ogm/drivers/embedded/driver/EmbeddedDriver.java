@@ -138,17 +138,21 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      */
     private static GraphDatabaseFactory getGraphDatabaseFactory(Configuration configuration) throws Exception {
 
-        GraphDatabaseFactory graphDatabaseFactory;
-        if (!configuration.isEmbeddedHA()) {
-            graphDatabaseFactory = new GraphDatabaseFactory();
+        Class<? extends GraphDatabaseFactory> graphDatabaseFactoryClass;
+
+        if (configuration.isEmbeddedHA()) {
+            graphDatabaseFactoryClass = (Class<? extends GraphDatabaseFactory>) Class
+                .forName("org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory");
         } else {
-            String classnameOfHaFactory = "org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory";
-            Class<GraphDatabaseFactory> haFactoryClass = (Class<GraphDatabaseFactory>) Class
-                .forName(classnameOfHaFactory);
-            graphDatabaseFactory = haFactoryClass.getDeclaredConstructor().newInstance();
+            try {
+                graphDatabaseFactoryClass = (Class<? extends GraphDatabaseFactory>) Class
+                    .forName("org.neo4j.graphdb.factory.EnterpriseGraphDatabaseFactory");
+            } catch (ClassNotFoundException e) {
+                graphDatabaseFactoryClass = GraphDatabaseFactory.class;
+            }
         }
 
-        return graphDatabaseFactory;
+        return graphDatabaseFactoryClass.getDeclaredConstructor().newInstance();
     }
 
     @Override

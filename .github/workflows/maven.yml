@@ -8,8 +8,11 @@ on:
 
 jobs:
   build:
-    name: Neo4j-OGM
+    name: Build and test against Neo4j 4.2
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        transport: [ 'bolt', 'embedded', 'http' ]
     steps:
       - uses: actions/checkout@v1
       - name: Set up JDK
@@ -18,8 +21,4 @@ jobs:
           java-version: 11
       - name: Run Maven build
         run: >
-          ./mvnw --no-transfer-progress clean verify -Pneo4j-4.2
-      - name: Trigger codecov
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          ./mvnw --no-transfer-progress -Pneo4j-4.2 -P${{matrix.transport}} -Dogm.properties=ogm-${{matrix.transport}}.properties clean verify

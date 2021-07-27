@@ -676,6 +676,14 @@
         </profile>
 
         <profile>
+            <id>neo4j-4.3</id>
+            <properties>
+                <neo4j.version>4.3.2</neo4j.version>
+                <scala.version>2.12.13</scala.version>
+            </properties>
+        </profile>
+
+        <profile>
             <id>embedded</id>
             <properties>
                 <ogm.properties>ogm-embedded.properties</ogm.properties>

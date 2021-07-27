@@ -22,8 +22,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.harness.Neo4j;
+import org.neo4j.harness.Neo4jBuilders;
 import org.neo4j.ogm.domain.cypher_exception_test.ConstraintedNode;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.CypherException;
@@ -32,7 +32,7 @@ import org.neo4j.ogm.session.SessionFactory;
 
 /**
  * Tests extending from this test base make sure that Neo4j-OGM deals with database exception in a consistent way.
- * Idea is to use the {@link ServerControls} from the test harness to build a session factory in a {@link BeforeClass}
+ * Idea is to use the {@link Neo4j} from the test harness to build a session factory in a {@link BeforeClass}
  * method to be returned in {@link #getSessionFactory()}.
  * <br><br>
  * In an ideal world, non of the concrete classes should have any {@link Test} method.
@@ -49,17 +49,17 @@ public abstract class CypherExceptionTestBase<T extends Driver> {
 
     protected static final String DOMAIN_PACKAGE = "org.neo4j.ogm.domain.cypher_exception_test";
 
-    protected static ServerControls serverControls;
+    protected static Neo4j serverControls;
 
     @BeforeClass
     public static void startServer() {
-        serverControls = TestServerBuilders.newInProcessBuilder()
+        serverControls = Neo4jBuilders.newInProcessBuilder()
             .withFixture(database -> {
-                database.execute("MATCH (n:CONSTRAINTED_NODE) DETACH DELETE n");
-                database.execute("CREATE CONSTRAINT ON (n:CONSTRAINTED_NODE) ASSERT n.name IS UNIQUE");
-                database.execute("CREATE (n:CONSTRAINTED_NODE {name: 'test'})");
+                database.executeTransactionally("MATCH (n:CONSTRAINTED_NODE) DETACH DELETE n");
+                database.executeTransactionally("CREATE CONSTRAINT ON (n:CONSTRAINTED_NODE) ASSERT n.name IS UNIQUE");
+                database.executeTransactionally("CREATE (n:CONSTRAINTED_NODE {name: 'test'})");
                 return null;
-            }).newServer();
+            }).build();
     }
 
     protected abstract SessionFactory getSessionFactory();

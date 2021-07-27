@@ -28,7 +28,7 @@ import java.util.function.Function;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.PropertyContainer;
+import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.ogm.driver.TypeSystem;
 
@@ -87,7 +87,7 @@ public class EmbeddedEntityAdapter {
     }
 
     public Map<String, Object> properties(Object container) {
-        return getAllProperties((PropertyContainer) container);
+        return getAllProperties((Entity) container);
     }
 
     public List<Object> nodesInPath(Object path) {
@@ -106,7 +106,7 @@ public class EmbeddedEntityAdapter {
         return rels;
     }
 
-    public Map<String, Object> getAllProperties(PropertyContainer propertyContainer) {
+    public Map<String, Object> getAllProperties(Entity propertyContainer) {
         Map<String, Object> properties = new HashMap<>();
         for (String key : propertyContainer.getPropertyKeys()) {
             properties.put(key, toMapped(propertyContainer.getProperty(key)));

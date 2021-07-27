@@ -28,8 +28,8 @@ import org.neo4j.driver.internal.util.ServerVersion;
 import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.harness.Neo4j;
+import org.neo4j.harness.Neo4jBuilders;
 import org.neo4j.ogm.domain.gh492.BaseUser.ByteUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.IntUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.IntegerUser;
@@ -45,7 +45,7 @@ import org.neo4j.ogm.session.SessionFactory;
 public class GenericArrayConversionTest {
     protected static final String DOMAIN_PACKAGE = "org.neo4j.ogm.domain.gh492";
 
-    protected static ServerControls serverControls;
+    protected static Neo4j serverControls;
 
     protected static SessionFactory sessionFactory;
 
@@ -54,7 +54,7 @@ public class GenericArrayConversionTest {
     @BeforeClass
     public static void startServer() {
 
-        serverControls = TestServerBuilders.newInProcessBuilder().newServer();
+        serverControls = Neo4jBuilders.newInProcessBuilder().build();
 
         Driver driver = GraphDatabase.driver(serverControls.boltURI(), Config.builder().withoutEncryption().build());
 

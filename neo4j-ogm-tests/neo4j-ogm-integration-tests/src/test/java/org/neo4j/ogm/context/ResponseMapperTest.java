@@ -30,8 +30,8 @@ import org.junit.Test;
 import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.harness.Neo4j;
+import org.neo4j.harness.Neo4jBuilders;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -45,14 +45,14 @@ import org.neo4j.procedure.Procedure;
 public class ResponseMapperTest {
     private static final Config driverConfig = Config.builder().withoutEncryption().build();
 
-    private static ServerControls serverControls;
+    private static Neo4j serverControls;
     private static URI boltURI;
 
     @BeforeClass
     public static void initializeNeo4j() {
 
-        serverControls = TestServerBuilders.newInProcessBuilder().withProcedure(ApocLovesSwitch.class)
-            .newServer();
+        serverControls = Neo4jBuilders.newInProcessBuilder().withProcedure(ApocLovesSwitch.class)
+            .build();
         boltURI = serverControls.boltURI();
     }
 

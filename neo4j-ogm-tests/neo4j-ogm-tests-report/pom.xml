@@ -93,49 +93,4 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>neo4j-3.4</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-ogm-bolt-native-types</artifactId>
-                    <version>4.0.0-SNAPSHOT</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-ogm-embedded-native-types</artifactId>
-                    <version>4.0.0-SNAPSHOT</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-ogm-native-types-tests</artifactId>
-                    <version>4.0.0-SNAPSHOT</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>neo4j-3.5</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-ogm-bolt-native-types</artifactId>
-                    <version>4.0.0-SNAPSHOT</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-ogm-embedded-native-types</artifactId>
-                    <version>4.0.0-SNAPSHOT</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-ogm-native-types-tests</artifactId>
-                    <version>4.0.0-SNAPSHOT</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 </project>

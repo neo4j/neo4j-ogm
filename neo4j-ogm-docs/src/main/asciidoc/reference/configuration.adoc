@@ -50,7 +50,7 @@ This method allows the greatest flexibility and gives you access to the full ran
 .Example providing a bolt driver instance to Neo4j-OGM
 [source, java]
 ----
-org.neo4j.driver.v1.Driver nativeDriver = ...;
+org.neo4j.driver.Driver nativeDriver = ...;
 Driver ogmDriver = new BoltDriver(nativeDriver);
 new SessionFactory(ogmDriver, ...);
 ----

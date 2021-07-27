@@ -3,6 +3,7 @@ package org.neo4j.ogm.testutil;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import org.neo4j.driver.AccessMode;
@@ -12,10 +13,8 @@ import org.neo4j.driver.Logging;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Value;
-import org.neo4j.driver.Values;
-import org.neo4j.driver.internal.util.ServerVersion;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.Neo4j;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
@@ -42,7 +41,7 @@ public class TestContainersTestBase {
 
     private static final boolean isEnterpriseEdition;
 
-    private static final String DEFAULT_IMAGE = "neo4j:3.5.12";
+    private static final String DEFAULT_IMAGE = "neo4j:4.3.2";
 
     private static final String SYS_PROPERTY_ACCEPT_AND_USE_COMMERCIAL_EDITION = "NEO4J_OGM_NEO4J_ACCEPT_AND_USE_COMMERCIAL_EDITION";
 
@@ -64,7 +63,6 @@ public class TestContainersTestBase {
         if (!isEmbeddedDriver()) {
 
             boolean acceptAndUseCommercialEdition = hasAcceptedAndWantsToUseCommercialEdition();
-
 
             String neo4jUrl = Optional.ofNullable(System.getenv(SYS_PROPERTY_NEO4J_URL)).orElse("");
             String neo4jPassword = Optional.ofNullable(System.getenv(SYS_PROPERTY_NEO4J_PASSWORD)).orElse("").trim();
@@ -123,12 +121,9 @@ public class TestContainersTestBase {
 
             // credentials from TestServer config
             baseConfigurationBuilder = new Configuration.Builder().credentials("neo4j", "password");
-            if (isEnterpriseEdition) {
-                baseConfigurationBuilder = baseConfigurationBuilder.neo4jConfLocation("classpath:custom-neo4j-ha.conf");
-            }
-            final ServerControls embedServerControls = new TestHarnessSupplier().get().newServer();
+            final Neo4j embedServerControls = new TestHarnessSupplier().get().build();
             final Configuration embeddedConfiguration = baseConfigurationBuilder.build();
-            driver = new EmbeddedDriver(embedServerControls.graph(), embeddedConfiguration);
+            driver = new EmbeddedDriver(embedServerControls.defaultDatabaseService(), embeddedConfiguration);
             driver.configure(embeddedConfiguration);
             // the embedded driver will take care of the removal of the temporary database directory.
 
@@ -204,13 +199,12 @@ public class TestContainersTestBase {
 
     private static boolean isEmbeddedEnterpriseEdition() {
         try {
-            Class.forName("org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory", false,
-                TestContainersTestBase.class.getClassLoader());
+            Class.forName("com.neo4j.dbms.api.ClusterDatabaseManagementServiceFactory", false, TestContainersTestBase.class.getClassLoader());
             return true;
         } catch (ClassNotFoundException e) {
             return false;
         } catch (Exception e) {
-            LOGGER.warn("Could not reliable determine wether HighlyAvailableGraphDatabaseFactory is available or not, assuming not.", e);
+            LOGGER.warn("Could not reliable determine weather HighlyAvailableGraphDatabaseFactory is available or not, assuming not.", e);
             return false;
         }
     }
@@ -225,7 +219,8 @@ public class TestContainersTestBase {
         }
         EmbeddedDriver embeddedDriver = (EmbeddedDriver) getDriver();
         GraphDatabaseService graphDatabaseService = embeddedDriver.unwrap(GraphDatabaseService.class);
-        List<String> versions = (List<String>) graphDatabaseService.execute("CALL dbms.components() YIELD versions").next().get("versions");
+        List<String> versions = graphDatabaseService.executeTransactionally(
+            "CALL dbms.components() YIELD versions", Map.of(), result -> (List<String>) result.next().get("versions"));
         return versions.get(0).split("-")[0];
     }
 

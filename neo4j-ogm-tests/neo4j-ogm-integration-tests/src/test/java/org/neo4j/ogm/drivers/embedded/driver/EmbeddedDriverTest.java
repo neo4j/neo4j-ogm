@@ -25,9 +25,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.driver.Driver;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
@@ -38,16 +40,13 @@ import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.support.ClassUtils;
 import org.neo4j.ogm.support.FileUtils;
-import org.neo4j.test.TestGraphDatabaseFactory;
+import org.neo4j.test.TestDatabaseManagementServiceBuilder;
 
 /**
  * @author Michael J. Simons
  */
 public class EmbeddedDriverTest {
-
-    private static final String NAME_OF_HA_DATABASE_CLASS = "HighlyAvailableGraphDatabase";
 
     @BeforeClass
     public static void setUp() {
@@ -58,9 +57,9 @@ public class EmbeddedDriverTest {
     public static void assumeDefaultConfigurationIsDifferentFromCustom() {
         try (EmbeddedDriver driver = new EmbeddedDriver()) {
             driver.configure(new Configuration.Builder().build());
-            Result r = getValueOfCypherPlanner(driver.unwrap(GraphDatabaseService.class));
-            assumeTrue(r.hasNext());
-            assumeTrue("default".equals(r.next().get("value")));
+            var r = getValueOfCypherPlanner(driver.unwrap(GraphDatabaseService.class));
+            assertThat(r.isEmpty()).isFalse();
+            assumeTrue("DEFAULT".equals(r.get("value")));
         }
     }
 
@@ -105,10 +104,10 @@ public class EmbeddedDriverTest {
             GraphDatabaseService databaseService = driver.unwrap(GraphDatabaseService.class);
 
             try (Transaction tx = databaseService.beginTx()) {
-                databaseService.execute("CREATE (n: Node {name: 'node'})");
-                Result r = databaseService.execute("MATCH (n) RETURN n");
+                tx.execute("CREATE (n: Node {name: 'node'})");
+                Result r = tx.execute("MATCH (n) RETURN n");
                 assertThat(r.hasNext()).isTrue();
-                tx.success();
+                tx.commit();
             }
         }
     }
@@ -116,17 +115,17 @@ public class EmbeddedDriverTest {
     @Test
     public void shouldWriteAndReadFromProvidedDatabase() {
 
-        GraphDatabaseService impermanentDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        GraphDatabaseService impermanentDatabase = new TestDatabaseManagementServiceBuilder().impermanent().build().database("neo4j");
 
         try (EmbeddedDriver driver = new EmbeddedDriver(impermanentDatabase, null)) {
 
             GraphDatabaseService databaseService = driver.unwrap(GraphDatabaseService.class);
 
             try (Transaction tx = databaseService.beginTx()) {
-                databaseService.execute("CREATE (n: Node {name: 'node'})");
-                Result r = databaseService.execute("MATCH (n) RETURN n");
+                tx.execute("CREATE (n: Node {name: 'node'})");
+                Result r = tx.execute("MATCH (n) RETURN n");
                 assertThat(r.hasNext()).isTrue();
-                tx.success();
+                tx.commit();
             }
         }
     }
@@ -173,20 +172,20 @@ public class EmbeddedDriverTest {
             GraphDatabaseService db2 = driver2.unwrap(GraphDatabaseService.class);
 
             try (Transaction tx = db1.beginTx()) {
-                db1.execute("CREATE (n: Node {name: 'node'})");
-                tx.success();
+                tx.execute("CREATE (n: Node {name: 'node'})");
+                tx.commit();
             }
 
             try (Transaction tx1 = db1.beginTx(); Transaction tx2 = db2.beginTx()) {
 
-                Result r1 = db1.execute("MATCH (n) RETURN n");
-                Result r2 = db2.execute("MATCH (n) RETURN n");
+                Result r1 = tx1.execute("MATCH (n) RETURN n");
+                Result r2 = tx2.execute("MATCH (n) RETURN n");
 
                 assertThat(r1.hasNext()).isTrue();
                 assertThat(r2.hasNext()).isFalse();
 
-                tx1.success();
-                tx2.success();
+                tx1.commit();
+                tx2.commit();
             }
         } catch (Exception e) {
             fail("Should not have thrown exception");
@@ -236,21 +235,19 @@ public class EmbeddedDriverTest {
     }
 
     @Test
-    public void shouldLoadHaBasedOnNeo4ConfFile() {
+    public void shouldLoadHaBasedOnNeo4ConfFile() throws Exception {
 
         assumeTrue(canRunHATests());
 
-        try (EmbeddedDriver driver = new EmbeddedDriver()) {
-            driver.configure(new Configuration.Builder().neo4jConfLocation("classpath:custom-neo4j-ha.conf").build());
-
-            GraphDatabaseService databaseService = driver.unwrap(GraphDatabaseService.class);
-            assertThat(databaseService.getClass().getSimpleName()).isEqualTo(NAME_OF_HA_DATABASE_CLASS);
-        }
+        Path path = Files.createTempDirectory("neo4jTmpEmbedded.db");
+        DatabaseManagementServiceBuilder databaseManagementServiceBuilder = EmbeddedDriver.getGraphDatabaseFactory(
+            new Configuration.Builder().neo4jConfLocation("classpath:custom-neo4j-ha.conf").build(), path.toFile());
+        assertThat(databaseManagementServiceBuilder.getClass().getSimpleName()).isEqualTo("ClusterDatabaseManagementServiceBuilder");
     }
 
     private static boolean canRunHATests() {
         try {
-            Class.forName("org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory", false,
+            Class.forName("com.neo4j.dbms.api.ClusterDatabaseManagementServiceFactory", false,
                 EmbeddedDriverTest.class.getClassLoader());
             return true;
         } catch (ClassNotFoundException e) {
@@ -259,17 +256,17 @@ public class EmbeddedDriverTest {
     }
 
     private static void assertCustomConfiguration(EmbeddedDriver driver) {
-        Result r = getValueOfCypherPlanner(driver.unwrap(GraphDatabaseService.class));
-        assertThat(r.hasNext()).isTrue();
-        assertThat(r.next().get("value")).isEqualTo("COST");
+        var r = getValueOfCypherPlanner(driver.unwrap(GraphDatabaseService.class));
+        assertThat(r.isEmpty()).isFalse();
+        assertThat(r.get("value")).isEqualTo("COST");
     }
 
-    private static Result getValueOfCypherPlanner(GraphDatabaseService databaseService) {
-        return databaseService.execute(""
+    private static Map<String, Object> getValueOfCypherPlanner(GraphDatabaseService databaseService) {
+        return databaseService.executeTransactionally(""
             + "CALL dbms.listConfig()\n"
             + "YIELD name,  value\n"
             + "WHERE name ='cypher.planner'\n"
-            + "RETURN value"
+            + "RETURN value", Map.of(), r -> r.next()
         );
     }
 }

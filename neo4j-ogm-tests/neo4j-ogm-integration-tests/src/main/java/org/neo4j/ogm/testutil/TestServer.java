@@ -18,11 +18,16 @@
  */
 package org.neo4j.ogm.testutil;
 
+import java.time.Duration;
 import java.util.function.Supplier;
 
+import org.neo4j.configuration.GraphDatabaseSettings;
+import org.neo4j.configuration.connectors.BoltConnector;
+import org.neo4j.configuration.connectors.HttpConnector;
+import org.neo4j.configuration.helpers.SocketAddress;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilder;
+import org.neo4j.harness.Neo4j;
+import org.neo4j.harness.Neo4jBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +45,7 @@ public class TestServer {
     private final Boolean enableBolt;
 
     private GraphDatabaseService database;
-    private ServerControls controls;
+    private Neo4j controls;
 
     private String uri;
 
@@ -61,29 +66,26 @@ public class TestServer {
     public void startServer() {
         try {
 
-            Supplier<TestServerBuilder> testHarnessProvider = new TestHarnessSupplier();
+            Supplier<Neo4jBuilder> testHarnessProvider = new TestHarnessSupplier();
 
             if (enableBolt) {
                 this.controls = testHarnessProvider.get()
-                    .withConfig("dbms.connector.bolt.type", "BOLT")
-                    .withConfig("dbms.connector.bolt.enabled", "true")
-                    .withConfig("dbms.connector.bolt.listen_address", "localhost:" + port)
-                    .newServer();
+                    .withConfig(BoltConnector.enabled, true)
+                    .withConfig(BoltConnector.listen_address, new SocketAddress("localhost", port))
+                    .build();
 
                 this.uri = controls.boltURI().toString();
             } else {
-                TestServerBuilder builder = testHarnessProvider.get()
-                    .withConfig("dbms.connector.http.type", "HTTP")
-                    .withConfig("dbms.connector.http.enabled", "true")
-                    .withConfig("dbms.connector.http.listen_address", "localhost:" + port)
-                    .withConfig("dbms.transaction_timeout", Integer.toString(transactionTimeoutSeconds))
-                    .withConfig("remote_shell_enabled", "false");
+                this.controls = testHarnessProvider.get()
+                    .withConfig(HttpConnector.enabled, true)
+                    .withConfig(HttpConnector.listen_address, new SocketAddress("localhost", port))
+                    .withConfig(GraphDatabaseSettings.transaction_timeout, Duration.ofSeconds(transactionTimeoutSeconds))
+                    .build();
 
-                this.controls = builder.newServer();
                 this.uri = controls.httpURI().toString();
             }
 
-            this.database = this.controls.graph();
+            this.database = this.controls.defaultDatabaseService();
 
             // ensure we shutdown this server when the JVM terminates, if its not been shutdown by user code
             Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
@@ -99,8 +101,7 @@ public class TestServer {
 
         if (database != null && database.isAvailable(100)) {
             LOGGER.info("Stopping {} server on: {}", enableBolt ? "BOLT" : "HTTP", port);
-            database.shutdown();
-            database = null;
+            controls.databaseManagementService().shutdown();
         }
         controls.close();
     }

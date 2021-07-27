@@ -21,7 +21,6 @@ package org.neo4j.ogm.domain.social;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.server.rest.AutoIndexWithNonDefaultConfigurationThroughRESTAPIIT;
 
 /**
  * @author Luanne Misquitta

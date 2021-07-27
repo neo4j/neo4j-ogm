@@ -29,54 +29,7 @@ Starting with Neo4j-OGM 3.2, OGM provides dedicated support for Neo4j's temporal
 == Supported drivers
 
 Neo4j-OGM supports all Neo4j temporal and spatial types for the Bolt and the embedded driver.
-Please add the following module if you're using the Bolt driver:
-
-.Support for native temporal and spatial types with the Bolt driver
-[source, xml, subs="attributes, specialcharacters"]
-----
-<dependency>
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-bolt-driver</artifactId>
-    <version>{ogm-version}</version>
-    <scope>runtime</scope>
-</dependency>
-
-<dependency>
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-bolt-native-types</artifactId>
-    <version>{ogm-version}</version>
-    <scope>runtime</scope>
-</dependency>
-----
-
-The setup for the embedded driver looks similar:
-
-.Support for native temporal and spatial types with the embedded driver
-[source, xml, subs="attributes, specialcharacters"]
-----
-<dependency>
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-embedded-driver</artifactId>
-    <version>{ogm-version}</version>
-    <scope>runtime</scope>
-</dependency>
-
-<dependency>
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-embedded-native-types</artifactId>
-    <version>{ogm-version}</version>
-    <scope>runtime</scope>
-</dependency>
-
-<dependency>
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j</artifactId>
-    <version>{neo4j-version}</version>
-    <scope>runtime</scope>
-</dependency>
-----
-
-The dependencies for a Gradle build are `'org.neo4j:neo4j-ogm-bolt-driver:{ogm-version}'` and  `'org.neo4j:neo4j-ogm-embedded-native-types:{ogm-version}'` respectively.
+Since Neo4j-OGM 4.0, this supported is included with the Bolt- and Embedded-Modules and doesn't need additional dependencies.
 
 [[reference:native-property-types:optin]]
 == Opt-in to use native types

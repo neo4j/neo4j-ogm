@@ -22,8 +22,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.neo4j.driver.exceptions.ServiceUnavailableException;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.harness.Neo4j;
+import org.neo4j.harness.Neo4jBuilders;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.domain.cypher_exception_test.ConstraintedNode;
 import org.neo4j.ogm.exception.ConnectionException;
@@ -40,7 +40,7 @@ public class BoltDriverExceptionTranslatorTest {
     @Test
     public void translatesServiceUnavailabeException() {
 
-        try (ServerControls serverControls = TestServerBuilders.newInProcessBuilder().newServer()) {
+        try (Neo4j serverControls = Neo4jBuilders.newInProcessBuilder().build()) {
 
             BoltDriver driver = new BoltDriver();
             Configuration ogmConfiguration = new Configuration.Builder().uri(serverControls.boltURI().toString())

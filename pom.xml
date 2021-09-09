@@ -193,7 +193,7 @@
         <commons-lang3.version>3.8</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
         <dropwizard-metrics.version>4.0.2</dropwizard-metrics.version>
-        <classgraph.version>4.8.86</classgraph.version>
+        <classgraph.version>4.8.116</classgraph.version>
         <httpclient.version>4.5.13</httpclient.version>
         <httpcore.version>4.4.14</httpcore.version>
         <jackson.version>2.9.9</jackson.version>

@@ -21,10 +21,14 @@ package org.neo4j.ogm.persistence.transaction;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.domain.gh868.Actor;
+import org.neo4j.ogm.domain.gh868.Movie;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.Recording;
@@ -44,7 +48,7 @@ public class TransactionTest extends TestContainersTestBase {
 
     @Before
     public void init() throws IOException {
-        SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
+        SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.gh868");
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
@@ -72,10 +76,7 @@ public class TransactionTest extends TestContainersTestBase {
         assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(0);
     }
 
-    /**
-     * @see Issue 126
-     */
-    @Test
+    @Test // GH-126
     public void shouldBeAbleToRetrySaveOnTransactionRollback() {
 
         Transaction tx = session.beginTransaction();
@@ -183,5 +184,41 @@ public class TransactionTest extends TestContainersTestBase {
         session.save(emi);
 
         session.purgeDatabase();
+    }
+
+    @Test // GH-868
+    public void shouldNotLoadAlreadyLoadedRelationshipEntityAgain() {
+
+        Movie movie = new Movie("Lord of the rings");
+        Actor actor = new Actor("Christopher Lee");
+        actor.addPlayedIn("Saruman", movie);
+
+        session.save(actor);
+        assertThat(actor).isNotNull();
+        assertThat(actor.getId()).isNotNull();
+        assertThat(actor.getPlayedIn()).hasSize(1);
+
+        runReadQuery(actor);
+        assertThat(actor.getPlayedIn()).hasSize(1);
+
+        // this second save detaches an entity or relationshipEntity
+        // we'll get a bad result on next query
+        actor.setName("name changed");
+        session.save(actor);
+        assertThat(actor).isNotNull();
+        assertThat(actor.getId()).isNotNull();
+        assertThat(actor.getPlayedIn()).hasSize(1);
+
+        runReadQuery(actor);
+        // fails, we return childs = 2
+        assertThat(actor.getPlayedIn()).hasSize(1);
+    }
+
+    private void runReadQuery(Actor entity) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", entity.getId());
+        session.query("MATCH /*+ OGM_READ_ONLY */ path = (a:Actor)-[:PLAYED_IN*0..]->()"
+            + " WHERE id(a) = $id"
+            + " RETURN nodes(path), relationships(path)", params);
     }
 }

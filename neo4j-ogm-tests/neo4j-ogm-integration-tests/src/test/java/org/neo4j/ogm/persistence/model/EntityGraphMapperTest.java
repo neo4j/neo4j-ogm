@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Vector;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.domain.forum.Forum;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
+import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
@@ -95,6 +97,54 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
         this.mapper.map(null);
+    }
+
+    @Test // GH-786
+    public void shouldNotWriteReadOnlyProperties() {
+        Member test123 = new Member();
+        test123.setUserName("Test123");
+        test123.setSomeComputedValue("x");
+        session.save(test123);
+
+        Iterable<Member> members = sessionFactory.openSession()
+            .query(Member.class, "MATCH (n:User {userName: 'Test123'}) RETURN n", Collections.emptyMap());
+        assertThat(members).hasSize(1)
+            .first().extracting(Member::getSomeComputedValue).isNull();
+    }
+
+    @Test // GH-786
+    public void shouldReadReadOnlyProperties() {
+
+        session.query("CREATE (n:User {userName: 'Test123', someComputedValue: 'x'})", Collections.emptyMap());
+
+        Iterable<Member> members = sessionFactory.openSession()
+            .query(Member.class, "MATCH (n:User {userName: 'Test123'}) RETURN n", Collections.emptyMap());
+        assertThat(members).hasSize(1)
+            .first().extracting(Member::getSomeComputedValue).isEqualTo("x");
+    }
+
+    @Test // GH-786
+    public void shouldReadVirtualProperties() {
+
+        boolean apocInstalled;
+        try {
+            apocInstalled =
+                session.queryForObject(Long.class, "call apoc.help('apoc.create.vNode') yield name return count(name)",
+                    Collections.emptyMap()) > 0;
+        } catch (Exception e) {
+            apocInstalled = false;
+        }
+
+        Assume.assumeTrue(apocInstalled);
+
+        session.query("CREATE (n:User {userName: 'Test123'})", Collections.emptyMap());
+
+        Iterable<Member> members = session.query(Member.class, "MATCH (n:User {userName: 'Test123'}) \n"
+            + "WITH 'a value' as someComputedValue, n\n"
+            + "CALL apoc.create.vNode(labels(n), n{.*, someComputedValue}) YIELD node\n"
+            + "RETURN node\n", Collections.emptyMap());
+        assertThat(members).hasSize(1)
+            .first().extracting(Member::getSomeComputedValue).isEqualTo("a value");
     }
 
     @Test

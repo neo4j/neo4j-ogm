@@ -93,6 +93,8 @@ public class FieldInfo {
      */
     private volatile Optional<String> relationshipType;
 
+    private final boolean readOnly;
+
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
      *
@@ -141,6 +143,13 @@ public class FieldInfo {
                     throw new MappingException("@Properties annotation is allowed only on fields of type java.util.Map");
                 }
             }
+        }
+
+        if (!this.hasAnnotation(Property.class)) {
+            this.readOnly = false;
+        } else {
+            Property annotation = (Property) getAnnotations().get(Property.class).getAnnotation();
+            this.readOnly = annotation.readOnly();
         }
     }
 
@@ -408,6 +417,10 @@ public class FieldInfo {
         }
         AnnotationInfo indexAnnotation = this.getAnnotations().get(Index.class.getName());
         return indexAnnotation != null && indexAnnotation.get("unique", "false").equals("true");
+    }
+
+    public boolean isReadOnly() {
+        return this.readOnly;
     }
 
     // =================================================================================================================

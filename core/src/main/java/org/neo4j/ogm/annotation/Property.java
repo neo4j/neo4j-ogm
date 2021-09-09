@@ -49,4 +49,10 @@ public @interface Property {
 
     @ValueFor(NAME)
     String value() default "";
+
+    /**
+     * Set this attribute to {@literal true} to prevent writing any value of this property to the graph.
+     * @return
+     */
+    boolean readOnly() default false;
 }

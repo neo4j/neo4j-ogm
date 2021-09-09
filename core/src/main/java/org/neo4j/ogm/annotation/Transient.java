@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * By default all domain entity types will be persisted unless they are
+ * By default, all domain entity types will be persisted unless they are
  * annotated with @Transient, or are non-annotated abstract classes.
  * This annotation can be placed on types, fields and methods
  * and the OGM will ignore any object or object reference with

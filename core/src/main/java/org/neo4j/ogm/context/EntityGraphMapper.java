@@ -732,6 +732,10 @@ public class EntityGraphMapper implements EntityMapper {
 
     private <T> void updateFieldsOnBuilder(Object entity, PropertyContainerBuilder<T> builder, ClassInfo classInfo) {
         for (FieldInfo fieldInfo : classInfo.propertyFields()) {
+            if (fieldInfo.isReadOnly()) {
+                continue;
+            }
+
             if (fieldInfo.isComposite()) {
                 Map<String, ?> properties = fieldInfo.readComposite(entity);
                 builder.addCompositeProperties(properties);

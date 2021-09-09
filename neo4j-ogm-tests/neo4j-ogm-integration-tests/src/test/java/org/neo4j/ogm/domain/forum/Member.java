@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.forum.activity.Activity;
 
@@ -39,6 +40,9 @@ public class Member extends Login {
     private List<Member> followees;
     private Long membershipNumber;
     private int[] nicknames;
+
+    @Property(readOnly = true)
+    private String someComputedValue;
 
     public IMembership getMemberShip() {
         return memberShip;
@@ -94,5 +98,13 @@ public class Member extends Login {
 
     public void setNicknames(int[] nicknames) {
         this.nicknames = nicknames;
+    }
+
+    public String getSomeComputedValue() {
+        return someComputedValue;
+    }
+
+    public void setSomeComputedValue(String someComputedValue) {
+        this.someComputedValue = someComputedValue;
     }
 }

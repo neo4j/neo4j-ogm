@@ -296,7 +296,7 @@ public class ClassInfoTest {
     public void testPropertyGetters() {
         ClassInfo classInfo = metaData.classInfo("User");
         Collection<FieldInfo> propertyFields = classInfo.propertyFields();
-        int count = 5;
+        int count = 6;
         assertThat(propertyFields.size()).isEqualTo(count);
         for (FieldInfo propertyField : propertyFields) {
             if (propertyField.getName().equals("renewalDate")) {
@@ -312,6 +312,9 @@ public class ClassInfoTest {
                 count--;
             }
             if (propertyField.getName().equals("nicknames")) {
+                count--;
+            }
+            if (propertyField.getName().equals("someComputedValue")) {
                 count--;
             }
         }

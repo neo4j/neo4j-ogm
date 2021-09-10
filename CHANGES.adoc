@@ -1,5 +1,13 @@
 = Changes
 
+== 3.2.26
+
+* [new-feature] Add support for read-only-properties. (#786)
+* [tests] Demonstrate correct equals/hashCode for `@RelationshipEntity`. (#868)
+* [dependencies] Update to Classgraph 4.8.116. (#886)
+* [bug] Use `EnterpriseGraphDatabaseFactory` if available. (#883)
+* [improvement] Add Java modules names for native types.
+
 == 3.2.25
 
 * [bug] Fix possible `NullpointerException`. (#880)

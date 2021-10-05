@@ -1,5 +1,9 @@
 = Changes
 
+== 3.2.27
+
+* [bug] Paths should not be individually iterated (Happened with Bolt transport and `PATH_LOAD_STRATEGY`).
+
 == 3.2.26
 
 * [new-feature] Add support for read-only-properties. (#786)

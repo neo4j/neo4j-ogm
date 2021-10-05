@@ -70,6 +70,7 @@ import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
+import org.neo4j.ogm.session.LoadStrategy;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -147,6 +148,26 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     @After
     public void clearDatabase() {
         session.purgeDatabase();
+    }
+
+    @Test
+    public void bothLoadStrategiesShouldBeAbleToDealWithPaths() {
+
+        for (LoadStrategy strategy : new LoadStrategy[] { LoadStrategy.PATH_LOAD_STRATEGY,
+            LoadStrategy.SCHEMA_LOAD_STRATEGY }) {
+            SessionFactory localSessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh851");
+            localSessionFactory.setLoadStrategy(strategy);
+
+            Session session = localSessionFactory.openSession();
+            Filter f = new Filter("code", ComparisonOperator.EQUALS, "LAX");
+            Collection<Airport> airports = session.loadAll(Airport.class, f);
+
+            assertThat(airports).hasSize(1)
+                .first().extracting(Airport::getName).isEqualTo("Los Angeles");
+
+            session.clear();
+            localSessionFactory.close();
+        }
     }
 
     @Test // SDN-2306

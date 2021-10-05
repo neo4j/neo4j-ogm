@@ -20,6 +20,7 @@ package org.neo4j.ogm.result.adapter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -91,7 +92,9 @@ public class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, 
             Object value = data.get(key);
             boolean generatedNodes = ResultAdapter.describesGeneratedNode(key);
 
-            for (Object element : CollectionUtils.iterableOf(value)) {
+            boolean isPath = value != null && graphModelAdapter.isPath(value);
+            Iterable<Object> elements = isPath ? Collections.singletonList(value) : CollectionUtils.iterableOf(value);
+            for (Object element : elements) {
                 adapt(element, graphModel, values, nodeIdentities, edgeIdentities, generatedNodes);
             }
         }

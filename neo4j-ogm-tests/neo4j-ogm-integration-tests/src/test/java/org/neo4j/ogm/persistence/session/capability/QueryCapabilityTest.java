@@ -166,7 +166,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
                 .first().extracting(Airport::getName).isEqualTo("Los Angeles");
 
             session.clear();
-            localSessionFactory.close();
+            // Keep the local session factory open, otherwise closing it will mess up the driver.
         }
     }
 

@@ -361,8 +361,7 @@ public class ClassInfo {
     }
 
     public FieldInfo identityFieldOrNull() {
-        initIdentityField();
-        return identityField.orElse(null);
+        return getOptionalIdentityField().orElse(null);
     }
 
     /**
@@ -373,34 +372,41 @@ public class ClassInfo {
      * @throws MappingException if no identity field can be found
      */
     public FieldInfo identityField() {
-        initIdentityField();
-        return identityField
+        return getOptionalIdentityField()
             .orElseThrow(() -> new MetadataException("No internal identity field found for class: " + this.className));
     }
 
-    private synchronized void initIdentityField() {
+    private Optional<FieldInfo> getOptionalIdentityField() {
 
-        if (identityField != null) {
-            return;
+        Optional<FieldInfo> result = this.identityField;
+        if (result == null) {
+            synchronized (this) {
+                result = this.identityField;
+                if (result == null) {
+                    // Didn't want to add yet another method related to determining the identy field
+                    // so the actual resolving of the field inside the Double-checked locking here
+                    // has been inlined.
+                    Collection<FieldInfo> identityFields = getFieldInfos(FieldInfo::isInternalIdentity);
+                    if (identityFields.size() == 1) {
+                        this.identityField = Optional.of(identityFields.iterator().next());
+                    } else if (identityFields.size() > 1) {
+                        throw new MetadataException("Expected exactly one internal identity field (@Id with " +
+                            "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
+                    } else {
+                        this.identityField = fieldsInfo.fields().stream()
+                            .filter(f -> "id".equals(f.getName()))
+                            .filter(f -> "java.lang.Long".equals(f.getTypeDescriptor()))
+                            .findFirst();
+                    }
+                    result = this.identityField;
+                }
+            }
         }
-
-        Collection<FieldInfo> identityFields = getFieldInfos(FieldInfo::isInternalIdentity);
-        if (identityFields.size() == 1) {
-            this.identityField = Optional.of(identityFields.iterator().next());
-        } else if (identityFields.size() > 1) {
-            throw new MetadataException("Expected exactly one internal identity field (@Id with " +
-                "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
-        } else {
-            this.identityField = fieldsInfo.fields().stream()
-                .filter(f -> "id".equals(f.getName()))
-                .filter(f -> "java.lang.Long".equals(f.getTypeDescriptor()))
-                .findFirst();
-        }
+        return result;
     }
 
     public boolean hasIdentityField() {
-        initIdentityField();
-        return identityField.isPresent();
+        return getOptionalIdentityField().isPresent();
     }
 
     Collection<FieldInfo> getFieldInfos(Predicate<FieldInfo> predicate) {

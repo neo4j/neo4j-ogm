@@ -1039,7 +1039,7 @@ public class ClassInfo {
         }
     }
 
-    public synchronized MethodInfo postLoadMethodOrNull() {
+    public MethodInfo postLoadMethodOrNull() {
         initPostLoadMethod();
         return postLoadMethod;
     }

@@ -1,5 +1,20 @@
 = Changes
 
+== 3.2.28
+
+* [dependencies] Upgrade Neo4j 3.5 to 3.5.30.
+* [dependencies] Update Neo4j Java driver to 4.3.6.
+* [improvement] Avoid locking on whole class for retrieving various information. (#891)
+* [improvement] Removed unnecessary synchronized. (#889)
+* [dependencies] Upgrade testcontainers to 1.16.2.
+
+The Neo4j-Java-Driver 4.3.x is a drop-in replacement for the 4.0.x series and still
+tests successfully with Neo4j 3.5. If you experience unexpected problems, you can
+downgrade it to a lower version via your dependency management.
+
+Thanks a lot to our long-time contributor @torstenkuhnhenne for providing the initial
+PR to remove the overly large locks in `ClassInfo`.
+
 == 3.2.27
 
 * [bug] Paths should not be individually iterated (Happened with Bolt transport and `PATH_LOAD_STRATEGY`).

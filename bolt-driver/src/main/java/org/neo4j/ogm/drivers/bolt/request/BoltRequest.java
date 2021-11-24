@@ -116,6 +116,8 @@ public class BoltRequest implements Request {
                     rowModels.add(model);
                 }
                 result.consume();
+            } catch (ClientException e) {
+                throw new CypherException(e.code(), e.getMessage(), e);
             }
         }
 

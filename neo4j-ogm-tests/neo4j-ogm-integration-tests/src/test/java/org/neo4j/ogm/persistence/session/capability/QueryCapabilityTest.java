@@ -243,7 +243,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             && isBoltDriver()) { // 4.1+ will fail on any attempt to write in a read-only transaction.
             assertThatThrownBy(
                 () -> session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true))
-                .hasMessageStartingWith("Writing in read access mode not allowed.");
+                .hasMessageContaining("Writing in read access mode not allowed.");
         } else {
             session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true);
 

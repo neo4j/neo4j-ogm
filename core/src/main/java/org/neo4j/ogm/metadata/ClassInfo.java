@@ -949,10 +949,10 @@ public class ClassInfo {
 
     public FieldInfo primaryIndexField() {
 
-        return getOrComputePimaryIndexField().orElse(null);
+        return getOrComputePrimaryIndexField().orElse(null);
     }
 
-    private Optional<FieldInfo> getOrComputePimaryIndexField() {
+    private Optional<FieldInfo> getOrComputePrimaryIndexField() {
 
         Optional<FieldInfo> result = this.primaryIndexField;
         if (result == null) {
@@ -1008,7 +1008,7 @@ public class ClassInfo {
     }
 
     public boolean hasPrimaryIndexField() {
-        return getOrComputePimaryIndexField().isPresent();
+        return getOrComputePrimaryIndexField().isPresent();
     }
 
     private boolean isPrimaryIndexField(FieldInfo fieldInfo) {
@@ -1023,7 +1023,7 @@ public class ClassInfo {
 
     public IdStrategy idStrategy() {
         // Forces initialization of the id strategy
-        return getOrComputePimaryIndexField()
+        return getOrComputePrimaryIndexField()
             .map(ignored -> idStrategy).orElse(null);
     }
 

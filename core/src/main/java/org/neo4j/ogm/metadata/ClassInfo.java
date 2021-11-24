@@ -21,6 +21,7 @@ package org.neo4j.ogm.metadata;
 import static java.util.stream.Collectors.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -81,39 +82,42 @@ public class ClassInfo {
      * (and feel free to replace the above medium link with a real spec doc).
      */
     private final List<ClassInfo> indirectSuperClasses = new ArrayList<>();
-    private String className;
+    private final String className;
+
+    private final boolean isInterface;
+    private final boolean isAbstract;
+    private final boolean isEnum;
+
+    private ClassInfo directSuperclass;
     private String directSuperclassName;
     private String neo4jName;
-    private boolean isInterface;
-    private boolean isAbstract;
-    private boolean isEnum;
-    private FieldsInfo fieldsInfo;
-    private MethodsInfo methodsInfo;
-    private AnnotationsInfo annotationsInfo;
-    private InterfacesInfo interfacesInfo;
-    private ClassInfo directSuperclass;
-    private Map<Class, List<FieldInfo>> iterableFieldsForType = new HashMap<>();
-    private Map<FieldInfo, Field> fieldInfoFields = new ConcurrentHashMap<>();
-    private volatile Set<FieldInfo> fieldInfos;
+
+    private final FieldsInfo fieldsInfo;
+    private final MethodsInfo methodsInfo;
+    private final AnnotationsInfo annotationsInfo;
+    private final InterfacesInfo interfacesInfo;
+    private final Class<?> cls;
+
+    private final Map<Class, List<FieldInfo>> iterableFieldsForType = new HashMap<>();
+    private final Map<FieldInfo, Field> fieldInfoFields = new ConcurrentHashMap<>();
+
     private volatile Map<String, FieldInfo> propertyFields;
     private volatile Map<String, FieldInfo> indexFields;
     private volatile Collection<FieldInfo> requiredFields;
     private volatile Collection<CompositeIndex> compositeIndexes;
     private volatile Optional<FieldInfo> identityField;
     private volatile Optional<FieldInfo> versionField;
-    private volatile FieldInfo primaryIndexField = null;
+    private volatile Optional<FieldInfo> primaryIndexField;
     private volatile FieldInfo labelField = null;
     private volatile boolean labelFieldMapped = false;
-    private volatile boolean isPostLoadMethodMapped = false;
-    private volatile MethodInfo postLoadMethod;
+    private volatile Optional<MethodInfo> postLoadMethod;
     private volatile Collection<String> staticLabels;
     private volatile Set<FieldInfo> relationshipFields;
-    private boolean primaryIndexFieldChecked = false;
-    private final Class<?> cls;
-    private Class<? extends IdStrategy> idStrategyClass;
-    private IdStrategy idStrategy;
     private volatile Optional<FieldInfo> endNodeReader;
     private volatile Optional<FieldInfo> startNodeReader;
+
+    private Class<? extends IdStrategy> idStrategyClass;
+    private IdStrategy idStrategy;
 
     public ClassInfo(Class<?> cls, TypeSystem typeSystem) {
         this(cls, null, typeSystem);
@@ -361,8 +365,7 @@ public class ClassInfo {
     }
 
     public FieldInfo identityFieldOrNull() {
-        initIdentityField();
-        return identityField.orElse(null);
+        return getOrComputeIdentityField().orElse(null);
     }
 
     /**
@@ -373,34 +376,41 @@ public class ClassInfo {
      * @throws MappingException if no identity field can be found
      */
     public FieldInfo identityField() {
-        initIdentityField();
-        return identityField
+        return getOrComputeIdentityField()
             .orElseThrow(() -> new MetadataException("No internal identity field found for class: " + this.className));
     }
 
-    private synchronized void initIdentityField() {
+    private Optional<FieldInfo> getOrComputeIdentityField() {
 
-        if (identityField != null) {
-            return;
+        Optional<FieldInfo> result = this.identityField;
+        if (result == null) {
+            synchronized (this) {
+                result = this.identityField;
+                if (result == null) {
+                    // Didn't want to add yet another method related to determining the identy field
+                    // so the actual resolving of the field inside the Double-checked locking here
+                    // has been inlined.
+                    Collection<FieldInfo> identityFields = getFieldInfos(FieldInfo::isInternalIdentity);
+                    if (identityFields.size() == 1) {
+                        this.identityField = Optional.of(identityFields.iterator().next());
+                    } else if (identityFields.size() > 1) {
+                        throw new MetadataException("Expected exactly one internal identity field (@Id with " +
+                            "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
+                    } else {
+                        this.identityField = fieldsInfo.fields().stream()
+                            .filter(f -> "id".equals(f.getName()))
+                            .filter(f -> "java.lang.Long".equals(f.getTypeDescriptor()))
+                            .findFirst();
+                    }
+                    result = this.identityField;
+                }
+            }
         }
-
-        Collection<FieldInfo> identityFields = getFieldInfos(FieldInfo::isInternalIdentity);
-        if (identityFields.size() == 1) {
-            this.identityField = Optional.of(identityFields.iterator().next());
-        } else if (identityFields.size() > 1) {
-            throw new MetadataException("Expected exactly one internal identity field (@Id with " +
-                "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
-        } else {
-            this.identityField = fieldsInfo.fields().stream()
-                .filter(f -> "id".equals(f.getName()))
-                .filter(f -> "java.lang.Long".equals(f.getTypeDescriptor()))
-                .findFirst();
-        }
+        return result;
     }
 
     public boolean hasIdentityField() {
-        initIdentityField();
-        return identityField.isPresent();
+        return getOrComputeIdentityField().isPresent();
     }
 
     Collection<FieldInfo> getFieldInfos(Predicate<FieldInfo> predicate) {
@@ -454,8 +464,8 @@ public class ClassInfo {
      *                                       actually persistable as property.
      */
     public Collection<FieldInfo> propertyFields() {
-        initPropertyFields();
-        return fieldInfos;
+
+        return getOrComputePropertyFields().values();
     }
 
     /**
@@ -468,49 +478,49 @@ public class ClassInfo {
      *                                       actually persistable as property.
      */
     public FieldInfo propertyField(String propertyName) {
-        initPropertyFields();
-        return propertyName == null ? null : propertyFields.get(propertyName);
+
+        return propertyName == null ? null : getOrComputePropertyFields().get(propertyName);
     }
 
-    @SuppressWarnings("HiddenField")
-    private synchronized void initPropertyFields() {
-        if (fieldInfos != null) {
-            return;
-        }
+    private Map<String, FieldInfo> getOrComputePropertyFields() {
 
-        Collection<FieldInfo> fields = fieldsInfo().fields();
+        Map<String, FieldInfo> result = this.propertyFields;
+        if (result == null) {
+            synchronized (this) {
+                result = this.propertyFields;
+                if (result == null) {
+                    Collection<FieldInfo> fields = fieldsInfo().fields();
 
-        FieldInfo optionalIdentityField = identityFieldOrNull();
-        Set<FieldInfo> fieldInfos = new HashSet<>(fields.size());
-        Map<String, FieldInfo> propertyFields = new HashMap<>(fields.size());
+                    FieldInfo optionalIdentityField = identityFieldOrNull();
+                    Map<String, FieldInfo> intermediateFieldMap = new HashMap<>(fields.size());
 
-        for (FieldInfo fieldInfo : fields) {
-            if (fieldInfo != optionalIdentityField && !fieldInfo.isLabelField()
-                && !fieldInfo.hasAnnotation(StartNode.class)
-                && !fieldInfo.hasAnnotation(EndNode.class)) {
+                    for (FieldInfo fieldInfo : fields) {
+                        if (fieldInfo == optionalIdentityField || fieldInfo.isLabelField() || fieldInfo.hasAnnotation(StartNode.class) || fieldInfo.hasAnnotation(EndNode.class)) {
+                            continue;
+                        }
 
-                if (!fieldInfo.getAnnotations().has(Property.class)) {
+                        if (!fieldInfo.getAnnotations().has(Property.class)) {
 
-                    // If a field is not marked explicitly as a property but is persistable as such, add it.
-                    if (fieldInfo.persistableAsProperty()) {
-                        fieldInfos.add(fieldInfo);
-                        propertyFields.put(fieldInfo.property(), fieldInfo);
+                            // If a field is not marked explicitly as a property but is persistable as such, add it.
+                            if (fieldInfo.persistableAsProperty()) {
+                                intermediateFieldMap.put(fieldInfo.property(), fieldInfo);
+                            }
+                        } else if (fieldInfo.persistableAsProperty()) {
+
+                            // If it is marked as a property, then it should be persistable as such
+                            intermediateFieldMap.put(fieldInfo.property(), fieldInfo);
+                        } else {
+
+                            // Otherwise, throw a fitting exception
+                            throw new InvalidPropertyFieldException(fieldInfo);
+                        }
                     }
-                } else if (fieldInfo.persistableAsProperty()) {
-
-                    // If it is marked as a property, than it should be persistable as such
-                    fieldInfos.add(fieldInfo);
-                    propertyFields.put(fieldInfo.property(), fieldInfo);
-                } else {
-
-                    // Otherwise throw a fitting exception
-                    throw new InvalidPropertyFieldException(fieldInfo);
+                    this.propertyFields = Collections.unmodifiableMap(intermediateFieldMap);
+                    result = this.propertyFields;
                 }
             }
         }
-
-        this.fieldInfos = fieldInfos;
-        this.propertyFields = propertyFields;
+        return result;
     }
 
     /**
@@ -535,29 +545,31 @@ public class ClassInfo {
      * @return A Collection of FieldInfo objects describing the classInfo's relationship fields
      */
     public Collection<FieldInfo> relationshipFields() {
-        initRelationshipFields();
-        return relationshipFields;
-    }
 
-    private synchronized void initRelationshipFields() {
-        if (relationshipFields != null) {
-            return;
-        }
+        Collection<FieldInfo> result = this.relationshipFields;
+        if (result == null) {
+            synchronized (this) {
+                result = this.relationshipFields;
+                if (result == null) {
+                    FieldInfo optionalIdentityField = identityFieldOrNull();
+                    Set<FieldInfo> identifiedRelationshipFields = new HashSet<>();
+                    for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+                        if (fieldInfo == optionalIdentityField) {
+                            continue;
+                        }
 
-        FieldInfo optionalIdentityField = identityFieldOrNull();
-        Set<FieldInfo> identifiedRelationshipFields = new HashSet<>();
-        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            if (fieldInfo == optionalIdentityField) {
-                continue;
+                        if (fieldInfo.getAnnotations().has(Relationship.class)) {
+                            identifiedRelationshipFields.add(fieldInfo);
+                        } else if (!fieldInfo.persistableAsProperty()) {
+                            identifiedRelationshipFields.add(fieldInfo);
+                        }
+                    }
+                    this.relationshipFields = Collections.unmodifiableSet(identifiedRelationshipFields);
+                    result = this.relationshipFields;
+                }
             }
-
-            if (fieldInfo.getAnnotations().has(Relationship.class)) {
-                identifiedRelationshipFields.add(fieldInfo);
-            } else if (!fieldInfo.persistableAsProperty()) {
-                identifiedRelationshipFields.add(fieldInfo);
-            }
         }
-        this.relationshipFields = Collections.unmodifiableSet(identifiedRelationshipFields);
+        return result;
     }
 
     /**
@@ -854,31 +866,32 @@ public class ClassInfo {
      * @return The <code>FieldInfo</code>s representing the Indexed fields in this class.
      */
     public Collection<FieldInfo> getIndexFields() {
-        initIndexFields();
-        return indexFields.values();
-    }
 
-    private synchronized void initIndexFields() {
-        if (indexFields != null) {
-            return;
-        }
+        Map<String, FieldInfo> result = this.indexFields;
+        if (result == null) {
+            synchronized (this) {
+                result = this.indexFields;
+                if (result == null) {
+                    Map<String, FieldInfo> indexes = new HashMap<>();
+                    Field[] declaredFields = cls.getDeclaredFields();
 
-        Map<String, FieldInfo> indexes = new HashMap<>();
+                    for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+                        if (isDeclaredField(declaredFields, fieldInfo.getName()) &&
+                            (fieldInfo.hasAnnotation(Index.class) || fieldInfo.hasAnnotation(Id.class))) {
 
-        Field[] declaredFields = cls.getDeclaredFields();
-
-        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            if (isDeclaredField(declaredFields, fieldInfo.getName()) &&
-                (fieldInfo.hasAnnotation(Index.class) || fieldInfo.hasAnnotation(Id.class))) {
-
-                String propertyValue = fieldInfo.property();
-                if (fieldInfo.hasAnnotation(Property.class.getName())) {
-                    propertyValue = fieldInfo.property();
+                            String propertyValue = fieldInfo.property();
+                            if (fieldInfo.hasAnnotation(Property.class.getName())) {
+                                propertyValue = fieldInfo.property();
+                            }
+                            indexes.put(propertyValue, fieldInfo);
+                        }
+                    }
+                    this.indexFields = Collections.unmodifiableMap(indexes);
+                    result = this.indexFields;
                 }
-                indexes.put(propertyValue, fieldInfo);
             }
         }
-        this.indexFields = Collections.unmodifiableMap(indexes);
+        return result.values();
     }
 
     private static boolean isDeclaredField(Field[] declaredFields, String name) {
@@ -892,76 +905,110 @@ public class ClassInfo {
     }
 
     public Collection<CompositeIndex> getCompositeIndexes() {
-        initCompositeIndexFields();
-        return compositeIndexes;
-    }
 
-    private synchronized void initCompositeIndexFields() {
-        if (compositeIndexes != null) {
-            return;
-        }
+        Collection<CompositeIndex> result = this.compositeIndexes;
+        if (result == null) {
+            synchronized (this) {
+                result = this.compositeIndexes;
+                if (result == null) {
+                    CompositeIndex[] annotations = cls.getDeclaredAnnotationsByType(CompositeIndex.class);
+                    List<CompositeIndex> intermediateResult = new ArrayList<>(annotations.length);
 
-        // init property fields to be able to check existence of properties
-        initPropertyFields();
+                    for (CompositeIndex annotation : annotations) {
+                        String[] properties =
+                            annotation.value().length > 0 ? annotation.value() : annotation.properties();
 
-        CompositeIndex[] annotations = cls.getDeclaredAnnotationsByType(CompositeIndex.class);
-        List<CompositeIndex> result = new ArrayList<>(annotations.length);
+                        if (properties.length < 1) {
+                            throw new MetadataException("Incorrect CompositeIndex definition on " + className +
+                                ". Provide at least 1 property");
+                        }
 
-        for (CompositeIndex annotation : annotations) {
-            String[] properties = annotation.value().length > 0 ? annotation.value() : annotation.properties();
+                        for (String property : properties) {
+                            // Determine the original field in case the user uses a MapCompositeConverter.
+                            Matcher m = AutoIndexManager.COMPOSITE_KEY_MAP_COMPOSITE_PATTERN.matcher(property);
+                            if (m.matches()) {
+                                property = m.group(1);
+                            }
 
-            if (properties.length < 1) {
-                throw new MetadataException("Incorrect CompositeIndex definition on " + className +
-                    ". Provide at least 1 property");
-            }
-
-            for (String property : properties) {
-                // Determine the original field in case the user uses a MapCompositeConverter.
-                Matcher m = AutoIndexManager.COMPOSITE_KEY_MAP_COMPOSITE_PATTERN.matcher(property);
-                if (m.matches()) {
-                    property = m.group(1);
+                            FieldInfo fieldInfo = propertyField(property);
+                            if (fieldInfo == null) {
+                                throw new MetadataException(
+                                    "Incorrect CompositeIndex definition on " + className + ". Property " +
+                                        property + " does not exists.");
+                            }
+                        }
+                        intermediateResult.add(annotation);
+                    }
+                    this.compositeIndexes = Collections.unmodifiableList(intermediateResult);
+                    result = this.compositeIndexes;
                 }
-
-                FieldInfo fieldInfo = propertyFields.get(property);
-                if (fieldInfo == null) {
-                    throw new MetadataException("Incorrect CompositeIndex definition on " + className + ". Property " +
-                        property + " does not exists.");
-                }
             }
-            result.add(annotation);
         }
-        this.compositeIndexes = Collections.unmodifiableList(result);
+        return result;
     }
 
     public FieldInfo primaryIndexField() {
-        if (!primaryIndexFieldChecked && primaryIndexField == null) {
 
-            Collection<FieldInfo> primaryIndexFields = getFieldInfos(this::isPrimaryIndexField);
-            if (primaryIndexFields.size() > 1) {
-                throw new MetadataException(
-                    "Only one @Id / @Index(primary=true, unique=true) annotation is allowed in a class hierarchy. Please check annotations in the class "
-                        + name() + " or its parents");
-            } else if (primaryIndexFields.size() == 1) {
-                primaryIndexField = primaryIndexFields.iterator().next();
-                AnnotationInfo generatedValueAnnotation = primaryIndexField.getAnnotations().get(GeneratedValue.class);
-                if (generatedValueAnnotation != null) {
-                    GeneratedValue value = (GeneratedValue) generatedValueAnnotation.getAnnotation();
-                    idStrategyClass = value.strategy();
-                    instantiateIdStrategy();
+        return getOrComputePimaryIndexField().orElse(null);
+    }
+
+    private Optional<FieldInfo> getOrComputePimaryIndexField() {
+
+        Optional<FieldInfo> result = this.primaryIndexField;
+        if (result == null) {
+            synchronized (this) {
+                result = this.primaryIndexField;
+                if (result == null) {
+                    Optional<FieldInfo> potentialPrimaryIndexField = Optional.empty();
+                    Collection<FieldInfo> primaryIndexFields = getFieldInfos(this::isPrimaryIndexField);
+                    if (primaryIndexFields.size() > 1) {
+                        throw new MetadataException(
+                            "Only one @Id / @Index(primary=true, unique=true) annotation is allowed in a class hierarchy. Please check annotations in the class "
+                                + name() + " or its parents");
+                    } else if (!primaryIndexFields.isEmpty()) {
+                        FieldInfo selectedField = primaryIndexFields.iterator().next();
+                        AnnotationInfo generatedValueAnnotation = selectedField.getAnnotations().get(GeneratedValue.class);
+                        if (generatedValueAnnotation != null) {
+                            // Here's a funny hidden side effect I wasn't able to refactor out with a clear idea during
+                            // rethinking the whole collection of synchronized blocks :(
+                            GeneratedValue value = (GeneratedValue) generatedValueAnnotation.getAnnotation();
+                            idStrategyClass = value.strategy();
+                            try {
+                                idStrategy = idStrategyClass.getDeclaredConstructor().newInstance();
+                            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                                LOGGER.debug("Could not instantiate {}. Expecting this to be registered manually.", idStrategyClass);
+                            }
+                        }
+                        potentialPrimaryIndexField = Optional.of(selectedField);
+                    }
+                    result = validateIdGenerationConfigFor(potentialPrimaryIndexField);
                 }
             }
-            validateIdGenerationConfig();
-            primaryIndexFieldChecked = true;
         }
+        return result;
+    }
 
-        return primaryIndexField;
+    private Optional<FieldInfo> validateIdGenerationConfigFor(Optional<FieldInfo> potentialPrimaryIndexField) {
+        fieldsInfo().fields().forEach(info -> {
+            if (info.hasAnnotation(GeneratedValue.class) && !info.hasAnnotation(Id.class)) {
+                throw new MetadataException(
+                    "The type of @Generated field in class " + className + " must be also annotated with @Id.");
+            }
+        });
+        if (UuidStrategy.class.equals(idStrategyClass)) {
+            potentialPrimaryIndexField.ifPresent(selectedField -> {
+                if (!(selectedField.isTypeOf(UUID.class) || selectedField.isTypeOf(String.class))) {
+                    throw new MetadataException(
+                        "The type of " + selectedField.getName() + " in class " + className
+                            + " must be of type java.lang.UUID or java.lang.String because it has an UUID generation strategy.");
+                }
+            });
+        }
+        return potentialPrimaryIndexField;
     }
 
     public boolean hasPrimaryIndexField() {
-        if (!primaryIndexFieldChecked) {
-            primaryIndexField();
-        }
-        return primaryIndexField != null;
+        return getOrComputePimaryIndexField().isPresent();
     }
 
     private boolean isPrimaryIndexField(FieldInfo fieldInfo) {
@@ -974,34 +1021,10 @@ public class ClassInfo {
         return hasIdAnnotation && hasStrategyOtherThanInternal;
     }
 
-    private void instantiateIdStrategy() {
-        try {
-            idStrategy = idStrategyClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            LOGGER.debug("Could not instantiate {}. Expecting this to be registered manually.", idStrategyClass);
-        }
-    }
-
-    private void validateIdGenerationConfig() {
-        fieldsInfo().fields().forEach(info -> {
-            if (info.hasAnnotation(GeneratedValue.class) && !info.hasAnnotation(Id.class)) {
-                throw new MetadataException(
-                    "The type of @Generated field in class " + className + " must be also annotated with @Id.");
-            }
-        });
-        if (UuidStrategy.class.equals(idStrategyClass)
-            && !primaryIndexField.isTypeOf(UUID.class)
-            && !primaryIndexField.isTypeOf(String.class)) {
-            throw new MetadataException("The type of " + primaryIndexField.getName() + " in class " + className
-                + " must be of type java.lang.UUID or java.lang.String because it has an UUID generation strategy.");
-        }
-    }
-
     public IdStrategy idStrategy() {
-        if (!primaryIndexFieldChecked) {
-            primaryIndexField(); // force init
-        }
-        return idStrategy;
+        // Forces initialization of the id strategy
+        return getOrComputePimaryIndexField()
+            .map(ignored -> idStrategy).orElse(null);
     }
 
     public Class<? extends IdStrategy> idStrategyClass() {
@@ -1018,25 +1041,27 @@ public class ClassInfo {
     }
 
     public MethodInfo postLoadMethodOrNull() {
-        initPostLoadMethod();
-        return postLoadMethod;
-    }
 
-    private synchronized void initPostLoadMethod() {
-        if (isPostLoadMethodMapped) {
-            return;
+        Optional<MethodInfo> result = this.postLoadMethod;
+        if (result == null) {
+            synchronized (this) {
+                result = this.postLoadMethod;
+                if (result == null) {
+                    Collection<MethodInfo> possiblePostLoadMethods = methodsInfo
+                        .findMethodInfoBy(methodInfo -> methodInfo.hasAnnotation(PostLoad.class));
+                    if (possiblePostLoadMethods.size() > 1) {
+                        throw new MetadataException(String
+                            .format("Cannot have more than one post load method annotated with @PostLoad for class '%s'",
+                                this.className));
+                    }
+
+                    this.postLoadMethod = possiblePostLoadMethods.stream().findFirst();
+                    result = this.postLoadMethod;
+                }
+            }
         }
 
-        Collection<MethodInfo> possiblePostLoadMethods = methodsInfo
-            .findMethodInfoBy(methodInfo -> methodInfo.hasAnnotation(PostLoad.class));
-        if (possiblePostLoadMethods.size() > 1) {
-            throw new MetadataException(String
-                .format("Cannot have more than one post load method annotated with @PostLoad for class '%s'",
-                    this.className));
-        }
-
-        postLoadMethod = possiblePostLoadMethods.stream().findFirst().orElse(null);
-        isPostLoadMethodMapped = true;
+        return result.orElse(null);
     }
 
     public FieldInfo getFieldInfo(String propertyName) {
@@ -1060,25 +1085,28 @@ public class ClassInfo {
      * @return a FieldInfo for the field annotated as the EndNode, or none if not found
      */
     public FieldInfo getEndNodeReader() {
-        initEndNodeReader();
-        return endNodeReader.orElse(null);
-    }
 
-    private synchronized void initEndNodeReader() {
-        if (endNodeReader != null) {
-            return;
-        }
-
-        if (isRelationshipEntity()) {
-            endNodeReader = fieldsInfo().fields().stream()
-                .filter(fieldInfo -> fieldInfo.getAnnotations().get(EndNode.class) != null)
-                .findFirst();
-            if (!endNodeReader.isPresent()) {
-                LOGGER.warn("Failed to find an @EndNode on {}", name());
+        Optional<FieldInfo> result = this.endNodeReader;
+        if (result == null) {
+            synchronized (this) {
+                result = this.endNodeReader;
+                if (result == null) {
+                    if (isRelationshipEntity()) {
+                        endNodeReader = fieldsInfo().fields().stream()
+                            .filter(fieldInfo -> fieldInfo.getAnnotations().get(EndNode.class) != null)
+                            .findFirst();
+                        if (!endNodeReader.isPresent()) {
+                            LOGGER.warn("Failed to find an @EndNode on {}", name());
+                        }
+                    } else {
+                        endNodeReader = Optional.empty();
+                    }
+                    result = this.endNodeReader;
+                }
             }
-        } else {
-            endNodeReader = Optional.empty();
         }
+
+        return result.orElse(null);
     }
 
     /**
@@ -1087,26 +1115,29 @@ public class ClassInfo {
      * @return a FieldInfo for the field annotated as the StartNode, or none if not found
      */
     public FieldInfo getStartNodeReader() {
-        initStartNodeReader();
-        return startNodeReader.orElse(null);
-    }
 
-    private synchronized void initStartNodeReader() {
-        if (startNodeReader != null) {
-            return;
-        }
+        Optional<FieldInfo> result = this.startNodeReader;
+        if (result == null) {
+            synchronized (this) {
+                result = this.startNodeReader;
+                if (result == null) {
+                    if (isRelationshipEntity()) {
+                        startNodeReader = fieldsInfo().fields().stream()
+                            .filter(fieldInfo -> fieldInfo.getAnnotations().get(StartNode.class) != null)
+                            .findFirst();
 
-        if (isRelationshipEntity()) {
-            startNodeReader = fieldsInfo().fields().stream()
-                .filter(fieldInfo -> fieldInfo.getAnnotations().get(StartNode.class) != null)
-                .findFirst();
-
-            if (!startNodeReader.isPresent()) {
-                LOGGER.warn("Failed to find an @StartNode on {}", name());
+                        if (!startNodeReader.isPresent()) {
+                            LOGGER.warn("Failed to find an @StartNode on {}", name());
+                        }
+                    } else {
+                        startNodeReader = Optional.empty();
+                    }
+                    result = this.startNodeReader;
+                }
             }
-        } else {
-            startNodeReader = Optional.empty();
         }
+
+        return result.orElse(null);
     }
 
     /**
@@ -1130,33 +1161,38 @@ public class ClassInfo {
     }
 
     public boolean hasVersionField() {
-        initVersionField();
-        return versionField.isPresent();
+        return getOrComputeVersionField().isPresent();
     }
 
     public FieldInfo getVersionField() {
-        initVersionField();
-        return versionField.orElse(null);
+        return getOrComputeVersionField().orElse(null);
     }
 
-    private synchronized void initVersionField() {
-        if (versionField != null) {
-            return;
-        }
+    private Optional<FieldInfo> getOrComputeVersionField() {
 
-        Collection<FieldInfo> fields = getFieldInfos(FieldInfo::isVersionField);
+        Optional<FieldInfo> result = this.versionField;
+        if (result == null) {
+            synchronized (this) {
+                result = this.versionField;
+                if (result == null) {
+                    Collection<FieldInfo> fields = getFieldInfos(FieldInfo::isVersionField);
 
-        if (fields.size() > 1) {
-            throw new MetadataException("Only one version field is allowed, found " + fields);
-        }
+                    if (fields.size() > 1) {
+                        throw new MetadataException("Only one version field is allowed, found " + fields);
+                    }
 
-        Iterator<FieldInfo> iterator = fields.iterator();
-        if (iterator.hasNext()) {
-            versionField = Optional.of(iterator.next());
-        } else {
-            // cache that there is no version field
-            versionField = Optional.empty();
+                    Iterator<FieldInfo> iterator = fields.iterator();
+                    if (iterator.hasNext()) {
+                        this.versionField = Optional.of(iterator.next());
+                    } else {
+                        // cache that there is no version field
+                        this.versionField = Optional.empty();
+                    }
+                    result = this.versionField;
+                }
+            }
         }
+        return result;
     }
 
     /**

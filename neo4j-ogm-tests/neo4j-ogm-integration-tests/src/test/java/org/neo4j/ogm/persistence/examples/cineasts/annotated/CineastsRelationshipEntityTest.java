@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2021 "Neo4j,"
+ * Copyright (c) 2002-2022 "Neo4j,"
  * Neo4j Sweden AB [http://neo4j.com]
  *
  * This file is part of Neo4j.
@@ -580,7 +580,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
 
     @Test // DATAGRAPH-552
     public void shouldHydrateTheEndNodeOfAnRECorrectly() {
-        
+
         Movie movie = new Movie("Pulp Fiction", 1994);
         Actor actor = new Actor("John Travolta");
         actor.playedIn(movie, "Vincent");

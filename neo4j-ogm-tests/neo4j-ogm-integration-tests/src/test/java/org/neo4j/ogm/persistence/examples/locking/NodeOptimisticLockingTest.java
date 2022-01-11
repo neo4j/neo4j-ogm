@@ -21,6 +21,8 @@ package org.neo4j.ogm.persistence.examples.locking;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -35,6 +37,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class NodeOptimisticLockingTest extends TestContainersTestBase {
 
@@ -169,4 +172,90 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
         assertThat(london.getCustomVersion()).isEqualTo(1L);
     }
 
+    @Test // GH-894
+    public void assertWorkingLocksOnReReadWithChangedProperties() {
+        // Use independent sessions
+        Session session1 = sessionFactory.openSession();
+        long existingId = session1.queryForObject(Long.class, "CREATE (a:Location {name: 'Aachen', customVersion: 1}) RETURN id(a)", Collections.emptyMap());
+        session1.clear();
+
+        Session session2 = sessionFactory.openSession();
+
+        // 1. Read the node with id 123 from db ,version =1
+        Location location = session2.load(Location.class, existingId);
+        assertThat(location.getCustomVersion()).isOne();
+
+        // 2. in the same session later part of the code flow .read the same node with id 123 from db
+        // updated properties and invoked session save, version has incremented to 2 (version=2)
+        // Re-Read on purpose, see ticket
+        location = session2.load(Location.class, existingId);
+        location.setName("Aachen Brand");
+        session2.save(location);
+        assertThat(location.getCustomVersion()).isEqualTo(2L);
+
+        long version;
+        version = session1.queryForObject(Long.class, "MATCH (a:Location {name: $name}) RETURN a.customVersion", Collections.singletonMap("name", location.getName()));
+        session1.clear();
+        assertThat(version).isEqualTo(2L);
+
+        // 3. the object which got at step 1. added relation and updated properties
+        // Re-Read on purpose, see ticket
+        location = session2.load(Location.class, existingId);
+        location.setName("Aachen-Brand");
+        session2.save(location);
+        assertThat(location.getCustomVersion()).isEqualTo(3L);
+
+        version = session1.queryForObject(Long.class, "MATCH (a:Location {name: $name}) RETURN a.customVersion", Collections.singletonMap("name", location.getName()));
+        session1.clear();
+        assertThat(version).isEqualTo(3L);
+    }
+
+    @Test // GH-894
+    public void assertWorkingLocksOnReReadWithChangedRelationships() {
+        // Use independent sessions
+        Session session1 = sessionFactory.openSession();
+        long bertId = session1.queryForObject(Long.class, "CREATE (a:User {name: 'bert', version: 1}) RETURN id(a)", Collections.emptyMap());
+        long ernieId = session1.queryForObject(Long.class, "CREATE (a:User {name: 'Ernie', version: 1}) RETURN id(a)", Collections.emptyMap());
+        session1.clear();
+
+        Session session2 = sessionFactory.openSession();
+
+        // 1. Read the node with id 123 from db ,version =1
+        User bert = session2.load(User.class, bertId);
+        assertThat(bert.getVersion()).isOne();
+
+        User ernie = session2.load(User.class, ernieId);
+        assertThat(ernie.getVersion()).isOne();
+
+        // 2. in the same session later part of the code flow .read the same node with id 123 from db
+        // updated properties and invoked session save, version has incremented to 2 (version=2)
+        // Re-Read on purpose, see ticket
+        bert = session2.load(User.class, bertId);
+        bert.setName("Bert");
+        bert.addFriend(ernie);
+        session2.save(bert);
+        assertThat(bert.getVersion()).isEqualTo(2L);
+
+        Map<String, Object> versions;
+        versions = session1.query("MATCH (a:User {name: $name}) -[f:FRIEND_OF] -> (:User) RETURN"
+            + " a.version as userVersion, f.version as relVersion", Collections.singletonMap("name", bert.getName()))
+            .queryResults().iterator().next();
+        session1.clear();
+        assertThat(versions).containsEntry("userVersion", 2L);
+        assertThat(versions).containsEntry("relVersion", 0L);
+
+        // 3. the object which got at step 1. added relation and updated properties
+        // Re-Read on purpose, see ticket
+        bert = session2.load(User.class, bertId);
+        bert.setName("Bertram");
+        session2.save(bert);
+        assertThat(bert.getVersion()).isEqualTo(3L);
+
+        versions = session1.query("MATCH (a:User {name: $name}) -[f:FRIEND_OF] -> (:User) RETURN"
+                + " a.version as userVersion, f.version as relVersion", Collections.singletonMap("name", bert.getName()))
+            .queryResults().iterator().next();
+        session1.clear();
+        assertThat(versions).containsEntry("userVersion", 3L);
+        assertThat(versions).containsEntry("relVersion", 1L);
+    }
 }

@@ -163,7 +163,7 @@ public class DomainInfo {
      *
      * @param clazz
      */
-    private void addClass(Class clazz) {
+    private ClassInfo addClass(Class clazz) {
 
         ClassInfo classInfo = this.classNameToClassInfo.computeIfAbsent(clazz.getName(), k -> new ClassInfo(clazz, typeSystem));
         String superclassName = classInfo.superclassName();
@@ -184,11 +184,12 @@ public class DomainInfo {
             if (superclassInfo != null) {
                 superclassInfo.addSubclass(classInfo);
             } else if (!"java.lang.Object".equals(superclassName) && !"java.lang.Enum".equals(superclassName)) {
-                ClassInfo superClassInfo = new ClassInfo(clazz.getSuperclass(), typeSystem);
+                ClassInfo superClassInfo = addClass(clazz.getSuperclass());
                 superClassInfo.addSubclass(classInfo);
                 this.classNameToClassInfo.put(superclassName, superClassInfo);
             }
         }
+        return classInfo;
     }
 
     private void buildByLabelLookupMaps() {

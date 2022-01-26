@@ -612,6 +612,8 @@ public interface Session {
      */
     <T> T queryForObject(Class<T> objectType, String cypher, Map<String, ?> parameters);
 
+    <T> T queryForObject(Class<T> objectType, String cypher, Map<String, ?> parameters, boolean readOnly);
+
     /**
      * a cypher statement this method will return a collection of domain objects that is hydrated to
      * the default level or a collection of scalars (depending on the parametrized type).
@@ -623,6 +625,8 @@ public interface Session {
      * @return A collection of domain objects or scalars as prescribed by the parametrized type.
      */
     <T> Iterable<T> query(Class<T> objectType, String cypher, Map<String, ?> parameters);
+
+    <T> Iterable<T> query(Class<T> objectType, String cypher, Map<String, ?> parameters, boolean readOnly);
 
     /**
      * a cypher statement this method will return a Result object containing a collection of Map's which represent Neo4j

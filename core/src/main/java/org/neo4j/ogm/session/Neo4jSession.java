@@ -415,8 +415,18 @@ public class Neo4jSession implements Session {
     }
 
     @Override
+    public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters, boolean readOnly) {
+        return executeQueriesDelegate.queryForObject(type, cypher, parameters, readOnly);
+    }
+
+    @Override
     public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.query(type, cypher, parameters);
+    }
+
+    @Override
+    public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters, boolean readOnly) {
+        return executeQueriesDelegate.query(type, cypher, parameters, readOnly);
     }
 
     @Override

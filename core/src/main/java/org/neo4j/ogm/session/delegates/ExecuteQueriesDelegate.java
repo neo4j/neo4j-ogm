@@ -65,7 +65,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
 
     private static final String OGM_READ_ONLY_HINT = "/*+ OGM READ_ONLY */";
     private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP|CALL)\\b",
-        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     // This is using the Neo4jSession on purpose to retrieve the logger.
     // This delegate here used Neo4jSession#warn to log warnings about possible
     // write queries.
@@ -75,8 +75,12 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         super(session);
     }
 
-    public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters) {
-        Iterable<T> results = query(type, cypher, parameters);
+    public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters)  {
+        return queryForObject(type, cypher, parameters, false);
+    }
+
+    public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters, boolean readOnly) {
+        Iterable<T> results = query(type, cypher, parameters, readOnly);
 
         int cnt = 0;
         T returnedObject = null;
@@ -109,12 +113,16 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         throw new MappingException(message);
     }
 
-    public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {
-        validateQuery(cypher, parameters, false); //we'll allow modifying statements
+    public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters)  {
+        return query(type, cypher, parameters, false);
+    }
+
+    public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters, boolean readOnly) {
+        validateQuery(cypher, parameters, readOnly); //we'll allow modifying statements
         if (type == null || type.equals(Void.class)) {
             throw new RuntimeException("Supplied type must not be null or void.");
         }
-        return executeAndMap(type, cypher, parameters);
+        return executeAndMap(type, cypher, parameters, readOnly);
     }
 
     public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
@@ -145,10 +153,13 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
         }, readOnly ? Transaction.Type.READ_ONLY : Transaction.Type.READ_WRITE);
     }
 
-    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters) {
+    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters)  {
+        return executeAndMap(type, cypher, parameters, false);
+    }
+
+    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, boolean readOnly) {
 
         return session.<Iterable<T>>doInTransaction(() -> {
-
             // While an update query may not return objects, it has enough changes
             // to modify all entities in the context, so we must flush it either way.
             if (mayBeReadWrite(cypher)) {
@@ -171,7 +182,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
                     return new EntityRowModelMapper().map(type, response);
                 }
             }
-        }, Transaction.Type.READ_WRITE);
+        }, readOnly ? Transaction.Type.READ_ONLY : Transaction.Type.READ_WRITE);
     }
 
     public long countEntitiesOfType(Class<?> entity) {

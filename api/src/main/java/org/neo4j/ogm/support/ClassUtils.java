@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.support;
 
+import java.lang.reflect.Type;
+
 /**
  * @author Michael J. Simons
  */
@@ -33,6 +35,16 @@ public final class ClassUtils {
     public static boolean isEnum(Class<?> clazz) {
 
         return clazz.isEnum() || Enum.class.isAssignableFrom(clazz);
+    }
+
+    /**
+     * @param type The type to check whether it is an enum or not.
+     * @return True, if the type refers to an enum instance.
+     * @see #isEnum(Class)
+     */
+    public static boolean isEnum(Type type) {
+
+        return type instanceof Class<?> && isEnum((Class<?>) type);
     }
 
     /**

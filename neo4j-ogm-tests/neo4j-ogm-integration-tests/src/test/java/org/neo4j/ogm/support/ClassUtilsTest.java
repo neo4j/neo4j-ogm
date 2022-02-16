@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.support;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
@@ -68,5 +68,14 @@ public class ClassUtilsTest {
     public void shouldWorkWithInterfaceEnum() {
         assertThat(ClassUtils.isEnum(Singleton.class)).isTrue();
         assertThat(ClassUtils.isEnum(Singleton.THE_INSTANCE)).isTrue();
+    }
+
+    @Test // GH-899
+    public void upcastingWorksAsExpected() {
+        Enum castedToEnum = YourFriendlyEnumMostPeopleUse.THING2;
+        assertThat(ClassUtils.isEnum(castedToEnum)).isTrue();
+
+        castedToEnum = Singleton.THE_INSTANCE;
+        assertThat(ClassUtils.isEnum(castedToEnum)).isTrue();
     }
 }

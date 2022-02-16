@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.neo4j</groupId>
         <artifactId>neo4j-ogm-tests</artifactId>
-        <version>3.2.29-SNAPSHOT</version>
+        <version>3.2.30-SNAPSHOT</version>
     </parent>
 
     <artifactId>neo4j-ogm-integration-tests</artifactId>
@@ -46,25 +46,25 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-http-driver</artifactId>
-            <version>3.2.29-SNAPSHOT</version>
+            <version>3.2.30-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-core</artifactId>
-            <version>3.2.29-SNAPSHOT</version>
+            <version>3.2.30-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-embedded-driver</artifactId>
-            <version>3.2.29-SNAPSHOT</version>
+            <version>3.2.30-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-bolt-driver</artifactId>
-            <version>3.2.29-SNAPSHOT</version>
+            <version>3.2.30-SNAPSHOT</version>
         </dependency>
 
         <dependency>

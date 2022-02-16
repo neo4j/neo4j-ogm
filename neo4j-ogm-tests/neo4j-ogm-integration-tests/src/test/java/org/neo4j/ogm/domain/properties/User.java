@@ -80,6 +80,12 @@ public class User {
     @Properties
     private Map<EnumB, Object> enumBProperties;
 
+    @Properties
+    private Map<String, EnumA> enumAValuesByString;
+
+    @Properties
+    private Map<EnumA, EnumB> enumBValuesByEnum;
+
     @Properties(transformEnumKeysWith = LowerCasePropertiesFilter.class)
     private Map<EnumA, Object> filteredProperties;
 
@@ -232,6 +238,24 @@ public class User {
 
     public void setManualProperties(Map<String, Object> manualProperties) {
         this.manualProperties = manualProperties;
+    }
+
+    public Map<String, EnumA> getEnumAValuesByString() {
+        return enumAValuesByString;
+    }
+
+    public void setEnumAValuesByString(
+        Map<String, EnumA> enumAValuesByString) {
+        this.enumAValuesByString = enumAValuesByString;
+    }
+
+    public Map<EnumA, EnumB> getEnumBValuesByEnum() {
+        return enumBValuesByEnum;
+    }
+
+    public void setEnumBValuesByEnum(
+        Map<EnumA, EnumB> enumBValuesByEnum) {
+        this.enumBValuesByEnum = enumBValuesByEnum;
     }
 
     public static class LowerCasePropertiesFilter implements BiFunction<Phase, String, String> {

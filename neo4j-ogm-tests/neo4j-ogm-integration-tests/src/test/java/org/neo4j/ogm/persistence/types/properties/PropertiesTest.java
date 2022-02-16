@@ -82,11 +82,35 @@ public class PropertiesTest extends TestContainersTestBase {
 
         session.clear();
         User loadedObject = (User) session.query(
-            "MATCH (n) where id(n)=" + user.getId() + " return n", emptyMap())
+                "MATCH (n) where id(n)= $id return n", Collections.singletonMap("id", user.getId()))
             .queryResults().iterator().next()
             .get("n");
         assertThat(loadedObject.getEnumAProperties()).containsEntry(User.EnumA.VALUE_AA, "aa");
         assertThat(loadedObject.getEnumBProperties()).containsEntry(User.EnumB.VALUE_BA, "ba");
+    }
+
+    @Test // GH-899
+    public void shouldHandleEnumsAsValues() {
+
+        User user = new User("A");
+        user.setEnumAValuesByString(Collections.singletonMap("aa", User.EnumA.VALUE_AA));
+        user.setEnumBValuesByEnum(Collections.singletonMap(User.EnumA.VALUE_AA, User.EnumB.VALUE_BA));
+
+        session.save(user);
+
+        session.clear();
+
+        user = session.load(User.class, user.getId());
+        assertThat(user.getEnumAValuesByString()).containsEntry("aa", User.EnumA.VALUE_AA);
+        assertThat(user.getEnumBValuesByEnum()).containsEntry(User.EnumA.VALUE_AA, User.EnumB.VALUE_BA);
+
+        session.clear();
+        User loadedObject = (User) session.query(
+                "MATCH (n) where id(n)= $id AND n.`enumAValuesByString.aa` = 'VALUE_AA' and n.`enumBValuesByEnum.VALUE_AA` = 'VALUE_BA' return n", Collections.singletonMap("id", user.getId()))
+            .queryResults().iterator().next()
+            .get("n");
+        assertThat(loadedObject.getEnumAValuesByString()).containsEntry("aa", User.EnumA.VALUE_AA);
+        assertThat(loadedObject.getEnumBValuesByEnum()).containsEntry(User.EnumA.VALUE_AA, User.EnumB.VALUE_BA);
     }
 
     @Test // GH-634

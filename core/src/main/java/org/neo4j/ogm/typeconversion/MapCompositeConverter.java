@@ -31,12 +31,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.support.ClassUtils;
 
 /**
  * MapCompositeConverter converts Map field into prefixed properties of node or relationship entity.
@@ -66,6 +68,8 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
     private final Predicate<Class<?>> isSupportedNativeType;
 
     private BiFunction<Phase, String, String> enumKeysTransformation = new NoopTransformation();
+
+    private final Map<Class<? extends Enum<?>>, EnumStringConverter> converterCache = new ConcurrentHashMap<>();
 
     /**
      * Create MapCompositeConverter
@@ -113,14 +117,16 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
             String entryKey = entryPrefix + keyInstanceToString(entry.getKey());
             if (entryValue instanceof Map) {
                 addMapToProperties((Map<?, ?>) entryValue, graphProperties, entryKey + delimiter);
+            } else if (isCypherType(entryValue) || (allowCast && canCastType(entryValue))) {
+                graphProperties.put(entryKey, entryValue);
+            } else if (ClassUtils.isEnum(entryValue)) {
+                @SuppressWarnings("unchecked") // It is checked by the condition above.
+                EnumStringConverter enumStringConverter = converterCache.computeIfAbsent((Class<? extends Enum<?>>) entryValue.getClass(), EnumStringConverter::new);
+                graphProperties.put(entryKey, enumStringConverter.toGraphProperty((Enum<?>) entryValue));
             } else {
-                if (isCypherType(entryValue) || (allowCast && canCastType(entryValue))) {
-                    graphProperties.put(entryKey, entryValue);
-                } else {
-                    throw new MappingException("Could not map key=" + entryPrefix + entry.getKey() + ", " +
-                        "value=" + entryValue + " (type = " + entryValue.getClass() + ") " +
-                        "because it is not a supported type.");
-                }
+                throw new MappingException("Could not map key=" + entryPrefix + entry.getKey() + ", " +
+                    "value=" + entryValue + " (type = " + entryValue.getClass() + ") " +
+                    "because it is not a supported type.");
             }
         }
     }
@@ -166,10 +172,16 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
 
             Type valueType = nestedFieldType(fieldType);
             if (valueType != null) {
-                result.put(keyInstance, Utils.coerceTypes((Class) valueType, value));
-            } else {
-                result.put(keyInstance, value);
+                if (value instanceof String && ClassUtils.isEnum(valueType)) {
+                    @SuppressWarnings("unchecked")
+                    EnumStringConverter enumStringConverter = converterCache.computeIfAbsent((Class<? extends Enum<?>>) valueType, EnumStringConverter::new);
+                    value = enumStringConverter.toEntityAttribute((String) value);
+                } else {
+                    value = Utils.coerceTypes((Class<?>) valueType, value);
+                }
             }
+
+            result.put(keyInstance, value);
         }
     }
 

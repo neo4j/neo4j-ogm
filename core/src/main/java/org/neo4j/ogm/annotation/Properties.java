@@ -31,8 +31,10 @@ import java.util.function.BiFunction;
  * The property names are derived from field name or {@link #prefix()}, delimiter and keys in the Map. If the delimiter,
  * prefix or keys conflict with other field names in the class the behaviour is not defined.
  * Supported types for keys in the Map are String and Enum.
- * The values in the Map can be of any Java type equivalent to Cypher types. If full type information is provided other
- * Java types are also supported.
+ * The values in the Map can be of any Java type equivalent to Cypher types. Type derivation works best when you use concrete
+ * types in the declaration of the map (i.e. {@code Map<String, Long>} as we are able to use this information most of the
+ * time. In case you want Enum values, you must declare the composite property as {@code Map<SUPPORTED_KEY_TYPE, YourEnumType>}.
+ * Otherwise only writing, but not reading into an enum is supported.
  * If {@link #allowCast()} is set to true then types that can be cast to corresponding Cypher types are allowed as well.
  *
  * @author Frantisek Hartman

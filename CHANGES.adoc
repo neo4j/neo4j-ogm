@@ -2,6 +2,14 @@
 
 == 3.2
 
+=== 3.2.29
+
+* [improvement] Allow enums as composite property values. (#899)
+* [dependencies] Update to Classgraph 4.8.139.
+* [dependencies] Update to Classgraph 4.8.137.
+* [improvement] Parse class hierarchy recursive.
+* [tests] Ensure locks are correct when object is reloaded. (#894)
+
 === 3.2.28
 
 * [dependencies] Upgrade Neo4j 3.5 to 3.5.30.

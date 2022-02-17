@@ -21,7 +21,7 @@ package org.neo4j.ogm.driver;
 import static java.util.Collections.*;
 
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
@@ -31,6 +31,8 @@ import java.util.function.Function;
  * @author Michael J. Simons
  */
 public final class TypeAdapterLookupDelegate {
+
+    private final Map<Class<?>, Function<Object, Object>> cachedAdapters = new ConcurrentHashMap<>();
     private final Map<Class<?>, Function> registeredTypeAdapter;
 
     public TypeAdapterLookupDelegate(Map<Class<?>, Function> registeredTypeAdapter) {
@@ -46,25 +48,32 @@ public final class TypeAdapterLookupDelegate {
      */
     public Function<Object, Object> getAdapterFor(Class<?> clazz) {
 
-        Function<Object, Object> adapter = findAdapterFor(clazz).orElseGet(Function::identity);
-        return object -> object == null ? null : adapter.apply(object);
+        return findAdapterFor(clazz);
     }
 
     public boolean hasAdapterFor(Class<?> clazz) {
-        return findAdapterFor(clazz).isPresent();
+
+        return this.registeredTypeAdapter.containsKey(clazz) || registeredTypeAdapter.keySet().stream()
+            .anyMatch(c -> c.isAssignableFrom(clazz));
     }
 
-    private Optional<Function<Object, Object>> findAdapterFor(Class<?> clazz) {
+    private Function<Object, Object> findAdapterFor(Class<?> clazz) {
 
-        if (clazz == null) {
-            return Optional.empty();
-        } else if (this.registeredTypeAdapter.containsKey(clazz)) {
-            return Optional.of(registeredTypeAdapter.get(clazz));
-        } else {
-            return registeredTypeAdapter.entrySet()
-                .stream().filter(e -> e.getKey().isAssignableFrom(clazz))
-                .findFirst()
-                .map(Map.Entry::getValue);
-        }
+        return cachedAdapters.computeIfAbsent(clazz, c -> {
+            Function<Object, Object> f;
+            if (c == null) {
+                f = Function.identity();
+            } else if (this.registeredTypeAdapter.containsKey(c)) {
+                f = registeredTypeAdapter.get(c);
+            } else {
+                f = registeredTypeAdapter.entrySet()
+                    .stream()
+                    .filter(e -> e.getKey().isAssignableFrom(c))
+                    .findFirst()
+                    .map(Map.Entry::getValue)
+                    .orElseGet(Function::identity);
+            }
+            return o -> o == null ? null : f.apply(o);
+        });
     }
 }

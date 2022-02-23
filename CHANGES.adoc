@@ -1,5 +1,9 @@
 = Changes
 
+== 3.2.30
+
+* [improvement] Improve performance of `TypeAdapterLookupDelegate`.
+
 == 3.2.29
 
 * [improvement] Allow enums as composite property values. (#899)

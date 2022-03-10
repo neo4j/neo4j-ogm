@@ -18,17 +18,10 @@
  */
 package org.neo4j.ogm.context;
 
-import static java.util.stream.Collectors.*;
-
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 
 import org.neo4j.ogm.metadata.MetaData;
@@ -37,6 +30,8 @@ import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.EntityInstantiator;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * @author Vince Bickers
@@ -53,41 +48,57 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
     }
 
     public <T> Iterable<T> map(Class<T> type, Response<GraphRowListModel> response) {
-
-        // Retrieve all the row models
-        List<GraphRowModel> listOfRowModels = response.toList()
-            .stream()
-            .flatMap(rowsModel -> rowsModel.model().stream())
-            .collect(toList());
-
-        response.close();
-
-        // Extract the graph models and the ids of all result entities
-        // I guess those are the entities that are clearly identified by
-        // something in the return clause.
-        List<GraphModel> listOfGraphModels = new ArrayList<>();
         Set<Long> idsOfResultEntities = new LinkedHashSet<>();
 
-        listOfRowModels.forEach(graphRowModel -> {
+        Response<GraphModel> graphResponse = new Response<GraphModel>() {
 
-            Set<Long> idsInCurrentRow = Arrays.stream(graphRowModel.getRow())
-                .filter(Number.class::isInstance)
-                .map(Number.class::cast)
-                .map(Number::longValue)
-                .collect(toSet());
+            GraphRowListModel currentIteratedModel;
+            int currentIndex = 0;
 
-            listOfGraphModels.add(graphRowModel.getGraph());
-            idsOfResultEntities.addAll(idsInCurrentRow);
-        });
+            @Override
+            public GraphModel next() {
+                if (currentIteratedModel == null) {
+                    currentIteratedModel = response.next();
 
-        // The order map here contains the ids of the top level nodes as they have appeared in the result.
-        // Top level meaning here nodes that should be returned in the result set, not their related nodes.
-        Map<Long, Long> order = new HashMap<>();
-        AtomicLong index = new AtomicLong(0L);
-        idsOfResultEntities.forEach(id -> order.put(id, index.getAndIncrement()));
+                    if (currentIteratedModel == null) {
+                        return null;
+                    }
+                    currentIndex = 0;
+                }
 
+                List<GraphRowModel> listOfRowModels = currentIteratedModel.model();
+                if (listOfRowModels.size() <= currentIndex) {
+                    currentIteratedModel = null;
+                    return next();
+                }
+                GraphRowModel graphRowModel = listOfRowModels.get(currentIndex++);
+
+                Set<Long> idsInCurrentRow = Arrays.stream(graphRowModel.getRow())
+                    .filter(Number.class::isInstance)
+                    .map(Number.class::cast)
+                    .map(Number::longValue)
+                    .collect(toSet());
+
+                idsOfResultEntities.addAll(idsInCurrentRow);
+
+                return graphRowModel.getGraph();
+            }
+
+            @Override
+            public void close() {
+                response.close();
+            }
+
+            @Override
+            public String[] columns() {
+                return response.columns();
+            }
+        };
+
+        // although it looks like that the `idsOfResultEntities` will stay empty, they won't, trust us.
         BiFunction<GraphModel, Long, Boolean> includeModelObject =
             (graphModel, nativeId) -> idsOfResultEntities.contains(nativeId);
-        return delegate.map(type, listOfGraphModels, includeModelObject, Collections.unmodifiableMap(order));
+
+        return delegate.map(type, graphResponse, includeModelObject);
     }
 }

@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.context;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -45,10 +43,7 @@ public class GraphRowModelMapper implements ResponseMapper<GraphModel> {
     }
 
     @Override
-    public <T> Iterable<T> map(Class<T> type, Response<GraphModel> model) {
-
-        List<GraphModel> listOfGraphModels = model.toList();
-        model.close();
+    public <T> Iterable<T> map(Class<T> type, Response<GraphModel> response) {
 
         BiFunction<GraphModel, Long, Boolean> isNotGeneratedNode = (graphModel, nativeId) -> {
             Optional<Node> node = ((DefaultGraphModel) graphModel).findNode(nativeId);
@@ -57,6 +52,6 @@ public class GraphRowModelMapper implements ResponseMapper<GraphModel> {
             }
             return node.map(n -> !((NodeModel) n).isGeneratedNode()).get();
         };
-        return delegate.map(type, listOfGraphModels, isNotGeneratedNode, Collections.emptyMap());
+        return delegate.map(type, response, isNotGeneratedNode);
     }
 }

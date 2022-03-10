@@ -42,6 +42,7 @@ import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.PropertyModel;
 import org.neo4j.ogm.session.EntityInstantiator;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
@@ -79,34 +80,24 @@ public class GraphEntityMapper {
         this.mappingContext = mappingContext;
     }
 
-    <T> List<T> map(Class<T> type, List<GraphModel> listOfGraphModels) {
-        return map(type, listOfGraphModels, (m, n) -> true, Collections.emptyMap());
+    <T> List<T> map(Class<T> type, Response<GraphModel> listOfGraphModels) {
+        return map(type, listOfGraphModels, (m, n) -> true);
     }
 
     /**
      * @param type                 the type of the entities to return
-     * @param listOfGraphModels    The list of graph models to work on
+     * @param graphModelResponse   The response of graph models to work on
      * @param additionalNodeFilter An optional filter to exclude entities based on some nodes from the result
-     * @param order                This is a map from a native graph id to an index specifying the order of entities
-     *                             based on the node with the given id in the result.
      * @param <T>                  The type of the class of the entities to return
      * @return The list of entities represented by the list of graph models.
      */
-    <T> List<T> map(Class<T> type, List<GraphModel> listOfGraphModels,
-        BiFunction<GraphModel, Long, Boolean> additionalNodeFilter, Map<Long, Long> order) {
+    <T> List<T> map(Class<T> type, Response<GraphModel> graphModelResponse,
+        BiFunction<GraphModel, Long, Boolean> additionalNodeFilter) {
 
         // Those are the ids of all mapped nodes.
         Set<Long> mappedNodeIds = new LinkedHashSet<>();
 
-        // Those are the ids of the returned nodes
-        // Although we try to keep the order as we process the list of graph models, there are some edge cases when
-        // one graph model contains a node and its related nodes. When those nodes have a self referential relationship
-        // than the order of the query get's messed up:
-        // With  a->c, b, c and the , query should return a, b, c, it would return
-        // a, c, b because org.neo4j.ogm.context.GraphEntityMapper.mapNodes would map all nodes coming from a in that order
-        Set<Long> returnedNodeIds = order.isEmpty() ?
-            new LinkedHashSet<>() :
-            new TreeSet<>(Comparator.comparingLong(e -> order.getOrDefault(e, e)));
+        Set<Long> returnedNodeIds = new LinkedHashSet<>();
         Set<Long> mappedRelationshipIds = new LinkedHashSet<>();
         Set<Long> returnedRelationshipIds = new LinkedHashSet<>();
 
@@ -114,7 +105,12 @@ public class GraphEntityMapper {
         Consumer<GraphModel> mapContentOfIndividualModel =
             graphModel -> mapContentOf(graphModel, additionalNodeFilter, returnedNodeIds, mappedRelationshipIds,
                 returnedRelationshipIds, mappedNodeIds);
-        listOfGraphModels.forEach(mapContentOfIndividualModel);
+
+        GraphModel graphModel = null;
+        while ((graphModel = graphModelResponse.next()) != null) {
+            mapContentOfIndividualModel.accept(graphModel);
+        }
+        graphModelResponse.close();
 
         // Execute postload after all models and only for new ids
         executePostLoad(mappedNodeIds, mappedRelationshipIds);

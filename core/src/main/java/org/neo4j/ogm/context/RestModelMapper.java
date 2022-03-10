@@ -64,24 +64,38 @@ public class RestModelMapper {
 
     public RestStatisticsModel map(Response<RestModel> response) {
 
-        // Build a list of result row builders, that are able to recreate the result structure from
-        // the result of executing the graph to entity mapping
-        List<ResultRowBuilder> resultRowBuilders = response.toList().stream()
-            .map(model -> {
+        List<ResultRowBuilder> resultRowBuilders = new ArrayList<>();
+        Response<GraphModel> graphModelResponse = new Response<GraphModel>() {
+
+            @Override
+            public GraphModel next() {
+                RestModel model = response.next();
+                if (model == null) {
+                    return null;
+                }
+
                 ResultRowBuilder resultRowBuilder = new ResultRowBuilder(
-                    this::getEntityOrNodeModel,
+                    RestModelMapper.this::getEntityOrNodeModel,
                     mappingContext::getRelationshipEntity
                 );
-
+                resultRowBuilders.add(resultRowBuilder);
                 model.getRow().forEach(resultRowBuilder::handle);
-                return resultRowBuilder;
-            }).collect(toList());
+                return resultRowBuilder.buildGraphModel();
+            }
 
-        // Build and collect all the graph models.
-        List<GraphModel> graphModels = resultRowBuilders.stream()
-            .map(ResultRowBuilder::buildGraphModel).collect(toList());
+            @Override
+            public void close() {
+                response.close();
+            }
+
+            @Override
+            public String[] columns() {
+                return response.columns();
+            }
+        };
+
         // Run the actual mapping
-        delegate.map(Object.class, graphModels);
+        delegate.map(Object.class, graphModelResponse);
         // Recreate the original structure
         RestStatisticsModel restStatisticsModel = new RestStatisticsModel();
         response.getStatistics().ifPresent(restStatisticsModel::setStatistics);
@@ -90,7 +104,7 @@ public class RestModelMapper {
     }
 
     /**
-     * Retrieves a mapped entity from this sessions mapping context after a call to {@link GraphEntityMapper#map(Class, List)}.
+     * Retrieves a mapped entity from this sessions mapping context after a call to {@link GraphEntityMapper#map(Class, Response)}.
      * If there's no mapped entity, this method tries to find the {@link NodeModel} with the same id in the {@link GraphModel} which
      * has been the base of the mapping process.
      *

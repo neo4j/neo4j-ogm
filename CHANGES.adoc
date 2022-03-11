@@ -1,5 +1,14 @@
 = Changes
 
+== 3.2.31
+
+* [dependencies] Drop commons-lang3 from core dependencies.
+* [dependencies] Bump neo4j35 from 3.5.30 to 3.5.31
+* [dependencies] Bump classgraph from 4.8.139 to 4.4.15
+* [dependencies] Bump httpcore from 4.4.14 to 4.4.15
+* [dependencies] Bump slf4j from 1.7.25 to 1.7.36
+* [improvement] Lazy hydrate response model.
+
 == 3.2.30
 
 * [improvement] Improve performance of `TypeAdapterLookupDelegate`.

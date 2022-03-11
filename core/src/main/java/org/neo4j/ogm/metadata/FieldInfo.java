@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.Index;
@@ -49,6 +48,7 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.typeconversion.MapCompositeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;
+import org.neo4j.ogm.utils.StringUtils;
 
 /**
  * @author Vince Bickers
@@ -128,8 +128,9 @@ public class FieldInfo {
                 if (fieldType.equals(Map.class)) {
                     Properties propertiesAnnotation = (Properties) getAnnotations().get(Properties.class).getAnnotation();
                     Type fieldGenericType = field.getGenericType();
+                    Predicate<String> isNotBlank = ((Predicate<String>) StringUtils::isBlank).negate();
                     MapCompositeConverter mapCompositeConverter = new MapCompositeConverter(
-                        Optional.ofNullable(propertiesAnnotation.prefix()).filter(StringUtils::isNotBlank).orElseGet(field::getName),
+                        Optional.ofNullable(propertiesAnnotation.prefix()).filter(isNotBlank).orElseGet(field::getName),
                         propertiesAnnotation.delimiter(),
                         propertiesAnnotation.allowCast(),
                         (ParameterizedType) fieldGenericType, isSupportedNativeType);

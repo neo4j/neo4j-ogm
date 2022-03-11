@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.neo4j.ogm.exception.OptimisticLockingException;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.OptimisticLockingConfig;
@@ -71,7 +70,7 @@ public class OptimisticLockingChecker {
 
                 if (!models.isEmpty()) {
 
-                    int idPosition = ArrayUtils.indexOf(models.get(0).variables(), "id");
+                    int idPosition = indexOf(models.get(0).variables(), "id");
                     for (RowModel model : models) {
                         Object id = model.getValues()[idPosition];
                         if (type.equals("node")) {
@@ -113,5 +112,17 @@ public class OptimisticLockingChecker {
 
             throw new OptimisticLockingException(message.toString());
         }
+    }
+
+    private static int indexOf(final Object[] array, final Object objectToFind) {
+        if (array == null) {
+            return -1;
+        }
+        for (int i = 0; i < array.length; i++) {
+            if (objectToFind.equals(array[i])) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

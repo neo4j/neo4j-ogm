@@ -67,9 +67,10 @@ public interface Compiler {
      * Returns a {@link RelationshipBuilder} that represents and existing relationship entity to be modified in the database
      *
      * @param existingRelationshipId The ID of the relationship in the database, which shouldn't be <code>null</code>
+     * @param direction              The direction of the existing relationship
      * @return A new {@link RelationshipBuilder} bound to the identified relationship entity
      */
-    RelationshipBuilder existingRelationship(Long existingRelationshipId, String type);
+    RelationshipBuilder existingRelationship(Long existingRelationshipId, String direction, String type);
 
     /**
      * Defines a relationship deletion between the specified start node to end node with the given relationship type and direction.

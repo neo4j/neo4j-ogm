@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.commons.lang3.StringUtils;
+import org.neo4j.ogm.utils.StringUtils;
 
 /**
  * By default the OGM will map date objects to UTC-based ISO8601 compliant

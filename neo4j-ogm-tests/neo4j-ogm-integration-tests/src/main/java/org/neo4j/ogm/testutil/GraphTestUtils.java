@@ -41,7 +41,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.test.TestDatabaseManagementServiceBuilder;
-import org.parboiled.common.StringUtils;
 
 /**
  * Utility methods used to facilitate testing against a real Neo4j database.
@@ -363,7 +362,7 @@ public final class GraphTestUtils {
         }
 
         String props = propertiesToString(node);
-        if (StringUtils.isNotEmpty(props) && !labelNames.isEmpty()) {
+        if (!(props.isEmpty() || labelNames.isEmpty())) {
             string.append(" ");
         }
         string.append(props);
@@ -377,7 +376,7 @@ public final class GraphTestUtils {
         string.append(print(relationship.getStartNode()));
         string.append("-[:").append(relationship.getType().name());
         String props = propertiesToString(relationship);
-        if (StringUtils.isNotEmpty(props)) {
+        if (!props.isEmpty()) {
             string.append(" ");
         }
         string.append(props);

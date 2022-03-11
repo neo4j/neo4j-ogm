@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.typeconversion;
 
-import org.apache.commons.lang3.StringUtils;
+import org.neo4j.ogm.utils.StringUtils;
 
 /**
  * By default the OGM will map enum objects to and from

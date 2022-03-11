@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.GraphRowModelMapper;
@@ -311,7 +310,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
                 Thread.currentThread().getId());
         }
 
-        if (StringUtils.isEmpty(cypher)) {
+        if (cypher == null || cypher.isEmpty()) {
             throw new RuntimeException("Supplied cypher statement must not be null or empty.");
         }
 

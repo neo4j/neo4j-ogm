@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.typeconversion;
 
-import org.apache.commons.lang3.StringUtils;
+import org.neo4j.ogm.utils.StringUtils;
 
 /**
  * The NumberStringConverter can be used to convert any java object that extends

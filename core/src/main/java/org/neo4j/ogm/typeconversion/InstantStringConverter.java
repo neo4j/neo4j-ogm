@@ -22,8 +22,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
+import org.neo4j.ogm.utils.StringUtils;
 
 /**
  * Converter to convert between {@link Instant} and {@link String}.

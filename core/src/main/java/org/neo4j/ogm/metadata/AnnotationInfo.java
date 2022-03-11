@@ -26,9 +26,9 @@ import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.ValueFor;
 import org.neo4j.ogm.support.ClassUtils;
+import org.neo4j.ogm.utils.StringUtils;
 
 /**
  * @author Vince Bickers
@@ -82,7 +82,7 @@ public class AnnotationInfo {
             if (valueFor != null) {
                 Object value = getAttributeValue(annotation, element);
 
-                if (value != null && (!(value instanceof String) || StringUtils.isNotBlank((String) value))) {
+                if (value != null && (!(value instanceof String) || !StringUtils.isBlank((String) value))) {
                     elements.put(valueFor.value(), convert(element, value));
                 }
             }

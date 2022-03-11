@@ -20,6 +20,7 @@ package org.neo4j.ogm.cypher.compiler;
 
 import java.util.List;
 
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
 
@@ -70,7 +71,7 @@ public interface Compiler {
      * @param direction              The direction of the existing relationship
      * @return A new {@link RelationshipBuilder} bound to the identified relationship entity
      */
-    RelationshipBuilder existingRelationship(Long existingRelationshipId, String direction, String type);
+    RelationshipBuilder existingRelationship(Long existingRelationshipId, Relationship.Direction direction, String type);
 
     /**
      * Defines a relationship deletion between the specified start node to end node with the given relationship type and direction.

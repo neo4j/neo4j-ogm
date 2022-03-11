@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.compiler.builders.node.DefaultNodeBuilder;
 import org.neo4j.ogm.cypher.compiler.builders.node.DefaultRelationshipBuilder;
 import org.neo4j.ogm.cypher.compiler.builders.statement.DeletedRelationshipEntityStatementBuilder;
@@ -92,8 +93,8 @@ public class MultiStatementCypherCompiler implements Compiler {
     }
 
     @Override
-    public RelationshipBuilder existingRelationship(Long existingRelationshipId, String direction, String type) {
-        String key = existingRelationshipId + ";" + direction;
+    public RelationshipBuilder existingRelationship(Long existingRelationshipId, Relationship.Direction direction, String type) {
+        String key = existingRelationshipId + ";" + direction.name();
         return existingRelationshipBuilders.computeIfAbsent(key, k -> new DefaultRelationshipBuilder(type, existingRelationshipId));
     }
 

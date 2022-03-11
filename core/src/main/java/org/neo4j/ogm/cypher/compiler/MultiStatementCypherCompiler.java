@@ -20,13 +20,7 @@ package org.neo4j.ogm.cypher.compiler;
 
 import static java.util.stream.Collectors.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -57,8 +51,8 @@ public class MultiStatementCypherCompiler implements Compiler {
     private final CompileContext context;
     private final List<NodeBuilder> newNodeBuilders;
     private final List<RelationshipBuilder> newRelationshipBuilders;
-    private final List<NodeBuilder> existingNodeBuilders;
-    private final List<RelationshipBuilder> existingRelationshipBuilders;
+    private final Map<Long, NodeBuilder> existingNodeBuilders;
+    private final Map<String, RelationshipBuilder> existingRelationshipBuilders;
     private final List<RelationshipBuilder> deletedRelationshipBuilders;
     private final List<RelationshipBuilder> deletedRelationshipEntityBuilders;
     private StatementFactory statementFactory;
@@ -67,8 +61,8 @@ public class MultiStatementCypherCompiler implements Compiler {
         this.context = new CypherContext(this, nativeIdProvider);
         this.newNodeBuilders = new ArrayList<>();
         this.newRelationshipBuilders = new ArrayList<>();
-        this.existingNodeBuilders = new ArrayList<>();
-        this.existingRelationshipBuilders = new ArrayList<>();
+        this.existingNodeBuilders = new HashMap<>();
+        this.existingRelationshipBuilders = new LinkedHashMap<>(); // Order for the relationships IS important
         this.deletedRelationshipBuilders = new ArrayList<>();
         this.deletedRelationshipEntityBuilders = new ArrayList<>();
     }
@@ -94,16 +88,13 @@ public class MultiStatementCypherCompiler implements Compiler {
 
     @Override
     public NodeBuilder existingNode(Long existingNodeId) {
-        NodeBuilder nodeBuilder = new DefaultNodeBuilder(existingNodeId);
-        existingNodeBuilders.add(nodeBuilder);
-        return nodeBuilder;
+        return existingNodeBuilders.computeIfAbsent(existingNodeId, DefaultNodeBuilder::new);
     }
 
     @Override
-    public RelationshipBuilder existingRelationship(Long existingRelationshipId, String type) {
-        RelationshipBuilder relationshipBuilder = new DefaultRelationshipBuilder(type, existingRelationshipId);
-        existingRelationshipBuilders.add(relationshipBuilder);
-        return relationshipBuilder;
+    public RelationshipBuilder existingRelationship(Long existingRelationshipId, String direction, String type) {
+        String key = existingRelationshipId + ";" + direction;
+        return existingRelationshipBuilders.computeIfAbsent(key, k -> new DefaultRelationshipBuilder(type, existingRelationshipId));
     }
 
     @Override
@@ -122,7 +113,18 @@ public class MultiStatementCypherCompiler implements Compiler {
 
     @Override
     public void unmap(NodeBuilder nodeBuilder) {
-        existingNodeBuilders.remove(nodeBuilder);
+
+        if (nodeBuilder.reference() != null) {
+            existingNodeBuilders.remove(nodeBuilder.reference());
+        } else {
+            Iterator<Map.Entry<Long, NodeBuilder>> it = existingNodeBuilders.entrySet().iterator();
+            while (it.hasNext()) {
+                NodeBuilder builder = it.next().getValue();
+                if (builder == nodeBuilder) {
+                    it.remove();
+                }
+            }
+        }
     }
 
     public List<Statement> createNodesStatements() {
@@ -177,8 +179,7 @@ public class MultiStatementCypherCompiler implements Compiler {
     @Override
     public List<Statement> updateNodesStatements() {
         assertStatementFactoryExists();
-        Map<String, Set<Node>> existingNodesByLabels = groupNodesByLabel(existingNodeBuilders);
-
+        Map<String, Set<Node>> existingNodesByLabels = groupNodesByLabel(existingNodeBuilders.values());
         List<Statement> statements = new ArrayList<>(existingNodesByLabels.size());
         for (Set<Node> nodeModels : existingNodesByLabels.values()) {
             ExistingNodeStatementBuilder existingNodeBuilder = new ExistingNodeStatementBuilder(nodeModels,
@@ -192,16 +193,19 @@ public class MultiStatementCypherCompiler implements Compiler {
     @Override
     public List<Statement> updateRelationshipStatements() {
         assertStatementFactoryExists();
+
+        if (existingRelationshipBuilders.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         Set<Edge> relationships = new HashSet<>(existingRelationshipBuilders.size());
         List<Statement> statements = new ArrayList<>(existingRelationshipBuilders.size());
-        if (existingRelationshipBuilders.size() > 0) {
-            for (RelationshipBuilder relBuilder : existingRelationshipBuilders) {
-                relationships.add(relBuilder.edge());
-            }
-            ExistingRelationshipStatementBuilder existingRelationshipBuilder = new ExistingRelationshipStatementBuilder(
-                relationships, statementFactory);
-            statements.add(existingRelationshipBuilder.build());
+        for (RelationshipBuilder relBuilder : existingRelationshipBuilders.values()) {
+            relationships.add(relBuilder.edge());
         }
+        ExistingRelationshipStatementBuilder existingRelationshipBuilder = new ExistingRelationshipStatementBuilder(
+            relationships, statementFactory);
+        statements.add(existingRelationshipBuilder.build());
         return statements;
     }
 
@@ -302,7 +306,7 @@ public class MultiStatementCypherCompiler implements Compiler {
         }
     }
 
-    private Map<String, Set<Node>> groupNodesByLabel(List<NodeBuilder> nodeBuilders) {
+    private Map<String, Set<Node>> groupNodesByLabel(Collection<NodeBuilder> nodeBuilders) {
         return nodeBuilders.stream()
             .map(NodeBuilder::node)
             .collect(groupingBy(Node::labelSignature, Collectors.mapping(Function.identity(), Collectors.toSet())));

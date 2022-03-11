@@ -573,7 +573,7 @@ public class EntityGraphMapper implements EntityMapper {
                     EntityUtils.setIdentity(entity, null, metaData);
                 }
             } else {
-                relationshipBuilder = cypherBuilder.existingRelationship(relId, directedRelationship.type());
+                relationshipBuilder = cypherBuilder.existingRelationship(relId, directedRelationship.direction(), directedRelationship.type());
 
                 this.mappingContext.getSnapshotOf(entity).ifPresent(snapshot ->
                     relationshipBuilder

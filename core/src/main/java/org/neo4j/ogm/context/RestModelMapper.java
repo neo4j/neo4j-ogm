@@ -21,14 +21,8 @@ package org.neo4j.ogm.context;
 import static java.util.stream.Collectors.*;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -158,9 +152,14 @@ public class RestModelMapper {
         private Map<String, List<Long>> aliasToRelationshipIdMapping = new HashMap<>();
 
         /**
-         * Contains the the aliases mapped to lists of things.
+         * Contains the aliases mapped to lists of things.
          */
         private Set<String> aliasesOfListResults = new HashSet<>();
+
+        /**
+         * A tree pointing to lists of lists.
+         */
+        private Map<String, List<String>> nestedListsPointers = new TreeMap<>(Comparator.reverseOrder());
 
         /**
          * The result row being build.
@@ -180,33 +179,46 @@ public class RestModelMapper {
             };
         }
 
+        void handle(String alias, Object resultObject) {
+            handle(alias, resultObject, 0, null);
+        }
+
         /**
          * Handles one result object.
          *
          * @param alias        The alias in the result set
          * @param resultObject The result object
          */
-        void handle(String alias, Object resultObject) {
+        void handle(String alias, Object resultObject, int level, Integer index) {
             if (!canBeMapped(resultObject)) {
                 // The entity mapper can only deal with models
                 this.resultRow.put(alias, convertToTargetContainer(resultObject));
             } else if (resultObject instanceof List) {
+
                 // Mark that result object as list, as it needs to be reconstructed later
+                String next = alias;
+                if (level > 0) { // This caters for hierarchies (levels)
+                    next += ("-" + level);
+                }
+                if (index != null) { // This caters for siblings (index in lists of lists)
+                    next += ("-" + index);
+                }
+                if (!next.equals(alias)) {
+                    next += ("-" + ThreadLocalRandom.current().nextInt()); // Make sure we have unique generated aliases
+                    nestedListsPointers.computeIfAbsent(alias, k -> new ArrayList<>()).add(next);
+                    alias = next;
+                    resultRow.put(alias, new ArrayList<>());
+                }
+
                 this.aliasesOfListResults.add(alias);
-                this.recursivelyAddToGraphModel(alias, (List<Object>) resultObject);
+
+                int idx = 0;
+                for (Object o : (List<Object>) resultObject) {
+                    handle(alias, o, level + 1, idx++);
+                }
             } else {
                 // Just add the model as is to the graph model
                 this.addToGraphModel(alias, resultObject);
-            }
-        }
-
-        private void recursivelyAddToGraphModel(String alias, List<Object> current) {
-            for (Object o : current) {
-                if (o instanceof List) {
-                    recursivelyAddToGraphModel(alias, (List<Object>) o);
-                } else {
-                    addToGraphModel(alias, o);
-                }
             }
         }
 
@@ -252,25 +264,39 @@ public class RestModelMapper {
                 throw new IllegalStateException("GraphModel not built yet!");
             }
             aliasToNodeIdMapping.forEach((k, v) -> {
-                Object entity;
                 if (!aliasesOfListResults.contains(k) && v.size() == 1) {
-                    entity = resolveNodeId.apply(v.get(0), graphModel);
+                    Object entity = resolveNodeId.apply(v.get(0), graphModel);
                     resultRow.put(k, entity);
                 } else {
-                    entity = v.stream().map(id -> resolveNodeId.apply(id, graphModel)).collect(toList());
+                    List<Object> entities = v.stream().map(id -> resolveNodeId.apply(id, graphModel)).collect(toList());
                     List<Object> entityList = (List<Object>) resultRow.computeIfAbsent(k, key -> new ArrayList<>());
-                    entityList.addAll((List) entity);
+                    entityList.addAll(entities);
                 }
             });
             aliasToRelationshipIdMapping.forEach((k, v) -> {
-                Object entity;
                 if (!aliasesOfListResults.contains(k) && v.size() == 1) {
-                    entity = resolveRelationshipId.apply(v.get(0));
+                    Object entity = resolveRelationshipId.apply(v.get(0));
                     resultRow.put(k, entity);
                 } else {
-                    entity = v.stream().map(resolveRelationshipId).collect(toList());
+                    List<Object> entities = v.stream().map(resolveRelationshipId).collect(toList());
                     List<Object> entityList = (List<Object>) resultRow.computeIfAbsent(k, key -> new ArrayList<>());
-                    entityList.addAll((List) entity);
+                    entityList.addAll(entities);
+                }
+            });
+
+            // Reconstruct nested lists. The map has a stable order, lists will be constructed from the outmost to the innermost
+            nestedListsPointers.forEach((k, pointers) -> {
+                if (pointers.size() == 1) {
+                    String pointer = pointers.get(0);
+                    resultRow.put(k, Collections.singletonList(resultRow.get(pointer)));
+                    resultRow.remove(pointer);
+                } else {
+                    List<Object> values = new ArrayList<>();
+                    for (String pointer : pointers) {
+                        values.add(resultRow.get(pointer));
+                        resultRow.remove(pointer);
+                    }
+                    resultRow.put(k, Collections.unmodifiableList(values));
                 }
             });
 
@@ -289,15 +315,15 @@ public class RestModelMapper {
             Predicate<Object> isNodeModel = NodeModel.class::isInstance;
             Predicate<Object> isRelationshipModel = RelationshipModel.class::isInstance;
             Predicate<Object> isNodeOrRelationshipModel = isNodeModel.or(isRelationshipModel);
-            Predicate<Object> isListAndEachMemberCanBeMapped = o -> o instanceof List && ((List) o).stream()
+            Predicate<Object> isListAndEachMemberCanBeMapped = o -> o instanceof List && ((List<?>) o).stream()
                 .allMatch(isNodeOrRelationshipModel);
 
             if (isNodeOrRelationshipModel.test(resultObject)) {
                 return true;
             } else if (resultObject instanceof List) {
-                List listOfResultObjects = (List) resultObject;
+                List<?> listOfResultObjects = (List<?>) resultObject;
                 return listOfResultObjects.size() > 0 && listOfResultObjects.stream()
-                    .allMatch(isNodeOrRelationshipModel.or(isListAndEachMemberCanBeMapped));
+                    .allMatch(isNodeOrRelationshipModel.or(isListAndEachMemberCanBeMapped).or(ResultRowBuilder::canBeMapped));
             } else {
                 return false;
             }

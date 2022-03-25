@@ -18,10 +18,8 @@
  */
 package org.neo4j.ogm.persistence.session.capability;
 
-import static java.util.Collections.emptyMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.*;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
@@ -37,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Condition;
+import org.assertj.core.data.Index;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -61,12 +60,12 @@ import org.neo4j.ogm.domain.gh875.AbstractPet;
 import org.neo4j.ogm.domain.gh875.Cat;
 import org.neo4j.ogm.domain.gh875.Kennel;
 import org.neo4j.ogm.domain.gh875.Person;
-import org.neo4j.ogm.domain.sdn2306.AbstractNodeBImplA;
-import org.neo4j.ogm.domain.sdn2306.SubNodeB;
-import org.neo4j.ogm.domain.sdn2306.SubNodeBImplA;
 import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.domain.nested.NestingClass;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
+import org.neo4j.ogm.domain.sdn2306.AbstractNodeBImplA;
+import org.neo4j.ogm.domain.sdn2306.SubNodeB;
+import org.neo4j.ogm.domain.sdn2306.SubNodeBImplA;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.response.model.NodeModel;
@@ -986,6 +985,22 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     public void shouldReturnListOfNodesAndRelationshipModelForUnknownRelationshipLists() {
         Result result = session
             .query("MATCH (n:Movie{title:'Pulp Fiction'}) return n, [(n)-[r:UNKNOWN]-(p) | [r,p]] as relAndNode",
+                emptyMap());
+        Map<String, Object> returnedRow = result.queryResults().iterator().next();
+
+        assertThat(returnedRow.get("n")).isInstanceOf(Movie.class);
+        assertThat(returnedRow.get("relAndNode")).isInstanceOf(List.class);
+        List<?> relAndNode = ((List<List<?>>) returnedRow.get("relAndNode")).get(0);
+        assertThat(relAndNode)
+            .hasSize(2)
+            .satisfies(v -> assertThat(v).isInstanceOf(Pet.class), Index.atIndex(0))
+            .satisfies(v -> assertThat(v).isInstanceOf(RelationshipModel.class), Index.atIndex(1));
+    }
+
+    @Test // GH-902
+    public void workaroundFor737() {
+        Result result = session
+            .query("MATCH (n:Movie{title:'Pulp Fiction'}) WITH n, [(n)-[r:UNKNOWN]-(p) | [r,p]] as patterns UNWIND patterns as relAndNode RETURN n, relAndNode",
                 emptyMap());
         Map<String, Object> returnedRow = result.queryResults().iterator().next();
 

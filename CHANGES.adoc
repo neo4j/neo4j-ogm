@@ -7,19 +7,28 @@
 * [bug] Don't flatten collections of known entities. (#902)
 * [improvement] Avoid unnecessary creation of builders.
 
-https://github.com/neo4j/neo4j-ogm/commit/60e5f51a3c499f756732004be5b9e0fa57e2f6a6[ 60e5f51] can lead to breaking changes
+https://github.com/neo4j/neo4j-ogm/commit/60e5f51a3c499f756732004be5b9e0fa57e2f6a6[60e5f51] (the fix for #902) can lead to breaking changes
 in some custom queries (all queries having several levels of nested lists of domain objects). They have been incorrectly
 flattened before that change and their structure will be preserved afterwards.
 
 An example. A query returning
 
-```
+[source]
+----
 [[n0, n1, n2], [n3], [n4], [n5, n6]]
-```
-
+----
 
 with n1..6 being known domain objects will be flattened to a `[n1, n2, n3, n4, n5, n6]` prior to 3.2.32.
 The above structure will now be preserved.
+
+This also applies to pattern comprehensions like those:
+
+[source]
+----
+MATCH (n:Movie{title:'Pulp Fiction'}) return n, [(n)-[r:UNKNOWN]-(p) | [r,p]] as relAndNode
+----
+
+prior to the fix, `relAndNode` would have been returned as a single array. Now it will be returned as a collection of arrays, exactly what the comprehension states.
 
 See the notes in the linked commit and this https://github.com/neo4j/neo4j-ogm/issues/737#issuecomment-1079022137[comment].
 

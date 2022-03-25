@@ -20,6 +20,7 @@ package org.neo4j.ogm.context;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -249,6 +250,10 @@ public class SingleUseEntityMapper {
     @SuppressWarnings("unchecked")
     Object mapKnownEntityType(Class<?> elementType, String property, Object value, boolean asCollection) {
 
+        if (asCollection && isMappedCollection(value, elementType)) {
+            return flatten(value);
+        }
+
         List<Object> nestedObjects = new ArrayList<>();
 
         for (Object nestedPropertyMap : CollectionUtils.iterableOf(value)) {
@@ -276,5 +281,25 @@ public class SingleUseEntityMapper {
         } else {
             return nestedObjects.isEmpty() ? null : nestedObjects.get(0);
         }
+    }
+
+    private static List<Object> flatten(Object value) {
+
+        if (value instanceof Collection) {
+            List<Object> result = new ArrayList<>();
+            for (Object object : ((Collection<?>) value)) {
+                result.addAll(flatten(object));
+            }
+            return result;
+        } else {
+            return Collections.singletonList(value);
+        }
+    }
+
+    private static boolean isMappedCollection(Object resultObject, Class<?> elementType) {
+
+        Predicate<Object> isElementType = elementType::isInstance;
+        return resultObject instanceof Collection && ((Collection<?>) resultObject)
+            .stream().allMatch(isElementType.or(v -> isMappedCollection(v, elementType)));
     }
 }

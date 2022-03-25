@@ -24,9 +24,11 @@ import static org.assertj.core.api.Assertions.*;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.assertj.core.data.Index;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -174,7 +176,8 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.save(sheila);
 
         session.clear();
-        assertThat(session.query("MATCH (s:DomainObject:Student {name:'Sheila Smythe-Jones'}) return s", emptyMap()).queryResults())
+        assertThat(session.query("MATCH (s:DomainObject:Student {name:'Sheila Smythe-Jones'}) return s", emptyMap())
+            .queryResults())
             .isNotEmpty();
     }
 
@@ -182,8 +185,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     public void doNothingIfNothingHasChanged() {
 
         Long existingNodeId =
-            (Long) session.query("CREATE (s:Student:DomainObject {name:'Sheila Smythe'}) RETURN id(s) AS id", emptyMap())
-            .queryResults().iterator().next().get("id");
+            (Long) session.query("CREATE (s:Student:DomainObject {name:'Sheila Smythe'}) RETURN id(s) AS id",
+                    emptyMap())
+                .queryResults().iterator().next().get("id");
         Student sheila = new Student();
         sheila.setId(existingNodeId);
         sheila.setName("Sheila Smythe");
@@ -279,10 +283,10 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.clear();
         assertThat(session.query(
             "MATCH (j:Teacher {name:'Miss Jones'}), " +
-            "(w:Teacher {name:'Mr White'}), " +
-            "(s:School:DomainObject {name:'Hilly Fields'}) " +
-            "WHERE (s)-[:TEACHERS]->(j)-[:SCHOOL]->(s) and " +
-            "(s)-[:TEACHERS]->(w)-[:SCHOOL]->(s) return j, w, s", emptyMap()).queryResults()).hasSize(1);
+                "(w:Teacher {name:'Mr White'}), " +
+                "(s:School:DomainObject {name:'Hilly Fields'}) " +
+                "WHERE (s)-[:TEACHERS]->(j)-[:SCHOOL]->(s) and " +
+                "(s)-[:TEACHERS]->(w)-[:SCHOOL]->(s) return j, w, s", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
@@ -309,18 +313,19 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         session.clear();
         assertThat(session.query("MATCH (t:Teacher {name:'Mrs Kapoor'}), "
-            + "(p:Course {name:'GCSE Physics'}), (m:Course {name:'A-Level Mathematics'}), "
-            + "(s:Student:DomainObject {name:'Sheila Smythe'}), "
-            + "(g:Student:DomainObject {name:'Gary Jones'}), "
-            + "(w:Student:DomainObject {name:'Winston Charles'}) "
-            + "WHERE (t)-[:COURSES]->(p)-[:STUDENTS]->(s) and (t)-[:COURSES]->(m)-[:STUDENTS]->(s) and "
-            + "(p)-[:STUDENTS]->(g) and (m)-[:STUDENTS]->(w) return t, p, m, s, g, w", emptyMap()).queryResults()).hasSize(1);
+                + "(p:Course {name:'GCSE Physics'}), (m:Course {name:'A-Level Mathematics'}), "
+                + "(s:Student:DomainObject {name:'Sheila Smythe'}), "
+                + "(g:Student:DomainObject {name:'Gary Jones'}), "
+                + "(w:Student:DomainObject {name:'Winston Charles'}) "
+                + "WHERE (t)-[:COURSES]->(p)-[:STUDENTS]->(s) and (t)-[:COURSES]->(m)-[:STUDENTS]->(s) and "
+                + "(p)-[:STUDENTS]->(g) and (m)-[:STUDENTS]->(w) return t, p, m, s, g, w", emptyMap())
+            .queryResults()).hasSize(1);
     }
 
     @Test
     public void shouldCorrectlyRemoveRelationshipWhenItemIsRemovedFromCollection() {
         // simple music course with three students
-        Iterable<Map<String,Object>> executionResult = session.query("CREATE (c:Course {name:'GCSE Music'}), "
+        Iterable<Map<String, Object>> executionResult = session.query("CREATE (c:Course {name:'GCSE Music'}), "
             + "(c)-[:STUDENTS]->(x:Student:DomainObject {name:'Xavier'}), "
             + "(c)-[:STUDENTS]->(y:Student:DomainObject {name:'Yvonne'}), "
             + "(c)-[:STUDENTS]->(z:Student:DomainObject {name:'Zack'}) "
@@ -351,8 +356,8 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         session.clear();
         assertThat(session.query("MATCH (a:Student:DomainObject {name:'Xavier'}), "
-            + "(b:Student:DomainObject {name:'Zack'}), "
-            + "(c:Course {name:'GCSE Music'})-[:STUDENTS]->(:Student:DomainObject {name:'Yvonne'}) return a,b,c",
+                + "(b:Student:DomainObject {name:'Zack'}), "
+                + "(c:Course {name:'GCSE Music'})-[:STUDENTS]->(:Student:DomainObject {name:'Yvonne'}) return a,b,c",
             emptyMap()).queryResults()).hasSize(1);
     }
 
@@ -360,11 +365,12 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     public void shouldCorrectlyRemoveRelationshipWhenItemIsMovedToDifferentCollection() {
         // start with one teacher teachers two courses, each with one student in
         Iterable<Map<String, Object>> executionResult = session.query(
-            "CREATE (t:Teacher {name:'Ms Thompson'}), " +
-                "(bs:Course {name:'GNVQ Business Studies'})-[:STUDENTS]->(s:Student:DomainObject {name:'Shivani'}), " +
-                "(dt:Course {name:'GCSE Design & Technology'})-[:STUDENTS]->(j:Student:DomainObject {name:'Jeff'}), " +
-                "(t)-[:COURSES]->(bs), (t)-[:COURSES]->(dt) " +
-                "RETURN id(t) AS teacher_id, id(bs) AS bs_id, id(dt) AS dt_id, id(s) AS s_id", emptyMap()).queryResults();
+                "CREATE (t:Teacher {name:'Ms Thompson'}), " +
+                    "(bs:Course {name:'GNVQ Business Studies'})-[:STUDENTS]->(s:Student:DomainObject {name:'Shivani'}), " +
+                    "(dt:Course {name:'GCSE Design & Technology'})-[:STUDENTS]->(j:Student:DomainObject {name:'Jeff'}), " +
+                    "(t)-[:COURSES]->(bs), (t)-[:COURSES]->(dt) " +
+                    "RETURN id(t) AS teacher_id, id(bs) AS bs_id, id(dt) AS dt_id, id(s) AS s_id", emptyMap())
+            .queryResults();
 
         Map<String, ?> results = executionResult.iterator().next();
 
@@ -446,7 +452,8 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
             emptyMap());
 
         session.clear();
-        Iterable<Map<String, Object>> executionResult = session.query("MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes", emptyMap())
+        Iterable<Map<String, Object>> executionResult = session.query(
+                "MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes", emptyMap())
             .queryResults();
         Map<String, Object> result = executionResult.iterator().next();
 
@@ -529,15 +536,15 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         // we expect the school its teachers and the teachers courses to be persisted when persisting the school to depth 2
         session.clear();
         assertThat(session.query("MATCH" +
-            "(school:School:DomainObject {name:'Coal Hill'}), " +
-            "(clara:Teacher {name:'Clara Oswald'}), " +
-            "(danny:Teacher {name:'Danny Pink'}), " +
-            "(english:Course {name:'English'}), " +
-            "(maths:Course {name:'Maths'}) " +
-            "WHERE (school)-[:TEACHERS]->(clara)-[:SCHOOL]->(school) and " +
-            "(school)-[:TEACHERS]->(danny)-[:SCHOOL]->(school) and " +
-            "(danny)-[:COURSES]->(maths) and " +
-            "(clara)-[:COURSES]->(english) return school, clara, danny, english, maths", emptyMap())
+                "(school:School:DomainObject {name:'Coal Hill'}), " +
+                "(clara:Teacher {name:'Clara Oswald'}), " +
+                "(danny:Teacher {name:'Danny Pink'}), " +
+                "(english:Course {name:'English'}), " +
+                "(maths:Course {name:'Maths'}) " +
+                "WHERE (school)-[:TEACHERS]->(clara)-[:SCHOOL]->(school) and " +
+                "(school)-[:TEACHERS]->(danny)-[:SCHOOL]->(school) and " +
+                "(danny)-[:COURSES]->(maths) and " +
+                "(clara)-[:COURSES]->(english) return school, clara, danny, english, maths", emptyMap())
             .queryResults()).hasSize(1);
     }
 
@@ -683,8 +690,8 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.save(policy);
         session.clear();
         assertThat(session.query("MATCH (pe:Person:DomainObject { name :'jim' }), " +
-                "(po:Policy:DomainObject { name: 'health' }) return pe, po", emptyMap()).queryResults())
-                .hasSize(1);
+            "(po:Policy:DomainObject { name: 'health' }) return pe, po", emptyMap()).queryResults())
+            .hasSize(1);
     }
 
     @Test
@@ -717,11 +724,11 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.save(jim);
         session.clear();
         assertThat(session.query("MATCH (j:Person:DomainObject { name :'jim' }), " +
-                "(h:Policy:DomainObject { name: 'health' }), " +
-                "(i:Policy:DomainObject { name: 'immigration' }) " +
-                "WHERE (j)-[:WRITES_POLICY]->(h) and " +
-                "(j)-[:WRITES_POLICY]->(i) return j, h, i", emptyMap()).queryResults())
-                .hasSize(1);
+            "(h:Policy:DomainObject { name: 'health' }), " +
+            "(i:Policy:DomainObject { name: 'immigration' }) " +
+            "WHERE (j)-[:WRITES_POLICY]->(h) and " +
+            "(j)-[:WRITES_POLICY]->(i) return j, h, i", emptyMap()).queryResults())
+            .hasSize(1);
     }
 
     @Test
@@ -799,7 +806,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         assertThat(loaded).isNotNull();
     }
 
-    @Test
+    @Test // GH-821
     public void shouldNotMessUpNestedLists() {
 
         Result result = session.query("RETURN [[0,1,2], [3], [4], [5,6]] as nested_list", Collections.emptyMap());
@@ -816,10 +823,10 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         });
     }
 
-    @Test
+    @Test // GH-821
     public void shouldNotMessUpMixedNestedLists() {
 
-        Result result = session.query("RETURN [[0,1,2], [[23,42]], [4], [5,6]] as nested_list", Collections.emptyMap());
+        Result result = session.query("RETURN [[0,1,2], [[23,42]], [4], [5,6]] AS nested_list", Collections.emptyMap());
         assertThat(result).hasSize(1).first().satisfies(row -> {
             Object nestedLists = row.get("nested_list");
             assertThat(nestedLists).isInstanceOf(Object[].class);
@@ -833,7 +840,23 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         });
     }
 
-    @Test
+    @Test // GH-821
+    public void shouldNotMessUpMixedNestedCollectedLists() {
+
+        Result result = session.query("UNWIND range(0,2) AS x WITH collect(x) AS x RETURN collect(x) AS nested_list",
+            Collections.emptyMap());
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object nestedLists = row.get("nested_list");
+            assertThat(nestedLists).isInstanceOf(Object[].class);
+
+            Object[] columns = (Object[]) nestedLists;
+            assertThat(columns).hasSize(1);
+            assertThat(columns[0]).isInstanceOf(Long[].class)
+                .satisfies(c -> assertThat(((Long[]) c)).containsExactly(0L, 1L, 2L));
+        });
+    }
+
+    @Test // GH-821
     public void shouldNotMessUpMixedTypedLists() {
 
         Teacher jim = new Teacher("Jim");
@@ -862,6 +885,99 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
             assertThat(row.get("n"))
                 .isInstanceOf(Teacher.class)
                 .extracting("name").first().isEqualTo("Jim");
+        });
+    }
+
+    @Test // GH-902
+    @SuppressWarnings("unchecked")
+    public void nestedListsWithDomainModel() {
+
+        Session writingSession = sessionFactory.openSession();
+        for (int i = 0; i < 2; ++i) {
+            Teacher jim = new Teacher("T" + i);
+            writingSession.save(jim);
+        }
+
+        Result result = session
+            .query("match (m:Teacher) with collect(m) as x return collect(x) as listOfListsOfThings",
+                Collections.emptyMap());
+
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object nestedLists = row.get("listOfListsOfThings");
+            assertThat(nestedLists).isInstanceOf(List.class);
+            assertThat((List<?>) nestedLists)
+                .hasSize(1).first()
+                .satisfies(EntityGraphMapperTest::assertContentOfList);
+        });
+    }
+
+    @Test // GH-902
+    @SuppressWarnings("unchecked")
+    public void nestedNestedLists() {
+
+        Session writingSession = sessionFactory.openSession();
+        for (int i = 0; i < 3; ++i) {
+            Teacher jim = new Teacher("T" + i);
+            writingSession.save(jim);
+        }
+
+        Result result = session
+            .query("match (m:Teacher) where m.name = 'T0' or m.name = 'T1' with collect(m) as x \n"
+                    + "match (m:Teacher {name: \"T2\"}) with x, collect(m) as y\n"
+                    + "with [x,y] as x\n"
+                    + "return collect(x) as listOfListsOfThings",
+                Collections.emptyMap());
+
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object nestedLists = row.get("listOfListsOfThings");
+            assertThat(nestedLists).isInstanceOf(List.class);
+            assertThat((List<?>) nestedLists)
+                .hasSize(1)
+                .first()
+                .satisfies(firstInnerList -> {
+                    assertThat(firstInnerList).isInstanceOf(List.class);
+                    assertThat((List<List<?>>) firstInnerList).hasSize(2)
+                        .satisfies(EntityGraphMapperTest::assertContentOfList, Index.atIndex(0))
+                        .satisfies(l -> assertThat(l).hasSize(1)
+                            .extracting(v -> ((Teacher) v).getName()).containsExactly("T2"), Index.atIndex(1));
+                });
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void assertContentOfList(Object firstInnerList) {
+        assertThat(firstInnerList).isInstanceOf(List.class);
+        assertThat((List<Teacher>) firstInnerList)
+            .extracting(Teacher::getName).containsExactlyInAnyOrder("T0", "T1");
+    }
+
+    @Test // GH-902
+    @SuppressWarnings("unchecked")
+    public void collectedListOfNodesFromPathsShouldNotCollapse() {
+        Teacher t = new Teacher("T0");
+        School s = new School("Sß");
+        Course c = new Course("C0");
+
+        t.setSchool(s);
+        t.setCourses(singletonList(c));
+
+        Session writingSession = sessionFactory.openSession();
+        writingSession.save(t);
+
+        Result result = session.query("MATCH p=(:School) -[*]->(:Course) RETURN COLLECT (DISTINCT nodes(p)) AS paths",
+            Collections.emptyMap());
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object nestedLists = row.get("paths");
+            assertThat(nestedLists).isInstanceOf(List.class);
+            assertThat((List<?>) nestedLists).hasSize(1)
+                .first()
+                .satisfies(v -> {
+                    assertThat(v).isInstanceOf(List.class);
+                    assertThat((List<?>) v)
+                        .extracting(Object::getClass)
+                        .extracting(Class::getSimpleName)
+                        .containsExactly("School", "Teacher", "Course");
+                });
         });
     }
 }

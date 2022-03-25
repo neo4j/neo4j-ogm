@@ -2,6 +2,27 @@
 
 == 3.2
 
+=== 3.2.32
+
+* [bug] Don't flatten collections of known entities. (#902)
+* [improvement] Avoid unnecessary creation of builders.
+
+https://github.com/neo4j/neo4j-ogm/commit/60e5f51a3c499f756732004be5b9e0fa57e2f6a6[ 60e5f51] can lead to breaking changes
+in some custom queries (all queries having several levels of nested lists of domain objects). They have been incorrectly
+flattened before that change and their structure will be preserved afterwards.
+
+An example. A query returning
+
+```
+[[n0, n1, n2], [n3], [n4], [n5, n6]]
+```
+
+
+with n1..6 being known domain objects will be flattened to a `[n1, n2, n3, n4, n5, n6]` prior to 3.2.32.
+The above structure will now be preserved.
+
+See the notes in the linked commit and this https://github.com/neo4j/neo4j-ogm/issues/737#issuecomment-1079022137[comment].
+
 === 3.2.31
 
 * [dependencies] Drop commons-lang3 from core dependencies.

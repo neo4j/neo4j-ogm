@@ -980,4 +980,50 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
                 });
         });
     }
+
+    @Test
+    public void emptyArray1Level() {
+
+        Result result = session.query("RETURN [] as x", Collections.emptyMap());
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object x = row.get("x");
+            assertThat(x).isInstanceOf(Void[].class);
+            assertThat(((Void[]) x)).isEmpty();
+        });
+    }
+
+    @Test
+    public void emptyArray2Level() {
+
+        Result result = session.query("RETURN [[]] as x", Collections.emptyMap());
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object x = row.get("x");
+            assertThat(x).isInstanceOf(Void[].class);
+            assertThat(((Void[]) x)).isEmpty();
+        });
+    }
+
+    @Test
+    public void empty2Dim1Level() {
+
+        Result result = session.query("RETURN [[], []] as x", Collections.emptyMap());
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object x = row.get("x");
+            assertThat(x).isInstanceOf(Void[].class);
+            assertThat(((Void[]) x)).isEmpty();
+        });
+    }
+
+    @Test // GH-902
+    @SuppressWarnings("unchecked")
+    public void emptyCollectedNodeList() {
+
+        Result result = session.query("MATCH p=(:AAA)-[*]->(:BBB) RETURN COLLECT (DISTINCT nodes(p)) AS paths",
+            Collections.emptyMap());
+        assertThat(result).hasSize(1).first().satisfies(row -> {
+            Object nestedLists = row.get("paths");
+            assertThat(nestedLists).isInstanceOf(Void[].class);
+            assertThat(((Void[]) nestedLists)).isEmpty();
+        });
+    }
 }

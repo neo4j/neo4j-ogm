@@ -18,14 +18,13 @@
  */
 package org.neo4j.ogm.context;
 
-import static java.util.stream.Collectors.*;
-
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.GraphModel;
@@ -93,7 +92,7 @@ public class RestModelMapper {
         // Recreate the original structure
         RestStatisticsModel restStatisticsModel = new RestStatisticsModel();
         response.getStatistics().ifPresent(restStatisticsModel::setStatistics);
-        restStatisticsModel.setResult(resultRowBuilders.stream().map(ResultRowBuilder::finish).collect(toList()));
+        restStatisticsModel.setResult(resultRowBuilders.stream().map(ResultRowBuilder::finish).collect(Collectors.toList()));
         return restStatisticsModel;
     }
 
@@ -268,7 +267,8 @@ public class RestModelMapper {
                     Object entity = resolveNodeId.apply(v.get(0), graphModel);
                     resultRow.put(k, entity);
                 } else {
-                    List<Object> entities = v.stream().map(id -> resolveNodeId.apply(id, graphModel)).collect(toList());
+                    List<Object> entities = v.stream().map(id -> resolveNodeId.apply(id, graphModel)).collect(
+                        Collectors.toList());
                     List<Object> entityList = (List<Object>) resultRow.computeIfAbsent(k, key -> new ArrayList<>());
                     entityList.addAll(entities);
                 }
@@ -278,7 +278,7 @@ public class RestModelMapper {
                     Object entity = resolveRelationshipId.apply(v.get(0));
                     resultRow.put(k, entity);
                 } else {
-                    List<Object> entities = v.stream().map(resolveRelationshipId).collect(toList());
+                    List<Object> entities = v.stream().map(resolveRelationshipId).collect(Collectors.toList());
                     List<Object> entityList = (List<Object>) resultRow.computeIfAbsent(k, key -> new ArrayList<>());
                     entityList.addAll(entities);
                 }

@@ -592,7 +592,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         params.put("title", "Top Gear");
 
         Iterator<Map<String, Object>> results = session
-            .query("match (u:User {name:$name}) match (m:Movie {title:$title}) match (u)-[r*0..2]-(m) return u,r,m",
+            .query("match (u:User {name:$name}) match (m:Movie {title:$title}) match p=(u)-[*0..2]-(m) return u,relationships(p) as r,m",
                 params).iterator();
         assertThat(results).isNotNull();
         Map<String, Object> result = results.next();
@@ -651,7 +651,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     @Test // DATAGRAPH-700
     public void shouldBeAbleToMapVariableDepthRelationshipsWithCompletePaths() {
         Iterator<Map<String, Object>> results = session
-            .query("match (u:User {name:$name}) match (u)-[r*0..1]-(n) return u,r,n",
+            .query("match (u:User {name:$name}) match p=(u)-[*0..1]-(n) return u,relationships(p),n",
                 Collections.singletonMap("name", "Vince"))
             .iterator();
         assertThat(results).isNotNull();

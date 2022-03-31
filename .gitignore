@@ -15,3 +15,4 @@ build/
 .gradle/
 devenv.local
 .vscode/
+build.log

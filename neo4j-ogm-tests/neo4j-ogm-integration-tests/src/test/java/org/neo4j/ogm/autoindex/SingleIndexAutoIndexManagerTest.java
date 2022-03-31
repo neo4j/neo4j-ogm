@@ -37,8 +37,8 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class SingleIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
-    private static final String INDEX = "INDEX ON :`Entity`(`login`)";
-    private static final String CONSTRAINT = "CONSTRAINT ON (entity:Entity) ASSERT entity.login IS UNIQUE";
+    private static final String INDEX = "INDEX org_neo4j_ogm_domain_autoindex_singleindexentity_login FOR (`entity`:`Entity`) ON (`entity`.`login`)";
+    private static final String CONSTRAINT = "CONSTRAINT org_neo4j_ogm_domain_autoindex_singleindexentity_login FOR (entity:Entity) REQUIRE entity.login IS UNIQUE";
 
     public SingleIndexAutoIndexManagerTest() {
         super(new String[] { INDEX }, SingleIndexEntity.class);

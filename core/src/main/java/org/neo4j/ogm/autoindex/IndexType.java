@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.autoindex;
 
+import java.util.EnumSet;
+
 /**
  * @author Frantisek Hartman
  */
@@ -51,6 +53,10 @@ enum IndexType {
     /**
      * Relationship property existence constraint
      */
-    REL_PROP_EXISTENCE_CONSTRAINT,
+    REL_PROP_EXISTENCE_CONSTRAINT;
 
+    boolean isConstraint() {
+        return EnumSet.of(UNIQUE_CONSTRAINT, NODE_KEY_CONSTRAINT, NODE_PROP_EXISTENCE_CONSTRAINT,
+            REL_PROP_EXISTENCE_CONSTRAINT).contains(this);
+    }
 }

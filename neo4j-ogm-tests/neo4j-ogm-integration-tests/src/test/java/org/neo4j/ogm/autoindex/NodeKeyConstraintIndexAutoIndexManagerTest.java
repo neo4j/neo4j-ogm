@@ -34,9 +34,9 @@ import org.neo4j.ogm.domain.autoindex.NodeKeyConstraintEntity;
 public class NodeKeyConstraintIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
     private static final String CONSTRAINT =
-        "CONSTRAINT ON (`entity`:`Entity`) ASSERT (`entity`.`name`,`entity`.`age`) IS NODE KEY";
+        "CONSTRAINT org_neo4j_ogm_domain_autoindex_nodekeyconstraintentity_name_age_node_key FOR (`entity`:`Entity`) REQUIRE (`entity`.`name`,`entity`.`age`) IS NODE KEY";
 
-    private static final String INDEX = "INDEX ON :`Entity`(`name`,`age`)";
+    private static final String INDEX = "INDEX org_neo4j_ogm_domain_autoindex_nodekeyconstraintentity_name_age FOR (`entity`:`Entity`) ON (`entity`.`name`,`entity`.`age`)";
 
     public NodeKeyConstraintIndexAutoIndexManagerTest() {
         super(new String[] { CONSTRAINT }, NodeKeyConstraintEntity.class);

@@ -601,7 +601,9 @@ public class Configuration {
          *
          * @param autoIndex auto index config
          * @return the changed builder
+         * @deprecated The usage of this tool is deprecated. Please use a proper migration tooling, like neo4j-migrations or liquibase with the Neo4j plugin. The build-in auto index manager only supports Neo4j 4.4 and higher.
          */
+        @Deprecated
         public Builder autoIndex(String autoIndex) {
             this.autoIndex = autoIndex;
             return this;

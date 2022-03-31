@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * should be independent of any notion of equality as described by the equals or hashcode
  * methods on Java objects.
  *
- * @author vince
+ * @author Vince Bickers
  * @author Michael J. Simons
  */
 public class IdentityTest extends TestContainersTestBase {
@@ -195,7 +195,7 @@ public class IdentityTest extends TestContainersTestBase {
         session.save(nodeA);
 
         session.clear();
-        assertThat(session.query("MATCH (n1:NODE), (n2:NODE) WHERE (n1)-[:RELATED]->(n2) return n1, n2", emptyMap())
+        assertThat(session.query("MATCH (n1:NODE) -[:RELATED]-> (n2:NODE) RETURN n1, n2", emptyMap())
             .queryResults()).hasSize(1);
     }
 

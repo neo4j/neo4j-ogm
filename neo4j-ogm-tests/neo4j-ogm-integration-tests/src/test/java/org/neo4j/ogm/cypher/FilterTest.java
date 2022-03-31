@@ -62,7 +62,7 @@ public class FilterTest {
         filter.setNegated(true);
         assertThat(filter.toCypher("n", true))
             .isEqualTo(
-                "WHERE NOT(distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude: $lat, longitude: $lon})) < $distance ) ");
+                "WHERE NOT(point.distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude: $lat, longitude: $lon})) < $distance ) ");
 
         Map<String, Object> parameters = filter.parameters();
         assertThat(parameters).containsEntry("lat", 37.4);
@@ -117,7 +117,7 @@ public class FilterTest {
     public void isExistsComparisionShouldWork() {
         Filter filter = new Filter("thing", ComparisonOperator.EXISTS);
         filter.setBooleanOperator(BooleanOperator.AND);
-        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE EXISTS(n.`thing`) ");
+        assertThat(filter.toCypher("n", true)).isEqualTo("WHERE n.`thing` IS NOT NULL ");
     }
 
     @Test

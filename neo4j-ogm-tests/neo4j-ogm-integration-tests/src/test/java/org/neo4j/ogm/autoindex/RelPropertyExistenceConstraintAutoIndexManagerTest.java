@@ -35,7 +35,7 @@ import org.neo4j.ogm.domain.autoindex.RelPropertyExistenceConstraintEntity;
 public class RelPropertyExistenceConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
     public RelPropertyExistenceConstraintAutoIndexManagerTest() {
-        super(new String[] { "CONSTRAINT ON ()-[`rel`:`REL`]-() ASSERT exists(`rel`.`description`)" },
+        super(new String[] { "CONSTRAINT org_neo4j_ogm_domain_autoindex_relpropertyexistenceconstraintentity_description_rel_prop_existence FOR ()-[`rel`:`REL`]-() REQUIRE `rel`.`description` IS NOT NULL" },
             Entity.class, RelPropertyExistenceConstraintEntity.class);
     }
 

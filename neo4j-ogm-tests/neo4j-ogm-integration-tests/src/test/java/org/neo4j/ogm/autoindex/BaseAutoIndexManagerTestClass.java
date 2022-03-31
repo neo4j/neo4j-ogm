@@ -63,23 +63,23 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
     private static final Logger logger = LoggerFactory.getLogger(BaseAutoIndexManagerTestClass.class);
 
     private static final String[] COMMUNITY_INDEXES = {
-        "INDEX ON :User(email)",
+        "INDEX user_email FOR (n:User) ON n.email",
     };
 
     private static final String[] COMMUNITY_CONSTRAINTS = {
-        "CONSTRAINT ON (user:User) ASSERT user.login IS UNIQUE",
+        "CONSTRAINT user_login_unique FOR (user:User) REQUIRE user.login IS UNIQUE",
     };
 
     private static final String[] ENTERPRISE_INDEXES = {
-        "INDEX ON :User(email)",
-        "INDEX ON :User(lat, lon)"
+        "INDEX user_email FOR (n:User) ON n.email",
+        "INDEX user_lat_lon FOR (n:User) ON (n.lat, n.lon)"
     };
 
     private static final String[] ENTERPRISE_CONSTRAINTS = {
-        "CONSTRAINT ON (user:User) ASSERT user.login IS UNIQUE",
-        "CONSTRAINT ON (user:User) ASSERT (user.key, user.key2) IS NODE KEY",
-        "CONSTRAINT ON (user:User) ASSERT exists(user.address)",
-        "CONSTRAINT ON ()-[rating:RATING]-() ASSERT exists(rating.stars)",
+        "CONSTRAINT user_login_unique FOR (user:User) REQUIRE user.login IS UNIQUE",
+        "CONSTRAINT user_some_key FOR (user:User) REQUIRE (user.key, user.key2) IS NODE KEY",
+        "CONSTRAINT user_address_exists FOR (user:User) REQUIRE user.address IS NOT NULL",
+        "CONSTRAINT rating_stars_exists FOR ()-[rating:RATING]-() REQUIRE rating.stars IS NOT NULL",
     };
 
     private String[] indexes;
@@ -108,23 +108,23 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
     @BeforeClass
     public static void disableBoltWarningLogs() {
         LoggerContext logCtx = (LoggerContext) LoggerFactory.getILoggerFactory();
-        logCtx.getLogger("ChannelErrorHandler").setLevel(Level.ERROR);
-        logCtx.getLogger("InboundMessageHandler").setLevel(Level.ERROR);
+        logCtx.getLogger("org.neo4j.driver.internal.async.inbound.ChannelErrorHandler").setLevel(Level.ERROR);
+        logCtx.getLogger("org.neo4j.driver.internal.async.inbound").setLevel(Level.ERROR);
     }
 
     @Before
     public void setUp() {
         Session session = sessionFactory.openSession();
         session.query("MATCH (n) DETACH DELETE n", emptyMap());
-        String[] existingConstraints = StreamSupport.stream(session.query("CALL db.constraints()", emptyMap())
+        String[] existingConstraints = StreamSupport.stream(session.query("SHOW CONSTRAINTS YIELD name", emptyMap())
             .queryResults().spliterator(), false)
-            .map(r -> r.get("description"))
+            .map(r -> "constraint " + r.get("name"))
             .map(String.class::cast)
             .toArray(String[]::new);
 
         executeDrop(existingConstraints);
 
-        if (useEnterpriseEdition() && isVersionOrGreater("3.2.0")) {
+        if (useEnterpriseEdition()) {
             indexes = ENTERPRISE_INDEXES;
             constraints = ENTERPRISE_CONSTRAINTS;
             statements = Stream.of(ENTERPRISE_INDEXES, ENTERPRISE_CONSTRAINTS).flatMap(Stream::of)
@@ -352,12 +352,17 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
 
     void executeDrop(String... statements) {
         Session session = sessionFactory.openSession();
-            for (String statement : statements) {
-        try (Transaction transaction = session.beginTransaction()) {
+        for (String statement : statements) {
+            try (Transaction transaction = session.beginTransaction()) {
                 // need to handle transaction manually because when the service.execute fails with exception
                 // it does not clean up the tx resources, leading to deadlock later
                 try {
-                    session.query("DROP " + statement, emptyMap());
+                    var indexOfFor = statement.indexOf(" FOR");
+                    if (indexOfFor >= 0) {
+                        session.query("DROP " + statement.substring(0, indexOfFor) + " IF EXISTS", emptyMap());
+                    } else {
+                        session.query("DROP " + statement, emptyMap());
+                    }
                     transaction.commit();
                 } catch (Exception e) {
                     logger.trace("Could not execute drop for statement (this is likely expected) {}", statement, e);

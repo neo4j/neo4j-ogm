@@ -112,7 +112,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
         parameters.put("distance", 1000);
 
         Restaurant found = session.queryForObject(Restaurant.class, "MATCH (r:Restaurant) " +
-                "WHERE distance(point({latitude: r.latitude, longitude:r.longitude}),point({latitude:37.0, longitude:-118.0, crs: 'WGS-84'})) < $distance*1000 RETURN r;",
+                "WHERE point.distance(point({latitude: r.latitude, longitude:r.longitude}),point({latitude:37.0, longitude:-118.0, crs: 'WGS-84'})) < $distance*1000 RETURN r;",
             parameters);
 
         assertThat(found).isNotNull();

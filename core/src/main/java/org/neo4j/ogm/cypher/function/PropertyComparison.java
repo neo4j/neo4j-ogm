@@ -60,7 +60,7 @@ public class PropertyComparison implements FilterFunction<Object> {
         if (operator == IS_NULL) {
             return String.format("%s.`%s` IS NULL ", nodeIdentifier, filteredProperty);
         } else if (operator == EXISTS) {
-            return String.format("EXISTS(%s.`%s`) ", nodeIdentifier, filteredProperty);
+            return String.format("%s.`%s` IS NOT NULL ", nodeIdentifier, filteredProperty);
         } else if (operator == IS_TRUE) {
             return String.format("%s.`%s` = true ", nodeIdentifier, filteredProperty);
         } else {

@@ -41,7 +41,7 @@ public class TestContainersTestBase {
 
     private static final boolean isEnterpriseEdition;
 
-    private static final String DEFAULT_IMAGE = "neo4j:4.3.7";
+    private static final String DEFAULT_IMAGE = "neo4j:4.4.6";
 
     private static final String SYS_PROPERTY_ACCEPT_AND_USE_COMMERCIAL_EDITION = "NEO4J_OGM_NEO4J_ACCEPT_AND_USE_COMMERCIAL_EDITION";
 

@@ -194,9 +194,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         session.save(v);
 
         session.clear();
-        assertThat(session.query("MATCH (a:Voter:Candidate {name:'A'}), " +
-            "(b:Voter:Candidate {name:'B'}), " +
-            "(v:Voter {name:'V'})-[:CANDIDATE_VOTED_FOR]->(a) return a, b, v", emptyMap()).queryResults())
+        assertThat(session.query("MATCH (v:Voter {name:'V'})-[:CANDIDATE_VOTED_FOR]->(a:Voter:Candidate {name:'A'}) " +
+            "MATCH (b:Voter:Candidate {name:'B'}) " +
+            " return a, b, v", emptyMap()).queryResults())
             .hasSize(1);
     }
 
@@ -242,11 +242,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
 
         // Better safe than sorry.
         session.clear();
-        assertThat(session.query("MATCH (n1:MyNode {name: 'Dirty thing.'}), "
-            + "(n2:MyNode {name: 'node2'}), "
-            + "(n3:MyNode {name: 'node3'}) "
-            + "WHERE (n1) - [:REL_TWO] -> (n2)"
-            + "and (n3) - [:REL_ONE] -> (n1) return n1, n2, n3", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (n1:MyNode {name: 'Dirty thing.'}) - [:REL_TWO] -> (n2:MyNode {name: 'node2'}) "
+            + "MATCH (n3:MyNode {name: 'node3'}) - [:REL_ONE] -> (n1)"
+            + "RETURN n1, n2, n3", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test // GH-640
@@ -285,11 +283,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(node1.getRefTwo()).containsOnly(node2);
 
         session.clear();
-        assertThat(session.query("MATCH (n1:MyNodeWithAssignedId {name: 'node1'}), "
-            + "(n2:MyNodeWithAssignedId {name: 'node2'}), "
-            + "(n3:MyNodeWithAssignedId {name: 'node3'}) "
-            + "WHERE (n1) - [:REL_TWO] -> (n2)"
-            + "and (n3) - [:REL_ONE] -> (n1) return n1, n2, n3", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (n1:MyNodeWithAssignedId {name: 'node1'}) - [:REL_TWO] -> (n2:MyNodeWithAssignedId {name: 'node2'}) "
+            + "MATCH (n3:MyNodeWithAssignedId {name: 'node3'}) - [:REL_ONE] -> (n1) "
+            + "RETURN n1, n2, n3", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test // GH-641
@@ -415,10 +411,8 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(node1.getRefTwo()).isEmpty();
 
         Iterable<Map<String, Object>> actual = sessionFactory.openSession().query(""
-            + " MATCH (n1:MyNode {name: 'Dirty thing.'}),"
-            + "       (n2:MyNode {name: 'node2'}),"
-            + "       (n3:MyNode {name: 'node3'}),"
-            + "       (n2) - [:REL_ONE] -> (n1) "
+            + " MATCH (n1:MyNode {name: 'Dirty thing.'}) <- [:REL_ONE] -(n2:MyNode {name: 'node2'}) "
+            + " MATCH (n3:MyNode {name: 'node3'}) "
             + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] -> (n2)) as relTwo",
             emptyMap()).queryResults();
         assertThat(actual).hasSize(1);
@@ -466,10 +460,8 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(node2.getRefTwo()).isEmpty();
 
         Iterable<Map<String, Object>> actual = sessionFactory.openSession().query(""
-                + " MATCH (n1:MyNode {name: 'node1'}),"
-                + "       (n2:MyNode {name: 'Dirty thing.'}),"
-                + "       (n3:MyNode {name: 'node3'}),"
-                + "       (n2) - [:REL_ONE] -> (n1) "
+                + " MATCH (n1:MyNode {name: 'node1'}) <- [:REL_ONE] - (n2:MyNode {name: 'Dirty thing.'}) "
+                + " MATCH (n3:MyNode {name: 'node3'})"
                 + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] -> (n2)) as relTwo",
             emptyMap()).queryResults();
         assertThat(actual).hasSize(1);
@@ -515,10 +507,8 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(node2.getRefTwo()).containsOnly(node1);
 
         Iterable<Map<String, Object>> actual = sessionFactory.openSession().query(""
-                + " MATCH (n1:MyNode {name: 'Dirty thing.'}),"
-                + "       (n2:MyNode {name: 'node2'}),"
-                + "       (n3:MyNode {name: 'node3'}),"
-                + "       (n2) - [:REL_ONE] -> (n1) "
+                + " MATCH (n1:MyNode {name: 'Dirty thing.'}) <- [:REL_ONE] - (n2:MyNode {name: 'node2'})"
+                + " MATCH (n3:MyNode {name: 'node3'})"
                 + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] - (n2)) as relTwo",
             emptyMap()).queryResults();
         assertThat(actual).hasSize(1);

@@ -29,8 +29,8 @@ import org.neo4j.ogm.domain.autoindex.RelationshipEntityWithSameType2;
  */
 public class DuplicatedConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
-    private static final String INDEX = "INDEX ON :`SAME_TYPE`(`id`)";
-    private static final String CONSTRAINT = "CONSTRAINT ON (`same_type`:`SAME_TYPE`) ASSERT `same_type`.`id` IS UNIQUE";
+    private static final String INDEX = "INDEX org_neo4j_ogm_domain_autoindex_relationshipentitywithsametype2 FOR (n:`SAME_TYPE`) ON (n.`id`)";
+    private static final String CONSTRAINT = "CONSTRAINT org_neo4j_ogm_domain_autoindex_relationshipentitywithsametype2_id_unique FOR (`same_type`:`SAME_TYPE`) REQUIRE `same_type`.`id` IS UNIQUE";
 
     public DuplicatedConstraintAutoIndexManagerTest() {
         super(new String[] { CONSTRAINT }, RelationshipEntityWithSameType1.class, RelationshipEntityWithSameType2.class);

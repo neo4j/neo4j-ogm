@@ -115,7 +115,7 @@ public class NodeQueryStatementsTest {
         String statement = queryStatements.findByType("Restaurant",
             filters, 4).getStatement();
         assertThat(statement).isEqualTo(
-            "MATCH (n:`Restaurant`) WHERE distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude: $lat, longitude: $lon})) = $distance WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
+            "MATCH (n:`Restaurant`) WHERE point.distance(point({latitude: n.latitude, longitude: n.longitude}),point({latitude: $lat, longitude: $lon})) = $distance WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)");
     }
 
     @Test

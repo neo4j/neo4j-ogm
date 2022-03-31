@@ -307,14 +307,12 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.save(jim);
 
         session.clear();
-        assertThat(session.query("MATCH " +
-            "(s:School:DomainObject {name:'Waller'}), " +
-            "(m:Teacher {name:'Mary'}), " +
-            "(j:Teacher {name:'Jim'}) " +
-            "WHERE (j)-[:SCHOOL]->(s) and " +
-            "(m)-[:SCHOOL]->(s) and " +
-            "(s)-[:TEACHERS]->(j) and " +
-            "(s)-[:TEACHERS]->(m) return s, m, j", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query(
+            "MATCH (s:School:DomainObject {name:'Waller'}) " +
+            "MATCH (m:Teacher {name:'Mary'})-[:SCHOOL]->(s) " +
+            "MATCH (s)-[:TEACHERS]->(j:Teacher {name:'Jim'}) " +
+            "WHERE exists((j)-[:SCHOOL]->(s)) and " +
+            "exists((s)-[:TEACHERS]->(m)) return s, m, j", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
@@ -329,11 +327,10 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         session.clear();
         assertThat(session.query(
-            "MATCH (j:Teacher {name:'Miss Jones'}), " +
-                "(w:Teacher {name:'Mr White'}), " +
-                "(s:School:DomainObject {name:'Hilly Fields'}) " +
-                "WHERE (s)-[:TEACHERS]->(j)-[:SCHOOL]->(s) and " +
-                "(s)-[:TEACHERS]->(w)-[:SCHOOL]->(s) return j, w, s", emptyMap()).queryResults()).hasSize(1);
+            "MATCH (s:School:DomainObject {name:'Hilly Fields'}) " +
+            "MATCH (s)-[:TEACHERS]->(j:Teacher {name:'Miss Jones'})-[:SCHOOL]->(s) " +
+            "MATCH (s)-[:TEACHERS]->(w:Teacher {name:'Mr White'})-[:SCHOOL]->(s)" +
+            "return j, w, s", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
@@ -359,13 +356,14 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.save(teacher);
 
         session.clear();
-        assertThat(session.query("MATCH (t:Teacher {name:'Mrs Kapoor'}), "
-                + "(p:Course {name:'GCSE Physics'}), (m:Course {name:'A-Level Mathematics'}), "
-                + "(s:Student:DomainObject {name:'Sheila Smythe'}), "
-                + "(g:Student:DomainObject {name:'Gary Jones'}), "
-                + "(w:Student:DomainObject {name:'Winston Charles'}) "
-                + "WHERE (t)-[:COURSES]->(p)-[:STUDENTS]->(s) and (t)-[:COURSES]->(m)-[:STUDENTS]->(s) and "
-                + "(p)-[:STUDENTS]->(g) and (m)-[:STUDENTS]->(w) return t, p, m, s, g, w", emptyMap())
+        assertThat(session.query(
+                  "MATCH (t:Teacher {name:'Mrs Kapoor'}) "
+                + "MATCH (t)-[:COURSES]->(p:Course {name:'GCSE Physics'}) "
+                + "MATCH (t)-[:COURSES]->(m:Course {name:'A-Level Mathematics'}) "
+                + "MATCH (p)-[:STUDENTS]->(s:Student:DomainObject {name:'Sheila Smythe'})<-[:STUDENTS]-(m) "
+                + "MATCH (p)-[:STUDENTS]->(g:Student:DomainObject {name:'Gary Jones'}) "
+                + "MATCH (m)-[:STUDENTS]->(w:Student:DomainObject {name:'Winston Charles'}) "
+                + "return t, p, m, s, g, w", emptyMap())
             .queryResults()).hasSize(1);
     }
 
@@ -393,18 +391,18 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         Student zack = session.load(Student.class, zid);
 
-        music.setStudents(Arrays.asList(yvonne, xavier, zack));
+        music.setStudents(List.of(yvonne, xavier, zack));
 
         // object is now "loaded"
         // now, update the domain model, setting yvonne as the only music student (i.e remove zack and xavier)
-        music.setStudents(Arrays.asList(yvonne));
+        music.setStudents(List.of(yvonne));
 
         session.save(music);
 
         session.clear();
-        assertThat(session.query("MATCH (a:Student:DomainObject {name:'Xavier'}), "
-                + "(b:Student:DomainObject {name:'Zack'}), "
-                + "(c:Course {name:'GCSE Music'})-[:STUDENTS]->(:Student:DomainObject {name:'Yvonne'}) return a,b,c",
+        assertThat(session.query("MATCH (a:Student:DomainObject {name:'Xavier'}) "
+                + "MATCH (b:Student:DomainObject {name:'Zack'}) "
+                + "MATCH (c:Course {name:'GCSE Music'})-[:STUDENTS]->(:Student:DomainObject {name:'Yvonne'}) return a,b,c",
             emptyMap()).queryResults()).hasSize(1);
     }
 
@@ -442,11 +440,11 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.save(msThompson);
 
         session.clear();
-        assertThat(session.query("MATCH (t:Teacher {name:'Ms Thompson'}), " +
-            "(bs:Course {name:'GNVQ Business Studies'}), (dt:Course {name:'GCSE Design & Technology'}) " +
-            "WHERE (dt)-[:STUDENTS]->(:Student:DomainObject {name:'Jeff'}) and " +
-            "(dt)-[:STUDENTS]->(:Student:DomainObject {name:'Shivani'}) and " +
-            "(t)-[:COURSES]->(bs) and (t)-[:COURSES]->(dt) return t, bs, dt", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (t:Teacher {name:'Ms Thompson'}) -[:COURSES]->(bs:Course {name:'GNVQ Business Studies'}) "
+            + "MATCH (t)-[:COURSES]->(dt:Course {name:'GCSE Design & Technology'}) "
+            + "WHERE exists((dt)-[:STUDENTS]->(:Student:DomainObject {name:'Jeff'})) and "
+            + "exists((dt)-[:STUDENTS]->(:Student:DomainObject {name:'Shivani'})) "
+            + "return t, bs, dt", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
@@ -550,12 +548,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         // we ONLY expect the school and its teachers to be persisted when persisting the school to depth 1
         session.clear();
-        assertThat(session.query("MATCH " +
-            "(s:School:DomainObject {name:'Coal Hill'}), " +
-            "(c:Teacher {name:'Clara Oswald'}), " +
-            "(d:Teacher {name:'Danny Pink'}) " +
-            "WHERE (s)-[:TEACHERS]->(c) and " +
-            "(s)-[:TEACHERS]->(d) return s,c,d", emptyMap())).hasSize(1);
+        assertThat(session.query("MATCH (s:School:DomainObject {name:'Coal Hill'})-[:TEACHERS]->(c:Teacher {name:'Clara Oswald'}) "
+            + "MATCH (s)-[:TEACHERS]->(d:Teacher {name:'Danny Pink'}) "
+            + "return s,c,d", emptyMap())).hasSize(1);
 
         assertThat(session.query("MATCH (c:Course) return c", emptyMap())).hasSize(0);
     }
@@ -582,16 +577,13 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         // we expect the school its teachers and the teachers courses to be persisted when persisting the school to depth 2
         session.clear();
-        assertThat(session.query("MATCH" +
-                "(school:School:DomainObject {name:'Coal Hill'}), " +
-                "(clara:Teacher {name:'Clara Oswald'}), " +
-                "(danny:Teacher {name:'Danny Pink'}), " +
-                "(english:Course {name:'English'}), " +
-                "(maths:Course {name:'Maths'}) " +
-                "WHERE (school)-[:TEACHERS]->(clara)-[:SCHOOL]->(school) and " +
-                "(school)-[:TEACHERS]->(danny)-[:SCHOOL]->(school) and " +
-                "(danny)-[:COURSES]->(maths) and " +
-                "(clara)-[:COURSES]->(english) return school, clara, danny, english, maths", emptyMap())
+        assertThat(session.query("MATCH (school:School:DomainObject {name:'Coal Hill'})-[:TEACHERS]->(clara:Teacher {name:'Clara Oswald'}) "
+                + "MATCH (school)-[:TEACHERS]->(danny:Teacher {name:'Danny Pink'}) "
+                + "MATCH (clara)-[:COURSES]->(english:Course {name:'English'}) "
+                + "MATCH (danny)-[:COURSES]->(maths:Course {name:'Maths'}) "
+                + "WHERE exists((clara)-[:SCHOOL]->(school)) and "
+                + "exists((danny)-[:SCHOOL]->(school)) "
+                + "return school, clara, danny, english, maths", emptyMap())
             .queryResults()).hasSize(1);
     }
 
@@ -701,8 +693,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         session.save(person);
         session.clear();
-        assertThat(session.query("MATCH (pe:Person:DomainObject { name :'jim' }), "
-            + "(po:Policy:DomainObject { name: 'health' }) return pe, po", emptyMap()).queryResults())
+        assertThat(session.query(
+            "MATCH (pe:Person:DomainObject { name :'jim' })" +
+            "WITH pe MATCH (po:Policy:DomainObject { name: 'health' }) return pe, po", emptyMap()).queryResults())
             .hasSize(1);
     }
 
@@ -736,8 +729,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         //No relations are
         session.save(policy);
         session.clear();
-        assertThat(session.query("MATCH (pe:Person:DomainObject { name :'jim' }), " +
-            "(po:Policy:DomainObject { name: 'health' }) return pe, po", emptyMap()).queryResults())
+        assertThat(session.query(
+            "MATCH (pe:Person:DomainObject { name :'jim' }) " +
+            "WITH pe MATCH (po:Policy:DomainObject { name: 'health' }) return pe, po", emptyMap()).queryResults())
             .hasSize(1);
     }
 
@@ -770,12 +764,12 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         session.save(jim);
         session.clear();
-        assertThat(session.query("MATCH (j:Person:DomainObject { name :'jim' }), " +
-            "(h:Policy:DomainObject { name: 'health' }), " +
-            "(i:Policy:DomainObject { name: 'immigration' }) " +
-            "WHERE (j)-[:WRITES_POLICY]->(h) and " +
-            "(j)-[:WRITES_POLICY]->(i) return j, h, i", emptyMap()).queryResults())
-            .hasSize(1);
+        assertThat(session.query(
+            "MATCH (j:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]-> (h:Policy:DomainObject { name: 'health' }), " +
+            "(j)-[:WRITES_POLICY]->(i:Policy:DomainObject { name: 'immigration' }) " +
+            "return j, h, i",
+            emptyMap()).queryResults()
+        ).hasSize(1);
     }
 
     @Test
@@ -812,11 +806,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.save(immigration, 2);
         // Statements cypher = new Statements(this.mapper.map(immigration, 2).getCompiler().getAllStatements());
         session.clear();
-        assertThat(session.query("MATCH (j:Person:DomainObject { name :'jim' }), " +
-            "(h:Policy:DomainObject { name: 'health' }), " +
-            "(i:Policy:DomainObject { name: 'immigration' }) " +
-            "WHERE (j)-[:WRITES_POLICY]->(h) and" +
-            "(j)-[:WRITES_POLICY]->(i) return j, h, i", emptyMap()).queryResults())
+        assertThat(session.query("MATCH (j:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]->(h:Policy:DomainObject { name: 'health' }) "
+            + "MATCH (j)-[:WRITES_POLICY]->(i:Policy:DomainObject { name: 'immigration' }) "
+            + "return j, h, i", emptyMap()).queryResults())
             .hasSize(1);
     }
 

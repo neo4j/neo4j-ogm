@@ -371,7 +371,11 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         // so that it works the same way as the org.neo4j.ogm.result.adapter.GraphModelAdapter.adapt
         for (String query : new String[] {
             "MATCH (a:Actor {name: 'A1'})-[r:ACTS_IN]->(m:Movie) RETURN a AS actor,COLLECT(r) AS roles, COLLECT(m) as movies",
-            "MATCH (a:Actor {name: 'A1'})-[r:ACTS_IN*]->(m:Movie) RETURN a AS actor,COLLECT(r) AS roles, COLLECT(m) as movies"
+            "MATCH p = (a:Actor {name: 'A1'})-[:ACTS_IN*]->(:Movie) " +
+            "WITH  a AS actor, p " +
+            "UNWIND relationships(p) AS r " +
+            "UNWIND [x IN nodes(p) WHERE x:Movie] AS m " +
+            "RETURN actor, collect(r) AS roles, collect(m) AS movies"
         }) {
             Iterable<Map<String, Object>> results = sessionFactory.openSession().query(query, EMPTY_MAP)
                 .queryResults();

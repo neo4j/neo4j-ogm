@@ -72,9 +72,8 @@ public class RelationshipEntityPartialMappingTest extends TestContainersTestBase
         session.save(keanu);
 
         session.clear();
-        assertThat(session.query("MATCH (a:Actor {name:'Keanu Reeves'}), " +
-                "(m:Movie {name:'The Matrix'}) " +
-                "WHERE (a)-[:ACTS_IN {played:'Neo'}]->(m) return a, m", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (a:Actor {name:'Keanu Reeves'}) -[:ACTS_IN {played:'Neo'}]-> (m:Movie {name:'The Matrix'}) " +
+                "RETURN a, m", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test // GH-727

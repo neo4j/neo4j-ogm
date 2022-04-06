@@ -70,7 +70,7 @@ public interface Compiler {
      * @param direction              The direction of the existing relationship
      * @return A new {@link RelationshipBuilder} bound to the identified relationship entity
      */
-    RelationshipBuilder existingRelationship(Long existingRelationshipId, String direction, String type);
+    RelationshipBuilder existingRelationship(Long existingRelationshipId, String direction, String type, boolean wasDirty);
 
     /**
      * Defines a relationship deletion between the specified start node to end node with the given relationship type and direction.

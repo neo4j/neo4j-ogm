@@ -92,9 +92,11 @@ public class MultiStatementCypherCompiler implements Compiler {
     }
 
     @Override
-    public RelationshipBuilder existingRelationship(Long existingRelationshipId, String direction, String type) {
+    public RelationshipBuilder existingRelationship(Long existingRelationshipId, String direction, String type, boolean wasDirty) {
         String key = existingRelationshipId + ";" + direction;
-        return existingRelationshipBuilders.computeIfAbsent(key, k -> new DefaultRelationshipBuilder(type, existingRelationshipId));
+        RelationshipBuilder relationshipBuilder = existingRelationshipBuilders.computeIfAbsent(key, k -> new DefaultRelationshipBuilder(type, existingRelationshipId));
+        relationshipBuilder.setDirty(wasDirty);
+        return relationshipBuilder;
     }
 
     @Override
@@ -198,15 +200,21 @@ public class MultiStatementCypherCompiler implements Compiler {
             return Collections.emptyList();
         }
 
-        Set<Edge> relationships = new HashSet<>(existingRelationshipBuilders.size());
-        List<Statement> statements = new ArrayList<>(existingRelationshipBuilders.size());
-        for (RelationshipBuilder relBuilder : existingRelationshipBuilders.values()) {
-            relationships.add(relBuilder.edge());
+        Map<Boolean, Set<Edge>> collect = existingRelationshipBuilders.values().stream()
+            .collect(partitioningBy(RelationshipBuilder::isDirty, Collectors.mapping(RelationshipBuilder::edge, Collectors.toSet())));
+
+        List<Statement> result = new ArrayList<>();
+        if (!collect.get(true).isEmpty()) {
+            ExistingRelationshipStatementBuilder builder = new ExistingRelationshipStatementBuilder(collect.get(true), statementFactory, true);
+            result.add(builder.build());
         }
-        ExistingRelationshipStatementBuilder existingRelationshipBuilder = new ExistingRelationshipStatementBuilder(
-            relationships, statementFactory);
-        statements.add(existingRelationshipBuilder.build());
-        return statements;
+
+        if (!collect.get(false).isEmpty()) {
+            ExistingRelationshipStatementBuilder builder = new ExistingRelationshipStatementBuilder(collect.get(false), statementFactory, false);
+            result.add(builder.build());
+        }
+
+        return result;
     }
 
     @Override

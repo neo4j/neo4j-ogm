@@ -38,9 +38,9 @@ final class OptimisticLockingUtils {
 
     private final static String VERSION_PROPERTY_CHECK_FOR_EXISTING_NODES_AND_RELATIONSHIPS = ""
         + "AND %1$s.`%2$s` = row.`%2$s` "
-        + "SET %1$s.`%2$s` = %1$s.`%2$s` + 1 "
+        + "SET %1$s.`%2$s` = %1$s.`%2$s` + %3$d "
         + "WITH %1$s, row "
-        + "WHERE %1$s.`%2$s` = row.`%2$s` + 1 ";
+        + "WHERE %1$s.`%2$s` = row.`%2$s` + %3$d ";
 
     /**
      * In case an entity with an externally assigned ID has also a @Version field, the version check is
@@ -56,14 +56,25 @@ final class OptimisticLockingUtils {
         + "WITH %1$s, row "
         + "WHERE (row.`%2$s` IS NULL OR %1$s.`%2$s` = row.`%2$s` + 1) ";
 
+
     /**
      * @param container node / relationship to check
      * @param variable  The variable representing the node or relationship to upgrade
-     * @return
+     * @return A fragment to be included in a statement to increment the version property
      */
     static String getFragmentForExistingNodesAndRelationships(PropertyContainer container, String variable) {
+        return getFragmentForExistingNodesAndRelationships(container, variable, 1);
+    }
+
+    /**
+     * @param container node / relationship to check
+     * @param variable  The variable representing the node or relationship to upgrade
+     * @param increment use {@literal 0} to avoid any increment (for non-dirty relationships)
+     * @return A fragment to be included in a statement to increment the version property
+     */
+    static String getFragmentForExistingNodesAndRelationships(PropertyContainer container, String variable, int increment) {
         String key = container.getVersion().getKey();
-        return String.format(VERSION_PROPERTY_CHECK_FOR_EXISTING_NODES_AND_RELATIONSHIPS, variable, key);
+        return String.format(VERSION_PROPERTY_CHECK_FOR_EXISTING_NODES_AND_RELATIONSHIPS, variable, key, increment);
     }
 
     /**

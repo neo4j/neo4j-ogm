@@ -151,8 +151,7 @@ public class EntityGraphMapper implements EntityMapper {
                 DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,
                     Relationship.OUTGOING);
 
-                RelationshipBuilder relationshipBuilder = getRelationshipBuilder(compiler, entity, directedRelationship,
-                    false);
+                RelationshipBuilder relationshipBuilder = getRelationshipBuilder(compiler, entity, directedRelationship, mappingContext.isDirty(entity));
 
                 // 2. create or update the actual relationship (edge) in the graph
                 updateRelationshipEntity(compiler.context(), entity, relationshipBuilder, reInfo);
@@ -569,7 +568,7 @@ public class EntityGraphMapper implements EntityMapper {
                     EntityUtils.setIdentity(entity, null, metaData);
                 }
             } else {
-                relationshipBuilder = cypherBuilder.existingRelationship(relId, directedRelationship.direction(), directedRelationship.type());
+                relationshipBuilder = cypherBuilder.existingRelationship(relId, directedRelationship.direction(), directedRelationship.type(), mappingContext.isDirty(entity));
 
                 this.mappingContext.getSnapshotOf(entity).ifPresent(snapshot ->
                     relationshipBuilder
@@ -749,7 +748,7 @@ public class EntityGraphMapper implements EntityMapper {
 
         if (version == null) {
             version = 0L;
-        } else {
+        } else if (mappingContext.isDirty(entity)) {
             version = version + 1;
         }
         fieldInfo.writeDirect(entity, version);

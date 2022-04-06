@@ -37,6 +37,7 @@ public class DefaultRelationshipBuilder extends AbstractPropertyContainerBuilder
     private boolean singleton = true; // will be false if the relationship can be mapped multiple times between two instances
     private boolean bidirectional = false;
     private boolean relationshipEntity = false;
+    private boolean dirty = true;
 
     public DefaultRelationshipBuilder(String type, boolean bidirectional) {
         this(type, null);
@@ -136,5 +137,15 @@ public class DefaultRelationshipBuilder extends AbstractPropertyContainerBuilder
     public RelationshipBuilder setVersionProperty(String name, Long version) {
         super.targetContainer.setVersion(new PropertyModel<>(name, version));
         return this;
+    }
+
+    @Override
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    @Override
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
     }
 }

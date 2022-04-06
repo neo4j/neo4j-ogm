@@ -116,7 +116,7 @@ public class EntityGraphMapper implements EntityMapper {
         // add all the relationships we know about. This includes the relationships that
         // won't be modified by the mapping request.
         for (MappedRelationship mappedRelationship : mappingContext.getRelationships()) {
-            LOGGER.debug("context-init: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(),
+            LOGGER.debug("context-init: ({})-[:{}]->({})", mappedRelationship.getStartNodeId(),
                 mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
             compiler.context().registerRelationship(mappedRelationship);
         }
@@ -976,11 +976,9 @@ public class EntityGraphMapper implements EntityMapper {
         relBuilder.relate(src, tgt);
         LOGGER.debug("context-new: ({})-[{}:{}]->({})", src, relBuilder.reference(), relBuilder.type(), tgt);
 
-        if (relBuilder.isNew()) {  //We only want to create or log new relationships
-            ctx.registerTransientRelationship(new SrcTargetKey(src, tgt),
-                new TransientRelationship(src, relBuilder.reference(), relBuilder.type(), tgt, srcClass,
-                    tgtClass)); // we log the new relationship as part of the transaction context.
-        }
+        ctx.registerTransientRelationship(new SrcTargetKey(src, tgt),
+            new TransientRelationship(src, relBuilder.reference(), relBuilder.type(), tgt, srcClass,
+                tgtClass)); // we log the new relationship as part of the transaction context.
     }
 
     /**

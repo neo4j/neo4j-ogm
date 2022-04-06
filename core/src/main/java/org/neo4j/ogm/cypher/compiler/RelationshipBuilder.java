@@ -52,7 +52,6 @@ public interface RelationshipBuilder extends PropertyContainerBuilder<Relationsh
 
     void setRelationshipEntity(boolean relationshipEntity);
 
-    boolean isNew();
     boolean isDirty();
 
     void setDirty(boolean dirty);

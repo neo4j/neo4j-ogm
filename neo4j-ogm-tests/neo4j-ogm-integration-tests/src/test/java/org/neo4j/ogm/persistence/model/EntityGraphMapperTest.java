@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -53,6 +54,9 @@ import org.neo4j.ogm.domain.types.EntityWithUnmanagedFieldType;
 import org.neo4j.ogm.exception.core.InvalidRelationshipTargetException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.persistence.examples.versioned_rel_entity.A;
+import org.neo4j.ogm.persistence.examples.versioned_rel_entity.B;
+import org.neo4j.ogm.persistence.examples.versioned_rel_entity.R;
 import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -89,7 +93,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     public void setUpMapper() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.policy",
             "org.neo4j.ogm.domain.election", "org.neo4j.ogm.domain.forum",
-            "org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.types");
+            "org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.types", "org.neo4j.ogm.persistence.examples.versioned_rel_entity");
         mappingContext.clear();
         this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
         session = sessionFactory.openSession();
@@ -99,6 +103,47 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
         this.mapper.map(null);
+    }
+
+    @Test // GH-903
+    public void shouldOnlyTouchChangedRelEntities() {
+
+        A a = new A("a1");
+        B b = new B("b1");
+        R r = a.add(b);
+        r.setSomeAttribute("R1");
+
+        Session initial = sessionFactory.openSession();
+        initial.save(a);
+
+        Long version = getRelVersion(initial, a, r, b);
+        assertThat(version).isOne();
+
+        B b2 = new B("b2");
+        R r2 = a.add(b2);
+        r2.setSomeAttribute("R2");
+        initial.save(a);
+
+        version = getRelVersion(initial, a, r2, b2);
+        assertThat(version).isOne();
+
+        version = getRelVersion(initial, a, r, b);
+        assertThat(version).isOne();
+
+        r.setSomeAttribute("updateAttribute");
+        initial.save(a);
+
+        version = getRelVersion(initial, a, r, b);
+        assertThat(version).isEqualTo(2L);
+    }
+
+    static Long getRelVersion(Session session, A a, R r, B b) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("id1", a.getId());
+        parameters.put("id2", b.getId());
+        parameters.put("id3", r.getId());
+
+        return session.queryForObject(Long.class, "MATCH (a:A {id: $id1}) <-[r]- (b:B) WHERE id(b) = $id2 AND id(r) = $id3 RETURN r.version",parameters);
     }
 
     @Test // GH-786

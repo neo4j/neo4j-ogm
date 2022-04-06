@@ -41,9 +41,15 @@ public class ExistingRelationshipStatementBuilder implements CypherStatementBuil
 
     private final Set<Edge> edges;
 
-    public ExistingRelationshipStatementBuilder(Set<Edge> edges, StatementFactory statementFactory) {
+    /**
+     * Set to {@literal true} if all the edges above are dirty (changed) edges.
+     */
+    private final boolean dirtyEdges;
+
+    public ExistingRelationshipStatementBuilder(Set<Edge> edges, StatementFactory statementFactory, boolean dirtyOnes) {
         this.edges = edges;
         this.statementFactory = statementFactory;
+        this.dirtyEdges = dirtyOnes;
     }
 
     @Override
@@ -56,7 +62,7 @@ public class ExistingRelationshipStatementBuilder implements CypherStatementBuil
             queryBuilder.append("UNWIND $rows AS row MATCH ()-[r]->() WHERE ID(r) = row.relId ");
 
             if (firstEdge.hasVersionProperty()) {
-                queryBuilder.append(OptimisticLockingUtils.getFragmentForExistingNodesAndRelationships(firstEdge, "r"));
+                queryBuilder.append(OptimisticLockingUtils.getFragmentForExistingNodesAndRelationships(firstEdge, "r", dirtyEdges ? 1 : 0));
             }
 
             queryBuilder.append(firstEdge.createPropertyRemovalFragment("r"));

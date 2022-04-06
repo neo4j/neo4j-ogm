@@ -27,6 +27,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.domain.locking.FriendOf;
 import org.neo4j.ogm.domain.locking.Location;
 import org.neo4j.ogm.domain.locking.PowerUser;
 import org.neo4j.ogm.domain.locking.User;
@@ -232,7 +233,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
         // Re-Read on purpose, see ticket
         bert = session2.load(User.class, bertId);
         bert.setName("Bert");
-        bert.addFriend(ernie);
+        FriendOf friendOf = bert.addFriend(ernie);
         session2.save(bert);
         assertThat(bert.getVersion()).isEqualTo(2L);
 
@@ -256,6 +257,19 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
             .queryResults().iterator().next();
         session1.clear();
         assertThat(versions).containsEntry("userVersion", 3L);
+        assertThat(versions).containsEntry("relVersion", 0L);
+
+        friendOf.setDescription("an updated description");
+
+        session2.save(bert);
+        assertThat(bert.getVersion()).isEqualTo(3L);
+
+        versions = session1.query("MATCH (a:User {name: $name}) -[f:FRIEND_OF] -> (:User) RETURN"
+                + " a.version as userVersion, f.version as relVersion, f.description as description", Collections.singletonMap("name", bert.getName()))
+            .queryResults().iterator().next();
+        session1.clear();
+        assertThat(versions).containsEntry("userVersion", 3L);
         assertThat(versions).containsEntry("relVersion", 1L);
+        assertThat(versions).containsEntry("description", "an updated description");
     }
 }

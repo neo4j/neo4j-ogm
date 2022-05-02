@@ -42,6 +42,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
 
@@ -72,8 +73,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.save(userA);
 
         session.clear();
-        assertThat(session.query("MATCH (a:User {name:'A'}), (b:User {name:'B'}) WHERE (a)-[:FRIEND]->(b) "
-            + "return a,b", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (a:User {name:'A'}) -[:FRIEND]-> (b:User {name:'B'}) RETURN a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test // DATAGRAPH-594
@@ -87,9 +87,8 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
 
         session.clear();
         assertThat(
-            session.query("MATCH (a:Individual {name:'A', age: 0, code:0, bankBalance:0.0}),"
-                + "(b:Individual {name:'B', age:0, code:0, bankBalance:0.0}) WHERE (a)-[:FRIENDS]->(b) "
-                + "return a,b", emptyMap())
+            session.query("MATCH (a:Individual {name:'A', age: 0, code:0, bankBalance:0.0}) -[:FRIENDS]->"
+                + "(b:Individual {name:'B', age:0, code:0, bankBalance:0.0}) RETURN a, b", emptyMap())
                 .queryResults())
             .hasSize(1);
     }
@@ -102,8 +101,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.save(personA);
 
         session.clear();
-        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}) WHERE (a)-[:LIKES]->(b) "
-            + "return a, b", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (a:Person {name:'A'}) -[:LIKES]-> (b:Person {name:'B'}) RETURN a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test // DATAGRAPH-594
@@ -114,8 +112,7 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.save(mortalA);
 
         session.clear();
-        assertThat(session.query("MATCH (a:Mortal {name:'A'}), (b:Mortal {name:'B'}) WHERE (a)<-[:KNOWN_BY]-(b) "
-            + "return a,b", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (a:Mortal {name:'A'}) <-[:KNOWN_BY]- (b:Mortal {name:'B'}) RETURN a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test // DATAGRAPH-594
@@ -127,8 +124,9 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.save(personA);
 
         session.clear();
-        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}) " +
-            "WHERE (a)-[:LIKES]->(b) and (b)-[:LIKES]->(a) return a, b", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query(
+            "MATCH (a:Person {name:'A'}) -[:LIKES]-> (b:Person {name:'B'}) " +
+            "WHERE exists((b)-[:LIKES]->(a)) RETURN a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test // DATAGRAPH-594
@@ -142,8 +140,8 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.save(personA);
 
         session.clear();
-        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}) " +
-            "WHERE (a)-[:LIKES]->(b) and (b)-[:LIKES]->(a) return a,b", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (a:Person {name:'A'}) -[:LIKES]-> (b:Person {name:'B'}) " +
+            "WHERE exists((b)-[:LIKES]->(a)) RETURN a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test // DATAGRAPH-594
@@ -156,8 +154,8 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.save(personA);
 
         session.clear();
-        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}) " +
-            "WHERE (a)-[:LIKES]->(b) and (b)-[:LIKES]->(a) return a,b", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (a:Person {name:'A'}) -[:LIKES]-> (b:Person {name:'B'}) " +
+            "WHERE exists((b)-[:LIKES]->(a)) RETURN a,b", emptyMap()).queryResults()).hasSize(1);
 
         personA.getPeopleILike().clear();
         personA.getPeopleILike().add(personC);
@@ -165,9 +163,10 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.save(personA);
 
         session.clear();
-        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}), (c:Person {name:'C'}) " +
-            " WHERE (a)-[:LIKES]->(c) and (c)-[:LIKES]->(a) and (b)-[:LIKES]->(a) return a, b, c", emptyMap())
-            .queryResults()).hasSize(1);
+        assertThat(session.query(""
+                + "MATCH (a:Person {name:'A'})-[:LIKES]->(c:Person {name:'C'}) "
+                + "MATCH (b:Person {name:'B'})-[:LIKES]->(a) "
+                + " WHERE exists((c)-[:LIKES]->(a)) RETURN a, b, c", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test // DATAGRAPH-594
@@ -187,21 +186,19 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         session.save(personD);
 
         session.clear();
-        assertThat(session.query("MATCH (a:Person {name:'A'}), (b:Person {name:'B'}), " +
-            "(c:Person {name:'C'}), (d:Person {name:'D'}) " +
-            "WHERE (a)-[:LIKES]->(b) and (a)-[:LIKES]->(c) and (b)-[:LIKES]->(a) and (d)-[:LIKES]->(a) " +
-            "return a, b, c, d", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("" +
+            "MATCH (a:Person {name:'A'}) -[:LIKES]-> (b:Person {name:'B'}) " +
+            "MATCH (a) -[:LIKES]-> (c:Person {name:'C'}) " +
+            "MATCH (d:Person {name:'D'}) -[:LIKES] ->(a) " +
+            "WHERE exists((b)-[:LIKES]->(a)) " +
+            "RETURN a, b, c, d", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test // DATAGRAPH-636, DATAGRAPH-665 (equals() on SocialUser includes every field)
     public void shouldManageRelationshipsToTheSameNodeType() {
         SocialUser userA = new SocialUser("A");
         SocialUser userB = new SocialUser("B");
-        SocialUser userC = new SocialUser("C");
-        SocialUser userD = new SocialUser("D");
         SocialUser userE = new SocialUser("E");
-        SocialUser userF = new SocialUser("F");
-        SocialUser userG = new SocialUser("G");
 
         Set<SocialUser> friends = new HashSet<>();
         friends.add(userB);
@@ -271,12 +268,13 @@ public class SocialRelationshipsIntegrationTest extends TestContainersTestBase {
         userA.getFriends().add(userB);
         session.save(userA);
 
-        assertThat(session.query("MATCH (a:User {name:'A'}), (b:User {name:'B'}) WHERE (a)-[:FRIEND]->(b) return a,b",
+        String query = "MATCH (a:User {name:'A'}) -[:FRIEND]-> (b:User {name:'B'}) return a, b";
+        assertThat(session.query(query,
             emptyMap(), true).queryResults()).hasSize(1);
 
         userA.unfriend(userB);
         session.save(userA);
-        assertThat(session.query("MATCH (a:User {name:'A'}), (b:User {name:'B'}) WHERE (a)-[:FRIEND]->(b) return a, b",
+        assertThat(session.query(query,
             emptyMap(), true).queryResults()).hasSize(0);
     }
 

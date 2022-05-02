@@ -31,8 +31,8 @@ import org.neo4j.ogm.domain.autoindex.UniqueConstraintEntity;
  */
 public class UniqueConstraintAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
-    private static final String INDEX = "INDEX ON :`Entity`(`login`)";
-    private static final String CONSTRAINT = "CONSTRAINT ON (`entity`:`Entity`) ASSERT `entity`.`login` IS UNIQUE";
+    private static final String INDEX = "INDEX org_neo4j_ogm_domain_autoindex_uniqueconstraintentity_login FOR (`entity`:`Entity`) ON (`entity`.`login`)";
+    private static final String CONSTRAINT = "CONSTRAINT org_neo4j_ogm_domain_autoindex_uniqueconstraintentity_login_unique FOR (`entity`:`Entity`) REQUIRE `entity`.`login` IS UNIQUE";
 
     public UniqueConstraintAutoIndexManagerTest() {
         super(new String[] { CONSTRAINT }, UniqueConstraintEntity.class);

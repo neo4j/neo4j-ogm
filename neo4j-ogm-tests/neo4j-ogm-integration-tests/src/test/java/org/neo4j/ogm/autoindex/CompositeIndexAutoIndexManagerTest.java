@@ -38,11 +38,11 @@ import org.neo4j.ogm.session.SessionFactory;
 public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTestClass {
 
     private static final String[] INDEXES = {
-        "INDEX ON :`EntityWithCompositeIndex`(`name`,`age`)",
-        "INDEX ON :`EntityWithMultipleCompositeIndexes`(`firstName`,`age`)",
-        "INDEX ON :`EntityWithMultipleCompositeIndexes`(`firstName`,`email`)"
+        "INDEX org_neo4j_ogm_domain_autoindex_compositeindexentity_name_age FOR (`entitywithcompositeindex`:`EntityWithCompositeIndex`) ON (`entitywithcompositeindex`.`name`,`entitywithcompositeindex`.`age`)",
+        "INDEX org_neo4j_ogm_domain_autoindex_multiplecompositeindexentity_firstName_age FOR (`entitywithmultiplecompositeindexes`:`EntityWithMultipleCompositeIndexes`) ON (`entitywithmultiplecompositeindexes`.`firstName`,`entitywithmultiplecompositeindexes`.`age`)",
+        "INDEX org_neo4j_ogm_domain_autoindex_multiplecompositeindexentity_firstName_email FOR (`entitywithmultiplecompositeindexes`:`EntityWithMultipleCompositeIndexes`) ON (`entitywithmultiplecompositeindexes`.`firstName`,`entitywithmultiplecompositeindexes`.`email`)"
     };
-    private static final String CONSTRAINT = "CONSTRAINT ON (entity:EntityWithCompositeIndex) ASSERT (entity.name, entity.age) IS NODE KEY";
+    private static final String CONSTRAINT = "CONSTRAINT EntityWithCompositeIndex_d FOR (entity:EntityWithCompositeIndex) REQUIRE (entity.name, entity.age) IS NODE KEY";
 
     public CompositeIndexAutoIndexManagerTest() {
         super(INDEXES, CompositeIndexEntity.class, CompositeIndexChild.class, MultipleCompositeIndexEntity.class);
@@ -86,8 +86,8 @@ public class CompositeIndexAutoIndexManagerTest extends BaseAutoIndexManagerTest
                     .hasSize(2)
             );
         } finally {
-            executeDrop("INDEX ON :EntityWithMultipleCompositeIndexes(firstName, age)");
-            executeDrop("INDEX ON :EntityWithMultipleCompositeIndexes(firstName, email)");
+            executeDrop(INDEXES[1]);
+            executeDrop(INDEXES[2]);
         }
     }
 

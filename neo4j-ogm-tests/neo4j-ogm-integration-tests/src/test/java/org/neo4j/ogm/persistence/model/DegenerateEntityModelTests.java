@@ -90,10 +90,10 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
         session.save(a);
 
         session.clear();
-        assertThat(session.query("MATCH (f:Folder {name : 'f' } ), " +
-            "(a:Document { name: 'a' } ), " +
-            "(b:Document { name: 'b' } ) " +
-            "WHERE (f)-[:CONTAINS]->(b) return f, a, b", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query(
+            "MATCH (f:Folder {name : 'f' } ) -[:CONTAINS]->(b:Document { name: 'b' } ) " +
+            "MATCH (a:Document { name: 'a' } ) " +
+            "WHERE NOT EXISTS((f)-[:CONTAINS]->(a)) return f, a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
@@ -104,10 +104,9 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
 
         session.save(f);
         session.clear();
-        assertThat(session.query("MATCH (f:Folder {name : 'f' } ), " +
-            "(a:Document { name: 'a' } ), " +
-            "(b:Document { name: 'b' } ) " +
-            "WHERE (f)-[:CONTAINS]->(b) return f, a, b", emptyMap()).queryResults()).hasSize(0);
+        assertThat(session.query("MATCH (f:Folder {name : 'f' } ) -[:CONTAINS]->(b:Document { name: 'b' } ) " +
+            "MATCH (a:Document { name: 'a' } ) " +
+            "WHERE NOT EXISTS((f)-[:CONTAINS]->(a)) return f, a, b", emptyMap()).queryResults()).hasSize(0);
     }
 
     @Test
@@ -121,10 +120,10 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
         session.save(clone);
 
         session.clear();
-        assertThat(session.query("MATCH (f:Folder { name: 'f' } ), " +
-            "(a:Document { name: 'a'} ), " +
-            "(b:Document { name: 'b'} ) " +
-            "WHERE (f)-[:CONTAINS]->(b) return f, a, b", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query(
+            "MATCH (f:Folder { name: 'f' } )-[:CONTAINS]->(b:Document { name: 'b'} ) " +
+            "MATCH (a:Document { name: 'a'} ) " +
+            "WHERE NOT EXISTS((f)-[:CONTAINS]->(a)) RETURN f, a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
@@ -138,9 +137,9 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
         session.save(clone);
 
         session.clear();
-        assertThat(session.query("MATCH (f:Folder { name: 'f' } ), " +
-            "(a:Document { name: 'a' } ), " +
-            "(b:Document { name: 'b' } ) return f", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (f:Folder { name: 'f' } ) " +
+            "MATCH (a:Document { name: 'a' } ) " +
+            "MATCH (b:Document { name: 'b' } ) WHERE NOT EXISTS ((f) - [:CONTAINS] -> (a)) AND NOT EXISTS((f) - [:CONTAINS] -> (b)) return f", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
@@ -153,12 +152,10 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
         session.save(a);
 
         session.clear();
-        assertThat(session.query("MATCH (f:Folder { name: 'f' } ), " +
-            "(g:Folder { name: 'g' } ), " +
-            "(a:Document { name: 'a' }), " +
-            "(b:Document { name: 'b' }) " +
-            "WHERE (f)-[:CONTAINS]->(b) and" +
-            "(g)-[:CONTAINS]->(a) return f, g, a, b", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query(
+            "MATCH (f:Folder { name: 'f' } )-[:CONTAINS]-> (b:Document { name: 'b' }) " +
+            "MATCH (g:Folder { name: 'g' } )-[:CONTAINS]-> (a:Document { name: 'a' }) " +
+            "RETURN f, g, a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
@@ -173,11 +170,11 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
         session.save(f);
 
         session.clear();
-        assertThat(session.query("MATCH (f:Folder { name: 'f' }), " +
-            "(a:Document { name: 'a' } ), " +
-            "(b:Document { name: 'b' } ), " +
-            "(c:Document { name: 'c' } ) " +
-            "WHERE (f)-[:CONTAINS]->(b) and " +
-            "(f)-[:CONTAINS]->(c) return f, a, b, c", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query(
+            "MATCH (f:Folder { name: 'f' }) -[:CONTAINS]-> (c:Document { name: 'c' } ) " +
+            "MATCH (f)-[:CONTAINS]-> (b:Document { name: 'b' }) " +
+            "MATCH (a:Document { name: 'a' }) " +
+            "WHERE NOT EXISTS((f) - [:CONTAINS] -> (a)) " +
+            "RETURN f, a, b, c", emptyMap()).queryResults()).hasSize(1);
     }
 }

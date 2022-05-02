@@ -63,23 +63,23 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
     private static final Logger logger = LoggerFactory.getLogger(BaseAutoIndexManagerTestClass.class);
 
     private static final String[] COMMUNITY_INDEXES = {
-        "INDEX ON :User(email)",
+        "INDEX user_email FOR (n:User) ON n.email",
     };
 
     private static final String[] COMMUNITY_CONSTRAINTS = {
-        "CONSTRAINT ON (user:User) ASSERT user.login IS UNIQUE",
+        "CONSTRAINT user_login_unique FOR (user:User) REQUIRE user.login IS UNIQUE",
     };
 
     private static final String[] ENTERPRISE_INDEXES = {
-        "INDEX ON :User(email)",
-        "INDEX ON :User(lat, lon)"
+        "INDEX user_email FOR (n:User) ON n.email",
+        "INDEX user_lat_lon FOR (n:User) ON (n.lat, n.lon)"
     };
 
     private static final String[] ENTERPRISE_CONSTRAINTS = {
-        "CONSTRAINT ON (user:User) ASSERT user.login IS UNIQUE",
-        "CONSTRAINT ON (user:User) ASSERT (user.key, user.key2) IS NODE KEY",
-        "CONSTRAINT ON (user:User) ASSERT exists(user.address)",
-        "CONSTRAINT ON ()-[rating:RATING]-() ASSERT exists(rating.stars)",
+        "CONSTRAINT user_login_unique FOR (user:User) REQUIRE user.login IS UNIQUE",
+        "CONSTRAINT user_some_key FOR (user:User) REQUIRE (user.key, user.key2) IS NODE KEY",
+        "CONSTRAINT user_address_exists FOR (user:User) REQUIRE user.address IS NOT NULL",
+        "CONSTRAINT rating_stars_exists FOR ()-[rating:RATING]-() REQUIRE rating.stars IS NOT NULL",
     };
 
     private String[] indexes;
@@ -108,8 +108,8 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
     @BeforeClass
     public static void disableBoltWarningLogs() {
         LoggerContext logCtx = (LoggerContext) LoggerFactory.getILoggerFactory();
-        logCtx.getLogger("ChannelErrorHandler").setLevel(Level.ERROR);
-        logCtx.getLogger("InboundMessageHandler").setLevel(Level.ERROR);
+        logCtx.getLogger("org.neo4j.driver.internal.async.inbound.ChannelErrorHandler").setLevel(Level.ERROR);
+        logCtx.getLogger("org.neo4j.driver.internal.async.inbound").setLevel(Level.ERROR);
     }
 
     @Before
@@ -357,9 +357,11 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
                 // need to handle transaction manually because when the service.execute fails with exception
                 // it does not clean up the tx resources, leading to deadlock later
                 try {
-                    session.query("DROP " + statement, emptyMap());
+                    session.query("DROP " + statement.substring(0, statement.indexOf(" FOR")) + " IF EXISTS", emptyMap());
                     transaction.commit();
                 } catch (Exception e) {
+                    System.out.println(">>>> " + statement);
+                    e.printStackTrace();
                     logger.trace("Could not execute drop for statement (this is likely expected) {}", statement, e);
                     transaction.rollback();
                 }

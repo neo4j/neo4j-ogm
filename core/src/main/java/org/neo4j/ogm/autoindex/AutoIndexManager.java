@@ -186,7 +186,7 @@ public class AutoIndexManager {
         List<AutoIndex> dbIndexes = new ArrayList<>();
 
         session.doInTransaction(() -> {
-            Result query = session.query("CALL db.constraints()", emptyMap());
+            Result query = session.query("SHOW CONSTRAINTS YIELD *", emptyMap());
             for (Map<String, Object> queryResult : query.queryResults()) {
                 Optional<AutoIndex> dbIndex = AutoIndex.parseConstraint(queryResult, databaseInfo.version);
                 dbIndex.ifPresent(dbIndexes::add);
@@ -194,7 +194,7 @@ public class AutoIndexManager {
         }, READ_ONLY);
 
         session.doInTransaction(() -> {
-            Result query = session.query("CALL db.indexes()", emptyMap());
+            Result query = session.query("CALL db.indexes() YIELD *", emptyMap());
             for (Map<String, Object> queryResult : query.queryResults()) {
                 Optional<AutoIndex> dbIndex = AutoIndex.parseIndex(queryResult, databaseInfo.version);
                 dbIndex.ifPresent(dbIndexes::add);
@@ -279,8 +279,8 @@ public class AutoIndexManager {
                                 properties.add(p);
                             }
                         });
-                    AutoIndex autoIndex = new AutoIndex(type, owningType,
-                        properties.toArray(new String[properties.size()]));
+                    AutoIndex autoIndex = new AutoIndex(classInfo.getUnderlyingClass(), type, owningType,
+                        properties.toArray(new String[0]), null);
                     LOGGER.debug("Adding composite index [description={}]", autoIndex);
                     indexMetadata.add(autoIndex);
                 }
@@ -300,7 +300,7 @@ public class AutoIndexManager {
                         continue;
                     }
 
-                    final AutoIndex autoIndex = new AutoIndex(type, owningType, new String[] { fieldInfo.property() });
+                    final AutoIndex autoIndex = new AutoIndex(classInfo.getUnderlyingClass(), type, owningType, new String[] { fieldInfo.property() }, null);
                     LOGGER.debug("Adding Index [description={}]", autoIndex);
                     indexMetadata.add(autoIndex);
                 }
@@ -311,8 +311,8 @@ public class AutoIndexManager {
                     IndexType type = classInfo.isRelationshipEntity() ?
                         IndexType.REL_PROP_EXISTENCE_CONSTRAINT : IndexType.NODE_PROP_EXISTENCE_CONSTRAINT;
 
-                    AutoIndex autoIndex = new AutoIndex(type, owningType,
-                        new String[] { requiredField.property() });
+                    AutoIndex autoIndex = new AutoIndex(classInfo.getUnderlyingClass(), type, owningType,
+                        new String[] { requiredField.property() }, null);
 
                     LOGGER.debug("Adding required constraint [description={}]", autoIndex);
                     indexMetadata.add(autoIndex);

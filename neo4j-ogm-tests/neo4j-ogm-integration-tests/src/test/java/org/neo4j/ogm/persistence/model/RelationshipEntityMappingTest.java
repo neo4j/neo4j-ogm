@@ -44,6 +44,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 /**
  * @author Vince Bickers
  * @author Mark Angrish
+ * @author Michael J. Simons
  */
 public class RelationshipEntityMappingTest extends TestContainersTestBase {
 
@@ -71,10 +72,9 @@ public class RelationshipEntityMappingTest extends TestContainersTestBase {
         session.save(daniel);
 
         session.clear();
-        assertThat(session.query("MATCH (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}), "
+        assertThat(session.query("MATCH (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) <-[:ACTS_IN {role:'Harry Potter'}]- "
                 + "(a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) "
-                + " WHERE m.title = 'Goblet of Fire' and m.year = 2005 "
-                + " and a.name='Daniel Radcliffe' and (a)-[:ACTS_IN {role:'Harry Potter'}]->(m) "
+                + " WHERE m.title = 'Goblet of Fire' and m.year = 2005 and a.name='Daniel Radcliffe' "
                 + " return m, a",
             emptyMap()).queryResults()).hasSize(1);
     }
@@ -88,11 +88,10 @@ public class RelationshipEntityMappingTest extends TestContainersTestBase {
         session.save(daniel);
 
         session.clear();
-        assertThat(session.query("MATCH (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}), "
+        assertThat(session.query("MATCH (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) <-[:NOMINATIONS {name:'Saturn Award', year:2005}]- "
                 + "(a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) "
-                + " WHERE m.title = 'Goblet of Fire' and m.year = 2005 "
-                + " and a.name='Daniel Radcliffe' and (a)-[:NOMINATIONS {name:'Saturn Award', year:2005}]->(m) "
-                + " return m, a",
+                + " WHERE m.title = 'Goblet of Fire' and m.year = 2005 and a.name='Daniel Radcliffe'"
+                + " RETURN m, a",
             emptyMap()).queryResults()).hasSize(1);
     }
 
@@ -111,9 +110,7 @@ public class RelationshipEntityMappingTest extends TestContainersTestBase {
         session.save(a);
 
         session.clear();
-        assertThat(session.query("MATCH (a:A), " +
-            "(b:B) " +
-            "WHERE (a)-[:CR]->(b) return a, b", emptyMap()).queryResults()).hasSize(1);
+        assertThat(session.query("MATCH (a:A)-[:CR]->(b:B) RETURN a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test

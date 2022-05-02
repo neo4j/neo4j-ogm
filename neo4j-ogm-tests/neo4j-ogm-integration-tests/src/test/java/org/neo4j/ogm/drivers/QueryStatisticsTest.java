@@ -125,7 +125,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     @Test
     public void statisticsIndexesAdded() {
         try {
-            Result result = session.query("CREATE INDEX ON :Label(property)", emptyMap());
+            Result result = session.query("CREATE INDEX foo FOR (n:Label) ON (n.property)", emptyMap());
             QueryStatistics statistics = result.queryStatistics();
 
             assertThat(statistics.getIndexesAdded()).isEqualTo(1);
@@ -135,7 +135,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
 
             // try to drop the index so other tests have clean db
             try {
-                session.query("DROP INDEX ON :Label(property)", emptyMap());
+                session.query("DROP INDEX foo", emptyMap());
             } catch (Exception e1) {
                 logger.warn("Error during index/constraint cleanup", e1);
             }
@@ -145,9 +145,9 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     @Test
     public void statisticsIndexesRemoved() {
         try {
-            session.query("CREATE INDEX ON :Label(property)", emptyMap());
+            session.query("CREATE INDEX foo FOR (n:Label) ON (n.property)", emptyMap());
 
-            Result result = session.query("DROP INDEX ON :Label(property)", emptyMap());
+            Result result = session.query("DROP INDEX foo", emptyMap());
             QueryStatistics statistics = result.queryStatistics();
 
             assertThat(statistics.getIndexesRemoved()).isEqualTo(1);
@@ -157,7 +157,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
 
             // try to drop the index so other tests have clean db
             try {
-                session.query("DROP INDEX ON :Label(property)", emptyMap());
+                session.query("DROP INDEX foo IF EXISTS", emptyMap());
                 // expected - normally this test will remove it, here just in case something fails
             } catch (Exception e1) {
                 logger.warn("Error during index/constraint cleanup", e1);
@@ -168,7 +168,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     @Test
     public void statisticsConstraintsAdded() {
         try {
-            Result result = session.query("CREATE CONSTRAINT ON (n:Node) ASSERT n.property IS UNIQUE", emptyMap());
+            Result result = session.query("CREATE CONSTRAINT foo FOR (n:Node) REQUIRE n.property IS UNIQUE", emptyMap());
             QueryStatistics statistics = result.queryStatistics();
 
             assertThat(statistics.getConstraintsAdded()).isEqualTo(1);
@@ -178,7 +178,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
 
             // try to drop the index so other tests have clean db
             try {
-                session.query("DROP CONSTRAINT ON (n:Node) ASSERT n.property IS UNIQUE", emptyMap());
+                session.query("DROP CONSTRAINT foo", emptyMap());
             } catch (Exception e1) {
                 logger.warn("Error during index/constraint cleanup", e1);
             }
@@ -188,9 +188,9 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     @Test
     public void statisticsConstraintsRemoved() {
         try {
-            session.query("CREATE CONSTRAINT ON (n:Node) ASSERT n.property IS UNIQUE", emptyMap());
+            session.query("CREATE CONSTRAINT foo FOR (n:Node) REQUIRE n.property IS UNIQUE", emptyMap());
 
-            Result result = session.query("DROP CONSTRAINT ON (n:Node) ASSERT n.property IS UNIQUE", emptyMap());
+            Result result = session.query("DROP CONSTRAINT foo", emptyMap());
             QueryStatistics statistics = result.queryStatistics();
 
             assertThat(statistics.getConstraintsRemoved()).isEqualTo(1);
@@ -200,7 +200,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
 
             // try to drop the index so other tests have clean db
             try {
-                session.query("DROP CONSTRAINT ON (n:Node) ASSERT n.property IS UNIQUE", emptyMap());
+                session.query("DROP CONSTRAINT foo IF EXISTS", emptyMap());
             } catch (Exception e1) {
                 // expected - normally this test will remove it, here just in case something fails
                 logger.debug("Error during index/constraint cleanup", e1);

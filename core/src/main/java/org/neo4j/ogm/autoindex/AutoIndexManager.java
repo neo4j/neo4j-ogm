@@ -58,7 +58,9 @@ import org.slf4j.LoggerFactory;
  * @author Eric Spiegelberg
  * @author Michael J. Simons
  * @author Gerrit Meier
+ * @deprecated The usage of this tool is deprecated. Please use a proper migration tooling, like neo4j-migrations or liquibase with the Neo4j plugin.
  */
+@Deprecated
 public class AutoIndexManager {
 
     /**

@@ -22,7 +22,7 @@
 
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.4.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neo4j-OGM</name>
@@ -204,9 +204,9 @@
         <kotlin.version>1.3.50</kotlin.version>
         <logback.version>1.2.3</logback.version>
         <lucene.version>5.5.5</lucene.version>
-        <neo4j.version>4.0.12</neo4j.version>
+        <neo4j.version>4.4.6</neo4j.version>
         <neo4j.edition>enterprise</neo4j.edition>
-        <neo4j-java-driver.version>4.4.1</neo4j-java-driver.version>
+        <neo4j-java-driver.version>4.4.5</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
         <maven-jar-plugin.version>3.0.1</maven-jar-plugin.version>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
@@ -223,7 +223,7 @@
         <mockito.version>2.26.0</mockito.version>
         <objenesis.version>3.0.1</objenesis.version>
         <powermock.version>2.0.7</powermock.version>
-        <scala.version>2.12.7</scala.version>
+        <scala.version>2.12.13</scala.version>
         <slf4j.version>1.7.36</slf4j.version>
         <spotbugs.plugin.version>3.1.3</spotbugs.plugin.version>
 
@@ -383,13 +383,6 @@
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-reflect</artifactId>
                 <version>${scala.version}</version>
-            </dependency>
-
-            <!-- Needed for 4.0 and 4.1 embedded -->
-            <dependency>
-                <groupId>com.sun.activation</groupId>
-                <artifactId>jakarta.activation</artifactId>
-                <version>${jakarta.activation.version}</version>
             </dependency>
 
             <dependency>
@@ -659,30 +652,6 @@
     </reporting>
 
     <profiles>
-        <profile>
-            <id>neo4j-4.1</id>
-            <properties>
-                <neo4j.version>4.1.11</neo4j.version>
-                <scala.version>2.12.10</scala.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>neo4j-4.2</id>
-            <properties>
-                <neo4j.version>4.2.15</neo4j.version>
-                <scala.version>2.12.10</scala.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>neo4j-4.3</id>
-            <properties>
-                <neo4j.version>4.3.10</neo4j.version>
-                <scala.version>2.12.13</scala.version>
-            </properties>
-        </profile>
-
         <profile>
             <id>embedded</id>
             <properties>

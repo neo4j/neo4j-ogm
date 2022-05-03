@@ -21,6 +21,7 @@ package org.neo4j.ogm.session;
 import static java.util.Objects.*;
 import static org.neo4j.ogm.config.AutoIndexMode.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -164,7 +165,7 @@ public class SessionFactory {
     }
 
     /**
-     * Removes the the specified listener from <code>this SessionFactory</code>.
+     * Removes the specified listener from <code>this SessionFactory</code>.
      * Only Session instances created after this call are affected.
      *
      * @param eventListener The event listener to deregister.
@@ -264,10 +265,10 @@ public class SessionFactory {
         String driverClassName = configuration.getDriverClassName();
         try {
             final Class<?> driverClass = Class.forName(driverClassName);
-            final Driver driver = (Driver) driverClass.newInstance();
+            final Driver driver = (Driver) driverClass.getConstructor().newInstance();
             driver.configure(configuration);
             return driver;
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
             throw new ConfigurationException("Could not load driver class " + driverClassName, e);
         }
     }

@@ -165,7 +165,7 @@ public class NumericConversionTest extends TestContainersTestBase {
     public void shouldLoadDoubleWhenDecimalIsMissing() {
         session.query("CREATE (i:Individual {name: 'Gary', maxTemp: 31})", Collections.EMPTY_MAP);
         Individual i = session.loadAll(Individual.class).iterator().next();
-        assertThat(i.getMaxTemp()).isEqualTo(new Double(31));
+        assertThat(i.getMaxTemp()).isEqualTo(31);
     }
 
     /**

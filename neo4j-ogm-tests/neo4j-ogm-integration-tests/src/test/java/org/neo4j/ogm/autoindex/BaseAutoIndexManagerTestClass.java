@@ -116,15 +116,15 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
     public void setUp() {
         Session session = sessionFactory.openSession();
         session.query("MATCH (n) DETACH DELETE n", emptyMap());
-        String[] existingConstraints = StreamSupport.stream(session.query("CALL db.constraints()", emptyMap())
+        String[] existingConstraints = StreamSupport.stream(session.query("SHOW CONSTRAINTS YIELD name", emptyMap())
             .queryResults().spliterator(), false)
-            .map(r -> r.get("description"))
+            .map(r -> "constraint " + r.get("name"))
             .map(String.class::cast)
             .toArray(String[]::new);
 
         executeDrop(existingConstraints);
 
-        if (useEnterpriseEdition() && isVersionOrGreater("3.2.0")) {
+        if (useEnterpriseEdition()) {
             indexes = ENTERPRISE_INDEXES;
             constraints = ENTERPRISE_CONSTRAINTS;
             statements = Stream.of(ENTERPRISE_INDEXES, ENTERPRISE_CONSTRAINTS).flatMap(Stream::of)
@@ -352,16 +352,19 @@ public abstract class BaseAutoIndexManagerTestClass extends TestContainersTestBa
 
     void executeDrop(String... statements) {
         Session session = sessionFactory.openSession();
-            for (String statement : statements) {
-        try (Transaction transaction = session.beginTransaction()) {
+        for (String statement : statements) {
+            try (Transaction transaction = session.beginTransaction()) {
                 // need to handle transaction manually because when the service.execute fails with exception
                 // it does not clean up the tx resources, leading to deadlock later
                 try {
-                    session.query("DROP " + statement.substring(0, statement.indexOf(" FOR")) + " IF EXISTS", emptyMap());
+                    var indexOfFor = statement.indexOf(" FOR");
+                    if (indexOfFor >= 0) {
+                        session.query("DROP " + statement.substring(0, indexOfFor) + " IF EXISTS", emptyMap());
+                    } else {
+                        session.query("DROP " + statement, emptyMap());
+                    }
                     transaction.commit();
                 } catch (Exception e) {
-                    System.out.println(">>>> " + statement);
-                    e.printStackTrace();
                     logger.trace("Could not execute drop for statement (this is likely expected) {}", statement, e);
                     transaction.rollback();
                 }

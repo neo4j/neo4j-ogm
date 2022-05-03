@@ -19,7 +19,6 @@
 package org.neo4j.ogm.autoindex;
 
 import static java.util.Collections.*;
-import static java.util.regex.Pattern.*;
 import static org.neo4j.ogm.autoindex.IndexType.*;
 
 import java.util.Arrays;
@@ -30,8 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.RowDataStatement;
@@ -89,7 +86,7 @@ class AutoIndex {
 
         String variable = owningType.toLowerCase();
 
-        if(name == null) {
+        if (name == null) {
             switch (type) {
                 case SINGLE_INDEX:
                     validatePropertiesLength(properties, SINGLE_INDEX);
@@ -121,16 +118,17 @@ class AutoIndex {
                 default:
                     throw new UnsupportedOperationException("Index type " + type + " not supported yet");
             }
-        }
-     else {
+        } else {
             switch (type) {
                 case SINGLE_INDEX:
                     validatePropertiesLength(properties, SINGLE_INDEX);
-                    return "INDEX " + name + " FOR (`" + variable + "`:`" + owningType + "`) ON (`" + variable + "`.`" + properties[0] + "`)";
+                    return "INDEX " + name + " FOR (`" + variable + "`:`" + owningType + "`) ON (`" + variable + "`.`"
+                        + properties[0] + "`)";
 
                 case UNIQUE_CONSTRAINT:
                     validatePropertiesLength(properties, UNIQUE_CONSTRAINT);
-                    return "CONSTRAINT " + name + " FOR (`" + variable + "`:`" + owningType + "`) REQUIRE `" + variable + "`.`"
+                    return "CONSTRAINT " + name + " FOR (`" + variable + "`:`" + owningType + "`) REQUIRE `" + variable
+                        + "`.`"
                         + properties[0]
                         + "` IS UNIQUE";
 
@@ -142,12 +140,14 @@ class AutoIndex {
 
                 case NODE_PROP_EXISTENCE_CONSTRAINT:
                     validatePropertiesLength(properties, NODE_PROP_EXISTENCE_CONSTRAINT);
-                    return "CONSTRAINT " + name + " FOR (`" + variable + "`:`" + owningType + "`) REQUIRE `" + variable + "`.`"
+                    return "CONSTRAINT " + name + " FOR (`" + variable + "`:`" + owningType + "`) REQUIRE `" + variable
+                        + "`.`"
                         + properties[0] + "` IS NOT NULL";
 
                 case REL_PROP_EXISTENCE_CONSTRAINT:
                     validatePropertiesLength(properties, NODE_PROP_EXISTENCE_CONSTRAINT);
-                    return "CONSTRAINT " + name + " FOR ()-[`" + variable + "`:`" + owningType + "`]-() REQUIRE `" + variable
+                    return "CONSTRAINT " + name + " FOR ()-[`" + variable + "`:`" + owningType + "`]-() REQUIRE `"
+                        + variable
                         + "`.`"
                         + properties[0] + "` IS NOT NULL";
 
@@ -169,7 +169,7 @@ class AutoIndex {
     private static String buildCompositeIndex(String name, String variable, String owningType, String[] properties) {
 
         StringBuilder sb = new StringBuilder();
-        if(name == null) {
+        if (name == null) {
             sb.append("INDEX ON :`")
                 .append(owningType)
                 .append("`(");
@@ -187,7 +187,7 @@ class AutoIndex {
     private static String buildNodeKeyConstraint(String name, String variable, String owningType, String[] properties) {
 
         StringBuilder sb = new StringBuilder();
-        if(name == null) {
+        if (name == null) {
             sb.append("CONSTRAINT ON (`")
                 .append(variable)
                 .append("`:`")
@@ -246,7 +246,7 @@ class AutoIndex {
     }
 
     public Statement getDropStatement() {
-        var statement = "DROP " + (this.name != null && this.description.contains(" FOR ")?
+        var statement = "DROP " + (this.name != null && this.description.contains(" FOR ") ?
             this.description.substring(0, this.description.indexOf(this.name) + this.name.length()) :
             this.description);
         return new RowDataStatement(statement, emptyMap());
@@ -256,7 +256,7 @@ class AutoIndex {
         return description;
     }
 
-    static Optional<AutoIndex> parseConstraint(Map<String, Object> constraintRow, String version) {
+    static Optional<AutoIndex> parseConstraint(Map<String, Object> constraintRow) {
 
         String name = (String) constraintRow.get("name");
         String description = (String) constraintRow.get("description");
@@ -298,10 +298,7 @@ class AutoIndex {
             .contains(entityType.trim().toLowerCase(Locale.ENGLISH));
     }
 
-    static Optional<AutoIndex> parseIndex(Map<String, Object> indexRow, String version) {
-
-        Pattern pattern;
-        Matcher matcher;
+    static Optional<AutoIndex> parseIndex(Map<String, Object> indexRow) {
 
         String name = indexRow.containsKey("name") ? (String) indexRow.get("name") : null;
         String description = (String) indexRow.get("description");
@@ -315,29 +312,6 @@ class AutoIndex {
         if (isNodeOrRelationshipLookup(indexRow)) {
             logger.info("The Node and Relationship lookups available in Neo4j 4.3+ should not be modified and Neo4j-OGM wont touch it.");
             return Optional.empty();
-        }
-
-        if (isPriorTo4x(version)) {
-            // skip unique properties index because they will get processed within
-            // the collection of constraints.
-            if (indexType.equals("node_unique_property")) {
-                return Optional.empty();
-            }
-
-            pattern = compile("INDEX ON :(?<label>.*)\\((?<property>.*)\\)");
-            matcher = pattern.matcher(description);
-            if (matcher.matches()) {
-                String label = matcher.group("label");
-                String[] properties = matcher.group("property").split(",");
-                for (int i = 0; i < properties.length; i++) {
-                    properties[i] = properties[i].trim();
-                }
-                if (properties.length > 1) {
-                    return Optional.of(new AutoIndex(null, IndexType.COMPOSITE_INDEX, label, properties, name));
-                } else {
-                    return Optional.of(new AutoIndex(null, SINGLE_INDEX, label, properties, name));
-                }
-            }
         }
 
         // skip unique properties index because they will get processed within
@@ -419,9 +393,5 @@ class AutoIndex {
             default:
                 throw new IllegalStateException("Can not create opposite index for type=" + type);
         }
-    }
-
-    static boolean isPriorTo4x(String version) {
-        return version.compareTo("4.0") < 0;
     }
 }

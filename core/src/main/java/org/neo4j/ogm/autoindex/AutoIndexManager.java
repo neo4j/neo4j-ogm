@@ -188,15 +188,15 @@ public class AutoIndexManager {
         session.doInTransaction(() -> {
             Result query = session.query("SHOW CONSTRAINTS YIELD *", emptyMap());
             for (Map<String, Object> queryResult : query.queryResults()) {
-                Optional<AutoIndex> dbIndex = AutoIndex.parseConstraint(queryResult, databaseInfo.version);
+                Optional<AutoIndex> dbIndex = AutoIndex.parseConstraint(queryResult);
                 dbIndex.ifPresent(dbIndexes::add);
             }
         }, READ_ONLY);
 
         session.doInTransaction(() -> {
-            Result query = session.query("CALL db.indexes() YIELD *", emptyMap());
+            Result query = session.query("SHOW INDEXES YIELD *", emptyMap());
             for (Map<String, Object> queryResult : query.queryResults()) {
-                Optional<AutoIndex> dbIndex = AutoIndex.parseIndex(queryResult, databaseInfo.version);
+                Optional<AutoIndex> dbIndex = AutoIndex.parseIndex(queryResult);
                 dbIndex.ifPresent(dbIndexes::add);
             }
         }, READ_ONLY);

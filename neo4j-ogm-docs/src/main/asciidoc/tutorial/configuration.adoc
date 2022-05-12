@@ -40,4 +40,5 @@ Configuration configuration = new Configuration.Builder()
 SessionFactory sessionFactory = new SessionFactory(configuration, "com.mycompany.app.domainclasses");
 ----
 
-
+Make sure to read https://neo4j.com/docs/driver-manual/4.1/client-applications/#driver-connection-uris to understand which URI scheme applies
+to which environment.

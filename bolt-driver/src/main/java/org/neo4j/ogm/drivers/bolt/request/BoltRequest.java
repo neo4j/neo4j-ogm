@@ -101,16 +101,13 @@ public class BoltRequest implements Request {
         for (Statement statement : query.getStatements()) {
 
             Result result = executeRequest(statement);
-
-            if (columns == null) {
-                try {
-                    List<String> columnSet = result.keys();
-                    columns = columnSet.toArray(new String[columnSet.size()]);
-                } catch (ClientException e) {
-                    throw new CypherException(e.code(), e.getMessage(), e);
-                }
-            }
             try (RowModelResponse rowModelResponse = new RowModelResponse(result, entityAdapter)) {
+
+                if (columns == null) {
+                    List<String> columnSet = result.keys();
+                    columns = columnSet.toArray(new String[0]);
+                }
+
                 RowModel model;
                 while ((model = rowModelResponse.next()) != null) {
                     rowModels.add(model);

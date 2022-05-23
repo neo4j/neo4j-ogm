@@ -1,5 +1,9 @@
 = Changes
 
+== 3.2.34
+
+* [bug] Catch `ClientException` while consuming results, too. (Fixes https://github.com/spring-projects/spring-data-neo4j/issues/2542)
+
 == 3.2.33
 
 * [refactor] Remove unused methods, improve logging.

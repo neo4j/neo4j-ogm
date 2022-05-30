@@ -1,5 +1,9 @@
 = Changes
 
+== 3.2.35
+
+* [dependencies] Bump classgraph from 4.8.141 to 4.8.147
+
 == 3.2.34
 
 * [bug] Catch `ClientException` while consuming results, too. (Fixes https://github.com/spring-projects/spring-data-neo4j/issues/2542)

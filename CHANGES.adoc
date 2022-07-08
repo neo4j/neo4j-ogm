@@ -2,6 +2,10 @@
 
 == 3.2
 
+=== 3.2.36
+
+* [bug] Check for literal `null` properties coming from stored procedures. (#909)
+
 === 3.2.35
 
 * [dependencies] Bump classgraph from 4.8.141 to 4.8.147

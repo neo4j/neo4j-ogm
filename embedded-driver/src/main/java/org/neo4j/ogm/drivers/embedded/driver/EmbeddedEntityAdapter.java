@@ -19,10 +19,12 @@
 package org.neo4j.ogm.drivers.embedded.driver;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.neo4j.graphdb.Label;
@@ -31,7 +33,6 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.ogm.driver.TypeSystem;
-import org.neo4j.values.storable.Values;
 
 /**
  * Helper methods for embedded graph entities
@@ -42,6 +43,8 @@ import org.neo4j.values.storable.Values;
 public class EmbeddedEntityAdapter {
 
     private final TypeSystem typeSystem;
+
+    private volatile Optional<Object> noValue;
 
     EmbeddedEntityAdapter(TypeSystem typeSystem) {
         this.typeSystem = typeSystem;
@@ -117,7 +120,7 @@ public class EmbeddedEntityAdapter {
 
     private Object toMapped(Object value) {
 
-        if (value == null || Values.NO_VALUE == value) {
+        if (value == null || value == getNoValue()) {
             return null;
         }
 
@@ -140,5 +143,30 @@ public class EmbeddedEntityAdapter {
             newArray[i] = nativeToMappedTypeAdapter.apply(object);
         }
         return newArray;
+    }
+
+    private Object getNoValue() {
+
+        Object loadedCypherModification = this.noValue;
+        if (loadedCypherModification == null) {
+            synchronized (this) {
+                loadedCypherModification = this.noValue;
+                if (loadedCypherModification == null) {
+                    this.noValue = Optional.ofNullable(getNoValueImpl());
+                    loadedCypherModification = this.noValue;
+                }
+            }
+        }
+        return loadedCypherModification;
+    }
+
+    private static Object getNoValueImpl() {
+        try {
+            Class clazz = Class.forName("org.neo4j.values.storable.Values");
+            Field noValueField = clazz.getField("NO_VALUE");
+            return noValueField.get(null);
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+            return null;
+        }
     }
 }

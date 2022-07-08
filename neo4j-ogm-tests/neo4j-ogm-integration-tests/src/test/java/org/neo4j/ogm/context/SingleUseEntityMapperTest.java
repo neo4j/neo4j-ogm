@@ -33,6 +33,7 @@ import java.util.function.Function;
 
 import org.assertj.core.api.Condition;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.minimum.Actor;
@@ -357,6 +358,18 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         ThingResult3 thingResult = entityMapper.map(ThingResult3.class, results.iterator().next());
         assertThat(thingResult.getFoobars()).extracting(ThingResult3.FooBar::getValue)
             .containsExactlyInAnyOrder("foo", "bar");
+    }
+
+    @Test // GH-909
+    @Ignore("This test requires APOC on the server, as there is no other way to create literal null properties on entities.")
+    public void shouldDealWithArtificalNullValues() {
+        SingleUseEntityMapper entityMapper =
+            new SingleUseEntityMapper(sessionFactory.metaData(),
+                new ReflectionEntityInstantiator(sessionFactory.metaData()));
+        Movie movie = sessionFactory.openSession()
+            .queryForObject(Movie.class, "return apoc.create.vNode(['Movie'],{name: null, foo: null})",
+                Collections.emptyMap());
+        assertThat(movie.getName()).isNull();
     }
 
     @Test // GH-718

@@ -31,6 +31,7 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.ogm.driver.TypeSystem;
+import org.neo4j.values.storable.Values;
 
 /**
  * Helper methods for embedded graph entities
@@ -116,7 +117,7 @@ public class EmbeddedEntityAdapter {
 
     private Object toMapped(Object value) {
 
-        if (value == null) {
+        if (value == null || Values.NO_VALUE == value) {
             return null;
         }
 

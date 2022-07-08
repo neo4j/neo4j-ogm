@@ -32,6 +32,7 @@ public class BaseAdapter {
 
     public Map<String, Object> convertArrayPropertiesToCollection(Map<String, Object> properties) {
         return properties.entrySet().stream()
+            .filter(e -> e.getValue() != null)
             .collect(toMap(Map.Entry::getKey, BaseAdapter::convertOrReturnSelf));
     }
 

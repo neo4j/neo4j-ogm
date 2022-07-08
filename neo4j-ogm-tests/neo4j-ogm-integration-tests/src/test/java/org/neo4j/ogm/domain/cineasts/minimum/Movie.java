@@ -32,4 +32,8 @@ public class Movie {
     public Movie(String name) {
         this.name = name;
     }
+
+    public String getName() {
+        return name;
+    }
 }

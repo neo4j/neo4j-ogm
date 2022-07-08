@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.neo4j.driver.internal.value.ListValue;
 import org.neo4j.driver.Value;
+import org.neo4j.driver.internal.value.NullValue;
 import org.neo4j.driver.types.Entity;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
@@ -111,7 +112,7 @@ public class BoltEntityAdapter {
 
     private Object toMapped(Value value) {
 
-        if (value == null) {
+        if (value == null || value instanceof NullValue) {
             return null;
         }
 

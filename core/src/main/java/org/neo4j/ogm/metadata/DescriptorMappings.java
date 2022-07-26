@@ -82,7 +82,7 @@ public final class DescriptorMappings {
 
         // Recompute type when it has not been computed or the cached version was loaded with a different classloader.
         boolean needsRecomputation = optionalType
-            .map(t -> t.getClassLoader() != null && t.getClassLoader() != Configuration.getDefaultClassLoader())
+            .map(type -> type.getClassLoader() != null && !isLoadedInSameHierarchy(type))
             .orElse(false);
 
         if (needsRecomputation) {
@@ -90,6 +90,18 @@ public final class DescriptorMappings {
             descriptorsToTypeMappingCache.put(descriptor, optionalType);
         }
         return optionalType.orElse(null);
+    }
+
+    static boolean isLoadedInSameHierarchy(Class<?> type) {
+        ClassLoader classLoader = type.getClassLoader();
+        ClassLoader currentClassLoader = Configuration.getDefaultClassLoader();
+        while (currentClassLoader != null) {
+            if (classLoader == currentClassLoader) {
+                return true;
+            }
+            currentClassLoader = currentClassLoader.getParent();
+        }
+        return false;
     }
 
     private static Class<?> computeType(String descriptor) {

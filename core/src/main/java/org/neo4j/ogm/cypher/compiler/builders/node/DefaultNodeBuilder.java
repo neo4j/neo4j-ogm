@@ -20,7 +20,6 @@ package org.neo4j.ogm.cypher.compiler.builders.node;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
@@ -46,7 +45,7 @@ public class DefaultNodeBuilder extends AbstractPropertyContainerBuilder<NodeBui
         List<Property<String, Object>> propertyList = super.targetContainer.getPropertyList();
 
         for (Property<String, Object> property : propertyList) {
-            if (property.getKey().equals(key) && !Objects.equals(property.getValue(), value)) {
+            if (property.getKey().equals(key)) {
                 throw new MappingException("Node model already contains property: " + key);
             }
         }

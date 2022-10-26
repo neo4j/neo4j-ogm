@@ -21,7 +21,6 @@ package org.neo4j.ogm.cypher.compiler;
 import static java.util.stream.Collectors.*;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -62,7 +61,7 @@ public class MultiStatementCypherCompiler implements Compiler {
         this.context = new CypherContext(this, nativeIdProvider);
         this.newNodeBuilders = new ArrayList<>();
         this.newRelationshipBuilders = new ArrayList<>();
-        this.existingNodeBuilders = new ConcurrentHashMap<>();
+        this.existingNodeBuilders = new HashMap<>();
         this.existingRelationshipBuilders = new LinkedHashMap<>(); // Order for the relationships IS important
         this.deletedRelationshipBuilders = new ArrayList<>();
         this.deletedRelationshipEntityBuilders = new ArrayList<>();
@@ -95,12 +94,9 @@ public class MultiStatementCypherCompiler implements Compiler {
     @Override
     public RelationshipBuilder existingRelationship(Long existingRelationshipId, String direction, String type, boolean wasDirty) {
         String key = existingRelationshipId + ";" + direction;
-        synchronized (this) {
-            RelationshipBuilder relationshipBuilder = existingRelationshipBuilders.computeIfAbsent(key,
-                k -> new DefaultRelationshipBuilder(type, existingRelationshipId));
-            relationshipBuilder.setDirty(wasDirty);
-            return relationshipBuilder;
-        }
+        RelationshipBuilder relationshipBuilder = existingRelationshipBuilders.computeIfAbsent(key, k -> new DefaultRelationshipBuilder(type, existingRelationshipId));
+        relationshipBuilder.setDirty(wasDirty);
+        return relationshipBuilder;
     }
 
     @Override
@@ -200,30 +196,25 @@ public class MultiStatementCypherCompiler implements Compiler {
     public List<Statement> updateRelationshipStatements() {
         assertStatementFactoryExists();
 
-        synchronized (this) {
-            if (existingRelationshipBuilders.isEmpty()) {
-                return Collections.emptyList();
-            }
-
-            Map<Boolean, Set<Edge>> collect = existingRelationshipBuilders.values().stream()
-                .collect(partitioningBy(RelationshipBuilder::isDirty,
-                    Collectors.mapping(RelationshipBuilder::edge, Collectors.toSet())));
-
-            List<Statement> result = new ArrayList<>();
-            if (!collect.get(true).isEmpty()) {
-                ExistingRelationshipStatementBuilder builder = new ExistingRelationshipStatementBuilder(
-                    collect.get(true), statementFactory, true);
-                result.add(builder.build());
-            }
-
-            if (!collect.get(false).isEmpty()) {
-                ExistingRelationshipStatementBuilder builder = new ExistingRelationshipStatementBuilder(
-                    collect.get(false), statementFactory, false);
-                result.add(builder.build());
-            }
-
-            return result;
+        if (existingRelationshipBuilders.isEmpty()) {
+            return Collections.emptyList();
         }
+
+        Map<Boolean, Set<Edge>> collect = existingRelationshipBuilders.values().stream()
+            .collect(partitioningBy(RelationshipBuilder::isDirty, Collectors.mapping(RelationshipBuilder::edge, Collectors.toSet())));
+
+        List<Statement> result = new ArrayList<>();
+        if (!collect.get(true).isEmpty()) {
+            ExistingRelationshipStatementBuilder builder = new ExistingRelationshipStatementBuilder(collect.get(true), statementFactory, true);
+            result.add(builder.build());
+        }
+
+        if (!collect.get(false).isEmpty()) {
+            ExistingRelationshipStatementBuilder builder = new ExistingRelationshipStatementBuilder(collect.get(false), statementFactory, false);
+            result.add(builder.build());
+        }
+
+        return result;
     }
 
     @Override

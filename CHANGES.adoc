@@ -1,5 +1,10 @@
 = Changes
 
+== 3.2.38
+
+* Revert "Avoid unessary creation of builders."
+* Revert "Make reuse of existing builders threadsafe, check for property equality."
+
 == 3.2.37
 
 * [dependencies] Bump classgraph from 4.8.147 to 4.8.149

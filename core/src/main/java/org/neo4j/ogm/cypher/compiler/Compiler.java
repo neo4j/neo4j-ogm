@@ -69,6 +69,7 @@ public interface Compiler {
      *
      * @param existingRelationshipId The ID of the relationship in the database, which shouldn't be <code>null</code>
      * @param direction              The direction of the existing relationship
+     * @param wasDirty               A flag if the relationship was in a dirty state
      * @return A new {@link RelationshipBuilder} bound to the identified relationship entity
      */
     RelationshipBuilder existingRelationship(Long existingRelationshipId, Relationship.Direction direction, String type, boolean wasDirty);

@@ -248,6 +248,16 @@ public class CypherContext implements CompileContext {
     }
 
     @Override
+    public Collection<Mappable> getDeletedRelationships() {
+        return deletedRelationships;
+    }
+
+    @Override
+    public Object getVisitedObject(Long reference) {
+        return visitedObjects.get(reference);
+    }
+
+    @Override
     public Collection<Object> getTransientRelationships(SrcTargetKey srcTargetKey) {
         Collection<Object> objects = transientRelsIndex.get(srcTargetKey);
         if (objects != null) {

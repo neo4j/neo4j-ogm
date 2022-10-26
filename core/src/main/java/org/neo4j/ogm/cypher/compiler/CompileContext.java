@@ -72,5 +72,9 @@ public interface CompileContext {
 
     void deregister(NodeBuilder nodeBuilder);
 
+    Collection<Mappable> getDeletedRelationships();
+
+    Object getVisitedObject(Long reference);
+
     Collection<Object> getTransientRelationships(SrcTargetKey key);
 }

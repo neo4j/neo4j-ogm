@@ -26,20 +26,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used to annotate a class to notify the OGM to create a composite index or node key constraint on
- * given properties for a label of annotated class.
- * <p>
- * By default a composite index is created, setting {@link #unique()} to true will create a node key constraint.
- * <p>
- * Supported only on enterprise edition of Neo4j.
- * <p>
- * In case you want to use a composite index together with a {@link org.neo4j.ogm.typeconversion.MapCompositeConverter}, than the following requirements apply:
- * <ul>
- *     <li>The {@link org.neo4j.ogm.typeconversion.MapCompositeConverter} must always use the same keys (properties).</li>
- *     <li>The properties in this annotation must be declared as
- *     <pre>@CompositeIndex(properties = { "nameOfTheConvertedField.part1", "nameOfTheConvertedField.part2" })</pre>
- *     where {@literal nameOfTheConvertedField} is the name of the original field that is converted into a map.</li>
- * </ul>
+ * This annotation is kept as a marker interface and for API reasons.
+ * It currently does not get picked up by Neo4j-OGM in any form.
  *
  * @author Frantisek Hartman
  * @author Michael J. Simons

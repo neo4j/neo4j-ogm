@@ -29,7 +29,6 @@ import java.util.Set;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.driver.TypeSystem;
-import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.neo4j.ogm.exception.core.AmbiguousBaseClassException;
 import org.neo4j.ogm.metadata.schema.DomainInfoSchemaBuilder;
 import org.neo4j.ogm.metadata.schema.Schema;
@@ -50,7 +49,7 @@ public class MetaData {
     private final Schema schema;
 
     public MetaData(String... packages) {
-        this(NoNativeTypes.INSTANCE, packages);
+        this(TypeSystem.NoNativeTypes.INSTANCE, packages);
     }
 
     public MetaData(TypeSystem typeSystem, String... packages) {

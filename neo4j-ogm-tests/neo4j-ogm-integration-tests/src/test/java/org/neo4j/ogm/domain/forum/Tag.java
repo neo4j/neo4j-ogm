@@ -20,7 +20,6 @@ package org.neo4j.ogm.domain.forum;
 
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
@@ -35,7 +34,6 @@ public class Tag {
     @Id @GeneratedValue
     private Long tagId;
 
-    @Index(unique = true)
     @Property(name = "short-description")
     private String description;
 

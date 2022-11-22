@@ -20,21 +20,13 @@ package org.neo4j.ogm.persistence.model;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.StreamSupport;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.schema.IndexDefinition;
-import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.domain.generic_hierarchy.AnotherEntity;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildA;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildB;
@@ -43,11 +35,9 @@ import org.neo4j.ogm.domain.generic_hierarchy.Entity;
 import org.neo4j.ogm.domain.generic_hierarchy.EntityWithImplicitPlusAdditionalLabels;
 import org.neo4j.ogm.domain.gh619.model.RealNode;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
-import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.utils.EntityUtils;
 
 /**
@@ -115,53 +105,6 @@ public class LabelDeterminationTest extends TestContainersTestBase {
         // Concrete classes that have their simple class name as label must be loaded.
         Set<AnotherEntity> children = session.load(ChildA.class, a.getUuid()).getChildren();
         assertThat(children).contains(b1, b2, c1);
-    }
-
-    @Test
-    public void indexesShouldBeCreatedForLoadableClassesInHierarchy() {
-        assumeTrue(isVersionOrGreater("3.3"));
-        final IndexDescription[] expectedIndexes = new IndexDescription[] {
-            new IndexDescription("DefaultUser", "id"),
-            new IndexDescription("Admin", "id"),
-            new IndexDescription("ChildA", "uuid"),
-            new IndexDescription("ChildB", "uuid"),
-            new IndexDescription("ChildC", "uuid"),
-            new IndexDescription("LabeledEntity", "uuid"),
-            new IndexDescription("EntityWithImplicitPlusAdditionalLabels", "id")
-        };
-        sessionFactory
-            .runAutoIndexManager(getBaseConfigurationBuilder().autoIndex(AutoIndexMode.UPDATE.name()).build());
-
-        Session session = sessionFactory.openSession();
-
-        try (Transaction tx = session.beginTransaction()) {
-            Result indexResult = session.query("CALL db.indexes()", emptyMap());
-
-            List<IndexDescription> indexDescriptions = new ArrayList<>();
-            for (Map<String, Object> queryResult : indexResult.queryResults()) {
-
-                // Skip 4.3 node label / rel types
-                if(queryResult.containsKey("type") && queryResult.get("type").equals("LOOKUP")) {
-                    continue;
-                }
-
-                // ensure compatibility with 3.x and 4.x
-                String label = "unknown";
-                if (queryResult.get("label") != null) { // 3.4(-)
-                    label = (String) queryResult.get("label");
-                } else if (queryResult.get("tokenNames") != null) { // 3.5
-                    label = ((String[]) queryResult.get("tokenNames"))[0];
-                } else if (queryResult.get("labelsOrTypes") != null) { // 4.0+
-                    label = ((String[]) queryResult.get("labelsOrTypes"))[0];
-                }
-
-                indexDescriptions.add(new IndexDescription(label, (String[]) queryResult.get("properties")));
-            }
-
-            assertThat(indexDescriptions).containsExactlyInAnyOrder(expectedIndexes);
-
-            tx.commit();
-        }
     }
 
     @Test // GH-488
@@ -252,47 +195,4 @@ public class LabelDeterminationTest extends TestContainersTestBase {
         assertThat(labels).hasSize(1).containsExactly("real");
     }
 
-    static class IndexDescription {
-        final String[] labels;
-
-        final String[] propertyKeys;
-
-        IndexDescription(String label, String... propertyKeys) {
-            this.labels = new String[] { label };
-            this.propertyKeys = propertyKeys;
-        }
-
-        IndexDescription(IndexDefinition indexDefinition) {
-            this.labels = StreamSupport.stream(indexDefinition.getLabels().spliterator(), false).toArray(String[]::new);
-            this.propertyKeys = StreamSupport.stream(indexDefinition.getPropertyKeys().spliterator(), false)
-                .toArray(String[]::new);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            IndexDescription that = (IndexDescription) o;
-            return Arrays.equals(labels, that.labels) && Arrays.equals(propertyKeys, that.propertyKeys);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = Arrays.hashCode(labels);
-            result = 31 * result + Arrays.hashCode(propertyKeys);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "IndexDescription{" +
-                "labels=" + Arrays.toString(labels) +
-                ", propertyKeys=" + Arrays.toString(propertyKeys) +
-                '}';
-        }
-    }
 }

@@ -19,20 +19,16 @@
 package org.neo4j.ogm.session;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.neo4j.driver.Driver;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.blog.Author;
 import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.driver.TypeSystem;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
-import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
@@ -58,8 +54,6 @@ public class SessionFactoryTest extends TestContainersTestBase {
     @Test
     public void shouldUnwrapBoltDriver() {
 
-        assumeTrue(isBoltDriver());
-
         SessionFactory sessionFactory = new SessionFactory(getDriver(), Bike.class.getPackage().getName());
 
         // Neo4j-OGM Driver
@@ -69,33 +63,6 @@ public class SessionFactoryTest extends TestContainersTestBase {
         assertThat(sessionFactory.unwrap(Driver.class))
             .isInstanceOf(Driver.class);
 
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> sessionFactory.unwrap(EmbeddedDriver.class));
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> sessionFactory.unwrap(GraphDatabaseService.class));
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> sessionFactory.unwrap(HttpDriver.class));
-    }
-
-    @Test
-    public void shouldUnwrapHttpDriver() {
-
-        assumeTrue(isHttpDriver());
-
-        SessionFactory sessionFactory = new SessionFactory(getDriver(), Bike.class.getPackage().getName());
-
-        // Neo4j-OGM Driver
-        assertThat(sessionFactory.unwrap(HttpDriver.class))
-            .isInstanceOf(HttpDriver.class);
-
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> sessionFactory.unwrap(BoltDriver.class));
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> sessionFactory.unwrap(Driver.class));
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> sessionFactory.unwrap(EmbeddedDriver.class));
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> sessionFactory.unwrap(GraphDatabaseService.class));
     }
 
     @Test

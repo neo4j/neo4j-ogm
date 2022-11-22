@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.core.ConfigurationException;
@@ -35,6 +34,8 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.event.EventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the main initialization point of OGM. Used to create {@link Session} instances for interacting with Neo4j.
@@ -47,6 +48,8 @@ import org.neo4j.ogm.session.event.EventListener;
  * @author Michael J. Simons
  */
 public class SessionFactory {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionFactory.class);
 
     private final MetaData metaData;
     private final Driver driver;
@@ -126,11 +129,7 @@ public class SessionFactory {
      * @param configuration only used to configure aspects of the auto-index manager, not for the session factory at this point.
      */
     public final void runAutoIndexManager(Configuration configuration) {
-
-        Neo4jSession neo4jSession = (Neo4jSession) openSession();
-
-        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, configuration, neo4jSession);
-        autoIndexManager.run();
+        LOGGER.warn("The auto index manager is not supported in Neo4j-OGM 4+. No indexes will get created.");
     }
 
     /**

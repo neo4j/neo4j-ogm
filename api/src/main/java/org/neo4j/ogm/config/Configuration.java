@@ -95,7 +95,6 @@ public class Configuration {
     }
 
     private String uri;
-    private String[] uris;
     private int connectionPoolSize;
     private String encryptionLevel;
     private String trustStrategy;
@@ -135,7 +134,6 @@ public class Configuration {
      */
     Configuration(Builder builder) {
         this.uri = builder.uri;
-        this.uris = builder.uris;
         this.connectionPoolSize = builder.connectionPoolSize != null ? builder.connectionPoolSize : DEFAULT_SESSION_POOL_SIZE;
         this.encryptionLevel = builder.encryptionLevel;
         this.trustStrategy = builder.trustStrategy;
@@ -189,9 +187,6 @@ public class Configuration {
             if (uri != null) {
                 return new URI(uri);
             }
-            if (uris != null && uris.length >= 1) {
-                return new URI(uris[0]);
-            }
         } catch (URISyntaxException e) {
             throw new RuntimeException("Could not configure supplied URI in Configuration", e);
         }
@@ -212,10 +207,6 @@ public class Configuration {
 
     public String getURI() {
         return uri;
-    }
-
-    public String[] getURIS() {
-        return uris;
     }
 
     public String getDriverClassName() {
@@ -322,7 +313,6 @@ public class Configuration {
         Configuration that = (Configuration) o;
         return connectionPoolSize == that.connectionPoolSize &&
             Objects.equals(uri, that.uri) &&
-            Arrays.equals(uris, that.uris) &&
             Objects.equals(encryptionLevel, that.encryptionLevel) &&
             Objects.equals(trustStrategy, that.trustStrategy) &&
             Objects.equals(trustCertFile, that.trustCertFile) &&
@@ -344,7 +334,6 @@ public class Configuration {
         int result = Objects.hash(uri, connectionPoolSize, encryptionLevel, trustStrategy, trustCertFile, autoIndex,
             generatedIndexesOutputDir, generatedIndexesOutputFilename, neo4jConfLocation, driverName, credentials,
             connectionLivenessCheckTimeout, verifyConnection, useNativeTypes);
-        result = 31 * result + Arrays.hashCode(uris);
         result = 31 * result + Arrays.hashCode(basePackages);
         return result;
     }
@@ -375,7 +364,6 @@ public class Configuration {
         private static final String USE_STRICT_QUERYING = "use-strict-querying";
         private static final String DATABASE = "database";
         private String uri;
-        private String[] uris;
         private Integer connectionPoolSize;
         private String encryptionLevel;
         private String trustStrategy;
@@ -418,9 +406,6 @@ public class Configuration {
                         break;
                     case PASSWORD:
                         this.password = value;
-                        break;
-                    case URIS:
-                        this.uris = splitValue(entry.getValue());
                         break;
                     case CONNECTION_POOL_SIZE:
                         this.connectionPoolSize = Integer.parseInt(value);
@@ -526,18 +511,6 @@ public class Configuration {
          */
         public Builder uri(String uri) {
             this.uri = uri;
-            return this;
-        }
-
-        /**
-         * Set additional URIS to connect to causal cluster. All URIs must have bolt+routing scheme
-         * (including one specified in uri property)
-         *
-         * @param uris uris
-         * @return the changed builder
-         */
-        public Builder uris(String[] uris) {
-            this.uris = uris;
             return this;
         }
 

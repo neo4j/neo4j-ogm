@@ -25,9 +25,7 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.simple.User;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.ConnectionException;
-import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.TestServer;
 
 /**
  * Tests for lazy initialization of Bolt and Http drivers
@@ -55,26 +53,5 @@ public abstract class DriverLazyInitializationTest {
             .build();
 
         new SessionFactory(configuration, User.class.getPackage().getName());
-    }
-
-    @Test
-    public void shouldInitialiseDriverAfterServerComesOnline() {
-        TestServer testServer = new TestServer(true, 5);
-        String uri = testServer.getUri();
-        testServer.shutdown();
-
-        Configuration configuration = configBuilder
-            .uri(uri)
-            .build();
-
-        SessionFactory sessionFactory = new SessionFactory(configuration, User.class.getPackage().getName());
-
-        testServer = new TestServer(true, 5, testServer.getPort());
-        Session session = sessionFactory.openSession();
-        User user = new User("John Doe");
-        session.save(user);
-
-        User loaded = session.load(User.class, user.getId());
-        assertThat(loaded.getName()).isEqualTo("John Doe");
     }
 }

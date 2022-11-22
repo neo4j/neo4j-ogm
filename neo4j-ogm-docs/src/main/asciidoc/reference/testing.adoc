@@ -1,10 +1,15 @@
 [[reference:testing]]
 = Testing
 
+There are several options when it comes to testing. You can either choose to use an embedded instance via the <<reference:testing:test-harness, Test Harness>>
+or make use of external libraries like https://www.testcontainers.org/modules/databases/neo4j/[Testcontainers Neo4j].
+
+[[reference:testing:test-harness]]
+== Test harness
 Doing integration testing with Neo4j-OGM requires a few basic steps :
 
 * Add the `org.neo4j.test:neo4j-harness` artifact to your Maven / Gradle configuration
-* Declare the `Neo4jRule` JUnit rule, to setup a Neo4j test server
+* Declare the `Neo4jRule` JUnit rule, to setup a Neo4j test server (JUnit4 and this rule is not necessary to run the Test Harness)
 * Setup Neo4j-OGM configuration and `SessionFactory`
 
 An example of a full running configuration can be found in the https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template/blob/master/ogm-3.0/src/test/java/org/neo4j/ogm/test/OgmTestCase.java[issue templates].

@@ -34,10 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.assertj.core.api.Condition;
 import org.assertj.core.data.Index;
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +46,6 @@ import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
-import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Pet;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
@@ -60,7 +57,6 @@ import org.neo4j.ogm.domain.gh875.AbstractPet;
 import org.neo4j.ogm.domain.gh875.Cat;
 import org.neo4j.ogm.domain.gh875.Kennel;
 import org.neo4j.ogm.domain.gh875.Person;
-import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.domain.nested.NestingClass;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.domain.sdn2306.AbstractNodeBImplA;
@@ -238,19 +234,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     public void readOnlyQueryMustBeReadOnly() {
 
         session.save(new Actor("Jeff"));
-        if (isVersionOrGreater("4.1")
-            && isBoltDriver()) { // 4.1+ will fail on any attempt to write in a read-only transaction.
-            assertThatThrownBy(
-                () -> session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true))
-                .hasMessageContaining("Writing in read access mode not allowed.");
-        } else {
-            session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true);
-
-            Condition<String> stringMatches = new Condition<>(s -> s.contains(
-                "Cypher query contains keywords that indicate a writing query but OGM is going to use a read only transaction as requested, so the query might fail."),
-                "String matches");
-            assertThat(loggerRule.getFormattedMessages()).areAtLeastOne(stringMatches);
-        }
+        assertThatThrownBy(
+            () -> session.query("MATCH (a:Actor) SET a.age=$age", Collections.singletonMap("age", 5), true))
+            .hasMessageContaining("Writing in read access mode not allowed.");
     }
 
     @Test
@@ -263,16 +249,16 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         mappingContextField.set(session, spyOnMappingContext);
 
         Iterable<String> results = session
-            .query(String.class, "CALL dbms.procedures() yield name", Collections.emptyMap());
+            .query(String.class, "CALL dbms.components() yield name", Collections.emptyMap());
         assertThat(results).isNotEmpty();
         results = session
-            .query(String.class, "CALL dbms.procedures() yield name /*+ OGM READ_ONLY */", Collections.emptyMap());
+            .query(String.class, "CALL dbms.components() yield name /*+ OGM READ_ONLY */", Collections.emptyMap());
         assertThat(results).isNotEmpty();
         results = session
-            .query(String.class, "CALL dbms.procedures() yield name \n/*+ OGM READ_ONLY */", Collections.emptyMap());
+            .query(String.class, "CALL dbms.components() yield name \n/*+ OGM READ_ONLY */", Collections.emptyMap());
         assertThat(results).isNotEmpty();
         results = session
-            .query(String.class, "CALL /*+ OGM READ_ONLY */ dbms.procedures() yield name", Collections.emptyMap());
+            .query(String.class, "CALL /*+ OGM READ_ONLY */ dbms.components() yield name", Collections.emptyMap());
         assertThat(results).isNotEmpty();
 
         Mockito.verify(spyOnMappingContext, Mockito.atMost(1)).clear();
@@ -914,49 +900,6 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
             session.queryForObject(Long.class, "UNWIND RANGE (1,3) AS n RETURN n", emptyMap())
         ).withMessage("Result not of expected size. Expected 1 row but found 3");
-    }
-
-    @Test // GH-496
-    public void testQueryWithProjection() {
-        Assume.assumeFalse(isHttpDriver());
-
-        Iterable<User> results = session
-            .query(User.class,
-                "MATCH (u:User) where u.name=$name return u "
-                    + ",[[(u)-[r:EXTENDED_FRIEND]->(e) | [r, e   ]    ]  ]  ",
-                Collections.singletonMap("name", "Vince"));
-        assertThat(results).size().isEqualTo(1);
-        User user = results.iterator().next();
-        assertThat(user.getName()).isEqualTo("Vince");
-        assertThat(user.getExtendedFriends()).isNotEmpty();
-        assertThat(user.getExtendedFriends()).contains(new ExtendedUser(null, "extended", null));
-    }
-
-    @Test // GH-496
-    public void testQueryWithExplicitRelationship() {
-        Assume.assumeFalse(isHttpDriver());
-
-        Iterable<User> results = session
-            .query(User.class,
-                "MATCH (u:User) -[r:EXTENDED_FRIEND] ->(e)  where u.name=$name RETURN u, r, e",
-                Collections.singletonMap("name", "Vince"));
-
-        assertThat(results).extracting(User::getName).containsExactlyInAnyOrder("Vince", "extended");
-    }
-
-    @Test // GH-496
-    public void shouldMaintainTheTraversalOrderFromMatchClause() {
-        Assume.assumeFalse(isHttpDriver());
-
-        Iterable<Item> result = session
-            .query(Item.class, "MATCH (i:Item)-[:NEXT*0..]->(n:Item) WHERE i.name=$name return n ,"
-                    + "[ [ (n)-[r:BELONGS_TO]->(c:Item) | [r, c] ] ]",
-                Collections.singletonMap("name", "A"));
-
-        assertThat(result)
-            .isNotNull()
-            .extracting(Item::getName)
-            .containsExactly("A", "B", "C", "D");
     }
 
     @Test // GH-726

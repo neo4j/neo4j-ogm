@@ -29,7 +29,6 @@ import java.lang.annotation.Target;
  * and saving to the database will trigger a merge on an existing entry with the same key if it exists.
  * The @Id annotated attribute can either be assigned manually by the user (default), or can be generated
  * by OGM (see @{@link GeneratedValue}}.
- * <p>This comes as a more explicit replacement to the old {@link Index}(primary = true, unique = true) annotation.
  *
  * @author Mark Angrish
  * @since 3.0

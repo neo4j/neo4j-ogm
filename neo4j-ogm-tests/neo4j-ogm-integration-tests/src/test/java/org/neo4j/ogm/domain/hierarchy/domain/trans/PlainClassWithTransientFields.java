@@ -37,9 +37,6 @@ public class PlainClassWithTransientFields {
     @Transient
     private String annotatedWithOGMTransient;
 
-    @org.springframework.data.annotation.Transient
-    private String annotatedWithSpringTransient;
-
     private String notAnnotated;
 
     private transient PlainSingleClass yetAnotherTransientField;
@@ -74,14 +71,6 @@ public class PlainClassWithTransientFields {
 
     public void setAnnotatedWithOGMTransient(String annotatedWithOGMTransient) {
         this.annotatedWithOGMTransient = annotatedWithOGMTransient;
-    }
-
-    public String getAnnotatedWithSpringTransient() {
-        return annotatedWithSpringTransient;
-    }
-
-    public void setAnnotatedWithSpringTransient(String annotatedWithSpringTransient) {
-        this.annotatedWithSpringTransient = annotatedWithSpringTransient;
     }
 
     public String getNotAnnotated() {

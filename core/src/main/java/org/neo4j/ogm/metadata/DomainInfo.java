@@ -38,7 +38,6 @@ import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.TypeSystem;
-import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.AttributeConverters;
@@ -75,7 +74,7 @@ public class DomainInfo {
     }
 
     public static DomainInfo create(String... packages) {
-        return create(NoNativeTypes.INSTANCE, packages);
+        return create(TypeSystem.NoNativeTypes.INSTANCE, packages);
     }
 
     public static DomainInfo create(TypeSystem typeSystem, String... packages) {

@@ -28,8 +28,8 @@ Starting with Neo4j-OGM 3.2, OGM provides dedicated support for Neo4j's temporal
 [[reference:native-property-types:supported-drivers]]
 == Supported drivers
 
-Neo4j-OGM supports all Neo4j temporal and spatial types for the Bolt and the embedded driver.
-Since Neo4j-OGM 4.0, this supported is included with the Bolt- and Embedded-Modules and doesn't need additional dependencies.
+Neo4j-OGM supports all Neo4j temporal and spatial types for the Bolt driver.
+Since Neo4j-OGM 4.0, this supported is included with the Bolt-Module and doesn't need additional dependencies.
 
 [[reference:native-property-types:optin]]
 == Opt-in to use native types
@@ -62,8 +62,6 @@ Configuration configuration = new Configuration.Builder()
         .build()
 ----
 |======================
-
-The same works with a file based URI for the embedded driver.
 
 Once enabled, native types are used for all attributes of all node- and relationship-entities and also for all parameters passed through the OGM `Session` interface.
 

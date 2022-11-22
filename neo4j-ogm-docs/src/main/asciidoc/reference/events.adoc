@@ -78,7 +78,7 @@ Although the `Event` interface allows you to retrieve the event type, in most ca
 [[reference:events:registering]]
 == Registering an EventListener
 
-There are two way to register an event listener:
+There are two ways to register an event listener:
 
 - on an individual `Session`
 - across multiple sessions by using a `SessionFactory`
@@ -174,7 +174,7 @@ As mentioned previously, events are not only fired for the top-level objects bei
 Connected objects are any objects reachable in the domain model from the top-level object being saved.
 Connected objects can be many levels deep in the domain model graph.
 
-In this way, the events mechanism allows us to capture events for objects that we didn't explicitly save ourselves.
+In this way, the event mechanism allows us to capture events for objects that we didn't explicitly save ourselves.
 
 [source, java]
 ----

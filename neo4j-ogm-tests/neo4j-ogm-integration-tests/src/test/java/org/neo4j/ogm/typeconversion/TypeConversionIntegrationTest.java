@@ -40,9 +40,6 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
 import org.neo4j.ogm.domain.convertible.numbers.Foobar;
 import org.neo4j.ogm.domain.music.Album;
@@ -197,28 +194,16 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         String offsetDateTimeValue = null;
         String localDateTimeValue = null;
         String localDateValue = null;
-        if (isBoltDriver() || isHttpDriver()) {
 
-            try(Driver driver = getBoltConnection()) {
-                try (org.neo4j.driver.Session driverSession = driver.session()) {
-                    Record record = driverSession
-                        .run("MATCH (n) WHERE id(n) = $id RETURN n", Values.parameters("id", graphId)).single();
+        try(Driver driver = getBoltConnection()) {
+            try (org.neo4j.driver.Session driverSession = driver.session()) {
+                Record record = driverSession
+                    .run("MATCH (n) WHERE id(n) = $id RETURN n", Values.parameters("id", graphId)).single();
 
-                    Value n = record.get("n");
-                    offsetDateTimeValue = n.get("someTime").asString();
-                    localDateTimeValue = n.get("someLocalDateTime").asString();
-                    localDateValue = n.get("someLocalDate").asString();
-                }
-            }
-        } else if (isEmbeddedDriver()) {
-
-            GraphDatabaseService graphDatabaseService = getDriver().unwrap(GraphDatabaseService.class);
-            try (Transaction tx = graphDatabaseService.beginTx()) {
-
-                Node node = tx.getNodeById(graphId);
-                offsetDateTimeValue = node.getProperty("someTime").toString();
-                localDateTimeValue = node.getProperty("someLocalDateTime").toString();
-                localDateValue = node.getProperty("someLocalDate").toString();
+                Value n = record.get("n");
+                offsetDateTimeValue = n.get("someTime").asString();
+                localDateTimeValue = n.get("someLocalDateTime").asString();
+                localDateValue = n.get("someLocalDate").asString();
             }
         }
 

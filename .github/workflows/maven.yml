@@ -8,32 +8,17 @@ on:
 
 jobs:
   build_previous:
-    name: Build and test against Neo4j 4.2
+    name: Build and test against Neo4j 5
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        transport: [ 'bolt', 'embedded', 'http' ]
+#    strategy:
+#      matrix:
+#        transport: [ 'bolt', 'embedded', 'http' ]
     steps:
       - uses: actions/checkout@v1
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
       - name: Run Maven build
         run: >
-          ./mvnw --no-transfer-progress -Pneo4j-4.2 -P${{matrix.transport}} -Dogm.properties=ogm-${{matrix.transport}}.properties clean verify
-  build_latest:
-    name: Build and test against Neo4j 4.3
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        transport: [ 'bolt', 'embedded', 'http' ]
-    steps:
-      - uses: actions/checkout@v1
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Run Maven build
-        run: >
-          ./mvnw --no-transfer-progress -Pneo4j-4.3 -P${{matrix.transport}} -Dogm.properties=ogm-${{matrix.transport}}.properties clean verify
+          ./mvnw --no-transfer-progress clean verify

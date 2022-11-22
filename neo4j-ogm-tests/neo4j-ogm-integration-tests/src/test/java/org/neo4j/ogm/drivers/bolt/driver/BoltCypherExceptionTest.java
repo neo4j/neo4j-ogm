@@ -18,35 +18,56 @@
  */
 package org.neo4j.ogm.drivers.bolt.driver;
 
+import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.neo4j.driver.Config;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.drivers.CypherExceptionTestBase;
+import org.junit.Test;
+import org.neo4j.driver.Driver;
+import org.neo4j.ogm.domain.cypher_exception_test.ConstraintedNode;
+import org.neo4j.ogm.exception.CypherException;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Michael J. Simons
  */
-public class BoltCypherExceptionTest extends CypherExceptionTestBase<BoltDriver> {
+public class BoltCypherExceptionTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
+    private static final String CONSTRAINT_VIOLATED_MESSAGE_PATTERN
+        = "Cypher execution failed with code 'Neo.ClientError.Schema.ConstraintValidationFailed': ";
+
+    protected static final String DOMAIN_PACKAGE = "org.neo4j.ogm.domain.cypher_exception_test";
+
     @BeforeClass
-    public static void initSessionFactory() {
-        Driver driver = new BoltDriver(
-            GraphDatabase.driver(serverControls.boltURI(), Config.builder().withoutEncryption().build()));
-        sessionFactory = new SessionFactory(driver, DOMAIN_PACKAGE);
+    public static void startServer() {
+        sessionFactory = new SessionFactory(getDriver(), DOMAIN_PACKAGE);
+
+        try (var session = getDriver().unwrap(Driver.class).session()) {
+            session.run("MATCH (n:CONSTRAINTED_NODE) DETACH DELETE n").consume();
+            session.run("CREATE CONSTRAINT BLUBB IF NOT EXISTS FOR (n:CONSTRAINTED_NODE) REQUIRE n.name IS UNIQUE").consume();
+            session.run("CREATE (n:CONSTRAINTED_NODE {name: 'test'})").consume();
+        }
     }
 
-    @Override
-    protected SessionFactory getSessionFactory() {
-        return sessionFactory;
+    @Test
+    public void constraintViolationExceptionShouldBeConsistent() {
+        Session session = sessionFactory.openSession();
+
+        Assertions.assertThatExceptionOfType(CypherException.class).isThrownBy(() -> {
+            ConstraintedNode node = new ConstraintedNode("test");
+            session.save(node);
+
+        }).withMessageStartingWith(CONSTRAINT_VIOLATED_MESSAGE_PATTERN);
     }
 
     @AfterClass
-    public static void closeSessionFactory() {
+    public static void removeDataAndCloseSessionFactory() {
+        try (var session = getDriver().unwrap(Driver.class).session()) {
+            session.run("MATCH (n) DETACH DELETE n").consume();
+        }
         sessionFactory.close();
     }
 }

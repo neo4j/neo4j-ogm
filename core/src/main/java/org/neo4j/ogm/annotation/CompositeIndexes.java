@@ -25,6 +25,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * This annotation is kept as a marker interface and for API reasons.
+ * It currently does not get picked up by Neo4j-OGM in any form.
  * @author Frantisek Hartman
  */
 @Retention(RetentionPolicy.RUNTIME)

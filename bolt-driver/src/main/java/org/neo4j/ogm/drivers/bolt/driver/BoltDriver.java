@@ -24,7 +24,6 @@ import static org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction.*;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -180,59 +179,12 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     private Driver createDriver(AuthToken authToken) {
-
-        if (isRoutingConfig()) {
-            return GraphDatabase.routingDriver(getMergedURIs(), authToken, driverConfig);
-        } else {
-            return GraphDatabase.driver(getSingleURI(), authToken, driverConfig);
-        }
-    }
-
-    /**
-     * It is a routing config if at least two URIs are defined.
-     * Either URI and at least one value in URIS or two URIS.
-     *
-     * @return true, if more than one URI are defined in all URI related properties. Otherwise false.
-     */
-    private boolean isRoutingConfig() {
-        String[] uris = configuration.getURIS();
-        String uri = configuration.getURI();
-
-        return uris != null && (uri == null && uris.length > 1 || uri != null && uris.length >= 1);
-    }
-
-    private List<URI> getMergedURIs() {
-        List<URI> mergedUris = new ArrayList<>();
-        String uri = configuration.getURI();
-        String[] uris = configuration.getURIS();
-
-        if (uri != null) {
-            mergedUris.add(fixProtocolIfNecessary(URI.create(uri)));
-        }
-        if (uris != null) {
-            for (String routingUri : uris) {
-                mergedUris.add(fixProtocolIfNecessary(URI.create(routingUri)));
-            }
-        }
-
-        return mergedUris;
+        return GraphDatabase.driver(getSingleURI(), authToken, driverConfig);
     }
 
     private URI getSingleURI() {
 
-        String singleUri;
-        if (configuration.getURI() != null) {
-            singleUri = configuration.getURI();
-        } else {
-            // if no URI was provided take the first argument from the URI list
-            String[] uris = configuration.getURIS();
-            if (uris == null || configuration.getURIS().length == 0) {
-                throw new IllegalArgumentException(
-                    "You must provide either an URI or at least one URI in the URIS parameter.");
-            }
-            singleUri = configuration.getURIS()[0];
-        }
-
+        String singleUri = configuration.getURI();
         return fixProtocolIfNecessary(URI.create(singleUri));
     }
 
@@ -315,22 +267,12 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private Config buildDriverConfig() {
 
-        // Done outside the try/catch and explicity catch the illegalargument exception of singleURI
-        // so that exception semantics are not changed since we introduced that feature.
-        //
-        // GraphDatabase.routingDriver asserts `neo4j` scheme for each URI, so our trust settings
-        // have to be applied in this case.
-        final boolean shouldApplyEncryptionAndTrustSettings;
-        if (isRoutingConfig()) {
-            shouldApplyEncryptionAndTrustSettings = true;
-        } else { // Otherwise we check if it comes with the scheme or not.
-            URI singleUri = null;
-            try {
-                singleUri = getSingleURI();
-            } catch (IllegalArgumentException e) {
-            }
-            shouldApplyEncryptionAndTrustSettings = singleUri == null || isSimpleScheme(singleUri.getScheme());
+        URI singleUri = null;
+        try {
+            singleUri = getSingleURI();
+        } catch (IllegalArgumentException e) {
         }
+        boolean shouldApplyEncryptionAndTrustSettings = singleUri == null || isSimpleScheme(singleUri.getScheme());
 
         try {
             Config.ConfigBuilder configBuilder = Config.builder();

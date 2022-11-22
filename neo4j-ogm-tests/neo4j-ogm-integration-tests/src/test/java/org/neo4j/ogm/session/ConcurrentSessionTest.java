@@ -43,8 +43,6 @@ public class ConcurrentSessionTest extends TestContainersTestBase {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        boolean incompatibleForConcurrentTests = isHttpDriver() && isVersionOrGreater("4.0");
-        assumeFalse(incompatibleForConcurrentTests);
 
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.concurrency");
     }

@@ -32,8 +32,6 @@ public class DistanceComparisonBoltTest extends DistanceComparisonTestBase {
     @BeforeClass
     public static void init() {
 
-        assumeTrue(isBoltDriver());
-
         Configuration ogmConfiguration = getBaseConfigurationBuilder()
             .useNativeTypes()
             .build();

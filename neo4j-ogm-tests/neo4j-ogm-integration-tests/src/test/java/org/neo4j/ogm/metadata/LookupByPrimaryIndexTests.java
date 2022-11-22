@@ -29,10 +29,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations.IdAndGenerationType;
-import org.neo4j.ogm.domain.autoindex.valid.Invoice;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
+import org.neo4j.ogm.domain.metadata.Invoice;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
@@ -51,7 +51,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
         sessionFactory = new SessionFactory(getDriver(),
             "org.neo4j.ogm.domain.cineasts.annotated",
             "org.neo4j.ogm.domain.annotations.ids",
-            "org.neo4j.ogm.domain.autoindex.valid"
+            "org.neo4j.ogm.domain.metadata"
         );
     }
 

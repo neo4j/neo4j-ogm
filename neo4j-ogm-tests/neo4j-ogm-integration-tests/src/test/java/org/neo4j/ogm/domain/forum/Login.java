@@ -18,7 +18,8 @@
  */
 package org.neo4j.ogm.domain.forum;
 
-import org.neo4j.ogm.annotation.Index;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
@@ -27,9 +28,9 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity
 public abstract class Login {
 
+    @Id @GeneratedValue
     private Long id;
 
-    @Index(unique = true)
     private String userName;
     private String password;
 

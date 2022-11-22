@@ -227,8 +227,6 @@ The strategy can be overridden globally by calling `SessionFactory.setLoadStrate
 
 Cypher is Neo4j's powerful query language.
 It is understood by all the different drivers in Neo4j-OGM which means that your application code should run identically, whichever driver you choose to use.
-This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the HTTP Driver or the Bolt Driver when deploying your code into a production client-server environment.
-
 
 The `Session` also allows execution of arbitrary Cypher queries via its `query` and `queryForObject` methods.
 Cypher queries that return tabular results should be passed into the `query` method which returns an `Result`.

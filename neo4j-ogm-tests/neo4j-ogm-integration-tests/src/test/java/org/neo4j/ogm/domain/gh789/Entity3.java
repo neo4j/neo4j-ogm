@@ -18,9 +18,7 @@
  */
 package org.neo4j.ogm.domain.gh789;
 
-import org.neo4j.ogm.annotation.CompositeIndex;
 import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
@@ -31,8 +29,7 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 public class Entity3 {
 
     @Id
-    @Index(unique = true)
-    @Convert(KeyConverter.class)
+	@Convert(KeyConverter.class)
     private Key key;
     private String some;
 

@@ -34,7 +34,7 @@
 
     <properties>
         <java-module-name>org.neo4j.ogm.core</java-module-name>
-        <mockk.version>1.9.3</mockk.version>
+        <mockk.version>1.13.2</mockk.version>
     </properties>
 
     <dependencies>
@@ -80,7 +80,7 @@
 
         <dependency>
             <groupId>io.mockk</groupId>
-            <artifactId>mockk</artifactId>
+            <artifactId>mockk-jvm</artifactId>
             <version>${mockk.version}</version>
             <scope>test</scope>
         </dependency>

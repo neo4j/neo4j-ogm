@@ -128,20 +128,6 @@ public class ConfigurationFromPropertiesFileTest {
     }
 
     @Test
-    public void shouldLoadHttpDriverConfigFromPropertiesFile() {
-        Configuration driverConfig = new Configuration.Builder(
-            new ClasspathConfigurationSource("http.driver.properties")).build();
-        assertThat(driverConfig.getURI()).isEqualTo("http://localhost:7474");
-    }
-
-    @Test
-    public void shouldLoadEmbeddedDriverConfigFromPropertiesFile() {
-        Configuration driverConfig = new Configuration.Builder(
-            new ClasspathConfigurationSource("embedded.driver.properties")).build();
-        assertThat(driverConfig.getURI()).isEqualTo("file:///var/tmp/neo4j.db");
-    }
-
-    @Test
     public void shouldLoadBoltDriverConfigFromPropertiesFile() {
         Configuration driverConfig = new Configuration.Builder(
             new ClasspathConfigurationSource("bolt.driver.properties")).build();

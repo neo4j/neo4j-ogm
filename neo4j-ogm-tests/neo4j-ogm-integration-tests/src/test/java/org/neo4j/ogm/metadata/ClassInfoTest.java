@@ -123,15 +123,11 @@ public class ClassInfoTest {
         int count = 1;
         assertThat(fieldInfos.size()).isEqualTo(count);
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("userName")) {
+            if (fieldInfo.getName().equals("id")) {
                 count--;
             }
         }
         assertThat(count).isEqualTo(0);
-
-        FieldInfo userNameField = fieldInfos.iterator().next();
-
-        assertThat(userNameField.isConstraint()).isTrue();
     }
 
     @Test
@@ -146,7 +142,6 @@ public class ClassInfoTest {
 
         FieldInfo fieldInfo = fieldInfos.iterator().next();
         assertThat(fieldInfo.getName()).isEqualTo("identifier");
-        assertThat(fieldInfo.isConstraint()).isTrue();
     }
 
     /**

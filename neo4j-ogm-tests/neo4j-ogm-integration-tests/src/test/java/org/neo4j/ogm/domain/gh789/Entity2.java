@@ -18,9 +18,7 @@
  */
 package org.neo4j.ogm.domain.gh789;
 
-import org.neo4j.ogm.annotation.CompositeIndex;
 import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
@@ -28,13 +26,11 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
  * @author Michael J. Simons
  */
 @NodeEntity
-@CompositeIndex(properties = { "key.first", "key.second" }, unique = true)
 public class Entity2 {
 
     @Id
     private String theRealPrimaryKey;
 
-    @Index
     private String justAnotherBrickInTheWall;
 
     @Convert(KeyConverter.class)

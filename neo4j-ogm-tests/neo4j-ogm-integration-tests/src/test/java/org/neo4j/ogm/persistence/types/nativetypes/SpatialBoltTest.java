@@ -34,7 +34,6 @@ public class SpatialBoltTest extends SpatialTestBase {
 
     @BeforeClass
     public static void init() {
-        assumeTrue(isBoltDriver());
 
         Configuration ogmConfiguration = getBaseConfigurationBuilder()
             .useNativeTypes()

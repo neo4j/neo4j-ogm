@@ -16,13 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.domain.autoindex.valid;
+package org.neo4j.ogm.domain.metadata;
 
 import java.util.Objects;
 
-import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
@@ -37,7 +35,6 @@ public class Invoice {
     @Property(name = "invoice_number")
     private Long number;
 
-    @Index
     @Property(name = "company_id")
     private String company;
 

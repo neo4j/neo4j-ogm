@@ -20,7 +20,6 @@ package org.neo4j.ogm.domain.dataclasses
 
 import org.neo4j.ogm.annotation.GeneratedValue
 import org.neo4j.ogm.annotation.Id
-import org.neo4j.ogm.annotation.Index
 import org.neo4j.ogm.annotation.NodeEntity
 
 /**
@@ -29,5 +28,5 @@ import org.neo4j.ogm.annotation.NodeEntity
 @NodeEntity
 data class OtherNode (
         @Id @GeneratedValue var dbId: Long? = null,
-        @Index(unique = true) val name: String
+        val name: String
 )

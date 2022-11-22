@@ -30,37 +30,6 @@ This can be done by providing to the `SessionFactory` a driver instance:
 SessionFactory sessionFactory = new SessionFactory(driver, "com.mycompany.app.domainclasses");
 ----
 
-==== Embedded driver instance
-
-If a pre-configured embedded database is needed, it can be passed into the embedded driver.
-It is possible to either use a configuration file
-[source, java]
-----
-GraphDatabaseService db = new GraphDatabaseFactory()
-            .newEmbeddedDatabaseBuilder(new File(storeDir))
-            .loadPropertiesFromFile(pathToConfigFile)
-            .newDatabase();
-----
-
-or set the setting parameters programmatically.
-
-[source, java]
-----
-GraphDatabaseService db = new GraphDatabaseFactory()
-            .newEmbeddedDatabaseBuilder(new File(storeDir))
-            .setConfig( GraphDatabaseSettings.pagecache_memory, "512M" )
-            .newDatabase();
-----
-
-and pass them into the `EmbeddedDriver`.
-
-[source, java]
-----
-EmbeddedDriver driver = new EmbeddedDriver(db)
-
-SessionFactory sessionFactory = new SessionFactory(driver, "com.mycompany.app.domainclasses");
-----
-
 === Multiple entity packages
 Multiple packages may be provided as well.
 If you would rather just pass in specific classes you can also do that via an overloaded constructor.

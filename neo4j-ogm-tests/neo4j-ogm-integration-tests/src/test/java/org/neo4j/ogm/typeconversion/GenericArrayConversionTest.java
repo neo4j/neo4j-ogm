@@ -19,53 +19,36 @@
 package org.neo4j.ogm.typeconversion;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.driver.internal.util.ServerVersion;
-import org.neo4j.driver.Config;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.harness.Neo4j;
-import org.neo4j.harness.Neo4jBuilders;
 import org.neo4j.ogm.domain.gh492.BaseUser.ByteUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.IntUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.IntegerUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.LongUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.StringUser;
-import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author Michael J. Simons
  */
-public class GenericArrayConversionTest {
+public class GenericArrayConversionTest extends TestContainersTestBase {
+
     protected static final String DOMAIN_PACKAGE = "org.neo4j.ogm.domain.gh492";
 
-    protected static Neo4j serverControls;
-
     protected static SessionFactory sessionFactory;
-
-    protected static boolean supportsBytePacking = false;
 
     @BeforeClass
     public static void startServer() {
 
-        serverControls = Neo4jBuilders.newInProcessBuilder().build();
-
-        Driver driver = GraphDatabase.driver(serverControls.boltURI(), Config.builder().withoutEncryption().build());
-
-        supportsBytePacking = ServerVersion.version(driver).greaterThanOrEqual(ServerVersion.v3_4_0);
-        sessionFactory = new SessionFactory(new BoltDriver(driver), DOMAIN_PACKAGE);
+        sessionFactory = new SessionFactory(getDriver(), DOMAIN_PACKAGE);
     }
 
     @Test // GH-492
     public void byteSampleTest() {
-
-        assumeTrue(supportsBytePacking);
 
         ByteUser byteUser = new ByteUser();
         byteUser.setLoginName("test-byteUser");
@@ -143,6 +126,5 @@ public class GenericArrayConversionTest {
     @AfterClass
     public static void stopServer() {
         sessionFactory.close();
-        serverControls.close();
     }
 }

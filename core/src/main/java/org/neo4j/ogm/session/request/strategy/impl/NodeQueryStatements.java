@@ -60,8 +60,7 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
      * @param defaultPrimaryIndex The default primary index to use (the one applicable when the id is not a composite key)
      * @param id                  The actual id
      * @return The concatenated keys or the default, primary index to use
-     * (the name of the property annotated with {@link org.neo4j.ogm.annotation.Id @Id}
-     * or {@link org.neo4j.ogm.annotation.Index @Index}.
+     * (the name of the property annotated with {@link org.neo4j.ogm.annotation.Id @Id}.
      */
     public static String joinPrimaryIndexAttributesIfNecessary(String defaultPrimaryIndex, Object id) {
 

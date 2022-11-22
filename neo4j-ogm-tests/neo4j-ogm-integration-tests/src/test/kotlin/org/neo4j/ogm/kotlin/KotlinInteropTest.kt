@@ -21,12 +21,7 @@ package org.neo4j.ogm.kotlin
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.*
-import org.neo4j.driver.AuthTokens
-import org.neo4j.driver.Driver
-import org.neo4j.driver.GraphDatabase
-import org.neo4j.driver.Values
-import org.neo4j.harness.Neo4j
-import org.neo4j.harness.Neo4jBuilders
+import org.neo4j.driver.*
 import org.neo4j.ogm.config.Configuration
 import org.neo4j.ogm.config.ObjectMapperFactory
 import org.neo4j.ogm.cypher.ComparisonOperator
@@ -40,8 +35,12 @@ import org.neo4j.ogm.domain.delegation.KotlinAImpl
 import org.neo4j.ogm.domain.gh696.Lion
 import org.neo4j.ogm.domain.gh696.Zebra
 import org.neo4j.ogm.domain.gh696.ZooKotlin
-import org.neo4j.ogm.domain.gh822.*
+import org.neo4j.ogm.domain.gh822.IdTypesModule
+import org.neo4j.ogm.domain.gh822.StringID
+import org.neo4j.ogm.domain.gh822.User
+import org.neo4j.ogm.drivers.bolt.driver.BoltDriver
 import org.neo4j.ogm.session.*
+import org.testcontainers.containers.Neo4jContainer
 import kotlin.test.assertNotNull
 
 /**
@@ -51,23 +50,30 @@ import kotlin.test.assertNotNull
 class KotlinInteropTest {
 
     companion object {
-        @JvmStatic
-        private lateinit var server: Neo4j
 
-        private lateinit var driver: Driver
+        private lateinit var driver: Driver;
 
         private lateinit var sessionFactory: SessionFactory
+
+        private val container = Neo4jContainer("neo4j:5")
 
         @BeforeClass
         @JvmStatic
         fun setup() {
-            server = Neo4jBuilders.newInProcessBuilder().build()
-            driver = GraphDatabase.driver(server.boltURI(), AuthTokens.none())
+            container.start();
 
-            val ogmConfiguration = Configuration.Builder()
-                    .uri(server.boltURI().toString())
-                    .build()
-            sessionFactory = SessionFactory(ogmConfiguration,
+            driver = GraphDatabase.driver(container.boltUrl, AuthTokens.basic("neo4j", container.adminPassword))
+            val boltDriver = BoltDriver()
+
+            val baseConfigurationBuilder = Configuration.Builder()
+                .uri(container.boltUrl)
+                .credentials("neo4j", container.adminPassword)
+                .verifyConnection(true)
+                .withCustomProperty(BoltDriver.CONFIG_PARAMETER_BOLT_LOGGING, Logging.slf4j())
+
+            boltDriver.configure(baseConfigurationBuilder.build())
+            sessionFactory = SessionFactory(
+                    boltDriver,
                     MyNode::class.java.`package`.name,
                     KotlinAImpl::class.java.`package`.name,
                     ZooKotlin::class.java.`package`.name,
@@ -83,8 +89,7 @@ class KotlinInteropTest {
         @JvmStatic
         fun tearDown() {
             sessionFactory.close()
-            driver.close()
-            server.close()
+            container.stop()
         }
     }
 
@@ -250,6 +255,6 @@ class KotlinInteropTest {
         assertThat(loadedUsers).hasSize(1).extracting<StringID>(User::userId).containsOnly(userId)
 
         val loadedUser = sessionFactory.openSession().queryForObject<User>("MATCH (u:User) RETURN u", mapOf(Pair("userId", userId)))!!
-        assertThat(loadedUser).isNotNull().extracting(User::userId).isEqualTo(userId)
+        assertThat(loadedUser).isNotNull().extracting {user -> user.userId}.isEqualTo(userId)
     }
 }

@@ -30,6 +30,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.junit.Test;
+import org.neo4j.driver.types.TypeSystem;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.driver.Driver;
@@ -136,7 +137,7 @@ public class CypherModificationSPITest {
 
         @Override
         protected String getTypeSystemName() {
-            throw new UnsupportedOperationException();
+            return "org.neo4j.ogm.drivers.bolt.types.BoltNativeTypes";
         }
     }
 

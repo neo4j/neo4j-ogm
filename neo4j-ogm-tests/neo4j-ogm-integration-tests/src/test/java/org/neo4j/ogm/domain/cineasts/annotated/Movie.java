@@ -25,7 +25,6 @@ import java.util.UUID;
 
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -46,7 +45,6 @@ public class Movie {
     @Convert(UuidStringConverter.class)
     private UUID uuid;
 
-    @Index
     String title;
 
     int year;

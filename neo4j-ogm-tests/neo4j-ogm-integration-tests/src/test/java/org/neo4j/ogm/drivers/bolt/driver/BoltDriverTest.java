@@ -39,24 +39,6 @@ import org.neo4j.ogm.session.SessionFactory;
 public class BoltDriverTest {
 
     @Test
-    public void throwCorrectExceptionOnUnavailableCluster() {
-
-        Configuration configuration = new Configuration.Builder()
-            .uri("neo4j://localhost:1022")
-            .uris(new String[] { "neo4j://localhost:1023" })
-            .verifyConnection(true)
-            .build();
-
-        try {
-            new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
-        } catch (Exception e) {
-            Throwable cause = e.getCause();
-            assertThat(cause).isInstanceOf(ServiceUnavailableException.class);
-            assertThat(cause).hasMessage("Failed to discover an available server");
-        }
-    }
-
-    @Test
     public void shouldDetectSimpleBoltSchemes() {
 
         for (String aSimpleScheme : Arrays.asList("bolt", "Bolt", "neo4j", "Neo4J")) {
@@ -111,38 +93,5 @@ public class BoltDriverTest {
             // Be on par with the neo4j-java-driver-spring-boot-starter
             assertThat(driver.isEncrypted()).isTrue();
         }
-    }
-
-    @Test
-    public void advancedSchemesInRoutingScenariosShouldFail() {
-
-        Configuration configuration = new Configuration.Builder()
-            .uris(new String[] { "neo4j+s://localhost:7687", "neo4j+ssc://localhost:7983" })
-            .verifyConnection(true)
-            .build();
-
-        BoltDriver boltDriver = new BoltDriver();
-        assertThatIllegalArgumentException()
-            .isThrownBy(() -> boltDriver.configure(configuration))
-            .withMessage("Illegal URI scheme, expected 'neo4j' in 'neo4j+s://localhost:7687'");
-    }
-
-    @Test
-    public void configSettingsShouldAlwaysBeAppliedInRoutingScenarios()
-        throws NoSuchFieldException, IllegalAccessException {
-
-        Field configField = BoltDriver.class.getDeclaredField("driverConfig");
-        configField.setAccessible(true);
-
-        Configuration configuration = new Configuration.Builder()
-            .uris(new String[] { "neo4j+s://localhost:7687", "neo4j+ssc://localhost:7983" })
-            .encryptionLevel("REQUIRED")
-            .build();
-
-        BoltDriver boltDriver = new BoltDriver();
-        boltDriver.configure(configuration);
-        Config config = (Config) configField.get(boltDriver);
-
-        assertThat(config.encrypted()).isTrue();
     }
 }

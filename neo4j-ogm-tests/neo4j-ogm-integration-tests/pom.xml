@@ -32,7 +32,7 @@
     <description>Integration tests of Neo4j-OGM Core and API across different transports.</description>
 
     <properties>
-        <testcontainers.version>1.16.2</testcontainers.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
         <visible-assertions.version>2.1.2</visible-assertions.version>
     </properties>
 
@@ -45,19 +45,7 @@
 
         <dependency>
             <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm-http-driver</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-core</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm-embedded-driver</artifactId>
             <version>4.0.0-SNAPSHOT</version>
         </dependency>
 
@@ -79,26 +67,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.neo4j.test</groupId>
-            <artifactId>neo4j-harness</artifactId>
-            <version>${neo4j.version}</version>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-shell</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-nop</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>org.neo4j.community</groupId>
             <artifactId>it-test-support</artifactId>
             <version>${neo4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-text</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -120,19 +97,6 @@
             <artifactId>radio</artifactId>
             <version>0.0.1</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
-            <version>2.3.6.RELEASE</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -291,23 +255,4 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>neo4j-enterprise</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.neo4j.test</groupId>
-                    <artifactId>neo4j-harness-enterprise</artifactId>
-                    <version>${neo4j.version}</version>
-                    <scope>compile</scope>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>slf4j-nop</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 </project>

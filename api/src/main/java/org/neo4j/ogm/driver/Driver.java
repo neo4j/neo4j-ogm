@@ -22,7 +22,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.TypeSystem.NoNativeTypes;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -73,7 +72,7 @@ public interface Driver extends AutoCloseable {
      * @return This driver's type system.
      */
     default TypeSystem getTypeSystem() {
-        return NoNativeTypes.INSTANCE;
+        return TypeSystem.NoNativeTypes.INSTANCE;
     }
 
     /**

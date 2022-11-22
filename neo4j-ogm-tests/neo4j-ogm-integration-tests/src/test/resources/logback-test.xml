@@ -26,6 +26,7 @@
     </appender>
 
     <logger name="org.neo4j.ogm" level="warn"/>
+    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse" level="error"/>
 
     <root level="warn">
         <appender-ref ref="console"/>

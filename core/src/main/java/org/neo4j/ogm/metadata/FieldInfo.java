@@ -35,7 +35,6 @@ import java.util.function.Predicate;
 
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.annotation.Property;
@@ -407,18 +406,6 @@ public class FieldInfo {
             }
         }
         return Optional.empty();
-    }
-
-    /**
-     * @return <code>true</code> is this field is a constraint rather than just a plain index.
-     */
-    public boolean isConstraint() {
-        AnnotationInfo idAnnotation = this.getAnnotations().get(Id.class.getName());
-        if (idAnnotation != null) {
-            return true;
-        }
-        AnnotationInfo indexAnnotation = this.getAnnotations().get(Index.class.getName());
-        return indexAnnotation != null && indexAnnotation.get("unique", "false").equals("true");
     }
 
     public boolean isReadOnly() {

@@ -45,7 +45,7 @@ public class MergeWithPrimaryIndexTests {
 
     @BeforeClass
     public static void setUpTestDatabase() {
-        mappingMetadata = new MetaData("org.neo4j.ogm.domain.autoindex.valid",
+        mappingMetadata = new MetaData("org.neo4j.ogm.domain.metadata",
             "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.pizza");
         mappingContext = new MappingContext(mappingMetadata);
     }
@@ -82,7 +82,7 @@ public class MergeWithPrimaryIndexTests {
 
     @Test(expected = MetadataException.class)
     public void exceptionRaisedWhenMoreThanOnePrimaryIndexDefinedInSameClass() {
-        new MetaData("org.neo4j.ogm.domain.autoindex.invalid").classInfo("BadClass").primaryIndexField();
+        new MetaData("org.neo4j.ogm.domain.invalid").classInfo("BadClass").primaryIndexField();
     }
 
     private Compiler mapAndCompile(Object object) {

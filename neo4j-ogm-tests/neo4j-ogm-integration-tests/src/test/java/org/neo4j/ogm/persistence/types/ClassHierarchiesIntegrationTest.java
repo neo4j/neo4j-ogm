@@ -432,7 +432,6 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         toSave.setTransientField(new PlainChildOfTransientParent());
         toSave.setYetAnotherTransientField(new PlainSingleClass());
         toSave.setAnnotatedWithOGMTransient("OGM");
-        toSave.setAnnotatedWithSpringTransient("SDN");
         toSave.setNotAnnotated("NONE");
 
         session.save(toSave);
@@ -443,7 +442,6 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(next.getTransientField()).isNull();
         assertThat(next.getYetAnotherTransientField()).isNull();
         assertThat(next.getAnnotatedWithOGMTransient()).isNull();
-        assertThat(next.getAnnotatedWithSpringTransient()).isNull();
         assertThat(next.getNotAnnotated()).isEqualTo("NONE");
     }
 

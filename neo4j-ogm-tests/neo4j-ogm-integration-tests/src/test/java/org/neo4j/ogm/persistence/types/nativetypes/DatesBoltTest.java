@@ -19,7 +19,6 @@
 package org.neo4j.ogm.persistence.types.nativetypes;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,7 +28,6 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Values;
 import org.neo4j.ogm.config.Configuration;
@@ -46,8 +44,6 @@ public class DatesBoltTest extends DatesTestBase {
 
     @BeforeClass
     public static void init() {
-
-        assumeTrue(isBoltDriver());
 
         Configuration ogmConfiguration = getBaseConfigurationBuilder()
             .useNativeTypes()
@@ -75,7 +71,7 @@ public class DatesBoltTest extends DatesTestBase {
     public void shouldUseNativeDateTimeTypesInParameterMaps() {
 
         try (
-            Driver driver = GraphDatabase.driver(getBoltUrl())
+            var driverSession = getDriver().unwrap(Driver.class).session()
         ) {
             Session session = sessionFactory.openSession();
 
@@ -89,7 +85,7 @@ public class DatesBoltTest extends DatesTestBase {
             session.query("CREATE (n:Test {a: $a, b: $b})", parameters);
             transaction.commit();
 
-            Record record = driver.session().run("MATCH (n:Test) RETURN n.a, n.b").single();
+            Record record = driverSession.run("MATCH (n:Test) RETURN n.a, n.b").single();
             Object a = record.get("n.a").asObject();
             assertThat(a).isInstanceOf(LocalDate.class)
                 .isEqualTo(localDate);
@@ -105,9 +101,9 @@ public class DatesBoltTest extends DatesTestBase {
 
         Map<String, Object> params = createSometimeWithConvertedLocalDate();
         try (
-            Driver driver = GraphDatabase.driver(getBoltUrl())
+            var session = getDriver().unwrap(Driver.class).session();
         ) {
-            Record record = driver.session()
+            Record record = session
                 .run(
                     "MATCH (n:`DatesTestBase$Sometime`) WHERE id(n) = $id RETURN n.convertedLocalDate as convertedLocalDate",
                     params).next();

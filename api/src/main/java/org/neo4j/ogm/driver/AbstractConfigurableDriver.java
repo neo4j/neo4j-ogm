@@ -81,7 +81,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
         ThreadLocal.withInitial(() -> ServiceLoader.load(CypherModificationProvider.class));
 
     protected Configuration configuration;
-    protected TypeSystem typeSystem;
+    protected TypeSystem typeSystem = Driver.super.getTypeSystem();
     protected ParameterConversion parameterConversion = DefaultParameterConversion.INSTANCE;
 
     /**

@@ -37,7 +37,6 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
@@ -260,8 +259,6 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
 
         session.save(pizza);
         session.clear();
-//        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-//            "CREATE (n:`Pizza`:`Spicy`:`Hot`:`Delicious` {name: 'Mushroom & Pepperoni'})");
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
         assertThat(loadedPizza.getLabels().contains("Delicious")).isTrue();
@@ -309,8 +306,6 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
 
         session.save(pizza);
         session.clear();
-//        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-//            "CREATE (n:`Pizza`:`Spicy`:`Hot`:`Delicious` {name: 'Mushroom & Pepperoni'})");
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
         assertThat(loadedPizza.getLabels().contains("Delicious")).isTrue();

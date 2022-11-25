@@ -20,6 +20,7 @@ package org.neo4j.ogm.session;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.neo4j.ogm.cypher.Filter;
@@ -635,6 +636,17 @@ public interface Session {
      * @return A {@link Result} containing an {@link Iterable} map representing query results and {@link QueryStatistics} if applicable.
      */
     Result query(String cypher, Map<String, ?> parameters);
+
+    /**
+     * Map non-entities to a {@link List} of DTO objects.
+     *
+     * @param cypher     The parameterisable cypher to execute.
+     * @param parameters Any parameters to attach to the cypher.
+     * @param type       The tyoe that should be returned from the query.
+     * @param <T>        Type of the expected result.
+     * @return A {@link List} of the resulting object.
+     */
+    <T> List<T> queryDto(String cypher, Map<String, ?> parameters, Class<T> type);
 
     /**
      * a cypher statement this method will return a Result object containing a collection of Map's which represent Neo4j

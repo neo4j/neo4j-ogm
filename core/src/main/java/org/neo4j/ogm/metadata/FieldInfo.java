@@ -25,8 +25,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -430,28 +428,21 @@ public class FieldInfo {
     // =================================================================================================================
 
     public static void write(Field field, Object instance, final Object value) {
-
-        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-            try {
-                field.setAccessible(true);
-                field.set(instance, value);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-            return null;
-        });
+        try {
+            field.setAccessible(true);
+            field.set(instance, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static Object read(Field field, Object instance) {
-
-        return AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-            try {
-                field.setAccessible(true);
-                return field.get(instance);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        try {
+            field.setAccessible(true);
+            return field.get(instance);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void write(Object instance, Object value) {
@@ -460,12 +451,16 @@ public class FieldInfo {
             value = getPropertyConverter().toEntityAttribute(value);
         } else {
             if (isScalar()) {
-                String actualTypeDescriptor = getTypeDescriptor();
-                value = Utils.coerceTypes(DescriptorMappings.getType(actualTypeDescriptor), value);
+                value = convert(value);
             }
         }
 
         write(field, getInstanceOrDelegate(instance, delegateHolder), value);
+    }
+
+    public Object convert(Object valueFromDriver) {
+        String actualTypeDescriptor = getTypeDescriptor();
+        return Utils.coerceTypes(DescriptorMappings.getType(actualTypeDescriptor), valueFromDriver);
     }
 
     /**

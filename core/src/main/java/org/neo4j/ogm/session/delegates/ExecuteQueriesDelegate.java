@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.context.DtoMapper;
 import org.neo4j.ogm.context.GraphRowModelMapper;
 import org.neo4j.ogm.context.RestModelMapper;
 import org.neo4j.ogm.context.RestStatisticsModel;
@@ -152,6 +154,31 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
                 }
             }
         }, readOnly ? Transaction.Type.READ_ONLY : Transaction.Type.READ_WRITE);
+    }
+
+    public <T> List<T> queryDto(String cypher, Map<String, ?> parameters, Class<T> type) {
+        validateQuery(cypher, parameters, true);
+
+        RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
+        RestModelMapper mapper = new RestModelMapper(session.metaData(), session.context(),
+            session.getEntityInstantiator());
+
+        DtoMapper dtoMapper = new DtoMapper(session);
+
+        return session.doInTransaction(() -> {
+
+            try (Response<RestModel> response = session.requestHandler().execute(request)) {
+                RestStatisticsModel restStatisticsModel = mapper.map(response);
+
+                List<T> result = new ArrayList<>();
+                for (Map<String, Object> properties : restStatisticsModel.getResult()) {
+                    T createdObject = dtoMapper.newInstance(type, properties);
+                    result.add(createdObject);
+                }
+                return result;
+
+            }
+        }, Transaction.Type.READ_ONLY);
     }
 
     private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters) {

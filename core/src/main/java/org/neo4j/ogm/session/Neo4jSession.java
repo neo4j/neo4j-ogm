@@ -425,6 +425,11 @@ public class Neo4jSession implements Session {
     }
 
     @Override
+    public <T> List<T> queryDto(String cypher, Map<String, ?> parameters, Class<T> type) {
+        return executeQueriesDelegate.queryDto(cypher, parameters, type);
+    }
+
+    @Override
     public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
         return executeQueriesDelegate.query(cypher, parameters, readOnly);
     }

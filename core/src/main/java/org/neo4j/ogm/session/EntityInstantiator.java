@@ -29,11 +29,22 @@ public interface EntityInstantiator {
 
     /**
      * Creates an instance of a given class.
+     * Ignores the provided propertyValues for compatibility reasons.
      *
      * @param clazz          The class to materialize.
-     * @param propertyValues Properties of the object (needed for constructors with args)
+     * @param propertyValues Properties of the object (unused!)
      * @param <T>            Type to create
      * @return The created instance.
      */
     <T> T createInstance(Class<T> clazz, Map<String, Object> propertyValues);
+
+    /**
+     * Creates an instance of a given class and populates the constructor fields, if needed/possible.
+     *
+     * @param clazz          The class to maerialize.
+     * @param propertyValues Properties of the object (needed for constructors with args)
+     * @param <T>            Type to create
+     * @return               New instance.
+     */
+    <T> T createInstanceWithConstructorArgs(Class<T> clazz, Map<String, Object> propertyValues);
 }

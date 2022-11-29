@@ -33,8 +33,6 @@ include::reference/index.adoc[leveloffset=+1]
 
 :numbered!:
 
-include::appendix/migration-2.1-to-3.0.adoc[leveloffset=+1]
-
 include::appendix/design-considerations.adoc[leveloffset=+1]
 
 include::appendix/faq.adoc[leveloffset=+1]

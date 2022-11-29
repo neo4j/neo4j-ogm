@@ -1,5 +1,15 @@
 = Changes
 
+== 4.0
+
+=== 4.0.0
+
+* Remove Auto Index Manager
+* Remove of HTTP and embedded transport ("Driver")
+* Introduce simple DTO mapping
+* [dependencies] Upgrade to Neo4j Java Driver 5.2.0
+* [dependencies] Bump most other dependencies to the latest version
+
 == 3.2
 
 === 3.2.37

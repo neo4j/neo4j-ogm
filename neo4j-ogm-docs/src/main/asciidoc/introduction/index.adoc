@@ -30,15 +30,15 @@ Neo4j-OGM supports tracking changes to minimize necessary updates and transitive
 
 The connection to Neo4j handled by a transport mode layer called driver, which can use the binary protocol, HTTP or Neo4j’s embedded APIs.
 
-include::whats-new-ogm3.adoc[]
+include::whats-new-ogm4.adoc[]
 
 [[introduction:requirements]]
 == Requirements
 
-Neo4j-OGM 3.2.x at minimum, requires:
+Neo4j-OGM 4.x at minimum, requires:
 
-* JDK Version 8 and above.
-* Neo4j Database 3.2.x and above.
+* JDK Version 17
+* Neo4j Database 5.x
 
 
 [[introduction:additional-resources]]

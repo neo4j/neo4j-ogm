@@ -1,0 +1,26 @@
+[[introduction:whats-new]]
+== What's new in Neo4j-OGM 4 ?
+
+At a high level, here is what has changed in this third major version of Neo4j-OGM :
+
+* New baselines
++
+The minimum required versions are Java 17 and Neo4j 5.x.
+
+* Removal of Auto Index Manager
++
+The Auto Index Manager that was responsible for creating indexes and constraints out-of-the-box
+got removed from the Neo4j-OGM.
++
+Please use tools like https://michael-simons.github.io/neo4j-migrations/current/[Neo4j-Migrations] or https://neo4j.com/labs/liquibase[Liquibase] with the Neo4j-Plugin enabled to
+control your schema. They offer a broader feature set than just focus on indexes and constraints.
++
+Although the functionality was removed, the interfaces are still available.
+Those are currently in place to avoid refactoring your codebase and support Neo4j-Migrations' annotation processor to make the transition easier.
+
+* Removal of HTTP and embedded transport support
++
+Since Neo4j 4.x Neo4j-OGM did not offer embedded transport but the module was still available for users connecting to a 3.5.x instance.
+Because the baseline of the official supported database was raised to Neo4j 5.x with this release, the embedded option got deprecated.
++
+The HTTP transport mode was removed because it was rarely used and could not compete with the broad feature set that Bolt allows you to have.

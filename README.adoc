@@ -1,4 +1,4 @@
-:version: 3.2.37
+:version: 4.0.0
 
 image:https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg[Maven Central,link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.neo4j%22%20AND%20a%3A%22neo4j-ogm%22]
 image:https://rawgit.com/aleen42/badges/master/src/stackoverflow.svg[stackoverflow,link=https://stackoverflow.com/questions/tagged/neo4j-ogm]
@@ -30,21 +30,9 @@ You can start coding with some simple https://github.com/neo4j-examples/neo4j-sd
     <version>{version}</version>
 </dependency>
 
-<dependency> <!-- If you're using the HTTP driver -->
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-http-driver</artifactId>
-    <version>{version}</version>
-</dependency>
-
 <dependency> <!-- If you're using the Bolt driver -->
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-bolt-driver</artifactId>
-    <version>{version}</version>
-</dependency>
-
-<dependency> <!-- If you're using the Embedded driver -->
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-embedded-driver</artifactId>
     <version>{version}</version>
 </dependency>
 ----
@@ -55,9 +43,7 @@ You can start coding with some simple https://github.com/neo4j-examples/neo4j-sd
 ----
 dependencies {
     compile 'org.neo4j:neo4j-ogm-core:{version}'
-    compile 'org.neo4j:neo4j-ogm-http-driver:{version}'
     compile 'org.neo4j:neo4j-ogm-bolt-driver:{version}'
-    compile 'org.neo4j:neo4j-ogm-embedded-driver:{version}'
 }
 ----
 
@@ -66,9 +52,7 @@ dependencies {
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependency org="org.neo4j" name="neo4j-ogm-core" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="{version}"/>
 <dependency org="org.neo4j" name="neo4j-ogm-bolt-driver" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="{version}"/>
 ----
 
 === Set up domain entities

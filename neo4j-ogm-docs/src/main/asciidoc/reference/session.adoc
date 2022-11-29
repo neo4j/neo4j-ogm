@@ -208,6 +208,17 @@ This means that reloading entities will always result in retaining related objec
 If it is required to load entities with a lower depth than previously requested, this must be done on a new session, or after clearing your current session with `Session.clear()`.
 ====
 
+[[reference:session:loading-dtos]]
+== Loading DTOs
+
+It is possible to also query arbitrary data from Neo4j and make OGM combine the result in a wrapper object/DTO.
+To request a DTO, Neo4j-OGM offers `<T> List<T> queryDto(String cypher, Map<String, ?> parameters, Class<T> type)`.
+
+[INFO]
+====
+This API might get extended in the next minor/patch versions of Neo4j-OGM.
+====
+
 [[reference:session:loading-entities:query-strategy]]
 === Query Strategy
 WhenNeo4j-OGM loads entities through `load*` methods (including ones with filters) it uses `LoadStrategy` to generate the `RETURN` part of the query.

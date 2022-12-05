@@ -46,7 +46,7 @@ public class AnnotationInfo {
         } else {
             final String result = value.toString();
             if (result.isEmpty()) {
-                if (element.getDefaultValue().toString().isEmpty()) {
+                if (element.getDefaultValue() == null || element.getDefaultValue().toString().isEmpty()) {
                     return null;
                 }
                 return element.getDefaultValue().toString();

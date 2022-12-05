@@ -129,6 +129,9 @@ public class Configuration {
     private String[] basePackages;
     private String database;
 
+    private DatabaseSelectionProvider databaseSelectionProvider;
+    private UserSelectionProvider userSelectionProvider;
+
     /**
      * Protected constructor of the Configuration class.
      * Use {@link Builder} to create an instance of Configuration class
@@ -154,6 +157,8 @@ public class Configuration {
         this.basePackages = builder.basePackages;
         this.useStrictQuerying = builder.useStrictQuerying;
         this.database = Optional.ofNullable(builder.database).map(String::trim).filter(s -> !s.isEmpty()).orElse(null);
+        this.databaseSelectionProvider = builder.databaseSelectionProvider;
+        this.userSelectionProvider = builder.userSelectionProvider;
 
         URI parsedUri = getSingleURI();
 
@@ -252,6 +257,14 @@ public class Configuration {
 
     public String getDatabase() {
         return database;
+    }
+
+    public DatabaseSelectionProvider getDatabaseSelectionProvider() {
+        return databaseSelectionProvider;
+    }
+
+    public UserSelectionProvider getUserSelectionProvider() {
+        return userSelectionProvider;
     }
 
     /**
@@ -393,6 +406,8 @@ public class Configuration {
         private String[] basePackages;
         private boolean useStrictQuerying = false;
         private String database;
+        public DatabaseSelectionProvider databaseSelectionProvider;
+        public UserSelectionProvider userSelectionProvider;
 
         /**
          * Creates new Configuration builder
@@ -489,6 +504,8 @@ public class Configuration {
                 .neo4jConfLocation(builder.neo4jConfLocation)
                 .credentials(builder.username, builder.password)
                 .database(builder.database)
+                .databaseSelectionProvider(builder.databaseSelectionProvider)
+                .userSelectionProvider(builder.userSelectionProvider)
                 .customProperties(new HashMap<>(builder.customProperties));
 
             if (builder.useStrictQuerying) {
@@ -707,6 +724,34 @@ public class Configuration {
          */
         public Builder database(String database) {
             this.database = database;
+            return this;
+        }
+
+        /**
+         * Configures the database to use. This is only applicable with the bolt transport connected against a
+         * 4.0 database.
+         *
+         * @param databaseSelectionProvider The default database to use, maybe {@literal null} but not empty. {@literal null} indicates
+         *                                  default database.
+         * @return the changed builder
+         * @since 3.2.39
+         */
+        public Builder databaseSelectionProvider(DatabaseSelectionProvider databaseSelectionProvider) {
+            this.databaseSelectionProvider = databaseSelectionProvider;
+            return this;
+        }
+
+
+        /**
+         * Configures the user selection provider to use. This is only applicable with the bolt transport connected against a
+         * 4.4 database.
+         *
+         * @param userSelectionProvider The {@link UserSelectionProvider} to call before creating a session.
+         * @return the changed builder
+         * @since 3.2.39
+         */
+        public Builder userSelectionProvider(UserSelectionProvider userSelectionProvider) {
+            this.userSelectionProvider = userSelectionProvider;
             return this;
         }
 

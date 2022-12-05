@@ -1,5 +1,6 @@
 package org.neo4j.ogm.testutil;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -42,17 +43,19 @@ public class TestContainersTestBase {
 
     private static final boolean isEnterpriseEdition;
 
-    private static final String DEFAULT_IMAGE = "neo4j:3.5.30";
+    private static final String DEFAULT_IMAGE = "neo4j:4.4";
 
-    private static final String SYS_PROPERTY_ACCEPT_AND_USE_COMMERCIAL_EDITION = "NEO4J_OGM_NEO4J_ACCEPT_AND_USE_COMMERCIAL_EDITION";
+    public static final String SYS_PROPERTY_ACCEPT_AND_USE_COMMERCIAL_EDITION = "NEO4J_OGM_NEO4J_ACCEPT_AND_USE_COMMERCIAL_EDITION";
 
-    private static final String SYS_PROPERTY_IMAGE_NAME = "NEO4J_OGM_NEO4J_IMAGE_NAME";
+    public static final String SYS_PROPERTY_IMAGE_NAME = "NEO4J_OGM_NEO4J_IMAGE_NAME";
 
     private static final String SYS_PROPERTY_NEO4J_URL = "NEO4J_OGM_NEO4J_URL";
 
-    private static final String SYS_PROPERTY_NEO4J_PASSWORD = "NEO4J_OGM_NEO4J_PASSWORD";
+    public static final String DEFAULT_PASSWORD = "verysecret";
 
-    private static Neo4jContainer neo4jServer;
+    public static Neo4jContainer neo4jServer;
+
+    private static final String SYS_PROPERTY_NEO4J_PASSWORD = "NEO4J_OGM_NEO4J_PASSWORD";
 
     private static Configuration.Builder baseConfigurationBuilder;
 
@@ -95,7 +98,7 @@ public class TestContainersTestBase {
                 if (acceptAndUseCommercialEdition) {
                     neo4jServer.withEnv("NEO4J_ACCEPT_LICENSE_AGREEMENT", "yes");
                 }
-                neo4jServer.withoutAuthentication().start();
+                neo4jServer.withAdminPassword(DEFAULT_PASSWORD).start();
 
                 if (isHttpDriver()) {
                     driver = new HttpDriver();
@@ -110,6 +113,7 @@ public class TestContainersTestBase {
 
                     baseConfigurationBuilder = new Configuration.Builder()
                         .uri(neo4jServer.getBoltUrl())
+                        .credentials("neo4j", DEFAULT_PASSWORD)
                         .verifyConnection(true)
                         .withCustomProperty(BoltDriver.CONFIG_PARAMETER_BOLT_LOGGING, Logging.slf4j());
 
@@ -136,12 +140,23 @@ public class TestContainersTestBase {
         }
     }
 
-    protected static org.neo4j.driver.Driver getBoltConnection() {
+    public static boolean requiredDriverOnClassPath() throws Exception {
+        for (Method method : Class.forName("org.neo4j.driver.SessionConfig")
+            .getMethods()) {
+            if (method.getName().equals("withImpersonatedUser")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected static org.neo4j.driver.Driver getNewBoltConnection() {
 
         if (neo4jServer != null) {
-            return GraphDatabase.driver(neo4jServer.getBoltUrl(), AuthTokens.none());
+            return GraphDatabase.driver(neo4jServer.getBoltUrl(), AuthTokens.basic("neo4j", DEFAULT_PASSWORD));
+        } else {
+            return GraphDatabase.driver(SYS_PROPERTY_NEO4J_URL, AuthTokens.basic("neo4j", SYS_PROPERTY_NEO4J_PASSWORD));
         }
-        throw new IllegalStateException("Bolt connection can only be provided into a test container.");
     }
 
     private static boolean hasAcceptedAndWantsToUseCommercialEdition() {

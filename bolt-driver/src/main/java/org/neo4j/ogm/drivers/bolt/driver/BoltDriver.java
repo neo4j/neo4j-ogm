@@ -23,6 +23,8 @@ import static java.util.stream.Collectors.*;
 import static org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction.*;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +46,8 @@ import org.neo4j.driver.exceptions.ServiceUnavailableException;
 import org.neo4j.driver.internal.Scheme;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
+import org.neo4j.ogm.config.DatabaseSelectionProvider;
+import org.neo4j.ogm.config.UserSelectionProvider;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.driver.ExceptionTranslator;
@@ -66,6 +70,16 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
     public static final String CONFIG_PARAMETER_BOLT_LOGGING = "Bolt_Logging";
+    private static final Method WITH_IMPERSONATED_USER = findWithImpersonatedUser();
+
+    private static Method findWithImpersonatedUser() {
+        try {
+            return SessionConfig.Builder.class.getMethod("withImpersonatedUser", String.class);
+        } catch (NoSuchMethodException e) {
+            return null; // This is fine
+        }
+    }
+
 
     private final ExceptionTranslator exceptionTranslator = new BoltDriverExceptionTranslator();
 
@@ -76,6 +90,9 @@ public class BoltDriver extends AbstractConfigurableDriver {
      * The database to use, defaults to {@literal null} (Use Neo4j default).
      */
     private String database = null;
+
+    private DatabaseSelectionProvider databaseSelectionProvider;
+    private UserSelectionProvider userSelectionProvider;
 
     // required for service loader mechanism
     public BoltDriver() {
@@ -108,6 +125,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
         this.driverConfig = buildDriverConfig();
         this.credentials = this.configuration.getCredentials();
         this.database = this.configuration.getDatabase();
+        this.databaseSelectionProvider = this.configuration.getDatabaseSelectionProvider();
+        this.userSelectionProvider = this.configuration.getUserSelectionProvider();
 
         if (this.configuration.getVerifyConnection()) {
             checkDriverInitialized();
@@ -289,6 +308,15 @@ public class BoltDriver extends AbstractConfigurableDriver {
             if (this.database != null) {
                 sessionConfigBuilder = sessionConfigBuilder.withDatabase(database);
             }
+            // a database selection provider different from null or default will override the database
+            if (this.databaseSelectionProvider != null && this.databaseSelectionProvider != DatabaseSelectionProvider.getDefaultSelectionProvider()) {
+                sessionConfigBuilder = sessionConfigBuilder.withDatabase(databaseSelectionProvider.getDatabaseSelection().getValue());
+            }
+            // Avoid the explicit set of the impersonated user if the provided user equals the default user of the connection
+            // otherwise we would trigger the overhead of impersonation.
+            if (this.userSelectionProvider != null && this.userSelectionProvider != UserSelectionProvider.getDefaultSelectionProvider()) {
+                setWithImpersonatedUser(sessionConfigBuilder, userSelectionProvider.getUserSelection().getValue());
+            }
             boltSession = boltDriver.session(sessionConfigBuilder.build());
         } catch (ClientException ce) {
             throw new ConnectionException(
@@ -297,6 +325,20 @@ public class BoltDriver extends AbstractConfigurableDriver {
             throw new ConnectionException("Error connecting to graph database using Bolt", e);
         }
         return boltSession;
+    }
+
+    static void setWithImpersonatedUser(SessionConfig.Builder builder, String user) {
+        if (WITH_IMPERSONATED_USER == null) {
+            return;
+        }
+        try {
+            // This is fine, when an impersonated user is present, the availability of
+            // this method has been checked.
+            // noinspection ConstantConditions
+            WITH_IMPERSONATED_USER.invoke(builder, user);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalStateException("Could not impersonate a user on the driver level", e);
+        }
     }
 
     private Optional<Logging> getBoltLogging() {

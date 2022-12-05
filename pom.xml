@@ -199,7 +199,7 @@
         <jackson.version>2.9.9</jackson.version>
         <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
         <jline.version>2.14.3</jline.version>
-        <junit.version>4.13.1</junit.version>
+        <junit.version>5.9.1</junit.version>
         <kotlin.version>1.3.50</kotlin.version>
         <logback.version>1.2.3</logback.version>
         <lucene.version>5.5.5</lucene.version>
@@ -216,7 +216,7 @@
         <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
         <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M2</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
         <mockito.version>2.23.4</mockito.version>
         <objenesis.version>3.0.1</objenesis.version>
@@ -280,10 +280,11 @@
 
             <!--Testing  Dependencies -->
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>

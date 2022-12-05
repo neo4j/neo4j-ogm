@@ -199,10 +199,10 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         String localDateValue = null;
         if (isBoltDriver() || isHttpDriver()) {
 
-            try(Driver driver = getBoltConnection()) {
-                try (org.neo4j.driver.Session driverSession = driver.session()) {
-                    Record record = driverSession
-                        .run("MATCH (n) WHERE id(n) = $id RETURN n", Values.parameters("id", graphId)).single();
+        try(Driver driver = getNewBoltConnection()) {
+            try (org.neo4j.driver.Session driverSession = driver.session()) {
+                Record record = driverSession
+                    .run("MATCH (n) WHERE id(n) = $id RETURN n", Values.parameters("id", graphId)).single();
 
                     Value n = record.get("n");
                     offsetDateTimeValue = n.get("someTime").asString();

@@ -1,9 +1,13 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
-import org.assertj.core.api.Assertions;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.Map;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.neo4j.driver.SessionConfig;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DatabaseSelection;
@@ -11,25 +15,22 @@ import org.neo4j.ogm.persistence.types.nativetypes.DatesBoltTest;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.*;
-
 /**
  * @author Gerrit Meier
  */
+@EnabledIfEnvironmentVariable(named = TestContainersTestBase.SYS_PROPERTY_ACCEPT_AND_USE_COMMERCIAL_EDITION, matches = "yes")
 public class BoltDatabaseSelectionTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void setupSessionFactoryAndDatabase() throws Exception {
 
-        try (var session = getJavaDriver().session()) {
+        try (var session = getNewBoltConnection().session()) {
             session.run("CREATE DATABASE anotherDatabase").consume();
             Thread.sleep(500); // we need to wait for the database to get created
         }
-        try (var session = getJavaDriver().session(SessionConfig.builder().withDatabase("anotherDatabase").build())) {
+        try (var session = getNewBoltConnection().session(SessionConfig.builder().withDatabase("anotherDatabase").build())) {
             session.run("CREATE (n:Node)").consume();
         }
 
@@ -53,10 +54,12 @@ public class BoltDatabaseSelectionTest extends TestContainersTestBase {
 
     }
 
-    @AfterClass
+    @AfterAll
     public static void removeDatabase() {
-        try (var session = getJavaDriver().session()) {
+        try (var session = getNewBoltConnection().session()) {
             session.run("DROP DATABASE anotherDatabase").consume();
+        } catch (Exception e) {
+            // ignore
         }
     }
 }

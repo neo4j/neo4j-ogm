@@ -23,8 +23,6 @@ import static java.util.stream.Collectors.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -1191,14 +1189,12 @@ public class ClassInfo {
         if (delegateHolder == null) {
             return instance;
         } else {
-            return AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
                 try {
                     delegateHolder.setAccessible(true);
                     return delegateHolder.get(instance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
-            });
         }
     }
 

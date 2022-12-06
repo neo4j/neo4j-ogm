@@ -40,6 +40,8 @@ public class TestContainersTestBase {
 
     public static final String SYS_PROPERTY_NEO4J_PASSWORD = "NEO4J_OGM_NEO4J_PASSWORD";
 
+    public static final String DEFAULT_PASSWORD = "verysecret";
+
     public static Neo4jContainer neo4jServer;
 
     public static Configuration.Builder baseConfigurationBuilder;
@@ -78,11 +80,14 @@ public class TestContainersTestBase {
             if (acceptAndUseCommercialEdition) {
                 neo4jServer.withEnv("NEO4J_ACCEPT_LICENSE_AGREEMENT", "yes");
             }
-            neo4jServer.withoutAuthentication().start();
+            neo4jServer
+                .withAdminPassword(DEFAULT_PASSWORD)
+                .start();
             driver = new BoltDriver();
 
             baseConfigurationBuilder = new Configuration.Builder()
                 .uri(neo4jServer.getBoltUrl())
+                .credentials("neo4j", DEFAULT_PASSWORD)
                 .verifyConnection(true)
                 .withCustomProperty(BoltDriver.CONFIG_PARAMETER_BOLT_LOGGING, Logging.slf4j());
 
@@ -92,16 +97,16 @@ public class TestContainersTestBase {
         }
     }
 
-    protected static org.neo4j.driver.Driver getBoltConnection() {
+    protected static org.neo4j.driver.Driver getNewBoltConnection() {
 
         if (neo4jServer != null) {
-            return GraphDatabase.driver(neo4jServer.getBoltUrl(), AuthTokens.none());
+            return GraphDatabase.driver(neo4jServer.getBoltUrl(), AuthTokens.basic("neo4j", DEFAULT_PASSWORD));
         } else {
             return GraphDatabase.driver(NEO4J_URL, AuthTokens.basic("neo4j", NEO4J_PASSWORD));
         }
     }
 
-    private static boolean hasAcceptedAndWantsToUseCommercialEdition() {
+    public static boolean hasAcceptedAndWantsToUseCommercialEdition() {
         return Optional.ofNullable(
             System.getenv(TestContainersTestBase.SYS_PROPERTY_ACCEPT_AND_USE_COMMERCIAL_EDITION))
             .orElse("no").toLowerCase(Locale.ENGLISH).equals("yes");
@@ -109,10 +114,6 @@ public class TestContainersTestBase {
 
     public static Driver getDriver() {
         return driver;
-    }
-
-    public static org.neo4j.driver.Driver getJavaDriver() {
-        return driver.unwrap(org.neo4j.driver.Driver.class);
     }
 
     protected static Configuration.Builder getBaseConfigurationBuilder() {
@@ -154,18 +155,6 @@ public class TestContainersTestBase {
                 Value::asString).get(0);
         }
         return version.toLowerCase(Locale.ENGLISH);
-    }
-
-    private static String extractEditionFromBolt() {
-
-        org.neo4j.driver.Driver driver = getDriver().unwrap(org.neo4j.driver.Driver.class);
-
-        String edition;
-        SessionConfig sessionConfig = SessionConfig.builder().withDefaultAccessMode(AccessMode.READ).build();
-        try (Session session = driver.session(sessionConfig)) {
-            edition = session.run("call dbms.components() yield edition").single().get("edition").asString();
-        }
-        return edition.toLowerCase(Locale.ENGLISH);
     }
 
 }

@@ -195,7 +195,7 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         String localDateTimeValue = null;
         String localDateValue = null;
 
-        try(Driver driver = getBoltConnection()) {
+        try(Driver driver = getNewBoltConnection()) {
             try (org.neo4j.driver.Session driverSession = driver.session()) {
                 Record record = driverSession
                     .run("MATCH (n) WHERE id(n) = $id RETURN n", Values.parameters("id", graphId)).single();

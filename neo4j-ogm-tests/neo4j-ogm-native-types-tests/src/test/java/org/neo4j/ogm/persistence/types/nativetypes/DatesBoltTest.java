@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.BeforeClass;
+import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Record;
@@ -75,7 +76,7 @@ public class DatesBoltTest extends DatesTestBase {
     public void shouldUseNativeDateTimeTypesInParameterMaps() {
 
         try (
-            Driver driver = GraphDatabase.driver(getBoltUrl())
+            Driver driver = getNewBoltConnection()
         ) {
             Session session = sessionFactory.openSession();
 
@@ -105,9 +106,10 @@ public class DatesBoltTest extends DatesTestBase {
 
         Map<String, Object> params = createSometimeWithConvertedLocalDate();
         try (
-            Driver driver = GraphDatabase.driver(getBoltUrl())
+            Driver driver = getNewBoltConnection();
+            org.neo4j.driver.Session session = driver.session()
         ) {
-            Record record = driver.session()
+            Record record = session
                 .run(
                     "MATCH (n:`DatesTestBase$Sometime`) WHERE id(n) = $id RETURN n.convertedLocalDate as convertedLocalDate",
                     params).next();

@@ -1271,4 +1271,22 @@ public class ClassInfo {
             ", neo4jName='" + neo4jName + '\'' +
             '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ClassInfo classInfo = (ClassInfo) o;
+        return isInterface == classInfo.isInterface && isAbstract == classInfo.isAbstract && isEnum == classInfo.isEnum
+            && className.equals(classInfo.className);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(className, isInterface, isAbstract, isEnum);
+    }
 }

@@ -27,6 +27,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -580,5 +581,23 @@ public class FieldInfo {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FieldInfo fieldInfo = (FieldInfo) o;
+        return name.equals(fieldInfo.name) && descriptor.equals(fieldInfo.descriptor) && typeParameterDescriptor.equals(
+            fieldInfo.typeParameterDescriptor) && field.equals(fieldInfo.field);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, descriptor, typeParameterDescriptor, field);
     }
 }

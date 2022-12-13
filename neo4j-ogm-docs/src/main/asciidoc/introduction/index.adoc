@@ -28,7 +28,7 @@ It uses Cypher statements to handle those operations in Neo4j.
 
 Neo4j-OGM supports tracking changes to minimize necessary updates and transitive persistence (reading and updating neighborhoods of an object).
 
-The connection to Neo4j handled by a transport mode layer called driver, which can use the binary protocol, HTTP or Neo4j’s embedded APIs.
+The connection to Neo4j handled by a transport layer is based on the Bolt protocol and uses the Neo4j Java Driver.
 
 include::whats-new-ogm4.adoc[]
 
@@ -53,15 +53,11 @@ Neo4j-OGM 4.x at minimum, requires:
 [[introduction:additional-resources:help]]
 === Getting Help or providing feedback
 
-If you encounter issues or you are just looking for advice, feel free to use one of the links below:
-
-* Talk and share with the community on the https://neo4j-users.slack.com[SDN/OGM Slack channel]
-* The https://github.com/neo4j-examples/neo4j-ogm-university[sample project:Neo4j-OGM University].
-  This project is used in the <<tutorial:introduction,Tutorial>>.
+If you encounter issues, or you are just looking for advice, feel free to use one of the links below:
 
 * For more detailed questions, use our https://community.neo4j.com/c/drivers-stacks/spring-data-neo4j-ogm[community platform]
 or http://stackoverflow.com/questions/tagged/neo4j-ogm[Neo4j-OGM on StackOverflow].
-* Use the https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template[templates] for reporting issues (they can also be used to bootstrap your projects).
+* Use the https://github.com/neo4j/neo4j-ogm for reporting issues.
 
 [[introduction:graph-database:introducing-neo4j:learn-more]]
 ==== Learning more

@@ -4,11 +4,11 @@
 
 [qanda]
 What is the difference between Neo4j-OGM and Spring Data Neo4j (SDN)?::
-  Spring Data Neo4j (SDN) uses Neo4j-OGM under the covers.
+  Spring Data Neo4j (SDN) up to version 5.3.x uses Neo4j-OGM under the covers.
   It's like Spring Data JPA, where JPA/Hibernate is the underlay.
   Most of the power of SDN actually comes from Neo4j-OGM.
-  Please note that Neo4j-OGM 4+ is not the driving library of SDN anymore.
-  SDN 6+ works completely independent of Neo4j-OGM.
+  Starting with Spring Data Neo4j 6.x (Spring Boot 2.4) does not need Neo4j-OGM anymore.
+  Please note that, intentionally, Neo4j-OGM 4+ does not work as a drop-in replacement for Spring Data 5.x.
 
 How are labels generated when using inheritance?::
   All concrete classes generate a label, abstract classes and interfaces not.

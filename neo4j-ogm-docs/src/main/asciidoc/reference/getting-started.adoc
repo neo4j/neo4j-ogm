@@ -22,7 +22,7 @@ Consult the version table to determine which version of Neo4j-OGM to use with a 
 
 ^1^ __The latest supported bugfix versions.__ +
 
-^2^ __These versions are only supported over Bolt.__ +
+^2^ __These versions only support connections via Bolt.__ +
 
 ^3^ __These versions are no longer actively developed.__ +
 
@@ -31,29 +31,6 @@ Consult the version table to determine which version of Neo4j-OGM to use with a 
 ^5^ __Neo4j-OGM 3.2.24+ only.__ +
 
 ^6^ __Technical working but not officially supported__ +
-
-=== Transitive dependencies
-
-The following table list transitive dependencies between specific versions of projects related to Neo4j-OGM.
-When reporting issues or asking for help on StackOverflow or neo4j-users slack channel always
-verify versions used (e.g through `mvn dependency:tree`) and report them as well.
-
-[frame="topbot",options="header"]
-|======================
-|Spring Boot Version    | Spring Data Release Train |Spring Data Neo4j Version | Neo4j-OGM Version
-|2.3^2^                 | Neumann                   |5.3                       | 3.2
-|2.2^2^                 | Moore                     |5.2                       | 3.2
-|2.1^2^                 | Lovelace                  |5.1                       | 3.1
-|2.0^1^                 | Kay                       |5.0                       | 3.0
-|1.5^2^                 | Ingalls                   |4.2                       | 2.1
-|1.4^2^                 | Hopper                    |4.1                       | 2.0
-|======================
-
-^1^ __These versions are no longer actively developed.__ +
-
-^2^ __These versions are no longer actively developed or supported.__ +
-
-NOTE: Starting with Spring Boot 2.4, Spring Data Neo4j (version 6+) does not include Neo4j-OGM anymore.
 
 [[reference:getting-started:dependency-management]]
 == Dependency Management

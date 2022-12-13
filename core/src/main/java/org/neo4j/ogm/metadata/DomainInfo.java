@@ -106,17 +106,22 @@ public class DomainInfo {
         return domainInfo;
     }
 
-    private static List<String> findClasses(String[] packagesOrClasses) {
+    private static Collection<String> findClasses(String[] packagesOrClasses) {
 
         // Try to find an index first
-        List<String> classes = tryIndexes(packagesOrClasses);
+        Set<String> classes = new HashSet<>();
 
-        // Found an index file for each package
-        if (classes != null) {
-            return classes;
+        List<String> indexedClasses = tryIndexes(packagesOrClasses);
+        if (indexedClasses != null) {
+            classes.addAll(indexedClasses);
         }
 
-        return useClassgraph(packagesOrClasses);
+        List<String> dynamicallyLoaded = useClassgraph(packagesOrClasses);
+        if (dynamicallyLoaded != null) {
+            classes.addAll(dynamicallyLoaded);
+        }
+
+        return classes;
     }
 
     private static List<String> useClassgraph(String[] packagesOrClasses) {

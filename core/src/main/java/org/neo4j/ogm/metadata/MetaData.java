@@ -309,4 +309,8 @@ public class MetaData {
     public void registerConversionCallback(ConversionCallback conversionCallback) {
         this.domainInfo.registerConversionCallback(conversionCallback);
     }
+
+    public <T> ClassInfo register(Class<T> clazz) {
+        return domainInfo.addClass(clazz);
+    }
 }

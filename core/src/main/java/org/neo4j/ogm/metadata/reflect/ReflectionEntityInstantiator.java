@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -64,6 +65,10 @@ public class ReflectionEntityInstantiator implements EntityInstantiator {
     public <T> T createInstanceWithConstructorArgs(Class<T> clazz, Map<String, Object> propertyValues) {
         try {
             ClassInfo classInfo = metadata.classInfo(clazz);
+            if (classInfo == null) {
+                classInfo = Objects.requireNonNull(metadata.register(clazz),
+                    "Could not register " + clazz + " after the fact");
+            }
 
             Constructor<T> instantiatingConstructor = determineConstructor(clazz, propertyValues);
             instantiatingConstructor.setAccessible(true);

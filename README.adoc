@@ -10,7 +10,7 @@ Neo4j-OGM is a fast object-graph mapping library for https://neo4j.com/[Neo4j], 
 It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects.
 
 Please have a look at the current supported versions and which combinations we recommend:
-https://github.com/neo4j/neo4j-ogm/wiki/Versions#recommended-versions[Recommended versions]
+https://github.com/neo4j/neo4j-ogm/wiki/Versions[Recommended versions]
 
 == Quick start
 

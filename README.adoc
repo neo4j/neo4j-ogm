@@ -3,20 +3,16 @@
 image:https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg[Maven Central,link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.neo4j%22%20AND%20a%3A%22neo4j-ogm%22]
 image:https://rawgit.com/aleen42/badges/master/src/stackoverflow.svg[stackoverflow,link=https://stackoverflow.com/questions/tagged/neo4j-ogm]
 
-= Neo4j-OGM - An Object Graph Mapping Library for Neo4j
-
-NOTE: This is the development branch of Neo4j-OGM.
-Please have a look at the current supported versions and which combinations we recommend: https://github.com/neo4j/neo4j-ogm/wiki/Versions#recommended-versions[Recommended versions]. 
+= Neo4j-OGM - An Object Graph Mapping Library for Neo4j.
 
 Neo4j-OGM is a fast object-graph mapping library for https://neo4j.com/[Neo4j], optimised for server-based installations utilising https://neo4j.com/developer/cypher-query-language/[Cypher].
 
 It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects.
 
-If you use Spring to build your applications be sure to check out https://github.com/spring-projects/spring-data-neo4j[Spring Data Neo4j].
+Please have a look at the current supported versions and which combinations we recommend:
+https://github.com/neo4j/neo4j-ogm/wiki/Versions#recommended-versions[Recommended versions]
 
 == Quick start
-
-You can start coding with some simple https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template[templates], or just follow the little guide below!
 
 === Dependencies for Neo4j-OGM
 
@@ -47,13 +43,6 @@ dependencies {
 }
 ----
 
-==== Ivy
-
-[source,xml,subs="verbatim,attributes"]
-----
-<dependency org="org.neo4j" name="neo4j-ogm-core" rev="{version}"/>
-<dependency org="org.neo4j" name="neo4j-ogm-bolt-driver" rev="{version}"/>
-----
 
 === Set up domain entities
 
@@ -91,9 +80,6 @@ public class Movie {
 	private String title;
 	private int released;
 
-	@Relationship(type = "ACTS_IN", direction = Relationship.INCOMING)
-	Set<Actor> actors = new HashSet<>();
-
 	public Movie() {
 	}
 
@@ -108,7 +94,7 @@ public class Movie {
 
 === Configuration
 
-The either configure OGM with properties files, or programmatically.
+The either configure Neo4j-OGM with properties files, or programmatically.
 
 Please see examples http://neo4j.com/docs/ogm-manual/current/reference/#reference:configuration[here].
 
@@ -143,8 +129,6 @@ for(Actor actor : matrix.getActors()) {
 
 The http://neo4j.com/docs/ogm-manual/current/[reference guide] is the best place to get started.
 
-Feel free to chat with us on the https://neo4j-users.slack.com[Neo4j-OGM Slack channel], and have a look to some examples like https://github.com/neo4j-examples/neo4j-ogm-university[Neo4j-OGM University].
-
 You can also post questions in our https://community.neo4j.com/c/drivers-stacks/spring-data-neo4j-ogm[community forums] or on http://stackoverflow.com/questions/tagged/neo4j-ogm[StackOverflow].
 
 == Building locally
@@ -155,7 +139,7 @@ The tests default to Bolt.
 If you want to change this, you have to define the property `ogm.properties` when calling Maven.
 e.g. `./mvnw clean verify -Dogm.properties=ogm-bolt.properties`.
 
-For tests we are using https://www.testcontainers.org/[TestContainers].
+For testing we are using https://www.testcontainers.org/[TestContainers].
 The default image right now is `neo4j:5`.
 If you want to use other images or the enterprise edition, you have to opt-in.
 
@@ -171,18 +155,6 @@ Here is a list of the possible environment variables you can provide.
 |Image to be used by TestContainers.
 |`neo4j:5`
 |===
-
-
-== YourKit profiler
-
-We would like to thank YourKit for providing us a license for their product, which helps us to make OGM better.
-
-image:https://www.yourkit.com/images/yklogo.png[yourkit,link=https://www.yourkit.com/java/profiler/]
-
-YourKit supports open source projects with its full-featured Java Profiler.
-YourKit, LLC is the creator of https://www.yourkit.com/java/profiler/[YourKit Java Profiler]
-and https://www.yourkit.com/.net/profiler/[YourKit .NET Profiler],
-innovative and intelligent tools for profiling Java and .NET applications.
 
 == License
 

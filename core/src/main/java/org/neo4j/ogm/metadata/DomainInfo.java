@@ -167,7 +167,7 @@ public class DomainInfo {
      *
      * @param clazz
      */
-    private ClassInfo addClass(Class clazz) {
+    ClassInfo addClass(Class clazz) {
 
         ClassInfo classInfo = this.classNameToClassInfo.computeIfAbsent(clazz.getName(), k -> new ClassInfo(clazz, typeSystem));
         String superclassName = classInfo.superclassName();

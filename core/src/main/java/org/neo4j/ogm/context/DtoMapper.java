@@ -26,12 +26,16 @@ import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.Neo4jSession;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Gerrit Meier
  */
 public class DtoMapper {
+
+    public static final Set<String> classes = new HashSet<>();
 
     private final Neo4jSession session;
     private final ReflectionEntityInstantiator instantiator;

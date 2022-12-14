@@ -155,7 +155,7 @@ public class TestContainersTestBase {
         if (neo4jServer != null) {
             return GraphDatabase.driver(neo4jServer.getBoltUrl(), AuthTokens.basic("neo4j", DEFAULT_PASSWORD));
         } else {
-            return GraphDatabase.driver(SYS_PROPERTY_NEO4J_URL, AuthTokens.basic("neo4j", SYS_PROPERTY_NEO4J_PASSWORD));
+            return GraphDatabase.driver(System.getenv(SYS_PROPERTY_NEO4J_URL), AuthTokens.basic("neo4j", System.getenv(SYS_PROPERTY_NEO4J_PASSWORD)));
         }
     }
 

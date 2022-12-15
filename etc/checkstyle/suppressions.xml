@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 
     Copyright (c) 2002-2022 "Neo4j,"
@@ -19,14 +19,9 @@
     limitations under the License.
 
 -->
-<metadata>
-    <groupId>local-test</groupId>
-    <artifactId>radio</artifactId>
-    <versioning>
-        <release>0.0.1</release>
-        <versions>
-            <version>0.0.1</version>
-        </versions>
-        <lastUpdated>20170315122907</lastUpdated>
-    </versioning>
-</metadata>
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+<suppressions>
+    <suppress checks="RegexpHeader" files="package-info\.java"/>
+</suppressions>

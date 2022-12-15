@@ -1,0 +1,187 @@
+[[reference:native-property-types]]
+= Native property types
+
+Neo4j distinguishes between property, structural and composite types.
+While you can map attributes of Neo4j-OGM entities very easily to composite types, most of the attributes are usually property types.
+Please read xref:reference.adoc#reference:type-conversion:custom:using-composite-types[the example using a custom converter for composite types] for more information about the mapping of composite types.
+
+The most important property types are
+
+* `Number`
+* `String`
+* `Boolean`
+* The spatial type `Point`
+* Temporal types: `Date`, `Time`, `LocalTime`, `DateTime`, `LocalDateTime` and `Duration`
+
+`Number` has two subtypes (`Integer` and `Float`).
+Those are not the Java types with the same name but Neo4j specific types that map to `long` and `double` respectively.
+Please refer to both the https://neo4j.com/docs/cypher-manual/current/syntax/values/[Cypher] and https://neo4j.com/docs/developer-manual/current/drivers/cypher-values/[Java-Driver manual] for further information about the type system.
+
+While you have to take a bit of care when modelling entities with numeric attributes (in regards of precession and scale),
+mapping of numbers, strings and boolean attributes is pretty much straight forward.
+Temporal and spatial types however made their first appearances in Neo4j 3.4.
+Therefore OGM provided xref:reference.adoc#reference:type-conversion:custom[type conversion] for those to store them as string or numeric types.
+In particular, it maps temporal types onto ISO 8601 formatted strings and spatial types onto a composite, map based structure.
+
+Starting with Neo4j-OGM 3.2, OGM provides dedicated support for Neo4j's temporal and spatial types.
+
+[[reference:native-property-types:supported-drivers]]
+== Supported drivers
+
+Neo4j-OGM supports all Neo4j temporal and spatial types for the Bolt and the embedded driver.
+Please add the following module if you're using the Bolt driver:
+
+.Support for native temporal and spatial types with the Bolt driver
+[source, xml, subs="attributes, specialcharacters"]
+----
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-bolt-driver</artifactId>
+    <version>{ogm-version}</version>
+    <scope>runtime</scope>
+</dependency>
+
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-bolt-native-types</artifactId>
+    <version>{ogm-version}</version>
+    <scope>runtime</scope>
+</dependency>
+----
+
+The setup for the embedded driver looks similar:
+
+.Support for native temporal and spatial types with the embedded driver
+[source, xml, subs="attributes, specialcharacters"]
+----
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-embedded-driver</artifactId>
+    <version>{ogm-version}</version>
+    <scope>runtime</scope>
+</dependency>
+
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-embedded-native-types</artifactId>
+    <version>{ogm-version}</version>
+    <scope>runtime</scope>
+</dependency>
+
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j</artifactId>
+    <version>{neo4j-version}</version>
+    <scope>runtime</scope>
+</dependency>
+----
+
+The dependencies for a Gradle build are `'org.neo4j:neo4j-ogm-bolt-driver:{ogm-version}'` and  `'org.neo4j:neo4j-ogm-embedded-native-types:{ogm-version}'` respectively.
+
+[[reference:native-property-types:optin]]
+== Opt-in to use native types
+
+Using native types for temporal and spatial property types is a behaviour changing feature,
+as it will turn the default type conversion off and dates are neither written to nor read from strings anymore.
+Therefore it is an opt-in feature.
+
+To opt-in, please first add the corresponding module for your xref:reference.adoc#reference:native-property-types:supported-drivers[driver] and
+than use the new configuration property `use-native-types`:
+
+.Enabling the usage of native types
+[%autowidth.spread,frame="topbot",options="header"]
+|======================
+|ogm.properties   | Java Configuration
+
+a|
+[source, properties]
+----
+URI=bolt://neo4j:password@localhost
+use-native-types=true
+----
+
+a|
+[source, java]
+----
+Configuration configuration = new Configuration.Builder()
+        .uri("bolt://neo4j:password@localhost")
+        .useNativeTypes()
+        .build()
+----
+|======================
+
+The same works with a file based URI for the embedded driver.
+
+Once enabled, native types are used for all attributes of all node- and relationship-entities and also for all parameters passed through the OGM `Session` interface.
+
+[[reference:native-property-types:mapping]]
+== Mapping of native types
+
+The following table describes how Neo4j temporal and spatial property types are mapped to attributes of Neo4j-OGM entities:
+
+======
+[options="header", cols="m,"]
+|===
+| Neo4j type        | Neo4j-OGM type
+| Date | `LocalDate`
+| Time | `OffsetTime`
+| LocalTime | `LocalTime`
+| DateTime | `ZonedDateTime`
+| LocalDateTime | `LocalDateTime`
+| Duration | `TemporalAmount`*
+| Point | One variant of a Neo4j-OGM spatial point**
+|===
+
+
++*+ The Neo4j `Duration` can either be a Java 8 `Duration` or `Period` with the least common denominator being a `TemporalAmount`.
+A Java 8 duration always deals with an exact number of seconds while periods take daylight saving times and others into account when added to instants.
+If you are sure that you only deal with one or the other, you just use an explicit mapping to either `java.time.Duration` or `java.time.Period`.
+
++**+ There is no generic Java type representing a spatial point.
+As OGM supports different ways of connecting to Neo4j it cannot expose either the Java drivers or the internal representation of a point, so it provides a point of its own.
+Please read the next section to learn which concrete classes Neo4j-OGM offers for a point.
+======
+
+[[reference:native-property-types:spatial-types]]
+== Mapping of Neo4j spatial types
+
+Neo4j supports four slightly different property types for spatial points, see https://neo4j.com/docs/cypher-manual/current/syntax/spatial/[Spatial values].
+All variations of the `Point` type are backed by an index and therefore perform very well in queries.
+The main difference between them is the coordinate reference system.
+A point can either be stored in a geographic coordinate system with longitude and latitude or in a cartesian system with x and y.
+If you add the third dimension, you add height or a z-axis.
+
+Geographic coordinate systems are based on a spheroidal surface and define a position on a sphere in terms of angles.
+Attributes of type `Point` in Neo4j having geographic coordinates return `longitude` and `latitude` with a fixed reference
+system of WGS-84 (SRID 4326, the same one that most GPS devices and many online mapservers use).
+3-dimensional geographic coordinates have a reference system of WGS-84-3D with the SRID 4979.
+
+Cartesian coordinate systems deal with locations in an euclidean space and are not projected.
+Attributes of type `Point` in Neo4j having cartesian coordinates return `x` and `y`, their SRID is 7203 respectively 9157.
+
+The important take-aways for modelling your domain is the fact that points with different coordinate systems are not comparable without undergoing transformation.
+The same attribute of a node should always be using the same coordinate system than all the other nodes with the same label.
+Otherwise the `distance` function and comparisons dealing with multiple `Points` will return literal `null`.
+
+To make modelling a domain less error prone, Neo4-OGM provides four distinct types that you can use in your Neo4j entities:
+
+======
+[options="header", cols="m,"]
+|===
+| Neo4j-OGM type | Neo4j point type
+| `GeographicPoint2d` | A point with `longitude` and `latitude` in a geographic reference system of WGS-84*
+| `GeographicPoint3d` | A point with `longitude`, `latitude` and `height` in a geographic reference system of WGS-84-3D*
+| `Cartesian2d` | A point with `x` and `y` in euclidean space
+| `Cartesian3d` | A point with `x`, `y` and `z` in euclidean space
+|===
+
++*+ Neo4j uses interally `x`, `y` (and `z`) exclusive and provides aliases for `longitude`, `latitude` (and `height`).
+
+Use-cases for the geographic points are all kinds of stuff you usually find on a map.
+Cartesian points are usefull for indoor navigation and any 2D and 3D modelling.
+While geographic points deal with degrees as units, cartesian units are undefined by themselves and can be any unit like metres or feet.
+
+======
+
+Note that the Neo4j-OGM points don't share a hierarchy usable outside internals of Neo4j-OGM on purpose.
+It should help you to make an informed decision which coordinate system to use.

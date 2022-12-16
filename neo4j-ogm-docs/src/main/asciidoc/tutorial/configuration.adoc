@@ -1,44 +1,52 @@
 [[tutorial:configuration]]
 = Configuring Neo4j-OGM
 
-Neo4j-OGM supports several drivers:
+Neo4j-OGM depends on the Neo4j Java driver for interactions with the database.
+The driver itself uses the Bolt protocol to communicate with the Neo4j instance.
 
-* Bolt - the lightning fast native driver for Neo4j.
-* HTTP - the original transactional HTTP endpoint for remote Neo4j deployments.
-* Embedded - for embedded deployments within a Java application.
+[[tutorial:configuration:dependencies]]
+== Dependencies
 
-Our sample application will use the Bolt driver.
+To start with Neo4j-OGM we need to add the core and Bolt dependency to our project.
+Even though Neo4j-OGM 4+ only provides support for connections via Bolt,
+the explicit dependency definition is needed.
 
-[[tutorial:configuration:gradle]]
-== Setting up with Gradle
-
-The demo application uses https://gradle.org/[Gradle] as a build system.
-
-Before we can use the library, we need to add a dependency.
-
-.Gradle dependencies for Neo4j-OGM
-[source,groovy, subs="attributes"]
+.Maven dependency for Neo4j-OGM
+[source,xml]
 ----
-compile "org.neo4j:neo4j-ogm-core:{ogm-version}"
-runtime "org.neo4j:neo4j-ogm-bolt-driver:{ogm-version}"
+<dependencies>
+    <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-ogm-core</artifactId>
+        <version>{ogm-version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-ogm-bolt-driver</artifactId>
+        <version>{ogm-version}</version>
+    </dependency>
+</dependencies>
 ----
+If you are using Gradle or other systems, please do so accordingly.
 
 Refer to <<reference:getting-started:dependency-management, Dependency Management>> for more information on dependencies.
 
-[[tutorial:configuration:driver]]
-== Connecting to the database
+[[tutorial:configuration:sessionfactory]]
+== Neo4j-OGM configuration
 
-We configure the database parameters by using the configuration builder.
+The configuration of Neo4j-OGM has two parts.
+First the definition of the `SessionFactory` configuration is needed.
+This is where you define the database connection.
+The most common parameters here are the Neo4j uri and the credentials, you want Neo4j-OGM to use for the connection.
+
+The second step is the application specific definition of the package(s), Neo4j-OGM should scan for eligible domain classes.
 
 [source, java]
 ----
 Configuration configuration = new Configuration.Builder()
-    .uri("bolt://localhost")
-    .credentials("neo4j", "password")
+    .uri("neo4j://localhost:7687")
+    .credentials("neo4j", "verysecret")
     .build();
 
-SessionFactory sessionFactory = new SessionFactory(configuration, "com.mycompany.app.domainclasses");
+SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.example");
 ----
-
-Make sure to read https://neo4j.com/docs/driver-manual/4.1/client-applications/#driver-connection-uris to understand which URI scheme applies
-to which environment.

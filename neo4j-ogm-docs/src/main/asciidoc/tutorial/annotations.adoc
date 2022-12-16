@@ -9,50 +9,26 @@ Much like Hibernate or JPA, Neo4j-OGM allows you to annotate your POJOs in order
 
 POJOs annotated with `@NodeEntity` will be represented as nodes in the graph.
 
-The label assigned to this node can be specified via the `label` property on the annotation; if not specified, it will default to the simple class name of the entity.
-Each parent class in addition also contributes a label to the entity (with the exception of `java.lang.Object`).
+The label assigned to this node can be specified via the `label` property on the annotation;
+if not specified, it will default to the simple class name of the entity.
+Each parent class in addition also contributes a label to the entity.
 This is useful when we want to retrieve collections of super types.
 
 Let's go ahead and annotate all our node entities in the code we wrote earlier.
 
-Note that we're overriding the default label for a `Course` with `Class`
-
-[source, groovy]
+[source, java]
 ----
 @NodeEntity
-class Department {
-    String name;
-    Set<Subject> subjects;
+public class Movie {
+    String title;
+    List<Actor> actors;
+    List<Person> directors;
+    List<Reviewer> reviewers;
 }
 
 @NodeEntity
-class Subject {
+public class Person {
     String name;
-    Department department;
-    Set<Teacher> teachers;
-    Set<Course> courses;
-}
-
-@NodeEntity
-class Teacher {
-    String name;
-    Set<Course> courses;
-    Set<Subject> subjects;
-}
-
-@NodeEntity(label="Class")
-class Course {
-    String name;
-    Subject subject;
-    Teacher teacher;
-    Set<Enrollment> enrollments;
-}
-
-@NodeEntity
-class Student {
-    String name;
-    Set<Enrollment> enrollments;
-    Set<StudyBuddy> studyBuddies;
 }
 ----
 
@@ -66,67 +42,24 @@ Every field in an entity that references another entity is backed by a relations
 The `@Relationship` annotation allows you to specify both the type of the relationship and the direction.
 By default, the direction is assumed to be `OUTGOING` and the type is the UPPER_SNAKE_CASE field name.
 
-We're going to be specific about the relationship type to avoid using the default and also make it easier to refactor classes later by not being dependent on the field name.
+We're going to be specific about the relationship type to avoid using the default and also make it easier to refactor classes later
+by not being dependent on the field name.
 Again, we are going to modify the code we saw in the last section:
 
-[source, groovy]
+[source, java]
 ----
 @NodeEntity
-class Department {
-    String name;
+public class Movie {
+    String title;
 
-    @Relationship(type = "CURRICULUM")
-    Set<Subject> subjects;
-}
+    @Relationship(type = "ACTED_IN", direction = Relationship.Direction.INCOMING)
+    List<Actor> actors;
 
-@NodeEntity
-class Subject {
-    String name;
+    @Relationship(type = "DIRECTED", direction = Relationship.Direction.INCOMING)
+    List<Person> directors;
 
-    @Relationship(type="CURRICULUM", direction = Relationship.Direction.INCOMING)
-    Department department;
-
-    @Relationship(type = "TAUGHT_BY")
-    Set<Teacher> teachers;
-
-    @Relationship(type = "SUBJECT_TAUGHT", direction = Relationship.Direction.INCOMING)
-    Set<Course> courses;
-}
-
-@NodeEntity
-class Teacher {
-    String name;
-
-     @Relationship(type="TEACHES_CLASS")
-     Set<Course> courses;
-
-     @Relationship(type="TAUGHT_BY", direction = Relationship.Direction.INCOMING)
-     Set<Subject> subjects;
-}
-
-@NodeEntity(label="Class")
-class Course {
-    String name;
-
-     @Relationship(type= "SUBJECT_TAUGHT")
-     Subject subject;
-
-     @Relationship(type= "TEACHES_CLASS", direction=Relationship.Direction.INCOMING)
-     Teacher teacher;
-
-     @Relationship(type= "ENROLLED", direction=Relationship.Direction.INCOMING)
-     Set<Enrollment> enrollments = new HashSet<>();
-}
-
-@NodeEntity
-class Student {
-    String name;
-
-    @Relationship(type = "ENROLLED")
-    Set<Enrollment> enrollments;
-
-    @Relationship(type = "BUDDY", direction = Relationship.Direction.INCOMING)
-    Set<StudyBuddy> studyBuddies;
+    @Relationship(type = "REVIEWED", direction = Relationship.Direction.INCOMING)
+    List<Reviewer> reviewers;
 }
 ----
 
@@ -136,29 +69,42 @@ class Student {
 
 Sometimes something isn't quite a Node entity.
 
-In this demo the only remaining class to annotate is `Enrollment`.
-As discussed earlier, this is a relationship entity since it manages the underlying `ENROLLED` relation between a student and course.
-It isn't a simple relation because it has a relationship property called `enrolledDate`.
+In this demo the remaining classes to annotate are `Actor` and `Reviewer`.
+As discussed earlier, this is a relationship entity since it manages the underlying `ACTED_IN` and `REVIEWED` relations between a `Movie` and `Person`.
+They aren't simple relationships because they hold properties like `roles` or `summary` and `score`.
 
 A relationship entity must be annotated with `@RelationshipEntity` and also the type of relationship.
-In this case, the type of relationship is `ENROLLED` as specified in both the `Student` and `Course` entities.
-
+Additionally, it needs a definition of where it comes from (`Person`) and where it goes to (`Movie`).
 
 We are also going to indicate to Neo4j-OGM the start and end node of this relationship.
 
-[source, groovy]
+[source, java]
 ----
-@RelationshipEntity(type = "ENROLLED")
-class Enrollment {
+@RelationshipEntity(type = "ACTED_IN")
+public class Actor {
 
-    @StartNode
-    Student student;
+    List<String> roles;
+
+	@StartNode
+    Person person;
 
     @EndNode
-    Course course;
+    Movie movie;
+}
 
-    Date enrolledDate;
+@RelationshipEntity("REVIEWED")
+public class Reviewer {
 
+    @Property("summary")
+    String review;
+
+    int rating;
+
+    @EndNode
+    Movie movie;
+
+    @StartNode
+    Person person;
 }
 ----
 
@@ -174,44 +120,77 @@ Identifier may be either a primary id or a native graph id.
 - native id - this id corresponds to the id generated by the  Neo4j database when a node or relationship is first saved, must be of type `Long`
 
 [WARNING]
-***Do not*** rely on native id for long running applications.
+***Do not*** rely on native id for long-running applications.
 Neo4j will reuse deleted node id's.
 It is recommended users come up with their own unique identifier for their domain objects (or use a UUID).
 
-Since every entity requires an id, we're going to create an `Entity` superclass.
-This is an abstract class, so you'll see that the nodes do not inherit an `Entity` label, which is exactly what we want.
+See <<reference:annotating-entities:entity-identifier, Node Entities>> for more information.
 
-If you plan on implementing `hashCode` and `equals` make sure *it does not* make use of the native id.
-See <<reference:annotating-entities:graph-id, Node Entities>> for more information.
+Our entities will now also define the `@Id` fields.
+For the `Movie` we have chosen the _title_ and for the `Person` the _name_ property.
+In a real-world scenario names and titles cannot be seen as unique, but for this example it is enough.
 
-[source, groovy]
-----
-abstract class Entity {
-
-    @Id @GeneratedValue
-    private Long id;
-
-    public Long getId() {
-        return id;
-    }
-}
-----
-
-Our entities will now extend this class, for example
-
-[source, groovy]
+[source, java]
 ----
 @NodeEntity
-class Department extends Entity {
-    String name;
+public class Movie {
+    @Id
+    String title;
 
-    @Relationship(type = "CURRICULUM")
-    Set<Subject> subjects;
+    @Relationship(type = "ACTED_IN", direction = Relationship.Direction.INCOMING)
+    List<Actor> actors;
 
-    Department() {
+    @Relationship(type = "DIRECTED", direction = Relationship.Direction.INCOMING)
+    List<Person> directors;
 
-    }
+    @Relationship(type = "REVIEWED", direction = Relationship.Direction.INCOMING)
+    List<Reviewer> reviewers;
 }
+
+@NodeEntity
+public class Person {
+    @Id
+    String name;
+}
+----
+
+Also, we add the generated internal id references to the relationship entities.
+
+[source, java]
+----
+@RelationshipEntity(type = "ACTED_IN")
+public class Actor {
+
+    @Id @GeneratedValue
+    Long id;
+
+    List<String> roles;
+
+    @StartNode
+    Person person;
+
+    @EndNode
+    Movie movie;
+}
+
+@RelationshipEntity("REVIEWED")
+public class Reviewer {
+
+    @Id @GeneratedValue
+    Long id;
+
+    @Property("summary")
+    String review;
+
+    int rating;
+
+    @EndNode
+    Movie movie;
+
+    @StartNode
+    Person person;
+}
+
 ----
 
 [[tutorial:annotations:noarg-constructor]]
@@ -219,37 +198,5 @@ class Department extends Entity {
 
 We are almost there!
 
-Neo4j-OGM also also requires a public no-args constructor to be able to construct objects from all our annotated entities.
-We'll make sure all our entities have one.
-
-
-[[tutorial:annotations:converters]]
-== Converters
-
-Neo4j supports `Numeric`, `String`, `boolean` and arrays of these as property values.
-
-How do we handle the `enrolledDate` since `Date` is not a valid data type?
-
-Luckily for us, Neo4j-OGM provides many converters out of the box, one of which is a `Date` to `Long` converter.
-We simply annotate the field with `@DateLong` and the conversion of the `Date` to it's `Long` representation and back is handled by Neo4j-OGM when persisting and loading from the graph.
-
-[source, groovy]
-----
-@RelationshipEntity(type = "ENROLLED")
-class Enrollment {
-
-    Long id;
-
-    @StartNode
-    Student student;
-
-    @EndNode
-    Course course;
-
-    @DateLong
-    Date enrolledDate;
-
-    Enrollment() {
-    }
-}
-----
+Neo4j-OGM also requires a public no-args constructor to be able to construct objects from all our annotated entities.
+Since we haven't defined any custom constructors, we are good to go.

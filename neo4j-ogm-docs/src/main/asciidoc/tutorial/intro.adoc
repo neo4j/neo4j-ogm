@@ -1,17 +1,13 @@
 [[tutorial:introduction]]
 = Introduction
 
-Neo4j-OGM University is a demo application for the Neo4j-OGM library that allows you to manage the Departments, Teaching Staff, Subjects, Students and Classes of a fictitious educational institution: Hilly Fields Technical College.
+Neo4j-OGM Movies is an example application that allows you to manage movies, person related to the movies and ratings.
 
-It is a fully functioning web-application built using the following components:
+Although the functionality is reduced to show the needed steps to work with Neo4j-OGM,
+it contains all the layers you would expect to exist in a real world application.
 
-* Groovy
-* Ratpack
-* Neo4j-OGM
-* AngularJS
-* Bootstrap
+We intentionally decided to not depend on any external framework (like Spring or Quarkus) in this example and exclude e.g. the web part,
+to avoid the extra bit of complexity those bring with them.
+As a benefit, we can more focus on the behaviour of Neo4j-OGM.
 
-The application's architecture involves a RESTful server interfacing with a rich single page application that is designed to
-show off the performance and capabilities of Neo4j-OGM.
-
-The complete source code for the application is available on https://github.com/neo4j-examples/neo4j-ogm-university[Github].
+The complete source code for the application is available on https://github.com/neo4j-ogm/neo4j-ogm-example[Github].

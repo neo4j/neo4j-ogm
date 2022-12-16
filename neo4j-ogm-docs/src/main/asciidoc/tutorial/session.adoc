@@ -8,148 +8,107 @@ So our domain entities are annotated, now we're ready persist them to the graph!
 The smart object mapping capability is provided by the `Session` object.
 A `Session` is obtained from a `SessionFactory`.
 
-We're going to set up the `SessionFactory` just once and have it produce as many sessions as required.
-
-[source, groovy]
-----
-public class Neo4jSessionFactory {
-
-    private final static Configuration = ... // provide configuration as seen before
-    private final static SessionFactory sessionFactory = new SessionFactory(configuration, "school.domain");
-    private static Neo4jSessionFactory factory = new Neo4jSessionFactory();
-
-    public static Neo4jSessionFactory getInstance() {
-        return factory;
-    }
-
-    // prevent external instantiation
-    private Neo4jSessionFactory() {
-    }
-
-    public Session getNeo4jSession() {
-        return sessionFactory.openSession();
-    }
-}
-----
-
-
-The `SessionFactory` constructor accepts packages that are to be scanned for annotated domain entities.
-
-The domain objects in our university application are grouped under `school.domain`.
-When the `SessionFactory` is created, it will scan `school.domain` for potential domain classes and construct the object mapping metadata to be used by all sessions created thereafter.
-
-NOTE: We use here the `SessionFactory` with the package of domain classes as a parameter.
-This sets up an in-memory embedded database.
-In your application, you would also pass the configuration to connect to your actual database.
+We're going to set up the `SessionFactory` <<tutorial:configuration:sessionfactory, just once>> and have it produce as many sessions as required.
 
 The `Session` keeps track of changes made to entities and relationships and persists ones that have been modified on save.
 Once an entity is tracked by the session, reloading this entity within the scope of the same session will result in the session cache returning the previously loaded entity.
 However, the subgraph in the session will expand if the entity or its related entities retrieve additional relationships from the graph.
 
-For the purpose of this demo application, we'll use short living sessions - a new session per web request - to avoid stale data issues.
+For the purpose of this example application, we'll use short living sessions - a new session per operation - to avoid stale data issues.
 
-Our university application will use the following operations:
+Our example application will use the following operations:
 
-[source, groovy]
+[source, java]
 ----
-interface Service<T> {
+public class MovieService {
 
-    Iterable<T> findAll()
+    Movie findMovieByTitle(String title) {
+        // implementation
+    }
 
-    T find(Long id)
+    List<Movie> allMovies() {
+        // implementation
+    }
 
-    void delete(Long id)
-
-    T createOrUpdate(T object)
-
+    Movie updateTagline(String title, String newTagline) {
+        // implementation
+    }
 }
 ----
 
 These CRUD interactions with the graph are all handled by the `Session`.
-Let's write a `GenericService` to deal with common `Session` operations.
+Whenever we want to run a unit of work, we open the session and do all operations with the same `Session` instance.
+Let's have a look at the implementations (and the constructor with the `SessionFactory` instantiation) of the service:
 
-[source, groovy]
+[source, java]
 ----
-abstract class GenericService<T> implements Service<T> {
+public class MovieService {
 
-    private static final int DEPTH_LIST = 0
-    private static final int DEPTH_ENTITY = 1
-    protected Session session = Neo4jSessionFactory.getInstance().getNeo4jSession()
+    final SessionFactory sessionFactory;
 
-    @Override
-    Iterable<T> findAll() {
-        return session.loadAll(getEntityType(), DEPTH_LIST)
+    public MovieService() {
+        Configuration config = new Configuration.Builder()
+            .uri("neo4j://localhost:7687")
+            .credentials("neo4j", "verysecret")
+            .build();
+        this.sessionFactory = new SessionFactory(config, "org.neo4j.ogm.example");
     }
 
-    @Override
-    T find(Long id) {
-        return session.load(getEntityType(), id, DEPTH_ENTITY)
+    Movie findMovieByTitle(String title) {
+        Session session = sessionFactory.openSession();
+        return Optional.ofNullable(
+                session.queryForObject(Movie.class, "MATCH (m:Movie {title:$title}) return m", Map.of("title", title)))
+            .orElseThrow(() -> new MovieNotFoundException(title));
     }
 
-    @Override
-    void delete(Long id) {
-        session.delete(session.load(getEntityType(), id))
+    public List<Movie> allMovies() {
+        Session session = sessionFactory.openSession();
+        return new ArrayList<>(session.loadAll(Movie.class));
     }
 
-    @Override
-    T createOrUpdate(T entity) {
-        session.save(entity, DEPTH_ENTITY)
-        return find(entity.id)
-    }
-
-    abstract Class<T> getEntityType()
-}
-----
-
-One of the features of Neo4j-OGM is variable depth persistence.
-This means you can vary the depth of fetches depending on the shape of your data and application.
-The default depth is 1, which loads simple properties of the entity and its immediate relations.
-This is sufficient for the `find` method, which is used in the application to present a create or edit form for an entity.
-
-image::classDetail.png[Class detail, 896, 457]
-
-Loading relationships is not required when listing all entities of a type.
-We merely require the id and name of the entity, and so a depth of 0 is used by `findAll` to only load simple properties of the entity but skip its relationships.
-
-image::departmentListing.png[Department listing, 896, 457]
-
-The default save depth is -1, or everything that has been modified and can be reached from the entity up to an infinite depth.
-This means we can persist all our changes in one go.
-
-This `GenericService` takes care of CRUD operations for all our entities!
-All we did was delegate to the `Session`; no need to write persistence logic for every entity.
-
-
-== Queries
-
-Popular Study Buddies is a report that lists the most popular peer study groups.
-This requires a custom Cypher query.
-It is easy to supply a Cypher query to the `query` method available on the `Session`.
-
-[source, groovy]
-----
-class StudyBuddyServiceImpl extends GenericService<StudyBuddy> implements StudyBuddyService {
-
-    @Override
-    Iterable<StudyBuddy> findAll() {
-        return session.loadAll(StudyBuddy, 1)
-    }
-
-    @Override
-    Iterable<Map<String, Object>> getStudyBuddiesByPopularity() {
-        String query = "MATCH (s:StudyBuddy)<-[:BUDDY]-(p:Student) return p, count(s) as buddies ORDER BY buddies DESC"
-        return Neo4jSessionFactory.getInstance().getNeo4jSession().query(query, Collections.EMPTY_MAP)
-    }
-
-    @Override
-    Class<StudyBuddy> getEntityType() {
-        return StudyBuddy.class
+    Movie updateTagline(String title, String newTagline) {
+        Session session = sessionFactory.openSession();
+        Movie movie = session.queryForObject(Movie.class, "MATCH (m:Movie{title:$title}) return m", Map.of("title", title));
+        Movie updatedMovie = movie.withTagline(newTagline);
+        session.save(updatedMovie);
+        return updatedMovie;
     }
 }
 ----
 
-The `query` provided by the `Session` can return a domain object, a collection of them, or a special wrapped object called a `Result`.
+As you can see in the _updateTagline_ method, the `Session` gets opened right at the start to have the loading
+and persisting operation within the same instance.
 
+When the service fetches all `Movies`, the default load depth of _1_ gets applied to the operation.
+A higher value does not have any impact on our example because we are just loading `Movies` and their direct neighbours.
+The chapter on <<reference:session:loading-entities:load-depth, load depth>> gives you more insights of the default behaviour
+of relationship traversal.
 
+== Custom queries and mapping
 
+As you have already seen, we have used custom queries with `Session#query` to fetch a `Movie` by title.
+Sometimes you end up with data returning from your query that does not fit into one of the entities, you have defined previously.
 
+Let's say, we want to collect the average rating of a `Movie` joined with all reviewers.
+Sure we could do this also in the application itself but preparing data on the database side has not only the benefit of
+reducing the data over the wire, but also it's something the database can do much faster in most of the cases.
+
+[source, java]
+----
+public record MovieRating(String title, float rating, List<String> reviewers) {
+}
+----
+
+Adding another method to our service including the custom query results in:
+
+[source, java]
+----
+List<MovieRating> getRatings() {
+    Session session = sessionFactory.openSession();
+    List<MovieRating> ratings = session.queryDto(
+        "MATCH (m:Movie)<-[r:REVIEWED]-(p:Person) RETURN m.title as title, avg(r.rating) as rating, collect(p.name) as reviewers",
+        Map.of(),
+        MovieRating.class);
+    return ratings;
+}
+----

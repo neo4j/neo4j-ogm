@@ -44,7 +44,7 @@ public class BoltUserSelectionTest extends TestContainersTestBase {
     public static void setupSessionFactoryAndDatabase() throws Exception {
 
         try (var session = getNewBoltConnection().session()) {
-            session.run("CREATE USER anotherUser SET PASSWORD 'blubb'").consume();
+            session.run("CREATE USER anotherUser SET PASSWORD 'dumdidu8'").consume();
             Thread.sleep(500);
         }
 

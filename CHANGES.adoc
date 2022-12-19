@@ -12,6 +12,17 @@
 
 == 3.2
 
+=== 3.2.39
+
+* Allow for classes to be registered dynamically with `DomainInfo`.
+* Introduce simple DTO mapping.
+* Fix testing with local instance.
+* Check both index and classpath for known entities
+* Introduce equals/hashCode for Class/FieldInfo.
+* Make use of driver provider in test.
+* Add _this_ branch to GH workflow.
+* Allow dynamic user and database selection.
+
 === 3.2.38
 
 * Revert "Avoid unessary creation of builders."

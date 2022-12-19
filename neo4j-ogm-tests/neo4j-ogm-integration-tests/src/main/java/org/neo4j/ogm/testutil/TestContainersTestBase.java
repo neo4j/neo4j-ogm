@@ -104,6 +104,7 @@ public class TestContainersTestBase {
                     driver = new HttpDriver();
 
                     baseConfigurationBuilder = new Configuration.Builder()
+                        .credentials("neo4j", DEFAULT_PASSWORD)
                         .uri(neo4jServer.getHttpUrl());
 
                     driver.configure(baseConfigurationBuilder.build());

@@ -8,10 +8,8 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.driver.Driver;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.domain.dto.SomeDto;
-import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
@@ -22,17 +20,13 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 public class DtoMappingTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
-    private static Driver javaDriver;
 
     @BeforeClass
     public static void setupConnectionAndDatabase() {
         Configuration ogmConfiguration = getBaseConfigurationBuilder()
             .build();
 
-        BoltDriver boltOgmDriver = new BoltDriver();
-        boltOgmDriver.configure(ogmConfiguration);
-        sessionFactory = new SessionFactory(boltOgmDriver, "org.neo4j.ogm.domain.dto");
-        javaDriver = boltOgmDriver.unwrap(Driver.class);
+        sessionFactory = new SessionFactory(ogmConfiguration, "org.neo4j.ogm.domain.dto");
     }
 
     @Test
@@ -62,12 +56,14 @@ public class DtoMappingTest extends TestContainersTestBase {
 
     @Test
     public void shouldMapCollectionOfDto() {
-        try (org.neo4j.driver.Session session = javaDriver.session()) {
-            String dateValue = LocalDate.now().toString();
-            session.run("MATCH (n) detach delete n").consume();
-            session.run("CREATE (m:Object{value1:'Hello', value2:123, value3:$dateValue})", Collections.singletonMap("dateValue", dateValue)).consume();
-            session.run("CREATE (m:Object{value1:'Hello2', value2:1234, value3:$dateValue})", Collections.singletonMap("dateValue", dateValue)).consume();
-        }
+        Session preparingSession = sessionFactory.openSession();
+
+        String dateValue = LocalDate.now().toString();
+
+        preparingSession.query("MATCH (n) detach delete n", Collections.emptyMap()).queryStatistics();
+        preparingSession.query("CREATE (m:Object{value1:'Hello', value2:123, value3:$dateValue})", Collections.singletonMap("dateValue", dateValue)).queryStatistics();
+        preparingSession.query("CREATE (m:Object{value1:'Hello2', value2:1234, value3:$dateValue})", Collections.singletonMap("dateValue", dateValue)).queryStatistics();
+        preparingSession.clear();
 
         Session session = sessionFactory.openSession();
         Iterable<SomeDto> dtos = session.queryDto("MATCH (o:Object) return o.value1 as valueA, o.value2 as valueB, o.value3 as valueC", Collections.emptyMap(), SomeDto.class);

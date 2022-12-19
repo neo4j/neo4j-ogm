@@ -1,6 +1,5 @@
 package org.neo4j.ogm.domain.dto;
 
-import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.typeconversion.LocalDateStringConverter;
 

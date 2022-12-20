@@ -59,7 +59,6 @@ public class DtoMapper {
     private void writeProperty(ClassInfo classInfo, Object instance, String propertyName, Object value) {
 
         FieldInfo writer = classInfo.getFieldInfo(propertyName);
-        // merge iterable / arrays and co-erce to the correct attribute type
         if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
             Class<?> paramType = writer.type();
             Class<?> elementType = underlyingElementType(classInfo, propertyName);

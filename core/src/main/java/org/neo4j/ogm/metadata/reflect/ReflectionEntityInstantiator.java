@@ -22,6 +22,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import java.util.Set;
 
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.DescriptorMappings;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.EntityInstantiator;
@@ -83,6 +85,15 @@ public class ReflectionEntityInstantiator implements EntityInstantiator {
                 String parameterName = parameter.getName();
                 FieldInfo fieldInfo = classInfo.getFieldInfo(parameterName);
                 Object value = fieldInfo.convert(propertyValues.get(parameterName));
+                if (fieldInfo.type().isArray() || Iterable.class.isAssignableFrom(fieldInfo.type())) {
+                    Class<?> paramType = fieldInfo.type();
+                    Class elementType = underlyingElementType(classInfo, parameterName);
+                    if (paramType.isArray()) {
+                        value = EntityAccessManager.merge(paramType, value, new Object[] {}, elementType);
+                    } else {
+                        value = EntityAccessManager.merge(paramType, value, Collections.emptyList(), elementType);
+                    }
+                }
                 values[i] = value;
                 propertyValues.remove(parameterName);
             }
@@ -91,6 +102,23 @@ public class ReflectionEntityInstantiator implements EntityInstantiator {
         } catch (SecurityException | IllegalArgumentException | ReflectiveOperationException e) {
             throw new MappingException("Unable to find default constructor to instantiate " + clazz, e);
         }
+    }
+
+    private Class<?> underlyingElementType(ClassInfo classInfo, String propertyName) {
+        FieldInfo fieldInfo = fieldInfoForPropertyName(propertyName, classInfo);
+        Class<?> clazz = null;
+        if (fieldInfo != null) {
+            clazz = DescriptorMappings.getType(fieldInfo.getTypeDescriptor());
+        }
+        return clazz;
+    }
+
+    private FieldInfo fieldInfoForPropertyName(String propertyName, ClassInfo classInfo) {
+        FieldInfo labelField = classInfo.labelFieldOrNull();
+        if (labelField != null && labelField.getName().equalsIgnoreCase(propertyName)) {
+            return labelField;
+        }
+        return classInfo.propertyField(propertyName);
     }
 
     private <T> Constructor<T> determineConstructor(Class<T> clazz, Map<String, Object> propertyValue) {

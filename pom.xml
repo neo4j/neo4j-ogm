@@ -557,6 +557,8 @@
                         <include>**</include>
                     </includes>
                     <excludes>
+                        <exclude>.m2/**</exclude>
+                        <exclude>m2/**</exclude>
                         <exclude>**/*.adoc</exclude>
                         <exclude>**/*.conf</exclude>
                         <exclude>**/*.cql</exclude>

@@ -19,13 +19,9 @@
 package org.neo4j.ogm.context;
 
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.DescriptorMappings;
-import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.Neo4jSession;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -53,38 +49,7 @@ public class DtoMapper {
 
     private void setProperties(Map<String, Object> properties, Object instance) {
         ClassInfo classInfo = session.metaData().classInfo(instance);
-        properties.forEach((s, o) -> writeProperty(classInfo, instance, s, o));
+        properties.forEach((s, o) -> MappingSupport.writeProperty(classInfo, instance, s, o));
     }
 
-    private void writeProperty(ClassInfo classInfo, Object instance, String propertyName, Object value) {
-
-        FieldInfo writer = classInfo.getFieldInfo(propertyName);
-        if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-            Class<?> paramType = writer.type();
-            Class<?> elementType = underlyingElementType(classInfo, propertyName);
-            if (paramType.isArray()) {
-                value = EntityAccessManager.merge(paramType, value, new Object[] {}, elementType);
-            } else {
-                value = EntityAccessManager.merge(paramType, value, Collections.emptyList(), elementType);
-            }
-        }
-        writer.write(instance, value);
-    }
-
-    private Class<?> underlyingElementType(ClassInfo classInfo, String propertyName) {
-        FieldInfo fieldInfo = fieldInfoForPropertyName(propertyName, classInfo);
-        Class<?> clazz = null;
-        if (fieldInfo != null) {
-            clazz = DescriptorMappings.getType(fieldInfo.getTypeDescriptor());
-        }
-        return clazz;
-    }
-
-    private FieldInfo fieldInfoForPropertyName(String propertyName, ClassInfo classInfo) {
-        FieldInfo labelField = classInfo.labelFieldOrNull();
-        if (labelField != null && labelField.getName().equalsIgnoreCase(propertyName)) {
-            return labelField;
-        }
-        return classInfo.propertyField(propertyName);
-    }
 }

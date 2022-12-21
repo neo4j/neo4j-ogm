@@ -19,9 +19,10 @@
 package org.neo4j.ogm.domain.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @author Gerrit Meier
  */
-public record SomeDtoRecord(String valueA, Integer valueB, LocalDate valueC) {
+public record SomeDtoRecord(String valueA, Integer valueB, LocalDate valueC, List<String> valueD) {
 }

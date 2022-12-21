@@ -289,15 +289,7 @@ public class GraphEntityMapper {
         } else {
             Object value = property.getValue();
             // merge iterable / arrays and co-erce to the correct attribute type
-            if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-                Class<?> paramType = writer.type();
-                Class elementType = underlyingElementType(classInfo, property.getKey().toString());
-                if (paramType.isArray()) {
-                    value = EntityAccessManager.merge(paramType, value, new Object[] {}, elementType);
-                } else {
-                    value = EntityAccessManager.merge(paramType, value, Collections.emptyList(), elementType);
-                }
-            }
+            value = MappingSupport.convertValue(classInfo, property.getKey().toString(), value, writer);
             writer.write(instance, value);
         }
     }
@@ -665,22 +657,5 @@ public class GraphEntityMapper {
             }
         }
         return false;
-    }
-
-    private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
-        FieldInfo fieldInfo = fieldInfoForPropertyName(propertyName, classInfo);
-        Class clazz = null;
-        if (fieldInfo != null) {
-            clazz = DescriptorMappings.getType(fieldInfo.getTypeDescriptor());
-        }
-        return clazz;
-    }
-
-    private FieldInfo fieldInfoForPropertyName(String propertyName, ClassInfo classInfo) {
-        FieldInfo labelField = classInfo.labelFieldOrNull();
-        if (labelField != null && labelField.getName().toLowerCase().equals(propertyName.toLowerCase())) {
-            return labelField;
-        }
-        return classInfo.propertyField(propertyName);
     }
 }

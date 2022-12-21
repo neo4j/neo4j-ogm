@@ -103,7 +103,7 @@ public class DtoMappingTest extends TestContainersTestBase {
     public void shouldMapRecord() {
 
         Session session = sessionFactory.openSession();
-        List<SomeDtoRecord> dtos = session.queryDto("RETURN 'Hello' as valueA, 123 as valueB, date() as valueC", Map.of(), SomeDtoRecord.class);
+        List<SomeDtoRecord> dtos = session.queryDto("RETURN 'Hello' as valueA, 123 as valueB, date() as valueC, ['a','b','c'] as valueD", Map.of(), SomeDtoRecord.class);
 
         assertThat(dtos).hasSize(1);
         SomeDtoRecord dto = dtos.get(0);

@@ -39,12 +39,12 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-core</artifactId>
-            <version>4.0.1-SNAPSHOT</version>
+            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-bolt-driver</artifactId>
-            <version>4.0.1-SNAPSHOT</version>
+            <version>4.0.1</version>
         </dependency>
     </dependencies>
 

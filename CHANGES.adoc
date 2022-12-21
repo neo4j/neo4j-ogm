@@ -2,6 +2,15 @@
 
 == 4.0
 
+=== 4.0.1
+
+* Fix support for collections in constructor mapping.
+* Allow for classes to be registered dynamically with `DomainInfo`.
+* Check both index and classpath for known entities.
+* Introduce equals/hashCode for Class/FieldInfo.
+* [dependencies] Upgrade to Neo4j Java Driver 5.3.1.
+* [documentation] Update Neo4j-OGM tutorial..
+
 === 4.0.0
 
 * Remove Auto Index Manager
@@ -262,7 +271,7 @@ Thanks to our reporters and contributors @emptyfruit, @aslakagens and @TWiStErRo
 
 === 3.2.8
 
-* Add explicit support for AttributeConverter used in Spring Data 
+* Add explicit support for AttributeConverter used in Spring Data
   `@QueryResult`-classes in SingleEntityMapper. (#752)
 
 === 3.2.7

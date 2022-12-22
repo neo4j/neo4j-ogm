@@ -12,7 +12,7 @@ Even though Neo4j-OGM 4+ only provides support for connections via Bolt,
 the explicit dependency definition is needed.
 
 .Maven dependency for Neo4j-OGM
-[source,xml]
+[source,xml,subs="attributes+"]
 ----
 <dependencies>
     <dependency>

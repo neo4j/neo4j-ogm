@@ -21,8 +21,8 @@ package org.neo4j.ogm.metadata.schema;
 import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.annotation.Relationship.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Frantisek Hartman
@@ -36,7 +36,7 @@ public class RelationshipImplTest {
     private Relationship incoming;
     private Relationship undirected;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         start = new NodeImpl("Person");
         end = new NodeImpl("Person");
@@ -47,28 +47,28 @@ public class RelationshipImplTest {
     }
 
     @Test
-    public void givenUndirectedRelationship_whenDirection_thenReturnUndirected() {
+    void givenUndirectedRelationship_whenDirection_thenReturnUndirected() {
         assertThat(undirected.direction(start)).isEqualTo(Direction.UNDIRECTED);
         assertThat(undirected.direction(end)).isEqualTo(Direction.UNDIRECTED);
     }
 
     @Test
-    public void givenOutgoingRelationship_whenDirectionStart_thenReturnOutgoing() {
+    void givenOutgoingRelationship_whenDirectionStart_thenReturnOutgoing() {
         assertThat(outgoing.direction(start)).isEqualTo(Direction.OUTGOING);
     }
 
     @Test
-    public void givenOutgoingRelationship_whenDirectionEnd_thenReturnIncoming() {
+    void givenOutgoingRelationship_whenDirectionEnd_thenReturnIncoming() {
         assertThat(outgoing.direction(end)).isEqualTo(Direction.INCOMING);
     }
 
     @Test
-    public void givenIncomingRelationship_whenDirectionStart_thenReturnIncoming() {
+    void givenIncomingRelationship_whenDirectionStart_thenReturnIncoming() {
         assertThat(incoming.direction(start)).isEqualTo(Direction.INCOMING);
     }
 
     @Test
-    public void givenIncomingRelationship_whenDirectionEnd_thenReturnOutgoing() {
+    void givenIncomingRelationship_whenDirectionEnd_thenReturnOutgoing() {
         assertThat(incoming.direction(end)).isEqualTo(Direction.OUTGOING);
     }
 }

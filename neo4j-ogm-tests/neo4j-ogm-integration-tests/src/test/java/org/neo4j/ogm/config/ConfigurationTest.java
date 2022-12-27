@@ -19,11 +19,12 @@
 package org.neo4j.ogm.config;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Vince Bickers
@@ -33,7 +34,7 @@ import org.junit.Test;
 public class ConfigurationTest {
 
     @Test
-    public void shouldConfigureProgrammatically() {
+    void shouldConfigureProgrammatically() {
         Configuration.Builder builder = new Configuration.Builder();
 
         builder.autoIndex("assert");
@@ -63,7 +64,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldConfigureCredentialsFromURI() {
+    void shouldConfigureCredentialsFromURI() {
         Configuration configuration = new Configuration.Builder().uri("http://fred:flintstone@localhost:8080").build();
         // base 64 encoded credentials, e.g. use echo fred:flintstone | base64
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("ZnJlZDpmbGludHN0b25l");
@@ -71,7 +72,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldConfigureDatabase() {
+    void shouldConfigureDatabase() {
         Configuration configuration;
 
         configuration = new Configuration.Builder().database(null).build();
@@ -88,7 +89,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldConfigureCredentialsFromURIWithUTF8Characters() {
+    void shouldConfigureCredentialsFromURIWithUTF8Characters() {
         Configuration configuration = new Configuration.Builder()
             .uri("http://franti\u0161ek:Pass123@localhost:8080")
             .build();
@@ -96,14 +97,15 @@ public class ConfigurationTest {
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("ZnJhbnRpxaFlazpQYXNzMTIz");
     }
 
-    @Test(expected = RuntimeException.class)
-    public void uriWithNoScheme() {
-        Configuration configuration = new Configuration.Builder().uri("target/noe4j/my.db").build();
-        fail("Should have thrown a runtime exception about a missing URI Scheme");
+    @Test
+    void uriWithNoScheme() {
+        assertThrows(RuntimeException.class, () -> {
+            new Configuration.Builder().uri("target/noe4j/my.db").build();
+        });
     }
 
     @Test
-    public void shouldSetUsernameAndPasswordCredentialsForBoltProtocol() {
+    void shouldSetUsernameAndPasswordCredentialsForBoltProtocol() {
         String username = "neo4j";
         String password = "password";
         Configuration dbConfig = new Configuration.Builder().uri("bolt://" + username + ":" + password + "@localhost")
@@ -116,7 +118,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldParseBoltUriSchemesCaseInsensitive() {
+    void shouldParseBoltUriSchemesCaseInsensitive() {
         Configuration configuration = new Configuration.Builder()
             .uri("BOLT://localhost")
             .build();
@@ -133,7 +135,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldParseHttpUriSchemesCaseInsensitive() {
+    void shouldParseHttpUriSchemesCaseInsensitive() {
         Configuration configuration = new Configuration.Builder()
             .uri("HTTP://localhost")
             .build();
@@ -150,7 +152,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldParseEmbeddedUriSchemeCaseInsensitive() {
+    void shouldParseEmbeddedUriSchemeCaseInsensitive() {
         Configuration configuration = new Configuration.Builder()
             .uri("FILE:///somewhere")
             .build();
@@ -161,7 +163,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldDetectSimpleBoltSchemes() {
+    void shouldDetectSimpleBoltSchemes() {
 
         for (String aSimpleScheme : Arrays.asList("bolt", "Bolt", "neo4j", "Neo4J")) {
             String uri = String.format("%s://localhost:7687", aSimpleScheme);
@@ -175,7 +177,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldDetectAdvancedBoltSchemes() {
+    void shouldDetectAdvancedBoltSchemes() {
 
         for (String anAdvancedScheme : Arrays.asList("bolt+s", "Bolt+ssc", "neo4j+s", "Neo4J+ssc")) {
             String uri = String.format("%s://localhost:7687", anAdvancedScheme);
@@ -189,7 +191,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldFailEarlyOnInvalidSchemes() {
+    void shouldFailEarlyOnInvalidSchemes() {
 
         for (String invalidScheme : Arrays.asList("bolt+x", "neo4j+wth")) {
             String uri = String.format("%s://localhost:7687", invalidScheme);
@@ -204,7 +206,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldParseBaseBackagesWithEmtpyValue() {
+    void shouldParseBaseBackagesWithEmtpyValue() {
         Properties properties = new Properties();
         properties.setProperty("base-packages", "");
 
@@ -215,7 +217,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldParseBaseBackages() {
+    void shouldParseBaseBackages() {
         Properties properties = new Properties();
         properties.setProperty("base-packages", "a  ,b,c ");
 
@@ -226,7 +228,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void mergeBasePackagesShouldWorkWithNullBase() {
+    void mergeBasePackagesShouldWorkWithNullBase() {
         Configuration configuration = new Configuration.Builder().build();
 
         String[] basePackages = configuration.mergeBasePackagesWith("a", "b");
@@ -234,7 +236,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void mergeBasePackagesShouldWorkWithEmptyAdditionalPackages() {
+    void mergeBasePackagesShouldWorkWithEmptyAdditionalPackages() {
         Configuration configuration = new Configuration.Builder()
             .withBasePackages("a", "b")
             .build();
@@ -244,7 +246,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void mergeBasePackagesShouldWorkDealWithNulls() {
+    void mergeBasePackagesShouldWorkDealWithNulls() {
         Configuration configuration = new Configuration.Builder()
             .withBasePackages("a", null, "b")
             .build();
@@ -254,7 +256,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void mergeBasePackagesShouldRemoveDups() {
+    void mergeBasePackagesShouldRemoveDups() {
         Configuration configuration = new Configuration.Builder()
             .withBasePackages("a", "b")
             .build();
@@ -264,21 +266,21 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldDefaultToStrictQuerying() {
+    void shouldDefaultToStrictQuerying() {
         Configuration.Builder builder = new Configuration.Builder();
         Configuration configuration = builder.build();
         assertThat(configuration.getUseStrictQuerying()).isTrue();
     }
 
     @Test
-    public void changingQueryingModeShouldWork() {
+    void changingQueryingModeShouldWork() {
         Configuration.Builder builder = new Configuration.Builder();
         Configuration configuration = builder.relaxedQuerying().build();
         assertThat(configuration.getUseStrictQuerying()).isFalse();
     }
 
     @Test
-    public void shouldParseQUeryingMode() {
+    void shouldParseQUeryingMode() {
 
         Configuration configuration;
 

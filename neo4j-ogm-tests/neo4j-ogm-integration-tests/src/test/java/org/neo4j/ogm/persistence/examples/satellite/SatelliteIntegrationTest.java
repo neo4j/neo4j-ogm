@@ -26,10 +26,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.SortOrder;
@@ -51,23 +51,23 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.satellites");
         Session initialSession = sessionFactory.openSession();
         initialSession.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/satellites.cql").toString(), Collections.emptyMap());
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
     }
 
     @Test
-    @Ignore(
+    @Disabled(
         "ignored after asymmetric querying, relationship Program - Satellite is inconsistent, test data satellites.cql" +
             "contains something that would not be possible to create with OGM with current model")
-    public void shouldLoadPrograms() {
+    void shouldLoadPrograms() {
 
         Collection<Program> programs = session.loadAll(Program.class);
 
@@ -85,7 +85,7 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadSatellites() {
+    void shouldLoadSatellites() {
 
         Collection<Satellite> satellites = session.loadAll(Satellite.class);
         if (!satellites.isEmpty()) {
@@ -100,7 +100,7 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldUpdateSatellite() {
+    void shouldUpdateSatellite() {
 
         Collection<Satellite> satellites = session.loadAll(Satellite.class);
 
@@ -124,7 +124,7 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldUseLongTransaction() {
+    void shouldUseLongTransaction() {
 
         try (Transaction tx = session.beginTransaction()) {
 
@@ -146,7 +146,7 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldRollbackLongTransaction() {
+    void shouldRollbackLongTransaction() {
 
         Long id;
         String name;
@@ -182,7 +182,7 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldRollbackClosedAndUnCommittedTransaction() {
+    void shouldRollbackClosedAndUnCommittedTransaction() {
 
         Long id;
         String name;
@@ -215,7 +215,7 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldCommitLongTransaction() {
+    void shouldCommitLongTransaction() {
 
         Long id;
 
@@ -249,7 +249,7 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReturnSatellitesSortedByRefAsc() {
+    void shouldReturnSatellitesSortedByRefAsc() {
 
         Collection<Satellite> satellites = session.loadAll(Satellite.class, new SortOrder().add("ref"));
 
@@ -263,7 +263,7 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReturnProgramsSortedByRefDesc() {
+    void shouldReturnProgramsSortedByRefDesc() {
 
         Collection<Program> objects = session
             .loadAll(Program.class, new SortOrder().add(SortOrder.Direction.DESC, "ref"));
@@ -278,7 +278,7 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadActiveSatellitesByPropertySorted() {
+    void shouldLoadActiveSatellitesByPropertySorted() {
 
         Collection<Satellite> satellites = session
             .loadAll(Satellite.class, new Filter("manned", ComparisonOperator.EQUALS, "Y"), new SortOrder().add("ref"));

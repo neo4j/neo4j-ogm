@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
 import org.neo4j.ogm.domain.cineasts.minimum.Role;
@@ -49,19 +49,19 @@ public class RelationshipEntityPartialMappingTest extends TestContainersTestBase
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetup() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.minimum");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void testCreateActorRoleAndMovie() {
+    void testCreateActorRoleAndMovie() {
 
         Actor keanu = new Actor("Keanu Reeves");
         Movie matrix = new Movie("The Matrix");
@@ -73,11 +73,12 @@ public class RelationshipEntityPartialMappingTest extends TestContainersTestBase
 
         session.clear();
         assertThat(session.query("MATCH (a:Actor {name:'Keanu Reeves'}) -[:ACTS_IN {played:'Neo'}]-> (m:Movie {name:'The Matrix'}) " +
-                "RETURN a, m", emptyMap()).queryResults()).hasSize(1);
+            "RETURN a, m", emptyMap()).queryResults()).hasSize(1);
     }
 
-    @Test // GH-727
-    public void shouldNotDropUnmappedRelationshipModels() {
+    // GH-727
+    @Test
+    void shouldNotDropUnmappedRelationshipModels() {
         Session session = sessionFactory.openSession();
         Actor actor = new Actor("A1");
         Movie movie = new Movie("M1");
@@ -95,8 +96,9 @@ public class RelationshipEntityPartialMappingTest extends TestContainersTestBase
         assertThat(row.get("r")).isNotNull().isInstanceOf(RelationshipModel.class);
     }
 
-    @Test // GH-727
-    public void shouldMapSingleRelationshipModel() {
+    // GH-727
+    @Test
+    void shouldMapSingleRelationshipModel() {
         Session session = sessionFactory.openSession();
         Actor actor = new Actor("A1");
         Movie movie = new Movie("M1");

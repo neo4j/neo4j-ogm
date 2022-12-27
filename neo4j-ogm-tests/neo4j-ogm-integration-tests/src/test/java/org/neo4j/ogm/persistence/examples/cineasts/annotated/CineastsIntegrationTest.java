@@ -29,10 +29,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -65,12 +65,12 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
         importCineasts();
@@ -80,13 +80,13 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
         session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Collections.emptyMap());
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         session.purgeDatabase();
     }
 
     @Test
-    public void loadRatingsAndCommentsAboutMovies() {
+    void loadRatingsAndCommentsAboutMovies() {
         Collection<Movie> movies = session.loadAll(Movie.class);
 
         assertThat(movies).hasSize(3);
@@ -104,7 +104,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadParticularUserRatingsAndComments() {
+    void loadParticularUserRatingsAndComments() {
         Collection<User> filmCritics = session
             .loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "Michal"));
         assertThat(filmCritics).hasSize(1);
@@ -121,7 +121,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadRatingsForSpecificFilm() {
+    void loadRatingsForSpecificFilm() {
         Collection<Movie> films = session
             .loadAll(Movie.class, new Filter("title", ComparisonOperator.EQUALS, "Top Gear"));
         assertThat(films).hasSize(1);
@@ -137,7 +137,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadFilmByRatingUsersPet() {
+    void loadFilmByRatingUsersPet() {
         // Pulp Fiction and Top Gear rated by Michal who owns Catty
 
         Filter filter = new Filter("name", ComparisonOperator.EQUALS, "Catty");
@@ -155,7 +155,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadFilmByRating() {
+    void loadFilmByRating() {
         Filter filter = new Filter("stars", ComparisonOperator.EQUALS, 5);
 
         filter.setOwnerEntityType(Movie.class);
@@ -168,7 +168,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadFilmByRatingUserPlays() {
+    void loadFilmByRatingUserPlays() {
         Filter filter = new Filter("level", ComparisonOperator.EQUALS, "ok");
         filter.setOwnerEntityType(Movie.class);
 
@@ -183,7 +183,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadFilmByUserAndRatingUserPlays() {
+    void loadFilmByUserAndRatingUserPlays() {
         Filter userFilter = new Filter("name", ComparisonOperator.EQUALS, "Michal");
 
         userFilter.setNestedPath(
@@ -208,7 +208,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadRatingByUserName() {
+    void loadRatingByUserName() {
         Filter userNameFilter = new Filter("name", ComparisonOperator.EQUALS, "Michal");
 
         Filter ratingFilter = new Filter("stars", ComparisonOperator.EQUALS, 5);
@@ -222,7 +222,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadRatingByUserNameAndStars() {
+    void loadRatingByUserNameAndStars() {
         Filter userNameFilter = new Filter("name", ComparisonOperator.EQUALS, "Michal");
 
         userNameFilter.setNestedPath(
@@ -235,12 +235,12 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void saveAndRetrieveUserWithSecurityRoles() {
+    void saveAndRetrieveUserWithSecurityRoles() {
         User user = new User();
         user.setLogin("daniela");
         user.setName("Daniela");
         user.setPassword("daniela");
-        user.setSecurityRoles(new SecurityRole[] { SecurityRole.USER });
+        user.setSecurityRoles(new SecurityRole[]{SecurityRole.USER});
         session.save(user);
 
         User daniela = session.load(User.class, "daniela");
@@ -251,7 +251,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void saveAndRetrieveUserWithTitles() {
+    void saveAndRetrieveUserWithTitles() {
         User user = new User();
         user.setLogin("vince");
         user.setName("Vince");
@@ -266,8 +266,9 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
         assertThat(vince.getTitles().get(0)).isEqualTo(Title.MR);
     }
 
-    @Test // DATAGRAPH-614
-    public void saveAndRetrieveUserWithDifferentCharset() {
+    // DATAGRAPH-614
+    @Test
+    void saveAndRetrieveUserWithDifferentCharset() {
         User user = new User();
         user.setLogin("aki");
         user.setName("Aki Kaurism\u00E4ki");
@@ -283,7 +284,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldQueryForSpecificActorUsingBespokeParameterisedCypherQuery() {
+    void shouldQueryForSpecificActorUsingBespokeParameterisedCypherQuery() {
         session.save(new Actor("Alec Baldwin"));
         session.save(new Actor("Helen Mirren"));
         session.save(new Actor("Matt Damon"));
@@ -295,7 +296,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldQueryForCollectionOfActorsUsingBespokeCypherQuery() {
+    void shouldQueryForCollectionOfActorsUsingBespokeCypherQuery() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
@@ -308,7 +309,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldQueryForActorByIdUsingBespokeParameterisedCypherQuery() {
+    void shouldQueryForActorByIdUsingBespokeParameterisedCypherQuery() {
         session.save(new Actor("Keanu Reeves"));
         Actor carrie = new Actor("Carrie-Ann Moss");
         session.save(carrie);
@@ -320,8 +321,9 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
         assertThat(loadedActor.getName()).isEqualTo("Carrie-Ann Moss");
     }
 
-    @Test // GH-125
-    public void shouldModifyStringArraysCorrectly() throws MalformedURLException {
+    // GH-125
+    @Test
+    void shouldModifyStringArraysCorrectly() throws MalformedURLException {
         User user = new User("joker", "Joker", "password");
         URL[] urls = new URL[3];
         urls[0] = new URL("http://www.apple.com");
@@ -352,8 +354,9 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
         assertThat(user.getNicknames()[1]).isEqualTo("robin");
     }
 
-    @Test // GH-128
-    public void shouldBeAbleToSetNodePropertiesToNull() throws MalformedURLException {
+    // GH-128
+    @Test
+    void shouldBeAbleToSetNodePropertiesToNull() throws MalformedURLException {
         Movie movie = new Movie("Zootopia", 2016);
         movie.setImdbUrl(new URL("http://www.imdb.com/title/tt2948356/"));
         session.save(movie);
@@ -373,7 +376,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void nestedFilteringMustThrowExceptionWithOrInThePipeline() {
+    void nestedFilteringMustThrowExceptionWithOrInThePipeline() {
         // rated by the user who doesn't own Catty or by the user who owns Catty
         Filter filterA = new Filter("name", ComparisonOperator.EQUALS, "Catty");
         filterA.setNestedPath(
@@ -388,7 +391,8 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
 
             private Filter theFilter;
 
-            @Override public Object getValue() {
+            @Override
+            public Object getValue() {
                 return null;
             }
 
@@ -422,7 +426,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void nestedFilteringCanBeTheOneAndOnlyOredFilter() {
+    void nestedFilteringCanBeTheOneAndOnlyOredFilter() {
         Filter filterB = new Filter("name", ComparisonOperator.EQUALS, "Catty");
         filterB.setNestedPath(
             new Filter.NestedPathSegment("ratings", Rating.class),
@@ -436,7 +440,7 @@ public class CineastsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void nestedFilteringMustThrowExceptionWithOrInThePipelineForRelationshipEntities() {
+    void nestedFilteringMustThrowExceptionWithOrInThePipelineForRelationshipEntities() {
         Filter userNameFilter = new Filter("name", ComparisonOperator.EQUALS, "Michal");
         userNameFilter.setBooleanOperator(BooleanOperator.OR);
 

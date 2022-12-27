@@ -18,7 +18,10 @@
  */
 package org.neo4j.ogm.persistence.types.properties;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.properties.UserWithInvalidPropertiesType;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.SessionFactory;
@@ -32,11 +35,13 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
  */
 public class InvalidPropertiesTest extends TestContainersTestBase {
 
-    @Test(expected = MappingException.class)
-    public void shouldThrowInvalidMappingException() {
-        new SessionFactory(getDriver(),
-            UserWithInvalidPropertiesType.class.getName())
-            .openSession();
+    @Test
+    void shouldThrowInvalidMappingException() {
+        assertThrows(MappingException.class, () -> {
+            new SessionFactory(getDriver(),
+                UserWithInvalidPropertiesType.class.getName())
+                .openSession();
+        });
     }
 
 }

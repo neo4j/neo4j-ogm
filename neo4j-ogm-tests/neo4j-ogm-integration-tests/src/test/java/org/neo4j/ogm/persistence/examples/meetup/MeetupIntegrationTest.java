@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.meetup.Meetup;
 import org.neo4j.ogm.domain.meetup.Person;
 import org.neo4j.ogm.session.Session;
@@ -39,18 +39,19 @@ public class MeetupIntegrationTest extends TestContainersTestBase {
 
     private static Session session;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.meetup").openSession();
     }
 
-    @After
+    @AfterEach
     public void clear() {
         session.purgeDatabase();
     }
 
-    @Test // GH-276
-    public void shouldLoadRelatedPersonsCorrectly() {
+    // GH-276
+    @Test
+    void shouldLoadRelatedPersonsCorrectly() {
         Meetup meetup = new Meetup("Neo4j UAE");
         Person michal = new Person("Michal");
         Person luanne = new Person("Luanne");

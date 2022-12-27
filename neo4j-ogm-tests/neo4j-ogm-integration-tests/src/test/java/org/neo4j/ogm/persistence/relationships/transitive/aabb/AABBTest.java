@@ -23,11 +23,11 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -50,18 +50,18 @@ public class AABBTest extends TestContainersTestBase {
     private B b1, b2, b3;
     private R r1, r2, r3, r4, r5, r6;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetup() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships.transitive.aabb");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         setUpEntityModel();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
     }
@@ -96,7 +96,7 @@ public class AABBTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindBFromA() {
+    void shouldFindBFromA() {
 
         // because the graph is fully connected, we should be able to save any object to fully populate the graph
         session.save(b1);
@@ -111,7 +111,7 @@ public class AABBTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindAFromB() {
+    void shouldFindAFromB() {
 
         // because the graph is fully connected, we should be able to save any object to fully populate the graph
         session.save(a1);
@@ -129,15 +129,15 @@ public class AABBTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReflectRemovalA() {
+    void shouldReflectRemovalA() {
 
         // because the graph is fully connected, we should be able to save any object to fully populate the graph
         session.save(a1);
 
         // it is programmer's responsibility to keep the domain entities synchronized
         b2.r = null;
-        a1.r = new R[] { r1 };
-        a3.r = new R[] { r6 };
+        a1.r = new R[]{r1};
+        a3.r = new R[]{r6};
 
         session.save(b2);
 
@@ -159,15 +159,15 @@ public class AABBTest extends TestContainersTestBase {
     }
 
     @Test
-    @Ignore
-    public void shouldHandleAddNewRelationshipBetweenASingleABPair() {
+    @Disabled
+    void shouldHandleAddNewRelationshipBetweenASingleABPair() {
         // fully connected, will persist everything
         session.save(a1);
 
         R r7 = new R(a1, b1);
 
-        a1.r = new R[] { r2, r7 };
-        b1.r = new R[] { r3, r7 };
+        a1.r = new R[]{r2, r7};
+        b1.r = new R[]{r3, r7};
 
         session.save(a1);
 
@@ -181,7 +181,7 @@ public class AABBTest extends TestContainersTestBase {
      * @see DATAGRAPH-611
      */
     @Test
-    public void shouldSaveRelationsForA1InTheCorrectDirection() {
+    void shouldSaveRelationsForA1InTheCorrectDirection() {
         session.save(a1);
 
         session.clear();
@@ -194,7 +194,7 @@ public class AABBTest extends TestContainersTestBase {
      * @see DATAGRAPH-611
      */
     @Test
-    public void shouldSaveRelationsForA2TheCorrectDirection() {
+    void shouldSaveRelationsForA2TheCorrectDirection() {
         session.save(a2);
 
         session.clear();
@@ -207,7 +207,7 @@ public class AABBTest extends TestContainersTestBase {
      * @see DATAGRAPH-611
      */
     @Test
-    public void shouldSaveRelationsForA3TheCorrectDirection() {
+    void shouldSaveRelationsForA3TheCorrectDirection() {
         session.save(a3);
 
         session.clear();
@@ -220,7 +220,7 @@ public class AABBTest extends TestContainersTestBase {
      * @see DATAGRAPH-611
      */
     @Test
-    public void shouldSaveRelationsForB1TheCorrectDirection() {
+    void shouldSaveRelationsForB1TheCorrectDirection() {
         session.save(b1);
 
         session.clear();
@@ -233,7 +233,7 @@ public class AABBTest extends TestContainersTestBase {
      * @see DATAGRAPH-611
      */
     @Test
-    public void shouldSaveRelationsForB2TheCorrectDirection() {
+    void shouldSaveRelationsForB2TheCorrectDirection() {
         session.save(b2);
 
         session.clear();
@@ -246,7 +246,7 @@ public class AABBTest extends TestContainersTestBase {
      * @see DATAGRAPH-611
      */
     @Test
-    public void shouldSaveRelationsForB3TheCorrectDirection() {
+    void shouldSaveRelationsForB3TheCorrectDirection() {
         session.save(b3);
 
         session.clear();
@@ -259,15 +259,15 @@ public class AABBTest extends TestContainersTestBase {
      * @see DATAGRAPH-714
      */
     @Test
-    public void shouldBeAbleToUpdateRBySavingA() {
+    void shouldBeAbleToUpdateRBySavingA() {
         A a1 = new A();
         B b3 = new B();
         R r3 = new R();
         r3.a = a1;
         r3.b = b3;
         r3.number = 1;
-        a1.r = new R[] { r3 };
-        b3.r = new R[] { r3 };
+        a1.r = new R[]{r3};
+        b3.r = new R[]{r3};
 
         session.save(a1);
         r3.number = 2;
@@ -282,15 +282,15 @@ public class AABBTest extends TestContainersTestBase {
      * @see DATAGRAPH-714
      */
     @Test
-    public void shouldBeAbleToUpdateRBySavingB() {
+    void shouldBeAbleToUpdateRBySavingB() {
         A a1 = new A();
         B b3 = new B();
         R r3 = new R();
         r3.a = a1;
         r3.b = b3;
         r3.number = 1;
-        a1.r = new R[] { r3 };
-        b3.r = new R[] { r3 };
+        a1.r = new R[]{r3};
+        b3.r = new R[]{r3};
 
         session.save(a1);
         r3.number = 2;
@@ -305,15 +305,15 @@ public class AABBTest extends TestContainersTestBase {
      * @see DATAGRAPH-714
      */
     @Test
-    public void shouldBeAbleToUpdateRBySavingR() {
+    void shouldBeAbleToUpdateRBySavingR() {
         A a1 = new A();
         B b3 = new B();
         R r3 = new R();
         r3.a = a1;
         r3.b = b3;
         r3.number = 1;
-        a1.r = new R[] { r3 };
-        b3.r = new R[] { r3 };
+        a1.r = new R[]{r3};
+        b3.r = new R[]{r3};
 
         session.save(a1);
         r3.number = 2;

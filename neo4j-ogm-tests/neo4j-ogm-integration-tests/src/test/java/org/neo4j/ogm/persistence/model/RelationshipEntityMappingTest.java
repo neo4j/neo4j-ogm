@@ -27,9 +27,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.canonical.hierarchies.A;
 import org.neo4j.ogm.domain.canonical.hierarchies.B;
 import org.neo4j.ogm.domain.canonical.hierarchies.CR;
@@ -51,20 +51,20 @@ public class RelationshipEntityMappingTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.annotated",
             "org.neo4j.ogm.domain.canonical.hierarchies");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void testThatAnnotatedRelationshipOnRelationshipEntityCreatesTheCorrectRelationshipTypeInTheGraph() {
+    void testThatAnnotatedRelationshipOnRelationshipEntityCreatesTheCorrectRelationshipTypeInTheGraph() {
         Movie hp = new Movie("Goblet of Fire", 2005);
 
         Actor daniel = new Actor("Daniel Radcliffe");
@@ -73,14 +73,14 @@ public class RelationshipEntityMappingTest extends TestContainersTestBase {
 
         session.clear();
         assertThat(session.query("MATCH (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) <-[:ACTS_IN {role:'Harry Potter'}]- "
-                + "(a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) "
-                + " WHERE m.title = 'Goblet of Fire' and m.year = 2005 and a.name='Daniel Radcliffe' "
-                + " return m, a",
+            + "(a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) "
+            + " WHERE m.title = 'Goblet of Fire' and m.year = 2005 and a.name='Daniel Radcliffe' "
+            + " return m, a",
             emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
-    public void testThatRelationshipEntityNameIsUsedAsRelationshipTypeWhenTypeIsNotDefined() {
+    void testThatRelationshipEntityNameIsUsedAsRelationshipTypeWhenTypeIsNotDefined() {
         Movie hp = new Movie("Goblet of Fire", 2005);
 
         Actor daniel = new Actor("Daniel Radcliffe");
@@ -89,14 +89,14 @@ public class RelationshipEntityMappingTest extends TestContainersTestBase {
 
         session.clear();
         assertThat(session.query("MATCH (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) <-[:NOMINATIONS {name:'Saturn Award', year:2005}]- "
-                + "(a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) "
-                + " WHERE m.title = 'Goblet of Fire' and m.year = 2005 and a.name='Daniel Radcliffe'"
-                + " RETURN m, a",
+            + "(a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) "
+            + " WHERE m.title = 'Goblet of Fire' and m.year = 2005 and a.name='Daniel Radcliffe'"
+            + " RETURN m, a",
             emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
-    public void shouldUseCorrectTypeFromHierarchyOfRelationshipEntities() {
+    void shouldUseCorrectTypeFromHierarchyOfRelationshipEntities() {
 
         A a = new A();
         B b = new B();
@@ -114,7 +114,7 @@ public class RelationshipEntityMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToSaveAndLoadRelationshipEntityWithNullProperties() {
+    void shouldBeAbleToSaveAndLoadRelationshipEntityWithNullProperties() {
         Actor keanu = new Actor("Keanu Reeves");
 
         Movie matrix = new Movie("The Matrix", 1999);

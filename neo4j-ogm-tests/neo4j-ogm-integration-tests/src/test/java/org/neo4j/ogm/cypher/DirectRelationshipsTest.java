@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
 import org.neo4j.ogm.context.MappedRelationship;
@@ -52,24 +52,24 @@ public class DirectRelationshipsTest {
     private static MappingContext mappingContext;
     private EntityMapper mapper;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpTestDatabase() {
         mappingMetadata = new MetaData("org.neo4j.ogm.domain.filesystem");
         mappingContext = new MappingContext(mappingMetadata);
     }
 
-    @Before
+    @BeforeEach
     public void setUpMapper() {
         this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
     }
 
-    @After
+    @AfterEach
     public void tidyUp() {
         mappingContext.clear();
     }
 
     @Test
-    public void shouldSaveNewFolderDocumentPair() {
+    void shouldSaveNewFolderDocumentPair() {
 
         Folder folder = new Folder();
         Document document = new Document();
@@ -112,7 +112,7 @@ public class DirectRelationshipsTest {
     }
 
     @Test
-    public void shouldSaveNewFolderWithTwoDocuments() {
+    void shouldSaveNewFolderWithTwoDocuments() {
 
         Folder folder = new Folder();
         Document doc1 = new Document();
@@ -219,7 +219,7 @@ public class DirectRelationshipsTest {
     }
 
     @Test
-    public void shouldNotBeAbleToCreateDuplicateRelationship() {
+    void shouldNotBeAbleToCreateDuplicateRelationship() {
 
         Folder folder = new Folder();
         Document document = new Document();
@@ -289,7 +289,7 @@ public class DirectRelationshipsTest {
     }
 
     @Test
-    public void shouldBeAbleToCreateDifferentRelationshipsToTheSameDocument() {
+    void shouldBeAbleToCreateDifferentRelationshipsToTheSameDocument() {
 
         Folder folder = new Folder();
         Document document = new Document();
@@ -377,7 +377,7 @@ public class DirectRelationshipsTest {
     }
 
     @Test
-    public void shouldBeAbleToRemoveTheOnlyRegisteredRelationship() {
+    void shouldBeAbleToRemoveTheOnlyRegisteredRelationship() {
 
         Folder folder = new Folder();
         Document document = new Document();
@@ -419,7 +419,7 @@ public class DirectRelationshipsTest {
     }
 
     @Test
-    public void shouldBeAbleToRemoveAnyRegisteredRelationship() {
+    void shouldBeAbleToRemoveAnyRegisteredRelationship() {
 
         // given
         Folder folder = new Folder();
@@ -484,7 +484,7 @@ public class DirectRelationshipsTest {
     }
 
     @Test
-    public void shouldBeAbleToRemoveContainedRelationshipOnly() {
+    void shouldBeAbleToRemoveContainedRelationshipOnly() {
 
         // given
         Folder folder = new Folder();

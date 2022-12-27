@@ -18,7 +18,10 @@
  */
 package org.neo4j.ogm.persistence.examples.locking;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.lockinginvalid.MultipleVersionFields;
 import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.session.Session;
@@ -30,12 +33,14 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
  */
 public class InvalidOptimisticLockingTest extends TestContainersTestBase {
 
-    @Test(expected = MetadataException.class)
-    public void multipleVersionFields() {
+    @Test
+    void multipleVersionFields() {
+        assertThrows(MetadataException.class, () -> {
 
-        SessionFactory sf = new SessionFactory(getDriver(), MultipleVersionFields.class.getName());
-        Session session = sf.openSession();
+            SessionFactory sf = new SessionFactory(getDriver(), MultipleVersionFields.class.getName());
+            Session session = sf.openSession();
 
-        session.save(new MultipleVersionFields());
+            session.save(new MultipleVersionFields());
+        });
     }
 }

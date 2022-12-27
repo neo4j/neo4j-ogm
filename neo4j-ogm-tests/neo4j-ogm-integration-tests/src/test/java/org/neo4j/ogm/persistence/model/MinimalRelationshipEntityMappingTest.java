@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
 import org.neo4j.ogm.domain.cineasts.minimum.Role;
@@ -42,19 +42,20 @@ public class MinimalRelationshipEntityMappingTest extends TestContainersTestBase
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.minimum");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
-    @Test // GH-607
-    public void verifyChangeOfRelationshipEnd() {
+    // GH-607
+    @Test
+    void verifyChangeOfRelationshipEnd() {
         session = sessionFactory.openSession();
         Actor actor = new Actor("A1");
         Movie movie = new Movie("M1");

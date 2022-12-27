@@ -18,7 +18,10 @@
  */
 package org.neo4j.ogm.metadata;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations;
 import org.neo4j.ogm.exception.core.MetadataException;
@@ -27,30 +30,40 @@ public class InvalidIdAnnotationTest {
 
     private MetaData metaData;
 
-    @Test(expected = MetadataException.class)
-    public void shouldRejectTwoIdsOnSameClass() {
-        createMetadataAndCheckIdentityField(InvalidAnnotations.TwoIdsOnSameClass.class.getName());
+    @Test
+    void shouldRejectTwoIdsOnSameClass() {
+        assertThrows(MetadataException.class, () -> {
+            createMetadataAndCheckIdentityField(InvalidAnnotations.TwoIdsOnSameClass.class.getName());
+        });
     }
 
-    @Test(expected = MetadataException.class)
-    public void shouldRejectNeitherGraphIdOrId() {
-        createMetadataAndCheckIdentityField(InvalidAnnotations.NeitherGraphIdOrId.class.getName());
+    @Test
+    void shouldRejectNeitherGraphIdOrId() {
+        assertThrows(MetadataException.class, () -> {
+            createMetadataAndCheckIdentityField(InvalidAnnotations.NeitherGraphIdOrId.class.getName());
+        });
     }
 
-    @Test(expected = MetadataException.class)
-    public void shouldRejectChildHasPrimaryIndexExtendsAndParentHasId() {
-        metaData = new MetaData(ValidAnnotations.Basic.class.getName(),
-            InvalidAnnotations.ChildHasPrimaryIndexExtendsAndParentHasId.class.getName());
+    @Test
+    void shouldRejectChildHasPrimaryIndexExtendsAndParentHasId() {
+        assertThrows(MetadataException.class, () -> {
+            metaData = new MetaData(ValidAnnotations.Basic.class.getName(),
+                InvalidAnnotations.ChildHasPrimaryIndexExtendsAndParentHasId.class.getName());
+        });
     }
 
-    @Test(expected = MetadataException.class)
-    public void shouldRejectUuidGenerationStrategyWithIdTypeNotUuid() {
-        createMetadataAndCheckIdentityField(InvalidAnnotations.UuidGenerationStrategyWithIdTypeNotUuid.class.getName());
+    @Test
+    void shouldRejectUuidGenerationStrategyWithIdTypeNotUuid() {
+        assertThrows(MetadataException.class, () -> {
+            createMetadataAndCheckIdentityField(InvalidAnnotations.UuidGenerationStrategyWithIdTypeNotUuid.class.getName());
+        });
     }
 
-    @Test(expected = MetadataException.class)
-    public void shouldRejectGeneratedValueWithoutID() {
-        createMetadataAndCheckIdentityField(InvalidAnnotations.GeneratedValueWithoutID.class.getName());
+    @Test
+    void shouldRejectGeneratedValueWithoutID() {
+        assertThrows(MetadataException.class, () -> {
+            createMetadataAndCheckIdentityField(InvalidAnnotations.GeneratedValueWithoutID.class.getName());
+        });
     }
 
     private void createMetadataAndCheckIdentityField(String name) {

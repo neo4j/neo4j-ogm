@@ -20,7 +20,7 @@ package org.neo4j.ogm.persistence.session.events;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.event.Event;
@@ -33,21 +33,21 @@ import org.neo4j.ogm.session.event.PreSaveEvent;
 public class NodeEntityTest extends EventTestBaseClass {
 
     @Test
-    public void shouldNotFireEventsIfObjectHasNotChanged() {
+    void shouldNotFireEventsIfObjectHasNotChanged() {
 
         session.save(folder);
         assertThat(eventListener.count()).isEqualTo(0);
     }
 
     @Test
-    public void shouldNotFireEventsOnLoad() {
+    void shouldNotFireEventsOnLoad() {
 
         session.load(Folder.class, folder.getId());
         assertThat(eventListener.count()).isEqualTo(0);
     }
 
     @Test
-    public void shouldFireEventsWhenCreatingNewEntity() {
+    void shouldFireEventsWhenCreatingNewEntity() {
 
         Document e = new Document();
         e.setName("e");
@@ -64,7 +64,7 @@ public class NodeEntityTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenUpdatingExistingEntity() {
+    void shouldFireEventsWhenUpdatingExistingEntity() {
 
         a.setName("newA");
         session.save(a);
@@ -80,7 +80,7 @@ public class NodeEntityTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenSettingNullProperty() {
+    void shouldFireEventsWhenSettingNullProperty() {
 
         a.setName(null);
         session.save(a);
@@ -92,7 +92,7 @@ public class NodeEntityTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldNotFireEventsWhenDeletingNonPersistedObject() {
+    void shouldNotFireEventsWhenDeletingNonPersistedObject() {
 
         Document unpersistedDocument = new Document();
 
@@ -102,7 +102,7 @@ public class NodeEntityTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenDeletingRelationshipEntity() {
+    void shouldFireEventsWhenDeletingRelationshipEntity() {
 
         session.delete(knowsJL);
 

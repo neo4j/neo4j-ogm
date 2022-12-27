@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Wheel;
 import org.neo4j.ogm.metadata.MetaData;
@@ -37,7 +37,7 @@ public class BikeTest {
     private static Neo4jSession session = new Neo4jSession(metadata, true, new BikeRequest());
 
     @Test
-    public void testDeserialiseBikeModel() {
+    void testDeserialiseBikeModel() {
 
         Collection<Bike> bikes = session.loadAll(Bike.class);
 
@@ -70,7 +70,7 @@ public class BikeTest {
     }
 
     @Test
-    public void testReloadExistingDomain() {
+    void testReloadExistingDomain() {
 
         Collection<Bike> bikes = session.loadAll(Bike.class);
         Collection<Bike> theSameBikes = session.loadAll(Bike.class);

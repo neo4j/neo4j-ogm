@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.Session;
@@ -55,12 +55,12 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
 
     private Document a;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.filesystem");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -83,7 +83,7 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
     }
 
     @Test
-    public void testSaveDegenerateDocument() {
+    void testSaveDegenerateDocument() {
 
         // set a's f to a new f, but don't remove from the current f's list of documents
         a.setFolder(null);
@@ -92,12 +92,12 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
         session.clear();
         assertThat(session.query(
             "MATCH (f:Folder {name : 'f' } ) -[:CONTAINS]->(b:Document { name: 'b' } ) " +
-            "MATCH (a:Document { name: 'a' } ) " +
-            "WHERE NOT EXISTS((f)-[:CONTAINS]->(a)) return f, a, b", emptyMap()).queryResults()).hasSize(1);
+                "MATCH (a:Document { name: 'a' } ) " +
+                "WHERE NOT EXISTS((f)-[:CONTAINS]->(a)) return f, a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
-    public void testSaveDegenerateFolder() {
+    void testSaveDegenerateFolder() {
 
         // remove f's documents, but don't clear the documents' f reference
         f.setDocuments(new HashSet<>());
@@ -110,7 +110,7 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
     }
 
     @Test
-    public void testSaveDegenerateDocumentClone() {
+    void testSaveDegenerateDocumentClone() {
 
         Document clone = new Document();
         clone.setId(a.getId());
@@ -122,12 +122,12 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
         session.clear();
         assertThat(session.query(
             "MATCH (f:Folder { name: 'f' } )-[:CONTAINS]->(b:Document { name: 'b'} ) " +
-            "MATCH (a:Document { name: 'a'} ) " +
-            "WHERE NOT EXISTS((f)-[:CONTAINS]->(a)) RETURN f, a, b", emptyMap()).queryResults()).hasSize(1);
+                "MATCH (a:Document { name: 'a'} ) " +
+                "WHERE NOT EXISTS((f)-[:CONTAINS]->(a)) RETURN f, a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
-    public void testSaveDegenerateFolderClone() {
+    void testSaveDegenerateFolderClone() {
 
         Folder clone = new Folder();
         clone.setId(f.getId());
@@ -143,7 +143,7 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
     }
 
     @Test
-    public void testSaveChangedDocument() {
+    void testSaveChangedDocument() {
 
         // set a's f to a new f, but don't remove from the current f's list of documents
         a.setFolder(new Folder());
@@ -154,12 +154,12 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
         session.clear();
         assertThat(session.query(
             "MATCH (f:Folder { name: 'f' } )-[:CONTAINS]-> (b:Document { name: 'b' }) " +
-            "MATCH (g:Folder { name: 'g' } )-[:CONTAINS]-> (a:Document { name: 'a' }) " +
-            "RETURN f, g, a, b", emptyMap()).queryResults()).hasSize(1);
+                "MATCH (g:Folder { name: 'g' } )-[:CONTAINS]-> (a:Document { name: 'a' }) " +
+                "RETURN f, g, a, b", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
-    public void testSaveChangedFolder() {
+    void testSaveChangedFolder() {
 
         Document c = new Document();
         c.setName("c");
@@ -172,9 +172,9 @@ public class DegenerateEntityModelTests extends TestContainersTestBase {
         session.clear();
         assertThat(session.query(
             "MATCH (f:Folder { name: 'f' }) -[:CONTAINS]-> (c:Document { name: 'c' } ) " +
-            "MATCH (f)-[:CONTAINS]-> (b:Document { name: 'b' }) " +
-            "MATCH (a:Document { name: 'a' }) " +
-            "WHERE NOT EXISTS((f) - [:CONTAINS] -> (a)) " +
-            "RETURN f, a, b, c", emptyMap()).queryResults()).hasSize(1);
+                "MATCH (f)-[:CONTAINS]-> (b:Document { name: 'b' }) " +
+                "MATCH (a:Document { name: 'a' }) " +
+                "WHERE NOT EXISTS((f) - [:CONTAINS] -> (a)) " +
+                "RETURN f, a, b, c", emptyMap()).queryResults()).hasSize(1);
     }
 }

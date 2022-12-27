@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.tree.Entity;
@@ -45,19 +45,20 @@ public class TreeIntegrationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.tree");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
-    @Test // DATAGRAPH-731
-    public void shouldCreateTreeProperly() {
+    // DATAGRAPH-731
+    @Test
+    void shouldCreateTreeProperly() {
         Entity parent = new Entity("parent");
         Entity child01 = new Entity("child01").setParent(parent);
         Entity child02 = new Entity("child02").setParent(parent);
@@ -79,8 +80,9 @@ public class TreeIntegrationTest extends TestContainersTestBase {
         assertThat(childNames.contains(child02.getName())).isTrue();
     }
 
-    @Test // DATAGRAPH-731
-    public void shouldLoadTreeProperly() {
+    // DATAGRAPH-731
+    @Test
+    void shouldLoadTreeProperly() {
         String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
         session.query(cypher, Collections.emptyMap());
         session.clear();
@@ -98,8 +100,9 @@ public class TreeIntegrationTest extends TestContainersTestBase {
         assertThat(childNames.contains("c2")).isTrue();
     }
 
-    @Test // GH-88
-    public void shouldMapElementsToTreeSetProperly() {
+    // GH-88
+    @Test
+    void shouldMapElementsToTreeSetProperly() {
         String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
         session.query(cypher, Collections.emptyMap());
         session.clear();

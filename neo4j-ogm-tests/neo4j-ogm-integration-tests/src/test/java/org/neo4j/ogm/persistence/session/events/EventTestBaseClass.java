@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
 import org.neo4j.ogm.domain.filesystem.Document;
@@ -62,7 +62,7 @@ public abstract class EventTestBaseClass extends TestContainersTestBase {
     private Knows knowsLS;
     Knows knowsJL;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.filesystem",
             "org.neo4j.ogm.domain.cineasts.annotated");
@@ -70,7 +70,7 @@ public abstract class EventTestBaseClass extends TestContainersTestBase {
         sessionFactory.register(eventListener);
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
 
         session = sessionFactory.openSession();
@@ -189,7 +189,7 @@ public abstract class EventTestBaseClass extends TestContainersTestBase {
         }
     }
 
-    @After
+    @AfterEach
     public void clean() {
         session.purgeDatabase();
     }

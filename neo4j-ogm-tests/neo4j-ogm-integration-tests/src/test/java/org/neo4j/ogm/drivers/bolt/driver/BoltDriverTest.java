@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
@@ -39,7 +39,7 @@ import org.neo4j.ogm.session.SessionFactory;
 public class BoltDriverTest {
 
     @Test
-    public void shouldDetectSimpleBoltSchemes() {
+    void shouldDetectSimpleBoltSchemes() {
 
         for (String aSimpleScheme : Arrays.asList("bolt", "Bolt", "neo4j", "Neo4J")) {
             assertThat(BoltDriver.isSimpleScheme(aSimpleScheme)).isTrue();
@@ -47,7 +47,7 @@ public class BoltDriverTest {
     }
 
     @Test
-    public void shouldDetectAdvancedBoltSchemes() {
+    void shouldDetectAdvancedBoltSchemes() {
 
         for (String anAdvancedScheme : Arrays.asList("bolt+s", "Bolt+ssc", "neo4j+s", "Neo4J+ssc")) {
             assertThat(BoltDriver.isSimpleScheme(anAdvancedScheme)).isFalse();
@@ -55,7 +55,7 @@ public class BoltDriverTest {
     }
 
     @Test
-    public void shouldFailEarlyOnInvalidSchemes() {
+    void shouldFailEarlyOnInvalidSchemes() {
 
         // Here `bolt+routing`  is invalid, as the Configuration respectively Drivers translates it into neo4j.
         for (String invalidScheme : Arrays.asList("bolt+routing", "bolt+x", "neo4j+wth")) {
@@ -67,7 +67,7 @@ public class BoltDriverTest {
     }
 
     @Test
-    public void schemesShouldBeApplied() throws NoSuchFieldException, IllegalAccessException {
+    void schemesShouldBeApplied() throws NoSuchFieldException, IllegalAccessException {
 
         Field configField = BoltDriver.class.getDeclaredField("driverConfig");
         configField.setAccessible(true);

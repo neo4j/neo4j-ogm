@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
@@ -44,7 +44,7 @@ public class EducationTest {
     private static Neo4jSession session = new Neo4jSession(metadata, true, new EducationRequest());
 
     @Test
-    public void testTeachers() throws Exception {
+    void testTeachers() throws Exception {
 
         Map<String, Teacher> teachers = loadTeachers();
 
@@ -58,7 +58,7 @@ public class EducationTest {
     }
 
     @Test
-    public void testFetchCoursesTaughtByAllTeachers() throws Exception {
+    void testFetchCoursesTaughtByAllTeachers() throws Exception {
 
         Map<String, Teacher> teachers = loadTeachers();  // note: idempotent!
 

@@ -23,8 +23,8 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
@@ -39,7 +39,7 @@ public class DirtyObjectsTest extends TestContainersTestBase {
     private Neo4jSession session;
     private SessionFactory sessionFactory;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.filesystem");
         session = (Neo4jSession) sessionFactory.openSession();
@@ -47,14 +47,14 @@ public class DirtyObjectsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void newObjectShouldBeDirty() {
+    void newObjectShouldBeDirty() {
 
         Document d = new Document();
         assertThat(session.context().isDirty(d)).isTrue();
     }
 
     @Test
-    public void savedObjectShouldNotBeDirty() {
+    void savedObjectShouldNotBeDirty() {
 
         Document d = new Document();
         session.save(d);
@@ -62,7 +62,7 @@ public class DirtyObjectsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void modifiedLoadedObjectShouldBeDirty() {
+    void modifiedLoadedObjectShouldBeDirty() {
 
         Document d = new Document();
         session.save(d);
@@ -71,7 +71,7 @@ public class DirtyObjectsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void unmodifiedLoadedObjectShouldNotBeDirty() {
+    void unmodifiedLoadedObjectShouldNotBeDirty() {
 
         Document d = new Document();
         session.save(d);
@@ -80,7 +80,7 @@ public class DirtyObjectsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void evictedObjectShouldBeDirty() {
+    void evictedObjectShouldBeDirty() {
 
         Document d = new Document();
         session.save(d);
@@ -89,7 +89,7 @@ public class DirtyObjectsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void evictedObjectThatIsIdenticalToTheLoadedObjectShouldNotBeDirty() {
+    void evictedObjectThatIsIdenticalToTheLoadedObjectShouldNotBeDirty() {
 
         Document d = new Document();
 
@@ -102,7 +102,7 @@ public class DirtyObjectsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void reloadingAnObjectReturnsTheCachedInstance() {
+    void reloadingAnObjectReturnsTheCachedInstance() {
 
         Document d = new Document();
 
@@ -111,7 +111,7 @@ public class DirtyObjectsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void reloadingAnObjectReturnsTheCachedInstanceEvenIfItIsChangedInTheDatabase() {
+    void reloadingAnObjectReturnsTheCachedInstanceEvenIfItIsChangedInTheDatabase() {
 
         Document d = new Document();
         session.save(d);

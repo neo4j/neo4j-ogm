@@ -24,8 +24,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.domain.dto.SomeDto;
@@ -43,7 +43,7 @@ public class DtoMappingTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private static Driver javaDriver;
 
-    @BeforeClass
+    @BeforeAll
     public static void setupConnectionAndDatabase() {
         Configuration ogmConfiguration = getBaseConfigurationBuilder()
             .useNativeTypes()
@@ -56,7 +56,7 @@ public class DtoMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapSingleDto() {
+    void shouldMapSingleDto() {
 
         Session session = sessionFactory.openSession();
         List<SomeDto> dtos = session.queryDto("RETURN 'Hello' as valueA, 123 as valueB, date() as valueC", Map.of(), SomeDto.class);
@@ -69,7 +69,7 @@ public class DtoMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapSingleDtoWithArrays() {
+    void shouldMapSingleDtoWithArrays() {
 
         Session session = sessionFactory.openSession();
         List<SomeDto> dtos = session.queryDto("RETURN ['a','b','c'] as valueD", Map.of(), SomeDto.class);
@@ -80,7 +80,7 @@ public class DtoMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapCollectionOfDto() {
+    void shouldMapCollectionOfDto() {
         try (var session = javaDriver.session()) {
             session.run("MATCH (n) detach delete n").consume();
             session.run("CREATE (m:Object{value1:'Hello', value2:123, value3:date()})").consume();
@@ -100,7 +100,7 @@ public class DtoMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapRecord() {
+    void shouldMapRecord() {
 
         Session session = sessionFactory.openSession();
         List<SomeDtoRecord> dtos = session.queryDto("RETURN 'Hello' as valueA, 123 as valueB, date() as valueC, ['a','b','c'] as valueD", Map.of(), SomeDtoRecord.class);

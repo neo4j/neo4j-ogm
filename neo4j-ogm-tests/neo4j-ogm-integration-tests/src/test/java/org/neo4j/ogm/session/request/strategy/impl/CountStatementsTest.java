@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
@@ -40,19 +40,19 @@ public class CountStatementsTest {
     private AggregateStatements statements = new CountStatements();
 
     @Test
-    public void testCountNodesWithLabel() throws Exception {
+    void testCountNodesWithLabel() throws Exception {
         assertThat(statements.countNodes(singleton("Person")).getStatement())
             .isEqualTo("MATCH (n:`Person`) RETURN COUNT(n)");
     }
 
     @Test
-    public void testCountNodesWithMultipleLabels() throws Exception {
+    void testCountNodesWithMultipleLabels() throws Exception {
         assertThat(statements.countNodes(Arrays.asList("Person", "Candidate")).getStatement())
             .isEqualTo("MATCH (n:`Person`:`Candidate`) RETURN COUNT(n)");
     }
 
     @Test
-    public void testCountNodesWithLabelAndFilters() throws Exception {
+    void testCountNodesWithLabelAndFilters() throws Exception {
         CypherQuery query = statements
             .countNodes("Person", new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Jim")));
         assertThat(query.getStatement())
@@ -61,7 +61,7 @@ public class CountStatementsTest {
     }
 
     @Test
-    public void testCountEdgesWithTypeAndFilters() throws Exception {
+    void testCountEdgesWithTypeAndFilters() throws Exception {
         CypherQuery query = statements
             .countEdges("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
         assertThat(query.getStatement())
@@ -70,7 +70,7 @@ public class CountStatementsTest {
     }
 
     @Test
-    public void testCountEdgesWithSpecificPath() throws Exception {
+    void testCountEdgesWithSpecificPath() throws Exception {
         assertThat(statements.countEdges("StartNode", "TYPE", "EndNode").getStatement())
             .isEqualTo("MATCH (:`StartNode`)-[r0:`TYPE`]->(:`EndNode`) RETURN COUNT(r0)");
     }

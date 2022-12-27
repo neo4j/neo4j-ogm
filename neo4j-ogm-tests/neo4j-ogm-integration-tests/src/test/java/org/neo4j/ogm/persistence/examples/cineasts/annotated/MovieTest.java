@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.metadata.MetaData;
@@ -35,7 +35,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 public class MovieTest {
 
     @Test
-    public void testDeserialiseMovie() {
+    void testDeserialiseMovie() {
 
         MetaData metadata = new MetaData("org.neo4j.ogm.domain.cineasts.annotated");
         Neo4jSession session = new Neo4jSession(metadata, true, new MoviesRequest());

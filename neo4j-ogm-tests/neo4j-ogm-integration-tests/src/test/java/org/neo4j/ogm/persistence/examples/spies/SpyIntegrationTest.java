@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.spies.Spy;
 import org.neo4j.ogm.domain.spies.Target;
 import org.neo4j.ogm.session.Session;
@@ -39,12 +39,12 @@ public class SpyIntegrationTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.spies");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
     }
@@ -53,7 +53,7 @@ public class SpyIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-728
      */
     @Test
-    public void shouldSaveAndLoadSpyInEachDirection() {
+    void shouldSaveAndLoadSpyInEachDirection() {
         Spy mata = new Spy("Mata Hari");
         Spy julius = new Spy("Julius Rosenberg");
 

@@ -18,12 +18,14 @@
  */
 package org.neo4j.ogm.persistence.transaction;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.lang.reflect.Field;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -48,46 +50,44 @@ public class ClosedTransactionTest extends TestContainersTestBase {
 
     private Transaction tx;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.tree");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         Session session = sessionFactory.openSession();
-        // The session actually has it's own transaction manager, which is btw tied to thread locally to the driver.
+        // The session actually has its own transaction manager, which is btw tied to thread locally to the driver.
         // We could force get the sessions transaction manager or just create a new one here and tie it to the driver.
-        // Both feel broken, this here a little less painfull, though.
+        // Both feel broken, this here a little less painful, though.
         transactionManager = new DefaultTransactionManager(session, getDriver().getTransactionFactorySupplier());
-    }
-
-    @Before
-    public void createTransactionAndCloseOnServerButNotOnClient() {
         tx = transactionManager.openTransaction();
         tx.close();
 
         reOpen(transactionManager, tx);
     }
 
-    @After
+    @AfterEach
     public void clearTransactionManager() {
         getTransactionThreadLocal(transactionManager).remove();
     }
 
     @Test
-    public void shouldNotThrowExceptionWhenRollingBackAClosedTransaction() {
+    void shouldNotThrowExceptionWhenRollingBackAClosedTransaction() {
         tx.rollback();
     }
 
     @Test
-    public void shouldNotThrowExceptionWhenClosingAClosedTransaction() {
+    void shouldNotThrowExceptionWhenClosingAClosedTransaction() {
         tx.close();
     }
 
-    @Test(expected = TransactionException.class)
-    public void shouldThrowExceptionWhenCommittingAClosedTransaction() {
-        tx.commit();
+    @Test
+    void shouldThrowExceptionWhenCommittingAClosedTransaction() {
+        assertThrows(TransactionException.class, () -> {
+            tx.commit();
+        });
     }
 
     private static void reOpen(TransactionManager transactionManager, Transaction transaction) {

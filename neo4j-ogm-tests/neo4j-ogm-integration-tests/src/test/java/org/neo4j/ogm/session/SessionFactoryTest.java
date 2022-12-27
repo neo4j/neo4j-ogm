@@ -19,9 +19,10 @@
 package org.neo4j.ogm.session;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.domain.bike.Bike;
@@ -38,7 +39,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 public class SessionFactoryTest extends TestContainersTestBase {
 
     @Test
-    public void shouldMergeBasePackages() {
+    void shouldMergeBasePackages() {
 
         Configuration configuration = new Configuration.Builder()
             .withBasePackages(Bike.class.getPackage().getName())
@@ -52,7 +53,7 @@ public class SessionFactoryTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldUnwrapBoltDriver() {
+    void shouldUnwrapBoltDriver() {
 
         SessionFactory sessionFactory = new SessionFactory(getDriver(), Bike.class.getPackage().getName());
 
@@ -66,7 +67,7 @@ public class SessionFactoryTest extends TestContainersTestBase {
     }
 
     @Test
-    public void correctUseStrictQueryingSettingShouldBeApplied() {
+    void correctUseStrictQueryingSettingShouldBeApplied() {
 
         SessionFactory sessionFactory;
 

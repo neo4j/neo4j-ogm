@@ -20,7 +20,7 @@ package org.neo4j.ogm.typeconversion;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.convertible.bytes.PhotoWrapper;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
@@ -34,23 +34,23 @@ public class ByteArrayWrapperConversionTest {
     private static final ClassInfo photoInfo = metaData.classInfo("PhotoWrapper");
 
     @Test
-    public void testConvertersLoaded() {
+    void testConvertersLoaded() {
         assertThat(photoInfo.propertyField("image").hasPropertyConverter()).isTrue();
     }
 
     @Test
-    public void setImageAndCheck() {
+    void setImageAndCheck() {
 
         PhotoWrapper photo = new PhotoWrapper();
         AttributeConverter converter = photoInfo.propertyField("image").getPropertyConverter();
 
-        photo.setImage(new Byte[] { 1, 2, 3, 4 });
+        photo.setImage(new Byte[]{1, 2, 3, 4});
 
         assertThat(converter.toGraphProperty(photo.getImage())).isEqualTo("AQIDBA==");
     }
 
     @Test
-    public void getImageAndCheck() {
+    void getImageAndCheck() {
 
         PhotoWrapper photo = new PhotoWrapper();
         AttributeConverter converter = photoInfo.propertyField("image").getPropertyConverter();

@@ -24,10 +24,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -54,20 +54,20 @@ public class AbstractWithGenericPropertyRelationshipTest extends TestContainersT
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.model",
             "org.neo4j.ogm.persistence.examples.stage");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldReloadEntitiesJustSaved() {
+    void shouldReloadEntitiesJustSaved() {
         StageActor stageActor = new StageActor("first actor");
         Drama firstDrama = new Drama("malade imaginaire");
         Drama secondDrama = new Drama("Le cid");
@@ -91,9 +91,9 @@ public class AbstractWithGenericPropertyRelationshipTest extends TestContainersT
      * This test is unclear to me in what it is expecting from the domain class setup. However, it should be possible
      * in theory to query by a generic type. Requires further investigation.
      */
-    @Ignore
+    @Disabled
     @Test
-    public void testQueryByGenericRelationshipType() {
+    void testQueryByGenericRelationshipType() {
         SomeNode<Integer> someNode = new SomeNode<>();
         session.save(someNode);
 
@@ -116,7 +116,7 @@ public class AbstractWithGenericPropertyRelationshipTest extends TestContainersT
     }
 
     @Test
-    public void testGenericTypeInConcreteRelationship() {
+    void testGenericTypeInConcreteRelationship() {
         SomeNode<Integer> someNode = new SomeNode<>();
         session.save(someNode);
 

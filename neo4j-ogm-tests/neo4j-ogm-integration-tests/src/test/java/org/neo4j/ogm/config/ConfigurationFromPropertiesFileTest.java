@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Vince Bickers
@@ -36,7 +36,7 @@ import org.junit.Test;
 public class ConfigurationFromPropertiesFileTest {
 
     @Test
-    public void shouldConfigureFromSimplePropertiesFile() {
+    void shouldConfigureFromSimplePropertiesFile() {
         Configuration configuration = new Configuration.Builder(
             new ClasspathConfigurationSource("ogm-simple.properties")).build();
 
@@ -44,12 +44,12 @@ public class ConfigurationFromPropertiesFileTest {
         assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
         assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
-        assertThat(configuration.getBasePackages()).isEqualTo(new String[] { "org.neo4j.ogm.domain.bike" });
+        assertThat(configuration.getBasePackages()).isEqualTo(new String[]{"org.neo4j.ogm.domain.bike"});
         assertThat(configuration.getUseNativeTypes()).isEqualTo(Boolean.TRUE);
     }
 
     @Test
-    public void shouldConfigureFromFilesystemPropertiesFilePath() {
+    void shouldConfigureFromFilesystemPropertiesFilePath() {
         File file = new File(getConfigFileAsRelativePath());
         FileConfigurationSource source = new FileConfigurationSource(file.getAbsolutePath());
         Configuration configuration = new Configuration.Builder(source).build();
@@ -61,7 +61,7 @@ public class ConfigurationFromPropertiesFileTest {
     }
 
     @Test
-    public void shouldConfigureFromFilesystemPropertiesFileURI() {
+    void shouldConfigureFromFilesystemPropertiesFileURI() {
         File file = new File(getConfigFileAsRelativePath());
         FileConfigurationSource source = new FileConfigurationSource(file.toURI().toString());
         Configuration configuration = new Configuration.Builder(source).build();
@@ -88,7 +88,7 @@ public class ConfigurationFromPropertiesFileTest {
     }
 
     @Test
-    public void shouldConfigureFromUsernamePasswordProperties() {
+    void shouldConfigureFromUsernamePasswordProperties() {
 
         Configuration configuration = new Configuration.Builder(
             new ClasspathConfigurationSource("ogm-password.properties")).build();
@@ -98,7 +98,7 @@ public class ConfigurationFromPropertiesFileTest {
     }
 
     @Test
-    public void shouldConfigureFromSpringBootPropertiesFile() {
+    void shouldConfigureFromSpringBootPropertiesFile() {
 
         Configuration configuration = new Configuration.Builder(
             new ClasspathConfigurationSource("application.properties")).build();
@@ -110,7 +110,7 @@ public class ConfigurationFromPropertiesFileTest {
     }
 
     @Test
-    public void shouldConfigureFromNameSpacePropertiesFile() {
+    void shouldConfigureFromNameSpacePropertiesFile() {
 
         Configuration configuration = new Configuration.Builder(
             new ClasspathConfigurationSource("ogm-namespace.properties")).build();
@@ -128,7 +128,7 @@ public class ConfigurationFromPropertiesFileTest {
     }
 
     @Test
-    public void shouldLoadBoltDriverConfigFromPropertiesFile() {
+    void shouldLoadBoltDriverConfigFromPropertiesFile() {
         Configuration driverConfig = new Configuration.Builder(
             new ClasspathConfigurationSource("bolt.driver.properties")).build();
         assertThat(driverConfig.getURI()).isEqualTo("bolt://localhost");

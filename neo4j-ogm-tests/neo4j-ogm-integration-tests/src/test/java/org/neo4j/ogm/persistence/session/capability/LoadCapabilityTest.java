@@ -27,9 +27,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
@@ -59,7 +59,7 @@ public class LoadCapabilityTest extends TestContainersTestBase {
     private Long pleaseId;
     private Long beatlesId;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
 
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.gh368");
@@ -77,13 +77,14 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         beatlesId = theBeatles.getId();
     }
 
-    @After
+    @AfterEach
     public void clearDatabase() {
         session.purgeDatabase();
     }
 
-    @Test // DATAGRAPH-707
-    public void loadAllShouldRespectEntityType() {
+    // DATAGRAPH-707
+    @Test
+    void loadAllShouldRespectEntityType() {
         Collection<Artist> artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId));
         assertThat(artists).hasSize(1);
         assertThat(artists.iterator().next().getName()).isEqualTo("The Beatles");
@@ -159,8 +160,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(albums).isEmpty();
     }
 
-    @Test // DATAGRAPH-707
-    public void loadOneShouldRespectEntityType() {
+    // DATAGRAPH-707
+    @Test
+    void loadOneShouldRespectEntityType() {
         Artist artist = session.load(Artist.class, beatlesId);
         assertThat(artist.getName()).isEqualTo("The Beatles");
 
@@ -177,8 +179,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(artist).isNull();
     }
 
-    @Test // GH-170
-    public void shouldBeAbleToLoadEntitiesToDifferentDepthsInDifferentSessions() {
+    // GH-170
+    @Test
+    void shouldBeAbleToLoadEntitiesToDifferentDepthsInDifferentSessions() {
         Artist pinkFloyd = new Artist("Pink Floyd");
         Album divisionBell = new Album("The Division Bell");
         divisionBell.setArtist(pinkFloyd);
@@ -211,7 +214,7 @@ public class LoadCapabilityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotRefreshPropertiesOnEntityReload() {
+    void shouldNotRefreshPropertiesOnEntityReload() {
         Artist pinkFloyd = new Artist("Pink Floyd");
         session.save(pinkFloyd);
         session.clear();
@@ -238,8 +241,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(pinkfloyd_1_1.getName()).isEqualTo("Pink Floyd"); //the name should be refreshed from the graph
     }
 
-    @Test // GH-177
-    public void shouldNotBeDirtyOnLoadEntityThenSaveThenReload() {
+    // GH-177
+    @Test
+    void shouldNotBeDirtyOnLoadEntityThenSaveThenReload() {
 
         MappingContext context = ((Neo4jSession) session).context();
 
@@ -266,8 +270,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(pinkFloyd == purpleFloyd).isTrue();       // two refs pointing to the same object
     }
 
-    @Test // GH-177
-    public void shouldNotBeDirtyOnLoadRelationshipEntityThenSaveThenReload() {
+    // GH-177
+    @Test
+    void shouldNotBeDirtyOnLoadRelationshipEntityThenSaveThenReload() {
 
         MappingContext context = ((Neo4jSession) session).context();
 
@@ -302,8 +307,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(recording == recording1995).isTrue();       // two refs pointing to the same object
     }
 
-    @Test // DATAGRAPH-642, GH-174
-    public void shouldRetainPreviouslyLoadedRelationshipsWhenDepthIsReduced() {
+    // DATAGRAPH-642, GH-174
+    @Test
+    void shouldRetainPreviouslyLoadedRelationshipsWhenDepthIsReduced() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
         Studio studio = new Studio("Island Studios");
@@ -349,8 +355,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(ledZeppelinIV.getRecording().getStudio().getName()).isEqualTo(studio.getName());
     }
 
-    @Test // DATAGRAPH-642, GH-174
-    public void shouldAddRelationshipsWhenDepthIsIncreased() {
+    // DATAGRAPH-642, GH-174
+    @Test
+    void shouldAddRelationshipsWhenDepthIsIncreased() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
         Studio studio = new Studio("Island Studios");
@@ -390,8 +397,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(ledZeppelinIV.getRecording().getStudio().getName()).isEqualTo(studio.getName());
     }
 
-    @Test // GH-173
-    public void shouldNotModifyPreviouslyLoadedNodesWhenDepthIsIncreased() {
+    // GH-173
+    @Test
+    void shouldNotModifyPreviouslyLoadedNodesWhenDepthIsIncreased() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
         Studio studio = new Studio("Island Studios");
@@ -426,8 +434,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(ledZeppelinIV.getRecording()).isNull();
     }
 
-    @Test // GH-173
-    public void shouldNotModifyPreviouslyLoadedNodesWhenDepthIsReduced() {
+    // GH-173
+    @Test
+    void shouldNotModifyPreviouslyLoadedNodesWhenDepthIsReduced() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
         Studio studio = new Studio("Island Studios");
@@ -462,8 +471,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(ledZeppelin.getAlbums()).hasSize(1);
     }
 
-    @Test // DATAGRAPH-642, GH-174
-    public void shouldBeAbleToLoadEntityToDifferentDepthsInDifferentSessions() {
+    // DATAGRAPH-642, GH-174
+    @Test
+    void shouldBeAbleToLoadEntityToDifferentDepthsInDifferentSessions() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
         Studio studio = new Studio("Island Studios");
@@ -494,8 +504,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(ledZeppelin0.getAlbums()).isEmpty();
     }
 
-    @Test // GH-173
-    public void shouldNotModifyPreviouslyLoadedNodesWhenEntityIsReloaded() {
+    // GH-173
+    @Test
+    void shouldNotModifyPreviouslyLoadedNodesWhenEntityIsReloaded() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
         Studio studio = new Studio("Island Studios");
@@ -534,8 +545,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(ledZeppelinIV.getRecording()).isNull();
     }
 
-    @Test // GH-173
-    public void shouldMapNewNodesAndRelationshipsWhenEntityIsReloaded() {
+    // GH-173
+    @Test
+    void shouldMapNewNodesAndRelationshipsWhenEntityIsReloaded() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
         Studio studio = new Studio("Island Studios");
@@ -581,8 +593,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         }
     }
 
-    @Test // GH-173
-    public void shouldRefreshEntityStateWhenReloadedOnCleanSession() {
+    // GH-173
+    @Test
+    void shouldRefreshEntityStateWhenReloadedOnCleanSession() {
         Artist led = new Artist("Led Zeppelin");
         Album album = new Album("Led Zeppelin IV");
         Studio studio = new Studio("Island Studios");
@@ -620,8 +633,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(ledZeppelin.getAlbums()).isEmpty();
     }
 
-    @Test // GH-302
-    public void shouldMaintainSortOrderWhenLoadingByIds() {
+    // GH-302
+    @Test
+    void shouldMaintainSortOrderWhenLoadingByIds() {
         Artist led = new Artist("Led Zeppelin");
         session.save(led);
         Artist bonJovi = new Artist("Bon Jovi");
@@ -654,7 +668,7 @@ public class LoadCapabilityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadAllByIdsShouldSortByIdsIfSortOrderIsNotProvided() throws Exception {
+    void loadAllByIdsShouldSortByIdsIfSortOrderIsNotProvided() throws Exception {
         Artist beatles = session.load(Artist.class, beatlesId);
 
         Artist led = new Artist("Led Zeppelin");
@@ -678,7 +692,7 @@ public class LoadCapabilityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadAllByInstancesShouldSortByIdsIfSortOrderIsNotProvided() throws Exception {
+    void loadAllByInstancesShouldSortByIdsIfSortOrderIsNotProvided() throws Exception {
         Artist beatles = session.load(Artist.class, beatlesId);
 
         Artist led = new Artist("Led Zeppelin");
@@ -702,7 +716,7 @@ public class LoadCapabilityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadAllByInstancesShouldLoadAllClasses() {
+    void loadAllByInstancesShouldLoadAllClasses() {
         SessionFactory sf = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.education");
         Session sessionWithEducationDomain = sf.openSession();
 
@@ -715,8 +729,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(loaded).contains(school, student);
     }
 
-    @Test // GH-368
-    public void shouldKeepOrder() {
+    // GH-368
+    @Test
+    void shouldKeepOrder() {
         User anna = new User("noone@nowhere.com", "Anna", "Doe");
         User bob = new User("noone@nowhere.com", "Bob", "Doe");
         User charlie = new User("noone@nowhere.com", "Charlie", "Doe");
@@ -737,8 +752,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
             .containsExactly("Anna", "Bob", "Charlie");
     }
 
-    @Test // GH-787
-    public void shouldLoadSingleEntityWithCustomId() {
+    // GH-787
+    @Test
+    void shouldLoadSingleEntityWithCustomId() {
         SessionFactory sf = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh787");
         Session sessionForIdConverter = sf.openSession();
 
@@ -750,8 +766,9 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(sessionForIdConverter.load(EntityWithCustomIdConverter.class, id)).isNotNull();
     }
 
-    @Test // GH-787
-    public void shouldLoadMultipleEntitiesWithCustomId() {
+    // GH-787
+    @Test
+    void shouldLoadMultipleEntitiesWithCustomId() {
         SessionFactory sf = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh787");
         Session sessionForIdConverter = sf.openSession();
 

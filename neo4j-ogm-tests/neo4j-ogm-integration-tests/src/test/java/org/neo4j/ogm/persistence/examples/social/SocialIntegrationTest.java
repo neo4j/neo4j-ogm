@@ -26,10 +26,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.Individual;
@@ -49,18 +49,18 @@ public class SocialIntegrationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
-    @After
+    @AfterEach
     public void clearDatabase() {
         session.purgeDatabase();
     }
@@ -69,9 +69,9 @@ public class SocialIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-594
      */
     @Test
-    public void shouldFetchOnlyPeopleILike() {
+    void shouldFetchOnlyPeopleILike() {
         session.query("create (p1:Person {name:'A'}) create (p2:Person {name:'B'}) create (p3:Person {name:'C'})" +
-                " create (p4:Person {name:'D'}) create (p1)-[:LIKES]->(p2) create (p1)-[:LIKES]->(p3) create (p4)-[:LIKES]->(p1)",
+            " create (p4:Person {name:'D'}) create (p1)-[:LIKES]->(p2) create (p1)-[:LIKES]->(p3) create (p4)-[:LIKES]->(p1)",
             Collections.EMPTY_MAP);
 
         Person personA = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator()
@@ -90,7 +90,7 @@ public class SocialIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-594
      */
     @Test
-    public void shouldFetchFriendsInBothDirections() {
+    void shouldFetchFriendsInBothDirections() {
         session.query(
             "create (p1:Individual {name:'A'}) create (p2:Individual {name:'B'}) create (p3:Individual {name:'C'})" +
                 " create (p4:Individual {name:'D'}) create (p1)-[:FRIENDS]->(p2) create (p1)-[:FRIENDS]->(p3) create (p4)-[:FRIENDS]->(p1)",
@@ -106,9 +106,9 @@ public class SocialIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-594
      */
     @Test
-    public void shouldFetchFriendsForUndirectedRelationship() {
+    void shouldFetchFriendsForUndirectedRelationship() {
         session.query("create (p1:User {name:'A'}) create (p2:User {name:'B'}) create (p3:User {name:'C'})" +
-                " create (p4:User {name:'D'}) create (p1)-[:FRIEND]->(p2) create (p1)-[:FRIEND]->(p3) create (p4)-[:FRIEND]->(p1)",
+            " create (p4:User {name:'D'}) create (p1)-[:FRIEND]->(p2) create (p1)-[:FRIEND]->(p3) create (p4)-[:FRIEND]->(p1)",
             Collections.EMPTY_MAP);
 
         User userA = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
@@ -130,7 +130,7 @@ public class SocialIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-594
      */
     @Test
-    public void shouldSaveUndirectedFriends() {
+    void shouldSaveUndirectedFriends() {
         User userA = new User("A");
         User userB = new User("B");
         User userC = new User("C");
@@ -166,7 +166,7 @@ public class SocialIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-594
      */
     @Test
-    public void shouldSaveUndirectedFriendsInBothDirections() {
+    void shouldSaveUndirectedFriendsInBothDirections() {
         Person userA = new Person("A");
         Person userB = new Person("B");
 
@@ -189,7 +189,7 @@ public class SocialIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-594
      */
     @Test
-    public void shouldSaveIncomingKnownMortals() {
+    void shouldSaveIncomingKnownMortals() {
         Mortal mortalA = new Mortal("A");
         Mortal mortalB = new Mortal("B");
         Mortal mortalC = new Mortal("C");
@@ -228,9 +228,9 @@ public class SocialIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-594
      */
     @Test
-    public void shouldFetchIncomingKnownMortals() {
+    void shouldFetchIncomingKnownMortals() {
         session.query("create (m1:Mortal {name:'A'}) create (m2:Mortal {name:'B'}) create (m3:Mortal {name:'C'})" +
-                " create (m4:Mortal {name:'D'}) create (m1)<-[:KNOWN_BY]-(m2) create (m1)<-[:KNOWN_BY]-(m3) create (m4)<-[:KNOWN_BY]-(m1)",
+            " create (m4:Mortal {name:'D'}) create (m1)<-[:KNOWN_BY]-(m2) create (m1)<-[:KNOWN_BY]-(m3) create (m4)<-[:KNOWN_BY]-(m1)",
             Collections.EMPTY_MAP);
 
         Mortal mortalA = session.loadAll(Mortal.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator()
@@ -256,7 +256,7 @@ public class SocialIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFetchFriendsUndirected() {
+    void shouldFetchFriendsUndirected() {
 
         User adam = new User("Adam");
         User daniela = new User("Daniela");
@@ -303,7 +303,7 @@ public class SocialIntegrationTest extends TestContainersTestBase {
      * and doesn't continue to save c (or e)
      */
     @Test
-    public void shouldSaveObjectsToCorrectDepth() throws Exception {
+    void shouldSaveObjectsToCorrectDepth() throws Exception {
 
         Person a = new Person("A");
         Person b = new Person("B");
@@ -328,7 +328,7 @@ public class SocialIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveAllDirectedRelationships() throws Exception {
+    void shouldSaveAllDirectedRelationships() throws Exception {
 
         Person a = new Person("A");
         Person b = new Person("B");

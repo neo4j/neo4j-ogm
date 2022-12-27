@@ -24,9 +24,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.locking.FriendOf;
 import org.neo4j.ogm.domain.locking.Location;
 import org.neo4j.ogm.domain.locking.PowerUser;
@@ -46,19 +46,19 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.locking");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void whenSaveNewNodeThenSetVersionToZero() {
+    void whenSaveNewNodeThenSetVersionToZero() {
         User frantisek = new User("Frantisek");
 
         // version set in the entity
@@ -72,7 +72,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void givenNodeWhenUpdateNodeThenIncrementVersion() {
+    void givenNodeWhenUpdateNodeThenIncrementVersion() {
         User frantisek = new User("Frantisek");
 
         session.save(frantisek);
@@ -89,7 +89,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void givenNodeWithWrongVersionWhenSaveNodeThenFailWithOptimisticLockingException() {
+    void givenNodeWithWrongVersionWhenSaveNodeThenFailWithOptimisticLockingException() {
         User frantisek = new User("Frantisek");
         session.save(frantisek);
         frantisek.setName("Frantisek Hartman");
@@ -106,7 +106,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void saveOnNonExistingEntityShouldFailWithOptimisticLockingException() {
+    void saveOnNonExistingEntityShouldFailWithOptimisticLockingException() {
         User frantisek = new User("Frantisek");
         session.save(frantisek);
 
@@ -125,7 +125,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void givenNodeWhenDeleteThenNodeIsDeleted() {
+    void givenNodeWhenDeleteThenNodeIsDeleted() {
         // This is normal delete, but should still work with optimistic locking
         User frantisek = new User("Frantisek");
         session.save(frantisek);
@@ -137,7 +137,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void givenNodeWithWrongVersionWhenDeleteThenThrowOptimisticLockingException() {
+    void givenNodeWithWrongVersionWhenDeleteThenThrowOptimisticLockingException() {
         User frantisek = new User("Frantisek");
         session.save(frantisek);
 
@@ -148,7 +148,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldWorkWithInheritedVersionField() {
+    void shouldWorkWithInheritedVersionField() {
         PowerUser frantisek = new PowerUser("Frantisek");
         session.save(frantisek);
 
@@ -161,7 +161,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldWorkWithCustomVersionFieldName() {
+    void shouldWorkWithCustomVersionFieldName() {
         Location london = new Location("London");
         session.save(london);
 
@@ -173,8 +173,9 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
         assertThat(london.getCustomVersion()).isEqualTo(1L);
     }
 
-    @Test // GH-894
-    public void assertWorkingLocksOnReReadWithChangedProperties() {
+    // GH-894
+    @Test
+    void assertWorkingLocksOnReReadWithChangedProperties() {
         // Use independent sessions
         Session session1 = sessionFactory.openSession();
         long existingId = session1.queryForObject(Long.class, "CREATE (a:Location {name: 'Aachen', customVersion: 1}) RETURN id(a)", Collections.emptyMap());
@@ -211,8 +212,9 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
         assertThat(version).isEqualTo(3L);
     }
 
-    @Test // GH-894
-    public void assertWorkingLocksOnReReadWithChangedRelationships() {
+    // GH-894
+    @Test
+    void assertWorkingLocksOnReReadWithChangedRelationships() {
         // Use independent sessions
         Session session1 = sessionFactory.openSession();
         long bertId = session1.queryForObject(Long.class, "CREATE (a:User {name: 'bert', version: 1}) RETURN id(a)", Collections.emptyMap());
@@ -253,7 +255,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
         assertThat(bert.getVersion()).isEqualTo(3L);
 
         versions = session1.query("MATCH (a:User {name: $name}) -[f:FRIEND_OF] -> (:User) RETURN"
-                + " a.version as userVersion, f.version as relVersion", Collections.singletonMap("name", bert.getName()))
+            + " a.version as userVersion, f.version as relVersion", Collections.singletonMap("name", bert.getName()))
             .queryResults().iterator().next();
         session1.clear();
         assertThat(versions).containsEntry("userVersion", 3L);
@@ -265,7 +267,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
         assertThat(bert.getVersion()).isEqualTo(3L);
 
         versions = session1.query("MATCH (a:User {name: $name}) -[f:FRIEND_OF] -> (:User) RETURN"
-                + " a.version as userVersion, f.version as relVersion, f.description as description", Collections.singletonMap("name", bert.getName()))
+            + " a.version as userVersion, f.version as relVersion, f.description as description", Collections.singletonMap("name", bert.getName()))
             .queryResults().iterator().next();
         session1.clear();
         assertThat(versions).containsEntry("userVersion", 3L);

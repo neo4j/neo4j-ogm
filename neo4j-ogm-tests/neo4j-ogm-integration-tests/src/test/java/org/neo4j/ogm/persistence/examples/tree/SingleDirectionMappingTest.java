@@ -22,8 +22,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.tree.Node;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -36,14 +36,14 @@ public class SingleDirectionMappingTest extends TestContainersTestBase {
 
     private Session session;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.tree").openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldLoadCorrectRelationshipsWhenUsingDefaultDirection() throws Exception {
+    void shouldLoadCorrectRelationshipsWhenUsingDefaultDirection() throws Exception {
         Node node1 = new Node("Node 1");
         Node node2 = new Node("Node 2");
         node1.add(node2);

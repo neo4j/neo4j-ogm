@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.session.event.Event;
@@ -35,7 +35,7 @@ import org.neo4j.ogm.session.event.Event;
 public class CollectionsTest extends EventTestBaseClass {
 
     @Test
-    public void shouldFireEventsWhenSavingACollection() {
+    void shouldFireEventsWhenSavingACollection() {
 
         a.setName("newA");
         b.setName("newB");
@@ -54,7 +54,7 @@ public class CollectionsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenDeletingACollection() {
+    void shouldFireEventsWhenDeletingACollection() {
 
         session.delete(Arrays.asList(a, b, c));
 
@@ -75,7 +75,7 @@ public class CollectionsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventWhenDeletingAllObjectsOfASpecifiedType() {
+    void shouldFireEventWhenDeletingAllObjectsOfASpecifiedType() {
 
         session.deleteAll(Document.class);
 
@@ -86,7 +86,7 @@ public class CollectionsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenDeletingObjectsOfDifferentTypes() {
+    void shouldFireEventsWhenDeletingObjectsOfDifferentTypes() {
 
         session.delete(Arrays.asList(folder, knowsJB));
 
@@ -113,8 +113,9 @@ public class CollectionsTest extends EventTestBaseClass {
         assertThat(eventListener.count()).isEqualTo(14);
     }
 
-    @Test // GH-473
-    public void shouldFireEventsOnSavingIterables() {
+    // GH-473
+    @Test
+    void shouldFireEventsOnSavingIterables() {
 
         List<Actor> actors = Arrays.asList(new Actor("Arnold"), new Actor("Bruce"));
 
@@ -127,8 +128,9 @@ public class CollectionsTest extends EventTestBaseClass {
         );
     }
 
-    @Test // GH-473
-    public void shouldFireEventsOnDeletingIterables() {
+    // GH-473
+    @Test
+    void shouldFireEventsOnDeletingIterables() {
 
         List<Actor> actors = Arrays.asList(new Actor("Sylvester"), new Actor("Chuck"));
         actors.forEach(session::save);

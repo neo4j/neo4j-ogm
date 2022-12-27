@@ -22,9 +22,9 @@ import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.domain.properties.UserWithEnumMap.UserProperties.*;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.properties.UserWithEnumMap;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -38,20 +38,20 @@ public class EnumMapPropertiesTest extends TestContainersTestBase {
 
     private static Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         session = new SessionFactory(getDriver(),
             UserWithEnumMap.class.getName())
             .openSession();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldMapMapAttributeToProperties() {
+    void shouldMapMapAttributeToProperties() {
         UserWithEnumMap user = new UserWithEnumMap("Frantisek");
         user.putMyProperty(CITY, "London");
         user.putMyProperty(ZIP_CODE, "SW1A 1AA");
@@ -71,7 +71,7 @@ public class EnumMapPropertiesTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapNodePropertiesToPropertiesAttribute() {
+    void shouldMapNodePropertiesToPropertiesAttribute() {
         session.query(
             "CREATE (u:User {`name`:'Frantisek', `myProperties.CITY`:'London', `myProperties.ZIP_CODE`:'SW1A 1AA'})",
             emptyMap());

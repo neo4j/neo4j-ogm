@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
@@ -40,24 +40,24 @@ public class BucketIntegrationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.examples.numbers");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         session.purgeDatabase();
     }
 
     @Test
-    public void savedBucketShouldHaveDefaultValue() throws Exception {
+    void savedBucketShouldHaveDefaultValue() throws Exception {
         Bucket bucket = new Bucket();
         session.save(bucket);
         session.clear();
@@ -67,7 +67,7 @@ public class BucketIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void emptiedBucketShouldBeEmptyAfterReload() throws Exception {
+    void emptiedBucketShouldBeEmptyAfterReload() throws Exception {
         Bucket bucket = new Bucket();
         bucket.setNumbers(emptyList());
         session.save(bucket);

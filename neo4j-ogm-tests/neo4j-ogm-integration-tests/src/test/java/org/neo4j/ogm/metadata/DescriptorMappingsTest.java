@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.convertible.enums.Education;
 import org.neo4j.ogm.domain.education.School;
 
@@ -34,7 +34,7 @@ import org.neo4j.ogm.domain.education.School;
 public class DescriptorMappingsTest {
 
     @Test
-    public void shouldResolveParameterTypeForSetterMethodFromSignatureString() {
+    void shouldResolveParameterTypeForSetterMethodFromSignatureString() {
         assertThat(DescriptorMappings.getType("java.util.Date")).isEqualTo(Date.class);
         assertThat(DescriptorMappings.getType("boolean")).isEqualTo(boolean.class);
         assertThat(DescriptorMappings.getType("byte")).isEqualTo(byte.class);
@@ -52,13 +52,13 @@ public class DescriptorMappingsTest {
     }
 
     @Test
-    public void shouldReturnNullWhenClassCannotBeLoaded() {
+    void shouldReturnNullWhenClassCannotBeLoaded() {
         assertThat(DescriptorMappings.getType("org.mozilla.javascript.xml.impl.xmlbeans.XML$XScriptAnnotation"))
             .isEqualTo(null);
     }
 
     @Test
-    public void shouldIdentifyKnownTypes() {
+    void shouldIdentifyKnownTypes() {
         assertThat(DescriptorMappings.describesPrimitve("char")).isTrue();
         assertThat(DescriptorMappings.describesWrapper("char")).isFalse();
         assertThat(DescriptorMappings.describesPrimitve("java.lang.Character")).isFalse();

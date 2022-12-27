@@ -20,8 +20,8 @@ package org.neo4j.ogm.context;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.domain.education.TeachesAt;
@@ -36,13 +36,13 @@ public class IdentityMapTest {
     private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.education");
     private static final MappingContext mappingContext = new MappingContext(metaData);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mappingContext.clear();
     }
 
     @Test
-    public void testUnchangedObjectDetected() {
+    void testUnchangedObjectDetected() {
         Teacher mrsJones = new Teacher();
 
         mrsJones.setId(115L); // the id field must not be part of the memoised property list
@@ -51,7 +51,7 @@ public class IdentityMapTest {
     }
 
     @Test
-    public void testChangedPropertyDetected() {
+    void testChangedPropertyDetected() {
         Teacher teacher = new Teacher("Miss White");
 
         teacher.setId(115L); // the id field must not be part of the memoised property list
@@ -62,7 +62,7 @@ public class IdentityMapTest {
     }
 
     @Test
-    public void testRelatedObjectChangeDoesNotAffectNodeMemoisation() {
+    void testRelatedObjectChangeDoesNotAffectNodeMemoisation() {
         Teacher teacher = new Teacher("Miss White");
 
         teacher.setId(115L); // the id field must not be part of the memoised property list
@@ -73,8 +73,9 @@ public class IdentityMapTest {
         assertThat(mappingContext.isDirty(teacher)).isFalse();
     }
 
-    @Test // GH-684
-    public void testNodeAndRelationshipWithSameId() {
+    // GH-684
+    @Test
+    void testNodeAndRelationshipWithSameId() {
 
         // Create a Node and set the Id.
         Teacher mrsJones = new Teacher();

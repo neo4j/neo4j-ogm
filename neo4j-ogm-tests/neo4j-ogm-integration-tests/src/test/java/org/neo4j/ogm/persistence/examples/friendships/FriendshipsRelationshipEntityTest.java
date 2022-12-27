@@ -25,9 +25,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.friendships.Friendship;
 import org.neo4j.ogm.domain.friendships.Person;
 import org.neo4j.ogm.session.Session;
@@ -43,19 +43,19 @@ public class FriendshipsRelationshipEntityTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.friendships");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldSaveFromStartObjectSetsAllObjectIds() {
+    void shouldSaveFromStartObjectSetsAllObjectIds() {
 
         Person mike = new Person("Mike");
         Person dave = new Person("Dave");
@@ -71,7 +71,7 @@ public class FriendshipsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveAndReloadAllSetsAllObjectIdsAndReferencesCorrectly() {
+    void shouldSaveAndReloadAllSetsAllObjectIdsAndReferencesCorrectly() {
 
         Person mike = new Person("Mike");
         Person dave = new Person("Dave");
@@ -96,7 +96,7 @@ public class FriendshipsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveFromRelationshipEntitySetsAllObjectIds() {
+    void shouldSaveFromRelationshipEntitySetsAllObjectIds() {
 
         Person mike = new Person("Mike");
         Person dave = new Person("Dave");
@@ -112,7 +112,7 @@ public class FriendshipsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadStartObjectHydratesProperly() {
+    void shouldLoadStartObjectHydratesProperly() {
 
         Person mike = new Person("Mike");
         Person dave = new Person("Dave");
@@ -135,7 +135,7 @@ public class FriendshipsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadRelationshipEntityObjectHydratesProperly() {
+    void shouldLoadRelationshipEntityObjectHydratesProperly() {
 
         Person mike = new Person("Mike");
         Person dave = new Person("Dave");
@@ -161,7 +161,7 @@ public class FriendshipsRelationshipEntityTest extends TestContainersTestBase {
      * @see DATAGRAPH-644
      */
     @Test
-    public void shouldRetrieveRelationshipEntitySetPropertyCorrectly() {
+    void shouldRetrieveRelationshipEntitySetPropertyCorrectly() {
 
         Person mike = new Person("Mike");
         Person dave = new Person("Dave");

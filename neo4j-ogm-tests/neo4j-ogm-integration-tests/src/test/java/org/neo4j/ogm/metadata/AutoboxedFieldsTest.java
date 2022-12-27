@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.metadata;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author vince
@@ -26,102 +26,102 @@ import org.junit.Test;
 public class AutoboxedFieldsTest extends TestMetaDataTypeResolution {
 
     @Test
-    public void testObjectArray() {
+    void testObjectArray() {
         checkField("oo", "java.lang.Object[]", Object.class);
     }
 
     @Test
-    public void testStringArray() {
+    void testStringArray() {
         checkField("xx", "java.lang.String[]", String.class);
     }
 
     @Test
-    public void testShortArray() {
+    void testShortArray() {
         checkField("ss", "java.lang.Short[]", Short.class);
     }
 
     @Test
-    public void testCharacterArray() {
+    void testCharacterArray() {
         checkField("cc", "java.lang.Character[]", Character.class);
     }
 
     @Test
-    public void testByteArray() {
+    void testByteArray() {
         checkField("bb", "java.lang.Byte[]", Byte.class);
     }
 
     @Test
-    public void testLongArray() {
+    void testLongArray() {
         checkField("ll", "java.lang.Long[]", Long.class);
     }
 
     @Test
-    public void testDoubleArray() {
+    void testDoubleArray() {
         checkField("dd", "java.lang.Double[]", Double.class);
     }
 
     @Test
-    public void testFloatArray() {
+    void testFloatArray() {
         checkField("ff", "java.lang.Float[]", Float.class);
     }
 
     @Test
-    public void testBooleanArray() {
+    void testBooleanArray() {
         checkField("zz", "java.lang.Boolean[]", Boolean.class);
     }
 
     @Test
-    public void testIntegerArray() {
+    void testIntegerArray() {
         checkField("ii", "java.lang.Integer[]", Integer.class);
     }
 
     @Test
-    public void testObject() {
+    void testObject() {
         checkField("o", "java.lang.Object", Object.class);
     }
 
     @Test
-    public void testString() {
+    void testString() {
         checkField("x", "java.lang.String", String.class);
     }
 
     @Test
-    public void testShort() {
+    void testShort() {
         checkField("s", "java.lang.Short", Short.class);
     }
 
     @Test
-    public void testCharacter() {
+    void testCharacter() {
         checkField("c", "java.lang.Character", Character.class);
     }
 
     @Test
-    public void testByte() {
+    void testByte() {
         checkField("b", "java.lang.Byte", Byte.class);
     }
 
     @Test
-    public void testLong() {
+    void testLong() {
         checkField("l", "java.lang.Long", Long.class);
     }
 
     @Test
-    public void testDouble() {
+    void testDouble() {
         checkField("d", "java.lang.Double", Double.class);
     }
 
     @Test
-    public void testFloat() {
+    void testFloat() {
         checkField("f", "java.lang.Float", Float.class);
     }
 
     @Test
-    public void testBoolean() {
+    void testBoolean() {
         checkField("z", "java.lang.Boolean", Boolean.class);
     }
 
     @Test
-    public void testInteger() {
+    void testInteger() {
         checkField("i", "java.lang.Integer", Integer.class);
     }
 }

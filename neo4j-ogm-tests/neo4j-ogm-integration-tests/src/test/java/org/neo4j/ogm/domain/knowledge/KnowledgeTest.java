@@ -18,9 +18,9 @@
  */
 package org.neo4j.ogm.domain.knowledge;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
@@ -35,12 +35,12 @@ public class KnowledgeTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.knowledge");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
     }
@@ -49,7 +49,7 @@ public class KnowledgeTest extends TestContainersTestBase {
      * @see 351
      */
     @Test
-    public void shouldBeAbleToRollbackObjectWithDifferentKnowledges() {
+    void shouldBeAbleToRollbackObjectWithDifferentKnowledges() {
 
         Person john = new Person("John");
         Person mary = new Person("Mary");

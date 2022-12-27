@@ -21,9 +21,9 @@ package org.neo4j.ogm.persistence.examples.companies;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.companies.partial.Company;
 import org.neo4j.ogm.domain.companies.partial.Person;
 import org.neo4j.ogm.session.Session;
@@ -38,12 +38,12 @@ public class PartialCompaniesIntegrationTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.companies.partial");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -51,7 +51,7 @@ public class PartialCompaniesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void whenSaveAndLoadCompany_thenShouldCorrectlySetPersonFields() {
+    void whenSaveAndLoadCompany_thenShouldCorrectlySetPersonFields() {
         Person alice = new Person("Alice the Founder");
         Person bob = new Person("Bob the employee");
 

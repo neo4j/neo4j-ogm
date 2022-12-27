@@ -20,8 +20,8 @@ package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.gh809.package1.TestEntity;
 
 /**
@@ -34,7 +34,7 @@ public class DomainInfoTest {
 
     private DomainInfo domainInfo;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         domainInfo = DomainInfo.create(
             "org.neo4j.ogm.domain.forum",
@@ -43,7 +43,7 @@ public class DomainInfoTest {
     }
 
     @Test
-    public void testInterfaceClassIMembership() {
+    void testInterfaceClassIMembership() {
 
         ClassInfo classInfo = domainInfo.getClassSimpleName("IMembership");
 
@@ -51,8 +51,9 @@ public class DomainInfoTest {
         assertThat(classInfo.directImplementingClasses()).hasSize(5);
     }
 
-    @Test // GH-806
-    public void shouldFindAllSubclasses() {
+    // GH-806
+    @Test
+    void shouldFindAllSubclasses() {
 
         ClassInfo classInfo = domainInfo.getClassSimpleName("Element");
 
@@ -65,8 +66,9 @@ public class DomainInfoTest {
             );
     }
 
-    @Test // GH-806
-    public void shouldFindAllImplementingClasses() {
+    // GH-806
+    @Test
+    void shouldFindAllImplementingClasses() {
 
         ClassInfo classInfo = domainInfo.getClassSimpleName("IElement");
 
@@ -78,7 +80,7 @@ public class DomainInfoTest {
     }
 
     @Test
-    public void testAbstractClassMembership() {
+    void testAbstractClassMembership() {
 
         ClassInfo classInfo = domainInfo.getClassSimpleName("Membership");
         assertThat(classInfo).isNotNull();
@@ -86,7 +88,7 @@ public class DomainInfoTest {
     }
 
     @Test
-    public void testConcreteClassSilverMembership() {
+    void testConcreteClassSilverMembership() {
 
         ClassInfo classInfo = domainInfo.getClassSimpleName("SilverMembership");
         assertThat(classInfo).isNotNull();
@@ -94,7 +96,7 @@ public class DomainInfoTest {
     }
 
     @Test
-    public void shouldCorrectlyFindMultipleClassesWithSimpleNameIfAnnotated() {
+    void shouldCorrectlyFindMultipleClassesWithSimpleNameIfAnnotated() {
         ClassInfo classInfo = domainInfo.getClassSimpleName("TestEntity");
         assertThat(classInfo.getUnderlyingClass()).isSameAs(TestEntity.class);
     }

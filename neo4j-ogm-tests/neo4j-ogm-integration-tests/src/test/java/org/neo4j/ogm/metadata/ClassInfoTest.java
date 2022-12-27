@@ -19,17 +19,16 @@
 package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.rules.ExpectedException.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.neo4j.ogm.annotation.Relationship.*;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.cineasts.partial.Knows;
 import org.neo4j.ogm.domain.cineasts.partial.Rating;
 import org.neo4j.ogm.domain.cineasts.partial.Role;
@@ -45,12 +44,9 @@ import org.neo4j.ogm.utils.EntityUtils;
 
 public class ClassInfoTest {
 
-    @Rule
-    public final ExpectedException expectedException = none();
-
     private MetaData metaData;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         metaData = new MetaData("org.neo4j.ogm.domain.forum",
             "org.neo4j.ogm.domain.pizza",
@@ -65,7 +61,7 @@ public class ClassInfoTest {
      * The default identity field is a Long type called "id"
      */
     @Test
-    public void identityField() {
+    void identityField() {
         ClassInfo classInfo = metaData.classInfo("Login");
         assertThat(classInfo.identityField().getName()).isEqualTo("id");
         classInfo = metaData.classInfo("Bronze");
@@ -78,7 +74,7 @@ public class ClassInfoTest {
      * The annotated identity field is a Long type but called whatever you want
      */
     @Test
-    public void testAnnotatedIdentity() {
+    void testAnnotatedIdentity() {
         ClassInfo classInfo = metaData.classInfo("Topic");
         assertThat(classInfo.identityField().getName()).isEqualTo("topicId");
     }
@@ -87,7 +83,7 @@ public class ClassInfoTest {
      * Fields mappable to node properties
      */
     @Test
-    public void testPropertyFieldInfo() {
+    void testPropertyFieldInfo() {
 
         ClassInfo classInfo = metaData.classInfo("Bronze");
         Collection<FieldInfo> fieldInfos = classInfo.propertyFields();
@@ -102,17 +98,18 @@ public class ClassInfoTest {
         assertThat(count).isEqualTo(0);
     }
 
-    @Test // see GH-506
-    public void invalidPropertyFieldsShouldGiveBetterError() {
+    // see GH-506
+    @Test
+    void invalidPropertyFieldsShouldGiveBetterError() {
+        Throwable exception = assertThrows(InvalidPropertyFieldException.class, () -> {
 
-        this.expectedException.expect(InvalidPropertyFieldException.class);
-        this.expectedException.expectMessage("'org.neo4j.ogm.domain.forum.LeadMembership#yearOfRegistration' is not persistable as property but has not been marked as transient.");
-
-        metaData.classInfo("Lead").propertyFields();
+            metaData.classInfo("Lead").propertyFields();
+        });
+        assertTrue(exception.getMessage().contains("'org.neo4j.ogm.domain.forum.LeadMembership#yearOfRegistration' is not persistable as property but has not been marked as transient."));
     }
 
     @Test
-    public void testIndexFieldInfo() {
+    void testIndexFieldInfo() {
 
         ClassInfo classInfo = metaData.classInfo("Login");
 
@@ -131,7 +128,7 @@ public class ClassInfoTest {
     }
 
     @Test
-    public void testIndexFieldInfoForIdAnnotation() throws Exception {
+    void testIndexFieldInfoForIdAnnotation() throws Exception {
         ClassInfo classInfo = metaData.classInfo("ValidAnnotations$Basic");
 
         assertThat(classInfo.containsIndexes()).isTrue();
@@ -148,7 +145,7 @@ public class ClassInfoTest {
      * Node property names available via .property() (annotation)
      */
     @Test
-    public void testAnnotatedPropertyFieldInfo() {
+    void testAnnotatedPropertyFieldInfo() {
 
         ClassInfo classInfo = metaData.classInfo("Bronze");
         Collection<FieldInfo> fieldInfos = classInfo.propertyFields();
@@ -162,7 +159,7 @@ public class ClassInfoTest {
      * A property field cannot be used as a relationship (node entry)
      */
     @Test
-    public void testPropertyFieldIsNotARelationshipField() {
+    void testPropertyFieldIsNotARelationshipField() {
 
         ClassInfo classInfo = metaData.classInfo("Bronze");
         Collection<FieldInfo> fieldInfos = classInfo.propertyFields();
@@ -175,7 +172,7 @@ public class ClassInfoTest {
      * Find all fields that will be mapped as objects at the end of a relationship
      */
     @Test
-    public void testRelationshipFieldInfo() {
+    void testRelationshipFieldInfo() {
         ClassInfo classInfo = metaData.classInfo("Member");
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
 
@@ -202,7 +199,7 @@ public class ClassInfoTest {
      * Relationship fields provide relationship name via .relationship()
      */
     @Test
-    public void testAnnotatedRelationshipFieldInfo() {
+    void testAnnotatedRelationshipFieldInfo() {
         ClassInfo classInfo = metaData.classInfo("Topic");
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
 
@@ -217,7 +214,7 @@ public class ClassInfoTest {
      * Relationship fields provide relationship name via .relationship()
      */
     @Test
-    public void testNonAnnotatedRelationshipFieldInfo() {
+    void testNonAnnotatedRelationshipFieldInfo() {
         ClassInfo classInfo = metaData.classInfo("Topic");
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
 
@@ -232,7 +229,7 @@ public class ClassInfoTest {
      * Relationship fields are not mappable to node properties
      */
     @Test
-    public void testRelationshipFieldIsNotAPropertyField() {
+    void testRelationshipFieldIsNotAPropertyField() {
 
         ClassInfo classInfo = metaData.classInfo("Member");
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
@@ -245,7 +242,7 @@ public class ClassInfoTest {
      * A property field can be found using its annotated name (node property value)
      */
     @Test
-    public void testNamedPropertyField() {
+    void testNamedPropertyField() {
         ClassInfo classInfo = metaData.classInfo("Gold");
         FieldInfo fieldInfo = classInfo.propertyField("annualFees");
         assertThat(fieldInfo.getName()).isEqualTo("fees");
@@ -255,14 +252,14 @@ public class ClassInfoTest {
      * A relationship field can be found using its annotated name (relationship type value)
      */
     @Test
-    public void testNamedRelationshipField() {
+    void testNamedRelationshipField() {
         ClassInfo classInfo = metaData.classInfo("Topic");
         FieldInfo fieldInfo = classInfo.relationshipField("HAS_POSTS");
         assertThat(fieldInfo.getName()).isEqualTo("posts");
     }
 
     @Test
-    public void testRelationshipGetters() {
+    void testRelationshipGetters() {
         ClassInfo classInfo = metaData.classInfo("User");
         Collection<FieldInfo> relationshipFields = classInfo.relationshipFields();
         int count = 4;
@@ -288,7 +285,7 @@ public class ClassInfoTest {
      * Can find methods for getting objects which can be represented as node properties in the graph
      */
     @Test
-    public void testPropertyGetters() {
+    void testPropertyGetters() {
         ClassInfo classInfo = metaData.classInfo("User");
         Collection<FieldInfo> propertyFields = classInfo.propertyFields();
         int count = 6;
@@ -317,14 +314,14 @@ public class ClassInfoTest {
     }
 
     @Test
-    public void testClassInfoIsFoundForFQN() {
+    void testClassInfoIsFoundForFQN() {
         String fqn = "org.neo4j.ogm.domain.forum.Topic";
         ClassInfo classInfo = metaData.classInfo(fqn);
         assertThat(classInfo.name()).isEqualTo(fqn);
     }
 
     @Test
-    public void testFindDateField() {
+    void testFindDateField() {
         ClassInfo classInfo = metaData.classInfo("Member");
         List<FieldInfo> fieldInfos = classInfo.findFields(Date.class);
         FieldInfo fieldInfo = fieldInfos.iterator().next();
@@ -333,7 +330,7 @@ public class ClassInfoTest {
     }
 
     @Test
-    public void testFindIterableFields() {
+    void testFindIterableFields() {
         ClassInfo classInfo = metaData.classInfo("User");
         List<FieldInfo> fieldInfos = classInfo.findIterableFields();
         int count = 4;
@@ -356,7 +353,7 @@ public class ClassInfoTest {
     }
 
     @Test
-    public void testStaticLabelsForClassInfo() {
+    void testStaticLabelsForClassInfo() {
         ClassInfo annotatedClassInfo = metaData.classInfo(Member.class.getSimpleName());
         assertThat(annotatedClassInfo.staticLabels()).containsExactly("User", "Login");
 
@@ -368,16 +365,18 @@ public class ClassInfoTest {
         assertThat(nonAnnotatedClassInfo.staticLabels()).containsExactly("Student", "DomainObject");
     }
 
-    @Test // GH-159
-    public void labelFieldOrNull() {
+    // GH-159
+    @Test
+    void labelFieldOrNull() {
         ClassInfo classInfo = metaData.classInfo(Pizza.class.getSimpleName());
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         assertThat(fieldInfo).isNotNull();
         assertThat(fieldInfo.getName()).isEqualTo("labels");
     }
 
-    @Test // GH-159
-    public void labelFieldOrNullThrowsMappingExceptionForInvalidType() {
+    // GH-159
+    @Test
+    void labelFieldOrNullThrowsMappingExceptionForInvalidType() {
         assertThatThrownBy(() -> {
             LabelsAnnotationWithWrongType entity = new LabelsAnnotationWithWrongType();
             Collection<String> collatedLabels = EntityUtils.labels(entity, metaData);
@@ -387,18 +386,18 @@ public class ClassInfoTest {
     }
 
     @Test
-    public void testClassInfoForAbstractClassImplementingInterface() {
+    void testClassInfoForAbstractClassImplementingInterface() {
         assertThat(metaData.classInfo("Membership").interfacesInfo().list().size()).isEqualTo(1);
     }
 
     @Test
-    public void testClassInfoForAbstractClassImplementingInterfaceName() {
+    void testClassInfoForAbstractClassImplementingInterfaceName() {
         assertThat(metaData.classInfo("Membership").interfacesInfo().list().iterator().next().toString()
             .contains("IMembership")).isTrue();
     }
 
     @Test
-    public void testCollectionFieldInfo() {
+    void testCollectionFieldInfo() {
 
         ClassInfo classInfo = metaData.classInfo("Member");
         FieldInfo fieldInfo = classInfo.relationshipField("followers");
@@ -406,7 +405,7 @@ public class ClassInfoTest {
     }
 
     @Test
-    public void testArrayFieldInfo() {
+    void testArrayFieldInfo() {
 
         ClassInfo classInfo = metaData.classInfo("Member");
         FieldInfo fieldInfo = classInfo.getFieldInfo("nicknames");
@@ -414,27 +413,30 @@ public class ClassInfoTest {
     }
 
     @Test
-    public void testScalarFieldInfo() {
+    void testScalarFieldInfo() {
 
         ClassInfo classInfo = metaData.classInfo("Member");
         FieldInfo fieldInfo = classInfo.getFieldInfo("userName");
         assertThat(fieldInfo.isScalar()).isTrue();
     }
 
-    @Test // DATAGRAPH-615
-    public void testDefaultLabelOfNodeEntities() {
+    // DATAGRAPH-615
+    @Test
+    void testDefaultLabelOfNodeEntities() {
         ClassInfo classInfo = metaData.classInfo("Forum");
         assertThat(classInfo.neo4jName()).isEqualTo("Forum");
     }
 
-    @Test // DATAGRAPH-615
-    public void testDefaultLabelOfRelationshipEntities() {
+    // DATAGRAPH-615
+    @Test
+    void testDefaultLabelOfRelationshipEntities() {
         ClassInfo classInfo = metaData.classInfo("Nomination");
         assertThat(classInfo.neo4jName()).isEqualTo("NOMINATION");
     }
 
-    @Test // DATAGRAPH-690
-    public void testTypeParameterDescriptorForRelationships() {
+    // DATAGRAPH-690
+    @Test
+    void testTypeParameterDescriptorForRelationships() {
         ClassInfo classInfo = metaData.classInfo("Topic");
         assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", Direction.OUTGOING)).isEqualTo(Post.class);
         assertThat(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", Direction.INCOMING)).isNull();
@@ -463,7 +465,7 @@ public class ClassInfoTest {
     }
 
     @Test
-    public void shouldExcludeStaticInitialisersFromPersistenceMethods() {
+    void shouldExcludeStaticInitialisersFromPersistenceMethods() {
 
         ClassInfo classInfo = metaData.classInfo("SecurityRole");
         Collection<MethodInfo> methodInfos = classInfo.methodsInfo().findMethodInfoBy(m -> true);

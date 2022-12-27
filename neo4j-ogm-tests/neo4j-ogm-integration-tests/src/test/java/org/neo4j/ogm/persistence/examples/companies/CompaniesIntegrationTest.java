@@ -25,10 +25,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.companies.annotated.Company;
 import org.neo4j.ogm.domain.companies.annotated.Device;
 import org.neo4j.ogm.domain.companies.annotated.Person;
@@ -45,23 +45,23 @@ public class CompaniesIntegrationTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws IOException {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.companies.annotated");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         session.purgeDatabase();
     }
 
     @Test
-    public void employeesShouldNotBeSetAsOwnersWhenLoadingCompanies() {
+    void employeesShouldNotBeSetAsOwnersWhenLoadingCompanies() {
         Company company = new Company("GraphAware");
         Person michal = new Person("Michal");
         Person daniela = new Person("Daniela");
@@ -84,7 +84,7 @@ public class CompaniesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void employeesAndOwnersShouldBeLoaded() {
+    void employeesAndOwnersShouldBeLoaded() {
         Company company = new Company("GraphAware");
         Person michal = new Person("Michal");
         Person daniela = new Person("Daniela");
@@ -114,7 +114,7 @@ public class CompaniesIntegrationTest extends TestContainersTestBase {
      * @see Issue 112
      */
     @Test
-    public void shouldDeleteUndirectedRelationship() {
+    void shouldDeleteUndirectedRelationship() {
         Person person = new Person();
         Device device = new Device();
         person.addDevice(device);

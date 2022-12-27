@@ -23,9 +23,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Recording;
 import org.neo4j.ogm.session.Session;
@@ -41,29 +41,29 @@ public class DeleteCapabilityTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldNotFailIfDeleteNodeEntityAgainstEmptyDatabase() {
+    void shouldNotFailIfDeleteNodeEntityAgainstEmptyDatabase() {
         session.deleteAll(Album.class);
     }
 
     @Test
-    public void shouldNotFailIfDeleteRelationshipEntityAgainstEmptyDatabase() {
+    void shouldNotFailIfDeleteRelationshipEntityAgainstEmptyDatabase() {
         session.deleteAll(Recording.class);
     }
 
     @Test
-    public void canDeleteSingleEntry() {
+    void canDeleteSingleEntry() {
         Album album = new Album();
         session.save(album);
         assertEntityCount(1);
@@ -73,7 +73,7 @@ public class DeleteCapabilityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void canDeleteEntityCollection() {
+    void canDeleteEntityCollection() {
         Album album1 = new Album();
         Album album2 = new Album();
         session.save(album1);
@@ -88,8 +88,9 @@ public class DeleteCapabilityTest extends TestContainersTestBase {
         assertEntityCount(0);
     }
 
-    @Test // GH-509
-    public void canDeleteEntityArray() {
+    // GH-509
+    @Test
+    void canDeleteEntityArray() {
         Album album1 = new Album();
         Album album2 = new Album();
         session.save(album1);

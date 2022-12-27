@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.gh868.Actor;
 import org.neo4j.ogm.domain.gh868.Movie;
 import org.neo4j.ogm.domain.music.Album;
@@ -46,20 +46,20 @@ public class TransactionTest extends TestContainersTestBase {
 
     private Session session;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.gh868");
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
-    @After
+    @AfterEach
     public void clearDatabase() {
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldNotCommitWhenTransactionIsManaged() {
+    void shouldNotCommitWhenTransactionIsManaged() {
         Transaction tx = session.beginTransaction();
         Studio emi = new Studio("EMI Studios, London");
 
@@ -76,8 +76,9 @@ public class TransactionTest extends TestContainersTestBase {
         assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(0);
     }
 
-    @Test // GH-126
-    public void shouldBeAbleToRetrySaveOnTransactionRollback() {
+    // GH-126
+    @Test
+    void shouldBeAbleToRetrySaveOnTransactionRollback() {
 
         Transaction tx = session.beginTransaction();
 
@@ -106,7 +107,7 @@ public class TransactionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotBeReadOnlyByDefault() {
+    void shouldNotBeReadOnlyByDefault() {
 
         try (Transaction tx = session.beginTransaction()) {
             assertThat(tx.isReadOnly()).isFalse();
@@ -114,7 +115,7 @@ public class TransactionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToCreateReadOnlyTransaction() {
+    void shouldBeAbleToCreateReadOnlyTransaction() {
 
         try (Transaction tx = session.beginTransaction(Transaction.Type.READ_ONLY)) {
             assertThat(tx.isReadOnly()).isTrue();
@@ -122,7 +123,7 @@ public class TransactionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotBeAbleToExtendAReadTransactionWithAReadWriteInnerTransaction() {
+    void shouldNotBeAbleToExtendAReadTransactionWithAReadWriteInnerTransaction() {
 
         try (
             Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
@@ -135,7 +136,7 @@ public class TransactionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotBeAbleToExtendAReadWriteTransactionWithAReadOnlyInnerTransaction() {
+    void shouldNotBeAbleToExtendAReadWriteTransactionWithAReadOnlyInnerTransaction() {
 
         try (
             Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
@@ -148,7 +149,7 @@ public class TransactionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldAutomaticallyExtendAReadOnlyTransactionWithAReadOnlyExtension() {
+    void shouldAutomaticallyExtendAReadOnlyTransactionWithAReadOnlyExtension() {
 
         try (
             Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
@@ -158,7 +159,7 @@ public class TransactionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldAutomaticallyExtendAReadWriteTransactionWithAReadWriteExtension() {
+    void shouldAutomaticallyExtendAReadWriteTransactionWithAReadWriteExtension() {
 
         try (Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
             Transaction tx2 = session.beginTransaction()) {
@@ -167,7 +168,7 @@ public class TransactionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void defaultTransactionShouldWorkAfterManagedTransaction() {
+    void defaultTransactionShouldWorkAfterManagedTransaction() {
         Transaction tx = session.beginTransaction();
         Studio emi = new Studio("EMI Studios, London");
         session.save(emi);
@@ -179,15 +180,16 @@ public class TransactionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void defaultTransactionShouldWorkAfterDefaultTransaction() {
+    void defaultTransactionShouldWorkAfterDefaultTransaction() {
         Studio emi = new Studio("EMI Studios, London");
         session.save(emi);
 
         session.purgeDatabase();
     }
 
-    @Test // GH-868
-    public void shouldNotLoadAlreadyLoadedRelationshipEntityAgain() {
+    // GH-868
+    @Test
+    void shouldNotLoadAlreadyLoadedRelationshipEntityAgain() {
 
         Movie movie = new Movie("Lord of the rings");
         Actor actor = new Actor("Christopher Lee");

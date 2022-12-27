@@ -24,10 +24,10 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.stream.Stream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
@@ -68,13 +68,13 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music",
             "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.gh817");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = (Neo4jSession) sessionFactory.openSession();
 
@@ -127,13 +127,13 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
         session.save(actor3);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         session.purgeDatabase();
     }
 
     @Test
-    public void disposeFromMappingContextOnDeleteWithTransientRelationshipTest() {
+    void disposeFromMappingContextOnDeleteWithTransientRelationshipTest() {
         MappingContext mappingContext = session.context();
         assertThat(mappingContext.getNodeEntity(artist1.getId()).getClass() == Artist.class).isTrue();
         session.delete(artist1);
@@ -155,7 +155,7 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
     }
 
     @Test
-    public void disposeFromMappingContextOnDeleteWithRelationshipEntityTest() {
+    void disposeFromMappingContextOnDeleteWithRelationshipEntityTest() {
         long actorId = session.context().nativeId(actor1);
 
         assertThat(session.context().getNodeEntity(actorId).getClass() == Actor.class).isTrue();
@@ -181,34 +181,34 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testEntityRelationshipProperlyRemoved() {
+    void testEntityRelationshipProperlyRemoved() {
         session.delete(knows);
         Knows testKnows = session.load(Knows.class, knows.id);
         assertThat(testKnows == null).isTrue();
     }
 
     @Test
-    public void testDetachNode() {
+    void testDetachNode() {
         long actorId = session.context().nativeId(actor1);
         assertThat(session.detachNodeEntity(actorId)).isTrue();
         assertThat(session.detachNodeEntity(actorId)).isFalse();
     }
 
     @Test
-    public void testDetachNode2() {
+    void testDetachNode2() {
         long actorId = session.context().nativeId(actor2);
         assertThat(session.detachNodeEntity(actorId)).isTrue();
         assertThat(session.detachNodeEntity(actorId)).isFalse();
     }
 
     @Test
-    public void testDetachRelationshipEntity() {
+    void testDetachRelationshipEntity() {
         assertThat(session.detachRelationshipEntity(knows.id)).isTrue();
         assertThat(session.detachRelationshipEntity(knows.id)).isFalse();
     }
 
     @Test
-    public void shouldRollbackRelationshipEntityWithDifferentStartAndEndNodes() {
+    void shouldRollbackRelationshipEntityWithDifferentStartAndEndNodes() {
 
         Actor mary = new Actor("Mary");
         Actor john = new Actor("John");
@@ -235,7 +235,7 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotThrowConcurrentModificationException() {
+    void shouldNotThrowConcurrentModificationException() {
 
         try (Transaction tx = session.beginTransaction()) {
             session.save(new Actor("Mary"));
@@ -243,8 +243,9 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
         }
     }
 
-    @Test // GH-817
-    public void shouldRefreshUpdatedEntities() {
+    // GH-817
+    @Test
+    void shouldRefreshUpdatedEntities() {
         sessionFactory.openSession().purgeDatabase();
 
         Session sessionForCreation = sessionFactory.openSession();
@@ -263,8 +264,9 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
         assertThat(updatedBikes).hasSize(2).extracting(Bike::isDamaged).containsOnly(true);
     }
 
-    @Test // GH-817
-    public void shouldFlushSessionWithoutReturningNodes() {
+    // GH-817
+    @Test
+    void shouldFlushSessionWithoutReturningNodes() {
         sessionFactory.openSession().purgeDatabase();
 
         Session sessionForCreation = sessionFactory.openSession();
@@ -283,8 +285,9 @@ public class SessionAndMappingContextTest extends TestContainersTestBase {
         assertThat(loadedBikes).hasSize(2).extracting(Bike::isDamaged).containsOnly(true);
     }
 
-    @Test // GH-817
-    public void shouldRefreshUpdatedRelationshipEntities() {
+    // GH-817
+    @Test
+    void shouldRefreshUpdatedRelationshipEntities() {
         sessionFactory.openSession().purgeDatabase();
 
         Session sessionForCreation = sessionFactory.openSession();

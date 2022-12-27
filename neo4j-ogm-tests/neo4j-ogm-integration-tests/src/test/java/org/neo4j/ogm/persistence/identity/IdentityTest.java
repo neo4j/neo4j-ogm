@@ -30,11 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -62,23 +61,23 @@ public class IdentityTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.identity");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldCreateRelationshipEntityWhenDifferentStartAndEndNodesAreHashCodeEqual() {
+    void shouldCreateRelationshipEntityWhenDifferentStartAndEndNodesAreHashCodeEqual() {
 
         Node start = new Node();
         Node end = new Node();
@@ -114,7 +113,7 @@ public class IdentityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToLoadAllNodesOfATypeEvenIfTheyAreConsideredEqual() {
+    void shouldBeAbleToLoadAllNodesOfATypeEvenIfTheyAreConsideredEqual() {
         Node nodeA = new Node();
         session.save(nodeA);
 
@@ -127,7 +126,7 @@ public class IdentityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToLoadAllREsEvenIfTheyAreConsideredEqual() {
+    void shouldBeAbleToLoadAllREsEvenIfTheyAreConsideredEqual() {
         Node nodeA = new Node();
         session.save(nodeA);
 
@@ -153,7 +152,7 @@ public class IdentityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToLoadAllRelatedNodesIfTheyAreConsideredEqual() throws Exception {
+    void shouldBeAbleToLoadAllRelatedNodesIfTheyAreConsideredEqual() throws Exception {
         Node nodeA = new Node();
 
         Node nodeB = new Node();
@@ -173,7 +172,7 @@ public class IdentityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void indistinguishableRelationshipsMapAsSingleRelatedEntityInstance() {
+    void indistinguishableRelationshipsMapAsSingleRelatedEntityInstance() {
 
         Map<String, Object> ids = session.query("CREATE "
             + "(n1:NODE), (n2:NODE),"
@@ -186,7 +185,7 @@ public class IdentityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void indistinguishableEntityInstancesMapAsSingleRelationship() {
+    void indistinguishableEntityInstancesMapAsSingleRelationship() {
         Node nodeA = new Node();
         Node nodeB = new Node();
 

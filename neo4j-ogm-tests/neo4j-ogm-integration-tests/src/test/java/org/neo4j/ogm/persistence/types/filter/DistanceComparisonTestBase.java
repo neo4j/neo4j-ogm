@@ -23,8 +23,8 @@ import static org.neo4j.ogm.cypher.function.NativeDistanceComparison.*;
 
 import java.util.Collection;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.function.DistanceFromNativePoint;
 import org.neo4j.ogm.persistence.types.nativetypes.SomethingSpatial;
@@ -44,13 +44,13 @@ abstract class DistanceComparisonTestBase extends TestContainersTestBase {
 
     static SessionFactory sessionFactory;
 
-    @Before
+    @BeforeEach
     public void clearDatabase() {
         sessionFactory.openSession().purgeDatabase();
     }
 
     @Test
-    public void filterForCartesianPoint2d() {
+    void filterForCartesianPoint2d() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         CartesianPoint2d point = new CartesianPoint2d(1, 2);
@@ -67,7 +67,7 @@ abstract class DistanceComparisonTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void filterForCartesianPoint2dNoMatch() {
+    void filterForCartesianPoint2dNoMatch() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         CartesianPoint2d point = new CartesianPoint2d(1, 2);
@@ -84,7 +84,7 @@ abstract class DistanceComparisonTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void filterForCartesianPoint3d() {
+    void filterForCartesianPoint3d() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         CartesianPoint3d point = new CartesianPoint3d(1, 2, 3);
@@ -101,7 +101,7 @@ abstract class DistanceComparisonTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void filterForCartesianPoint3dNoMatch() {
+    void filterForCartesianPoint3dNoMatch() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         CartesianPoint3d point = new CartesianPoint3d(1, 2, 3);
@@ -118,7 +118,7 @@ abstract class DistanceComparisonTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void filterForGeographicPoint2d() {
+    void filterForGeographicPoint2d() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         GeographicPoint2d centralStationLocation = new GeographicPoint2d(55.6093093, 13.0004377);
@@ -137,7 +137,7 @@ abstract class DistanceComparisonTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void filterForGeographicPoint2dNoMatch() {
+    void filterForGeographicPoint2dNoMatch() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         GeographicPoint2d centralStationLocation = new GeographicPoint2d(55.6093093, 13.0004377);
@@ -156,7 +156,7 @@ abstract class DistanceComparisonTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void filterForGeographicPoint3d() {
+    void filterForGeographicPoint3d() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         GeographicPoint3d centralStationLocation = new GeographicPoint3d(55.6093093, 13.0004377, -5);
@@ -175,7 +175,7 @@ abstract class DistanceComparisonTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void filterForGeographicPoint3dNoMatch() {
+    void filterForGeographicPoint3dNoMatch() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         GeographicPoint3d centralStationLocation = new GeographicPoint3d(55.6093093, 13.0004377, -5);

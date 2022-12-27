@@ -19,15 +19,16 @@
 package org.neo4j.ogm.persistence.relationships;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -51,12 +52,12 @@ public class RelationshipEntityTest extends TestContainersTestBase {
     private M m;
     private R r1;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
 
@@ -71,7 +72,7 @@ public class RelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldAddR() {
+    void shouldAddR() {
 
         session.save(u);
 
@@ -88,7 +89,7 @@ public class RelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldUpdateExistingR() {
+    void shouldUpdateExistingR() {
 
         session.save(u);
 
@@ -104,7 +105,7 @@ public class RelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldDeleteR() {
+    void shouldDeleteR() {
 
         session.save(u);
 
@@ -125,7 +126,7 @@ public class RelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReplaceExistingR() {
+    void shouldReplaceExistingR() {
 
         session.save(u);
 
@@ -147,7 +148,7 @@ public class RelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldDirectlyAddR() {
+    void shouldDirectlyAddR() {
 
         session.save(r1);
         session.clear();
@@ -162,7 +163,7 @@ public class RelationshipEntityTest extends TestContainersTestBase {
      * @see DATAGRAPH-582
      */
     @Test
-    public void shouldDirectlyUpdateR() {
+    void shouldDirectlyUpdateR() {
 
         session.save(r1);
         r1 = session.load(R.class, r1.id);
@@ -181,7 +182,7 @@ public class RelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldDirectlyDeleteR() {
+    void shouldDirectlyDeleteR() {
 
         session.save(r1);
 
@@ -227,8 +228,9 @@ public class RelationshipEntityTest extends TestContainersTestBase {
         assertThat(u.rset).isEmpty();
     }
 
-    @Test // DATAGRAPH-706
-    public void shouldReplaceOneEndOfR() {
+    // DATAGRAPH-706
+    @Test
+    void shouldReplaceOneEndOfR() {
         session.save(u);
 
         M m2 = new M("Lost");
@@ -247,37 +249,43 @@ public class RelationshipEntityTest extends TestContainersTestBase {
     /**
      * @see DATAGRAPH-732
      */
-    @Test(expected = MappingException.class)
-    public void shouldThrowExceptionWhenTheStartNodeIsNull() {
-        R invalidR = new R(null, m, "exception", 0);
-        m.rset.add(invalidR);
-        session.save(m);
+    @Test
+    void shouldThrowExceptionWhenTheStartNodeIsNull() {
+        assertThrows(MappingException.class, () -> {
+            R invalidR = new R(null, m, "exception", 0);
+            m.rset.add(invalidR);
+            session.save(m);
+        });
     }
 
     /**
      * @see DATAGRAPH-732
      */
-    @Test(expected = MappingException.class)
-    public void shouldThrowExceptionWhenTheEndNodeIsNull() {
-        R invalidR = new R(u, null, "exception", 0);
-        u.rset.add(invalidR);
-        session.save(u);
+    @Test
+    void shouldThrowExceptionWhenTheEndNodeIsNull() {
+        assertThrows(MappingException.class, () -> {
+            R invalidR = new R(u, null, "exception", 0);
+            u.rset.add(invalidR);
+            session.save(u);
+        });
     }
 
     /**
      * @see DATAGRAPH-732
      */
-    @Test(expected = RuntimeException.class)
-    public void shouldThrowExceptionWhenRIsSavedWithMissingEndNodes() {
-        R invalidR = new R(null, null, "exception", 0);
-        session.save(invalidR);
+    @Test
+    void shouldThrowExceptionWhenRIsSavedWithMissingEndNodes() {
+        assertThrows(RuntimeException.class, () -> {
+            R invalidR = new R(null, null, "exception", 0);
+            session.save(invalidR);
+        });
     }
 
     /**
      * @see DATAGRAPH-944
      */
     @Test
-    public void shouldReloadCompleteRelationshipWhenStartAndEndNodesDontDeclareTheRelationshipExplicitly() {
+    void shouldReloadCompleteRelationshipWhenStartAndEndNodesDontDeclareTheRelationshipExplicitly() {
 
         Vertex from = new Vertex();
         Vertex to = new Vertex();

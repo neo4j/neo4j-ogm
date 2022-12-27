@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
@@ -38,31 +38,31 @@ public class NodeDeleteStatementsTest {
     private final DeleteStatements statements = new NodeDeleteStatements();
 
     @Test
-    public void testDeleteOne() {
+    void testDeleteOne() {
         assertThat(statements.delete(0L).getStatement())
             .isEqualTo("MATCH (n) WHERE ID(n) = $id OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
     }
 
     @Test
-    public void testDeleteMany() {
+    void testDeleteMany() {
         assertThat(statements.delete(Arrays.asList(1L, 2L)).getStatement())
             .isEqualTo("MATCH (n) WHERE ID(n) in $ids OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
     }
 
     @Test
-    public void testDeleteAll() {
+    void testDeleteAll() {
         assertThat(statements.deleteAll().getStatement())
             .isEqualTo("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
     }
 
     @Test
-    public void testDeleteWithLabel() {
+    void testDeleteWithLabel() {
         assertThat(statements.delete("TRAFFIC_WARDENS").getStatement())
             .isEqualTo("MATCH (n:`TRAFFIC_WARDENS`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
     }
 
     @Test
-    public void testDeleteWithLabelAndFilters() {
+    void testDeleteWithLabelAndFilters() {
         CypherQuery query = statements
             .delete("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
         assertThat(query.getStatement()).isEqualTo(
@@ -74,7 +74,7 @@ public class NodeDeleteStatementsTest {
     }
 
     @Test
-    public void testDeleteWithLabelAndFiltersAndList() throws Exception {
+    void testDeleteWithLabelAndFiltersAndList() throws Exception {
         CypherQuery query = statements
             .deleteAndList("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
         assertThat(query.getStatement()).isEqualTo(

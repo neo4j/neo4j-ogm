@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.session.Session;
@@ -43,19 +43,19 @@ public class ABTest extends TestContainersTestBase {
     private A a;
     private B b;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetup() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships.direct.ab");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
         setUpEntityModel();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
     }
@@ -68,7 +68,7 @@ public class ABTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindBFromA() {
+    void shouldFindBFromA() {
 
         session.save(b);
 
@@ -77,7 +77,7 @@ public class ABTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindAFromB() {
+    void shouldFindAFromB() {
 
         session.save(a);
 
@@ -86,7 +86,7 @@ public class ABTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReflectRemovalA() {
+    void shouldReflectRemovalA() {
 
         session.save(a);
 

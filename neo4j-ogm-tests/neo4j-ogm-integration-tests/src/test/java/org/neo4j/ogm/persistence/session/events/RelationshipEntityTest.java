@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Date;
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.PostSaveEvent;
@@ -35,14 +35,14 @@ import org.neo4j.ogm.session.event.PreSaveEvent;
 public class RelationshipEntityTest extends EventTestBaseClass {
 
     @Test
-    public void shouldNotFireEventsIfObjectHasNotChanged() {
+    void shouldNotFireEventsIfObjectHasNotChanged() {
 
         session.save(folder);
         assertThat(eventListener.count()).isEqualTo(0);
     }
 
     @Test
-    public void shouldFireEventsWhenUpdatingRelationshipEntity() {
+    void shouldFireEventsWhenUpdatingRelationshipEntity() {
 
         Random r = new Random();
         knowsJL.setSince((new Date((long) (1293861599 + r.nextDouble() * 60 * 60 * 24 * 365))));
@@ -56,7 +56,7 @@ public class RelationshipEntityTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenDeletingRelationshipEntity() {
+    void shouldFireEventsWhenDeletingRelationshipEntity() {
 
         session.delete(knowsJL);
 
@@ -73,7 +73,7 @@ public class RelationshipEntityTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenCreatingRelationshipEntity() {
+    void shouldFireEventsWhenCreatingRelationshipEntity() {
 
         Knows knowsBS = new Knows();
 

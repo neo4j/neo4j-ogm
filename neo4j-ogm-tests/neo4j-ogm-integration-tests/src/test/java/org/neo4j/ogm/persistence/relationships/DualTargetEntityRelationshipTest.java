@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.mappings.Category;
@@ -44,14 +44,15 @@ public class DualTargetEntityRelationshipTest extends TestContainersTestBase {
 
     private Session session;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.mappings").openSession();
         session.purgeDatabase();
     }
 
-    @Test // DATAGRAPH-636
-    public void mappingShouldConsiderClasses() {
+    // DATAGRAPH-636
+    @Test
+    void mappingShouldConsiderClasses() {
 
         Category category = new Category("cat1");
 
@@ -77,8 +78,9 @@ public class DualTargetEntityRelationshipTest extends TestContainersTestBase {
         assertThat(event.getTags().iterator().next()).isEqualTo(tag1);
     }
 
-    @Test // DATAGRAPH-690
-    public void shouldKeepAllRelations() {
+    // DATAGRAPH-690
+    @Test
+    void shouldKeepAllRelations() {
 
         Category category = new Category("cat1");
 

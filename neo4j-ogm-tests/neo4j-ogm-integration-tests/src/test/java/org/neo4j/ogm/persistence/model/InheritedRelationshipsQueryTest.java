@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.gh670.Course;
 import org.neo4j.ogm.domain.gh670.Klassenclown;
 import org.neo4j.ogm.domain.gh670.Person;
@@ -48,7 +48,7 @@ public class InheritedRelationshipsQueryTest extends TestContainersTestBase {
 
     private static Long idOfCreatedTeacher;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpTestDatabase() {
 
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh670");
@@ -73,8 +73,9 @@ public class InheritedRelationshipsQueryTest extends TestContainersTestBase {
         idOfCreatedTeacher = (Long) results.iterator().next().get("id");
     }
 
-    @Test // GH-670
-    public void shouldReturnConcreteClassWithRelationships() {
+    // GH-670
+    @Test
+    void shouldReturnConcreteClassWithRelationships() {
 
         Session session = sessionFactory.openSession();
 

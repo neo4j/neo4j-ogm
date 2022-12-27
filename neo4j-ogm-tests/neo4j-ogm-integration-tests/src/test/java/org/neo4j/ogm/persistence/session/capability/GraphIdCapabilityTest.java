@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.entityMapping.Movie;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
@@ -48,7 +48,7 @@ public class GraphIdCapabilityTest extends TestContainersTestBase {
     private Album please;
     private Recording recording;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
         session = sessionFactory.openSession();
@@ -70,7 +70,7 @@ public class GraphIdCapabilityTest extends TestContainersTestBase {
         recordingId = recording.getId();
     }
 
-    @After
+    @AfterEach
     public void clearDatabase() {
         session.purgeDatabase();
     }
@@ -79,7 +79,7 @@ public class GraphIdCapabilityTest extends TestContainersTestBase {
      * @see DATAGRAPH-694
      */
     @Test
-    public void idShouldBeResolvedForValidNodeEntity() {
+    void idShouldBeResolvedForValidNodeEntity() {
         assertThat(session.resolveGraphIdFor(please)).isEqualTo(pleaseId);
         assertThat(session.resolveGraphIdFor(theBeatles)).isEqualTo(beatlesId);
     }
@@ -88,7 +88,7 @@ public class GraphIdCapabilityTest extends TestContainersTestBase {
      * @see DATAGRAPH-694
      */
     @Test
-    public void idShouldBeResolvedForValidRelationshipEntity() {
+    void idShouldBeResolvedForValidRelationshipEntity() {
         assertThat(session.resolveGraphIdFor(recording)).isEqualTo(recordingId);
     }
 
@@ -96,7 +96,7 @@ public class GraphIdCapabilityTest extends TestContainersTestBase {
      * @see DATAGRAPH-694
      */
     @Test
-    public void idShouldReturnNullForEntitiesNotPersisted() {
+    void idShouldReturnNullForEntitiesNotPersisted() {
         Album revolver = new Album("Revolver");
         assertThat(session.resolveGraphIdFor(revolver)).isNull();
 
@@ -108,7 +108,7 @@ public class GraphIdCapabilityTest extends TestContainersTestBase {
      * @see DATAGRAPH-694
      */
     @Test
-    public void idShouldReturnNullForNonEntities() {
+    void idShouldReturnNullForNonEntities() {
         Movie movie = new Movie(); //not in the mapping context
         assertThat(session.resolveGraphIdFor(movie)).isNull();
 
@@ -120,7 +120,7 @@ public class GraphIdCapabilityTest extends TestContainersTestBase {
      * @see DATAGRAPH-694
      */
     @Test
-    public void idShouldReturnNullForEntitiesWithNoIdentity() {
+    void idShouldReturnNullForEntitiesWithNoIdentity() {
         assertThat(session.resolveGraphIdFor(ReleaseFormat.VINYL)).isNull();
     }
 
@@ -128,7 +128,7 @@ public class GraphIdCapabilityTest extends TestContainersTestBase {
      * @see Issue 69
      */
     @Test
-    public void idShouldReturnNullForNullsOrPrimitives() {
+    void idShouldReturnNullForNullsOrPrimitives() {
         assertThat(session.resolveGraphIdFor(null)).isNull();
         assertThat(session.resolveGraphIdFor(true)).isNull();
         assertThat(session.resolveGraphIdFor(1)).isNull();

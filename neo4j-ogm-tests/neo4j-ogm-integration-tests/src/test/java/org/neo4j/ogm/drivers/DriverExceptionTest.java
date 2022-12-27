@@ -18,7 +18,10 @@
  */
 package org.neo4j.ogm.drivers;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.Session;
@@ -30,33 +33,14 @@ import org.neo4j.ogm.session.SessionFactory;
  */
 public class DriverExceptionTest {
 
-    // TODO: All drivers should consistently throw the same exception on configuration or connection failure.
-    @Test(expected = Exception.class)
-    public void shouldThrowExceptionWhenHttpDriverCannotConnect() {
-        Configuration configuration = new Configuration.Builder(
-            new ClasspathConfigurationSource("ogm-http-invalid.properties")).build();
-        SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
-        Session session = sessionFactory.openSession();
-        session.purgeDatabase();
-    }
-
-    // TODO: All drivers should consistently throw the same exception on configuration or connection failure.
-    @Test(expected = Exception.class)
-    public void shouldThrowExceptionWhenEmbeddedDriverCannotConnect() {
-        Configuration configuration = new Configuration.Builder(
-            new ClasspathConfigurationSource("ogm-embedded-invalid.properties")).build();
-        SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
-        Session session = sessionFactory.openSession();
-        session.purgeDatabase();
-    }
-
-    // TODO: All drivers should consistently throw the same exception on configuration or connection failure.
-    @Test(expected = Exception.class)
-    public void shouldThrowExceptionWhenBoltDriverCannotConnect() {
-        Configuration configuration = new Configuration.Builder(
-            new ClasspathConfigurationSource("ogm-bolt-invalid.properties")).build();
-        SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
-        Session session = sessionFactory.openSession();
-        session.purgeDatabase();
+    @Test
+    void shouldThrowExceptionWhenBoltDriverCannotConnect() {
+        assertThrows(Exception.class, () -> {
+            Configuration configuration = new Configuration.Builder(
+                new ClasspathConfigurationSource("ogm-bolt-invalid.properties")).build();
+            SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
+            Session session = sessionFactory.openSession();
+            session.purgeDatabase();
+        });
     }
 }

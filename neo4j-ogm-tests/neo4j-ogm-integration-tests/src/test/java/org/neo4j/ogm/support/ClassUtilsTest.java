@@ -20,7 +20,7 @@ package org.neo4j.ogm.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Michael J. Simons
@@ -51,27 +51,28 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void shouldWorkWithPlainEnum() {
+    void shouldWorkWithPlainEnum() {
         assertThat(ClassUtils.isEnum(YourFriendlyEnumMostPeopleUse.class)).isTrue();
         assertThat(ClassUtils.isEnum(YourFriendlyEnumMostPeopleUse.THING1)).isTrue();
         assertThat(ClassUtils.isEnum(YourFriendlyEnumMostPeopleUse.THING2)).isTrue();
     }
 
     @Test
-    public void shouldWorkWithExtendedEnum() {
+    void shouldWorkWithExtendedEnum() {
         assertThat(ClassUtils.isEnum(YesEnumsCanBeMuchMore.class)).isTrue();
         assertThat(ClassUtils.isEnum(YesEnumsCanBeMuchMore.THING1)).isTrue();
         assertThat(ClassUtils.isEnum(YesEnumsCanBeMuchMore.THING2)).isTrue();
     }
 
     @Test
-    public void shouldWorkWithInterfaceEnum() {
+    void shouldWorkWithInterfaceEnum() {
         assertThat(ClassUtils.isEnum(Singleton.class)).isTrue();
         assertThat(ClassUtils.isEnum(Singleton.THE_INSTANCE)).isTrue();
     }
 
-    @Test // GH-899
-    public void upcastingWorksAsExpected() {
+    // GH-899
+    @Test
+    void upcastingWorksAsExpected() {
         Enum castedToEnum = YourFriendlyEnumMostPeopleUse.THING2;
         assertThat(ClassUtils.isEnum(castedToEnum)).isTrue();
 

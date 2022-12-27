@@ -22,8 +22,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.cypher.ComparisonOperator.*;
 import static org.neo4j.ogm.cypher.query.SortOrder.Direction.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.SortOrder;
@@ -39,21 +39,21 @@ public class NodeEntityQuerySortingTest {
     private SortOrder sortOrder;
     private Filters filters;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         sortOrder = new SortOrder();
         filters = new Filters();
     }
 
     @Test
-    public void testFindByType() {
+    void testFindByType() {
         sortOrder.add("name");
         check("MATCH (n:`Raptor`) WITH n ORDER BY n.name MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)",
             query.findByType("Raptor", 1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
-    public void testFindByProperty() {
+    void testFindByProperty() {
         sortOrder.add(DESC, "weight");
         filters.add(new Filter("name", EQUALS, "velociraptor"));
         check(
@@ -62,14 +62,14 @@ public class NodeEntityQuerySortingTest {
     }
 
     @Test
-    public void testFindByTypeDepthZero() {
+    void testFindByTypeDepthZero() {
         sortOrder.add(DESC, "name");
         check("MATCH (n:`Raptor`) WITH n ORDER BY n.name DESC RETURN n",
             query.findByType("Raptor", 0).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
-    public void testByPropertyDepthZero() {
+    void testByPropertyDepthZero() {
         filters.add(new Filter("name", EQUALS, "velociraptor"));
         sortOrder.add(DESC, "weight");
         check("MATCH (n:`Raptor`) WHERE n.`name` = $`name_0` WITH n ORDER BY n.weight DESC RETURN n",
@@ -77,14 +77,14 @@ public class NodeEntityQuerySortingTest {
     }
 
     @Test
-    public void testFindByTypeDepthInfinite() {
+    void testFindByTypeDepthInfinite() {
         sortOrder.add(DESC, "name");
         check("MATCH (n:`Raptor`) WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)",
             query.findByType("Raptor", -1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
-    public void testFindByPropertyDepthInfinite() {
+    void testFindByPropertyDepthInfinite() {
         sortOrder.add(DESC, "name");
         filters.add(new Filter("name", EQUALS, "velociraptor"));
         check(
@@ -93,7 +93,7 @@ public class NodeEntityQuerySortingTest {
     }
 
     @Test
-    public void testMultipleSortOrders() {
+    void testMultipleSortOrders() {
         String cypher = "MATCH (n:`Raptor`) WITH n ORDER BY n.age DESC,n.name DESC RETURN n";
         check(cypher, query.findByType("Raptor", 0).setSortOrder(sortOrder.add(DESC, "age", "name")).getStatement());
         check(cypher, query.findByType("Raptor", 0).setSortOrder(new SortOrder(DESC, "age", "name")).getStatement());
@@ -101,7 +101,7 @@ public class NodeEntityQuerySortingTest {
     }
 
     @Test
-    public void testDefaultMultipleSortOrders() {
+    void testDefaultMultipleSortOrders() {
         String cypher = "MATCH (n:`Raptor`) WITH n ORDER BY n.age,n.name RETURN n";
         check(cypher, query.findByType("Raptor", 0).setSortOrder(sortOrder.add("age", "name")).getStatement());
         check(cypher, query.findByType("Raptor", 0).setSortOrder(new SortOrder("age", "name")).getStatement());
@@ -109,7 +109,7 @@ public class NodeEntityQuerySortingTest {
     }
 
     @Test
-    public void testDifferentSortDirections() {
+    void testDifferentSortDirections() {
         sortOrder.add(DESC, "age").add("name");
         check("MATCH (n:`Raptor`) WITH n ORDER BY n.age DESC,n.name RETURN n",
             query.findByType("Raptor", 0).setSortOrder(sortOrder).getStatement());

@@ -18,9 +18,9 @@
  */
 package org.neo4j.ogm.persistence.types.nativetypes;
 
-import static org.junit.Assume.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
@@ -32,7 +32,7 @@ import org.neo4j.ogm.session.SessionFactory;
  */
 public class SpatialBoltTest extends SpatialTestBase {
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
 
         Configuration ogmConfiguration = getBaseConfigurationBuilder()

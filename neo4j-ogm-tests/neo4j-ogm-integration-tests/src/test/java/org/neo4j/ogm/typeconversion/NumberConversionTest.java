@@ -19,13 +19,14 @@
 package org.neo4j.ogm.typeconversion;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
@@ -41,7 +42,7 @@ public class NumberConversionTest {
     private static final ClassInfo accountInfo = metaData.classInfo("Account");
 
     @Test
-    public void assertAccountFieldsHaveDefaultConverters() {
+    void assertAccountFieldsHaveDefaultConverters() {
         assertThat(accountInfo.propertyField("balance").hasPropertyConverter()).isTrue();
         assertThat(accountInfo.propertyField("facility").hasPropertyConverter()).isTrue();
         assertThat(accountInfo.propertyField("deposits").hasPropertyConverter()).isTrue();
@@ -49,7 +50,7 @@ public class NumberConversionTest {
     }
 
     @Test
-    public void assertAccountMethodsHaveDefaultConverters() {
+    void assertAccountMethodsHaveDefaultConverters() {
         assertThat(accountInfo.propertyField("balance").hasPropertyConverter()).isTrue();
 
         assertThat(accountInfo.propertyField("facility").hasPropertyConverter()).isTrue();
@@ -60,7 +61,7 @@ public class NumberConversionTest {
     }
 
     @Test
-    public void assertAccountBalanceConverterWorks() {
+    void assertAccountBalanceConverterWorks() {
 
         AttributeConverter converter = accountInfo.propertyField("balance").getPropertyConverter();
 
@@ -75,9 +76,9 @@ public class NumberConversionTest {
      * @see DATAGRAPH-550
      */
     @Test
-    public void assertAccountDepositConverterWorks() {
+    void assertAccountDepositConverterWorks() {
         AttributeConverter converter = accountInfo.propertyField("deposits").getPropertyConverter();
-        BigDecimal[] deposits = new BigDecimal[] { new BigDecimal("12345.67"), new BigDecimal("34567.89") };
+        BigDecimal[] deposits = new BigDecimal[]{new BigDecimal("12345.67"), new BigDecimal("34567.89")};
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
         account.setDeposits(deposits);
         String[] convertedDeposits = (String[]) converter.toGraphProperty(account.getDeposits());
@@ -94,7 +95,7 @@ public class NumberConversionTest {
      * @see DATAGRAPH-550
      */
     @Test
-    public void assertAccountLoNAConverterWorks() {
+    void assertAccountLoNAConverterWorks() {
         AttributeConverter converter = accountInfo.propertyField("loans").getPropertyConverter();
         List<BigInteger> loans = new ArrayList<>();
         loans.add(BigInteger.valueOf(123456));
@@ -112,7 +113,7 @@ public class NumberConversionTest {
     }
 
     @Test
-    public void assertAccountFacilityConverterWorks() {
+    void assertAccountFacilityConverterWorks() {
 
         AttributeConverter converter = accountInfo.propertyField("facility").getPropertyConverter();
 
@@ -124,7 +125,7 @@ public class NumberConversionTest {
     }
 
     @Test
-    public void assertConvertingNullGraphPropertyWorksCorrectly() {
+    void assertConvertingNullGraphPropertyWorksCorrectly() {
         AttributeConverter converter = accountInfo.propertyField("facility").getPropertyConverter();
         assertThat(converter.toEntityAttribute(null)).isEqualTo(null);
         converter = accountInfo.propertyField("deposits").getPropertyConverter();
@@ -134,7 +135,7 @@ public class NumberConversionTest {
     }
 
     @Test
-    public void assertConvertingNullAttributeWorksCorrectly() {
+    void assertConvertingNullAttributeWorksCorrectly() {
         AttributeConverter converter = accountInfo.propertyField("facility").getPropertyConverter();
         assertThat(converter.toGraphProperty(null)).isEqualTo(null);
         converter = accountInfo.propertyField("deposits").getPropertyConverter();
@@ -144,20 +145,22 @@ public class NumberConversionTest {
     }
 
     @Test
-    public void assertHasCompositeConverter() {
+    void assertHasCompositeConverter() {
         MetaData restaurantMetadata = new MetaData("org.neo4j.ogm.domain.restaurant");
         ClassInfo restaurantInfo = restaurantMetadata.classInfo("Restaurant");
         assertThat(restaurantInfo.propertyField("location").hasCompositeConverter()).isTrue();
     }
 
-    @Test(expected = RuntimeException.class)
-    public void assertConvertingEmptyGraphPropertyFails() {
-        AttributeConverter converter = accountInfo.propertyField("futureBalance").getPropertyConverter();
-        assertThat(converter.toEntityAttribute("")).isEqualTo(null);
+    @Test
+    void assertConvertingEmptyGraphPropertyFails() {
+        assertThrows(RuntimeException.class, () -> {
+            AttributeConverter converter = accountInfo.propertyField("futureBalance").getPropertyConverter();
+            assertThat(converter.toEntityAttribute("")).isEqualTo(null);
+        });
     }
 
     @Test
-    public void assertConvertingEmptyGraphPropertyWorksCorrectlyWithLenientConverter() {
+    void assertConvertingEmptyGraphPropertyWorksCorrectlyWithLenientConverter() {
         AttributeConverter converter = accountInfo.propertyField("futureBalanceLenient").getPropertyConverter();
         assertThat(converter.toEntityAttribute("")).isEqualTo(null);
     }

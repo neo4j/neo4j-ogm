@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashSet;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.blog.Author;
 import org.neo4j.ogm.domain.blog.Comment;
 import org.neo4j.ogm.domain.blog.Post;
@@ -40,19 +40,19 @@ public class BlogTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.blog");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldTraverseListOfBlogPosts() {
+    void shouldTraverseListOfBlogPosts() {
 
         Post p1 = new Post("first");
         Post p2 = new Post("second");
@@ -98,7 +98,7 @@ public class BlogTest extends TestContainersTestBase {
      * @see Issue #99
      */
     @Test
-    public void shouldDeleteAuthoredRelationship() {
+    void shouldDeleteAuthoredRelationship() {
         Author author = new Author();
         Post post = new Post();
 
@@ -121,7 +121,7 @@ public class BlogTest extends TestContainersTestBase {
      * @see Issue #99
      */
     @Test
-    public void shouldDeleteCommentsRelationship() {
+    void shouldDeleteCommentsRelationship() {
         Author author = new Author();
         Post post = new Post();
         Comment comment = new Comment(post, author, "Try to delete me!");

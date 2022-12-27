@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.generic_hierarchy.relationship.GenericRelationship;
 import org.neo4j.ogm.domain.generic_hierarchy.relationship.SourceEntityWithEntityInterface;
 import org.neo4j.ogm.domain.generic_hierarchy.relationship.SourceEntityWithEntitySuperInterface;
@@ -37,14 +37,14 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 public class GenericRelationshipEntityTest extends TestContainersTestBase {
     private Session session;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.generic_hierarchy.relationship").openSession();
         session.purgeDatabase();
 
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
         session.clear();
@@ -53,7 +53,7 @@ public class GenericRelationshipEntityTest extends TestContainersTestBase {
     // Test relationship loading with the base interface of all entity/domain classes
 
     @Test
-    public void loadEntitySuperInterfaceToEntitySuperInterfaceRelationship() {
+    void loadEntitySuperInterfaceToEntitySuperInterfaceRelationship() {
         createSuperInterfaceToSuperInterfaceRelationship();
 
         SourceEntityWithEntitySuperInterface source = session.loadAll(SourceEntityWithEntitySuperInterface.class)
@@ -65,7 +65,7 @@ public class GenericRelationshipEntityTest extends TestContainersTestBase {
 
     // Test relationship loading with the base interface in source and extending one in target class.
     @Test
-    public void loadEntitySuperInterfaceToEntityInterfaceRelationship() {
+    void loadEntitySuperInterfaceToEntityInterfaceRelationship() {
         createSuperInterfaceToInterfaceRelationship();
 
         SourceEntityWithEntitySuperInterface source = session.loadAll(SourceEntityWithEntitySuperInterface.class)
@@ -77,7 +77,7 @@ public class GenericRelationshipEntityTest extends TestContainersTestBase {
 
     // Test relationship loading with the extending interface in source and base in target class.
     @Test
-    public void loadEntityInterfaceToEntitySuperInterfaceRelationship() {
+    void loadEntityInterfaceToEntitySuperInterfaceRelationship() {
         createInterfaceToSuperInterfaceRelationship();
 
         SourceEntityWithEntityInterface source = session.loadAll(SourceEntityWithEntityInterface.class)
@@ -89,7 +89,7 @@ public class GenericRelationshipEntityTest extends TestContainersTestBase {
 
     // Test relationship loading with the extending interface in source and base in target class.
     @Test
-    public void loadEntityInterfaceToEntityInterfaceRelationship() {
+    void loadEntityInterfaceToEntityInterfaceRelationship() {
         createInterfaceToInterfaceRelationship();
 
         SourceEntityWithEntityInterface source = session.loadAll(SourceEntityWithEntityInterface.class)

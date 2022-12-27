@@ -28,12 +28,11 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.gh576.DataItem;
@@ -53,7 +52,6 @@ import org.neo4j.ogm.testutil.TestUtils;
  * @author Andreas Berger
  * @author Michael J. Simons
  */
-@RunWith(Parameterized.class)
 public class CypherContextTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
@@ -62,21 +60,17 @@ public class CypherContextTest extends TestContainersTestBase {
 
     private Session session;
 
-    @Parameterized.Parameters
     public static List<Integer> data() {
         return IntStream.range(0, 10)
             .boxed().collect(toList());
     }
 
-    @BeforeClass
-    public static void initSesssionFactory() {
+    @BeforeAll
+    public static void initSessionFactory() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh576");
     }
 
-    public CypherContextTest(@SuppressWarnings("unused") Integer iterations) {
-    }
-
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -85,8 +79,10 @@ public class CypherContextTest extends TestContainersTestBase {
         session.query(createTestDataStatement, Collections.emptyMap());
     }
 
-    @Test // GH-576
-    public void shouldDeregisterRelationshipEntities() {
+    // GH-576
+    @MethodSource("data")
+    @ParameterizedTest
+    void shouldDeregisterRelationshipEntities(@SuppressWarnings("unused") Integer iterations) {
         Collection<DataItem> dataItems;
         FormulaItem formulaItem;
 
@@ -112,7 +108,7 @@ public class CypherContextTest extends TestContainersTestBase {
         assertThat(formulaItem.getVariables()).hasSize(2);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         session.purgeDatabase();
     }

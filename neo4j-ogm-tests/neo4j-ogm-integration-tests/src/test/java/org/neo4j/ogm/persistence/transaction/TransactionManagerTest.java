@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
@@ -49,23 +49,23 @@ public class TransactionManagerTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void destroy() {
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldBeAbleToCreateManagedTransaction() {
+    void shouldBeAbleToCreateManagedTransaction() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
             getDriver().getTransactionFactorySupplier());
         assertThat(session.getLastBookmark()).isNull();
@@ -75,7 +75,7 @@ public class TransactionManagerTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldRollbackManagedTransaction() {
+    void shouldRollbackManagedTransaction() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
             getDriver().getTransactionFactorySupplier());
         assertThat(session.getLastBookmark()).isNull();

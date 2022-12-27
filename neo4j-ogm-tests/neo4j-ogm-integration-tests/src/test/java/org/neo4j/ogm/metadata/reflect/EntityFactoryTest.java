@@ -19,11 +19,12 @@
 package org.neo4j.ogm.metadata.reflect;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
@@ -36,44 +37,46 @@ public class EntityFactoryTest {
 
     private EntityFactory entityFactory;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MetaData metadata = new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical");
         this.entityFactory = new EntityFactory(metadata, new ReflectionEntityInstantiator(metadata));
     }
 
     @Test
-    public void shouldConstructObjectOfParticularTypeUsingItsDefaultZeroArgConstructor() {
+    void shouldConstructObjectOfParticularTypeUsingItsDefaultZeroArgConstructor() {
         NodeModel personNodeModel = new NodeModel(-1L);
-        personNodeModel.setLabels(new String[] { "Individual" });
+        personNodeModel.setLabels(new String[]{"Individual"});
         Individual sheila = this.entityFactory.newObject(personNodeModel);
         assertThat(sheila).isNotNull();
     }
 
     @Test
-    public void shouldHandleMultipleLabelsSafely() {
+    void shouldHandleMultipleLabelsSafely() {
         NodeModel personNodeModel = new NodeModel(-1L);
-        personNodeModel.setLabels(new String[] { "Female", "Individual", "Lass" });
+        personNodeModel.setLabels(new String[]{"Female", "Individual", "Lass"});
         Individual ourLass = this.entityFactory.newObject(personNodeModel);
         assertThat(ourLass).isNotNull();
     }
 
     @Test
-    public void shouldBeAbleToConstructObjectWithNonPublicZeroArgConstructor() {
+    void shouldBeAbleToConstructObjectWithNonPublicZeroArgConstructor() {
         NodeModel node = new NodeModel(163L);
-        node.setLabels(new String[] { "ClassWithPrivateConstructor" });
-        this.entityFactory.newObject(node);
-    }
-
-    @Test(expected = MappingException.class)
-    public void shouldFailForGraphModelComponentWithNoTaxa() {
-        NodeModel node = new NodeModel(302L);
-        node.setLabels(new String[0]);
+        node.setLabels(new String[]{"ClassWithPrivateConstructor"});
         this.entityFactory.newObject(node);
     }
 
     @Test
-    public void shouldConstructObjectIfExplicitlyGivenClassToInstantiate() {
+    void shouldFailForGraphModelComponentWithNoTaxa() {
+        assertThrows(MappingException.class, () -> {
+            NodeModel node = new NodeModel(302L);
+            node.setLabels(new String[0]);
+            this.entityFactory.newObject(node);
+        });
+    }
+
+    @Test
+    void shouldConstructObjectIfExplicitlyGivenClassToInstantiate() {
         Individual instance = this.entityFactory.newObject(Individual.class, new HashMap<>());
         assertThat(instance).as("The resultant instance shouldn't be null").isNotNull();
     }

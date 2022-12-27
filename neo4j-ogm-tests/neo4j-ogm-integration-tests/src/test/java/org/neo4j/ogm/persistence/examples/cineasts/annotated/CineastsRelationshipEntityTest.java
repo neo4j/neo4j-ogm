@@ -28,9 +28,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -58,19 +58,19 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldSaveMultipleRatingsFromDifferentUsersForSameMovie() {
+    void shouldSaveMultipleRatingsFromDifferentUsersForSameMovie() {
         Movie movie = new Movie("Pulp Fiction", 1994);
         session.save(movie);
 
@@ -124,7 +124,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldCreateREWithExistingStartAndEndNodes() {
+    void shouldCreateREWithExistingStartAndEndNodes() {
 
         bootstrap("org/neo4j/ogm/cql/cineasts.cql");
 
@@ -163,7 +163,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotLoseRelationshipEntitiesWhenALoadedEntityIsPersisted() {
+    void shouldNotLoseRelationshipEntitiesWhenALoadedEntityIsPersisted() {
 
         bootstrap("org/neo4j/ogm/cql/cineasts.cql");
 
@@ -182,7 +182,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadActorsForAPersistedMovie() {
+    void shouldLoadActorsForAPersistedMovie() {
         session.query(
             "CREATE " +
                 "(dh:Movie {title:'Die Hard'}), " +
@@ -198,8 +198,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(dieHard.getRoles()).hasSize(1);
     }
 
-    @Test // DATAGRAPH-714
-    public void shouldBeAbleToModifyRating() {
+    // DATAGRAPH-714
+    @Test
+    void shouldBeAbleToModifyRating() {
         Movie movie = new Movie("Harry Potter and the Philosophers Stone", 2003);
 
         User vince = new User();
@@ -265,8 +266,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(rating.getStars()).isEqualTo(1);
     }
 
-    @Test // DATAGRAPH-567
-    public void shouldSaveRelationshipEntityWithCamelCaseStartEndNodes() {
+    // DATAGRAPH-567
+    @Test
+    void shouldSaveRelationshipEntityWithCamelCaseStartEndNodes() {
         Actor bruce = new Actor("Bruce");
         Actor jim = new Actor("Jim");
 
@@ -286,8 +288,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(actor.getKnows().iterator().next().getSecondActor().getName()).isEqualTo("Jim");
     }
 
-    @Test // DATAGRAPH-552
-    public void shouldSaveAndRetrieveRelationshipEntitiesDirectly() {
+    // DATAGRAPH-552
+    @Test
+    void shouldSaveAndRetrieveRelationshipEntitiesDirectly() {
         // we need some stuff in the database
         session.query(
             "CREATE " +
@@ -319,8 +322,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(loadedRating.getUser().getLogin()).as("The critic wasn't saved correctly").isEqualTo(critic.getLogin());
     }
 
-    @Test // DATAGRAPH-552
-    public void shouldSaveAndRetrieveRelationshipEntitiesPreExistingDirectly() {
+    // DATAGRAPH-552
+    @Test
+    void shouldSaveAndRetrieveRelationshipEntitiesPreExistingDirectly() {
 
         session.query(
             "CREATE " +
@@ -336,8 +340,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(loadedRating.getUser().getName()).as("The critic wasn't saved correctly").isEqualTo("Gary");
     }
 
-    @Test // DATAGRAPH-569
-    public void shouldBeAbleToSaveAndUpdateMultipleUserRatings() {
+    // DATAGRAPH-569
+    @Test
+    void shouldBeAbleToSaveAndUpdateMultipleUserRatings() {
         Set<Rating> gobletRatings = new HashSet<>();
         Set<Rating> phoenixRatings = new HashSet<>();
 
@@ -405,8 +410,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(goblet.getRatings()).hasSize(1);
     }
 
-    @Test // DATAGRAPH-586
-    public void shouldBeAbleToDeleteAllRatings() {
+    // DATAGRAPH-586
+    @Test
+    void shouldBeAbleToDeleteAllRatings() {
         Set<Rating> gobletRatings = new HashSet<>();
         Set<Rating> phoenixRatings = new HashSet<>();
 
@@ -461,8 +467,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(adam.getRatings()).isNull();
     }
 
-    @Test // DATAGRAPH-586
-    public void shouldBeAbleToDeleteOneRating() {
+    // DATAGRAPH-586
+    @Test
+    void shouldBeAbleToDeleteOneRating() {
         Set<Rating> gobletRatings = new HashSet<>();
         Set<Rating> phoenixRatings = new HashSet<>();
 
@@ -519,8 +526,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(adam.getRatings()).hasSize(1);
     }
 
-    @Test // DATAGRAPH-610
-    public void shouldSaveRelationshipEntityWithNullProperty() {
+    // DATAGRAPH-610
+    @Test
+    void shouldSaveRelationshipEntityWithNullProperty() {
         Actor bruce = new Actor("Bruce");
         Actor jim = new Actor("Jim");
 
@@ -554,8 +562,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(actor.getKnows().iterator().next().getSince()).isNull();
     }
 
-    @Test // DATAGRAPH-616
-    public void shouldLoadRelationshipEntityWithSameStartEndNodeType() {
+    // DATAGRAPH-616
+    @Test
+    void shouldLoadRelationshipEntityWithSameStartEndNodeType() {
         Actor bruce = new Actor("Bruce");
         Actor jim = new Actor("Jim");
 
@@ -578,8 +587,9 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
         assertThat(actor.getKnows().iterator().next().getSecondActor().getName()).isEqualTo("Jim");
     }
 
-    @Test // DATAGRAPH-552
-    public void shouldHydrateTheEndNodeOfAnRECorrectly() {
+    // DATAGRAPH-552
+    @Test
+    void shouldHydrateTheEndNodeOfAnRECorrectly() {
 
         Movie movie = new Movie("Pulp Fiction", 1994);
         Actor actor = new Actor("John Travolta");
@@ -618,13 +628,13 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveMultipleRoleRelationshipsBetweenTheSameTwoObjects() {
+    void shouldSaveMultipleRoleRelationshipsBetweenTheSameTwoObjects() {
 
         Movie movie = new Movie("The big John Travolta Party", 2016);
         Actor actor = new Actor("John Travolta");
 
         for (int i = 65; i <= 90; i++) {
-            String role = new String(new char[] { (char) i });
+            String role = new String(new char[]{(char) i});
             actor.playedIn(movie, role);
         }
 
@@ -638,7 +648,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveSameRoleTwiceRelationshipBetweenTheSameTwoObjects() {
+    void shouldSaveSameRoleTwiceRelationshipBetweenTheSameTwoObjects() {
 
         Movie movie = new Movie("The big John Travolta Party", 2016);
 
@@ -665,7 +675,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void updateRoleToSameValueResultsInTwoRelationshipBetweenSameObjects() throws Exception {
+    void updateRoleToSameValueResultsInTwoRelationshipBetweenSameObjects() throws Exception {
         Movie movie = new Movie("The big John Travolta Party", 2016);
 
         Actor actor = new Actor("John Travolta");
@@ -693,7 +703,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
      * @see DATAGRAPH-704
      */
     @Test
-    public void shouldRetainREsWhenAStartOrEndNodeIsLoaded() {
+    void shouldRetainREsWhenAStartOrEndNodeIsLoaded() {
         bootstrap("org/neo4j/ogm/cql/cineasts.cql");
 
         Collection<Movie> films = session
@@ -711,7 +721,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
      * For DATAGRAPH-761
      */
     @Test
-    public void shouldLoadFilmsByTitleUsingCaseInsensitiveWildcardBasedLikeExpression() {
+    void shouldLoadFilmsByTitleUsingCaseInsensitiveWildcardBasedLikeExpression() {
         Movie firstFilm = new Movie("Dirty Harry", 1977);
         Movie secondFilm = new Movie("Harry Potter and the Order of the Phoenix", 2009);
         Movie thirdFilm = new Movie("Delhi Belly", 2012);
@@ -728,7 +738,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadASingleRating() {
+    void shouldLoadASingleRating() {
         Movie movie = new Movie("Pulp Fiction", 1994);
         session.save(movie);
 
@@ -765,7 +775,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSortRatings() {
+    void shouldSortRatings() {
         Movie movie = new Movie("Pulp Fiction", 1994);
         session.save(movie);
 
@@ -811,7 +821,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
      * @see Issue #128
      */
     @Test
-    public void shouldBeAbleToSetREPropertiesToNull() throws MalformedURLException {
+    void shouldBeAbleToSetREPropertiesToNull() throws MalformedURLException {
         Movie movie = new Movie("Pulp Fiction", 1994);
         session.save(movie);
 
@@ -848,7 +858,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testFilterOnRelationshipEntity() throws Exception {
+    void testFilterOnRelationshipEntity() throws Exception {
         Movie pulpFiction = new Movie("Pulp Fiction", 1994);
 
         Movie ootf = new Movie("Harry Potter and the Order of the Phoenix", 2009);
@@ -901,7 +911,7 @@ public class CineastsRelationshipEntityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testFilterOnRelatedNode() throws Exception {
+    void testFilterOnRelatedNode() throws Exception {
         User frantisek = new User();
         frantisek.setName("Frantisek");
         frantisek.setLogin("frantisek");

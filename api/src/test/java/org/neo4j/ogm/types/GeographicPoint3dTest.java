@@ -20,7 +20,7 @@ package org.neo4j.ogm.types;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.types.spatial.GeographicPoint3d;
 
 /**
@@ -28,7 +28,7 @@ import org.neo4j.ogm.types.spatial.GeographicPoint3d;
  */
 public class GeographicPoint3dTest {
     @Test
-    public void constructorShouldSetCorrectFields() {
+    void constructorShouldSetCorrectFields() {
 
         double latitude = 48.793889;
         double longitude = 9.226944;

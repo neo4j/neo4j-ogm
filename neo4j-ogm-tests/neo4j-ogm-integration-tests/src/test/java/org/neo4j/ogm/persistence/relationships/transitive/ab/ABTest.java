@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -51,18 +51,18 @@ public class ABTest extends TestContainersTestBase {
     private B b;
     private R r;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships.transitive.ab");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         setUpEntityModel();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
     }
@@ -81,7 +81,7 @@ public class ABTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindBFromA() {
+    void shouldFindBFromA() {
 
         session.save(b);
 
@@ -91,7 +91,7 @@ public class ABTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindAFromB() {
+    void shouldFindAFromB() {
 
         session.save(a);
 
@@ -101,7 +101,7 @@ public class ABTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReflectRemovalA() {
+    void shouldReflectRemovalA() {
 
         session.save(a);
 
@@ -123,7 +123,7 @@ public class ABTest extends TestContainersTestBase {
      * @see DATAGRAPH-714
      */
     @Test
-    public void shouldBeAbleToUpdateRBySavingA() {
+    void shouldBeAbleToUpdateRBySavingA() {
         A a1 = new A();
         B b3 = new B();
         R r3 = new R();
@@ -146,7 +146,7 @@ public class ABTest extends TestContainersTestBase {
      * @see DATAGRAPH-714
      */
     @Test
-    public void shouldBeAbleToUpdateRBySavingB() {
+    void shouldBeAbleToUpdateRBySavingB() {
         A a1 = new A();
         B b3 = new B();
         R r3 = new R();
@@ -169,7 +169,7 @@ public class ABTest extends TestContainersTestBase {
      * @see DATAGRAPH-714
      */
     @Test
-    public void shouldBeAbleToUpdateRBySavingR() {
+    void shouldBeAbleToUpdateRBySavingR() {
         A a1 = new A();
         B b3 = new B();
         R r3 = new R();

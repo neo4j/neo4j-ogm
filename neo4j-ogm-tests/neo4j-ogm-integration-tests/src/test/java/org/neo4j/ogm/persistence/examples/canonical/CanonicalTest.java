@@ -23,9 +23,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.canonical.Mappable;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
@@ -40,12 +40,12 @@ public class CanonicalTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.canonical");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -55,7 +55,7 @@ public class CanonicalTest extends TestContainersTestBase {
      * @see Issue #127, Issue #157
      */
     @Test
-    public void shouldMapArraysWhenUsingCustomQueries() {
+    void shouldMapArraysWhenUsingCustomQueries() {
 
         Mappable mappable = new Mappable();
         mappable.setPrimitiveBoolean(false);
@@ -67,14 +67,14 @@ public class CanonicalTest extends TestContainersTestBase {
         mappable.setPrimitiveLong(8L);
         mappable.setPrimitiveShort((short) 200);
 
-        mappable.setPrimitiveBooleanArray(new boolean[] { true, false });
-        mappable.setPrimitiveByteArray(new byte[] { (byte) 10, (byte) 100 });
-        mappable.setPrimitiveCharArray(new char[] { 'd', '\u0001' });
-        mappable.setPrimitiveDoubleArray(new double[] { 34.5, 67.8 });
-        mappable.setPrimitiveFloatArray(new float[] { 1.2f, 3.4f });
-        mappable.setPrimitiveIntArray(new int[] { 6, 7 });
-        mappable.setPrimitiveLongArray(new long[] { 9, 10 });
-        mappable.setPrimitiveShortArray(new short[] { (short) 30, (short) 300 });
+        mappable.setPrimitiveBooleanArray(new boolean[]{true, false});
+        mappable.setPrimitiveByteArray(new byte[]{(byte) 10, (byte) 100});
+        mappable.setPrimitiveCharArray(new char[]{'d', '\u0001'});
+        mappable.setPrimitiveDoubleArray(new double[]{34.5, 67.8});
+        mappable.setPrimitiveFloatArray(new float[]{1.2f, 3.4f});
+        mappable.setPrimitiveIntArray(new int[]{6, 7});
+        mappable.setPrimitiveLongArray(new long[]{9, 10});
+        mappable.setPrimitiveShortArray(new short[]{(short) 30, (short) 300});
 
         mappable.setObjectBoolean(Boolean.FALSE);
         mappable.setObjectByte(Byte.valueOf("100"));
@@ -86,15 +86,15 @@ public class CanonicalTest extends TestContainersTestBase {
         mappable.setObjectString("abc");
         mappable.setObjectCharacter('d');
 
-        mappable.setObjectBooleanArray(new Boolean[] { Boolean.TRUE, Boolean.FALSE });
-        mappable.setObjectByteArray(new Byte[] { (byte) 10, (byte) 100 });
-        mappable.setObjectCharArray(new Character[] { 'd', '\u0028' });
-        mappable.setObjectDoubleArray(new Double[] { 34.5, 67.8 });
-        mappable.setObjectFloatArray(new Float[] { 1.2f, 3.4f });
-        mappable.setObjectIntegerArray(new Integer[] { 6, 7 });
-        mappable.setObjectLongArray(new Long[] { 9L, 10L });
-        mappable.setObjectShortArray(new Short[] { (short) 30, (short) 300 });
-        mappable.setObjectStringArray(new String[] { "abc", "xyz" });
+        mappable.setObjectBooleanArray(new Boolean[]{Boolean.TRUE, Boolean.FALSE});
+        mappable.setObjectByteArray(new Byte[]{(byte) 10, (byte) 100});
+        mappable.setObjectCharArray(new Character[]{'d', '\u0028'});
+        mappable.setObjectDoubleArray(new Double[]{34.5, 67.8});
+        mappable.setObjectFloatArray(new Float[]{1.2f, 3.4f});
+        mappable.setObjectIntegerArray(new Integer[]{6, 7});
+        mappable.setObjectLongArray(new Long[]{9L, 10L});
+        mappable.setObjectShortArray(new Short[]{(short) 30, (short) 300});
+        mappable.setObjectStringArray(new String[]{"abc", "xyz"});
 
         mappable.setListOfString(Arrays.asList("a", "bb", "cc"));
         mappable.setListOfCharacter(Arrays.asList('a', 'b', 'c'));

@@ -23,8 +23,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.gh385.RichRelations.E;
 import org.neo4j.ogm.domain.gh385.RichRelations.R;
 import org.neo4j.ogm.domain.gh385.RichRelations.S;
@@ -40,13 +40,14 @@ public class GenericCollectionRelationshipsTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void initSesssionFactory() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh385");
     }
 
-    @Test // GH-385
-    public void shouldLoadSimpleRelationshipIntoCollection() {
+    // GH-385
+    @Test
+    void shouldLoadSimpleRelationshipIntoCollection() {
         long id = (long) sessionFactory.openSession().query(""
             + "CREATE (p:P {name: 'P'})\n"
             + "MERGE (p) - [:HAS] -> (:C {name: 'C1'})\n"
@@ -63,8 +64,9 @@ public class GenericCollectionRelationshipsTest extends TestContainersTestBase {
             .hasSize(2);
     }
 
-    @Test // GH-385
-    public void shouldLoadRichRelationshipIntoCollection() {
+    // GH-385
+    @Test
+    void shouldLoadRichRelationshipIntoCollection() {
         long id = (long) sessionFactory.openSession().query(""
             + "CREATE (s:S)\n"
             + "MERGE (s) - [:R {name: 'Same'}] -> (:E {name: 'E1'})\n"
@@ -88,8 +90,9 @@ public class GenericCollectionRelationshipsTest extends TestContainersTestBase {
             .containsExactlyInAnyOrder("E1", "E2");
     }
 
-    @Test // GH-385
-    public void shouldWriteRichRelationshipFromCollection() {
+    // GH-385
+    @Test
+    void shouldWriteRichRelationshipFromCollection() {
         Session session = sessionFactory.openSession();
 
         S s = new S("Test");

@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.session.Session;
@@ -44,19 +44,19 @@ public class AATest extends TestContainersTestBase {
     private A a1, a2, a3, a4;
     private A loadedA1, loadedA2, loadedA3, loadedA4;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetup() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships.direct.aa");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
         setUpEntityModel();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
     }
@@ -76,7 +76,7 @@ public class AATest extends TestContainersTestBase {
      * @see DATAGRAPH-594
      */
     @Test
-    public void shouldFindStartAFromEndA() {
+    void shouldFindStartAFromEndA() {
 
         session.save(a1);
         session.save(a2);
@@ -98,7 +98,7 @@ public class AATest extends TestContainersTestBase {
      * @see DATAGRAPH-594
      */
     @Test
-    public void shouldFindEndAFromStartA() {
+    void shouldFindEndAFromStartA() {
 
         session.save(a1);
         session.save(a2);
@@ -119,7 +119,7 @@ public class AATest extends TestContainersTestBase {
      * @see DATAGRAPH-594
      */
     @Test
-    public void shouldPreserveAAfterReflectRemovalOtherA() {
+    void shouldPreserveAAfterReflectRemovalOtherA() {
 
         session.save(a1);
         session.save(a2);

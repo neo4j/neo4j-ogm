@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.metadata;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author vince
@@ -26,82 +26,82 @@ import org.junit.Test;
 public class PrimitiveFieldsTest extends TestMetaDataTypeResolution {
 
     @Test
-    public void testPrimitiveShortArray() {
+    void testPrimitiveShortArray() {
         checkField("pss", "short[]", short.class);
     }
 
     @Test
-    public void testPrimitiveCharArray() {
+    void testPrimitiveCharArray() {
         checkField("pcc", "char[]", char.class);
     }
 
     @Test
-    public void testPrimitiveByteArray() {
+    void testPrimitiveByteArray() {
         checkField("pbb", "byte[]", byte.class);
     }
 
     @Test
-    public void testPrimitiveLongArray() {
+    void testPrimitiveLongArray() {
         checkField("pll", "long[]", long.class);
     }
 
     @Test
-    public void testPrimitiveDoubleArray() {
+    void testPrimitiveDoubleArray() {
         checkField("pdd", "double[]", double.class);
     }
 
     @Test
-    public void testPrimitiveFloatArray() {
+    void testPrimitiveFloatArray() {
         checkField("pff", "float[]", float.class);
     }
 
     @Test
-    public void testPrimitiveBooleanArray() {
+    void testPrimitiveBooleanArray() {
         checkField("pzz", "boolean[]", boolean.class);
     }
 
     @Test
-    public void testPrimitiveIntegerArray() {
+    void testPrimitiveIntegerArray() {
         checkField("pii", "int[]", int.class);
     }
 
     @Test
-    public void testPrimitiveShort() {
+    void testPrimitiveShort() {
         checkField("ps", "short", short.class);
     }
 
     @Test
-    public void testPrimitiveChar() {
+    void testPrimitiveChar() {
         checkField("pc", "char", char.class);
     }
 
     @Test
-    public void testPrimitiveByte() {
+    void testPrimitiveByte() {
         checkField("pb", "byte", byte.class);
     }
 
     @Test
-    public void testPrimitiveLong() {
+    void testPrimitiveLong() {
         checkField("pl", "long", long.class);
     }
 
     @Test
-    public void testPrimitiveDouble() {
+    void testPrimitiveDouble() {
         checkField("pd", "double", double.class);
     }
 
     @Test
-    public void testPrimitiveFloat() {
+    void testPrimitiveFloat() {
         checkField("pf", "float", float.class);
     }
 
     @Test
-    public void testPrimitiveBoolean() {
+    void testPrimitiveBoolean() {
         checkField("pz", "boolean", boolean.class);
     }
 
     @Test
-    public void testPrimitiveInteger() {
+    void testPrimitiveInteger() {
         checkField("pi", "int", int.class);
     }
 }

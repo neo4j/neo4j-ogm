@@ -20,8 +20,8 @@ package org.neo4j.ogm.metadata.reflect;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.entityMapping.*;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -37,13 +37,14 @@ public class RelationalReaderWriterTest {
     final String LIKES = "LIKES";
     private DomainInfo domainInfo;
 
-    @Before
+    @BeforeEach
     public void setup() {
         domainInfo = DomainInfo.create("org.neo4j.ogm.domain.entityMapping");
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV1() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV1() {
         final String KNOWN_BY = "KNOWN_BY";
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV1.class.getName());
@@ -64,8 +65,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV2() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV2() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV2.class.getName());
         UserV2 instance = new UserV2();
@@ -84,8 +86,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV3() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV3() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV3.class.getName());
         UserV3 instance = new UserV3();
@@ -104,8 +107,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV4() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV4() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV4.class.getName());
         UserV4 instance = new UserV4();
@@ -124,8 +128,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV5() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV5() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV5.class.getName());
         UserV5 instance = new UserV5();
@@ -144,8 +149,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV6() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV6() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV6.class.getName());
         UserV6 instance = new UserV6();
@@ -160,8 +166,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV7() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV7() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV7.class.getName());
         UserV7 instance = new UserV7();
@@ -180,8 +187,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV8() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV8() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV8.class.getName());
         UserV8 instance = new UserV8();
@@ -200,8 +208,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV9() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV9() {
         ClassInfo classInfo = this.domainInfo.getClass(UserV9.class.getName());
         UserV9 instance = new UserV9();
         UserV9 relatedObjectOut = new UserV9();
@@ -224,8 +233,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObjectIn);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV10() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV10() {
         ClassInfo classInfo = this.domainInfo.getClass(UserV10.class.getName());
         UserV10 instance = new UserV10();
         UserV10 relatedObjectOut = new UserV10();
@@ -248,8 +258,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObjectIn);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV11() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV11() {
         ClassInfo classInfo = this.domainInfo.getClass(UserV11.class.getName());
         UserV11 instance = new UserV11();
         UserV11 relatedObjectOut = new UserV11();
@@ -272,8 +283,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObjectIn);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV12() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV12() {
         ClassInfo classInfo = this.domainInfo.getClass(UserV12.class.getName());
         UserV12 instance = new UserV12();
         UserV12 relatedObjectOut = new UserV12();
@@ -296,8 +308,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObjectIn);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV13() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV13() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV13.class.getName());
         UserV13 instance = new UserV13();
@@ -316,8 +329,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV14() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV14() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV14.class.getName());
         UserV14 instance = new UserV14();
@@ -336,8 +350,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV15() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV15() {
         ClassInfo classInfo = this.domainInfo.getClass(UserV15.class.getName());
         UserV15 instance = new UserV15();
         UserV15 relatedObjectOut = new UserV15();
@@ -362,8 +377,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObjectIn);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV16() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV16() {
         ClassInfo classInfo = this.domainInfo.getClass(UserV16.class.getName());
         UserV16 instance = new UserV16();
         UserV16 relatedObjectOut = new UserV16();
@@ -388,8 +404,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObjectIn);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV17() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV17() {
         ClassInfo classInfo = this.domainInfo.getClass(UserV17.class.getName());
         UserV17 instance = new UserV17();
         UserV17 relatedObject = new UserV17();
@@ -407,8 +424,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV18() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV18() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV18.class.getName());
         UserV18 instance = new UserV18();
@@ -427,8 +445,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // DATAGRAPH-636
-    public void testUserV19() {
+    // DATAGRAPH-636
+    @Test
+    void testUserV19() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV19.class.getName());
         UserV19 instance = new UserV19();
@@ -447,8 +466,9 @@ public class RelationalReaderWriterTest {
         assertThat(relationalReader.read(instance)).isEqualTo(relatedObject);
     }
 
-    @Test // GH-36
-    public void testUserV20() {
+    // GH-36
+    @Test
+    void testUserV20() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV20.class.getName());
         UserV20 instance = new UserV20();
@@ -475,8 +495,9 @@ public class RelationalReaderWriterTest {
         assertThat(instance.getPlainUser()).isEqualTo(otherRelatedObject);
     }
 
-    @Test // GH-36
-    public void testUserV21() {
+    // GH-36
+    @Test
+    void testUserV21() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV21.class.getName());
         UserV21 instance = new UserV21();
@@ -503,8 +524,9 @@ public class RelationalReaderWriterTest {
         assertThat(instance.getPlainUser()).isEqualTo(otherRelatedObject);
     }
 
-    @Test // GH-36
-    public void testUserV22() {
+    // GH-36
+    @Test
+    void testUserV22() {
 
         ClassInfo classInfo = this.domainInfo.getClass(UserV22.class.getName());
         UserV22 instance = new UserV22();

@@ -20,7 +20,7 @@ package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.Neo4jSession;
@@ -32,7 +32,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 public class UserTest {
 
     @Test
-    public void testDeserialiseUserWithArrayOfEnums() {
+    void testDeserialiseUserWithArrayOfEnums() {
 
         MetaData metadata = new MetaData("org.neo4j.ogm.domain.cineasts.annotated");
         Neo4jSession session = new Neo4jSession(metadata, true, new UsersRequest());

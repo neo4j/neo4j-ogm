@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
@@ -39,30 +39,30 @@ public class RelationshipDeleteStatementsTest {
     private final DeleteStatements statements = new RelationshipDeleteStatements();
 
     @Test
-    public void testDeleteOne() {
+    void testDeleteOne() {
         assertThat(statements.delete(0L).getStatement())
             .isEqualTo("MATCH (n)-[r0]->() WHERE ID(r0) = $id DELETE r0");
     }
 
     @Test
-    public void testDeleteMany() {
+    void testDeleteMany() {
         assertThat(statements.delete(Arrays.asList(1L, 2L)).getStatement())
             .isEqualTo("MATCH (n)-[r0]->() WHERE ID(r0) IN $ids DELETE r0");
     }
 
     @Test
-    public void testDeleteAll() {
+    void testDeleteAll() {
         assertThat(statements.deleteAll().getStatement()).isEqualTo("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0");
     }
 
     @Test
-    public void testDeleteWithType() {
+    void testDeleteWithType() {
         assertThat(statements.delete("TRAFFIC_WARDEN").getStatement())
             .isEqualTo("MATCH (n)-[r0:`TRAFFIC_WARDEN`]-() DELETE r0");
     }
 
     @Test
-    public void testDeleteWithTypeAndFilters() {
+    void testDeleteWithTypeAndFilters() {
         CypherQuery query = statements
             .delete("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
         assertThat(query.getStatement())
@@ -70,7 +70,7 @@ public class RelationshipDeleteStatementsTest {
     }
 
     @Test
-    public void testDeleteWithTypeAndFiltersAndList() {
+    void testDeleteWithTypeAndFiltersAndList() {
         CypherQuery query = statements
             .deleteAndList("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
         assertThat(query.getStatement())

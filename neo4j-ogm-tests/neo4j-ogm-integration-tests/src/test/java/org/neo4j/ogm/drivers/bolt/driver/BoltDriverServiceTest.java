@@ -19,11 +19,11 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 import java.util.Collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
@@ -38,7 +38,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 public class BoltDriverServiceTest extends TestContainersTestBase {
 
     @Test
-    public void loadBoltDriver() {
+    void loadBoltDriver() {
         String uri = new Configuration.Builder(new ClasspathConfigurationSource("ogm.properties")).build().getURI();
         Configuration driverConfiguration = new Configuration.Builder().uri(uri).build();
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
@@ -48,13 +48,13 @@ public class BoltDriverServiceTest extends TestContainersTestBase {
     }
 
     @Test
-    public void databaseShouldBeConfigurable() {
+    void databaseShouldBeConfigurable() {
 
-        assumeTrue("This test requires a 4.0 database", isVersionOrGreater("4.0.0"));
+        assumeTrue(isVersionOrGreater("4.0.0"), "This test requires a 4.0 database");
 
         Configuration driverConfiguration = getBaseConfigurationBuilder().database("system").build();
         SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
-        assumeTrue("This test requires the BoltDriver", sf.unwrap(Driver.class) instanceof BoltDriver);
+        assumeTrue(sf.unwrap(Driver.class) instanceof BoltDriver, "This test requires the BoltDriver");
 
         // This is a command only valid in system db
         Result result = sf.openSession().query("SHOW DATABASES;", Collections.emptyMap());

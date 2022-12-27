@@ -25,9 +25,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.education.Course;
@@ -46,19 +46,19 @@ public class EducationIntegrationTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.education");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void loadingCourseByPropertyShouldNotLoadOtherEntitiesWithSamePropertyValue() {
+    void loadingCourseByPropertyShouldNotLoadOtherEntitiesWithSamePropertyValue() {
         //create a course
         Course course = new Course("CompSci");
         //create a student with the same name as the course
@@ -79,7 +79,7 @@ public class EducationIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-595
      */
     @Test
-    public void loadingASchoolWithNegativeDepthShouldLoadAllConnectedEntities() {
+    void loadingASchoolWithNegativeDepthShouldLoadAllConnectedEntities() {
         //Create students, teachers, courses and a school
         School hogwarts = new School("Hogwarts");
 

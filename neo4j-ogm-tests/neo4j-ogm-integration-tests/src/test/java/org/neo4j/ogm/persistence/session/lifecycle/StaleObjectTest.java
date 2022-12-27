@@ -22,8 +22,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.Session;
@@ -61,7 +61,7 @@ public class StaleObjectTest extends TestContainersTestBase {
 
     private Session session;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.filesystem");
         session = sessionFactory.openSession();
@@ -89,7 +89,7 @@ public class StaleObjectTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testSaveDegenerateDocument() {
+    void testSaveDegenerateDocument() {
 
         // note that we don't clear the current folder object.
         a.setFolder(null);
@@ -117,7 +117,7 @@ public class StaleObjectTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testSaveDegenerateFolder() {
+    void testSaveDegenerateFolder() {
 
         // note that we don't clear any of the document object's folder references.
         f.getDocuments().clear();

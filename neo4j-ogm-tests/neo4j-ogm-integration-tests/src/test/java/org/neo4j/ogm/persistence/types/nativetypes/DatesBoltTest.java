@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Values;
@@ -42,7 +42,7 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class DatesBoltTest extends DatesTestBase {
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
 
         Configuration ogmConfiguration = getBaseConfigurationBuilder()

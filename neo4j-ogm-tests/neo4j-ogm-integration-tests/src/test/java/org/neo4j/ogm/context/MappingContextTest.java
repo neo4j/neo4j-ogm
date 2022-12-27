@@ -23,9 +23,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations.UuidAndGenerationType;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
@@ -43,7 +43,7 @@ public class MappingContextTest {
 
     private static Field PRIMARY_ID_TO_NATIVE_ID_ACCESSOR;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpPrimaryIdToNativeIdAccessor() {
         // I wanted to have the test from the original PR but not exposing any new API.
         // This is our stuff, I think it's ok to do this.
@@ -58,7 +58,7 @@ public class MappingContextTest {
     private MappingContext mappingContext;
     private MetaData metaData;
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         this.metaData = new MetaData("org.neo4j.ogm.domain.policy", "org.neo4j.ogm.context",
@@ -67,7 +67,7 @@ public class MappingContextTest {
     }
 
     @Test
-    public void testPath() {
+    void testPath() {
 
         Person jim = new Person("jim");
         jim.setId(1L);
@@ -87,7 +87,7 @@ public class MappingContextTest {
     }
 
     @Test
-    public void clearOne() {
+    void clearOne() {
 
         Person jim = new Person("jim");
         jim.setId(1L);
@@ -107,8 +107,9 @@ public class MappingContextTest {
             new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), null, Person.class, Policy.class))).isFalse();
     }
 
-    @Test // #96
-    public void clearOneEqualToAnother() {
+    // #96
+    @Test
+    void clearOneEqualToAnother() {
 
         Person jim = new Person("jim");
         jim.setId(1L);
@@ -134,7 +135,7 @@ public class MappingContextTest {
     }
 
     @Test
-    public void clearType() {
+    void clearType() {
         Person jim = new Person("jim");
         jim.setId(1L);
 
@@ -171,7 +172,7 @@ public class MappingContextTest {
     }
 
     @Test
-    public void areObjectsReportedAsDirtyCorrectly() {
+    void areObjectsReportedAsDirtyCorrectly() {
         Person jim = new Person("jim");
         jim.setId(1L);
 
@@ -197,8 +198,9 @@ public class MappingContextTest {
         assertThat(mappingContext.isDirty(immigration)).isFalse();
     }
 
-    @Test // See #467
-    public void nativeIdsAreMappedWithoutPrimaryIdConversion() {
+    // See #467
+    @Test
+    void nativeIdsAreMappedWithoutPrimaryIdConversion() {
         UuidAndGenerationType entity = new UuidAndGenerationType();
 
         mappingContext.nativeId(entity);
@@ -209,8 +211,9 @@ public class MappingContextTest {
             .isFalse();
     }
 
-    @Test // See #467
-    public void nodeEntitiesAreReplacedWithoutPrimaryIdConversion() {
+    // See #467
+    @Test
+    void nodeEntitiesAreReplacedWithoutPrimaryIdConversion() {
         UuidAndGenerationType entity = new UuidAndGenerationType();
 
         mappingContext.addNodeEntity(entity);

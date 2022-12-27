@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -57,12 +57,12 @@ public class BidirectionalMappingTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.linkedlist");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -72,7 +72,7 @@ public class BidirectionalMappingTest extends TestContainersTestBase {
      * @see DATAGRAPH-636
      */
     @Test
-    public void shouldLoadDoublyLinkedList() {
+    void shouldLoadDoublyLinkedList() {
 
         Item first = new Item();
         Item second = new Item();
@@ -97,7 +97,7 @@ public class BidirectionalMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldHandleSelfReferencingObjectOnRollback() {
+    void shouldHandleSelfReferencingObjectOnRollback() {
 
         Item item = new Item();
         item.next = item;

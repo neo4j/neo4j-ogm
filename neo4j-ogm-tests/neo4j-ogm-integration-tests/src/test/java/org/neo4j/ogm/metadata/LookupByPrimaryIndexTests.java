@@ -20,13 +20,14 @@ package org.neo4j.ogm.metadata;
 
 import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collection;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations.IdAndGenerationType;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
@@ -46,7 +47,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(),
             "org.neo4j.ogm.domain.cineasts.annotated",
@@ -55,13 +56,13 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
         );
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         session = sessionFactory.openSession();
     }
 
     @Test
-    public void loadUsesIdWhenPresent() {
+    void loadUsesIdWhenPresent() {
 
         ValidAnnotations.Basic entity = new ValidAnnotations.Basic();
         entity.identifier = "id1";
@@ -75,7 +76,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     }
 
     @Test
-    public void loadUsesIdWhenPresentOnParent() {
+    void loadUsesIdWhenPresentOnParent() {
 
         ValidAnnotations.BasicChild entity = new ValidAnnotations.BasicChild();
         entity.identifier = "id1";
@@ -89,7 +90,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     }
 
     @Test
-    public void saveWithStringUuidGeneration() {
+    void saveWithStringUuidGeneration() {
 
         IdAndGenerationType entity = new IdAndGenerationType();
         session.save(entity);
@@ -104,7 +105,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     }
 
     @Test
-    public void saveWithUuidGeneration() {
+    void saveWithUuidGeneration() {
 
         ValidAnnotations.UuidIdAndGenerationType entity = new ValidAnnotations.UuidIdAndGenerationType();
         session.save(entity);
@@ -120,7 +121,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     }
 
     @Test
-    public void loadUsesPrimaryIndexWhenPresent() {
+    void loadUsesPrimaryIndexWhenPresent() {
 
         User user1 = new User("login1", "Name 1", "password");
         session.save(user1);
@@ -133,7 +134,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     }
 
     @Test
-    public void loadAllUsesPrimaryIndexWhenPresent() {
+    void loadAllUsesPrimaryIndexWhenPresent() {
 
         User user1 = new User("login1", "Name 1", "password");
         session.save(user1);
@@ -154,7 +155,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     }
 
     @Test
-    public void loadUsesPrimaryIndexWhenPresentOnSuperclass() {
+    void loadUsesPrimaryIndexWhenPresentOnSuperclass() {
 
         ExtendedUser user1 = new ExtendedUser("login2", "Name 2", "password");
         session.save(user1);
@@ -167,7 +168,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     }
 
     @Test
-    public void loadUsesGraphIdWhenPrimaryIndexNotPresent() {
+    void loadUsesGraphIdWhenPrimaryIndexNotPresent() {
 
         SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.partial");
         Session session1 = sessionFactory.openSession();
@@ -187,7 +188,7 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
      * This test makes sure that if the primary key is a Long, it isn't mixed up with the Graph Id.
      */
     @Test
-    public void loadUsesPrimaryIndexWhenPresentEvenIfTypeIsLong() {
+    void loadUsesPrimaryIndexWhenPresentEvenIfTypeIsLong() {
         Invoice invoice = new Invoice(223L, "Company", 100000L);
         session.save(invoice);
 
@@ -200,8 +201,9 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
     /**
      * Case where primary key is of type Long and entity with such graph id exists
      */
-    @Test // DATAGRAPH-1008
-    public void loadShouldNotMixLongPrimaryIndexAndGraphId() throws Exception {
+    // DATAGRAPH-1008
+    @Test
+    void loadShouldNotMixLongPrimaryIndexAndGraphId() throws Exception {
 
         Invoice invoice1 = new Invoice(223L, "Company", 100000L);
         session.save(invoice1);
@@ -221,19 +223,21 @@ public class LookupByPrimaryIndexTests extends TestContainersTestBase {
         assertThat(invoices).containsOnly(invoice1, invoice2);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void exceptionRaisedWhenLookupDoneByNonLongKeyAndThereIsNoPrimaryIndex() {
-        SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.partial");
-        Session session1 = sessionFactory.openSession();
+    @Test
+    void exceptionRaisedWhenLookupDoneByNonLongKeyAndThereIsNoPrimaryIndex() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.partial");
+            Session session1 = sessionFactory.openSession();
 
-        Actor actor = new Actor("David Hasslehoff");
-        session1.save(actor);
+            Actor actor = new Actor("David Hasslehoff");
+            session1.save(actor);
 
-        session1.load(Actor.class, "david-id");
+            session1.load(Actor.class, "david-id");
+        });
     }
 
     @Test
-    public void loadShouldNotMixPrimaryKeysOfDifferentLabels() {
+    void loadShouldNotMixPrimaryKeysOfDifferentLabels() {
 
         User user = new User("login", "name", "password");
         session.save(user);

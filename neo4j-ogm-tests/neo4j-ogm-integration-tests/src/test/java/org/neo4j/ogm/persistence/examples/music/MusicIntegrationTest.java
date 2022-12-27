@@ -27,10 +27,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
@@ -53,17 +53,17 @@ public class MusicIntegrationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void clear() {
         session.purgeDatabase();
     }
@@ -72,7 +72,7 @@ public class MusicIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-589
      */
     @Test
-    public void shouldSaveAndRetrieveEntitiesWithInvalidCharsInLabelsAndRels() {
+    void shouldSaveAndRetrieveEntitiesWithInvalidCharsInLabelsAndRels() {
         Studio emi = new Studio("EMI Studios, London");
 
         Artist theBeatles = new Artist("The Beatles");
@@ -116,7 +116,7 @@ public class MusicIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-631
      */
     @Test
-    public void shouldLoadStudioWithLocationMissingInDomainModel() {
+    void shouldLoadStudioWithLocationMissingInDomainModel() {
         session.query("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})", Collections.emptyMap());
         Studio studio = session
             .loadAll(Studio.class, new Filter("name", ComparisonOperator.EQUALS, "Abbey Road Studios")).iterator()
@@ -128,7 +128,7 @@ public class MusicIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-629
      */
     @Test
-    public void shouldRetrieveEntityByPropertyWithZeroDepth() {
+    void shouldRetrieveEntityByPropertyWithZeroDepth() {
         Studio emi = new Studio("EMI Studios, London");
 
         Artist theBeatles = new Artist("The Beatles");
@@ -159,7 +159,7 @@ public class MusicIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-637
      */
     @Test
-    public void shouldSaveAndRetrieveArtistWithTwoRelationshipTypesToAlbums() {
+    void shouldSaveAndRetrieveArtistWithTwoRelationshipTypesToAlbums() {
         Studio emi = new Studio("EMI Studios, London");
         Studio olympic = new Studio("Olympic Studios, London");
 
@@ -205,7 +205,7 @@ public class MusicIntegrationTest extends TestContainersTestBase {
      * Issue #83
      */
     @Test
-    public void shouldBeAbleToQueryForLiteralMapWithAlias() {
+    void shouldBeAbleToQueryForLiteralMapWithAlias() {
         Studio emi = new Studio("EMI Studios, London");
         Artist theBeatles = new Artist("The Beatles");
 
@@ -243,7 +243,7 @@ public class MusicIntegrationTest extends TestContainersTestBase {
      * Issue #83
      */
     @Test
-    public void shouldBeAbleToQueryForLiteralMapWithoutAlias() {
+    void shouldBeAbleToQueryForLiteralMapWithoutAlias() {
         Studio emi = new Studio("EMI Studios, London");
         Artist theBeatles = new Artist("The Beatles");
 
@@ -281,7 +281,7 @@ public class MusicIntegrationTest extends TestContainersTestBase {
      * @see Issue 191
      */
     @Test
-    public void shouldSortByDomainPropertyName() {
+    void shouldSortByDomainPropertyName() {
         Studio emi = new Studio("EMI Studios, London");
         Studio olympic = new Studio("Olympic Studios, London");
 

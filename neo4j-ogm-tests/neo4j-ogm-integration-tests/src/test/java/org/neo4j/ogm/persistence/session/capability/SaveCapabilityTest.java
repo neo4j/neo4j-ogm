@@ -28,9 +28,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.cypher.compiler.CompileContext;
 import org.neo4j.ogm.domain.gh787.EntityWithCustomIdConverter;
@@ -56,7 +56,7 @@ public class SaveCapabilityTest extends TestContainersTestBase {
     private Artist bonJovi;
     private Artist defLeppard;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music",
             "org.neo4j.ogm.domain.gh787", "org.neo4j.ogm.domain.gh789");
@@ -67,13 +67,14 @@ public class SaveCapabilityTest extends TestContainersTestBase {
         defLeppard = new Artist("Def Leppard");
     }
 
-    @After
+    @AfterEach
     public void clearDatabase() {
         session.purgeDatabase();
     }
 
-    @Test // GH-84
-    public void saveCollectionShouldSaveLists() {
+    // GH-84
+    @Test
+    void saveCollectionShouldSaveLists() {
         Album nineLives = new Album("Nine Lives");
         aerosmith.addAlbum(nineLives);
         Album crossRoad = new Album("Cross Road");
@@ -85,8 +86,9 @@ public class SaveCapabilityTest extends TestContainersTestBase {
         assertThat(session.countEntitiesOfType(Album.class)).isEqualTo(2);
     }
 
-    @Test // GH-84
-    public void saveCollectionShouldSaveSets() {
+    // GH-84
+    @Test
+    void saveCollectionShouldSaveSets() {
         Set<Artist> artists = new HashSet<>();
         artists.add(aerosmith);
         artists.add(bonJovi);
@@ -96,16 +98,17 @@ public class SaveCapabilityTest extends TestContainersTestBase {
         assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(3);
     }
 
-    @Test // GH-84
-    public void saveCollectionShouldSaveArrays() {
-        Artist[] artists = new Artist[] { aerosmith, bonJovi, defLeppard };
+    // GH-84
+    @Test
+    void saveCollectionShouldSaveArrays() {
+        Artist[] artists = new Artist[]{aerosmith, bonJovi, defLeppard};
         session.save(artists);
         session.clear();
         assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(3);
     }
 
     @Test
-    public void shouldSaveNewNodesAndNewRelationships() {
+    void shouldSaveNewNodesAndNewRelationships() {
         Artist leann = new Artist("Leann Rimes");
         Album lost = new Album("Lost Highway");
         lost.setArtist(bonJovi);
@@ -131,7 +134,7 @@ public class SaveCapabilityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveOnlyModifiedNodes() {
+    void shouldSaveOnlyModifiedNodes() {
 
         int depth = 1;
         Neo4jSession neo4jSession = (Neo4jSession) session;
@@ -168,7 +171,7 @@ public class SaveCapabilityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldCountRelationshipEntities() {
+    void shouldCountRelationshipEntities() {
         Album greatestHits = new Album("Greatest Hits");
 
         Studio chessRecordsStudios = new Studio("Chess Records");
@@ -186,8 +189,9 @@ public class SaveCapabilityTest extends TestContainersTestBase {
         assertThat(session.countEntitiesOfType(Recording.class)).isEqualTo(2);
     }
 
-    @Test // GH-789
-    public void saveWithCustomKeyConverterShouldWork() {
+    // GH-789
+    @Test
+    void saveWithCustomKeyConverterShouldWork() {
 
         EntityWithCustomIdConverter entity = new EntityWithCustomIdConverter(new MyVeryOwnIdType("asd"));
         session.save(entity);
@@ -198,8 +202,9 @@ public class SaveCapabilityTest extends TestContainersTestBase {
         assertThat(entity).isNotNull();
     }
 
-    @Test // GH-789
-    public void safeWithCompositeKey() {
+    // GH-789
+    @Test
+    void safeWithCompositeKey() {
 
         Entity entity = Entity.from("first", "second");
 

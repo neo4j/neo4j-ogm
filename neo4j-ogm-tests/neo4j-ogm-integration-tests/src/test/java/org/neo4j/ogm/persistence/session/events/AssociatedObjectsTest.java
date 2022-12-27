@@ -20,7 +20,7 @@ package org.neo4j.ogm.persistence.session.events;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.event.Event;
@@ -31,7 +31,7 @@ import org.neo4j.ogm.session.event.Event;
 public class AssociatedObjectsTest extends EventTestBaseClass {
 
     @Test
-    public void shouldNotFireEventsOnAssociatedFolderThatHasNotChanged() {
+    void shouldNotFireEventsOnAssociatedFolderThatHasNotChanged() {
 
         // even though the document is updated,
         // its associated folder has not changed,
@@ -46,7 +46,7 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsForAllDirtyObjectsThatAreReachableFromTheRoot() {
+    void shouldFireEventsForAllDirtyObjectsThatAreReachableFromTheRoot() {
 
         // the documents b and c are connected to a via a shared folder,
         // so events should fire for each of a,b and c
@@ -66,7 +66,7 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsForAssociatedObjectsWhenDeletingParentObjectWithInconsistentDomainModel() {
+    void shouldFireEventsForAssociatedObjectsWhenDeletingParentObjectWithInconsistentDomainModel() {
 
         session.delete(a);  // a has a folder object reference
 
@@ -86,7 +86,7 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsForAssociatedObjectsWhenDeletingParentObjectWithConsistentDomainModel() {
+    void shouldFireEventsForAssociatedObjectsWhenDeletingParentObjectWithConsistentDomainModel() {
 
         folder.getDocuments().remove(a);
         session.delete(a);  // a has a folder object reference
@@ -101,7 +101,7 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenAddNewObjectInCollectionAndSaveCollection() {
+    void shouldFireEventsWhenAddNewObjectInCollectionAndSaveCollection() {
 
         // add a new document to an existing folder and save the document
         Document z = new Document();
@@ -119,7 +119,7 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenAddNewObjectToCollectionAndSaveNewObject() {
+    void shouldFireEventsWhenAddNewObjectToCollectionAndSaveNewObject() {
 
         // add a new document to an existing folder and save the document
         Document z = new Document();
@@ -137,7 +137,7 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenAddExistingObjectToCollectionAndSaveExistingObject() {
+    void shouldFireEventsWhenAddExistingObjectToCollectionAndSaveExistingObject() {
 
         d.setFolder(folder);
         folder.getDocuments().add(d);
@@ -153,7 +153,7 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenSetAssociatedObjectToNewAnonymousObject() {
+    void shouldFireEventsWhenSetAssociatedObjectToNewAnonymousObject() {
 
         a.setFolder(new Folder());
         folder.getDocuments().remove(a);
@@ -176,7 +176,7 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenAddExistingObjectToCollectionAndSaveCollection() {
+    void shouldFireEventsWhenAddExistingObjectToCollectionAndSaveCollection() {
 
         assertThat(d.getFolder()).isNull();
 
@@ -194,7 +194,7 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenItemDisassociatedFromContainerAndSaveContainer() {
+    void shouldFireEventsWhenItemDisassociatedFromContainerAndSaveContainer() {
 
         folder.getDocuments().remove(a);
         a.setFolder(null);
@@ -210,7 +210,7 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldFireEventsWhenItemDisassociatedFromContainerAndSaveItem() {
+    void shouldFireEventsWhenItemDisassociatedFromContainerAndSaveItem() {
 
         folder.getDocuments().remove(a);
         a.setFolder(null);

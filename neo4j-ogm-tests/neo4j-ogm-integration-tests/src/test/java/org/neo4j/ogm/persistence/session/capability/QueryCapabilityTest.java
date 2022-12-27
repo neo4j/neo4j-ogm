@@ -35,10 +35,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.data.Index;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappingContext;
@@ -92,10 +92,10 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         logCtx.getLogger(Neo4jSession.class).setLevel(Level.DEBUG);
     }
 
-    @Rule
+    @RegisterExtension
     public final LoggerRule loggerRule = new LoggerRule();
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         sessionFactory = new SessionFactory(getDriver(),
             "org.neo4j.ogm.domain.cineasts.annotated",
@@ -140,16 +140,16 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         session.save(new Flight("FL 003", lax, lhr));
     }
 
-    @After
+    @AfterEach
     public void clearDatabase() {
         session.purgeDatabase();
     }
 
     @Test
-    public void bothLoadStrategiesShouldBeAbleToDealWithPaths() {
+    void bothLoadStrategiesShouldBeAbleToDealWithPaths() {
 
-        for (LoadStrategy strategy : new LoadStrategy[] { LoadStrategy.PATH_LOAD_STRATEGY,
-            LoadStrategy.SCHEMA_LOAD_STRATEGY }) {
+        for (LoadStrategy strategy : new LoadStrategy[]{LoadStrategy.PATH_LOAD_STRATEGY,
+            LoadStrategy.SCHEMA_LOAD_STRATEGY}) {
             SessionFactory localSessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh851");
             localSessionFactory.setLoadStrategy(strategy);
 
@@ -165,8 +165,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         }
     }
 
-    @Test // SDN-2306
-    public void shouldFillLabelsInComplexInheritanceHierachies() {
+    // SDN-2306
+    @Test
+    void shouldFillLabelsInComplexInheritanceHierachies() {
 
         Long id1 = session.queryForObject(Long.class,
             "create (a:Node:SubNodeA:SubNodeB:SubNodeBImplA {name: 'eins'}) RETURN id(a)",
@@ -209,8 +210,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(cnt).isEqualTo(1L);
     }
 
-    @Test // DATAGRAPH-697
-    public void shouldQueryForArbitraryDataUsingBespokeParameterisedCypherQuery() {
+    // DATAGRAPH-697
+    @Test
+    void shouldQueryForArbitraryDataUsingBespokeParameterisedCypherQuery() {
         session.save(new Actor("Helen Mirren"));
         Actor alec = new Actor("Alec Baldwin");
         session.save(alec);
@@ -230,8 +232,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(results.iterator().next().get("name")).isEqualTo("Alec Baldwin");
     }
 
-    @Test // DATAGRAPH-697
-    public void readOnlyQueryMustBeReadOnly() {
+    // DATAGRAPH-697
+    @Test
+    void readOnlyQueryMustBeReadOnly() {
 
         session.save(new Actor("Jeff"));
         assertThatThrownBy(
@@ -240,7 +243,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToIndicateSafeCall() throws NoSuchFieldException, IllegalAccessException {
+    void shouldBeAbleToIndicateSafeCall() throws NoSuchFieldException, IllegalAccessException {
 
         // Don' think too long about that bloody mess…
         MappingContext spyOnMappingContext = Mockito.spy(((Neo4jSession) session).context());
@@ -264,8 +267,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         Mockito.verify(spyOnMappingContext, Mockito.atMost(1)).clear();
     }
 
-    @Test // DATAGRAPH-697
-    public void modifyingQueryShouldReturnStatistics() {
+    // DATAGRAPH-697
+    @Test
+    void modifyingQueryShouldReturnStatistics() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
@@ -280,8 +284,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(result.queryStatistics().getPropertiesSet()).isEqualTo(3);
     }
 
-    @Test // DATAGRAPH-697
-    public void modifyingQueryShouldReturnResultsWithStatistics() {
+    // DATAGRAPH-697
+    @Test
+    void modifyingQueryShouldReturnResultsWithStatistics() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
@@ -322,8 +327,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(names.contains("Colin")).isTrue();
     }
 
-    @Test // DATAGRAPH-697
-    public void readOnlyQueryShouldNotReturnStatistics() {
+    // DATAGRAPH-697
+    @Test
+    void readOnlyQueryShouldNotReturnStatistics() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
@@ -344,8 +350,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(names.contains("Colin")).isTrue();
     }
 
-    @Test // DATAGRAPH-697
-    public void modifyingQueryShouldBePermittedWhenQueryingForObject() {
+    // DATAGRAPH-697
+    @Test
+    void modifyingQueryShouldBePermittedWhenQueryingForObject() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
@@ -360,8 +367,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(jeff.getName()).isEqualTo("Jeff");
     }
 
-    @Test // DATAGRAPH-697
-    public void modifyingQueryShouldBePermittedWhenQueryingForObjects() {
+    // DATAGRAPH-697
+    @Test
+    void modifyingQueryShouldBePermittedWhenQueryingForObjects() {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
@@ -383,7 +391,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToHandleNullValuesInQueryResults() {
+    void shouldBeAbleToHandleNullValuesInQueryResults() {
         session.save(new Actor("Jeff"));
         Iterable<Map<String, Object>> results = session
             .query("MATCH (a:Actor) return a.nonExistent as nonExistent", emptyMap());
@@ -391,8 +399,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(result.get("nonExistent")).isNull();
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapEntities() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapEntities() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:$name})-[:RATED]->(m) RETURN u as user, m as movie",
                 Collections.singletonMap("name", "Vince")).iterator();
@@ -408,8 +417,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(results.hasNext()).isFalse();
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapEntitiesAndScalars() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapEntitiesAndScalars() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:$name})-[:RATED]->(m) RETURN u as user, count(m) as count",
                 Collections.singletonMap("name", "Michal")).iterator();
@@ -424,8 +434,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(results.hasNext()).isFalse();
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapEntitiesAndScalarsMultipleRows() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapEntitiesAndScalarsMultipleRows() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User)-[r:RATED]->(m) RETURN m as movie, avg(r.stars) as average ORDER BY average DESC",
                 emptyMap()).iterator();
@@ -450,8 +461,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(results.hasNext()).isFalse();
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapEntitiesAndScalarsMultipleRowsAndNoAlias() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapEntitiesAndScalarsMultipleRowsAndNoAlias() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User)-[r:RATED]->(m) RETURN m, avg(r.stars) ORDER BY avg(r.stars) DESC",
                 emptyMap()).iterator();
@@ -476,8 +488,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(results.hasNext()).isFalse();
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapEntitiesAndRelationships() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapEntitiesAndRelationships() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:$name})-[r:FRIENDS]->(friend) RETURN u as user, friend as friend, r",
                 Collections.singletonMap("name", "Michal")).iterator();
@@ -498,8 +511,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(results.hasNext()).isFalse();
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapEntitiesAndRelationshipsOfDifferentTypes() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapEntitiesAndRelationshipsOfDifferentTypes() {
         Iterator<Map<String, Object>> results = session.query(
             "MATCH (u:User {name:$name})-[r:FRIENDS]->(friend)-[r2:RATED]->(m) RETURN u as user, friend as friend, r, r2, m as movie, r2.stars as stars",
             Collections.singletonMap("name", "Michal")).iterator();
@@ -529,8 +543,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(results.hasNext()).isFalse();
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapRelationshipEntities() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapRelationshipEntities() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:$name})-[r:RATED]->(m) RETURN u,r,m", Collections.singletonMap("name", "Vince"))
             .iterator();
@@ -556,8 +571,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(results.hasNext()).isFalse();
     }
 
-    @Test // GH-651
-    public void shouldBeAbleToMapRelationshipEntitiesByIds() {
+    // GH-651
+    @Test
+    void shouldBeAbleToMapRelationshipEntitiesByIds() {
         List<Long> ratingIds = new ArrayList<>();
         for (Map<String, Object> row : sessionFactory.openSession()
             .query("MATCH ()-[r:RATED]->() RETURN id(r) as r", Collections.emptyMap())
@@ -571,8 +587,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             .containsAnyElementsOf(ratingIds);
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapVariableDepthRelationshipsWithIncompletePaths() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapVariableDepthRelationshipsWithIncompletePaths() {
         Map<String, Object> params = new HashMap<>();
         params.put("name", "Vince");
         params.put("title", "Top Gear");
@@ -634,8 +651,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(user.getFriends()).isNull();
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapVariableDepthRelationshipsWithCompletePaths() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapVariableDepthRelationshipsWithCompletePaths() {
         Iterator<Map<String, Object>> results = session
             .query("match (u:User {name:$name}) match p=(u)-[*0..1]-(n) return u,relationships(p),n",
                 Collections.singletonMap("name", "Vince"))
@@ -665,8 +683,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(foundMichal).isTrue();
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapCollectionsOfNodes() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapCollectionsOfNodes() {
         Iterator<Map<String, Object>> results = session
             .query("match (u:User {name:$name})-[r:RATED]->(m) return u as user,collect(r), collect(m) as movies",
                 Collections.singletonMap("name", "Michal")).iterator();
@@ -694,8 +713,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(results.hasNext()).isFalse();
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapCollectionsFromPath() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapCollectionsFromPath() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH p=(u:User {name:$name})-[r:RATED]->(m) RETURN nodes(p) as nodes, relationships(p) as rels",
                 Collections.singletonMap("name", "Vince")).iterator();
@@ -723,8 +743,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         }
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapArrays() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapArrays() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:$name}) RETURN u.array as arr", Collections.singletonMap("name", "Christophe"))
             .iterator();
@@ -734,8 +755,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(((String[]) result.get("arr")).length).isEqualTo(2);
     }
 
-    @Test // DATAGRAPH-700
-    public void shouldBeAbleToMapMixedArrays() {
+    // DATAGRAPH-700
+    @Test
+    void shouldBeAbleToMapMixedArrays() {
         Iterator<Map<String, Object>> results = session
             .query("MATCH (u:User {name:$name}) RETURN u.array as arr, [1,'two',true] as mixed",
                 Collections.singletonMap("name", "Christophe")).iterator();
@@ -750,8 +772,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(mixed[2]).isEqualTo(true);
     }
 
-    @Test // DATAGRAPH-700
-    public void modifyingQueryShouldBeAbleToMapEntitiesAndReturnStatistics() {
+    // DATAGRAPH-700
+    @Test
+    void modifyingQueryShouldBeAbleToMapEntitiesAndReturnStatistics() {
 
         Map<String, Object> params = new HashMap<>();
         params.put("name", "Vince");
@@ -773,8 +796,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(results.hasNext()).isFalse();
     }
 
-    @Test // #136
-    public void shouldNotOverflowIntegers() {
+    // #136
+    @Test
+    void shouldNotOverflowIntegers() {
         long start = Integer.MAX_VALUE;
         Map<String, Object> params;
         params = new HashMap<>();
@@ -799,8 +823,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(((Number) result.iterator().next().get("current")).longValue()).isEqualTo(start + 1);
     }
 
-    @Test // #150
-    public void shouldLoadNodesWithUnmappedOrNoLabels() {
+    // #150
+    @Test
+    void shouldLoadNodesWithUnmappedOrNoLabels() {
         int movieCount = 0;
         int userCount = 0;
         int unmappedCount = 0;
@@ -833,8 +858,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(userCount).isEqualTo(5);
     }
 
-    @Test // GH-148
-    public void shouldMapCypherCollectionsToArrays() {
+    // GH-148
+    @Test
+    void shouldMapCypherCollectionsToArrays() {
         Iterator<Map<String, Object>> iterator = session
             .query("MATCH (n:User) return collect(n.name) as names", emptyMap()).iterator();
         assertThat(iterator.hasNext()).isTrue();
@@ -859,7 +885,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldThrowExceptionIfTypeMismatchesInQueryForObject() {
+    void shouldThrowExceptionIfTypeMismatchesInQueryForObject() {
 
         assertThatExceptionOfType(MappingException.class)
             .isThrownBy(() -> session.queryForObject(Restaurant.class, "MATCH (n:User) return count(n)", emptyMap()))
@@ -867,15 +893,16 @@ public class QueryCapabilityTest extends TestContainersTestBase {
                 Restaurant.class.getName());
     }
 
-    @Test // GH-671
-    public void shouldNotThrowExceptionIfTypeIsSuperTypeOfResultObject() {
+    // GH-671
+    @Test
+    void shouldNotThrowExceptionIfTypeIsSuperTypeOfResultObject() {
 
         session.queryForObject(Long.class, "MATCH (n:User) return count(n)", emptyMap());
         session.queryForObject(Number.class, "MATCH (n:User) return count(n)", emptyMap());
     }
 
     @Test
-    public void queryForObjectFindsNestedClasses() {
+    void queryForObjectFindsNestedClasses() {
 
         session.query("CREATE (:`NestingClass$Something`{name:'Test'})", emptyMap());
 
@@ -885,8 +912,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(something).isNotNull();
     }
 
-    @Test // GH-693
-    public void queryForObjectsShouldDealWithIncorrectResultSizes() {
+    // GH-693
+    @Test
+    void queryForObjectsShouldDealWithIncorrectResultSizes() {
 
         session.query("CREATE (:`NestingClass$Something`{name:'Test'})", emptyMap());
 
@@ -902,8 +930,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         ).withMessage("Result not of expected size. Expected 1 row but found 3");
     }
 
-    @Test // GH-726
-    public void shouldMapCorrectlyIfTwoClassesWithTheSameSimpleNameExist() {
+    // GH-726
+    @Test
+    void shouldMapCorrectlyIfTwoClassesWithTheSameSimpleNameExist() {
         // org.neo4j.ogm.domain.gh726.package_a.SameClass
         SameClass sameClassA = new SameClass();
         session.save(sameClassA);
@@ -926,8 +955,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(loadedSameClassB).isInstanceOf(org.neo4j.ogm.domain.gh726.package_b.SameClass.class);
     }
 
-    @Test // GH-737
-    public void shouldReturnListOfNodesAndRelationshipModelForUnknownRelationshipLists() {
+    // GH-737
+    @Test
+    void shouldReturnListOfNodesAndRelationshipModelForUnknownRelationshipLists() {
         Result result = session
             .query("MATCH (n:Movie{title:'Pulp Fiction'}) return n, [(n)-[r:UNKNOWN]-(p) | [r,p]] as relAndNode",
                 emptyMap());
@@ -942,8 +972,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             .satisfies(v -> assertThat(v).isInstanceOf(RelationshipModel.class), Index.atIndex(1));
     }
 
-    @Test // GH-902
-    public void workaroundFor737() {
+    // GH-902
+    @Test
+    void workaroundFor737() {
         Result result = session
             .query("MATCH (n:Movie{title:'Pulp Fiction'}) WITH n, [(n)-[r:UNKNOWN]-(p) | [r,p]] as patterns UNWIND patterns as relAndNode RETURN n, relAndNode",
                 emptyMap());
@@ -954,8 +985,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         assertThat(((List) returnedRow.get("relAndNode")).get(1)).isInstanceOf(RelationshipModel.class);
     }
 
-    @Test // GH-851
-    public void nestedFiltersOnSameEntitiesButDifferentRelationsShouldWork() {
+    // GH-851
+    @Test
+    void nestedFiltersOnSameEntitiesButDifferentRelationsShouldWork() {
 
         Filters filters = new Filters();
         Filter filter = new Filter("code", ComparisonOperator.EQUALS, "LHR");
@@ -979,8 +1011,9 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             .first().extracting(Flight::getName).isEqualTo("FL 001");
     }
 
-    @Test // GH-851
-    public void deepNestedFiltersOnSameEntitiesButDifferentRelationsShouldWork() {
+    // GH-851
+    @Test
+    void deepNestedFiltersOnSameEntitiesButDifferentRelationsShouldWork() {
 
         Filters filters = new Filters();
         Filter filter = new Filter("code", ComparisonOperator.EQUALS, "LHR");
@@ -998,10 +1031,11 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             .first().extracting(Flight::getName).isEqualTo("FL 001");
     }
 
-    @Test // GH-875
-    public void polymorphicQueryShouldIncludeAllRelTypes() {
+    // GH-875
+    @Test
+    void polymorphicQueryShouldIncludeAllRelTypes() {
 
-        for(int depth : new int[] {-1, 10}){
+        for (int depth : new int[]{-1, 10}) {
             Collection<Kennel> kennels = sessionFactory.openSession().loadAll(Kennel.class, depth);
             assertThat(kennels).hasSize(2);
             assertThat(kennels).allSatisfy(kennel -> {

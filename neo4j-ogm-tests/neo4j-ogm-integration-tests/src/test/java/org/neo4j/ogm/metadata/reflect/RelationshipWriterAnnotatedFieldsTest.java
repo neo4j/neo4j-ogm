@@ -25,7 +25,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
@@ -40,7 +40,7 @@ public class RelationshipWriterAnnotatedFieldsTest {
     private DomainInfo domainInfo = DomainInfo.create(this.getClass().getPackage().getName());
 
     @Test
-    public void shouldFindWriterForCollection() {
+    void shouldFindWriterForCollection() {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
@@ -53,7 +53,7 @@ public class RelationshipWriterAnnotatedFieldsTest {
     }
 
     @Test
-    public void shouldFindWriterForScalar() {
+    void shouldFindWriterForScalar() {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
@@ -66,7 +66,7 @@ public class RelationshipWriterAnnotatedFieldsTest {
     }
 
     @Test
-    public void shouldFindWriterForArray() {
+    void shouldFindWriterForArray() {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 

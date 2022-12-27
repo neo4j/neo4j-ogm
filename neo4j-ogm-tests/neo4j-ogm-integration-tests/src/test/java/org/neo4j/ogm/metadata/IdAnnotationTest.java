@@ -20,8 +20,8 @@ package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.id.UuidStrategy;
 
@@ -34,13 +34,13 @@ public class IdAnnotationTest {
 
     private MetaData metaData;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         metaData = new MetaData("org.neo4j.ogm.domain.annotations.ids");
     }
 
     @Test
-    public void shouldSupportClassWithoutId() {
+    void shouldSupportClassWithoutId() {
 
         ValidAnnotations.WithoutId entity = new ValidAnnotations.WithoutId();
 
@@ -50,7 +50,7 @@ public class IdAnnotationTest {
     }
 
     @Test
-    public void shouldFindInternalIdentifier() {
+    void shouldFindInternalIdentifier() {
         ValidAnnotations.InternalIdWithAnnotation entity = new ValidAnnotations.InternalIdWithAnnotation();
         ClassInfo classInfo = metaData.classInfo(entity);
         // primary index field should be null, @Id is internal
@@ -58,7 +58,7 @@ public class IdAnnotationTest {
     }
 
     @Test
-    public void shouldFindBasicId() {
+    void shouldFindBasicId() {
 
         ValidAnnotations.Basic entity = new ValidAnnotations.Basic();
 
@@ -67,7 +67,7 @@ public class IdAnnotationTest {
     }
 
     @Test
-    public void shouldFindBasicChild() {
+    void shouldFindBasicChild() {
 
         ValidAnnotations.BasicChild entity = new ValidAnnotations.BasicChild();
 
@@ -76,7 +76,7 @@ public class IdAnnotationTest {
     }
 
     @Test
-    public void shouldFindIdAndGenerationType() {
+    void shouldFindIdAndGenerationType() {
 
         ValidAnnotations.IdAndGenerationType entity = new ValidAnnotations.IdAndGenerationType();
 

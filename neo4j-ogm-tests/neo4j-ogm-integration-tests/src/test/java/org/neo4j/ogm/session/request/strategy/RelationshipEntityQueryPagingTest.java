@@ -20,7 +20,7 @@ package org.neo4j.ogm.session.request.strategy;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
@@ -35,14 +35,14 @@ public class RelationshipEntityQueryPagingTest {
     private final QueryStatements query = new RelationshipQueryStatements();
 
     @Test
-    public void testFindByLabel() throws Exception {
+    void testFindByLabel() throws Exception {
         assertThat(query.findByType("ORBITS", 3).setPagination(new Pagination(1, 10)).getStatement())
             .isEqualTo(
                 "MATCH ()-[r0:`ORBITS`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m SKIP 10 LIMIT 10 MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
     }
 
     @Test
-    public void testFindByProperty() throws Exception {
+    void testFindByProperty() throws Exception {
         assertThat(
             query.findByType("ORBITS", new Filters().add(new Filter("distance", ComparisonOperator.EQUALS, 60.2)), 1)
                 .setPagination(new Pagination(0, 4)).getStatement())

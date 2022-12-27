@@ -32,9 +32,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.activity.Activity;
 import org.neo4j.ogm.domain.forum.activity.Comment;
@@ -64,7 +64,7 @@ public class HierarchyRelsTest extends TestContainersTestBase {
 
     private Session session;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.hierarchy.relations",
             "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.gh806")
@@ -72,14 +72,15 @@ public class HierarchyRelsTest extends TestContainersTestBase {
         session.purgeDatabase();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         //r  session.purgeDatabase();
         session.clear();
     }
 
-    @Test // GH-806
-    public void relationshipsToSubclassesShouldBeClearedAsWell() {
+    // GH-806
+    @Test
+    void relationshipsToSubclassesShouldBeClearedAsWell() {
 
         inheritanceImpl(s -> new Element(s), Container::setElement);
         inheritanceImpl(s -> new ConcreteElement(s), Container::setElement);
@@ -131,8 +132,9 @@ public class HierarchyRelsTest extends TestContainersTestBase {
         assertThat(r.queryResults()).extracting(m -> m.get("p")).containsExactlyInAnyOrder("e3", "oe");
     }
 
-    @Test // GH-152
-    public void saveMultipleRelationshipsToBase() {
+    // GH-152
+    @Test
+    void saveMultipleRelationshipsToBase() {
         Type1 node1 = new Type1();
         node1.name = "type1";
         Type2 node2 = new Type2();
@@ -156,7 +158,7 @@ public class HierarchyRelsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void saveMultipleRelationsOfType() {
+    void saveMultipleRelationsOfType() {
         Type3 node1 = new Type3();
         Type3 node2 = new Type3();
 
@@ -178,8 +180,9 @@ public class HierarchyRelsTest extends TestContainersTestBase {
         assertThat(type3_2.getType3Out()).hasSize(1);
     }
 
-    @Test // GH-404
-    public void shouldLoadRelationByAbstractParent() {
+    // GH-404
+    @Test
+    void shouldLoadRelationByAbstractParent() {
 
         Post post = new Post();
         post.setPost("sample post");

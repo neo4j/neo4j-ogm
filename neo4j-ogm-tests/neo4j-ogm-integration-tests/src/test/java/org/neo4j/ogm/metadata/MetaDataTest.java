@@ -19,6 +19,7 @@
 package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
 import java.net.URL;
@@ -35,8 +36,8 @@ import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.gh391.ClassWithNonUniqueSimpleName;
 import org.neo4j.ogm.domain.gh391.SomeContainer;
 import org.neo4j.ogm.domain.gh551.ThingResult;
@@ -55,7 +56,7 @@ public class MetaDataTest {
 
     private MetaData metaData;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza",
             "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain");
@@ -65,7 +66,7 @@ public class MetaDataTest {
      * A class can be found if its simple name is unique in the domain
      */
     @Test
-    public void testClassInfo() {
+    void testClassInfo() {
         assertThat(metaData.classInfo("Topic").name()).isEqualTo("org.neo4j.ogm.domain.forum.Topic");
     }
 
@@ -73,26 +74,27 @@ public class MetaDataTest {
      * A class can be found via its annotated label
      */
     @Test
-    public void testAnnotatedClassInfo() {
+    void testAnnotatedClassInfo() {
         assertThat(metaData.classInfo("User").name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
         assertThat(metaData.classInfo("Bronze").name()).isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
     }
 
     @Test
-    public void testCanResolveRelationshipEntityFromRelationshipType() {
+    void testCanResolveRelationshipEntityFromRelationshipType() {
         ClassInfo classInfo = metaData.resolve("MEMBER_OF");
         assertThat(classInfo).as("The resolved class info shouldn't be null").isNotNull();
         assertThat(classInfo.name()).isEqualTo("org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity");
     }
 
     @Test
-    public void testCanResolveClassHierarchies() {
+    void testCanResolveClassHierarchies() {
         ClassInfo classInfo = metaData.resolve("Login", "User");
         assertThat(classInfo.name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
     }
 
-    @Test // GH-391
-    public void shouldLookupClassesByTheirSimpleNameCorrectly() {
+    // GH-391
+    @Test
+    void shouldLookupClassesByTheirSimpleNameCorrectly() {
 
         MetaData metaData1 = new MetaData("org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391");
 
@@ -107,16 +109,18 @@ public class MetaDataTest {
             .isThrownBy(() -> metaData1.classInfo("ClassWithNonUniqueSimpleName"));
     }
 
-    @Test(expected = AmbiguousBaseClassException.class)
-    public void testCannotResolveInconsistentClassHierarchies() {
-        metaData.resolve("Login", "Topic");
+    @Test
+    void testCannotResolveInconsistentClassHierarchies() {
+        assertThrows(AmbiguousBaseClassException.class, () -> {
+            metaData.resolve("Login", "Topic");
+        });
     }
 
     /**
      * Taxa corresponding to interfaces with multiple implementations can't be resolved
      */
     @Test
-    public void testInterfaceWithMultipleImplTaxa() {
+    void testInterfaceWithMultipleImplTaxa() {
         assertThat(metaData.resolve("IMembership")).isEqualTo(null);
     }
 
@@ -125,7 +129,7 @@ public class MetaDataTest {
      * DATAGRAPH-577
      */
     @Test
-    public void testInterfaceWithSingleImplTaxa() {
+    void testInterfaceWithSingleImplTaxa() {
         ClassInfo classInfo = metaData.resolve("AnnotatedInterfaceWithSingleImpl");
         assertThat(classInfo).isNotNull();
         assertThat(classInfo.name())
@@ -136,23 +140,25 @@ public class MetaDataTest {
      * Taxa corresponding to abstract classes can't be resolved
      */
     @Test
-    public void testAbstractClassTaxa() {
+    void testAbstractClassTaxa() {
         assertThat(metaData.resolve("Membership")).isEqualTo(null);
     }
 
     /**
      * Taxa not forming a class hierarchy cannot be resolved.
      */
-    @Test(expected = AmbiguousBaseClassException.class)
-    public void testNoCommonLeafInTaxa() {
-        metaData.resolve("Topic", "Member");
+    @Test
+    void testNoCommonLeafInTaxa() {
+        assertThrows(AmbiguousBaseClassException.class, () -> {
+            metaData.resolve("Topic", "Member");
+        });
     }
 
     /**
      * The ordering of taxa is unimportant.
      */
     @Test
-    public void testOrderingOfTaxaIsUnimportant() {
+    void testOrderingOfTaxaIsUnimportant() {
         assertThat(metaData.resolve("Bronze", "Membership", "IMembership").name())
             .isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
         assertThat(metaData.resolve("Bronze", "IMembership", "Membership").name())
@@ -167,8 +173,9 @@ public class MetaDataTest {
             .isEqualTo("org.neo4j.ogm.domain.forum.BronzeMembership");
     }
 
-    @Test // DATAGRAPH-634
-    public void testLiskovSubstitutionPrinciple() {
+    // DATAGRAPH-634
+    @Test
+    void testLiskovSubstitutionPrinciple() {
         assertThat(metaData.resolve("Member").name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
         assertThat(metaData.resolve("Login", "Member").name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
         assertThat(metaData.resolve("Login", "Member").name()).isEqualTo("org.neo4j.ogm.domain.forum.Member");
@@ -179,7 +186,7 @@ public class MetaDataTest {
      * Taxa not in the domain will be ignored.
      */
     @Test
-    public void testAllNonMemberTaxa() {
+    void testAllNonMemberTaxa() {
         assertThat(metaData.resolve("Knight", "Baronet")).isNull();
     }
 
@@ -187,13 +194,14 @@ public class MetaDataTest {
      * Mixing domain and non-domain taxa is permitted.
      */
     @Test
-    public void testNonMemberAndMemberTaxa() {
+    void testNonMemberAndMemberTaxa() {
         assertThat(metaData.resolve("Silver", "Pewter", "Tin").name())
             .isEqualTo("org.neo4j.ogm.domain.forum.SilverMembership");
     }
 
-    @Test // GH-686 and others
-    public void containsRootPackageShouldWork() {
+    // GH-686 and others
+    @Test
+    void containsRootPackageShouldWork() {
         assertThat(MetaData.containsRootPackage(null)).isTrue();
         assertThat(MetaData.containsRootPackage()).isTrue();
         assertThat(MetaData.containsRootPackage("a", "", "foo")).isTrue();
@@ -203,8 +211,9 @@ public class MetaDataTest {
     /**
      * Ensure that performance does not degrade with a huge number of domain classes.
      */
-    @Test // GH-678
-    public void performanceSmokeTest() throws Exception {
+    // GH-678
+    @Test
+    void performanceSmokeTest() throws Exception {
 
         // Compile numberOfDomainClasses classes
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -240,7 +249,7 @@ public class MetaDataTest {
         ClassLoader originalClassLoader = currentThread.getContextClassLoader();
 
         try {
-            URLClassLoader urlClassLoader = new URLClassLoader(new URL[] { tmpDir.toUri().toURL() },
+            URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{tmpDir.toUri().toURL()},
                 currentThread.getContextClassLoader());
             currentThread.setContextClassLoader(urlClassLoader);
 
@@ -249,7 +258,7 @@ public class MetaDataTest {
             long duration = (System.currentTimeMillis() - start);
             LOGGER.warn("Scanning took {}ms", duration);
 
-            for(int i = numberOfDomainClasses-2; i>=0; --i) {
+            for (int i = numberOfDomainClasses - 2; i >= 0; --i) {
                 start = System.currentTimeMillis();
                 ClassInfo classInfo = metaData.classInfo("DummyNodeEntity" + i);
                 duration = (System.currentTimeMillis() - start);

@@ -19,11 +19,12 @@
 package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
 import org.neo4j.ogm.context.MappingContext;
@@ -43,26 +44,26 @@ public class MergeWithPrimaryIndexTests {
     private static MappingContext mappingContext;
     private EntityMapper mapper;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpTestDatabase() {
         mappingMetadata = new MetaData("org.neo4j.ogm.domain.metadata",
             "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.pizza");
         mappingContext = new MappingContext(mappingMetadata);
     }
 
-    @Before
+    @BeforeEach
     public void setUpMapper() {
         mappingContext = new MappingContext(mappingMetadata);
         this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
     }
 
-    @After
+    @AfterEach
     public void cleanGraph() {
         mappingContext.clear();
     }
 
     @Test
-    public void newNodeUsesGraphIdWhenPrimaryIndexNotPresent() {
+    void newNodeUsesGraphIdWhenPrimaryIndexNotPresent() {
         Pizza pizza = new Pizza("Plain");
         assertThat(pizza.getId()).isNull();
         Compiler compiler = mapAndCompile(pizza);
@@ -72,7 +73,7 @@ public class MergeWithPrimaryIndexTests {
     }
 
     @Test
-    public void newNodeUsesPrimaryIndexWhenPresent() {
+    void newNodeUsesPrimaryIndexWhenPresent() {
         User newUser = new User("bachmania", "Michal Bachman", "password");
         Compiler compiler = mapAndCompile(newUser);
         assertThat(compiler.hasStatementsDependentOnNewNodes()).isFalse();
@@ -80,9 +81,11 @@ public class MergeWithPrimaryIndexTests {
             "UNWIND $rows as row MERGE (n:`User`{login: row.props.login}) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, $type as type");
     }
 
-    @Test(expected = MetadataException.class)
-    public void exceptionRaisedWhenMoreThanOnePrimaryIndexDefinedInSameClass() {
-        new MetaData("org.neo4j.ogm.domain.invalid").classInfo("BadClass").primaryIndexField();
+    @Test
+    void exceptionRaisedWhenMoreThanOnePrimaryIndexDefinedInSameClass() {
+        assertThrows(MetadataException.class, () -> {
+            new MetaData("org.neo4j.ogm.domain.invalid").classInfo("BadClass").primaryIndexField();
+        });
     }
 
     private Compiler mapAndCompile(Object object) {

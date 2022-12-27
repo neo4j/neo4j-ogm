@@ -20,6 +20,7 @@ package org.neo4j.ogm.persistence.model;
 
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -30,10 +31,10 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.assertj.core.data.Index;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
 import org.neo4j.ogm.context.MappingContext;
@@ -78,7 +79,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpTestDatabase() {
 
         mappingMetadata = new MetaData(
@@ -89,7 +90,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         mappingContext = new MappingContext(mappingMetadata);
     }
 
-    @Before
+    @BeforeEach
     public void setUpMapper() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.policy",
             "org.neo4j.ogm.domain.election", "org.neo4j.ogm.domain.forum",
@@ -100,13 +101,16 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.purgeDatabase();
     }
 
-    @Test(expected = NullPointerException.class)
-    public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
-        this.mapper.map(null);
+    @Test
+    void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
+        assertThrows(NullPointerException.class, () -> {
+            this.mapper.map(null);
+        });
     }
 
-    @Test // GH-903
-    public void shouldOnlyTouchChangedRelEntities() {
+    // GH-903
+    @Test
+    void shouldOnlyTouchChangedRelEntities() {
 
         A a = new A("a1");
         B b = new B("b1");
@@ -146,8 +150,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         return session.queryForObject(Long.class, "MATCH (a:A {id: $id1}) <-[r]- (b:B) WHERE id(b) = $id2 AND id(r) = $id3 RETURN r.version",parameters);
     }
 
-    @Test // GH-786
-    public void shouldNotWriteReadOnlyProperties() {
+    // GH-786
+    @Test
+    void shouldNotWriteReadOnlyProperties() {
         Member test123 = new Member();
         test123.setUserName("Test123");
         test123.setSomeComputedValue("x");
@@ -159,8 +164,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
             .first().extracting(Member::getSomeComputedValue).isNull();
     }
 
-    @Test // GH-786
-    public void shouldReadReadOnlyProperties() {
+    // GH-786
+    @Test
+    void shouldReadReadOnlyProperties() {
 
         session.query("CREATE (n:User {userName: 'Test123', someComputedValue: 'x'})", Collections.emptyMap());
 
@@ -170,8 +176,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
             .first().extracting(Member::getSomeComputedValue).isEqualTo("x");
     }
 
-    @Test // GH-786
-    public void shouldReadVirtualProperties() {
+    // GH-786
+    @Test
+    void shouldReadVirtualProperties() {
 
         boolean apocInstalled;
         try {
@@ -182,7 +189,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
             apocInstalled = false;
         }
 
-        Assume.assumeTrue(apocInstalled);
+        Assumptions.assumeTrue(apocInstalled);
 
         session.query("CREATE (n:User {userName: 'Test123'})", Collections.emptyMap());
 
@@ -195,7 +202,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void createObjectWithLabelsAndProperties() {
+    void createObjectWithLabelsAndProperties() {
 
         Student newStudent = new Student("Gary");
 
@@ -207,7 +214,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void updateObjectPropertyAndLabel() {
+    void updateObjectPropertyAndLabel() {
 
         // This does only work in non-strict querying
         Session customSession = new SessionFactory(getDriver(), false, "org.neo4j.ogm.domain.education").openSession();
@@ -229,11 +236,11 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void doNothingIfNothingHasChanged() {
+    void doNothingIfNothingHasChanged() {
 
         Long existingNodeId =
             (Long) session.query("CREATE (s:Student:DomainObject {name:'Sheila Smythe'}) RETURN id(s) AS id",
-                    emptyMap())
+                emptyMap())
                 .queryResults().iterator().next().get("id");
         Student sheila = new Student();
         sheila.setId(existingNodeId);
@@ -249,7 +256,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void addObjectToCollection() {
+    void addObjectToCollection() {
 
         // fake load one student on a course
         Iterable<Map<String, Object>> executionResult = session.query(
@@ -281,7 +288,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void persistManyToOneObjectFromSingletonSide() {
+    void persistManyToOneObjectFromSingletonSide() {
 
         Iterable<Map<String, Object>> executionResult = session.query(
             "CREATE (s:School:DomainObject {name:'Waller'})-[:TEACHERS]->(t:Teacher {name:'Mary'})-[:SCHOOL]->(s) " +
@@ -309,14 +316,14 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.clear();
         assertThat(session.query(
             "MATCH (s:School:DomainObject {name:'Waller'}) " +
-            "MATCH (m:Teacher {name:'Mary'})-[:SCHOOL]->(s) " +
-            "MATCH (s)-[:TEACHERS]->(j:Teacher {name:'Jim'}) " +
-            "WHERE exists((j)-[:SCHOOL]->(s)) and " +
-            "exists((s)-[:TEACHERS]->(m)) return s, m, j", emptyMap()).queryResults()).hasSize(1);
+                "MATCH (m:Teacher {name:'Mary'})-[:SCHOOL]->(s) " +
+                "MATCH (s)-[:TEACHERS]->(j:Teacher {name:'Jim'}) " +
+                "WHERE exists((j)-[:SCHOOL]->(s)) and " +
+                "exists((s)-[:TEACHERS]->(m)) return s, m, j", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
-    public void shouldNotGetIntoAnInfiniteLoopWhenSavingObjectsThatReferenceEachOther() {
+    void shouldNotGetIntoAnInfiniteLoopWhenSavingObjectsThatReferenceEachOther() {
 
         Teacher missJones = new Teacher("Miss Jones");
         Teacher mrWhite = new Teacher("Mr White");
@@ -328,13 +335,13 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.clear();
         assertThat(session.query(
             "MATCH (s:School:DomainObject {name:'Hilly Fields'}) " +
-            "MATCH (s)-[:TEACHERS]->(j:Teacher {name:'Miss Jones'})-[:SCHOOL]->(s) " +
-            "MATCH (s)-[:TEACHERS]->(w:Teacher {name:'Mr White'})-[:SCHOOL]->(s)" +
-            "return j, w, s", emptyMap()).queryResults()).hasSize(1);
+                "MATCH (s)-[:TEACHERS]->(j:Teacher {name:'Miss Jones'})-[:SCHOOL]->(s) " +
+                "MATCH (s)-[:TEACHERS]->(w:Teacher {name:'Mr White'})-[:SCHOOL]->(s)" +
+                "return j, w, s", emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
-    public void shouldCorrectlyPersistObjectGraphsSeveralLevelsDeep() {
+    void shouldCorrectlyPersistObjectGraphsSeveralLevelsDeep() {
         Student sheila = new Student();
         sheila.setName("Sheila Smythe");
         Student gary = new Student();
@@ -357,7 +364,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         session.clear();
         assertThat(session.query(
-                  "MATCH (t:Teacher {name:'Mrs Kapoor'}) "
+            "MATCH (t:Teacher {name:'Mrs Kapoor'}) "
                 + "MATCH (t)-[:COURSES]->(p:Course {name:'GCSE Physics'}) "
                 + "MATCH (t)-[:COURSES]->(m:Course {name:'A-Level Mathematics'}) "
                 + "MATCH (p)-[:STUDENTS]->(s:Student:DomainObject {name:'Sheila Smythe'})<-[:STUDENTS]-(m) "
@@ -368,7 +375,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldCorrectlyRemoveRelationshipWhenItemIsRemovedFromCollection() {
+    void shouldCorrectlyRemoveRelationshipWhenItemIsRemovedFromCollection() {
         // simple music course with three students
         Iterable<Map<String, Object>> executionResult = session.query("CREATE (c:Course {name:'GCSE Music'}), "
             + "(c)-[:STUDENTS]->(x:Student:DomainObject {name:'Xavier'}), "
@@ -401,20 +408,20 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         session.clear();
         assertThat(session.query("MATCH (a:Student:DomainObject {name:'Xavier'}) "
-                + "MATCH (b:Student:DomainObject {name:'Zack'}) "
-                + "MATCH (c:Course {name:'GCSE Music'})-[:STUDENTS]->(:Student:DomainObject {name:'Yvonne'}) return a,b,c",
+            + "MATCH (b:Student:DomainObject {name:'Zack'}) "
+            + "MATCH (c:Course {name:'GCSE Music'})-[:STUDENTS]->(:Student:DomainObject {name:'Yvonne'}) return a,b,c",
             emptyMap()).queryResults()).hasSize(1);
     }
 
     @Test
-    public void shouldCorrectlyRemoveRelationshipWhenItemIsMovedToDifferentCollection() {
+    void shouldCorrectlyRemoveRelationshipWhenItemIsMovedToDifferentCollection() {
         // start with one teacher teachers two courses, each with one student in
         Iterable<Map<String, Object>> executionResult = session.query(
-                "CREATE (t:Teacher {name:'Ms Thompson'}), " +
-                    "(bs:Course {name:'GNVQ Business Studies'})-[:STUDENTS]->(s:Student:DomainObject {name:'Shivani'}), " +
-                    "(dt:Course {name:'GCSE Design & Technology'})-[:STUDENTS]->(j:Student:DomainObject {name:'Jeff'}), " +
-                    "(t)-[:COURSES]->(bs), (t)-[:COURSES]->(dt) " +
-                    "RETURN id(t) AS teacher_id, id(bs) AS bs_id, id(dt) AS dt_id, id(s) AS s_id", emptyMap())
+            "CREATE (t:Teacher {name:'Ms Thompson'}), " +
+                "(bs:Course {name:'GNVQ Business Studies'})-[:STUDENTS]->(s:Student:DomainObject {name:'Shivani'}), " +
+                "(dt:Course {name:'GCSE Design & Technology'})-[:STUDENTS]->(j:Student:DomainObject {name:'Jeff'}), " +
+                "(t)-[:COURSES]->(bs), (t)-[:COURSES]->(dt) " +
+                "RETURN id(t) AS teacher_id, id(bs) AS bs_id, id(dt) AS dt_id, id(s) AS s_id", emptyMap())
             .queryResults();
 
         Map<String, ?> results = executionResult.iterator().next();
@@ -448,7 +455,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testVariablePersistenceToDepthZero() {
+    void testVariablePersistenceToDepthZero() {
 
         Teacher claraOswald = new Teacher();
         Teacher dannyPink = new Teacher();
@@ -467,14 +474,14 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldGenerateCypherToPersistArraysOfPrimitives() {
+    void shouldGenerateCypherToPersistArraysOfPrimitives() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
         session = sessionFactory.openSession();
         Individual individual = new Individual();
         individual.setName("Jeff");
         individual.setAge(41);
         individual.setBankBalance(1000.50f);
-        individual.setPrimitiveIntArray(new int[] { 1, 6, 4, 7, 2 });
+        individual.setPrimitiveIntArray(new int[]{1, 6, 4, 7, 2});
 
         session.save(individual);
 
@@ -484,13 +491,13 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldGenerateCypherToPersistByteArray() {
+    void shouldGenerateCypherToPersistByteArray() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
         session = sessionFactory.openSession();
         Individual individual = new Individual();
         individual.setAge(41);
         individual.setBankBalance(1000.50f);
-        individual.setPrimitiveByteArray(new byte[] { 1, 2, 3, 4, 5 });
+        individual.setPrimitiveByteArray(new byte[]{1, 2, 3, 4, 5});
 
         session.save(individual);
         session.query("CREATE (:Individual {age:41, bankBalance: 1000.50, code:0, primitiveByteArray:'AQIDBAU='})",
@@ -498,7 +505,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         session.clear();
         Iterable<Map<String, Object>> executionResult = session.query(
-                "MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes", emptyMap())
+            "MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes", emptyMap())
             .queryResults();
         Map<String, Object> result = executionResult.iterator().next();
 
@@ -507,7 +514,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldGenerateCypherToPersistCollectionOfBoxedPrimitivesToArrayOfPrimitives() {
+    void shouldGenerateCypherToPersistCollectionOfBoxedPrimitivesToArrayOfPrimitives() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
         session = sessionFactory.openSession();
         Individual individual = new Individual();
@@ -527,7 +534,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testVariablePersistenceToDepthOne() {
+    void testVariablePersistenceToDepthOne() {
 
         School coalHillSchool = new School("Coal Hill");
 
@@ -556,7 +563,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testVariablePersistenceToDepthTwo() {
+    void testVariablePersistenceToDepthTwo() {
 
         School coalHillSchool = new School("Coal Hill");
 
@@ -578,17 +585,17 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         // we expect the school its teachers and the teachers courses to be persisted when persisting the school to depth 2
         session.clear();
         assertThat(session.query("MATCH (school:School:DomainObject {name:'Coal Hill'})-[:TEACHERS]->(clara:Teacher {name:'Clara Oswald'}) "
-                + "MATCH (school)-[:TEACHERS]->(danny:Teacher {name:'Danny Pink'}) "
-                + "MATCH (clara)-[:COURSES]->(english:Course {name:'English'}) "
-                + "MATCH (danny)-[:COURSES]->(maths:Course {name:'Maths'}) "
-                + "WHERE exists((clara)-[:SCHOOL]->(school)) and "
-                + "exists((danny)-[:SCHOOL]->(school)) "
-                + "return school, clara, danny, english, maths", emptyMap())
+            + "MATCH (school)-[:TEACHERS]->(danny:Teacher {name:'Danny Pink'}) "
+            + "MATCH (clara)-[:COURSES]->(english:Course {name:'English'}) "
+            + "MATCH (danny)-[:COURSES]->(maths:Course {name:'Maths'}) "
+            + "WHERE exists((clara)-[:SCHOOL]->(school)) and "
+            + "exists((danny)-[:SCHOOL]->(school)) "
+            + "return school, clara, danny, english, maths", emptyMap())
             .queryResults()).hasSize(1);
     }
 
     @Test
-    public void shouldProduceCypherForSavingNewRichRelationshipBetweenNodes() {
+    void shouldProduceCypherForSavingNewRichRelationshipBetweenNodes() {
         Forum forum = new Forum();
         forum.setName("SDN FAQs");
         Topic topic = new Topic();
@@ -608,7 +615,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldProduceCypherForUpdatingExistingRichRelationshipBetweenNodes() {
+    void shouldProduceCypherForUpdatingExistingRichRelationshipBetweenNodes() {
         Iterable<Map<String, Object>> executionResult = session.query(
             "CREATE (f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:20000}]->(t:Topic {inActive:false}) " +
                 "RETURN id(f) AS forumId, id(t) AS topicId, id(r) AS relId", emptyMap()).queryResults();
@@ -633,7 +640,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testCreateFirstReferenceFromOutgoingSide() {
+    void testCreateFirstReferenceFromOutgoingSide() {
 
         Person person1 = new Person("jim");
         Policy policy1 = new Policy("health");
@@ -650,7 +657,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testCreateFirstReferenceFromIncomingSide() {
+    void testCreateFirstReferenceFromIncomingSide() {
 
         Person person1 = new Person("jim");
         Policy policy1 = new Policy("health");
@@ -666,7 +673,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testDeleteExistingReferenceFromOutgoingSide() {
+    void testDeleteExistingReferenceFromOutgoingSide() {
 
         Iterable<Map<String, Object>> executionResult = session.query(
             "CREATE (j:Person:DomainObject { name :'jim' })" +
@@ -695,12 +702,12 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.clear();
         assertThat(session.query(
             "MATCH (pe:Person:DomainObject { name :'jim' })" +
-            "WITH pe MATCH (po:Policy:DomainObject { name: 'health' }) return pe, po", emptyMap()).queryResults())
+                "WITH pe MATCH (po:Policy:DomainObject { name: 'health' }) return pe, po", emptyMap()).queryResults())
             .hasSize(1);
     }
 
     @Test
-    public void testDeleteExistingReferenceFromIncomingSide() {
+    void testDeleteExistingReferenceFromIncomingSide() {
 
         Iterable<Map<String, Object>> executionResult = session.query(
             "CREATE (j:Person:DomainObject { name :'jim' })" +
@@ -731,12 +738,12 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.clear();
         assertThat(session.query(
             "MATCH (pe:Person:DomainObject { name :'jim' }) " +
-            "WITH pe MATCH (po:Policy:DomainObject { name: 'health' }) return pe, po", emptyMap()).queryResults())
+                "WITH pe MATCH (po:Policy:DomainObject { name: 'health' }) return pe, po", emptyMap()).queryResults())
             .hasSize(1);
     }
 
     @Test
-    public void testAppendReferenceFromOutgoingSide() {
+    void testAppendReferenceFromOutgoingSide() {
 
         Iterable<Map<String, Object>> executionResult = session.query(
             "CREATE (j:Person:DomainObject { name :'jim' })" +
@@ -766,14 +773,14 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         session.clear();
         assertThat(session.query(
             "MATCH (j:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]-> (h:Policy:DomainObject { name: 'health' }), " +
-            "(j)-[:WRITES_POLICY]->(i:Policy:DomainObject { name: 'immigration' }) " +
-            "return j, h, i",
+                "(j)-[:WRITES_POLICY]->(i:Policy:DomainObject { name: 'immigration' }) " +
+                "return j, h, i",
             emptyMap()).queryResults()
         ).hasSize(1);
     }
 
     @Test
-    public void testAppendReferenceFromIncomingSide() {
+    void testAppendReferenceFromIncomingSide() {
 
         Iterable<Map<String, Object>> executionResult = session.query(
             "CREATE (j:Person:DomainObject { name :'jim' })" +
@@ -812,14 +819,17 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
             .hasSize(1);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowMeaningfulErrorMessageWhenLoadingUnscannedEntity() {
+    @Test
+    void shouldThrowMeaningfulErrorMessageWhenLoadingUnscannedEntity() {
+        assertThrows(IllegalArgumentException.class, () -> {
 
-        session.load(Post.class, 1L);
+            session.load(Post.class, 1L);
+        });
     }
 
-    @Test // GH-781
-    public void shouldThrowInvalidRelationshipTargetExceptionOnNullElements() {
+    // GH-781
+    @Test
+    void shouldThrowInvalidRelationshipTargetExceptionOnNullElements() {
 
         Course course = new Course("Some course");
         Student student1 = new Student("A student");
@@ -833,8 +843,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
     }
 
-    @Test // GH-347
-    public void shouldNotThrowNpeOnUnknownEntityFieldType() {
+    // GH-347
+    @Test
+    void shouldNotThrowNpeOnUnknownEntityFieldType() {
 
         EntityWithUnmanagedFieldType entity = new EntityWithUnmanagedFieldType();
         ZonedDateTime now = ZonedDateTime.now();
@@ -845,8 +856,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         assertThat(loaded).isNotNull();
     }
 
-    @Test // GH-821
-    public void shouldNotMessUpNestedLists() {
+    // GH-821
+    @Test
+    void shouldNotMessUpNestedLists() {
 
         Result result = session.query("RETURN [[0,1,2], [3], [4], [5,6]] as nested_list", Collections.emptyMap());
         assertThat(result).hasSize(1).first().satisfies(row -> {
@@ -862,8 +874,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         });
     }
 
-    @Test // GH-821
-    public void shouldNotMessUpMixedNestedLists() {
+    // GH-821
+    @Test
+    void shouldNotMessUpMixedNestedLists() {
 
         Result result = session.query("RETURN [[0,1,2], [[23,42]], [4], [5,6]] AS nested_list", Collections.emptyMap());
         assertThat(result).hasSize(1).first().satisfies(row -> {
@@ -879,8 +892,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         });
     }
 
-    @Test // GH-821
-    public void shouldNotMessUpMixedNestedCollectedLists() {
+    // GH-821
+    @Test
+    void shouldNotMessUpMixedNestedCollectedLists() {
 
         Result result = session.query("UNWIND range(0,2) AS x WITH collect(x) AS x RETURN collect(x) AS nested_list",
             Collections.emptyMap());
@@ -895,8 +909,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
         });
     }
 
-    @Test // GH-821
-    public void shouldNotMessUpMixedTypedLists() {
+    // GH-821
+    @Test
+    void shouldNotMessUpMixedTypedLists() {
 
         Teacher jim = new Teacher("Jim");
         sessionFactory.openSession().save(jim);
@@ -929,7 +944,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
     @Test // GH-902
     @SuppressWarnings("unchecked")
-    public void nestedListsWithDomainModel() {
+    void nestedListsWithDomainModel() {
 
         Session writingSession = sessionFactory.openSession();
         for (int i = 0; i < 2; ++i) {
@@ -952,7 +967,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
     @Test // GH-902
     @SuppressWarnings("unchecked")
-    public void nestedNestedLists() {
+    void nestedNestedLists() {
 
         Session writingSession = sessionFactory.openSession();
         for (int i = 0; i < 3; ++i) {
@@ -962,9 +977,9 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
         Result result = session
             .query("match (m:Teacher) where m.name = 'T0' or m.name = 'T1' with collect(m) as x \n"
-                    + "match (m:Teacher {name: \"T2\"}) with x, collect(m) as y\n"
-                    + "with [x,y] as x\n"
-                    + "return collect(x) as listOfListsOfThings",
+                + "match (m:Teacher {name: \"T2\"}) with x, collect(m) as y\n"
+                + "with [x,y] as x\n"
+                + "return collect(x) as listOfListsOfThings",
                 Collections.emptyMap());
 
         assertThat(result).hasSize(1).first().satisfies(row -> {
@@ -992,7 +1007,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
     @Test // GH-902
     @SuppressWarnings("unchecked")
-    public void collectedListOfNodesFromPathsShouldNotCollapse() {
+    void collectedListOfNodesFromPathsShouldNotCollapse() {
         Teacher t = new Teacher("T0");
         School s = new School("Sß");
         Course c = new Course("C0");
@@ -1021,7 +1036,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void emptyArray1Level() {
+    void emptyArray1Level() {
 
         Result result = session.query("RETURN [] as x", Collections.emptyMap());
         assertThat(result).hasSize(1).first().satisfies(row -> {
@@ -1032,7 +1047,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void emptyArray2Level() {
+    void emptyArray2Level() {
 
         Result result = session.query("RETURN [[]] as x", Collections.emptyMap());
         assertThat(result).hasSize(1).first().satisfies(row -> {
@@ -1043,7 +1058,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void empty2Dim1Level() {
+    void empty2Dim1Level() {
 
         Result result = session.query("RETURN [[], []] as x", Collections.emptyMap());
         assertThat(result).hasSize(1).first().satisfies(row -> {
@@ -1055,7 +1070,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
     @Test // GH-902
     @SuppressWarnings("unchecked")
-    public void emptyCollectedNodeList() {
+    void emptyCollectedNodeList() {
 
         Result result = session.query("MATCH p=(:AAA)-[*]->(:BBB) RETURN COLLECT (DISTINCT nodes(p)) AS paths",
             Collections.emptyMap());

@@ -18,7 +18,7 @@
  */
 package org.neo4j.ogm.drivers.bolt.driver;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverLazyInitializationTest;
@@ -29,7 +29,7 @@ import org.neo4j.ogm.testutil.TestUtils;
  */
 public class BoltDriverLazyInitializationTest extends DriverLazyInitializationTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         configBuilder = new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties"))
             .uri("bolt://localhost:" + TestUtils.getAvailablePort());

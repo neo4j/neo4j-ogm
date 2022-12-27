@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
 import org.neo4j.ogm.context.MappingContext;
@@ -52,7 +52,7 @@ public class CyclicStructureTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void initSesssionFactory() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh609");
     }
@@ -63,8 +63,9 @@ public class CyclicStructureTest extends TestContainersTestBase {
      * @see org.neo4j.ogm.persistence.examples.social.SocialIntegrationTest#shouldSaveObjectsToCorrectDepth
      * @see org.neo4j.ogm.persistence.examples.social.SocialIntegrationTest#shouldSaveAllDirectedRelationships
      */
-    @Test // GH-609
-    public void testCyclicStructure() throws Exception {
+    // GH-609
+    @Test
+    void testCyclicStructure() throws Exception {
         long numberOfNodes = 10;
         long numberOfRefFields = 100;
 
@@ -101,10 +102,10 @@ public class CyclicStructureTest extends TestContainersTestBase {
 
         session = sessionFactory.openSession();
         Result result = session.query(""
-                + " MATCH (c1:CyclicNodeType) - [s:SUBORDINATE] - (c2:CyclicNodeType),"
-                + "       (c1) - [f:HAS_FIELD] -> (r:RefField)"
-                + " RETURN count(distinct c1) as numberOfNodes, count(distinct s) as countRelCyc, "
-                + "        count(distinct r)  as numberOfRefFields, count(distinct f) as countRelHasField",
+            + " MATCH (c1:CyclicNodeType) - [s:SUBORDINATE] - (c2:CyclicNodeType),"
+            + "       (c1) - [f:HAS_FIELD] -> (r:RefField)"
+            + " RETURN count(distinct c1) as numberOfNodes, count(distinct s) as countRelCyc, "
+            + "        count(distinct r)  as numberOfRefFields, count(distinct f) as countRelHasField",
             Collections.emptyMap());
 
         assertThat(result).hasSize(1);

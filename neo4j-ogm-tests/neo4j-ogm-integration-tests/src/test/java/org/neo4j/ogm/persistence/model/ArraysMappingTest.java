@@ -29,9 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.gh791.EntityWithNativeByteArrays;
 import org.neo4j.ogm.domain.gh791.EntityWithNativeByteArrays.SomeTuple;
 import org.neo4j.ogm.domain.social.Individual;
@@ -44,24 +44,24 @@ public class ArraysMappingTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.gh791");
     }
 
-    @Before
+    @BeforeEach
     public void setUpMapper() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldGenerateCypherToPersistArraysOfPrimitives() {
+    void shouldGenerateCypherToPersistArraysOfPrimitives() {
         Individual individual = new Individual();
         individual.setName("Jeff");
         individual.setAge(41);
         individual.setBankBalance(1000.50f);
-        individual.setPrimitiveIntArray(new int[] { 1, 6, 4, 7, 2 });
+        individual.setPrimitiveIntArray(new int[]{1, 6, 4, 7, 2});
 
         session.save(individual);
 
@@ -77,11 +77,11 @@ public class ArraysMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldGenerateCypherToPersistByteArray() {
+    void shouldGenerateCypherToPersistByteArray() {
         Individual individual = new Individual();
         individual.setAge(41);
         individual.setBankBalance(1000.50f);
-        individual.setPrimitiveByteArray(new byte[] { 1, 2, 3, 4, 5 });
+        individual.setPrimitiveByteArray(new byte[]{1, 2, 3, 4, 5});
 
         session.save(individual);
 
@@ -100,7 +100,7 @@ public class ArraysMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldDeserializeByteArrays() {
+    void shouldDeserializeByteArrays() {
 
         long id = (long) session.query(
             "CREATE (i:Individual {age:42, bankBalance: 23, code:6, primitiveByteArray:'AQIDBAU='}) return id(i) as id",
@@ -110,15 +110,16 @@ public class ArraysMappingTest extends TestContainersTestBase {
 
         Session freshSession = sessionFactory.openSession();
         Individual loadedIndividual = freshSession.load(Individual.class, id);
-        assertThat(loadedIndividual.getPrimitiveByteArray()).isEqualTo(new byte[] { 1, 2, 3, 4, 5 });
+        assertThat(loadedIndividual.getPrimitiveByteArray()).isEqualTo(new byte[]{1, 2, 3, 4, 5});
     }
 
-    @Test // GH-791
-    public void shouldDeserializeNativeByteArrays() {
+    // GH-791
+    @Test
+    void shouldDeserializeNativeByteArrays() {
 
-        byte[] primitive = { 1, 2, 3, 4, 5 };
-        Byte[] wrapped = { 9, 8, 7, 6, 5 };
-        byte[] helloWorld = { 104, 101, 108, 108, 111, 64, 119, 111, 114, 108, 100 };
+        byte[] primitive = {1, 2, 3, 4, 5};
+        Byte[] wrapped = {9, 8, 7, 6, 5};
+        byte[] helloWorld = {104, 101, 108, 108, 111, 64, 119, 111, 114, 108, 100};
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("primitive", primitive);
@@ -138,12 +139,13 @@ public class ArraysMappingTest extends TestContainersTestBase {
         assertThat(loadedIndividual.getSomeTuple()).isEqualTo(new SomeTuple("hello", "world"));
     }
 
-    @Test // GH-791
-    public void shouldSerializeNativeByteArrays() {
+    // GH-791
+    @Test
+    void shouldSerializeNativeByteArrays() {
 
-        byte[] primitive = { 1, 2, 3, 4, 5 };
-        Byte[] wrapped = { 9, 8, 7, 6, 5 };
-        byte[] helloWorld = { 104, 101, 108, 108, 111, 64, 119, 111, 114, 108, 100 };
+        byte[] primitive = {1, 2, 3, 4, 5};
+        Byte[] wrapped = {9, 8, 7, 6, 5};
+        byte[] helloWorld = {104, 101, 108, 108, 111, 64, 119, 111, 114, 108, 100};
 
         EntityWithNativeByteArrays entityWithNativeByteArrays = new EntityWithNativeByteArrays();
         entityWithNativeByteArrays.setPrimitive(primitive);
@@ -176,7 +178,7 @@ public class ArraysMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldGenerateCypherToPersistCollectionOfBoxedPrimitivesToArrayOfPrimitives() {
+    void shouldGenerateCypherToPersistCollectionOfBoxedPrimitivesToArrayOfPrimitives() {
         Individual individual = new Individual();
         individual.setName("Gary");
         individual.setAge(36);

@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -45,12 +45,12 @@ public class IngredientsIntegrationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.ingredients");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -60,7 +60,7 @@ public class IngredientsIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-639
      */
     @Test
-    public void shouldBeAbleToAddInterrelatedPairings() {
+    void shouldBeAbleToAddInterrelatedPairings() {
 
         Ingredient chicken = new Ingredient("Chicken");
         session.save(chicken);
@@ -94,7 +94,7 @@ public class IngredientsIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToLoadIngredientsWithoutPairings() {
+    void shouldBeAbleToLoadIngredientsWithoutPairings() {
 
         Ingredient chicken = new Ingredient("Chicken");
         session.save(chicken);
@@ -143,7 +143,7 @@ public class IngredientsIntegrationTest extends TestContainersTestBase {
      * @see Issue #94
      */
     @Test
-    public void shouldBeAbleToLoadPairingWithCustomDepth() {
+    void shouldBeAbleToLoadPairingWithCustomDepth() {
 
         Ingredient chicken = new Ingredient("Chicken");
         session.save(chicken);
@@ -293,7 +293,7 @@ public class IngredientsIntegrationTest extends TestContainersTestBase {
      * @see Issue 97
      */
     @Test
-    public void shouldBeAbleToLoadIngredientsWithPagingAndDepth() {
+    void shouldBeAbleToLoadIngredientsWithPagingAndDepth() {
 
         Ingredient chicken = new Ingredient("Chicken");
         session.save(chicken);
@@ -368,7 +368,7 @@ public class IngredientsIntegrationTest extends TestContainersTestBase {
      * @see Issue 97
      */
     @Test
-    public void shouldBeAbleToLoadIngredientsWithFiltersPagingAndDepth() {
+    void shouldBeAbleToLoadIngredientsWithFiltersPagingAndDepth() {
 
         Ingredient chicken = new Ingredient("Chicken");
         session.save(chicken);

@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
@@ -40,45 +40,45 @@ public class NodeEntityQueryPagingTest {
     private Filters filters = new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "velociraptor"));
 
     @Test
-    public void testFindByType() {
+    void testFindByType() {
         assertThat(queryStatements.findByType("Raptor", 1).setPagination(paging).getStatement())
             .isEqualTo("MATCH (n:`Raptor`) WITH n SKIP 4 LIMIT 2 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)");
     }
 
     @Test
-    public void testFindByTypeZeroDepth() throws Exception {
+    void testFindByTypeZeroDepth() throws Exception {
         assertThat(queryStatements.findByType("Raptor", 0).setPagination(paging).getStatement())
             .isEqualTo("MATCH (n:`Raptor`) WITH n SKIP 4 LIMIT 2 RETURN n");
     }
 
     @Test
-    public void testFindByTypeInfiniteDepth() throws Exception {
+    void testFindByTypeInfiniteDepth() throws Exception {
         assertThat(queryStatements.findByType("Raptor", -1).setPagination(paging).getStatement())
             .isEqualTo("MATCH (n:`Raptor`) WITH n SKIP 4 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
     }
 
     @Test
-    public void testFindByProperty() {
+    void testFindByProperty() {
         assertThat(queryStatements.findByType("Raptor", filters, 2).setPagination(paging).getStatement())
             .isEqualTo(
                 "MATCH (n:`Raptor`) WHERE n.`name` = $`name_0` WITH n SKIP 4 LIMIT 2 MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)");
     }
 
     @Test
-    public void testFindByPropertyZeroDepth() {
+    void testFindByPropertyZeroDepth() {
         assertThat(queryStatements.findByType("Raptor", filters, 0).setPagination(paging).getStatement())
             .isEqualTo("MATCH (n:`Raptor`) WHERE n.`name` = $`name_0` WITH n SKIP 4 LIMIT 2 RETURN n");
     }
 
     @Test
-    public void testFindByPropertyInfiniteDepth() {
+    void testFindByPropertyInfiniteDepth() {
         assertThat(queryStatements.findByType("Raptor", filters, -1).setPagination(paging).getStatement())
             .isEqualTo(
                 "MATCH (n:`Raptor`) WHERE n.`name` = $`name_0` WITH n SKIP 4 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
     }
 
     @Test
-    public void testFindAllByType() throws Exception {
+    void testFindAllByType() throws Exception {
         assertThat(
             queryStatements.findAllByType("Raptor", Arrays.asList(1L, 2L), 1).setPagination(paging).getStatement())
             .isEqualTo(
@@ -86,14 +86,14 @@ public class NodeEntityQueryPagingTest {
     }
 
     @Test
-    public void testFindAllByTypeZeroDepth() throws Exception {
+    void testFindAllByTypeZeroDepth() throws Exception {
         assertThat(
             queryStatements.findAllByType("Raptor", Arrays.asList(1L, 2L), 0).setPagination(paging).getStatement())
             .isEqualTo("MATCH (n:`Raptor`) WHERE ID(n) IN $ids WITH n SKIP 4 LIMIT 2 RETURN n");
     }
 
     @Test
-    public void testFindAllByTypeInfiniteDepth() throws Exception {
+    void testFindAllByTypeInfiniteDepth() throws Exception {
         assertThat(
             queryStatements.findAllByType("Raptor", Arrays.asList(1L, 2L), -1).setPagination(paging).getStatement())
             .isEqualTo(
@@ -101,7 +101,7 @@ public class NodeEntityQueryPagingTest {
     }
 
     @Test
-    public void testFindByTypeAndOffset() {
+    void testFindByTypeAndOffset() {
         Pagination pagination = new Pagination(1, 5);
         pagination.setOffset(3);
         PagingAndSortingQuery query = queryStatements.findByType("Raptor", 1).setPagination(pagination);

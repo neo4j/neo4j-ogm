@@ -20,10 +20,10 @@ package org.neo4j.ogm.persistence.examples.election;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.election.Candidate;
@@ -46,23 +46,23 @@ public class ElectionTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.election");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void clearDatabase() {
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldAllowACandidateToVoteForHerself() {
+    void shouldAllowACandidateToVoteForHerself() {
 
         Candidate candidate = new Candidate("Hilary Clinton");
         candidate.candidateVotedFor = candidate;
@@ -85,7 +85,7 @@ public class ElectionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldAllowASelfReferenceToBeSavedFromTheReferredSide() {
+    void shouldAllowASelfReferenceToBeSavedFromTheReferredSide() {
 
         Candidate candidate = new Candidate("Hilary Clinton");
         candidate.candidateVotedFor = candidate;
@@ -104,7 +104,7 @@ public class ElectionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldAllowVoterToChangeHerMind() {
+    void shouldAllowVoterToChangeHerMind() {
 
         Candidate a = new Candidate("A");
         Candidate b = new Candidate("B");
@@ -142,7 +142,7 @@ public class ElectionTest extends TestContainersTestBase {
         assertThat(v.candidateVotedFor.getId()).isEqualTo(a.getId());
 
         assertThat(context.containsRelationship(
-            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", a.getId(),null, Voter.class, Candidate.class)))
+            new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", a.getId(), null, Voter.class, Candidate.class)))
             .isTrue();
         assertThat(context.containsRelationship(
             new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), null, Voter.class, Candidate.class)))

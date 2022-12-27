@@ -20,7 +20,7 @@ package org.neo4j.ogm.session.request.strategy.impl;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.schema.DomainInfoSchemaBuilder;
 import org.neo4j.ogm.metadata.schema.Schema;
@@ -32,7 +32,7 @@ import org.neo4j.ogm.metadata.schema.Schema;
 public class SchemaNodeLoadClauseBuilderTest {
 
     @Test
-    public void buildQuery() {
+    void buildQuery() {
         SchemaNodeLoadClauseBuilder queryBuilder = createQueryBuilder();
 
         String query = queryBuilder.build("n", "Person", 0);
@@ -41,7 +41,7 @@ public class SchemaNodeLoadClauseBuilderTest {
     }
 
     @Test
-    public void buildQueryFromLocation() {
+    void buildQueryFromLocation() {
         SchemaNodeLoadClauseBuilder queryBuilder = createQueryBuilder();
 
         String query = queryBuilder.build("n", "Location", 1);
@@ -49,7 +49,7 @@ public class SchemaNodeLoadClauseBuilderTest {
     }
 
     @Test
-    public void buildQueryFromPerson() {
+    void buildQueryFromPerson() {
         SchemaNodeLoadClauseBuilder queryBuilder = createQueryBuilder();
 
         String query = queryBuilder.build("n", "Person", 2);
@@ -63,7 +63,7 @@ public class SchemaNodeLoadClauseBuilderTest {
     }
 
     @Test
-    public void givenNodeWithNoRelationships_thenCreateSimpleQuery() {
+    void givenNodeWithNoRelationships_thenCreateSimpleQuery() {
         SchemaNodeLoadClauseBuilder queryBuilder = createQueryBuilder();
 
         String query = queryBuilder.build("n", "Organisation", 1);
@@ -72,7 +72,7 @@ public class SchemaNodeLoadClauseBuilderTest {
     }
 
     @Test
-    public void givenLabelStartingWithR_thenNodeNameAndrelationshipNameShouldNotConflict() {
+    void givenLabelStartingWithR_thenNodeNameAndrelationshipNameShouldNotConflict() {
         SchemaNodeLoadClauseBuilder queryBuilder = createQueryBuilder();
 
         String query = queryBuilder.build("n", "Restaurant", 1);
@@ -80,8 +80,9 @@ public class SchemaNodeLoadClauseBuilderTest {
         assertThat(query).isEqualTo(" RETURN n,[ [ (n)-[r_s1:`SIMILAR_TO`]->(r1:`Restaurant`) | [ r_s1, r1 ] ] ]");
     }
 
-    @Test // GH-670
-    public void shouldMatchRelationshipForAllPossibleMappings() {
+    // GH-670
+    @Test
+    void shouldMatchRelationshipForAllPossibleMappings() {
         DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.gh670");
         Schema schema = new DomainInfoSchemaBuilder(domainInfo).build();
         SchemaNodeLoadClauseBuilder builder = new SchemaNodeLoadClauseBuilder(schema);

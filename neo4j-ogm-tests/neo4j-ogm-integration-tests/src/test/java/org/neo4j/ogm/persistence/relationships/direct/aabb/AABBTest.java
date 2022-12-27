@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.session.Session;
@@ -44,19 +44,19 @@ public class AABBTest extends TestContainersTestBase {
     private A a1, a2, a3;
     private B b1, b2, b3;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetup() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships.direct.aabb");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
         setUpEntityModel();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
     }
@@ -80,7 +80,7 @@ public class AABBTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindAFromB() {
+    void shouldFindAFromB() {
 
         session.save(a1);
         session.save(a2);
@@ -96,7 +96,7 @@ public class AABBTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindBFromA() {
+    void shouldFindBFromA() {
 
         session.save(b1);
         session.save(b2);
@@ -112,7 +112,7 @@ public class AABBTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReflectRemovalA() {
+    void shouldReflectRemovalA() {
 
         session.save(a1);
         session.save(a2);
@@ -120,8 +120,8 @@ public class AABBTest extends TestContainersTestBase {
 
         // it is our responsibility to keep the domain entities synchronized
         b2.a = null;
-        a1.b = new B[] { b1 };
-        a3.b = new B[] { b3 };
+        a1.b = new B[]{b1};
+        a3.b = new B[]{b3};
 
         session.save(b2);
 
@@ -147,12 +147,12 @@ public class AABBTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToAddAnotherB() {
+    void shouldBeAbleToAddAnotherB() {
         session.save(a1);
 
         B b3 = new B();
-        b3.a = new A[] { a1 };
-        a1.b = new B[] { b1, b2, b3 };
+        b3.a = new A[]{a1};
+        a1.b = new B[]{b1, b2, b3};
 
         // fully connected graph, should be able to save anu object
         session.save(b3);

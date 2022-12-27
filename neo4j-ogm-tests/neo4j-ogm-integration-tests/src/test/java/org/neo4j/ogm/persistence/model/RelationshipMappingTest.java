@@ -27,9 +27,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.election.Candidate;
 import org.neo4j.ogm.domain.election.Voter;
 import org.neo4j.ogm.domain.gh640.MyNode;
@@ -65,7 +65,7 @@ public class RelationshipMappingTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetup() {
         sessionFactory = new SessionFactory(getDriver(),
             "org.neo4j.ogm.domain.election",
@@ -79,14 +79,14 @@ public class RelationshipMappingTest extends TestContainersTestBase {
             "org.neo4j.ogm.domain.typed_relationships");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void testThatABiDirectionalMappingIsEstablishedWhenAMutualRelationshipWithNoAnnotationsIsSaved() {
+    void testThatABiDirectionalMappingIsEstablishedWhenAMutualRelationshipWithNoAnnotationsIsSaved() {
 
         Person jim = new Person("Jim");
         Policy policy = new Policy("Health");
@@ -106,7 +106,7 @@ public class RelationshipMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testThatAnAnnotatedRelationshipOnTwoObjectsThatIsSavedFromTheOutgoingCreatesTheCorrectRelationshipInTheGraph() {
+    void testThatAnAnnotatedRelationshipOnTwoObjectsThatIsSavedFromTheOutgoingCreatesTheCorrectRelationshipInTheGraph() {
 
         Person jim = new Person("Jim");
         Policy policy = new Policy("Health");
@@ -120,7 +120,7 @@ public class RelationshipMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testThatAnAnnotatedRelationshipSavedFromTheIncomingSideCreatesTheCorrectRelationshipInTheGraph() {
+    void testThatAnAnnotatedRelationshipSavedFromTheIncomingSideCreatesTheCorrectRelationshipInTheGraph() {
 
         Person jim = new Person("Jim");
         Policy policy = new Policy("Health");
@@ -136,7 +136,7 @@ public class RelationshipMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void testPersistAnnotatedSingleRelationshipMappingBothDomainObjectsParticipating() {
+    void testPersistAnnotatedSingleRelationshipMappingBothDomainObjectsParticipating() {
 
         Person jim = new Person("Jim");
         Policy policy = new Policy("Health");
@@ -152,8 +152,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
             + "-(m:Person:DomainObject {name:'Jim'}) return n, m", emptyMap()).queryResults()).hasSize(1);
     }
 
-    @Test // DATAGRAPH-674
-    public void testAnnotatedRelationshipTypeWhenMethodsAreJsonIgnored() {
+    // DATAGRAPH-674
+    @Test
+    void testAnnotatedRelationshipTypeWhenMethodsAreJsonIgnored() {
         Person jim = new Person("Jim");
         Policy policy = new Policy("Health");
 
@@ -168,7 +169,7 @@ public class RelationshipMappingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldAllowVoterToChangeHerMind() {
+    void shouldAllowVoterToChangeHerMind() {
 
         Iterable<Map<String, Object>> executionResult = session.query(
             "CREATE " +
@@ -200,8 +201,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
             .hasSize(1);
     }
 
-    @Test // GH-640
-    public void shouldDealWithTheSameButNotEqualParentEntities() {
+    // GH-640
+    @Test
+    void shouldDealWithTheSameButNotEqualParentEntities() {
 
         Session tx = sessionFactory.openSession();
         Map<String, Object> result = tx.query("CREATE (n1:MyNode {name: 'node1'})\n"
@@ -215,9 +217,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         tx = sessionFactory.openSession();
 
         // Let's go through a bunch of queries to make sure the associations are loaded as OGM would do by default…
-        MyNode node1 = tx.load(MyNode.class, (Long)result.get("idOfn1"));
-        MyNode node2 = tx.load(MyNode.class, (Long)result.get("idOfn2"));
-        MyNode node3 = tx.load(MyNode.class, (Long)result.get("idOfn3"));
+        MyNode node1 = tx.load(MyNode.class, (Long) result.get("idOfn1"));
+        MyNode node2 = tx.load(MyNode.class, (Long) result.get("idOfn2"));
+        MyNode node3 = tx.load(MyNode.class, (Long) result.get("idOfn3"));
 
         // Let's check some preconditions, shall we?
         assertThat(node1).isNotNull();
@@ -247,8 +249,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
             + "RETURN n1, n2, n3", emptyMap()).queryResults()).hasSize(1);
     }
 
-    @Test // GH-640
-    public void shouldDealWithTheSameButNotEqualParentEntitiesWithAssignedId() {
+    // GH-640
+    @Test
+    void shouldDealWithTheSameButNotEqualParentEntitiesWithAssignedId() {
         // Sames as above but this time the entity has an assigned id.
 
         Session tx = sessionFactory.openSession();
@@ -288,8 +291,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
             + "RETURN n1, n2, n3", emptyMap()).queryResults()).hasSize(1);
     }
 
-    @Test // GH-641
-    public void shouldKeepOrderOfRelatedElements() {
+    // GH-641
+    @Test
+    void shouldKeepOrderOfRelatedElements() {
         // This test doesn't fit too well into here, as it is a broader problem than relationships,
         // it also is tackled in org.neo4j.ogm.persistence.relationships.transitive.abb.ABBTest,
         // org.neo4j.ogm.persistence.relationships.direct.abb.ABBTest and some others, but there it fits
@@ -312,8 +316,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(entity1.getEntries()).extracting(MyRelationship::getOrdering).containsExactly(1, 2, 3);
     }
 
-    @Test // GH-528
-    public void shouldDealWithTypedRelationships() {
+    // GH-528
+    @Test
+    void shouldDealWithTypedRelationships() {
         SomeEntity someEntity = new SomeEntity();
 
         someEntity.setThing(new TypedEntity<>(42.21));
@@ -333,8 +338,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
             .containsExactlyInAnyOrder("A", "B", "C");
     }
 
-    @Test // GH-656
-    public void genericRelationshipsInParentClassesShouldWork() {
+    // GH-656
+    @Test
+    void genericRelationshipsInParentClassesShouldWork() {
         Group group = new Group();
         GroupVersion groupVersion = new GroupVersion();
         group.setVersions(Collections.singleton(groupVersion));
@@ -345,8 +351,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(group.getVersions()).hasSize(1);
     }
 
-    @Test // GH-704
-    public void generic1To1RelationshipsShouldWork() {
+    // GH-704
+    @Test
+    void generic1To1RelationshipsShouldWork() {
 
         // Arrange an old country
         Country oldRev = new Country();
@@ -372,8 +379,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
 
     }
 
-    @Test // GH-657
-    public void deletesOfEntitiesWithTheSameButNotEqualParentShouldWork() {
+    // GH-657
+    @Test
+    void deletesOfEntitiesWithTheSameButNotEqualParentShouldWork() {
 
         Session tx = sessionFactory.openSession();
         Map<String, Object> result = tx.query("CREATE (n1:MyNode {name: 'node1'})\n"
@@ -385,9 +393,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
 
         tx = sessionFactory.openSession();
 
-        MyNode node1 = tx.load(MyNode.class, (Long)result.get("idOfn1"));
-        MyNode node2 = tx.load(MyNode.class, (Long)result.get("idOfn2"));
-        MyNode node3 = tx.load(MyNode.class, (Long)result.get("idOfn3"));
+        MyNode node1 = tx.load(MyNode.class, (Long) result.get("idOfn1"));
+        MyNode node2 = tx.load(MyNode.class, (Long) result.get("idOfn2"));
+        MyNode node3 = tx.load(MyNode.class, (Long) result.get("idOfn3"));
 
         assertThat(node1).isNotNull();
         assertThat(node2).isNotNull();
@@ -419,8 +427,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(actual.iterator().next()).containsEntry("relTwo", false);
     }
 
-    @Test // GH-657
-    public void deletesOfEntitiesWithTheSameButNotEqualParentShouldWork2() {
+    // GH-657
+    @Test
+    void deletesOfEntitiesWithTheSameButNotEqualParentShouldWork2() {
 
         Session tx = sessionFactory.openSession();
         Map<String, Object> result = tx.query("CREATE (n1:MyNode {name: 'node1'})\n"
@@ -432,9 +441,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
 
         tx = sessionFactory.openSession();
 
-        MyNode node1 = tx.load(MyNode.class, (Long)result.get("idOfn1"));
-        MyNode node2 = tx.load(MyNode.class, (Long)result.get("idOfn2"));
-        MyNode node3 = tx.load(MyNode.class, (Long)result.get("idOfn3"));
+        MyNode node1 = tx.load(MyNode.class, (Long) result.get("idOfn1"));
+        MyNode node2 = tx.load(MyNode.class, (Long) result.get("idOfn2"));
+        MyNode node3 = tx.load(MyNode.class, (Long) result.get("idOfn3"));
 
         assertThat(node1).isNotNull();
         assertThat(node2).isNotNull();
@@ -460,16 +469,17 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(node2.getRefTwo()).isEmpty();
 
         Iterable<Map<String, Object>> actual = sessionFactory.openSession().query(""
-                + " MATCH (n1:MyNode {name: 'node1'}) <- [:REL_ONE] - (n2:MyNode {name: 'Dirty thing.'}) "
-                + " MATCH (n3:MyNode {name: 'node3'})"
-                + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] -> (n2)) as relTwo",
+            + " MATCH (n1:MyNode {name: 'node1'}) <- [:REL_ONE] - (n2:MyNode {name: 'Dirty thing.'}) "
+            + " MATCH (n3:MyNode {name: 'node3'})"
+            + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] -> (n2)) as relTwo",
             emptyMap()).queryResults();
         assertThat(actual).hasSize(1);
         assertThat(actual.iterator().next()).containsEntry("relTwo", false);
     }
 
-    @Test // GH-657
-    public void deletesOfEntitiesWithTheSameButNotEqualParentShouldWork3() {
+    // GH-657
+    @Test
+    void deletesOfEntitiesWithTheSameButNotEqualParentShouldWork3() {
 
         Session tx = sessionFactory.openSession();
         Map<String, Object> result = tx.query("CREATE (n1:MyNode {name: 'node1'})\n"
@@ -480,9 +490,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
 
         tx = sessionFactory.openSession();
 
-        MyNode node1 = tx.load(MyNode.class, (Long)result.get("idOfn1"));
-        MyNode node2 = tx.load(MyNode.class, (Long)result.get("idOfn2"));
-        MyNode node3 = tx.load(MyNode.class, (Long)result.get("idOfn3"));
+        MyNode node1 = tx.load(MyNode.class, (Long) result.get("idOfn1"));
+        MyNode node2 = tx.load(MyNode.class, (Long) result.get("idOfn2"));
+        MyNode node3 = tx.load(MyNode.class, (Long) result.get("idOfn3"));
 
         assertThat(node1).isNotNull();
         assertThat(node2).isNotNull();
@@ -507,16 +517,17 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(node2.getRefTwo()).containsOnly(node1);
 
         Iterable<Map<String, Object>> actual = sessionFactory.openSession().query(""
-                + " MATCH (n1:MyNode {name: 'Dirty thing.'}) <- [:REL_ONE] - (n2:MyNode {name: 'node2'})"
-                + " MATCH (n3:MyNode {name: 'node3'})"
-                + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] - (n2)) as relTwo",
+            + " MATCH (n1:MyNode {name: 'Dirty thing.'}) <- [:REL_ONE] - (n2:MyNode {name: 'node2'})"
+            + " MATCH (n3:MyNode {name: 'node3'})"
+            + " RETURN n1,n2,n3,exists((n1) - [:REL_TWO] - (n2)) as relTwo",
             emptyMap()).queryResults();
         assertThat(actual).hasSize(1);
         assertThat(actual.iterator().next()).containsEntry("relTwo", true);
     }
 
-    @Test // GH-727
-    public void shouldNotDropUnmappedRelationshipModels() {
+    // GH-727
+    @Test
+    void shouldNotDropUnmappedRelationshipModels() {
 
         Session session = sessionFactory.openSession();
         Voter voter = new Voter("V");
@@ -534,11 +545,12 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(row.get("r")).isNotNull().isInstanceOf(RelationshipModel.class);
     }
 
-    @Test // GH-737
-    public void patternComprehensionShouldBeMappedToCorrectRelationships() {
+    // GH-737
+    @Test
+    void patternComprehensionShouldBeMappedToCorrectRelationships() {
 
         Map<String, Object> ids = sessionFactory.openSession().query(""
-                + "CREATE (n1:Gh737Node1) - [:RELATION_A] -> (n2:Gh737Node2) RETURN id(n1) AS idn1, id(n2) AS idn2",
+            + "CREATE (n1:Gh737Node1) - [:RELATION_A] -> (n2:Gh737Node2) RETURN id(n1) AS idn1, id(n2) AS idn2",
             Collections.emptyMap()
         ).queryResults().iterator().next();
 
@@ -571,13 +583,15 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         });
     }
 
-    @Test // GH-666
-    public void shouldNotMessUpNodes() {
+    // GH-666
+    @Test
+    void shouldNotMessUpNodes() {
         assertMapping(MessedUpNode1.class, node -> node.getRef(), false);
     }
 
-    @Test // GH-666
-    public void mayMessUpNodes() {
+    // GH-666
+    @Test
+    void mayMessUpNodes() {
         assertMapping(MessedUpNode3.class, node -> node.getRef(), true);
     }
 

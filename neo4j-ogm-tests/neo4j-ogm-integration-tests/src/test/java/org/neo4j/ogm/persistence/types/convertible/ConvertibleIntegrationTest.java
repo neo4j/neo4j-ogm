@@ -34,9 +34,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -61,26 +61,27 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
     private static Session session;
     private static SessionFactory sessionFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.convertible");
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         session.purgeDatabase();
     }
 
-    @Test // DATAGRAPH-550
-    public void shouldSaveAndRetrieveEnums() {
+    // DATAGRAPH-550
+    @Test
+    void shouldSaveAndRetrieveEnums() {
         List<Education> completed = new ArrayList<>();
         completed.add(Education.HIGHSCHOOL);
         completed.add(Education.BACHELORS);
 
         Person person = new Person();
         person.setName("luanne");
-        person.setInProgressEducation(new Education[] { Education.MASTERS, Education.PHD });
+        person.setInProgressEducation(new Education[]{Education.MASTERS, Education.PHD});
         person.setCompletedEducation(completed);
         person.setGender(Gender.FEMALE);
         session.save(person);
@@ -98,14 +99,14 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveAndRetrieveEnumsAsResult() {
+    void shouldSaveAndRetrieveEnumsAsResult() {
         List<Education> completed = new ArrayList<>();
         completed.add(Education.HIGHSCHOOL);
         completed.add(Education.BACHELORS);
 
         Person person = new Person();
         person.setName("luanne");
-        person.setInProgressEducation(new Education[] { Education.MASTERS, Education.PHD });
+        person.setInProgressEducation(new Education[]{Education.MASTERS, Education.PHD});
         person.setCompletedEducation(completed);
         person.setGender(Gender.FEMALE);
         session.save(person);
@@ -123,8 +124,9 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
             .equals(Education.PHD)).isTrue();
     }
 
-    @Test // DATAGRAPH-550 GH-758 GH-771
-    public void shouldSaveAndRetrieveDates() {
+    // DATAGRAPH-550 GH-758 GH-771
+    @Test
+    void shouldSaveAndRetrieveDates() {
         SimpleDateFormat simpleDateISO8601format = new SimpleDateFormat(DateString.ISO_8601);
         simpleDateISO8601format.setTimeZone(TimeZone.getTimeZone("UTC"));
 
@@ -140,7 +142,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         date40000.setTimeInMillis(40000);
         Calendar date100000 = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         date100000.setTimeInMillis(100000);
-        Date[] escalations = new Date[] { date40000.getTime(), date100000.getTime() };
+        Date[] escalations = new Date[]{date40000.getTime(), date100000.getTime()};
 
         Calendar actioned = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         actioned.setTimeInMillis(20000);
@@ -188,8 +190,9 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         assertThat(loadedCal.get(Calendar.YEAR)).isEqualTo(date100000.get(Calendar.YEAR));
     }
 
-    @Test // GH-771
-    public void instantsWithCustomFormatAndTZShouldWork() {
+    // GH-771
+    @Test
+    void instantsWithCustomFormatAndTZShouldWork() {
 
         Memo memo = new Memo();
         memo.setMemo("theMemo");
@@ -215,7 +218,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveAndRetrieveJava8Dates() {
+    void shouldSaveAndRetrieveJava8Dates() {
 
         Instant instant = Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2007-12-03T10:15:30.001+01:00"));
 
@@ -237,7 +240,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveListOfLocalDate() {
+    void shouldSaveListOfLocalDate() {
 
         Java8DatesMemo memo = new Java8DatesMemo();
 
@@ -252,14 +255,14 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.dateList", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
         String[] dateArray = (String[]) record.get("m.dateList");
-        assertThat(dateArray).isEqualTo(new String[] { "2017-07-23", "2017-07-24" });
+        assertThat(dateArray).isEqualTo(new String[]{"2017-07-23", "2017-07-24"});
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
         assertThat(loaded.getDateList()).isEqualTo(dateList);
     }
 
     @Test
-    public void shouldSaveLocalDateTime() {
+    void shouldSaveLocalDateTime() {
 
         Java8DatesMemo memo = new Java8DatesMemo();
 
@@ -278,7 +281,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveListOfLocalDateTime() {
+    void shouldSaveListOfLocalDateTime() {
 
         Java8DatesMemo memo = new Java8DatesMemo();
 
@@ -293,14 +296,14 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.dateTimeList", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
         String[] dateArray = (String[]) record.get("m.dateTimeList");
-        assertThat(dateArray).isEqualTo(new String[] { "2017-07-23T01:02:03", "2017-07-24T01:02:03" });
+        assertThat(dateArray).isEqualTo(new String[]{"2017-07-23T01:02:03", "2017-07-24T01:02:03"});
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
         assertThat(loaded.getDateTimeList()).isEqualTo(dateTimeList);
     }
 
     @Test
-    public void shouldSaveOffsetDateTime() {
+    void shouldSaveOffsetDateTime() {
 
         Java8DatesMemo memo = new Java8DatesMemo();
 
@@ -320,7 +323,7 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveOffsetDateTimeList() {
+    void shouldSaveOffsetDateTimeList() {
         Java8DatesMemo memo = new Java8DatesMemo();
 
         LocalDateTime dateTime = LocalDateTime.of(2017, 7, 23, 1, 2, 3);
@@ -335,19 +338,20 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         Result result = session.query("MATCH (m:Java8DatesMemo) return m.offsetDateTimeList", Collections.emptyMap());
         Map<String, Object> record = result.queryResults().iterator().next();
         String[] dateArray = (String[]) record.get("m.offsetDateTimeList");
-        assertThat(dateArray).isEqualTo(new String[] { "2017-07-23T01:02:03+01:00", "2017-07-24T01:02:03+01:00" });
+        assertThat(dateArray).isEqualTo(new String[]{"2017-07-23T01:02:03+01:00", "2017-07-24T01:02:03+01:00"});
 
         Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
         assertThat(loaded.getOffsetDateTimeList()).isEqualTo(offsetDateTimeList);
     }
 
-    @Test // DATAGRAPH-550
-    public void shouldSaveAndRetrieveNumbers() {
+    // DATAGRAPH-550
+    @Test
+    void shouldSaveAndRetrieveNumbers() {
 
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
         account.setCode((short) 1000);
 
-        BigDecimal[] deposits = new BigDecimal[] { new BigDecimal("12345.67"), new BigDecimal("34567.89") };
+        BigDecimal[] deposits = new BigDecimal[]{new BigDecimal("12345.67"), new BigDecimal("34567.89")};
 
         List<BigInteger> loans = new ArrayList<>();
         loans.add(BigInteger.valueOf(123456));
@@ -366,8 +370,9 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         assertThat(loadedAccount.getDeposits()).isEqualTo(deposits);
     }
 
-    @Test // GH-880
-    public void shouldDeletePropertiesWhenAttributesAreNull() {
+    // GH-880
+    @Test
+    void shouldDeletePropertiesWhenAttributesAreNull() {
 
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
         account.setFoobar(new Foobar("A thing"));
@@ -391,8 +396,9 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         assertThat(foobbarValue).isNull();
     }
 
-    @Test // GH-72
-    public void shouldSaveAndRetrieveIntegerDates() {
+    // GH-72
+    @Test
+    void shouldSaveAndRetrieveIntegerDates() {
         Memo memo = new Memo();
         memo.setClosed(new Date(0));
         session.save(memo);
@@ -401,8 +407,9 @@ public class ConvertibleIntegrationTest extends TestContainersTestBase {
         assertThat(memo.getClosed().getTime()).isEqualTo(new Date(0).getTime());
     }
 
-    @Test // GH-77
-    public void shouldSaveAndRetrieveIntegerFloats() {
+    // GH-77
+    @Test
+    void shouldSaveAndRetrieveIntegerFloats() {
         Account account = new Account();
         account.setLimit(10f);
         session.save(account);

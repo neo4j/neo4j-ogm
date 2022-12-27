@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -42,23 +42,23 @@ public class FilterIntegrationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void clear() {
         session.purgeDatabase();
     }
 
     @Test
-    public void ignoreCaseShouldBeApplicableToEquals() {
+    void ignoreCaseShouldBeApplicableToEquals() {
         final String emi = "EMI Studios, London";
         session.save(new Studio(emi));
         final Filter nameFilter = new Filter("name", ComparisonOperator.EQUALS, "eMi Studios, London").ignoreCase();
@@ -69,7 +69,7 @@ public class FilterIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void ignoreCaseShouldBeApplicableToContaining() {
+    void ignoreCaseShouldBeApplicableToContaining() {
         final String emi = "EMI Studios, London";
         session.save(new Studio(emi));
         final Filter nameFilter = new Filter("name", ComparisonOperator.CONTAINING, "STUDIO").ignoreCase();
@@ -80,7 +80,7 @@ public class FilterIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void ignoreCaseShouldBeApplicableToStartingWith() {
+    void ignoreCaseShouldBeApplicableToStartingWith() {
         final String emi = "EMI Studios, London";
         session.save(new Studio(emi));
         final Filter nameFilter = new Filter("name", ComparisonOperator.STARTING_WITH, "em").ignoreCase();
@@ -91,7 +91,7 @@ public class FilterIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void ignoreCaseShouldBeApplicableToEndingWith() {
+    void ignoreCaseShouldBeApplicableToEndingWith() {
         final String emi = "EMI Studios, London";
         session.save(new Studio(emi));
         final Filter nameFilter = new Filter("name", ComparisonOperator.ENDING_WITH, "london").ignoreCase();

@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.pizza.Pizza;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class ThreadSafeMetadataTest {
     private static final int TOTAL_RUNS = 100;
 
     @Test
-    public void testGetFieldInfoThreadSafe() throws Exception {
+    void testGetFieldInfoThreadSafe() throws Exception {
 
         ExecutorService service = Executors.newFixedThreadPool(THREADS);
 

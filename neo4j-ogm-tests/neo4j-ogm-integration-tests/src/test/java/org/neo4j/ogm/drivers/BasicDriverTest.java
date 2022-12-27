@@ -28,10 +28,10 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.WriteProtectionTarget;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -63,12 +63,12 @@ public class BasicDriverTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -76,7 +76,7 @@ public class BasicDriverTest extends TestContainersTestBase {
 
     // save test
     @Test
-    public void shouldSaveObject() {
+    void shouldSaveObject() {
         User user = new User("Bilbo Baggins");
         assertThat(user.getId()).isNull();
         session.save(user);
@@ -84,7 +84,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveMultipleObjects() throws Exception {
+    void shouldSaveMultipleObjects() throws Exception {
         User bilbo = new User("Bilbo Baggins");
         User frodo = new User("Frodo Beutlin");
         bilbo.befriend(frodo);
@@ -104,7 +104,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveMultipleObjectsWithWriteProtection() throws Exception {
+    void shouldSaveMultipleObjectsWithWriteProtection() throws Exception {
         User bilbo = new User("Bilbo Baggins");
         session.save(bilbo);
         session.clear();
@@ -135,7 +135,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveMultipleObjectsWithWriteProtectionFromRoot() throws Exception {
+    void shouldSaveMultipleObjectsWithWriteProtectionFromRoot() throws Exception {
         User avon = new User("Avon Barksdale");
         session.save(avon);
 
@@ -165,7 +165,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void customWriteProtectionStrategyShouldBeApplied() {
+    void customWriteProtectionStrategyShouldBeApplied() {
         Predicate<Object> alwaysWriteProtect = o -> true;
         Predicate<Object> protectAvon = o -> ((User) o).getName().startsWith("Avon");
 
@@ -237,14 +237,14 @@ public class BasicDriverTest extends TestContainersTestBase {
 
     // load tests
     @Test
-    public void shouldLoadByType() {
+    void shouldLoadByType() {
         session.save(new User());
         session.clear();
         assertThat(session.loadAll(User.class)).hasSize(1);
     }
 
     @Test
-    public void shouldLoadOne() {
+    void shouldLoadOne() {
         User user = new User();
         session.save(user);
         session.clear();
@@ -253,7 +253,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadByProperty() {
+    void shouldLoadByProperty() {
         User user = new User("Bilbo Baggins");
         session.save(user);
         session.clear();
@@ -263,7 +263,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadByInstances() {
+    void shouldLoadByInstances() {
         User bilbo = new User("Bilbo Baggins");
         User frodo = new User("Frodo Baggins");
         List<User> users = new ArrayList<>();
@@ -277,7 +277,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadByIds() {
+    void shouldLoadByIds() {
         User bilbo = new User("Bilbo Baggins");
         User frodo = new User("Frodo Baggins");
         session.save(bilbo);
@@ -290,7 +290,7 @@ public class BasicDriverTest extends TestContainersTestBase {
 
     // query tests
     @Test
-    public void shouldQueryForObject() {
+    void shouldQueryForObject() {
         session.save(new User("Bilbo Baggins"));
         session.clear();
         User bilbo = session.queryForObject(User.class, "MATCH(u:User) RETURN u", Collections
@@ -299,7 +299,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldQueryForDomainObjects() {
+    void shouldQueryForDomainObjects() {
         session.save(new User("Bilbo Baggins"));
         session.save(new User("Frodo Baggins"));
         session.clear();
@@ -310,7 +310,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldQueryForScalarValues() {
+    void shouldQueryForScalarValues() {
         session.save(new User("Bilbo Baggins"));
         session.save(new User("Frodo Baggins"));
         session.clear();
@@ -321,7 +321,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldObtainEmptyQueryResultsWithStatistics() {
+    void shouldObtainEmptyQueryResultsWithStatistics() {
         session.save(new User("Bilbo Baggins"));
         session.save(new User("Frodo Baggins"));
         session.clear();
@@ -332,7 +332,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldObtainQueryResultsWithStatistics() {
+    void shouldObtainQueryResultsWithStatistics() {
         session.save(new User("Bilbo Baggins"));
         session.save(new User("Frodo Baggins"));
         session.clear();
@@ -343,7 +343,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindExplicitlyCommittedEntity() {
+    void shouldFindExplicitlyCommittedEntity() {
 
         Transaction tx = session.beginTransaction();
         session.save(new User());
@@ -353,7 +353,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotFindExplicitlyRolledBackEntity() {
+    void shouldNotFindExplicitlyRolledBackEntity() {
 
         Transaction tx = session.beginTransaction();
         session.save(new User());
@@ -363,7 +363,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFailExtendedCommitRollbackCommit() {
+    void shouldFailExtendedCommitRollbackCommit() {
         try {
             doExtendedCommitRollbackCommit();
             fail("Should have thrown exception");
@@ -373,7 +373,7 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFailExtendedRollbackCommitCommit() {
+    void shouldFailExtendedRollbackCommitCommit() {
         try {
             doExtendedRollbackCommitCommit();
             fail("Should have thrown exception");
@@ -383,8 +383,8 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    @Ignore
-    public void shouldFailExtendedRollbackRollbackCommit() {
+    @Disabled
+    void shouldFailExtendedRollbackRollbackCommit() {
         try {
             doExtendedRollbackRollbackCommit();
             fail("Should have thrown exception");
@@ -394,19 +394,19 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSucceedExtendedCommitCommitCommit() {
+    void shouldSucceedExtendedCommitCommitCommit() {
         doExtendedCommitCommitCommit();
         assertThat(session.loadAll(User.class)).hasSize(2);
     }
 
     @Test
-    public void shouldSucceedExtendedCommitRollbackRollback() {
+    void shouldSucceedExtendedCommitRollbackRollback() {
         doExtendedCommitRollbackRollback();
         assertThat(session.loadAll(User.class)).isEmpty();
     }
 
     @Test
-    public void shouldSucceedExtendedRollbackCommitRollback() {
+    void shouldSucceedExtendedRollbackCommitRollback() {
         try {
             doExtendedRollbackCommitRollback();
             fail("Should have caught exception"); // invalid transaction state after rollback, commit
@@ -416,19 +416,20 @@ public class BasicDriverTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSucceedExtendedRollbackRollbackRollback() {
+    void shouldSucceedExtendedRollbackRollbackRollback() {
         doExtendedRollbackRollbackRollback();
         assertThat(session.loadAll(User.class)).isEmpty();
     }
 
     @Test
-    public void shouldSucceedExtendedCommitCommitRollback() {
+    void shouldSucceedExtendedCommitCommitRollback() {
         doExtendedCommitCommitRollback();
         assertThat(session.loadAll(User.class)).isEmpty();
     }
 
-    @Test // GH-119
-    public void shouldWrapUnderlyingException() {
+    // GH-119
+    @Test
+    void shouldWrapUnderlyingException() {
         session.save(new User("Bilbo Baggins"));
         try {
             session.query(User.class, "MATCH(u:User) WHERE u.name ~ '.*Baggins' RETURN u", Collections.emptyMap());

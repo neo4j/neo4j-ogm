@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.simpleNetwork.classes.IdentityNode;
 import org.neo4j.ogm.domain.simpleNetwork.classes.StateNode;
 import org.neo4j.ogm.domain.simpleNetwork.classes.TimeRelation;
@@ -43,12 +43,12 @@ public class SimpleNetworkIntegrationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.simpleNetwork");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -58,7 +58,7 @@ public class SimpleNetworkIntegrationTest extends TestContainersTestBase {
      * @see issue #42
      */
     @Test
-    public void shouldReadIdentityNodeAlongWithStates() {
+    void shouldReadIdentityNodeAlongWithStates() {
         // arrange
 
         // an identity

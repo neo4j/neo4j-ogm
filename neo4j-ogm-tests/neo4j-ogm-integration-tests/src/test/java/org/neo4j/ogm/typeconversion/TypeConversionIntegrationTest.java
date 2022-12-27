@@ -32,10 +32,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Value;
@@ -59,24 +59,25 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music",
             "org.neo4j.ogm.domain.convertible.numbers");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void clear() {
         session.purgeDatabase();
     }
 
-    @Test // GH-71
-    public void convertibleReturnTypesShouldBeHandled() {
+    // GH-71
+    @Test
+    void convertibleReturnTypesShouldBeHandled() {
         final ZoneId utc = ZoneId.of("UTC");
 
         final Artist queen = new Artist("Queen");
@@ -99,8 +100,9 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         assertThat(latestReleases).isEqualTo(queen2ReleaseDate);
     }
 
-    @Test // GH-766
-    public void savedTimestampAsMappingIsReadBackAsIs() {
+    // GH-766
+    @Test
+    void savedTimestampAsMappingIsReadBackAsIs() {
 
         OffsetDateTime someTime = OffsetDateTime.parse("2024-05-01T21:18:15.650+07:00");
         LocalDateTime someLocalDateTime = LocalDateTime.parse("2024-05-01T21:18:15");
@@ -116,8 +118,9 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         verify(timeHolder.getGraphId(), someTime, someLocalDateTime, someLocalDate);
     }
 
-    @Test // GH-766
-    public void savedTimestampAsParameterToBatchedCreateIsReadBackAsIs() {
+    // GH-766
+    @Test
+    void savedTimestampAsParameterToBatchedCreateIsReadBackAsIs() {
 
         OffsetDateTime someTime = OffsetDateTime.parse("2024-05-01T21:18:15.650+07:00");
         LocalDateTime someLocalDateTime = LocalDateTime.parse("2024-05-01T21:18:15");
@@ -143,8 +146,9 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         verify((Long) result.queryResults().iterator().next().get("id"), someTime, someLocalDateTime, someLocalDate);
     }
 
-    @Test // GH-766
-    public void dataStoredInNotRealIsoFormatShouldStillBeParsed() {
+    // GH-766
+    @Test
+    void dataStoredInNotRealIsoFormatShouldStillBeParsed() {
 
         OffsetDateTime someTime1 = OffsetDateTime.parse("2024-05-01T21:18:15.650+07:00");
         OffsetDateTime someTime2 = OffsetDateTime.parse("2024-05-01T21:18:15.65+07:00");
@@ -163,8 +167,9 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         assertThat(a).isEqualTo(b);
     }
 
-    @Test // GH-766
-    public void savedTimestampAsParameterToSimpleCreateIsReadBackAsIs() {
+    // GH-766
+    @Test
+    void savedTimestampAsParameterToSimpleCreateIsReadBackAsIs() {
 
         OffsetDateTime someTime = OffsetDateTime.parse("2024-05-01T21:18:15.650+07:00");
         LocalDateTime someLocalDateTime = LocalDateTime.parse("2024-05-01T21:18:15");
@@ -219,8 +224,9 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         assertThat(localDateValue).isEqualTo(expectedStringValue);
     }
 
-    @Test // GH-845
-    public void converterShouldBeAppliedBothWaysCorrectly() {
+    // GH-845
+    @Test
+    void converterShouldBeAppliedBothWaysCorrectly() {
 
         Session localSession = sessionFactory.openSession();
 
@@ -237,8 +243,8 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         localSession = sessionFactory.openSession();
 
         Iterable<Map<String, Object>> result = localSession.query(""
-                + "MATCH (a:Account) WHERE id(a) = $id "
-                + "RETURN a.valueA AS va, a.valueB as vb, a.listOfFoobars as listOfFoobars, a.anotherListOfFoobars as anotherListOfFoobars, a.foobar as foobar, a.notConverter as notConverter",
+            + "MATCH (a:Account) WHERE id(a) = $id "
+            + "RETURN a.valueA AS va, a.valueB as vb, a.listOfFoobars as listOfFoobars, a.anotherListOfFoobars as anotherListOfFoobars, a.foobar as foobar, a.notConverter as notConverter",
             Collections.singletonMap("id", account.getId())
         );
         assertThat(result).hasSize(1);

@@ -19,12 +19,13 @@
 package org.neo4j.ogm.metadata.schema;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.neo4j.ogm.annotation.Relationship.*;
 
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.domain.inheritance.Associated;
 import org.neo4j.ogm.domain.simple.Mortal;
@@ -40,21 +41,21 @@ public class DomainInfoSchemaBuilderTest {
 
     private Schema schema;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         DomainInfo domainInfo = DomainInfo.create(SIMPLE_SCHEMA);
         schema = new DomainInfoSchemaBuilder(domainInfo).build();
     }
 
     @Test
-    public void givenNodeEntity_thenNodeHasLabelFromEntity() {
+    void givenNodeEntity_thenNodeHasLabelFromEntity() {
         Node person = schema.findNode("Person");
         assertThat(person).isNotNull();
         assertThat(person.label().get()).isEqualTo("Person");
     }
 
     @Test
-    public void whenBuildSchema_thenNodesHaveLabelsFromNodeEntityAnnotation() {
+    void whenBuildSchema_thenNodesHaveLabelsFromNodeEntityAnnotation() {
         // label provided in annotation
         Node company = schema.findNode("Happening");
         assertThat(company).isNotNull();
@@ -62,14 +63,14 @@ public class DomainInfoSchemaBuilderTest {
     }
 
     @Test
-    public void givenNodeEntityWithoutRelationships_whenBuildSchema_thenNodeHasNoRelationships() {
+    void givenNodeEntityWithoutRelationships_whenBuildSchema_thenNodeHasNoRelationships() {
         Node organisation = schema.findNode("Happening");
 
         assertThat(organisation.relationships()).isEmpty();
     }
 
     @Test
-    public void givenSingleEndedRelationship_thenRelationshipExists() {
+    void givenSingleEndedRelationship_thenRelationshipExists() {
 
         Node person = schema.findNode("Person");
         Map<String, Relationship> relationships = person.relationships();
@@ -82,7 +83,7 @@ public class DomainInfoSchemaBuilderTest {
     }
 
     @Test
-    public void givenSingleEndedRelationshipEntity_thenRelationshipExists() {
+    void givenSingleEndedRelationshipEntity_thenRelationshipExists() {
         Node person = schema.findNode("Person");
         Map<String, Relationship> relationships = person.relationships();
 
@@ -94,7 +95,7 @@ public class DomainInfoSchemaBuilderTest {
     }
 
     @Test
-    public void givenDoubleEndedRelationship_thenRelationshipExistsInBoth() {
+    void givenDoubleEndedRelationship_thenRelationshipExistsInBoth() {
         Node person = schema.findNode("Person");
         Node location = schema.findNode("Location");
 
@@ -112,7 +113,7 @@ public class DomainInfoSchemaBuilderTest {
     }
 
     @Test
-    public void givenStartNodeIsSupertype_thenMapCorrectly() {
+    void givenStartNodeIsSupertype_thenMapCorrectly() {
         DomainInfo domainInfo = DomainInfo.create(Associated.class.getPackage().getName());
         schema = new DomainInfoSchemaBuilder(domainInfo).build();
 
@@ -125,7 +126,7 @@ public class DomainInfoSchemaBuilderTest {
     }
 
     @Test
-    public void givenSubtypeOfGenericType_thenPamCorrectly() {
+    void givenSubtypeOfGenericType_thenPamCorrectly() {
         DomainInfo domainInfo = DomainInfo
             .create(org.neo4j.ogm.domain.generics.Person.class.getPackage().getName());
         schema = new DomainInfoSchemaBuilder(domainInfo).build();
@@ -140,21 +141,23 @@ public class DomainInfoSchemaBuilderTest {
         assertThat(organisations.other(person)).isEqualTo(schema.findNode("Organisation"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void givenNonAnnotatedAbstractClass_thenThrowException() {
+    @Test
+    void givenNonAnnotatedAbstractClass_thenThrowException() {
+        assertThrows(IllegalArgumentException.class, () -> {
 
-        DomainInfo domainInfo = DomainInfo
-            .create(org.neo4j.ogm.domain.inheritance.Person.class.getPackage().getName());
-        schema = new DomainInfoSchemaBuilder(domainInfo).build();
+            DomainInfo domainInfo = DomainInfo
+                .create(org.neo4j.ogm.domain.inheritance.Person.class.getPackage().getName());
+            schema = new DomainInfoSchemaBuilder(domainInfo).build();
 
-        Node entity = schema.findNode("Entity");
-        assertThat(entity.label().get()).isEqualTo("Entity");
+            Node entity = schema.findNode("Entity");
+            assertThat(entity.label().get()).isEqualTo("Entity");
 
-        schema.findNode("Company");
+            schema.findNode("Company");
+        });
     }
 
     @Test
-    public void givenIncomingRelationshipToSelf_thenMapDirectionCorrectly() {
+    void givenIncomingRelationshipToSelf_thenMapDirectionCorrectly() {
         DomainInfo domainInfo = DomainInfo.create(Mortal.class.getPackage().getName());
         schema = new DomainInfoSchemaBuilder(domainInfo).build();
 
@@ -164,7 +167,7 @@ public class DomainInfoSchemaBuilderTest {
     }
 
     @Test
-    public void givenRelationshipIsArray_thenMapRelationshipType() {
+    void givenRelationshipIsArray_thenMapRelationshipType() {
         DomainInfo domainInfo = DomainInfo.create(Vertex.class.getName());
         schema = new DomainInfoSchemaBuilder(domainInfo).build();
 
@@ -176,14 +179,14 @@ public class DomainInfoSchemaBuilderTest {
     }
 
     @Test
-    public void givenRelationshipEntity_whenFindRelationship_thenRelationshipIsFound() {
+    void givenRelationshipEntity_whenFindRelationship_thenRelationshipIsFound() {
         Relationship relationship = schema.findRelationship("FOUNDED");
 
         assertThat(relationship.type()).isEqualTo("FOUNDED");
     }
 
     @Test
-    public void givenRelationshipEntityNotReferredFromNodeEntities_whenFindRelationship_thenRelationshipIsFound() {
+    void givenRelationshipEntityNotReferredFromNodeEntities_whenFindRelationship_thenRelationshipIsFound() {
         Relationship relationship = schema.findRelationship("VISITED");
 
         assertThat(relationship).isNotNull();

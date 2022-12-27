@@ -20,8 +20,8 @@ package org.neo4j.ogm.context;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -39,7 +39,7 @@ public class REMappingContextTest {
 
     private Likes likes;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         likes = new Likes();
         likes.id = 1L;
@@ -47,7 +47,7 @@ public class REMappingContextTest {
     }
 
     @Test
-    public void addedRelationshipEntityIsInContext() throws Exception {
+    void addedRelationshipEntityIsInContext() throws Exception {
         context.addRelationshipEntity(likes, 1L);
 
         Object entity = context.getRelationshipEntity(1L);
@@ -58,7 +58,7 @@ public class REMappingContextTest {
     }
 
     @Test
-    public void clearContextClearsPrimaryId() throws Exception {
+    void clearContextClearsPrimaryId() throws Exception {
         context.addRelationshipEntity(likes, 1L);
 
         context.clear();

@@ -19,6 +19,7 @@
 package org.neo4j.ogm.cypher.compiler;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -27,10 +28,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
 import org.neo4j.ogm.context.MappedRelationship;
@@ -69,7 +70,7 @@ public class CompilerTest {
     private static MetaData mappingMetadata;
     private static MappingContext mappingContext;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpTestDatabase() {
         mappingMetadata = new MetaData(
             "org.neo4j.ogm.domain.education",
@@ -83,23 +84,25 @@ public class CompilerTest {
         mappingContext = new MappingContext(mappingMetadata);
     }
 
-    @Before
+    @BeforeEach
     public void setUpMapper() {
         mappingContext = new MappingContext(mappingMetadata);
     }
 
-    @After
+    @AfterEach
     public void cleanGraph() {
         mappingContext.clear();
     }
 
-    @Test(expected = NullPointerException.class)
-    public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
-        new EntityGraphMapper(mappingMetadata, mappingContext).map(null);
+    @Test
+    void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
+        assertThrows(NullPointerException.class, () -> {
+            new EntityGraphMapper(mappingMetadata, mappingContext).map(null);
+        });
     }
 
     @Test
-    public void createSingleObjectWithLabelsAndProperties() {
+    void createSingleObjectWithLabelsAndProperties() {
 
         Student newStudent = new Student("Gary");
         assertThat(newStudent.getId()).isNull();
@@ -111,7 +114,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void createSingleStatementForLabelsInDifferentOrder() throws Exception {
+    void createSingleStatementForLabelsInDifferentOrder() throws Exception {
         Franchise franchise = new Franchise();
 
         Restaurant r1 = new Restaurant();
@@ -135,7 +138,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void updateSingleObjectPropertyAndLabel() {
+    void updateSingleObjectPropertyAndLabel() {
 
         Student sheila = new Student("Sheila Smythe");
         Long sid = 0L;
@@ -156,7 +159,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void doNothingIfNothingHasChanged() {
+    void doNothingIfNothingHasChanged() {
 
         Long existingNodeId = 0L;
         Student sheila = new Student();
@@ -171,7 +174,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void createSimpleRelationshipsBetweenObjects() {
+    void createSimpleRelationshipsBetweenObjects() {
 
         School waller = new School("Waller");
         Teacher mary = new Teacher("Mary");
@@ -195,7 +198,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void expectNoChangesWhenDomainUnchanged() {
+    void expectNoChangesWhenDomainUnchanged() {
 
         // create
         Long wallerId = 0L;
@@ -239,7 +242,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void addObjectToExistingCollection() {
+    void addObjectToExistingCollection() {
 
         // create
         Long wallerId = 0L;
@@ -262,7 +265,7 @@ public class CompilerTest {
         // set the mapping context accordingly
         mappingContext.addNodeEntity(mary);
         mappingContext.addNodeEntity(waller);
-        mappingContext.addRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, null,Teacher.class, School.class));
+        mappingContext.addRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, null, Teacher.class, School.class));
         mappingContext
             .addRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, null, School.class, Teacher.class));
 
@@ -331,7 +334,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void shouldCorrectlyPersistObjectGraphsSeveralLevelsDeep() {
+    void shouldCorrectlyPersistObjectGraphsSeveralLevelsDeep() {
 
         Student sheila = new Student();
         sheila.setName("Sheila Smythe");
@@ -390,7 +393,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void shouldCorrectlyRemoveRelationshipWhenItemIsRemovedFromCollection() {
+    void shouldCorrectlyRemoveRelationshipWhenItemIsRemovedFromCollection() {
 
         // simple music course with three students
 
@@ -441,7 +444,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void shouldCorrectlyRemoveRelationshipWhenItemIsMovedToDifferentCollection() {
+    void shouldCorrectlyRemoveRelationshipWhenItemIsMovedToDifferentCollection() {
 
         Long teacherId = 0L;
         Long businessStudiesCourseId = 1L;
@@ -518,7 +521,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void shouldCorrectlyRemoveRelationshipWhenItemIsDisconnectedFromNonOwningSide() {
+    void shouldCorrectlyRemoveRelationshipWhenItemIsDisconnectedFromNonOwningSide() {
 
         Long schoolId = 0L;
         Long whiteId = 1L;
@@ -603,7 +606,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void shouldCreateRelationshipWithPropertiesFromRelationshipEntity() {
+    void shouldCreateRelationshipWithPropertiesFromRelationshipEntity() {
 
         Forum forum = new Forum();
         forum.setName("SDN FAQs");
@@ -680,7 +683,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void shouldMergeNewRelationshipEntity() throws Exception {
+    void shouldMergeNewRelationshipEntity() throws Exception {
         Person frantisek = new Person("Frantisek");
         Place scotland = new Place("Scotland");
         Visit visit = frantisek.addVisit(scotland, "Holiday");
@@ -700,7 +703,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void shouldUpdatingExistingRelationshipEntity() {
+    void shouldUpdatingExistingRelationshipEntity() {
 
         Long forumId = 0L;
         Long topicId = 1L;
@@ -744,7 +747,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void shouldDeleteExistingRelationshipEntity() {
+    void shouldDeleteExistingRelationshipEntity() {
 
         Long forumId = 0L;
         Long topicId = 1L;
@@ -800,8 +803,9 @@ public class CompilerTest {
 
     }
 
-    @Test // DATAGRAPH-589
-    public void createSimpleRelationshipWithIllegalCharactersBetweenObjects() {
+    // DATAGRAPH-589
+    @Test
+    void createSimpleRelationshipWithIllegalCharactersBetweenObjects() {
 
         Artist theBeatles = new Artist("The Beatles");
         Album please = new Album("Please Please Me");
@@ -830,8 +834,9 @@ public class CompilerTest {
         }
     }
 
-    @Test // DATAGRAPH-594
-    public void createOutgoingRelationWhenUnmarkedRelationIsSpecified() {
+    // DATAGRAPH-594
+    @Test
+    void createOutgoingRelationWhenUnmarkedRelationIsSpecified() {
 
         Individual adam = new Individual();
         adam.setName("Adam");
@@ -864,8 +869,9 @@ public class CompilerTest {
         assertThat(row.get("endNodeId")).isEqualTo(mappingContext.nativeId(vince));
     }
 
-    @Test // DATAGRAPH-594
-    public void createIncomingRelationWhenSpecified() {
+    // DATAGRAPH-594
+    @Test
+    void createIncomingRelationWhenSpecified() {
         Mortal adam = new Mortal("Adam");
         Mortal vince = new Mortal("Vince");
 

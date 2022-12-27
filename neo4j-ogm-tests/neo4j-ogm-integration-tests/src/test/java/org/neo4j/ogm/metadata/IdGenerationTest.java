@@ -19,13 +19,14 @@
 package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -42,19 +43,19 @@ public class IdGenerationTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.annotations.ids",
             "org.neo4j.ogm.domain.annotations.invalid.ids");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         session = sessionFactory.openSession();
     }
 
     @Test
-    public void saveWithoutIdAnnotation() {
+    void saveWithoutIdAnnotation() {
 
         ValidAnnotations.InternalId entity = new ValidAnnotations.InternalId();
         session.save(entity);
@@ -69,7 +70,7 @@ public class IdGenerationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void saveInternalIdWithAnnotation() throws Exception {
+    void saveInternalIdWithAnnotation() throws Exception {
         ValidAnnotations.InternalIdWithAnnotation entity = new ValidAnnotations.InternalIdWithAnnotation();
         session.save(entity);
 
@@ -84,7 +85,7 @@ public class IdGenerationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void saveWithStringUuidGeneration() {
+    void saveWithStringUuidGeneration() {
 
         ValidAnnotations.IdAndGenerationType entity = new ValidAnnotations.IdAndGenerationType();
         session.save(entity);
@@ -100,7 +101,7 @@ public class IdGenerationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void saveWithUuidGeneration() {
+    void saveWithUuidGeneration() {
 
         ValidAnnotations.UuidIdAndGenerationType entity = new ValidAnnotations.UuidIdAndGenerationType();
         session.save(entity);
@@ -116,8 +117,9 @@ public class IdGenerationTest extends TestContainersTestBase {
     }
 
     // Deletion of entities with user type ids should be work if the are reloaded in another session.
-    @Test // DATAGRAPH-1144
-    public void deleteByEntityShouldWorkWithUserTypedIdsInNewSession() {
+    // DATAGRAPH-1144
+    @Test
+    void deleteByEntityShouldWorkWithUserTypedIdsInNewSession() {
 
         // Arrange entity to be deleted
         ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute entity = new ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute();
@@ -136,8 +138,9 @@ public class IdGenerationTest extends TestContainersTestBase {
     }
 
     // Deletion of objects should also work in cleared session, i.e. after the end of a Spring transaction
-    @Test // DATAGRAPH-1144
-    public void deleteByEntityShouldWorkWithUserTypedIdsInClearedSession() {
+    // DATAGRAPH-1144
+    @Test
+    void deleteByEntityShouldWorkWithUserTypedIdsInClearedSession() {
 
         // Arrange entity to be deleted
         ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute entity = new ValidAnnotations.UuidIdAndGenerationTypeWithoutIdAttribute();
@@ -174,7 +177,7 @@ public class IdGenerationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void saveWithCustomStrategyGeneratesId() throws Exception {
+    void saveWithCustomStrategyGeneratesId() throws Exception {
         ValidAnnotations.WithCustomIdStrategy entity = new ValidAnnotations.WithCustomIdStrategy();
         session.save(entity);
 
@@ -189,7 +192,7 @@ public class IdGenerationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void saveWithContextIdStrategy() throws Exception {
+    void saveWithContextIdStrategy() throws Exception {
         CustomInstanceIdStrategy strategy = new CustomInstanceIdStrategy("test-custom-instance-id");
         sessionFactory.register(strategy);
 
@@ -205,18 +208,20 @@ public class IdGenerationTest extends TestContainersTestBase {
         assertThat(loaded.identifier).isEqualTo("test-custom-instance-id");
     }
 
-    @Test(expected = MappingException.class)
-    public void saveWithCustomInstanceIdStrategyWhenStrategyNotRegistered() throws Exception {
-        // create new session factory without registered instance of the strategy
-        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.annotations.ids");
-        session = sessionFactory.openSession();
+    @Test
+    void saveWithCustomInstanceIdStrategyWhenStrategyNotRegistered() throws Exception {
+        assertThrows(MappingException.class, () -> {
+            // create new session factory without registered instance of the strategy
+            sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.annotations.ids");
+            session = sessionFactory.openSession();
 
-        ValidAnnotations.WithCustomInstanceIdStrategy entity = new ValidAnnotations.WithCustomInstanceIdStrategy();
-        session.save(entity);
+            ValidAnnotations.WithCustomInstanceIdStrategy entity = new ValidAnnotations.WithCustomInstanceIdStrategy();
+            session.save(entity);
+        });
     }
 
     @Test
-    public void saveRelationshipEntityWithId() throws Exception {
+    void saveRelationshipEntityWithId() throws Exception {
         ValidAnnotations.IdAndGenerationType b1 = new ValidAnnotations.IdAndGenerationType();
         ValidAnnotations.IdAndGenerationType b2 = new ValidAnnotations.IdAndGenerationType();
         ValidAnnotations.RelationshipEntityWithId rel = new ValidAnnotations.RelationshipEntityWithId(b1, b2, 100);
@@ -236,14 +241,14 @@ public class IdGenerationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldRejectSavingEntityWithoutId() throws Exception {
+    void shouldRejectSavingEntityWithoutId() throws Exception {
         assertThatThrownBy(() -> session.save(new InvalidAnnotations.NeitherGraphIdOrId()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("is not a valid entity class");
     }
 
     @Test
-    public void shouldRejectDeletingEntityWithoutId() throws Exception {
+    void shouldRejectDeletingEntityWithoutId() throws Exception {
         assertThatThrownBy(() -> session.delete(new InvalidAnnotations.NeitherGraphIdOrId()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("is not a valid entity class");

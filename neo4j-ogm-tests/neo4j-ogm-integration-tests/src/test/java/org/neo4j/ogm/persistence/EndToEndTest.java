@@ -23,9 +23,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Frame;
 import org.neo4j.ogm.domain.bike.Saddle;
@@ -43,19 +43,19 @@ public class EndToEndTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.bike");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void canSimpleQueryDatabase() {
+    void canSimpleQueryDatabase() {
         Saddle expected = new Saddle();
         expected.setPrice(29.95);
         expected.setMaterial("Leather");
@@ -84,7 +84,7 @@ public class EndToEndTest extends TestContainersTestBase {
     }
 
     @Test
-    public void canSimpleScalarQueryDatabase() {
+    void canSimpleScalarQueryDatabase() {
         Saddle expected = new Saddle();
         expected.setPrice(29.95);
         expected.setMaterial("Leather");
@@ -100,7 +100,7 @@ public class EndToEndTest extends TestContainersTestBase {
     }
 
     @Test
-    public void canComplexQueryDatabase() {
+    void canComplexQueryDatabase() {
         Saddle saddle = new Saddle();
         saddle.setPrice(29.95);
         saddle.setMaterial("Leather");
@@ -126,7 +126,7 @@ public class EndToEndTest extends TestContainersTestBase {
     }
 
     @Test
-    public void canComplexExecute() {
+    void canComplexExecute() {
 
         Saddle saddle = new Saddle();
         saddle.setPrice(29.95);
@@ -163,7 +163,7 @@ public class EndToEndTest extends TestContainersTestBase {
     }
 
     @Test
-    public void canSaveNewObjectTreeToDatabase() {
+    void canSaveNewObjectTreeToDatabase() {
 
         Wheel frontWheel = new Wheel();
         Wheel backWheel = new Wheel();

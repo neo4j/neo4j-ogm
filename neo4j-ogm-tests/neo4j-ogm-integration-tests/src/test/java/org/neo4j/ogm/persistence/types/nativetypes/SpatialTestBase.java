@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
@@ -41,12 +41,12 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
 
     static SessionFactory sessionFactory;
 
-    @Before
+    @BeforeEach
     public void clearDatabase() {
         sessionFactory.openSession().purgeDatabase();
     }
 
-    @AfterClass
+    @AfterAll
     public static void shutDown() {
         if (sessionFactory != null) {
             sessionFactory.close();
@@ -54,7 +54,7 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadGeographicPoint2d() {
+    void convertPersistAndLoadGeographicPoint2d() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         GeographicPoint2d point = new GeographicPoint2d(1, 2);
@@ -67,7 +67,7 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadGeographicPoint3d() {
+    void convertPersistAndLoadGeographicPoint3d() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         GeographicPoint3d point = new GeographicPoint3d(1, 2, 3);
@@ -80,7 +80,7 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadCartesianPoint2d() {
+    void convertPersistAndLoadCartesianPoint2d() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         CartesianPoint2d point = new CartesianPoint2d(1, 2);
@@ -93,7 +93,7 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadCartesianPoint3d() {
+    void convertPersistAndLoadCartesianPoint3d() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
         CartesianPoint3d point = new CartesianPoint3d(1, 2, 3);
@@ -106,7 +106,7 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadGeographicPoint2dForRelationship() {
+    void convertPersistAndLoadGeographicPoint2dForRelationship() {
         Session session = sessionFactory.openSession();
         SomethingRelationship somethingRelated = new SomethingRelationship();
         GeographicPoint2d point = new GeographicPoint2d(1, 2);
@@ -119,7 +119,7 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadGeographicPoint3dForRelationship() {
+    void convertPersistAndLoadGeographicPoint3dForRelationship() {
         Session session = sessionFactory.openSession();
         SomethingRelationship somethingRelated = new SomethingRelationship();
         GeographicPoint3d point = new GeographicPoint3d(1, 2, 3);
@@ -132,7 +132,7 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadCartesianPoint2dForRelationship() {
+    void convertPersistAndLoadCartesianPoint2dForRelationship() {
         Session session = sessionFactory.openSession();
         SomethingRelationship somethingRelated = new SomethingRelationship();
         CartesianPoint2d point = new CartesianPoint2d(1, 2);
@@ -145,7 +145,7 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadCartesianPoint3dForRelationship() {
+    void convertPersistAndLoadCartesianPoint3dForRelationship() {
         Session session = sessionFactory.openSession();
         SomethingRelationship somethingRelated = new SomethingRelationship();
         CartesianPoint3d point = new CartesianPoint3d(1, 2, 3);
@@ -158,12 +158,12 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void collectionsOfPointsShouldWork() {
+    void collectionsOfPointsShouldWork() {
         Session session = sessionFactory.openSession();
 
         SomethingSpatial spatial = new SomethingSpatial();
         spatial.setArrayOfPoints(
-            new GeographicPoint2d[] { new GeographicPoint2d(55.0, 13), new GeographicPoint2d(56.0, 14.0) });
+            new GeographicPoint2d[]{new GeographicPoint2d(55.0, 13), new GeographicPoint2d(56.0, 14.0)});
         spatial.setListOfPoints(Arrays.asList(new GeographicPoint2d(50.0, 6.0), new GeographicPoint2d(51, 7.0)));
 
         session.save(spatial);
@@ -177,7 +177,7 @@ public abstract class SpatialTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void spatialObjectsInMapsShouldWork() {
+    void spatialObjectsInMapsShouldWork() {
         Session session = sessionFactory.openSession();
         SomethingSpatial spatial = new SomethingSpatial();
 

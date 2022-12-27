@@ -21,7 +21,7 @@ package org.neo4j.ogm.session
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.neo4j.ogm.driver.Driver
 import kotlin.test.assertNotNull
 

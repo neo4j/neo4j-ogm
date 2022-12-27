@@ -27,10 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.pizza.*;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
@@ -49,24 +49,24 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.pizza");
 
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldBeAbleToSaveAndLoadPizzaWithCrustOnly() {
+    void shouldBeAbleToSaveAndLoadPizzaWithCrustOnly() {
         Crust crust = new Crust("Thin Crust");
         Pizza pizza = new Pizza("Just bread");
         pizza.setCrust(crust);
@@ -82,7 +82,7 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToSaveAndLoadPizzaWithToppingsOnly() {
+    void shouldBeAbleToSaveAndLoadPizzaWithToppingsOnly() {
         Topping mushroom = new Topping("Mushroom");
         Topping pepperoni = new Topping("Pepperoni");
         Pizza pizza = new Pizza("Just toppings");
@@ -101,7 +101,7 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToSaveAndLoadPizzaWithToppingsAndCrust() {
+    void shouldBeAbleToSaveAndLoadPizzaWithToppingsAndCrust() {
         Crust crust = new Crust("Thin Crust");
         Topping mushroom = new Topping("Mushroom");
         Topping pepperoni = new Topping("Pepperoni");
@@ -121,8 +121,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertThat(loadedPizza.getToppings().contains(pepperoni)).isTrue();
     }
 
-    @Test // See #36
-    public void shouldBeAbleToSavePizzaWithOnlySauce() {
+    // See #36
+    @Test
+    void shouldBeAbleToSavePizzaWithOnlySauce() {
         Sauce sauce = new Sauce("Marinara");
         PizzaSauce pizzaSauce = new PizzaSauce();
         pizzaSauce.setSauce(sauce);
@@ -142,8 +143,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertThat(loadedPizza.getPizzaSauce().getSauce().getName()).isEqualTo(sauce.getName());
     }
 
-    @Test // See #36
-    public void shouldBeAbleToSaveAndLoadAPizzaWithSeasonings() {
+    // See #36
+    @Test
+    void shouldBeAbleToSaveAndLoadAPizzaWithSeasonings() {
         Seasoning seasoning = new Seasoning("Chilli Flakes");
         Pizza pizza = new Pizza("Crazy Hot Pizza");
         PizzaSeasoning pizzaSeasoning = new PizzaSeasoning(pizza, seasoning, Quantity.DIE_TOMORROW);
@@ -159,8 +161,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertThat(loadedPizza.getSeasonings().iterator().next().getQuantity()).isEqualTo(Quantity.DIE_TOMORROW);
     }
 
-    @Test // See #36
-    public void shouldBeAbleToSaveAndLoadAPizzaWithCheese() {
+    // See #36
+    @Test
+    void shouldBeAbleToSaveAndLoadAPizzaWithCheese() {
         Cheese cheese = new Cheese("Mozzarella");
         Pizza pizza = new Pizza("Cheesy!");
         PizzaCheese pizzaCheese = new PizzaCheese(pizza, cheese, Quantity.DOUBLE);
@@ -175,8 +178,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertThat(loadedPizza.getCheeses().iterator().next().getQuantity()).isEqualTo(Quantity.DOUBLE);
     }
 
-    @Test // See #36
-    public void shouldBeAbleToSaveAndRetrieveFullyLoadedPizza() {
+    // See #36
+    @Test
+    void shouldBeAbleToSaveAndRetrieveFullyLoadedPizza() {
         Crust crust = new Crust("Thin Crust");
         Topping mushroom = new Topping("Mushroom");
         Topping pepperoni = new Topping("Pepperoni");
@@ -217,8 +221,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertThat(loadedPizza.getCheeses().iterator().next().getQuantity()).isEqualTo(Quantity.DOUBLE);
     }
 
-    @Test // See #61
-    public void shouldUseOptimizedCypherWhenSavingRelationships() {
+    // See #61
+    @Test
+    void shouldUseOptimizedCypherWhenSavingRelationships() {
         Crust crust = new Crust("Thin Crust");
         session.save(crust);
         Topping mushroom = new Topping("Mushroom");
@@ -246,8 +251,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertThat(loadedPizza.getToppings().contains(pepperoni)).isTrue();
     }
 
-    @Test // See #159
-    public void shouldSyncMappedLabelsFromEntityToTheNode_and_NodeToEntity_noGetterOrSetter() {
+    // See #159
+    @Test
+    void shouldSyncMappedLabelsFromEntityToTheNode_and_NodeToEntity_noGetterOrSetter() {
 
         Pizza pizza = new Pizza();
         pizza.setName("Mushroom & Pepperoni");
@@ -293,8 +299,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertThat(zombiePizza.getLabels().contains("Decomposed")).isTrue();
     }
 
-    @Test // See #159
-    public void shouldApplyLabelsWhenSessionClearedBeforeSave() {
+    // See #159
+    @Test
+    void shouldApplyLabelsWhenSessionClearedBeforeSave() {
 
         Pizza pizza = new Pizza();
         pizza.setName("Mushroom & Pepperoni");
@@ -327,8 +334,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertThat(reloadedPizza.getLabels().contains("Stale")).isTrue();
     }
 
-    @Test // See #159
-    public void shouldRaiseExceptionWhenAmbiguousClassLabelApplied() {
+    // See #159
+    @Test
+    void shouldRaiseExceptionWhenAmbiguousClassLabelApplied() {
 
         Session sessionWithAmbiguousDomain = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.domain.music")
             .openSession();
@@ -352,7 +360,7 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldUpdateSessionContextAfterSaveForSingleAndMultiStatementCypherQueries() {
+    void shouldUpdateSessionContextAfterSaveForSingleAndMultiStatementCypherQueries() {
 
         Pizza pizza = new Pizza();
 
@@ -382,7 +390,7 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToModifyPropertiesAndRelsWithinSingleSave() {
+    void shouldBeAbleToModifyPropertiesAndRelsWithinSingleSave() {
         Crust crust = new Crust("Thin Crust");
         Topping pepperoni = new Topping("Pepperoni");
         final ArrayList<Topping> toppings = new ArrayList<>();
@@ -431,8 +439,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertThat(((Neo4jSession) session2).context().isDirty(loadedPizza)).isFalse(); // this should pass
     }
 
-    @Test // See #209
-    public void shouldMarkLabelsAsDirtyWhenExistingCollectionUpdated() {
+    // See #209
+    @Test
+    void shouldMarkLabelsAsDirtyWhenExistingCollectionUpdated() {
         Pizza entity = new Pizza();
         List<String> labels = new ArrayList<>();
         labels.add("TestLabel1");
@@ -451,7 +460,7 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldDeleteChangedIncomingRelationship() throws Exception {
+    void shouldDeleteChangedIncomingRelationship() throws Exception {
         Pizza pizza = new Pizza();
         Crust deepDishCrust = new Crust("Deep Dish");
         Crust thinNCrispyCrust = new Crust("Thin 'n Crispy");
@@ -468,7 +477,7 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldDeleteChangedIncomingRelationshipWithClearSessionAndLoad() throws Exception {
+    void shouldDeleteChangedIncomingRelationshipWithClearSessionAndLoad() throws Exception {
 
         Pizza pizza = new Pizza();
         Crust deepDishCrust = new Crust("Deep Dish");
@@ -487,8 +496,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertOneRelationshipInDb();
     }
 
-    @Test // See 488
-    public void shouldUpdateLabelWhenLoadingEntityInSameSession() {
+    // See 488
+    @Test
+    void shouldUpdateLabelWhenLoadingEntityInSameSession() {
         Pizza pizza = new Pizza();
         pizza.addLabel("A0");
         session.save(pizza);
@@ -507,8 +517,9 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
         assertThat(dbPizza.getLabels()).contains("A1");
     }
 
-    @Test  // See 488
-    public void shouldUpdateLabelWhenLoadingEntityInNewSession() {
+    // See 488
+    @Test
+    void shouldUpdateLabelWhenLoadingEntityInNewSession() {
         Pizza pizza = new Pizza();
         pizza.addLabel("A0");
         session.save(pizza);

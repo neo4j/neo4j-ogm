@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
@@ -41,7 +41,7 @@ public class ParameterisedStatementsTest {
     private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     @Test
-    public void testStatement() throws Exception {
+    void testStatement() throws Exception {
 
         List<Statement> statements = new ArrayList<>();
         PagingAndSortingQuery query = new NodeQueryStatements().findOne(123L, 1);

@@ -25,7 +25,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Values;
 import org.neo4j.ogm.types.adapter.TemporalAmountAdapter;
 
@@ -35,7 +35,7 @@ import org.neo4j.ogm.types.adapter.TemporalAmountAdapter;
 public class TemporalAmountAdapterWithBoltTypesTest {
 
     @Test
-    public void internallyCreatedTypesShouldBeConvertedCorrect() {
+    void internallyCreatedTypesShouldBeConvertedCorrect() {
         final TemporalAmountAdapter adapter = new TemporalAmountAdapter();
 
         assertThat(adapter.apply(Values.isoDuration(1, 0, 0, 0).asIsoDuration())).isEqualTo(Period.ofMonths(1));
@@ -48,7 +48,7 @@ public class TemporalAmountAdapterWithBoltTypesTest {
     }
 
     @Test
-    public void durationsShouldStayDurations() {
+    void durationsShouldStayDurations() {
         final TemporalAmountAdapter adapter = new TemporalAmountAdapter();
 
         Duration duration =
@@ -59,7 +59,7 @@ public class TemporalAmountAdapterWithBoltTypesTest {
     }
 
     @Test
-    public void periodsShouldStayPeriods() {
+    void periodsShouldStayPeriods() {
         final TemporalAmountAdapter adapter = new TemporalAmountAdapter();
 
         Period period = Period.between(LocalDate.of(2018, 11, 15), LocalDate.of(2020, 12, 24));

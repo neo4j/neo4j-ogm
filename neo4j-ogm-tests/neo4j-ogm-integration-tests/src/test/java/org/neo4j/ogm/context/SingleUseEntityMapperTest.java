@@ -32,10 +32,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.assertj.core.api.Condition;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
 import org.neo4j.ogm.domain.cineasts.minimum.Role;
@@ -69,10 +70,10 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
 
     private static SessionFactory sessionFactory;
 
-    @Rule
+    @RegisterExtension
     public final LoggerRule loggerRule = new LoggerRule();
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh551", "org.neo4j.ogm.domain.gh391",
             "org.neo4j.ogm.domain.gh750", "org.neo4j.ogm.domain.gh777", "org.neo4j.ogm.domain.cineasts.minimum",
@@ -103,7 +104,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void gh813() {
+    void gh813() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -153,7 +154,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void genericTargetTypesWithCollectionsOfUnkownThings() {
+    void genericTargetTypesWithCollectionsOfUnkownThings() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -187,7 +188,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void genericTargetTypesWithCollectionsOfKownThings() {
+    void genericTargetTypesWithCollectionsOfKownThings() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -224,8 +225,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         assertThat(genericQueryResultWrapper.getResult()).isEmpty();
     }
 
-    @Test // GH-551
-    public void singleUseEntityMapperShouldWorkWithNestedObjects() {
+    // GH-551
+    @Test
+    void singleUseEntityMapperShouldWorkWithNestedObjects() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -245,8 +247,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
             .allSatisfy(s -> s.startsWith("Thing"));
     }
 
-    @Test // GH-748
-    public void singleUseEntityMapperShouldWorkWithNullableNestedNodeEntities() {
+    // GH-748
+    @Test
+    void singleUseEntityMapperShouldWorkWithNullableNestedNodeEntities() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -264,8 +267,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         assertThat(thingResult.getEntity()).isNull();
     }
 
-    @Test // GH-748
-    public void singleUseEntityMapperShouldWorkWithNonNullNestedNodeEntities() {
+    // GH-748
+    @Test
+    void singleUseEntityMapperShouldWorkWithNonNullNestedNodeEntities() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -284,8 +288,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         assertThat(thingResult.getEntity()).isNotNull().extracting(ThingEntity::getName).isEqualTo("Thing 7");
     }
 
-    @Test // GH-748
-    public void shouldFailOnIncompatibleProperties() {
+    // GH-748
+    @Test
+    void shouldFailOnIncompatibleProperties() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -303,13 +308,14 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
             .withMessageContaining(
                 "Can not set org.neo4j.ogm.domain.gh551.ThingEntity field org.neo4j.ogm.domain.gh551.ThingResult2.entity to java.util.ArrayList");
         Condition<String> stringMatches = new Condition<>(s -> s.contains(
-            "Cannot map property entity from result set: The result contains more than one entry for the property."),
+                "Cannot map property entity from result set: The result contains more than one entry for the property."),
             "String matches");
         assertThat(loggerRule.getFormattedMessages()).areAtLeastOne(stringMatches);
     }
 
-    @Test // GH-748
-    public void shouldBeLenientWithSingleValuedCollectionsForSkalarPropertiesMode() {
+    // GH-748
+    @Test
+    void shouldBeLenientWithSingleValuedCollectionsForSkalarPropertiesMode() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -328,8 +334,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         assertThat(thingResult.getEntity()).isNotNull().extracting(ThingEntity::getName).isEqualTo("Thing 7");
     }
 
-    @Test // GH-750
-    public void shouldWorkWithCustomConverters() {
+    // GH-750
+    @Test
+    void shouldWorkWithCustomConverters() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -346,8 +353,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         assertThat(thingResult.getFoobar().getValue()).isEqualTo("foo");
     }
 
-    @Test // GH-750
-    public void shouldWorkWithCustomConvertersOnListProperty() {
+    // GH-750
+    @Test
+    void shouldWorkWithCustomConvertersOnListProperty() {
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
                 new ReflectionEntityInstantiator(sessionFactory.metaData()));
@@ -361,8 +369,8 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
     }
 
     @Test // GH-909
-    @Ignore("This test requires APOC on the server, as there is no other way to create literal null properties on entities.")
-    public void shouldDealWithArtificalNullValues() {
+    @Disabled("This test requires APOC on the server, as there is no other way to create literal null properties on entities.")
+    void shouldDealWithArtificalNullValues() {
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
                 new ReflectionEntityInstantiator(sessionFactory.metaData()));
@@ -372,8 +380,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         assertThat(movie.getName()).isNull();
     }
 
-    @Test // GH-718
-    public void queryResultShouldHandleNodeAndRelationshipEntities() {
+    // GH-718
+    @Test
+    void queryResultShouldHandleNodeAndRelationshipEntities() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -382,7 +391,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         // Notice the difference in how the relationship is queried: The variable length query pattern in
         // the second query triggers the changes that had been necessary in org.neo4j.ogm.result.adapter.RestModelAdapter.adapt
         // so that it works the same way as the org.neo4j.ogm.result.adapter.GraphModelAdapter.adapt
-        for (String query : new String[] {
+        for (String query : new String[]{
             "MATCH (a:Actor {name: 'A1'})-[r:ACTS_IN]->(m:Movie) RETURN a AS actor,COLLECT(r) AS roles, COLLECT(m) as movies",
             "MATCH p = (a:Actor {name: 'A1'})-[:ACTS_IN*]->(:Movie) " +
             "WITH  a AS actor, p " +
@@ -403,8 +412,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         }
     }
 
-    @Test // GH-873
-    public void shouldMapEnumeratedMapProperties() {
+    // GH-873
+    @Test
+    void shouldMapEnumeratedMapProperties() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -423,8 +433,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         assertThat(thingResult.getAttributes()).containsEntry("a2", "v2");
     }
 
-    @Test // GH-873
-    public void shouldMapAggregatedMapProperties() {
+    // GH-873
+    @Test
+    void shouldMapAggregatedMapProperties() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -446,8 +457,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
     /**
      * ID fields are treated differently in different versions of OGM. This tests assures that they work correctly.
      */
-    @Test // GH-551
-    public void shouldUseIdFields() {
+    // GH-551
+    @Test
+    void shouldUseIdFields() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -464,8 +476,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         assertThat(thingResult.getId()).isEqualTo(4711);
     }
 
-    @Test // GH-552
-    public void shouldLookupCorrectRootClass() {
+    // GH-552
+    @Test
+    void shouldLookupCorrectRootClass() {
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh552");
         String propertyKey = "notAName";
         Map<String, Object> properties = Collections.singletonMap(propertyKey, "NOT A NAME!!!");
@@ -476,8 +489,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         assertThat(thing.getNotAName()).isEqualTo(properties.get(propertyKey));
     }
 
-    @Test // GH-391
-    public void shouldDealWithStaticInnerClasses() {
+    // GH-391
+    @Test
+    void shouldDealWithStaticInnerClasses() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),
@@ -495,7 +509,7 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapFromMap() {
+    void shouldMapFromMap() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.context");
         SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData,
@@ -530,8 +544,9 @@ public class SingleUseEntityMapperTest extends TestContainersTestBase {
         return Collections.singletonList(Collections.singletonMap("profile", profile));
     }
 
-    @Test // GH-777
-    public void assertThatNullOrEmptyObjectsAreMappedCorrectly() {
+    // GH-777
+    @Test
+    void assertThatNullOrEmptyObjectsAreMappedCorrectly() {
 
         SingleUseEntityMapper entityMapper =
             new SingleUseEntityMapper(sessionFactory.metaData(),

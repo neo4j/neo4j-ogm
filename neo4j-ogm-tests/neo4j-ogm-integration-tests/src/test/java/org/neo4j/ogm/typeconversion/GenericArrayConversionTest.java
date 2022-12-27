@@ -20,9 +20,9 @@ package org.neo4j.ogm.typeconversion;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.gh492.BaseUser.ByteUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.IntUser;
 import org.neo4j.ogm.domain.gh492.BaseUser.IntegerUser;
@@ -41,19 +41,20 @@ public class GenericArrayConversionTest extends TestContainersTestBase {
 
     protected static SessionFactory sessionFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void startServer() {
 
         sessionFactory = new SessionFactory(getDriver(), DOMAIN_PACKAGE);
     }
 
-    @Test // GH-492
-    public void byteSampleTest() {
+    // GH-492
+    @Test
+    void byteSampleTest() {
 
         ByteUser byteUser = new ByteUser();
         byteUser.setLoginName("test-byteUser");
-        byteUser.setGenericValue(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 });
-        byteUser.setNotGenericValue(new byte[] { 7, 6, 5, 4, 3, 2, 1, 0 });
+        byteUser.setGenericValue(new byte[]{0, 1, 2, 3, 4, 5, 6, 7});
+        byteUser.setNotGenericValue(new byte[]{7, 6, 5, 4, 3, 2, 1, 0});
 
         Session session = sessionFactory.openSession();
         session.save(byteUser);
@@ -65,11 +66,12 @@ public class GenericArrayConversionTest extends TestContainersTestBase {
         assertThat(byteUser.getGenericValue()).isInstanceOf(byte[].class);
     }
 
-    @Test // GH-492
-    public void intSampleTest() {
+    // GH-492
+    @Test
+    void intSampleTest() {
         IntUser intUser = new IntUser();
         intUser.setLoginName("test-intUser");
-        intUser.setGenericValue(new int[] { 0, 1, 2, 3, 4, 5, 6, 7 });
+        intUser.setGenericValue(new int[]{0, 1, 2, 3, 4, 5, 6, 7});
 
         Session session = sessionFactory.openSession();
         session.save(intUser);
@@ -79,11 +81,12 @@ public class GenericArrayConversionTest extends TestContainersTestBase {
         assertThat(intUser.getGenericValue()).isInstanceOf(int[].class);
     }
 
-    @Test // GH-492
-    public void integerSampleTest() {
+    // GH-492
+    @Test
+    void integerSampleTest() {
         IntegerUser integerUser = new IntegerUser();
         integerUser.setLoginName("test-intUser");
-        integerUser.setGenericValue(new Integer[] { Integer.MIN_VALUE, Integer.MAX_VALUE });
+        integerUser.setGenericValue(new Integer[]{Integer.MIN_VALUE, Integer.MAX_VALUE});
 
         Session session = sessionFactory.openSession();
         session.save(integerUser);
@@ -94,11 +97,12 @@ public class GenericArrayConversionTest extends TestContainersTestBase {
             .containsExactly(Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
-    @Test // GH-492
-    public void longSampleTest() {
+    // GH-492
+    @Test
+    void longSampleTest() {
         LongUser longUser = new LongUser();
         longUser.setLoginName("test-intUser");
-        longUser.setGenericValue(new long[] { Long.MIN_VALUE, Long.MAX_VALUE });
+        longUser.setGenericValue(new long[]{Long.MIN_VALUE, Long.MAX_VALUE});
 
         Session session = sessionFactory.openSession();
         session.save(longUser);
@@ -109,11 +113,12 @@ public class GenericArrayConversionTest extends TestContainersTestBase {
             .containsExactly(Long.MIN_VALUE, Long.MAX_VALUE);
     }
 
-    @Test // GH-492
-    public void stringSampleTest() {
+    // GH-492
+    @Test
+    void stringSampleTest() {
         StringUser stringUser = new StringUser();
         stringUser.setLoginName("test-stringUser");
-        stringUser.setGenericValue(new String[] { "1", "2", "3", "4", "5", "6", "7" });
+        stringUser.setGenericValue(new String[]{"1", "2", "3", "4", "5", "6", "7"});
 
         Session session = sessionFactory.openSession();
         session.save(stringUser);
@@ -123,7 +128,7 @@ public class GenericArrayConversionTest extends TestContainersTestBase {
         assertThat(stringUser.getGenericValue()).isInstanceOf(String[].class);
     }
 
-    @AfterClass
+    @AfterAll
     public static void stopServer() {
         sessionFactory.close();
     }

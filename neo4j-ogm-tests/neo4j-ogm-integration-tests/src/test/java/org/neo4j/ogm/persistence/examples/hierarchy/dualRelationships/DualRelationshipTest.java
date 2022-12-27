@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.hierarchy.dualRelation.DataView;
 import org.neo4j.ogm.domain.hierarchy.dualRelation.DataViewOwned;
 import org.neo4j.ogm.domain.hierarchy.dualRelation.Thing;
@@ -51,23 +51,23 @@ public class DualRelationshipTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.hierarchy.dualRelation");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldRehydrateProperlyUsingLoad() {
+    void shouldRehydrateProperlyUsingLoad() {
 
         Thing thing1 = new Thing();
         Thing thing2 = new Thing();
@@ -92,7 +92,7 @@ public class DualRelationshipTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldRehydrateProperlyWithQuery() {
+    void shouldRehydrateProperlyWithQuery() {
 
         Thing thing1 = new Thing();
         Thing thing2 = new Thing();
@@ -119,7 +119,7 @@ public class DualRelationshipTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldRehydrateEntitiesWithAbstractParentProperlyUsingLoad() {
+    void shouldRehydrateEntitiesWithAbstractParentProperlyUsingLoad() {
 
         ThingOwned thing1 = new ThingOwned();
         ThingOwned thing2 = new ThingOwned();
@@ -144,7 +144,7 @@ public class DualRelationshipTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldRehydrateEntitiesWithAbstractParentProperlyWithQuery() {
+    void shouldRehydrateEntitiesWithAbstractParentProperlyWithQuery() {
 
         ThingOwned thing1 = new ThingOwned();
         ThingOwned thing2 = new ThingOwned();

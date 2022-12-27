@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.convertible.parametrized.JsonNode;
 import org.neo4j.ogm.domain.convertible.parametrized.StringMapEntity;
 import org.neo4j.ogm.session.Session;
@@ -43,23 +43,23 @@ public class ParameterizedConversionTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.convertible.parametrized");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldConvertParametrizedMap() {
+    void shouldConvertParametrizedMap() {
 
         JsonNode jsonNode = new JsonNode();
         jsonNode.payload = Collections.singletonMap("key", "value");
@@ -74,8 +74,9 @@ public class ParameterizedConversionTest extends TestContainersTestBase {
         assertThat(found.payload.get("key")).isEqualTo("value");
     }
 
-    @Test // GH-102
-    public void shouldConvertParameterizedStringMap() {
+    // GH-102
+    @Test
+    void shouldConvertParameterizedStringMap() {
         StringMapEntity entity = new StringMapEntity();
         session.save(entity);
 

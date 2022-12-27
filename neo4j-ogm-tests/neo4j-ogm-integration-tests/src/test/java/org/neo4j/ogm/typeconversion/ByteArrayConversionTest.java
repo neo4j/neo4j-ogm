@@ -20,7 +20,7 @@ package org.neo4j.ogm.typeconversion;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.convertible.bytes.Photo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
@@ -34,7 +34,7 @@ public class ByteArrayConversionTest {
     private static final ClassInfo photoInfo = metaData.classInfo("Photo");
 
     @Test
-    public void testConvertersLoaded() {
+    void testConvertersLoaded() {
 
         assertThat(photoInfo.propertyField("image").hasPropertyConverter()).isTrue();
         assertThat(photoInfo.propertyField("image").hasPropertyConverter()).isTrue();
@@ -42,18 +42,18 @@ public class ByteArrayConversionTest {
     }
 
     @Test
-    public void setImageAndCheck() {
+    void setImageAndCheck() {
 
         Photo photo = new Photo();
         AttributeConverter converter = photoInfo.propertyField("image").getPropertyConverter();
 
-        photo.setImage(new byte[] { 1, 2, 3, 4 });
+        photo.setImage(new byte[]{1, 2, 3, 4});
 
         assertThat(converter.toGraphProperty(photo.getImage())).isEqualTo("AQIDBA==");
     }
 
     @Test
-    public void getImageAndCheck() {
+    void getImageAndCheck() {
 
         Photo photo = new Photo();
         AttributeConverter converter = photoInfo.propertyField("image").getPropertyConverter();
@@ -62,6 +62,6 @@ public class ByteArrayConversionTest {
 
         byte[] image = photo.getImage();
         assertThat(image.length).isEqualTo(4);
-        assertThat(image).isEqualTo(new byte[] { 1, 2, 3, 4 });
+        assertThat(image).isEqualTo(new byte[]{1, 2, 3, 4});
     }
 }

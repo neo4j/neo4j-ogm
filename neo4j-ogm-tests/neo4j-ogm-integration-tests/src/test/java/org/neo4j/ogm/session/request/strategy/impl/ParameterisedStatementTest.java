@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -49,7 +49,7 @@ public class ParameterisedStatementTest {
     private CypherQuery cypherQuery;
 
     @Test
-    public void testFindOne() throws Exception {
+    void testFindOne() throws Exception {
         query = nodeQueryStatements.findOne(123L, 1);
         assertThat(query.getStatement())
             .isEqualTo("MATCH (n) WHERE ID(n) = $id WITH n MATCH p=(n)-[*0..1]-(m) RETURN p");
@@ -57,14 +57,15 @@ public class ParameterisedStatementTest {
     }
 
     @Test
-    public void testFindByLabel() throws Exception {
+    void testFindByLabel() throws Exception {
         query = nodeQueryStatements.findByType("NODE", 1);
         assertThat(query.getStatement()).isEqualTo("MATCH (n:`NODE`) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p");
         assertThat(mapper.writeValueAsString(query.getParameters())).isEqualTo("{}");
     }
 
-    @Test // DATAGRAPH-589
-    public void testFindByTypeWithIllegalCharacter() throws Exception {
+    // DATAGRAPH-589
+    @Test
+    void testFindByTypeWithIllegalCharacter() throws Exception {
         query = new RelationshipQueryStatements().findByType("HAS-ALBUM", 1);
         assertThat(query.getStatement()).isEqualTo(
             "MATCH ()-[r0:`HAS-ALBUM`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH r0,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, ID(r0)");
@@ -72,7 +73,7 @@ public class ParameterisedStatementTest {
     }
 
     @Test
-    public void findByPropertyStringValue() throws Exception {
+    void findByPropertyStringValue() throws Exception {
         query = nodeQueryStatements
             .findByType("Asteroid", new Filters().add(new Filter("ref", ComparisonOperator.EQUALS, "45 Eugenia")), 1);
         assertThat(query.getStatement()).isEqualTo(
@@ -81,14 +82,14 @@ public class ParameterisedStatementTest {
     }
 
     @Test
-    public void findByPropertyWildcardLike() throws JsonProcessingException {
+    void findByPropertyWildcardLike() throws JsonProcessingException {
         Filter filter = new Filter("ref", ComparisonOperator.LIKE, "*nia");
         query = nodeQueryStatements.findByType("Asteroid", new Filters().add(filter), 1);
         assertThat(mapper.writeValueAsString(query.getParameters())).isEqualTo("{\"ref_0\":\"(?i).*nia\"}");
     }
 
     @Test
-    public void findByPropertyIntegralValue() throws Exception {
+    void findByPropertyIntegralValue() throws Exception {
         query = nodeQueryStatements
             .findByType("Asteroid", new Filters().add(new Filter("index", ComparisonOperator.EQUALS, 77)), 1);
         assertThat(query.getStatement()).isEqualTo(
@@ -97,7 +98,7 @@ public class ParameterisedStatementTest {
     }
 
     @Test
-    public void findByPropertyStandardForm() throws Exception {
+    void findByPropertyStandardForm() throws Exception {
         query = nodeQueryStatements
             .findByType("Asteroid", new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS, 6.02E1)), 1);
         assertThat(query.getStatement()).isEqualTo(
@@ -106,7 +107,7 @@ public class ParameterisedStatementTest {
     }
 
     @Test
-    public void findByPropertyDecimal() throws Exception {
+    void findByPropertyDecimal() throws Exception {
         query = nodeQueryStatements
             .findByType("Asteroid", new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS, 60.2)), 1);
         assertThat(query.getStatement()).isEqualTo(
@@ -115,7 +116,7 @@ public class ParameterisedStatementTest {
     }
 
     @Test
-    public void findByPropertyEmbeddedDelimiter() throws Exception {
+    void findByPropertyEmbeddedDelimiter() throws Exception {
         query = nodeQueryStatements.findByType("Cookbooks",
             new Filters().add(new Filter("title", ComparisonOperator.EQUALS, "Mrs Beeton's Household Recipes")), 1);
         assertThat(query.getStatement()).isEqualTo(
@@ -125,7 +126,7 @@ public class ParameterisedStatementTest {
     }
 
     @Test
-    public void delete() throws Exception {
+    void delete() throws Exception {
         cypherQuery = new NodeDeleteStatements().delete(123L);
         assertThat(cypherQuery.getStatement())
             .isEqualTo("MATCH (n) WHERE ID(n) = $id OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
@@ -133,8 +134,8 @@ public class ParameterisedStatementTest {
     }
 
     @Test
-    public void deleteAll() throws Exception {
-        List<Long> ids = Arrays.asList(new Long[] { 123L, 234L, 345L });
+    void deleteAll() throws Exception {
+        List<Long> ids = Arrays.asList(new Long[]{123L, 234L, 345L});
         cypherQuery = new NodeDeleteStatements().delete(ids);
         assertThat(cypherQuery.getStatement())
             .isEqualTo("MATCH (n) WHERE ID(n) in $ids OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
@@ -142,43 +143,47 @@ public class ParameterisedStatementTest {
     }
 
     @Test
-    public void deleteAllByLabel() throws Exception {
+    void deleteAllByLabel() throws Exception {
         cypherQuery = new NodeDeleteStatements().delete("NODE");
         assertThat(cypherQuery.getStatement()).isEqualTo("MATCH (n:`NODE`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
         assertThat(mapper.writeValueAsString(cypherQuery.getParameters())).isEqualTo("{}");
     }
 
     @Test
-    public void purge() throws Exception {
+    void purge() throws Exception {
         cypherQuery = new NodeDeleteStatements().deleteAll();
         assertThat(cypherQuery.getStatement()).isEqualTo("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
         assertThat(mapper.writeValueAsString(cypherQuery.getParameters())).isEqualTo("{}");
     }
 
-    @Test // DATAGRAPH-586
-    public void deleteRel() throws Exception {
+    // DATAGRAPH-586
+    @Test
+    void deleteRel() throws Exception {
         cypherQuery = new RelationshipDeleteStatements().delete(123L);
         assertThat(cypherQuery.getStatement()).isEqualTo("MATCH (n)-[r0]->() WHERE ID(r0) = $id DELETE r0");
         assertThat(mapper.writeValueAsString(cypherQuery.getParameters())).isEqualTo("{\"id\":123}");
     }
 
-    @Test // DATAGRAPH-586
-    public void deleteAllRels() throws Exception {
-        List<Long> ids = Arrays.asList(new Long[] { 123L, 234L, 345L });
+    // DATAGRAPH-586
+    @Test
+    void deleteAllRels() throws Exception {
+        List<Long> ids = Arrays.asList(new Long[]{123L, 234L, 345L});
         cypherQuery = new RelationshipDeleteStatements().delete(ids);
         assertThat(cypherQuery.getStatement()).isEqualTo("MATCH (n)-[r0]->() WHERE ID(r0) IN $ids DELETE r0");
         assertThat(mapper.writeValueAsString(cypherQuery.getParameters())).isEqualTo("{\"ids\":[123,234,345]}");
     }
 
-    @Test // DATAGRAPH-586
-    public void deleteAllRelsByType() throws Exception {
+    // DATAGRAPH-586
+    @Test
+    void deleteAllRelsByType() throws Exception {
         cypherQuery = new RelationshipDeleteStatements().delete("REL");
         assertThat(cypherQuery.getStatement()).isEqualTo("MATCH (n)-[r0:`REL`]-() DELETE r0");
         assertThat(mapper.writeValueAsString(cypherQuery.getParameters())).isEqualTo("{}");
     }
 
-    @Test // DATAGRAPH-631
-    public void testFindByPropertyWithIllegalCharacter() throws Exception {
+    // DATAGRAPH-631
+    @Test
+    void testFindByPropertyWithIllegalCharacter() throws Exception {
         query = new RelationshipQueryStatements()
             .findByType("HAS-ALBUM", new Filters().add(new Filter("fake-property", ComparisonOperator.EQUALS, "none")),
                 1);

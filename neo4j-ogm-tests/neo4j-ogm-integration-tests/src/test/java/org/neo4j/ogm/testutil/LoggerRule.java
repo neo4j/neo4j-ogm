@@ -25,9 +25,9 @@ import ch.qos.logback.core.read.ListAppender;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
+import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -35,40 +35,25 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael J. Simons
  */
-public class LoggerRule implements TestRule {
+public class LoggerRule implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
 	private final ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
 	private final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-
-	@Override
-	public Statement apply(Statement base, Description description) {
-		return new Statement() {
-			@Override
-			public void evaluate() throws Throwable {
-				setup();
-				base.evaluate();
-				teardown();
-			}
-		};
-	}
-
-	private void setup() {
-		logger.addAppender(listAppender);
-		listAppender.start();
-	}
-
-	private void teardown() {
-		listAppender.stop();
-		listAppender.list.clear();
-		logger.detachAppender(listAppender);
-	}
-
-	public List<String> getMessages() {
-		return listAppender.list.stream().map(e -> e.getMessage()).collect(Collectors.toList());
-	}
 
 	public List<String> getFormattedMessages() {
 		return listAppender.list.stream().map(e -> e.getFormattedMessage()).collect(Collectors.toList());
 	}
 
+    @Override
+    public void beforeTestExecution(ExtensionContext context) {
+        logger.addAppender(listAppender);
+        listAppender.start();
+    }
+
+    @Override
+    public void afterTestExecution(ExtensionContext context) {
+        listAppender.stop();
+        listAppender.list.clear();
+        logger.detachAppender(listAppender);
+    }
 }

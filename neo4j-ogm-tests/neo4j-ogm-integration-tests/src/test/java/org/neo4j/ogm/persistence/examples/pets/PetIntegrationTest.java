@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.pets.Dog;
 import org.neo4j.ogm.domain.pets.DomesticDog;
 import org.neo4j.ogm.domain.pets.Kid;
@@ -45,17 +45,17 @@ public class PetIntegrationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.pets");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         session.purgeDatabase();
     }
@@ -64,7 +64,7 @@ public class PetIntegrationTest extends TestContainersTestBase {
      * @see issue #40
      */
     @Test
-    public void shouldResolveMetadataCorrectly() {
+    void shouldResolveMetadataCorrectly() {
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.pets");
         assertThat(metaData.resolve("Animal").name()).isEqualTo("org.neo4j.ogm.domain.pets.Animal");
         assertThat(metaData.resolve("Mammal", "Animal").name()).isEqualTo("org.neo4j.ogm.domain.pets.Mammal");
@@ -76,7 +76,7 @@ public class PetIntegrationTest extends TestContainersTestBase {
      * @see issue #40
      */
     @Test
-    public void shouldBeAbleToSaveAndLoadMammals() {
+    void shouldBeAbleToSaveAndLoadMammals() {
         Kid kid = new Kid("Charlie");
         Mammal mammal = new Mammal("unknown");
         kid.hasPet(mammal);
@@ -93,7 +93,7 @@ public class PetIntegrationTest extends TestContainersTestBase {
      * @see issue #40
      */
     @Test
-    public void shouldBeAbleToSaveAndLoadDogs() {
+    void shouldBeAbleToSaveAndLoadDogs() {
         Kid kid = new Kid("Charlie");
         Dog dog = new Dog("Snoopy");
         kid.hasPet(dog);
@@ -110,7 +110,7 @@ public class PetIntegrationTest extends TestContainersTestBase {
      * @see issue #40
      */
     @Test
-    public void shouldBeAbleToSaveAndLoadDogsDirectly() {
+    void shouldBeAbleToSaveAndLoadDogsDirectly() {
         Dog dog = new Dog("Snoopy");
         session.save(dog);
 
@@ -125,7 +125,7 @@ public class PetIntegrationTest extends TestContainersTestBase {
      * @see issue #40
      */
     @Test
-    public void shouldBeAbleToSaveAndLoadDomesticDogsDirectly() {
+    void shouldBeAbleToSaveAndLoadDomesticDogsDirectly() {
         DomesticDog dog = new DomesticDog("Snoopy");
         session.save(dog);
 

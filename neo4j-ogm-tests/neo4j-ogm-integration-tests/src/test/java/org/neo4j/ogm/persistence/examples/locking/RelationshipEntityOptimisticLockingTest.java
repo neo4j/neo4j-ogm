@@ -24,9 +24,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Collection;
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.locking.EnemyOf;
 import org.neo4j.ogm.domain.locking.FriendOf;
 import org.neo4j.ogm.domain.locking.User;
@@ -44,19 +44,19 @@ public class RelationshipEntityOptimisticLockingTest extends TestContainersTestB
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.locking");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void whenSaveRelationshipEntityThenSetVersionToZero() {
+    void whenSaveRelationshipEntityThenSetVersionToZero() {
         User michael = new User("Michael");
         User oliver = new User("Oliver");
         FriendOf friendOf = michael.addFriend(oliver);
@@ -67,7 +67,7 @@ public class RelationshipEntityOptimisticLockingTest extends TestContainersTestB
     }
 
     @Test
-    public void givenRelationshipEntityWhenUpdateThenIncrementVersion() {
+    void givenRelationshipEntityWhenUpdateThenIncrementVersion() {
         User michael = new User("Michael");
         User oliver = new User("Oliver");
         FriendOf friendOf = michael.addFriend(oliver);
@@ -88,7 +88,7 @@ public class RelationshipEntityOptimisticLockingTest extends TestContainersTestB
     }
 
     @Test
-    public void givenRelationshipEntityWithWrongVersionWhenSaveThenFailWithOptimisticLockingException() {
+    void givenRelationshipEntityWithWrongVersionWhenSaveThenFailWithOptimisticLockingException() {
         User michael = new User("Michael");
         User oliver = new User("Oliver");
         FriendOf friendOf = michael.addFriend(oliver);
@@ -108,7 +108,7 @@ public class RelationshipEntityOptimisticLockingTest extends TestContainersTestB
     }
 
     @Test
-    public void givenRelationshipEntityCustomThenOptimisticLockingCheckWorksAndThrowsException() {
+    void givenRelationshipEntityCustomThenOptimisticLockingCheckWorksAndThrowsException() {
         User michael = new User("Michael");
         User oliver = new User("Oliver");
 
@@ -128,7 +128,7 @@ public class RelationshipEntityOptimisticLockingTest extends TestContainersTestB
     }
 
     @Test
-    public void givenRelationshipEntityWhenDeleteThenDeleteRelationshipEntity() {
+    void givenRelationshipEntityWhenDeleteThenDeleteRelationshipEntity() {
         User michael = new User("Michael");
         User oliver = new User("Oliver");
         FriendOf friendOf = michael.addFriend(oliver);
@@ -142,7 +142,7 @@ public class RelationshipEntityOptimisticLockingTest extends TestContainersTestB
     }
 
     @Test
-    public void saveDeletedRelationshipEntityShouldFailWithOptimisticLockingException() {
+    void saveDeletedRelationshipEntityShouldFailWithOptimisticLockingException() {
         User michael = new User("Michael");
         User oliver = new User("Oliver");
         FriendOf friendOf = michael.addFriend(oliver);
@@ -168,7 +168,7 @@ public class RelationshipEntityOptimisticLockingTest extends TestContainersTestB
     }
 
     @Test
-    public void givenRelationshipEntityWithWrongVersionWhenDeleteThenThrowOptimisticLockingException() {
+    void givenRelationshipEntityWithWrongVersionWhenDeleteThenThrowOptimisticLockingException() {
         User michael = new User("Michael");
         User oliver = new User("Oliver");
         FriendOf friendOf = michael.addFriend(oliver);
@@ -186,7 +186,7 @@ public class RelationshipEntityOptimisticLockingTest extends TestContainersTestB
     }
 
     @Test
-    public void optimisticLockingExceptionShouldRollbackDefaultTransaction() {
+    void optimisticLockingExceptionShouldRollbackDefaultTransaction() {
         User michael = new User("Michael");
         User oliver = new User("Oliver");
         FriendOf friendOf = michael.addFriend(oliver);
@@ -215,7 +215,7 @@ public class RelationshipEntityOptimisticLockingTest extends TestContainersTestB
     }
 
     @Test
-    public void removeVersionedRelationship() {
+    void removeVersionedRelationship() {
         User michael = new User("Michael");
         User oliver = new User("Oliver");
         FriendOf friendOf = michael.addFriend(oliver);
@@ -229,8 +229,9 @@ public class RelationshipEntityOptimisticLockingTest extends TestContainersTestB
         ensureFriendsOfRelationshipsHaveCount(0);
     }
 
-    @Test // GH-746
-    public void updateVersionedRelationship() {
+    // GH-746
+    @Test
+    void updateVersionedRelationship() {
         User michael = new User("Michael");
         User oliver = new User("Oliver");
         FriendOf friendOf = michael.addFriend(oliver);

@@ -19,7 +19,6 @@
 package org.neo4j.ogm.session;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
@@ -28,13 +27,13 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.neo4j.driver.AccessMode;
 import org.neo4j.driver.Bookmark;
 import org.neo4j.driver.Driver;
@@ -48,7 +47,7 @@ import org.neo4j.ogm.transaction.Transaction;
  * @author Gerrit Meier
  * @author Michael J. Simons
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 @SuppressWarnings("deprecation")
 public class BookmarkTest {
 
@@ -59,14 +58,14 @@ public class BookmarkTest {
     private org.neo4j.driver.Session nativeSession;
     private Session session;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         BoltDriver driver = new BoltDriver(nativeDriver);
         session = new Neo4jSession(new MetaData("org.neo4j.ogm.empty"), true, driver);
     }
 
     @Test
-    public void shouldPassBookmarksToDriver() {
+    void shouldPassBookmarksToDriver() {
         Set<String> bookmarkStringRepresentation = new HashSet<>(Arrays.asList("bookmark1", "bookmark2"));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_ONLY, bookmarkStringRepresentation);
@@ -86,7 +85,7 @@ public class BookmarkTest {
     }
 
     @Test
-    public void shouldPassMultiValueBookmarksToDriver() {
+    void shouldPassMultiValueBookmarksToDriver() {
         Set<String> bookmarkStringRepresentation = new HashSet<>(Arrays.asList("bookmark1", "bookmark2", "bookmark3-part1/_BS_/bookmark3-part2"));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_ONLY, bookmarkStringRepresentation);
@@ -110,7 +109,7 @@ public class BookmarkTest {
     }
 
     @Test
-    public void shouldHaveAvailableBookmark() {
+    void shouldHaveAvailableBookmark() {
         when(nativeDriver.session(any(SessionConfig.class))).thenReturn(nativeSession);
         when(nativeSession.beginTransaction().isOpen()).thenReturn(true);
         when(nativeSession.lastBookmark()).thenReturn(Bookmark.from(Collections.singleton("last-bookmark")));
@@ -128,7 +127,7 @@ public class BookmarkTest {
      * Make sure a bookmark containing multiple values is treated as one, not multiple bookmarks
      */
     @Test
-    public void shouldDealWithMultiValueBookmarks() {
+    void shouldDealWithMultiValueBookmarks() {
         Set<String> multipleBookmarks = new LinkedHashSet<>();
         multipleBookmarks.addAll(Arrays.asList("bookmark-part1", "bookmark-part2"));
 

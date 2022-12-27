@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.lang.reflect.Constructor;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Vince Bickers
@@ -30,7 +30,7 @@ import org.junit.Test;
 public class ObjectConstructionTest {
 
     @Test
-    public void shouldCreateReflectionInstance() {
+    void shouldCreateReflectionInstance() {
 
         String fqn = "org.neo4j.ogm.metadata.reflect.ObjectConstructionTest$A";
         try {

@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -42,7 +42,7 @@ public class AnnotatedFieldWithNoSetterAndNonSetterTest {
     private DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.metadata.reflect");
 
     @Test
-    public void shouldPreferAnnotatedFieldOverNonSetterInAbsenceOfSetterForRelationshipEntity() {
+    void shouldPreferAnnotatedFieldOverNonSetterInAbsenceOfSetterForRelationshipEntity() {
         ClassInfo classInfo = this.domainInfo.getClass(End.class.getName());
 
         RelEntity relEntity = new RelEntity();

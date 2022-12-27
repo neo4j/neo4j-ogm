@@ -26,14 +26,14 @@ import java.util.Collections;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.neo4j.ogm.domain.gh651.PersistentCategory;
 import org.neo4j.ogm.domain.gh651.SomeRelationshipEntity;
 import org.neo4j.ogm.domain.gh651.SomeEntity;
@@ -61,7 +61,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  *
  * @author Michael J. Simons
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class StrictQueryingTest {
 
     private final MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh651");
@@ -88,10 +88,10 @@ public class StrictQueryingTest {
         }
     });
 
-    @Mock
+    @Mock(lenient = true)
     Request request;
 
-    @Before
+    @BeforeEach
     public void prepareMocks() {
         doReturn(metaData).when(neo4jSession).metaData();
         doReturn(request).when(neo4jSession).requestHandler();
@@ -115,8 +115,9 @@ public class StrictQueryingTest {
         doReturn(response).when(request).execute(Mockito.any(GraphRowListModelRequest.class));
     }
 
-    @Test // GH-651
-    public void shouldUseOnlyOneLabelForStandardEntity() {
+    // GH-651
+    @Test
+    void shouldUseOnlyOneLabelForStandardEntity() {
 
         LoadByIdsDelegate delegate = new LoadByIdsDelegate(neo4jSession);
         delegate.loadAll(SomeEntity.class, Arrays.asList(1L, 2L));
@@ -126,8 +127,9 @@ public class StrictQueryingTest {
         assertThat(argumentCaptor.getValue().getStatement()).isEqualTo("MATCH (n:`SomeEntity`) WHERE ID(n) IN $ids WITH n MATCH p=(n)-[*0..1]-(m) RETURN p");
     }
 
-    @Test // GH-651
-    public void shouldUseOnlyOneLabelForOneStandardEntity() {
+    // GH-651
+    @Test
+    void shouldUseOnlyOneLabelForOneStandardEntity() {
 
         LoadOneDelegate delegate = new LoadOneDelegate(neo4jSession);
         delegate.load(SomeEntity.class, 4711L);
@@ -137,8 +139,9 @@ public class StrictQueryingTest {
         assertThat(argumentCaptor.getValue().getStatement()).isEqualTo("MATCH (n:`SomeEntity`) WHERE ID(n) = $id WITH n MATCH p=(n)-[*0..1]-(m) RETURN p");
     }
 
-    @Test // GH-651
-    public void shouldUseOnlyOneLabelForAllStandardEntities() {
+    // GH-651
+    @Test
+    void shouldUseOnlyOneLabelForAllStandardEntities() {
 
         LoadByTypeDelegate delegate = new LoadByTypeDelegate(neo4jSession);
         delegate.loadAll(SomeEntity.class);
@@ -148,8 +151,9 @@ public class StrictQueryingTest {
         assertThat(argumentCaptor.getValue().getStatement()).isEqualTo("MATCH (n:`SomeEntity`) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p");
     }
 
-    @Test // GH-651
-    public void shouldUseAllLabelsInInheritanceScenario() {
+    // GH-651
+    @Test
+    void shouldUseAllLabelsInInheritanceScenario() {
 
         LoadByIdsDelegate delegate = new LoadByIdsDelegate(neo4jSession);
         delegate.loadAll(PersistentCategory.class, Collections.singletonList("abc"));
@@ -159,8 +163,9 @@ public class StrictQueryingTest {
         assertThat(argumentCaptor.getValue().getStatement()).isEqualTo("MATCH (n:`Category`:`Entity`) WHERE n.`uuid` IN $ids WITH n MATCH p=(n)-[*0..1]-(m) RETURN p");
     }
 
-    @Test // GH-651
-    public void shouldUseAllLabelsForOneEntityInInheritanceScenario() {
+    // GH-651
+    @Test
+    void shouldUseAllLabelsForOneEntityInInheritanceScenario() {
 
         LoadOneDelegate delegate = new LoadOneDelegate(neo4jSession);
         delegate.load(PersistentCategory.class, "abc");
@@ -170,8 +175,9 @@ public class StrictQueryingTest {
         assertThat(argumentCaptor.getValue().getStatement()).isEqualTo("MATCH (n:`Category`:`Entity`) WHERE n.`uuid` = $id WITH n MATCH p=(n)-[*0..1]-(m) RETURN p");
     }
 
-    @Test // GH-651
-    public void shouldUseAllLabelsForAllEntitiesInInheritanceScenario() {
+    // GH-651
+    @Test
+    void shouldUseAllLabelsForAllEntitiesInInheritanceScenario() {
 
         LoadByTypeDelegate delegate = new LoadByTypeDelegate(neo4jSession);
         delegate.loadAll(PersistentCategory.class);
@@ -181,8 +187,9 @@ public class StrictQueryingTest {
         assertThat(argumentCaptor.getValue().getStatement()).isEqualTo("MATCH (n:`Category`:`Entity`) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p");
     }
 
-    @Test // GH-651
-    public void shouldUseOnlyOneLabelForRelationshipEntities() {
+    // GH-651
+    @Test
+    void shouldUseOnlyOneLabelForRelationshipEntities() {
 
         LoadByIdsDelegate delegate = new LoadByIdsDelegate(neo4jSession);
         delegate.loadAll(SomeRelationshipEntity.class, Arrays.asList(1L, 2L));
@@ -192,8 +199,9 @@ public class StrictQueryingTest {
         assertThat(argumentCaptor.getValue().getStatement()).startsWith("MATCH ()-[r0:`SOME_RELATIONSHIP`]-() WHERE ID(r0) IN $ids");
     }
 
-    @Test // GH-651
-    public void shouldUseOnlyOneLabelForOneRelationshipEntity() {
+    // GH-651
+    @Test
+    void shouldUseOnlyOneLabelForOneRelationshipEntity() {
 
         LoadOneDelegate delegate = new LoadOneDelegate(neo4jSession);
         delegate.load(SomeRelationshipEntity.class, 1L);
@@ -203,8 +211,9 @@ public class StrictQueryingTest {
         assertThat(argumentCaptor.getValue().getStatement()).startsWith("MATCH ()-[r0:`SOME_RELATIONSHIP`]->() WHERE ID(r0)=$id");
     }
 
-    @Test // GH-651
-    public void shouldUseOnlyOneLabelForAllRelationshipEntities() {
+    // GH-651
+    @Test
+    void shouldUseOnlyOneLabelForAllRelationshipEntities() {
 
         LoadByTypeDelegate delegate = new LoadByTypeDelegate(neo4jSession);
         delegate.loadAll(SomeRelationshipEntity.class);

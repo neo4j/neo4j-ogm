@@ -20,15 +20,16 @@ package org.neo4j.ogm.session;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Luanne Misquitta
  */
 public class UtilsTest {
 
-    @Test // GH-68
-    public void nullInputObjectsShouldReturnNull() {
+    // GH-68
+    @Test
+    void nullInputObjectsShouldReturnNull() {
         assertThat(Utils.coerceTypes(Integer.class, null)).isNull();
         assertThat(Utils.coerceTypes(Float.class, null)).isNull();
         assertThat(Utils.coerceTypes(Byte.class, null)).isNull();
@@ -36,8 +37,9 @@ public class UtilsTest {
         assertThat(Utils.coerceTypes(Long.class, null)).isNull();
     }
 
-    @Test // GH-69
-    public void nullInputPrimitivesShouldReturnDefaults() {
+    // GH-69
+    @Test
+    void nullInputPrimitivesShouldReturnDefaults() {
         assertThat(Utils.coerceTypes(int.class, null)).isEqualTo(0);
         assertThat(Utils.coerceTypes(float.class, null)).isEqualTo(0f);
         assertThat(Utils.coerceTypes(byte.class, null)).isEqualTo(0);

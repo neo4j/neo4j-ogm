@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
@@ -37,7 +37,7 @@ public class RelationshipWriterPlainFieldsTest {
     private DomainInfo domainInfo = DomainInfo.create(this.getClass().getPackage().getName());
 
     @Test
-    public void shouldFindWriterForCollection() {
+    void shouldFindWriterForCollection() {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
@@ -49,7 +49,7 @@ public class RelationshipWriterPlainFieldsTest {
     }
 
     @Test
-    public void shouldFindWriterForScalar() {
+    void shouldFindWriterForScalar() {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
@@ -61,7 +61,7 @@ public class RelationshipWriterPlainFieldsTest {
     }
 
     @Test
-    public void shouldFindWriterForArray() {
+    void shouldFindWriterForArray() {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 

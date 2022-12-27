@@ -25,7 +25,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -39,7 +39,7 @@ import org.neo4j.ogm.transaction.Transaction;
 public class TransactionSerialisationTest extends TestContainersTestBase {
 
     @Test
-    public void shouldBeAbleToRunMultiThreadedLongRunningQueriesWithoutLosingConnectionResources()
+    void shouldBeAbleToRunMultiThreadedLongRunningQueriesWithoutLosingConnectionResources()
         throws InterruptedException {
 
         int numThreads = Runtime.getRuntime().availableProcessors() * 4;
@@ -58,7 +58,7 @@ public class TransactionSerialisationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldBeAbleToHandleMultiThreadedFailingQueriesWithoutLosingConnectionResources()
+    void shouldBeAbleToHandleMultiThreadedFailingQueriesWithoutLosingConnectionResources()
         throws InterruptedException {
 
         int numThreads = Runtime.getRuntime().availableProcessors() * 4;

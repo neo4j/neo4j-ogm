@@ -21,10 +21,11 @@ package org.neo4j.ogm.session.delegates;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test for new regular expression to determine write queries
@@ -32,10 +33,8 @@ import org.junit.runners.Parameterized;
  * @author Torsten Kuhnhenne
  * @author Michael J. Simons
  */
-@RunWith(Parameterized.class)
 public class ExecuteQueriesDelegateTest {
 
-    @Parameterized.Parameters
     public static Collection<Object[]> parameters() {
         return Arrays.asList(new Object[][] {
             { "CREATE (a:Actor) RETURN a", true },
@@ -86,22 +85,14 @@ public class ExecuteQueriesDelegateTest {
         });
     }
 
-    private String query;
-
-    private boolean isWriteQuery;
-
-    public ExecuteQueriesDelegateTest(String query, boolean isWriteQuery) {
-        this.query = query;
-        this.isWriteQuery = isWriteQuery;
-    }
-
-    @Test
-    public void test() {
+    @MethodSource("parameters")
+    @ParameterizedTest
+    void test(String query, boolean isWriteQuery) {
         boolean mayBeReadWrite = ExecuteQueriesDelegate.mayBeReadWrite(query);
         if (isWriteQuery) {
-            Assert.assertTrue(mayBeReadWrite);
+            assertTrue(mayBeReadWrite);
         } else {
-            Assert.assertFalse(mayBeReadWrite);
+            assertFalse(mayBeReadWrite);
         }
     }
 }

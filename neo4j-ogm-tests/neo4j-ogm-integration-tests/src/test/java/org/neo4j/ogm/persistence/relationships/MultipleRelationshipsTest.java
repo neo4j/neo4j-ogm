@@ -23,9 +23,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.entityMapping.Movie;
@@ -43,13 +43,13 @@ public class MultipleRelationshipsTest extends TestContainersTestBase {
 
     private Session session;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.entityMapping").openSession();
         session.purgeDatabase();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
         session.clear();
@@ -59,7 +59,7 @@ public class MultipleRelationshipsTest extends TestContainersTestBase {
      * @see DATAGRAPH-636
      */
     @Test
-    public void shouldMapFromGraphToEntitiesCorrectly() {
+    void shouldMapFromGraphToEntitiesCorrectly() {
         session.query("create (_5:`PersonX` {`name`:\"Jim\"})\n" +
             "create (_6:`PersonX` {`name`:\"Mary\"})\n" +
             "create (_7:`PersonX` {`name`:\"Bill\"})\n" +
@@ -115,7 +115,7 @@ public class MultipleRelationshipsTest extends TestContainersTestBase {
      * @see DATAGRAPH-690
      */
     @Test
-    public void shouldCreateGraphProperly() {
+    void shouldCreateGraphProperly() {
         Person jim = new Person();
         Person mary = new Person();
         Person bill = new Person();

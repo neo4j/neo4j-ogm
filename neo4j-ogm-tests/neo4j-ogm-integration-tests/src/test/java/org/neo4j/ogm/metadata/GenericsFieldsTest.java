@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.gh492.BaseUser;
 import org.neo4j.ogm.domain.gh704.Country;
 import org.neo4j.ogm.domain.gh704.CountryRevision;
@@ -36,77 +36,88 @@ import org.neo4j.ogm.domain.metadata.POJO;
 public class GenericsFieldsTest extends TestMetaDataTypeResolution {
 
     @Test
-    public void testUnboundedGeneric() {
+    void testUnboundedGeneric() {
         checkField("genericObject", "java.lang.Object", Object.class, null);
     }
 
     @Test
-    public void testGenericComparable() { // from java.lang
+    void testGenericComparable() { // from java.lang
         checkField("genericComparable", "java.lang.Comparable", Comparable.class, null);
     }
 
     @Test
-    public void testGenericSerializable() { // from java.io
+    void testGenericSerializable() { // from java.io
         checkField("genericSerializable", "java.io.Serializable", Serializable.class, null);
     }
 
     @Test
-    public void testGenericSelfReference() {
+    void testGenericSelfReference() {
         checkField("next", "org.neo4j.ogm.domain.metadata.POJO", POJO.class, null);
     }
 
-    @Test // List<S>
-    public void testCollectionWithUnboundGenericParameter() {
+    // List<S>
+    @Test
+    void testCollectionWithUnboundGenericParameter() {
         checkField("elements", "java.lang.Object", Object.class, "java.util.List");
     }
 
-    @Test // List<POJO<S, T, U>> neighbours;
-    public void testCollectionWithConcreteParameterizedType() {
+    // List<POJO<S, T, U>> neighbours;
+    @Test
+    void testCollectionWithConcreteParameterizedType() {
         checkField("neighbours", "org.neo4j.ogm.domain.metadata.POJO", POJO.class, "java.util.List");
     }
 
-    @Test // List<? extends Integer> superIntegers
-    public void testCollectionWithExtendedConcreteParameterizedType() {
+    // List<? extends Integer> superIntegers
+    @Test
+    void testCollectionWithExtendedConcreteParameterizedType() {
         checkField("superIntegers", "java.lang.Object", Object.class, "java.util.List");
     }
 
-    @Test    // List<? super Integer> subIntegers;
-    public void testCollectionWithReducedConcreteParameterizedType() {
+    // List<? super Integer> subIntegers;
+    @Test
+    void testCollectionWithReducedConcreteParameterizedType() {
         checkField("subIntegers", "java.lang.Object", Object.class, "java.util.List");
     }
 
-    @Test    // List<? extends S> superS;
-    public void testCollectionOfWildcardExtendingGenericType() {
+    // List<? extends S> superS;
+    @Test
+    void testCollectionOfWildcardExtendingGenericType() {
         checkField("superS", "java.lang.Object", Object.class, "java.util.List");
     }
 
-    @Test    // List<? super S> subS;
-    public void testCollectionOfWildcardReducingGenericType() {
+    // List<? super S> subS;
+    @Test
+    void testCollectionOfWildcardReducingGenericType() {
         checkField("subS", "java.lang.Object", Object.class, "java.util.List");
     }
 
-    @Test    // List<?>;
-    public void testListGenericWildcard() {
+    // List<?>;
+    @Test
+    void testListGenericWildcard() {
         checkField("listOfAnything", "java.lang.Object", Object.class, "java.util.List");
     }
 
-    @Test    // Vector<?>;
-    public void testVectorGenericWildcard() {
+    // Vector<?>;
+    @Test
+    void testVectorGenericWildcard() {
         checkField("vectorOfAnything", "java.lang.Object", Object.class, "java.util.Vector");
     }
 
-    @Test    // Set<?>;
-    public void testSetGenericWildcard() {
+    // Set<?>;
+    @Test
+    void testSetGenericWildcard() {
         checkField("setOfAnything", "java.lang.Object", Object.class, "java.util.Set");
     }
 
-    @Test    // Iterable<Map<Class<S>, POJO<S, T, U>>> iterable;
-    public void testIterableOfMapOfParameterizedClasses() {
+    // Iterable<Map<Class<S>, POJO<S, T, U>>> iterable;
+    @Test
+    void testIterableOfMapOfParameterizedClasses() {
         checkField("iterable", "java.util.Map", Map.class, "java.lang.Iterable");
     }
 
-    @Test // GH-492
-    public void shouldDetectPrimitiveArraysInGenericFields() {
+    // GH-492
+    @Test
+    void shouldDetectPrimitiveArraysInGenericFields() {
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh492");
 
         ClassInfo classInfo = metaData.classInfo(BaseUser.IntUser.class);
@@ -115,8 +126,9 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
         assertThat(fieldInfo.type()).isEqualTo(int[].class);
     }
 
-    @Test // GH-492
-    public void shouldDetectWrapperArraysInGenericFields() {
+    // GH-492
+    @Test
+    void shouldDetectWrapperArraysInGenericFields() {
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh492");
 
         ClassInfo classInfo = metaData.classInfo(BaseUser.IntegerUser.class);
@@ -125,8 +137,9 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
         assertThat(fieldInfo.type()).isEqualTo(Integer[].class);
     }
 
-    @Test // GH-656
-    public void parameterizedFieldsInParentClassesShouldWork() {
+    // GH-656
+    @Test
+    void parameterizedFieldsInParentClassesShouldWork() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh656");
         ClassInfo classInfo = metaData.classInfo("Group");
@@ -138,14 +151,15 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
         assertThat(hasVersionField.getTypeDescriptor()).isEqualTo("org.neo4j.ogm.domain.gh656.GroupVersion");
     }
 
-    @Test // GH-706
-    public void parameterizedScalarFieldsInParentClassesShouldWork() {
+    // GH-706
+    @Test
+    void parameterizedScalarFieldsInParentClassesShouldWork() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh704");
-        for (String[] parameters : new String[][] {
-            { "Country", "org.neo4j.ogm.domain.gh704.CountryRevision" },
-            { "org.neo4j.ogm.domain.gh704.CountryRevision", "org.neo4j.ogm.domain.gh704.CountryRevision" },
-            { "org.neo4j.ogm.domain.gh704.RevisionEntity", "java.lang.Object" }
+        for (String[] parameters : new String[][]{
+            {"Country", "org.neo4j.ogm.domain.gh704.CountryRevision"},
+            {"org.neo4j.ogm.domain.gh704.CountryRevision", "org.neo4j.ogm.domain.gh704.CountryRevision"},
+            {"org.neo4j.ogm.domain.gh704.RevisionEntity", "java.lang.Object"}
         }) {
             ClassInfo classInfo = metaData.classInfo(parameters[0]);
             assertThat(classInfo).isNotNull();
@@ -157,8 +171,9 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
         }
     }
 
-    @Test // GH-704
-    public void correctClassesNeedToBeUsedDuringFieldLookup() {
+    // GH-704
+    @Test
+    void correctClassesNeedToBeUsedDuringFieldLookup() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh704");
 
@@ -173,7 +188,7 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
         newCountry.setName("new");
         newCountry.setPreviousRevision(old);
 
-        for (CountryRevision countryRevision : new CountryRevision[] { newCountry, newCountryRevision }) {
+        for (CountryRevision countryRevision : new CountryRevision[]{newCountry, newCountryRevision}) {
             ClassInfo classInfo = metaData.classInfo(countryRevision.getClass());
             CountryRevision oldRevision = (CountryRevision) classInfo.getFieldInfo("previousRevision").read(newCountry);
             assertThat(oldRevision).isSameAs(old);

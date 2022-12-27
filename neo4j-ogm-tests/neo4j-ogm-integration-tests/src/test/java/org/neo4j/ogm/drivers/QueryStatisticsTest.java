@@ -21,9 +21,9 @@ package org.neo4j.ogm.drivers;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
@@ -42,19 +42,19 @@ public class QueryStatisticsTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.social");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void statisticsContainsUpdates() {
+    void statisticsContainsUpdates() {
         Result result = session.query("CREATE (n:Node)", emptyMap());
         QueryStatistics statistics = result.queryStatistics();
 
@@ -62,7 +62,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsNodesCreated() {
+    void statisticsNodesCreated() {
         Result result = session.query("CREATE (n:Node)", emptyMap());
         QueryStatistics statistics = result.queryStatistics();
 
@@ -70,7 +70,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsNodesDeleted() {
+    void statisticsNodesDeleted() {
         session.query("CREATE (n:Node)", emptyMap());
 
         Result result = session.query("MATCH (n:Node) DELETE n", emptyMap());
@@ -80,7 +80,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsPropertiesSet() {
+    void statisticsPropertiesSet() {
         Result result = session.query("CREATE (n:Node {name:'Frantisek'})-[r:REL {weight:1.0}]->(n2:Node)", emptyMap());
         QueryStatistics statistics = result.queryStatistics();
 
@@ -88,7 +88,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsRelationshipsCreated() {
+    void statisticsRelationshipsCreated() {
         Result result = session.query("CREATE (n:Node)-[r:REL]->(n2:Node)", emptyMap());
         QueryStatistics statistics = result.queryStatistics();
 
@@ -96,7 +96,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsRelationshipsDeleted() {
+    void statisticsRelationshipsDeleted() {
         session.query("CREATE (n:Node)-[r:REL]->(n2:Node)", emptyMap());
 
         Result result = session.query("MATCH (n:Node)-[r:REL]->(n2:Node) DELETE r", emptyMap());
@@ -106,7 +106,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsLabelsAdded() {
+    void statisticsLabelsAdded() {
         Result result = session.query("CREATE (n:Node)", emptyMap());
         QueryStatistics statistics = result.queryStatistics();
 
@@ -114,7 +114,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsLabelsRemoved() {
+    void statisticsLabelsRemoved() {
         session.query("CREATE (n:Node)", emptyMap());
         Result result = session.query("MATCH (n:Node) REMOVE n:Node", emptyMap());
         QueryStatistics statistics = result.queryStatistics();
@@ -123,7 +123,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsIndexesAdded() {
+    void statisticsIndexesAdded() {
         try {
             Result result = session.query("CREATE INDEX foo FOR (n:Label) ON (n.property)", emptyMap());
             QueryStatistics statistics = result.queryStatistics();
@@ -143,7 +143,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsIndexesRemoved() {
+    void statisticsIndexesRemoved() {
         try {
             session.query("CREATE INDEX foo FOR (n:Label) ON (n.property)", emptyMap());
 
@@ -166,7 +166,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsConstraintsAdded() {
+    void statisticsConstraintsAdded() {
         try {
             Result result = session.query("CREATE CONSTRAINT foo FOR (n:Node) REQUIRE n.property IS UNIQUE", emptyMap());
             QueryStatistics statistics = result.queryStatistics();
@@ -186,7 +186,7 @@ public class QueryStatisticsTest extends TestContainersTestBase {
     }
 
     @Test
-    public void statisticsConstraintsRemoved() {
+    void statisticsConstraintsRemoved() {
         try {
             session.query("CREATE CONSTRAINT foo FOR (n:Node) REQUIRE n.property IS UNIQUE", emptyMap());
 

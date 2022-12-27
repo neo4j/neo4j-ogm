@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.metadata.MetaData;
 
@@ -33,13 +33,13 @@ public class EntityUtilsTest {
 
     private MetaData metaData;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         metaData = new MetaData("org.neo4j.ogm.domain.pizza");
     }
 
     @Test
-    public void shouldCollateStaticAndRuntimeLabels() throws Exception {
+    void shouldCollateStaticAndRuntimeLabels() throws Exception {
 
         Pizza pizza = new Pizza();
 

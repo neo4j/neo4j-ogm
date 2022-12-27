@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.math.RoundingMode;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.food.entities.notScanned.Pizza;
 import org.neo4j.ogm.domain.food.entities.scanned.Risk;
 import org.neo4j.ogm.session.Session;
@@ -44,23 +44,23 @@ public class EnumsNotScannedTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.food.entities.notScanned");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldHandleEnumWithNoConverterOrPropertyAnnotation() {
+    void shouldHandleEnumWithNoConverterOrPropertyAnnotation() {
         Pizza pizza = new Pizza();
         pizza.strokeRisk = Risk.LOW;
         session.save(pizza);
@@ -76,7 +76,7 @@ public class EnumsNotScannedTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldHandleEnumWithConverterButNoPropertyAnnotation() {
+    void shouldHandleEnumWithConverterButNoPropertyAnnotation() {
         Pizza pizza = new Pizza();
         pizza.diabetesRisk = Risk.HIGH;
         session.save(pizza);
@@ -92,7 +92,7 @@ public class EnumsNotScannedTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldHandleEnumWithPropertyAnnotationButNoConverter() {
+    void shouldHandleEnumWithPropertyAnnotationButNoConverter() {
         Pizza pizza = new Pizza();
         pizza.cancerRisk = Risk.LOW;
         session.save(pizza);
@@ -108,7 +108,7 @@ public class EnumsNotScannedTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldHandleEnumWithConverterAndPropertyAnnotation() {
+    void shouldHandleEnumWithConverterAndPropertyAnnotation() {
         Pizza pizza = new Pizza();
         pizza.hypertensionRisk = Risk.HIGH;
         session.save(pizza);
@@ -127,7 +127,7 @@ public class EnumsNotScannedTest extends TestContainersTestBase {
      * @see DATAGRAPH-659
      */
     @Test
-    public void shouldHandleJavaEnums() {
+    void shouldHandleJavaEnums() {
         Pizza pizza = new Pizza();
         pizza.roundingMode = RoundingMode.CEILING;
         session.save(pizza);

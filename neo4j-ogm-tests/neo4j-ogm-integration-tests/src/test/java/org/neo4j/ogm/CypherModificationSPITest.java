@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.driver.types.TypeSystem;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
@@ -44,7 +44,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public class CypherModificationSPITest {
     @Test
-    public void abstractDriverShouldLoadCypherModificationsInCorrectOrder() {
+    void abstractDriverShouldLoadCypherModificationsInCorrectOrder() {
 
         Thread currentThread = Thread.currentThread();
 
@@ -69,7 +69,7 @@ public class CypherModificationSPITest {
     }
 
     @Test
-    public void driverShouldProvideNoopModificationWithoutAnyProvider() {
+    void driverShouldProvideNoopModificationWithoutAnyProvider() {
 
         Driver driver = new TestDriver();
         driver.configure(new Configuration.Builder().build());
@@ -80,7 +80,7 @@ public class CypherModificationSPITest {
     }
 
     @Test
-    public void driverShouldNotProvideModificationWithoutConfiguration() {
+    void driverShouldNotProvideModificationWithoutConfiguration() {
 
         Driver driver = new TestDriver();
         assertThatExceptionOfType(IllegalStateException.class)

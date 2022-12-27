@@ -25,9 +25,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.locking.FriendOf;
 import org.neo4j.ogm.domain.locking.User;
 import org.neo4j.ogm.domain.locking.VersionedEntityWithExternalId;
@@ -48,19 +48,19 @@ public class SessionCacheOptimisticLockingTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.locking");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldLoadNewNodeVersionInSessionAfterFailureToSave() {
+    void shouldLoadNewNodeVersionInSessionAfterFailureToSave() {
         Session session1 = sessionFactory.openSession();
         User frantisek = new User("Frantisek");
         session1.save(frantisek);
@@ -88,7 +88,7 @@ public class SessionCacheOptimisticLockingTest extends TestContainersTestBase {
      * Same case as {@link #shouldLoadNewNodeVersionInSessionAfterFailureToSave()}, only the operation is `delete`
      */
     @Test
-    public void shouldLoadNewNodeVersionInSessionAfterFailureToDelete() {
+    void shouldLoadNewNodeVersionInSessionAfterFailureToDelete() {
         Session session1 = sessionFactory.openSession();
         User frantisek = new User("Frantisek");
         session1.save(frantisek);
@@ -119,7 +119,7 @@ public class SessionCacheOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadNewRelationshipVersionInSessionAfterFailureToSave() {
+    void shouldLoadNewRelationshipVersionInSessionAfterFailureToSave() {
         Session session1 = sessionFactory.openSession();
 
         User michael = new User("Michael");
@@ -151,7 +151,7 @@ public class SessionCacheOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadNewRelationshipVersionInSessionAfterFailureToDelete() {
+    void shouldLoadNewRelationshipVersionInSessionAfterFailureToDelete() {
         Session session1 = sessionFactory.openSession();
 
         User michael = new User("Michael");
@@ -188,7 +188,7 @@ public class SessionCacheOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadNewRelationshipVersionInSessionAfterFailureToDeleteBySave() {
+    void shouldLoadNewRelationshipVersionInSessionAfterFailureToDeleteBySave() {
         Session session1 = sessionFactory.openSession();
 
         User alice = new User("Alice");
@@ -228,7 +228,7 @@ public class SessionCacheOptimisticLockingTest extends TestContainersTestBase {
     }
 
     @Test
-    public void lockingWithExternalIdsShouldWorkInDifferentSessions() throws InterruptedException {
+    void lockingWithExternalIdsShouldWorkInDifferentSessions() throws InterruptedException {
 
         final String cypherTemplate = "MATCH (n:VersionedEntityWithExternalId) WHERE n.name = 'Michael' RETURN n";
 

@@ -24,9 +24,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.drink.Beverage;
 import org.neo4j.ogm.domain.drink.Ingredient;
 import org.neo4j.ogm.domain.drink.Manufacturer;
@@ -45,7 +45,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     private static SessionFactory sf;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
         sf = new SessionFactory(getDriver(), Beverage.class.getPackage().getName());
 
@@ -53,7 +53,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
         sf.register(new EventListenerAdapter());
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         session = sf.openSession();
 
@@ -61,7 +61,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveAndLoadEntityWithoutGraphId() throws Exception {
+    void shouldSaveAndLoadEntityWithoutGraphId() throws Exception {
         Beverage beverage = new Beverage("Pilsner Urquell");
         session.save(beverage);
 
@@ -72,7 +72,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadAllBeverages() throws Exception {
+    void shouldLoadAllBeverages() throws Exception {
         Beverage pilsner = new Beverage("Pilsner Urquell");
         session.save(pilsner);
 
@@ -92,7 +92,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLoadAllByInstances() throws Exception {
+    void shouldLoadAllByInstances() throws Exception {
         Beverage pilsner = new Beverage("Pilsner Urquell");
         session.save(pilsner);
 
@@ -101,7 +101,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void loadReturnsSameInstance() throws Exception {
+    void loadReturnsSameInstance() throws Exception {
         Beverage beverage = new Beverage("Pilsner Urquell");
         session.save(beverage);
 
@@ -110,7 +110,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldCorrectlyUpdateInDb() throws Exception {
+    void shouldCorrectlyUpdateInDb() throws Exception {
         Beverage beverage = new Beverage("Pilsenerer Urquell");
         session.save(beverage);
 
@@ -124,7 +124,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldDeleteEntity() throws Exception {
+    void shouldDeleteEntity() throws Exception {
         Beverage beverage = new Beverage("Pilsenerer Urquell");
         session.save(beverage);
 
@@ -134,7 +134,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldDeleteRelationship() throws Exception {
+    void shouldDeleteRelationship() throws Exception {
         Manufacturer prazdroj = new Manufacturer("Plzeňský Prazdroj, a. s.");
         Beverage pilsner = new Beverage("Pilsenerer Urquell");
         prazdroj.addBeverage(pilsner);
@@ -156,7 +156,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldDeleteRelationshipEntity() throws Exception {
+    void shouldDeleteRelationshipEntity() throws Exception {
         Manufacturer prazdroj = new Manufacturer("Plzeňský Prazdroj, a. s.");
         Manufacturer asahi = new Manufacturer("Asahi Breweries, Ltd.");
         asahi.acquired(2017, prazdroj);
@@ -181,7 +181,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveEntityWithoutAndWithGraphID() throws Exception {
+    void shouldSaveEntityWithoutAndWithGraphID() throws Exception {
         Beverage pilsner = new Beverage("Pilsner Urquell");
         Ingredient water = new Ingredient("Water");
         pilsner.addIngredient(water);
@@ -200,7 +200,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
      * Saving opposite direction than shouldSaveEntityWithoutAndWithGraphID
      */
     @Test
-    public void shouldSaveEntitydWithGraphIdAndWIthoutId() throws Exception {
+    void shouldSaveEntitydWithGraphIdAndWIthoutId() throws Exception {
         Beverage pilsner = new Beverage("Pilsner Urquell");
         Ingredient water = new Ingredient("Water");
         pilsner.addIngredient(water);
@@ -216,7 +216,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveEntitiesWithoutGraphIds() throws Exception {
+    void shouldSaveEntitiesWithoutGraphIds() throws Exception {
         Beverage pilsner = new Beverage("Pilsner Urquell");
         Manufacturer prazdroj = new Manufacturer("Plzeňský Prazdroj, a. s.");
         prazdroj.addBeverage(pilsner);
@@ -233,7 +233,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveAndLoadRelationshipEntityWithoutId() throws Exception {
+    void shouldSaveAndLoadRelationshipEntityWithoutId() throws Exception {
         Manufacturer prazdroj = new Manufacturer("Plzeňský Prazdroj, a. s.");
         Manufacturer asahi = new Manufacturer("Asahi Breweries, Ltd.");
         asahi.acquired(2017, prazdroj);
@@ -249,7 +249,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveAndLoadRelationshipEntityWithoutIdDirect() throws Exception {
+    void shouldSaveAndLoadRelationshipEntityWithoutIdDirect() throws Exception {
         Manufacturer prazdroj = new Manufacturer("Plzeňský Prazdroj, a. s.");
         Manufacturer asahi = new Manufacturer("Asahi Breweries, Ltd.");
         asahi.acquired(2017, prazdroj);
@@ -266,7 +266,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldUpdateRelationshipEntityTransitive() throws Exception {
+    void shouldUpdateRelationshipEntityTransitive() throws Exception {
         Manufacturer prazdroj = new Manufacturer("Plzeňský Prazdroj, a. s.");
         Manufacturer asahi = new Manufacturer("Asahi Breweries, Ltd.");
         asahi.acquired(1917, prazdroj);
@@ -285,7 +285,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldUpdateRelationshipEntityDirect() throws Exception {
+    void shouldUpdateRelationshipEntityDirect() throws Exception {
         Manufacturer prazdroj = new Manufacturer("Plzeňský Prazdroj, a. s.");
         Manufacturer asahi = new Manufacturer("Asahi Breweries, Ltd.");
         asahi.acquired(1917, prazdroj);
@@ -312,7 +312,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
      * {@link org.neo4j.ogm.context.EntityGraphMapper#map(java.lang.Object, int)}
      */
     @Test
-    public void shouldCreateRelationshipEntityDirect() throws Exception {
+    void shouldCreateRelationshipEntityDirect() throws Exception {
         Manufacturer prazdroj = new Manufacturer("Plzeňský Prazdroj, a. s.");
         Manufacturer asahi = new Manufacturer("Asahi Breweries, Ltd.");
         session.save(prazdroj);
@@ -328,7 +328,7 @@ public class DrinkIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldAddAndRemoveLabels() throws Exception {
+    void shouldAddAndRemoveLabels() throws Exception {
         Manufacturer prazdroj = new Manufacturer("Plzeňský Prazdroj, a. s.");
 
         session.save(prazdroj);

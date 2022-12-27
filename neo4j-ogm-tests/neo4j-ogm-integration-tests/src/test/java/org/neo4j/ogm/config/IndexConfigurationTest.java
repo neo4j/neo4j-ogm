@@ -19,7 +19,7 @@
 package org.neo4j.ogm.config;
 
 import static org.assertj.core.api.Assertions.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
@@ -28,31 +28,31 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 public class IndexConfigurationTest extends TestContainersTestBase {
 
     @Test
-    public void shouldPreserveNoneConfiguration() {
+    void shouldPreserveNoneConfiguration() {
         Configuration configuration = getBaseConfigurationBuilder().autoIndex("none").build();
         assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
     }
 
     @Test
-    public void shouldPreserveAssertConfiguration() {
+    void shouldPreserveAssertConfiguration() {
         Configuration configuration = getBaseConfigurationBuilder().autoIndex("assert").build();
         assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.ASSERT);
     }
 
     @Test
-    public void shouldPreserveUpdateConfiguration() {
+    void shouldPreserveUpdateConfiguration() {
         Configuration configuration = getBaseConfigurationBuilder().autoIndex("update").build();
         assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.UPDATE);
     }
 
     @Test
-    public void shouldPreserveValidateConfiguration() {
+    void shouldPreserveValidateConfiguration() {
         Configuration configuration = getBaseConfigurationBuilder().autoIndex("validate").build();
         assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.VALIDATE);
     }
 
     @Test
-    public void shouldPreserveDumpConfiguration() {
+    void shouldPreserveDumpConfiguration() {
         Configuration configuration = getBaseConfigurationBuilder().autoIndex("dump").build();
         assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.DUMP);
     }

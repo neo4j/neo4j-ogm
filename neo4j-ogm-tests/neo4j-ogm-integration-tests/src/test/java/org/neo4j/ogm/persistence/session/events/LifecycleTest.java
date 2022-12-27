@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.FileSystemEntity;
 import org.neo4j.ogm.domain.filesystem.Folder;
@@ -36,7 +36,7 @@ import org.neo4j.ogm.session.event.EventListener;
 public class LifecycleTest extends EventTestBaseClass {
 
     @Test
-    public void shouldSaveObjectUpdatedByPreSaveEventHandler() {
+    void shouldSaveObjectUpdatedByPreSaveEventHandler() {
 
         session.dispose(eventListener); // not interested in the default one for this suite
         session.register(uuidEventListener);
@@ -57,7 +57,7 @@ public class LifecycleTest extends EventTestBaseClass {
     }
 
     @Test
-    public void shouldNotSaveObjectUpdatedByPreDeleteEventHandler() {
+    void shouldNotSaveObjectUpdatedByPreDeleteEventHandler() {
 
         session.dispose(eventListener); // not interested in the default one for this suite
         session.register(uuidEventListener);

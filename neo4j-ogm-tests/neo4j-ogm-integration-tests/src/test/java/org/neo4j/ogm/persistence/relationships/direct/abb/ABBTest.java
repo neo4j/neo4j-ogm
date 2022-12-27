@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.session.Session;
@@ -44,19 +44,19 @@ public class ABBTest extends TestContainersTestBase {
     private A a;
     private B b1, b2;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetup() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.persistence.relationships.direct.abb");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
         setUpEntityModel();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         session.purgeDatabase();
     }
@@ -72,7 +72,7 @@ public class ABBTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindAFromB() {
+    void shouldFindAFromB() {
 
         session.save(a);
 
@@ -84,7 +84,7 @@ public class ABBTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFindBFromA() {
+    void shouldFindBFromA() {
 
         session.save(b1);
         session.save(b2);
@@ -95,13 +95,13 @@ public class ABBTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReflectRemovalA() {
+    void shouldReflectRemovalA() {
 
         session.save(a);
 
         // local model must be self-consistent
         b1.a = null;
-        a.b = new B[] { b2 };
+        a.b = new B[]{b2};
 
         session.save(b1);
         session.save(b2);
@@ -110,16 +110,16 @@ public class ABBTest extends TestContainersTestBase {
         a = session.load(A.class, a.id);
 
         // expect the b1 relationship to have gone.
-        assertThat(a.b).containsExactlyInAnyOrder(new B[] { b2 });
+        assertThat(a.b).containsExactlyInAnyOrder(new B[]{b2});
     }
 
     @Test
-    public void shouldBeAbleToAddAnotherB() {
+    void shouldBeAbleToAddAnotherB() {
         session.save(a);
 
         B b3 = new B();
         b3.a = a;
-        a.b = new B[] { b1, b2, b3 };
+        a.b = new B[]{b1, b2, b3};
 
         // fully connected graph, should be able to save any object
         session.save(b3);

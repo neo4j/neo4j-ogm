@@ -25,10 +25,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.hierarchy.domain.annotated.*;
 import org.neo4j.ogm.domain.hierarchy.domain.custom_id.MostBasicEntity;
 import org.neo4j.ogm.domain.hierarchy.domain.custom_id.RootEntity;
@@ -72,26 +72,27 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.hierarchy.domain");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void annotatedChildWithAnnotatedAbstractNamedParent() {
+    void annotatedChildWithAnnotatedAbstractNamedParent() {
         session.save(new AnnotatedChildWithAnnotatedAbstractNamedParent());
 
         assertThat(session.loadAll(AnnotatedChildWithAnnotatedAbstractNamedParent.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void annotatedChildWithAnnotatedNamedInterfaceParent() {
+    // DATAGRAPH-577
+    @Test
+    void annotatedChildWithAnnotatedNamedInterfaceParent() {
         session.save(new AnnotatedChildWithAnnotatedNamedInterfaceParent());
 
         assertThat(session.loadAll(AnnotatedChildWithAnnotatedNamedInterfaceParent.class).iterator().next())
@@ -99,57 +100,59 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void annotatedChildWithAnnotatedAbstractParent() {
+    void annotatedChildWithAnnotatedAbstractParent() {
         session.save(new AnnotatedChildWithAnnotatedAbstractParent());
 
         assertThat(session.loadAll(AnnotatedChildWithAnnotatedAbstractParent.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void annotatedChildWithAnnotatedInterfaceParent() {
+    // DATAGRAPH-577
+    @Test
+    void annotatedChildWithAnnotatedInterfaceParent() {
         session.save(new AnnotatedChildWithAnnotatedInterfaceParent());
 
         assertThat(session.loadAll(AnnotatedChildWithAnnotatedInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void annotatedChildWithAnnotatedConcreteNamedParent() {
+    void annotatedChildWithAnnotatedConcreteNamedParent() {
         session.save(new AnnotatedChildWithAnnotatedConcreteNamedParent());
 
         assertThat(session.loadAll(AnnotatedChildWithAnnotatedConcreteNamedParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void annotatedChildWithAnnotatedConcreteParent() {
+    void annotatedChildWithAnnotatedConcreteParent() {
         session.save(new AnnotatedChildWithAnnotatedConcreteParent());
 
         assertThat(session.loadAll(AnnotatedChildWithAnnotatedConcreteParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void annotatedChildWithPlainAbstractParent() {
+    void annotatedChildWithPlainAbstractParent() {
         session.save(new AnnotatedChildWithPlainAbstractParent());
 
         assertThat(session.loadAll(AnnotatedChildWithPlainAbstractParent.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void annotatedChildWithPlainInterfaceParent() {
+    // DATAGRAPH-577
+    @Test
+    void annotatedChildWithPlainInterfaceParent() {
         session.save(new AnnotatedChildWithPlainInterfaceParent());
 
         assertThat(session.loadAll(AnnotatedChildWithPlainInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void annotatedChildWithPlainConcreteParent() {
+    void annotatedChildWithPlainConcreteParent() {
         session.save(new AnnotatedChildWithPlainConcreteParent());
 
         assertThat(session.loadAll(AnnotatedChildWithPlainConcreteParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
-    public void annotatedNamedChildWithAnnotatedAbstractNamedParent() {
+    @Disabled("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
+    void annotatedNamedChildWithAnnotatedAbstractNamedParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedAbstractNamedParent());
 
         assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedAbstractNamedParent.class).iterator().next())
@@ -157,25 +160,25 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test // DATAGRAPH-577
-    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
-    public void annotatedNamedChildWithAnnotatedNamedInterface() {
+    @Disabled("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
+    void annotatedNamedChildWithAnnotatedNamedInterface() {
         session.save(new AnnotatedNamedChildWithAnnotatedNamedInterfaceParent());
 
         assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedNamedInterfaceParent.class).iterator().next())
             .isNotNull();
     }
 
-    @Test
     //@Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
-    public void annotatedNamedChildWithAnnotatedAbstractParent() {
+    @Test
+    void annotatedNamedChildWithAnnotatedAbstractParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedAbstractParent());
 
         assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedAbstractParent.class).iterator().next()).isNotNull();
     }
 
     @Test // DATAGRAPH-577
-    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
-    public void annotatedNamedChildWithAnnotatedInterfaceParent() {
+    @Disabled("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
+    void annotatedNamedChildWithAnnotatedInterfaceParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedInterfaceParent());
 
         assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedInterfaceParent.class).iterator().next())
@@ -183,8 +186,8 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
-    public void annotatedNamedChildWithAnnotatedConcreteNamedParent() {
+    @Disabled("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
+    void annotatedNamedChildWithAnnotatedConcreteNamedParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedConcreteNamedParent());
 
         assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedConcreteNamedParent.class).iterator().next())
@@ -192,116 +195,120 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
-    public void annotatedNamedChildWithAnnotatedConcreteParent() {
+    @Disabled("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
+    void annotatedNamedChildWithAnnotatedConcreteParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedConcreteParent());
 
         assertThat(session.loadAll(AnnotatedNamedChildWithAnnotatedConcreteParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
-    public void annotatedNamedChildWithPlainAbstractParent() {
+    @Disabled("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
+    void annotatedNamedChildWithPlainAbstractParent() {
         session.save(new AnnotatedNamedChildWithPlainAbstractParent());
 
         assertThat(session.loadAll(AnnotatedNamedChildWithPlainAbstractParent.class).iterator().next()).isNotNull();
     }
 
     @Test // DATAGRAPH-577
-    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
-    public void annotatedNamedChildWithPlainInterfaceParent() {
+    @Disabled("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
+    void annotatedNamedChildWithPlainInterfaceParent() {
         session.save(new AnnotatedNamedChildWithPlainInterfaceParent());
 
         assertThat(session.loadAll(AnnotatedNamedChildWithPlainInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
-    public void annotatedNamedChildWithPlainConcreteParent() {
+    @Disabled("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
+    void annotatedNamedChildWithPlainConcreteParent() {
         session.save(new AnnotatedNamedChildWithPlainConcreteParent());
 
         assertThat(session.loadAll(AnnotatedNamedChildWithPlainConcreteParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void annotatedNamedSingleClass() {
+    void annotatedNamedSingleClass() {
         session.save(new AnnotatedNamedSingleClass());
 
         assertThat(session.loadAll(AnnotatedNamedSingleClass.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void annotatedSingleClass() {
+    void annotatedSingleClass() {
         session.save(new AnnotatedSingleClass());
 
         assertThat(session.loadAll(AnnotatedSingleClass.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void plainChildWithAnnotatedAbstractNamedParent() {
+    void plainChildWithAnnotatedAbstractNamedParent() {
         session.save(new PlainChildWithAnnotatedAbstractNamedParent());
 
         assertThat(session.loadAll(PlainChildWithAnnotatedAbstractNamedParent.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void plainChildWithAnnotatedNamedInterfaceParent() {
+    // DATAGRAPH-577
+    @Test
+    void plainChildWithAnnotatedNamedInterfaceParent() {
         session.save(new PlainChildWithAnnotatedNamedInterfaceParent());
 
         assertThat(session.loadAll(PlainChildWithAnnotatedNamedInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void plainChildWithAnnotatedAbstractParent() {
+    void plainChildWithAnnotatedAbstractParent() {
         session.save(new PlainChildWithAnnotatedAbstractParent());
 
         assertThat(session.loadAll(PlainChildWithAnnotatedAbstractParent.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void plainChildWithAnnotatedInterfaceParent() {
+    // DATAGRAPH-577
+    @Test
+    void plainChildWithAnnotatedInterfaceParent() {
         session.save(new PlainChildWithAnnotatedInterfaceParent());
 
         assertThat(session.loadAll(PlainChildWithAnnotatedInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void plainChildWithAnnotatedConcreteNamedParent() {
+    void plainChildWithAnnotatedConcreteNamedParent() {
         session.save(new PlainChildWithAnnotatedConcreteNamedParent());
 
         assertThat(session.loadAll(PlainChildWithAnnotatedConcreteNamedParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void plainChildWithAnnotatedConcreteParent() {
+    void plainChildWithAnnotatedConcreteParent() {
         session.save(new PlainChildWithAnnotatedConcreteParent());
 
         assertThat(session.loadAll(PlainChildWithAnnotatedConcreteParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void plainChildWithPlainAbstractParent() {
+    void plainChildWithPlainAbstractParent() {
         session.save(new PlainChildWithPlainAbstractParent());
 
         assertThat(session.loadAll(PlainChildWithPlainAbstractParent.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void plainChildWithPlainInterfaceParent() {
+    // DATAGRAPH-577
+    @Test
+    void plainChildWithPlainInterfaceParent() {
         session.save(new PlainChildWithPlainInterfaceParent());
 
         assertThat(session.loadAll(PlainChildWithPlainInterfaceParent.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void plainChildWithPlainConcreteParent() {
+    void plainChildWithPlainConcreteParent() {
         session.save(new PlainChildWithPlainConcreteParent());
 
         assertThat(session.loadAll(PlainChildWithPlainConcreteParent.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void plainChildWithPlainConcreteParentImplementingInterface() {
+    // DATAGRAPH-577
+    @Test
+    void plainChildWithPlainConcreteParentImplementingInterface() {
         session.save(new PlainChildWithPlainConcreteParentImplementingInterface());
 
         assertThat(session.loadAll(PlainChildWithPlainConcreteParentImplementingInterface.class).iterator().next())
@@ -309,15 +316,17 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(session.loadAll(PlainConcreteParent.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void plainChildWithPlainInterfaceChild() {
+    // DATAGRAPH-577
+    @Test
+    void plainChildWithPlainInterfaceChild() {
         session.save(new PlainChildWithPlainInterfaceChild());
 
         assertThat(session.loadAll(PlainChildWithPlainInterfaceChild.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void plainChildWithAnnotatedSuperInterface() {
+    // DATAGRAPH-577
+    @Test
+    void plainChildWithAnnotatedSuperInterface() {
         /*
         PlainChildWithAnnotatedSuperInterface->PlainInterfaceChildWithAnnotatedParentInterface->AnnotatedInterface
          */
@@ -326,8 +335,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(session.loadAll(PlainChildWithAnnotatedSuperInterface.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void annotatedChildWithAnnotatedInterface() {
+    // DATAGRAPH-577
+    @Test
+    void annotatedChildWithAnnotatedInterface() {
         /*
         AnnotatedChildWithAnnotatedInterface->AnnotatedInterfaceWithSingleImpl
          */
@@ -340,8 +350,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
             .isEqualTo("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface");
     }
 
-    @Test // DATAGRAPH-577
-    public void plainChildWithAnnotatedSuperclass() {
+    // DATAGRAPH-577
+    @Test
+    void plainChildWithAnnotatedSuperclass() {
         /*
            PlainChildWithAnnotatedConcreteSuperclass->PlainChildWithAnnotatedConcreteParent->AnnotatedConcreteParent
          */
@@ -352,8 +363,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(session.loadAll(AnnotatedConcreteParent.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void plainChildWithAbstractParentAndAnnotatedSuperclass() {
+    // DATAGRAPH-577
+    @Test
+    void plainChildWithAbstractParentAndAnnotatedSuperclass() {
         /*
            PlainChildWithAbstractParentAndAnnotatedSuperclass->PlainAbstractWithAnnotatedParent->AnnotatedSingleClass
          */
@@ -364,8 +376,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(session.loadAll(AnnotatedSingleClass.class).iterator().next()).isNotNull();
     }
 
-    @Test // DATAGRAPH-577
-    public void annotatedChildWithMultipleAnnotatedInterfaces() {
+    // DATAGRAPH-577
+    @Test
+    void annotatedChildWithMultipleAnnotatedInterfaces() {
         session.save(new AnnotatedChildWithMultipleAnnotatedInterfaces());
 
         assertThat(session.loadAll(AnnotatedChildWithMultipleAnnotatedInterfaces.class).iterator().next()).isNotNull();
@@ -374,14 +387,14 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void plainSingleClass() {
+    void plainSingleClass() {
         session.save(new PlainSingleClass());
 
         assertThat(session.loadAll(PlainSingleClass.class).iterator().next()).isNotNull();
     }
 
     @Test
-    public void plainChildOfTransientParent() {
+    void plainChildOfTransientParent() {
         assertThatThrownBy(() -> session.save(new PlainChildOfTransientParent()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("is not a valid entity class");
@@ -389,8 +402,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(session.query("MATCH (n) return n", emptyMap())).hasSize(0);
     }
 
-    @Test // DATAGRAPH-577
-    public void plainChildOfTransientInterface() {
+    // DATAGRAPH-577
+    @Test
+    void plainChildOfTransientInterface() {
         assertThatThrownBy(() -> session.save(new PlainChildOfTransientInterface()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("is not a valid entity class");
@@ -399,7 +413,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void transientChildWithPlainConcreteParent() {
+    void transientChildWithPlainConcreteParent() {
         assertThatThrownBy(() -> session.save(new TransientChildWithPlainConcreteParent()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("is not a valid entity class");
@@ -408,14 +422,14 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void transientSingleClass() {
+    void transientSingleClass() {
         assertThatThrownBy(() -> session.save(new TransientSingleClass()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("is not a valid entity class");
     }
 
     @Test
-    public void transientSingleClassWithId() {
+    void transientSingleClassWithId() {
         assertThatThrownBy(() -> session.save(new TransientSingleClassWithId()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("is not a valid entity class");
@@ -424,7 +438,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void plainClassWithTransientFields() {
+    void plainClassWithTransientFields() {
 
         PlainClassWithTransientFields toSave = new PlainClassWithTransientFields();
 
@@ -446,13 +460,13 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotBeAbleToLoadClassOfWrongType() {
+    void shouldNotBeAbleToLoadClassOfWrongType() {
         session.save(new AnnotatedNamedSingleClass());
         assertThat(session.loadAll(PlainSingleClass.class).iterator().hasNext()).isFalse();
     }
 
     @Test
-    public void shouldSaveHierarchy() {
+    void shouldSaveHierarchy() {
         final Female daniela = new Female("Daniela");
         final Male michal = new Male("Michal");
         final Bloke adam = new Bloke("Adam");
@@ -466,7 +480,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveHierarchy2() {
+    void shouldSaveHierarchy2() {
         session.save(Arrays.asList(new Female("Daniela"), new Male("Michal"), new Bloke("Adam")));
 
         assertThat(
@@ -481,7 +495,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReadHierarchyAndRetrieveBySuperclass() {
+    void shouldReadHierarchyAndRetrieveBySuperclass() {
 
         Female daniela = new Female("Daniela");
         Male michal = new Male("Michal");
@@ -515,7 +529,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotCountAbstractNonAnnotatedClass() {
+    void shouldNotCountAbstractNonAnnotatedClass() {
 
         Female daniela = new Female("Daniela");
         Male michal = new Male("Michal");
@@ -534,7 +548,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotDeleteAbstractNonAnnotatedClass() {
+    void shouldNotDeleteAbstractNonAnnotatedClass() {
 
         Female daniela = new Female("Daniela");
         Male michal = new Male("Michal");
@@ -549,7 +563,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReadHierarchy2() {
+    void shouldReadHierarchy2() {
         session.query(
             "CREATE (:Female:Person:Entity {name:'Daniela'})," +
                 "(:Male:Person:Entity {name:'Michal'})," +
@@ -586,7 +600,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReadHierarchy3() {
+    void shouldReadHierarchy3() {
         session.query(
             "CREATE (:Female:Person:Entity {name:'Daniela'})," +
                 "(:Male:Person:Entity {name:'Michal'})," +
@@ -617,7 +631,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldReadHierarchy4() {
+    void shouldReadHierarchy4() {
         Session customSession = new SessionFactory(getDriver(), false, "org.neo4j.ogm.domain.hierarchy.domain").openSession();
         customSession.query(
             "CREATE (:Female {name:'Daniela'})," +
@@ -644,9 +658,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(blokes.contains(adam)).isTrue();
     }
 
-    @Test
     // the logic of this test is debatable. the domain model and persisted schema are not the same.
-    public void shouldReadHierarchy5() {
+    @Test
+    void shouldReadHierarchy5() {
         // ^^ Yep, the debatable behaviour became much more appearant with strict querying.
         Session customSession = new SessionFactory(getDriver(), false, "org.neo4j.ogm.domain.hierarchy.domain").openSession();
         customSession.query(
@@ -675,7 +689,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotReadHierarchy() {
+    void shouldNotReadHierarchy() {
         session.query("CREATE (:Person {name:'Daniela'})", emptyMap());
         session.clear();
 
@@ -683,7 +697,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldLeaveExistingLabelsAlone() {
+    void shouldLeaveExistingLabelsAlone() {
         session.query("CREATE (:Female:Person:GoldMember {name:'Daniela'})", emptyMap());
         session.clear();
 
@@ -694,7 +708,7 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
 
     //this should throw an exception, but for a different reason than it does now!
     @Test
-    public void shouldFailWithConflictingHierarchies() {
+    void shouldFailWithConflictingHierarchies() {
         session.query("CREATE (:Female:Person {name:'Daniela'})", emptyMap());
         session.clear();
 
@@ -705,8 +719,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(session.loadAll(Female.class)).isEmpty();
     }
 
-    @Test // DATAGRAPH-735
-    public void shouldLoadRelatedSuperclasses() {
+    // DATAGRAPH-735
+    @Test
+    void shouldLoadRelatedSuperclasses() {
         session.query(
             "CREATE (f1:Female:Person {name:'f1'})," +
                 "(m1:Male:Person {name:'m1'})," +
@@ -721,8 +736,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(m1.getChildren().iterator().next().getName()).isEqualTo("c1");
     }
 
-    @Test // GH-553
-    public void shouldLoadImplementationWhenParentClassIsQueriedDirectSubclass() {
+    // GH-553
+    @Test
+    void shouldLoadImplementationWhenParentClassIsQueriedDirectSubclass() {
         UUID uuid = UUID.randomUUID();
         SubEntity subEntity = new SubEntity();
         subEntity.setMyId(uuid);
@@ -736,8 +752,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(rootEntity).isNotNull();
     }
 
-    @Test // GH-553
-    public void shouldLoadImplementationWhenParentClassIsQueriedDeepSubclass() {
+    // GH-553
+    @Test
+    void shouldLoadImplementationWhenParentClassIsQueriedDeepSubclass() {
         UUID uuid = UUID.randomUUID();
         SubSubEntity subsubEntity = new SubSubEntity();
         subsubEntity.setMyId(uuid);
@@ -751,8 +768,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(rootEntity).isNotNull();
     }
 
-    @Test // GH-553
-    public void shouldLoadImplementationWhenParentClassIsQueriedDeepSubclasWithsMostBasicEntity() {
+    // GH-553
+    @Test
+    void shouldLoadImplementationWhenParentClassIsQueriedDeepSubclasWithsMostBasicEntity() {
         UUID uuid = UUID.randomUUID();
         SubSubEntity subsubEntity = new SubSubEntity();
         subsubEntity.setMyId(uuid);
@@ -766,8 +784,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(rootEntity).isNull();
     }
 
-    @Test // GH-553
-    public void shouldLoadImplementationWhenParentClassIsQueriedLoadAll() {
+    // GH-553
+    @Test
+    void shouldLoadImplementationWhenParentClassIsQueriedLoadAll() {
         UUID uuid = UUID.randomUUID();
         SubSubEntity subsubEntity = new SubSubEntity();
         subsubEntity.setMyId(uuid);
@@ -781,8 +800,9 @@ public class ClassHierarchiesIntegrationTest extends TestContainersTestBase {
         assertThat(rootEntity).isNotEmpty();
     }
 
-    @Test // GH-553
-    public void shouldLoadImplementationWhenParentClassIsQueriedLoadAllWithAbstractNonAnnotatedBaseClass() {
+    // GH-553
+    @Test
+    void shouldLoadImplementationWhenParentClassIsQueriedLoadAllWithAbstractNonAnnotatedBaseClass() {
         UUID uuid = UUID.randomUUID();
         SubSubEntity subsubEntity = new SubSubEntity();
         subsubEntity.setMyId(uuid);

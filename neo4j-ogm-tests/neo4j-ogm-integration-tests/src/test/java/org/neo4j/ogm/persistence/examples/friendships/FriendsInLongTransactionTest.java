@@ -20,9 +20,9 @@ package org.neo4j.ogm.persistence.examples.friendships;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.friendships.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -38,12 +38,12 @@ public class FriendsInLongTransactionTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.friendships");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
     }
@@ -52,7 +52,7 @@ public class FriendsInLongTransactionTest extends TestContainersTestBase {
      * @see DATAGRAPH-703
      */
     @Test
-    public void createPersonAndFriendsInLongTransaction() {
+    void createPersonAndFriendsInLongTransaction() {
         try (Transaction tx = session.beginTransaction()) {
             assertThat(tx.status()).isEqualTo(Transaction.Status.OPEN);
             Person john = new Person("John");

@@ -22,8 +22,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.neo4j.ogm.cypher.ComparisonOperator.*;
 import static org.neo4j.ogm.cypher.query.SortOrder.Direction.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
@@ -40,14 +40,14 @@ public class RelationshipEntityQuerySortingTest {
     private SortOrder sortOrder;
     private Filters filters;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         sortOrder = new SortOrder();
         filters = new Filters();
     }
 
     @Test
-    public void testFindByLabel() {
+    void testFindByLabel() {
         sortOrder.add("distance");
         String statement = query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement();
         String expected = "MATCH ()-[r0:`ORBITS`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
@@ -57,7 +57,7 @@ public class RelationshipEntityQuerySortingTest {
     }
 
     @Test
-    public void testFindByProperty() {
+    void testFindByProperty() {
         filters.add(new Filter("distance", EQUALS, 60.2));
         sortOrder.add("aphelion");
         String expected = "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` = $`distance_0`  " +
@@ -69,7 +69,7 @@ public class RelationshipEntityQuerySortingTest {
     }
 
     @Test
-    public void testMultipleSortOrders() {
+    void testMultipleSortOrders() {
         String cypher = "MATCH ()-[r0:`ORBITS`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, " +
             "endnode(r0) AS m ORDER BY r0.distance DESC,r0.aphelion DESC " +
             "MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
@@ -83,7 +83,7 @@ public class RelationshipEntityQuerySortingTest {
     }
 
     @Test
-    public void testDefaultMultipleSortOrders() {
+    void testDefaultMultipleSortOrders() {
         String cypher = "MATCH ()-[r0:`ORBITS`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, " +
             "endnode(r0) AS m ORDER BY r0.distance,r0.aphelion " +
             "MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
@@ -97,7 +97,7 @@ public class RelationshipEntityQuerySortingTest {
     }
 
     @Test
-    public void testDifferentSortDirections() {
+    void testDifferentSortDirections() {
         sortOrder.add(DESC, "type").add("name");
         String statement = query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement();
         String expected = "MATCH ()-[r0:`ORBITS`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +

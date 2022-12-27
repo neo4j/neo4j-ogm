@@ -24,10 +24,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.gh824.Address;
@@ -46,12 +46,12 @@ public class DeepNestQueryingOfRelationshipEntitiesIntegrationTest extends TestC
 
     private static SessionFactory sessionFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh824");
     }
 
-    @Before
+    @BeforeEach
     public void createData() {
         sessionFactory.openSession().purgeDatabase();
         Address a1 = new Address();
@@ -80,14 +80,14 @@ public class DeepNestQueryingOfRelationshipEntitiesIntegrationTest extends TestC
         members.forEach(session::save);
     }
 
-    @After
+    @AfterEach
     public void purgeData() {
 
         sessionFactory.openSession().purgeDatabase();
     }
 
     @Test
-    public void flattenedPathSegmentsShouldWork() {
+    void flattenedPathSegmentsShouldWork() {
 
         Filter filter = new Filter("name", ComparisonOperator.EQUALS, "Mr. User");
         filter.setOwnerEntityType(GroupMember.class);
@@ -101,7 +101,7 @@ public class DeepNestQueryingOfRelationshipEntitiesIntegrationTest extends TestC
     }
 
     @Test
-    public void flattenedPathSegmentsShouldWorkFromTheEnd() {
+    void flattenedPathSegmentsShouldWorkFromTheEnd() {
 
         Filter filter = new Filter("name", ComparisonOperator.EQUALS, "EuregJUG");
         filter.setOwnerEntityType(GroupMember.class);
@@ -115,7 +115,7 @@ public class DeepNestQueryingOfRelationshipEntitiesIntegrationTest extends TestC
     }
 
     @Test
-    public void flattenedPathSegmentsShouldWorkFromBothEnds() {
+    void flattenedPathSegmentsShouldWorkFromBothEnds() {
 
         Filter outgoing = new Filter("name", ComparisonOperator.EQUALS, "U1");
         outgoing.setOwnerEntityType(GroupMember.class);
@@ -132,7 +132,7 @@ public class DeepNestQueryingOfRelationshipEntitiesIntegrationTest extends TestC
     }
 
     @Test
-    public void nPathSegmentsShouldWork() {
+    void nPathSegmentsShouldWork() {
 
         Filter filter = new Filter("code", ComparisonOperator.EQUALS, "0001");
         filter.setOwnerEntityType(GroupMember.class);
@@ -147,7 +147,7 @@ public class DeepNestQueryingOfRelationshipEntitiesIntegrationTest extends TestC
     }
 
     @Test
-    public void nPathSegmentsShouldWorkFromTheEnd() {
+    void nPathSegmentsShouldWorkFromTheEnd() {
 
         Filter filter = new Filter("name", ComparisonOperator.EQUALS, "Aachen");
         filter.setOwnerEntityType(GroupMember.class);
@@ -162,7 +162,7 @@ public class DeepNestQueryingOfRelationshipEntitiesIntegrationTest extends TestC
     }
 
     @Test
-    public void nPathSegmentsShouldWorkFromBothEnds() {
+    void nPathSegmentsShouldWorkFromBothEnds() {
 
         Filter outgoing = new Filter("code", ComparisonOperator.EQUALS, "0001");
         outgoing.setOwnerEntityType(GroupMember.class);
@@ -185,7 +185,7 @@ public class DeepNestQueryingOfRelationshipEntitiesIntegrationTest extends TestC
     }
 
     @Test
-    public void nPlus1PathSegmentsShouldWork() {
+    void nPlus1PathSegmentsShouldWork() {
 
         Filter filter = new Filter("name", ComparisonOperator.EQUALS, "Aachen");
         filter.setOwnerEntityType(GroupMember.class);

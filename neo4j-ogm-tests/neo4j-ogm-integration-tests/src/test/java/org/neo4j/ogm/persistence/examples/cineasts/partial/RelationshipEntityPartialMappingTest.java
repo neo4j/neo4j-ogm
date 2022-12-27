@@ -20,9 +20,9 @@ package org.neo4j.ogm.persistence.examples.cineasts.partial;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
 import org.neo4j.ogm.session.Session;
@@ -43,19 +43,19 @@ public class RelationshipEntityPartialMappingTest extends TestContainersTestBase
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.cineasts.minimum");
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void testCreateAndReloadActorRoleAndMovie() {
+    void testCreateAndReloadActorRoleAndMovie() {
 
         Actor keanu = new Actor("Keanu Reeves");
         Movie matrix = new Movie("The Matrix");
@@ -69,7 +69,7 @@ public class RelationshipEntityPartialMappingTest extends TestContainersTestBase
     }
 
     @Test
-    public void testCreateAndReloadActorMultipleRolesAndMovies() {
+    void testCreateAndReloadActorMultipleRolesAndMovies() {
 
         Actor keanu = new Actor("Keanu Reeves");
         Movie matrix = new Movie("The Matrix");
@@ -92,7 +92,7 @@ public class RelationshipEntityPartialMappingTest extends TestContainersTestBase
     }
 
     @Test
-    public void testCreateAndDeleteActorMultipleRolesAndMovies() {
+    void testCreateAndDeleteActorMultipleRolesAndMovies() {
 
         Actor keanu = new Actor("Keanu Reeves");
         Movie matrix = new Movie("The Matrix");

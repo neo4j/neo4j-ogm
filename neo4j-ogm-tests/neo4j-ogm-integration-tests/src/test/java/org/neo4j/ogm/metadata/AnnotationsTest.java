@@ -20,7 +20,7 @@ package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author vince
@@ -28,7 +28,7 @@ import org.junit.Test;
 public class AnnotationsTest {
 
     @Test
-    public void shouldLoadMetaDataWithComplexAnnotations() {
+    void shouldLoadMetaDataWithComplexAnnotations() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.annotations");
 
@@ -37,7 +37,7 @@ public class AnnotationsTest {
     }
 
     @Test
-    public void shouldReadIndexAnnotationElement() {
+    void shouldReadIndexAnnotationElement() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.annotations");
         ClassInfo classInfo = metaData.classInfo("IndexedEntity");

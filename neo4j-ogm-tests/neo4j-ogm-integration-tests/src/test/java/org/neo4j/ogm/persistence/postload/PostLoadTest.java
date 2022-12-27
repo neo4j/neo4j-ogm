@@ -23,9 +23,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Collections;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.generic_hierarchy.AnotherEntity;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildA;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildB;
@@ -50,13 +50,13 @@ public class PostLoadTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.postload",
             "org.neo4j.ogm.domain.generic_hierarchy");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -64,7 +64,7 @@ public class PostLoadTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldCallPostLoadMethod() throws Exception {
+    void shouldCallPostLoadMethod() throws Exception {
         User user = new User();
         session.save(user);
 
@@ -77,7 +77,7 @@ public class PostLoadTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldCallPostLoadMethodWhenEntityIsInSession() throws Exception {
+    void shouldCallPostLoadMethodWhenEntityIsInSession() throws Exception {
         User user = new User();
         session.save(user);
 
@@ -88,7 +88,7 @@ public class PostLoadTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldCallPostLoadForEachEntityOnce() throws Exception {
+    void shouldCallPostLoadForEachEntityOnce() throws Exception {
         User commonFriend = new User();
         User u1 = new User();
         User u2 = new User();
@@ -106,8 +106,9 @@ public class PostLoadTest extends TestContainersTestBase {
         assertThat(User.getPostLoadCount()).isEqualTo(3);
     }
 
-    @Test // #516
-    public void shouldCallNonPublicFinalPostLoad() throws Exception {
+    // #516
+    @Test
+    void shouldCallNonPublicFinalPostLoad() throws Exception {
         UserWithBetterPostLoadMethod user = new UserWithBetterPostLoadMethod();
         session.save(user);
 
@@ -118,8 +119,9 @@ public class PostLoadTest extends TestContainersTestBase {
         assertThat(loaded.getRandomName()).isNotEqualTo(user.getRandomName());
     }
 
-    @Test // #516
-    public void shouldPreventAmbiguousPostLoadScenario() {
+    // #516
+    @Test
+    void shouldPreventAmbiguousPostLoadScenario() {
 
         UserWithBrokenMethodDeclaration user = new UserWithBrokenMethodDeclaration();
         session.save(user);
@@ -130,8 +132,9 @@ public class PostLoadTest extends TestContainersTestBase {
                 UserWithBrokenMethodDeclaration.class.getName());
     }
 
-    @Test // #414
-    public void shouldRecognizeOverwrittenPostLoadFromSuperClass() {
+    // #414
+    @Test
+    void shouldRecognizeOverwrittenPostLoadFromSuperClass() {
         ChildA parent = new ChildA();
         parent.add(new ChildB());
         parent.add(new ChildB());

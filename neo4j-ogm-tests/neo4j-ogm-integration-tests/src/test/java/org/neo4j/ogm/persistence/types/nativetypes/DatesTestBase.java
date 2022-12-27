@@ -37,8 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Properties;
@@ -60,13 +60,13 @@ public abstract class DatesTestBase extends TestContainersTestBase {
 
     static SessionFactory sessionFactory;
 
-    @Before
+    @BeforeEach
     public void clearDatabase() {
         sessionFactory.openSession().purgeDatabase();
     }
 
     @Test
-    public void convertPersistAndLoadLocalDate() {
+    void convertPersistAndLoadLocalDate() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
         LocalDate localDate = LocalDate.of(2018, 11, 15);
@@ -79,7 +79,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadLocalDateTime() {
+    void convertPersistAndLoadLocalDateTime() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
         LocalDateTime localDateTime = LocalDateTime.of(2018, 11, 15, 8, 36);
@@ -92,7 +92,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadDate() {
+    void convertPersistAndLoadDate() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
         LocalDateTime localDateTime = LocalDateTime.of(2018, 11, 15, 8, 36);
@@ -106,7 +106,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadDuration() {
+    void convertPersistAndLoadDuration() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
         Duration duration = Duration.ofDays(32).plusHours(25).plusMinutes(61).plusSeconds(61).plusMillis(2123);
@@ -119,7 +119,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadPeriods() {
+    void convertPersistAndLoadPeriods() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
         Period period = Period.of(13, 13, 400);
@@ -132,10 +132,10 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadZonedDateTimeInMap() {
+    void convertPersistAndLoadZonedDateTimeInMap() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
-        ZonedDateTime dateTime = ZonedDateTime.of(2019,6,17,13,31,0,0,ZoneId.systemDefault());
+        ZonedDateTime dateTime = ZonedDateTime.of(2019, 6, 17, 13, 31, 0, 0, ZoneId.systemDefault());
         LocalDate localDate = LocalDate.of(2018, 11, 14);
         LocalDateTime localDateTime = LocalDateTime.of(2018, 10, 11, 15, 24);
 
@@ -153,7 +153,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadLocalDateForRelationship() {
+    void convertPersistAndLoadLocalDateForRelationship() {
         Session session = sessionFactory.openSession();
         SometimeRelationship sometime = new SometimeRelationship();
         LocalDate localDate = LocalDate.of(2018, 11, 15);
@@ -166,7 +166,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadLocalDateTimeForRelationship() {
+    void convertPersistAndLoadLocalDateTimeForRelationship() {
         Session session = sessionFactory.openSession();
         SometimeRelationship sometime = new SometimeRelationship();
         LocalDateTime localDateTime = LocalDateTime.of(2018, 11, 15, 8, 36);
@@ -179,7 +179,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadDateForRelationship() {
+    void convertPersistAndLoadDateForRelationship() {
         Session session = sessionFactory.openSession();
         SometimeRelationship sometimeRelationship = new SometimeRelationship();
         LocalDateTime localDateTime = LocalDateTime.of(2018, 11, 15, 8, 36);
@@ -193,7 +193,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadDurationForRelationship() {
+    void convertPersistAndLoadDurationForRelationship() {
         Session session = sessionFactory.openSession();
         SometimeRelationship sometime = new SometimeRelationship();
         Duration duration = Duration.ofDays(32).plusHours(25).plusMinutes(61).plusSeconds(61).plusMillis(2123);
@@ -206,7 +206,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void convertPersistAndLoadPeriodsForRelationship() {
+    void convertPersistAndLoadPeriodsForRelationship() {
         Session session = sessionFactory.openSession();
         SometimeRelationship sometime = new SometimeRelationship();
         Period period = Period.of(13, 13, 400);
@@ -219,10 +219,10 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public abstract void shouldObeyExplicitConversionOfNativeTypes();
+    abstract void shouldObeyExplicitConversionOfNativeTypes();
 
     @Test
-    public abstract void convertPersistAndLoadTemporalAmounts();
+    abstract void convertPersistAndLoadTemporalAmounts();
 
     Map<String, Object> createSometimeWithConvertedLocalDate() {
         Session session = sessionFactory.openSession();
@@ -238,13 +238,13 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public void collectionsOfDatesShouldWork() {
+    void collectionsOfDatesShouldWork() {
         Session session = sessionFactory.openSession();
         Sometime sometime = new Sometime();
         Duration d1 = Duration.ofMinutes(1);
         Duration d2 = Duration.ofMinutes(2);
 
-        sometime.setArrayOfDates(new Duration[] { d1, d2 });
+        sometime.setArrayOfDates(new Duration[]{d1, d2});
         sometime.setListOfDates(Arrays.asList(d1, d2));
 
         session.save(sometime);
@@ -256,7 +256,7 @@ public abstract class DatesTestBase extends TestContainersTestBase {
     }
 
     @Test
-    public abstract void shouldUseNativeDateTimeTypesInParameterMaps();
+    abstract void shouldUseNativeDateTimeTypesInParameterMaps();
 
     @NodeEntity
     static class Sometime {

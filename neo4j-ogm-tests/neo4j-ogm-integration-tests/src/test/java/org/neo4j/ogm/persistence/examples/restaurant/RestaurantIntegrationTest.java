@@ -30,11 +30,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -55,24 +54,24 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.restaurant");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldSaveRestaurantWithCompositeLocationConverter() {
+    void shouldSaveRestaurantWithCompositeLocationConverter() {
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
             new Location(37.61649, -122.38681), 94128);
@@ -88,7 +87,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveBranchWitlCompositeLocationConverter() throws Exception {
+    void shouldSaveBranchWitlCompositeLocationConverter() throws Exception {
         Franchise franchise = new Franchise();
         Restaurant restaurant = new Restaurant();
         Branch branch = new Branch(new Location(37.61649, -122.38681), franchise, restaurant);
@@ -102,7 +101,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldQueryByDistance() {
+    void shouldQueryByDistance() {
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
             new Location(37.61649, -122.38681), 94128);
@@ -112,14 +111,14 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
         parameters.put("distance", 1000);
 
         Restaurant found = session.queryForObject(Restaurant.class, "MATCH (r:Restaurant) " +
-                "WHERE point.distance(point({latitude: r.latitude, longitude:r.longitude}),point({latitude:37.0, longitude:-118.0, crs: 'WGS-84'})) < $distance*1000 RETURN r;",
+            "WHERE point.distance(point({latitude: r.latitude, longitude:r.longitude}),point({latitude:37.0, longitude:-118.0, crs: 'WGS-84'})) < $distance*1000 RETURN r;",
             parameters);
 
         assertThat(found).isNotNull();
     }
 
     @Test
-    public void shouldQueryByDistanceUsingFilter() {
+    void shouldQueryByDistanceUsingFilter() {
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
             new Location(37.61649, -122.38681), 94128);
@@ -134,7 +133,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void saveAndRetrieveRestaurantWithLocation() {
+    void saveAndRetrieveRestaurantWithLocation() {
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
             new Location(37.61649, -122.38681), 94128);
@@ -155,7 +154,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
      * @see issue #159
      */
     @Test
-    public void shouldSyncMappedLabelsFromEntityToTheNode_and_NodeToEntity() {
+    void shouldSyncMappedLabelsFromEntityToTheNode_and_NodeToEntity() {
 
         Restaurant restaurant = new Restaurant();
         restaurant.setName("House of Mushroom & Pepperoni");
@@ -176,7 +175,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldUpdateLabelsCorrectly() throws Exception {
+    void shouldUpdateLabelsCorrectly() throws Exception {
         Franchise franchise = new Franchise();
 
         Restaurant r1 = new Restaurant();
@@ -210,7 +209,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
      * @see issue #137
      */
     @Test
-    public void shouldProvideUniqueParameterNamesForFilters() {
+    void shouldProvideUniqueParameterNamesForFilters() {
         Restaurant restaurant = new Restaurant();
         restaurant.setName("La Cocina De Flaming Lips");
         session.save(restaurant);
@@ -237,7 +236,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-904
      */
     @Test
-    public void shouldFilterByIsNullOrNotNull() {
+    void shouldFilterByIsNullOrNotNull() {
         Restaurant kuroda = new Restaurant("Kuroda", "Mainly Ramen");
         session.save(kuroda);
 
@@ -267,7 +266,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-904
      */
     @Test
-    public void shouldFilterByPropertyWithConverter() {
+    void shouldFilterByPropertyWithConverter() {
         Restaurant kuroda = new Restaurant("Kuroda", 72.4);
         kuroda.setLaunchDate(new Date(1000));
         session.save(kuroda);
@@ -294,7 +293,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-904
      */
     @Test
-    public void shouldFilterByPropertyStartingWith() {
+    void shouldFilterByPropertyStartingWith() {
         Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
         sfo.setLaunchDate(new Date(1000));
         session.save(sfo);
@@ -315,7 +314,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-904
      */
     @Test
-    public void shouldFilterByPropertyEndingWith() {
+    void shouldFilterByPropertyEndingWith() {
         Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
         sfo.setLaunchDate(new Date(1000));
         session.save(sfo);
@@ -336,7 +335,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-904
      */
     @Test
-    public void shouldFilterByPropertyContaining() {
+    void shouldFilterByPropertyContaining() {
         Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
         sfo.setLaunchDate(new Date(1000));
         session.save(sfo);
@@ -357,7 +356,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-904
      */
     @Test
-    public void shouldFilterByPropertyIn() {
+    void shouldFilterByPropertyIn() {
         Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
         sfo.setLaunchDate(new Date(1000));
         session.save(sfo);
@@ -366,7 +365,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
         kuroda.setLaunchDate(new Date(2000));
         session.save(kuroda);
 
-        Filter filter = new Filter("name", ComparisonOperator.IN, new String[] { "Kuroda", "Foo", "Bar" });
+        Filter filter = new Filter("name", ComparisonOperator.IN, new String[]{"Kuroda", "Foo", "Bar"});
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
         assertThat(results).isNotNull();
@@ -375,7 +374,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldFilterByCollectionContaining() {
+    void shouldFilterByCollectionContaining() {
         Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
         sfo.getSpecialities().add("burger");
         sfo.getSpecialities().add("pizza");
@@ -403,7 +402,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-904
      */
     @Test
-    public void shouldFilterByPropertyExists() {
+    void shouldFilterByPropertyExists() {
         Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
         sfo.setLaunchDate(new Date(1000));
         session.save(sfo);
@@ -430,7 +429,7 @@ public class RestaurantIntegrationTest extends TestContainersTestBase {
      * @see DATAGRAPH-904
      */
     @Test
-    public void shouldFilterByPropertyIsTrue() {
+    void shouldFilterByPropertyIsTrue() {
 
         Restaurant kazan = new Restaurant("Kazan", 77.0);
         kazan.setHalal(true);

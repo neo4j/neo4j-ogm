@@ -20,7 +20,7 @@ package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Luanne Misquitta
@@ -29,7 +29,7 @@ import org.junit.Test;
 public class ClassPathScannerTest {
 
     @Test
-    public void directoryShouldBeScanned() {
+    void directoryShouldBeScanned() {
 
         final DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.bike");
         assertThat(domainInfo.getClassInfoMap()).containsOnlyKeys(
@@ -41,7 +41,7 @@ public class ClassPathScannerTest {
     }
 
     @Test
-    public void nestedDirectoryShouldBeScanned() {
+    void nestedDirectoryShouldBeScanned() {
 
         final DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.convertible");
         assertThat(domainInfo.getClassInfoMap()).containsOnlyKeys(
@@ -76,7 +76,7 @@ public class ClassPathScannerTest {
     }
 
     @Test
-    public void zipFileWithDomainClassesShouldBeScanned() {
+    void zipFileWithDomainClassesShouldBeScanned() {
 
         final DomainInfo domainInfo = DomainInfo.create("concert.domain");
         assertThat(domainInfo.getClassInfoMap()).containsOnlyKeys(

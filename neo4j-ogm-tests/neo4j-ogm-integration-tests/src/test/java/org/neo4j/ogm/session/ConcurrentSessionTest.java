@@ -19,14 +19,14 @@
 package org.neo4j.ogm.session;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assume.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.concurrency.World;
@@ -41,7 +41,7 @@ public class ConcurrentSessionTest extends TestContainersTestBase {
 
     private boolean failed = false;
 
-    @BeforeClass
+    @BeforeAll
     public static void oneTimeSetUp() {
 
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.concurrency");
@@ -49,7 +49,7 @@ public class ConcurrentSessionTest extends TestContainersTestBase {
 
 
     @Test
-    public void multipleThreadsResultsGetMixedUp() throws Exception {
+    void multipleThreadsResultsGetMixedUp() throws Exception {
 
         World world1 = new World("world 1", 1);
         Session session = sessionFactory.openSession();

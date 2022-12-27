@@ -19,9 +19,10 @@
 package org.neo4j.ogm.config;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.simple.User;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.ConnectionException;
@@ -34,24 +35,26 @@ import org.neo4j.ogm.session.SessionFactory;
  *
  * @author Frantisek Hartman
  */
-@Ignore // ignored because of the test runner on team city, child classes should run normally
+@Disabled // ignored because of the test runner on team city, child classes should run normally
 public abstract class DriverLazyInitializationTest {
 
     protected Configuration.Builder configBuilder;
 
     @Test
-    public void shouldCreateSessionFactoryWhenServerIsOffline() {
+    void shouldCreateSessionFactoryWhenServerIsOffline() {
         Configuration configuration = configBuilder.build();
 
         SessionFactory sessionFactory = new SessionFactory(configuration, User.class.getPackage().getName());
         assertThat(sessionFactory.unwrap(Driver.class)).isNotNull();
     }
 
-    @Test(expected = ConnectionException.class)
-    public void shouldThrowServiceUnavailableWhenServerIsOfflineAndVerifyIsTrue() {
-        Configuration configuration = configBuilder.verifyConnection(true)
-            .build();
+    @Test
+    void shouldThrowServiceUnavailableWhenServerIsOfflineAndVerifyIsTrue() {
+        assertThrows(ConnectionException.class, () -> {
+            Configuration configuration = configBuilder.verifyConnection(true)
+                .build();
 
-        new SessionFactory(configuration, User.class.getPackage().getName());
+            new SessionFactory(configuration, User.class.getPackage().getName());
+        });
     }
 }

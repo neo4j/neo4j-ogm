@@ -20,7 +20,7 @@ package org.neo4j.ogm.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Michael J. Simons
@@ -30,38 +30,44 @@ public class FieldInfoTest {
     private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.convertible.numbers");
     private static final ClassInfo accountInfo = metaData.classInfo("Account");
 
-    @Test // GH-845
-    public void shouldBeAbleToDetermineConvertedTypeWithDirectImplementation() {
+    // GH-845
+    @Test
+    void shouldBeAbleToDetermineConvertedTypeWithDirectImplementation() {
 
         assertThat(accountInfo.getFieldInfo("foobar").convertedType()).isEqualTo(String.class);
     }
 
-    @Test // GH-845
-    public void shouldBeAbleToDetermineConvertedTypeWithDirectInheritance() {
+    // GH-845
+    @Test
+    void shouldBeAbleToDetermineConvertedTypeWithDirectInheritance() {
 
         assertThat(accountInfo.getFieldInfo("listOfFoobars").convertedType()).isEqualTo(String.class);
     }
 
-    @Test // GH-845
-    public void shouldBeAbleToDetermineConvertedTypeWithDirectInheritanceInnerClass() {
+    // GH-845
+    @Test
+    void shouldBeAbleToDetermineConvertedTypeWithDirectInheritanceInnerClass() {
 
         assertThat(accountInfo.getFieldInfo("anotherListOfFoobars").convertedType()).isEqualTo(String.class);
     }
 
-    @Test // GH-845
-    public void shouldBeAbleToDetermineConvertedTypeWithIndirectInheritance() {
+    // GH-845
+    @Test
+    void shouldBeAbleToDetermineConvertedTypeWithIndirectInheritance() {
 
         assertThat(accountInfo.getFieldInfo("valueA").convertedType()).isEqualTo(String.class);
     }
 
-    @Test // GH-845
-    public void shouldBeAbleToDetermineConvertedTypeWithIndirectInheritanceInnerClass() {
+    // GH-845
+    @Test
+    void shouldBeAbleToDetermineConvertedTypeWithIndirectInheritanceInnerClass() {
 
         assertThat(accountInfo.getFieldInfo("valueB").convertedType()).isEqualTo(String.class);
     }
 
-    @Test // GH-845
-    public void shouldNotFailWithoutConverter() {
+    // GH-845
+    @Test
+    void shouldNotFailWithoutConverter() {
 
         assertThat(accountInfo.getFieldInfo("notConverter").convertedType()).isNull();
     }

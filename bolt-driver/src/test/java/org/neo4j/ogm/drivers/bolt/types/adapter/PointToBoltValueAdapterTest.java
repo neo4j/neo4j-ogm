@@ -19,7 +19,7 @@
 package org.neo4j.ogm.drivers.bolt.types.adapter;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.driver.types.Point;
 import org.neo4j.ogm.types.spatial.CartesianPoint2d;
 import org.neo4j.ogm.types.spatial.CartesianPoint3d;
@@ -31,7 +31,7 @@ import org.neo4j.ogm.types.spatial.GeographicPoint3d;
  */
 public class PointToBoltValueAdapterTest {
     @Test
-    public void mappingShouldWork() {
+    void mappingShouldWork() {
         PointToBoltValueAdapter adapter = new PointToBoltValueAdapter();
 
         Point point;

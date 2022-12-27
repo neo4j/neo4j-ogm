@@ -20,6 +20,7 @@ package org.neo4j.ogm.persistence.types.properties;
 
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,12 +29,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.properties.SomeNode;
 import org.neo4j.ogm.domain.properties.User;
 import org.neo4j.ogm.exception.core.MappingException;
@@ -51,22 +49,20 @@ public class PropertiesTest extends TestContainersTestBase {
 
     private Session session;
 
-    @Rule
-    public ExpectedException thrownException = ExpectedException.none();
-
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         sessionFactory = new SessionFactory(getDriver(), User.class.getName(), SomeNode.class.getName());
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
-    @Test // GH-632
-    public void shouldHandleEnumsAsKey() {
+    // GH-632
+    @Test
+    void shouldHandleEnumsAsKey() {
 
         User user = new User("A");
         user.setEnumAProperties(Collections.singletonMap(User.EnumA.VALUE_AA, "aa"));
@@ -82,15 +78,16 @@ public class PropertiesTest extends TestContainersTestBase {
 
         session.clear();
         User loadedObject = (User) session.query(
-                "MATCH (n) where id(n)= $id return n", Collections.singletonMap("id", user.getId()))
+            "MATCH (n) where id(n)= $id return n", Collections.singletonMap("id", user.getId()))
             .queryResults().iterator().next()
             .get("n");
         assertThat(loadedObject.getEnumAProperties()).containsEntry(User.EnumA.VALUE_AA, "aa");
         assertThat(loadedObject.getEnumBProperties()).containsEntry(User.EnumB.VALUE_BA, "ba");
     }
 
-    @Test // GH-899
-    public void shouldHandleEnumsAsValues() {
+    // GH-899
+    @Test
+    void shouldHandleEnumsAsValues() {
 
         User user = new User("A");
         user.setEnumAValuesByString(Collections.singletonMap("aa", User.EnumA.VALUE_AA));
@@ -106,15 +103,16 @@ public class PropertiesTest extends TestContainersTestBase {
 
         session.clear();
         User loadedObject = (User) session.query(
-                "MATCH (n) where id(n)= $id AND n.`enumAValuesByString.aa` = 'VALUE_AA' and n.`enumBValuesByEnum.VALUE_AA` = 'VALUE_BA' return n", Collections.singletonMap("id", user.getId()))
+            "MATCH (n) where id(n)= $id AND n.`enumAValuesByString.aa` = 'VALUE_AA' and n.`enumBValuesByEnum.VALUE_AA` = 'VALUE_BA' return n", Collections.singletonMap("id", user.getId()))
             .queryResults().iterator().next()
             .get("n");
         assertThat(loadedObject.getEnumAValuesByString()).containsEntry("aa", User.EnumA.VALUE_AA);
         assertThat(loadedObject.getEnumBValuesByEnum()).containsEntry(User.EnumA.VALUE_AA, User.EnumB.VALUE_BA);
     }
 
-    @Test // GH-634
-    public void shouldHandleFilteredProperties() {
+    // GH-634
+    @Test
+    void shouldHandleFilteredProperties() {
 
         User user = new User("A");
         user.setFilteredProperties(Collections.singletonMap(User.EnumA.VALUE_AA, "aa"));
@@ -133,38 +131,41 @@ public class PropertiesTest extends TestContainersTestBase {
         assertThat(loadedObject.getFilteredProperties()).containsEntry(User.EnumA.VALUE_AA, "aa");
     }
 
-    @Test // GH-632
-    public void shouldNotAllowNullKeys() {
+    // GH-632
+    @Test
+    void shouldNotAllowNullKeys() {
+        assertThatThrownBy(() -> {
+            User user = new User("A");
+            Map<String, Object> properties = new HashMap<>();
+            properties.put(null, "irrelevant");
+            user.setMyProperties(properties);
+            session.save(user);
 
-        thrownException.expect(UnsupportedOperationException.class);
-        thrownException.expectMessage("Null is not a supported property key!");
-
-        User user = new User("A");
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(null, "irrelevant");
-        user.setMyProperties(properties);
-        session.save(user);
-
-        session.clear();
+            session.clear();
+        })
+            .isInstanceOf(UnsupportedOperationException.class)
+            .hasMessageContaining("Null is not a supported property key!");
     }
 
-    @Test // GH-632
-    public void shouldNotAllowKeysOtherThanStringAndEnum() {
+    // GH-632
+    @Test
+    void shouldNotAllowKeysOtherThanStringAndEnum() {
+        assertThatThrownBy(() -> {
 
-        thrownException.expect(UnsupportedOperationException.class);
-        thrownException.expectMessage("Only String and Enum allowed to be keys, got class java.lang.Integer");
+            User user = new User("A");
+            Map properties = new HashMap<>();
+            properties.put(123, "irrelevant");
+            user.setMyProperties(properties);
+            session.save(user);
 
-        User user = new User("A");
-        Map properties = new HashMap<>();
-        properties.put(123, "irrelevant");
-        user.setMyProperties(properties);
-        session.save(user);
-
-        session.clear();
+            session.clear();
+        })
+            .isInstanceOf(UnsupportedOperationException.class)
+            .hasMessageContaining("Only String and Enum allowed to be keys, got class java.lang.Integer");
     }
 
     @Test
-    public void shouldMapPropertiesAttributeToNodeProperties() {
+    void shouldMapPropertiesAttributeToNodeProperties() {
         User user = new User("Frantisek");
         user.putMyProperty("city", "London");
         user.putMyProperty("zipCode", "SW1A 1AA");
@@ -180,7 +181,7 @@ public class PropertiesTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapPropertiesAttributeWithNestedMapToNodeProperties() {
+    void shouldMapPropertiesAttributeWithNestedMapToNodeProperties() {
         User user = new User("Frantisek");
         Map<String, String> address = new HashMap<String, String>();
         address.put("city", "London");
@@ -197,7 +198,7 @@ public class PropertiesTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapPropertiesAttributeWithPrefixToNodeProperties() {
+    void shouldMapPropertiesAttributeWithPrefixToNodeProperties() {
         User user = new User("Frantisek");
         user.putPrefixedProperty("city", "London");
         user.putPrefixedProperty("zipCode", "SW1A 1AA");
@@ -213,7 +214,7 @@ public class PropertiesTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapPropertiesAttributeWithDelimiterToNodeProperties() {
+    void shouldMapPropertiesAttributeWithDelimiterToNodeProperties() {
         User user = new User("Frantisek");
         user.putDelimiterProperty("city", "London");
         user.putDelimiterProperty("zipCode", "SW1A 1AA");
@@ -229,9 +230,9 @@ public class PropertiesTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapNodePropertiesToPropertiesAttribute() {
+    void shouldMapNodePropertiesToPropertiesAttribute() {
         session.query("CREATE (u:User {`name`:'Frantisek', `myProperties.city`:'London', " +
-                "`myProperties.zipCode`:'SW1A 1AA'})",
+            "`myProperties.zipCode`:'SW1A 1AA'})",
             emptyMap());
 
         User user = session.loadAll(User.class).iterator().next();
@@ -243,10 +244,10 @@ public class PropertiesTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapNestedNodePropertiesToPropertiesAttributeAsNestedMap() {
+    void shouldMapNestedNodePropertiesToPropertiesAttributeAsNestedMap() {
         session.query("CREATE (u:User {`name`:'Frantisek', " +
-                "`myProperties.address.city`:'London', " +
-                "`myProperties.address.zipCode`:'SW1A 1AA'})",
+            "`myProperties.address.city`:'London', " +
+            "`myProperties.address.zipCode`:'SW1A 1AA'})",
             emptyMap());
 
         User user = session.loadAll(User.class).iterator().next();
@@ -258,7 +259,7 @@ public class PropertiesTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapNodePropertiesToPropertiesAttributeWithPrefix() {
+    void shouldMapNodePropertiesToPropertiesAttributeWithPrefix() {
         session.query("CREATE (u:User {`name`:'Frantisek', `myPrefix.city`:'London', `myPrefix.zipCode`:'SW1A 1AA'})",
             emptyMap());
 
@@ -271,10 +272,10 @@ public class PropertiesTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldMapNodePropertiesToPropertiesAttributeWithDelimiter() {
+    void shouldMapNodePropertiesToPropertiesAttributeWithDelimiter() {
         session.query("CREATE (u:User {`name`:'Frantisek', " +
-                "`delimiterProperties__city`:'London', " +
-                "`delimiterProperties__zipCode`:'SW1A 1AA'})",
+            "`delimiterProperties__city`:'London', " +
+            "`delimiterProperties__zipCode`:'SW1A 1AA'})",
             emptyMap());
 
         User user = session.loadAll(User.class).iterator().next();
@@ -286,7 +287,7 @@ public class PropertiesTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldSaveAndLoadMapOfAllPropertyTypes() {
+    void shouldSaveAndLoadMapOfAllPropertyTypes() {
         //        propertyMap.put("Character", 'c');
         //        propertyMap.put("Byte", (byte) 2);
         //        propertyMap.put("Short", (short) 3);
@@ -317,26 +318,30 @@ public class PropertiesTest extends TestContainersTestBase {
         assertThat(loaded.getMyProperties()).isEqualTo(propertyMap);
     }
 
-    @Test(expected = MappingException.class)
-    public void shouldThrowExceptionWhenMappingNonCypherType() {
+    @Test
+    void shouldThrowExceptionWhenMappingNonCypherType() {
+        assertThrows(MappingException.class, () -> {
 
-        User user = new User();
-        user.putMyProperty("age", 18);
+            User user = new User();
+            user.putMyProperty("age", 18);
 
-        session.save(user);
-    }
-
-    @Test(expected = MappingException.class)
-    public void shouldThrowExceptionWhenMappingNonConvertibleType() {
-
-        User user = new User();
-        user.putAllowCastProperty("age", new Date());
-
-        session.save(user);
+            session.save(user);
+        });
     }
 
     @Test
-    public void shouldMapSpecificValueType() {
+    void shouldThrowExceptionWhenMappingNonConvertibleType() {
+        assertThrows(MappingException.class, () -> {
+
+            User user = new User();
+            user.putAllowCastProperty("age", new Date());
+
+            session.save(user);
+        });
+    }
+
+    @Test
+    void shouldMapSpecificValueType() {
 
         User user = new User();
         user.putIntegerProperty("age", 18);
@@ -350,7 +355,7 @@ public class PropertiesTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldConvertNestedMapWithList() {
+    void shouldConvertNestedMapWithList() {
         Map<String, Object> nested = new HashMap<>();
         nested.put("value", Arrays.asList(1, 2, 3, 4));
 
@@ -364,8 +369,9 @@ public class PropertiesTest extends TestContainersTestBase {
         assertThat(loaded.getMyProperties()).isEqualTo(loaded.getMyProperties());
     }
 
-    @Test // GH-518
-    public void shouldBeAbleToDeletePropertiesAgain() {
+    // GH-518
+    @Test
+    void shouldBeAbleToDeletePropertiesAgain() {
         User user = new User();
 
         user.putMyProperty("prop1", "A property");
@@ -399,8 +405,9 @@ public class PropertiesTest extends TestContainersTestBase {
         assertThat(loaded.getPrefixedProperties()).isEmpty();
     }
 
-    @Test  // GH-518
-    public void shouldNotDeleteUnmappedProperties() {
+    // GH-518
+    @Test
+    void shouldNotDeleteUnmappedProperties() {
         session.query("CREATE (u:SomeNode {`name`:'Unmapped', `myPrefix.aProperty`:'aValue'})",
             emptyMap());
 
@@ -431,8 +438,9 @@ public class PropertiesTest extends TestContainersTestBase {
         );
     }
 
-    @Test // GH-650
-    public void manualConversionShouldSupportPropertiesWithouthPrefix() {
+    // GH-650
+    @Test
+    void manualConversionShouldSupportPropertiesWithouthPrefix() {
         User user = new User();
         Map<String, Object> properties = new HashMap<>();
         properties.put("a", 1L);

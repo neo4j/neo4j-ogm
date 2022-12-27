@@ -19,9 +19,9 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import org.assertj.core.api.Assertions;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.ogm.domain.cypher_exception_test.ConstraintedNode;
 import org.neo4j.ogm.exception.CypherException;
@@ -41,7 +41,7 @@ public class BoltCypherExceptionTest extends TestContainersTestBase {
 
     protected static final String DOMAIN_PACKAGE = "org.neo4j.ogm.domain.cypher_exception_test";
 
-    @BeforeClass
+    @BeforeAll
     public static void startServer() {
         sessionFactory = new SessionFactory(getDriver(), DOMAIN_PACKAGE);
 
@@ -53,7 +53,7 @@ public class BoltCypherExceptionTest extends TestContainersTestBase {
     }
 
     @Test
-    public void constraintViolationExceptionShouldBeConsistent() {
+    void constraintViolationExceptionShouldBeConsistent() {
         Session session = sessionFactory.openSession();
 
         Assertions.assertThatExceptionOfType(CypherException.class).isThrownBy(() -> {
@@ -63,7 +63,7 @@ public class BoltCypherExceptionTest extends TestContainersTestBase {
         }).withMessageStartingWith(CONSTRAINT_VIOLATED_MESSAGE_PATTERN);
     }
 
-    @AfterClass
+    @AfterAll
     public static void removeDataAndCloseSessionFactory() {
         try (var session = getDriver().unwrap(Driver.class).session()) {
             session.run("MATCH (n) DETACH DELETE n").consume();

@@ -24,9 +24,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collection;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.generic_hierarchy.AnotherEntity;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildA;
 import org.neo4j.ogm.domain.generic_hierarchy.ChildB;
@@ -55,19 +55,19 @@ public class LabelDeterminationTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void setupSessionFactory() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.generic_hierarchy");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldNotSaveEntityLabelAndMustRetrieveChildA() {
+    void shouldNotSaveEntityLabelAndMustRetrieveChildA() {
         ChildA a = new ChildA();
         a.setValue("ChildA");
         session.save(a);
@@ -82,7 +82,7 @@ public class LabelDeterminationTest extends TestContainersTestBase {
     }
 
     @Test
-    public void shouldNotSaveEntityLabelAndMustRetrieveChildAChildren() {
+    void shouldNotSaveEntityLabelAndMustRetrieveChildAChildren() {
         ChildA a = new ChildA();
         ChildB b1 = new ChildB();
         ChildB b2 = new ChildB();
@@ -107,8 +107,9 @@ public class LabelDeterminationTest extends TestContainersTestBase {
         assertThat(children).contains(b1, b2, c1);
     }
 
-    @Test // GH-488
-    public void shouldUpdateLabelWhenLoadingEntityInSameSession() {
+    // GH-488
+    @Test
+    void shouldUpdateLabelWhenLoadingEntityInSameSession() {
         ChildA a = new ChildA();
         a.addLabel("A0");
         session.save(a);
@@ -127,8 +128,9 @@ public class LabelDeterminationTest extends TestContainersTestBase {
         assertThat(dbA.getLabels()).contains("A1");
     }
 
-    @Test // GH-488
-    public void shouldUpdateLabelWhenLoadingEntityInNewSession() {
+    // GH-488
+    @Test
+    void shouldUpdateLabelWhenLoadingEntityInNewSession() {
         ChildA a = new ChildA();
         a.addLabel("A0");
         session.save(a);
@@ -147,8 +149,9 @@ public class LabelDeterminationTest extends TestContainersTestBase {
         assertThat(dbA.getLabels()).contains("A1");
     }
 
-    @Test // GH-539
-    public void labelsShouldBeDeleted() {
+    // GH-539
+    @Test
+    void labelsShouldBeDeleted() {
         Session throwAwaySession = sessionFactory.openSession();
         throwAwaySession
             .query("CREATE (a:EntityWithImplicitPlusAdditionalLabels:Label1:Label2 {id: 'myId'}) RETURN a", emptyMap());
@@ -167,8 +170,9 @@ public class LabelDeterminationTest extends TestContainersTestBase {
         assertThat(entity.getLabels()).containsExactlyInAnyOrder("Label2");
     }
 
-    @Test // GH-619
-    public void metaDataFromParentPackageShouldWork() {
+    // GH-619
+    @Test
+    void metaDataFromParentPackageShouldWork() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh619");
         Collection<String> labels = EntityUtils.labels(new RealNode(), metaData);
@@ -176,8 +180,9 @@ public class LabelDeterminationTest extends TestContainersTestBase {
         assertThat(labels).hasSize(1).containsExactly("real");
     }
 
-    @Test // GH-619
-    public void metaDataWithExplicitPackagesShouldWork() {
+    // GH-619
+    @Test
+    void metaDataWithExplicitPackagesShouldWork() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh619.base",
             "org.neo4j.ogm.domain.gh619.model");
@@ -186,8 +191,9 @@ public class LabelDeterminationTest extends TestContainersTestBase {
         assertThat(labels).hasSize(1).containsExactly("real");
     }
 
-    @Test // GH-619
-    public void metaDataWithImplicitParentPackageShouldWork() {
+    // GH-619
+    @Test
+    void metaDataWithImplicitParentPackageShouldWork() {
 
         MetaData metaData = new MetaData("org.neo4j.ogm.domain.gh619.model");
         Collection<String> labels = EntityUtils.labels(new RealNode(), metaData);

@@ -19,9 +19,10 @@
 package org.neo4j.ogm.session.request.strategy.impl;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.schema.DomainInfoSchemaBuilder;
 import org.neo4j.ogm.metadata.schema.Schema;
@@ -34,20 +35,22 @@ public class SchemaRelationshipLoadClauseBuilderTest {
 
     private SchemaRelationshipLoadClauseBuilder builder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         builder = createLoadClauseBuilder();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void buildClauseDepthZeroNotAllowed() {
+    @Test
+    void buildClauseDepthZeroNotAllowed() {
+        assertThrows(IllegalArgumentException.class, () -> {
 
 
-        builder.build("r", "FRIEND_OF", 0);
+            builder.build("r", "FRIEND_OF", 0);
+        });
     }
 
     @Test
-    public void buildClauseWithDepthTwo() {
+    void buildClauseWithDepthTwo() {
         String clause = builder.build("r", "FOUNDED", 1);
 
         assertThat(clause).isEqualToIgnoringWhitespace(

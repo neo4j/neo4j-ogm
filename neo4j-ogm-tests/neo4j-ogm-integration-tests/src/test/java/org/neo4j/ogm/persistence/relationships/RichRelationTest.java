@@ -25,10 +25,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.mappings.Article;
 import org.neo4j.ogm.domain.mappings.Person;
 import org.neo4j.ogm.domain.mappings.RichRelation;
@@ -38,7 +38,6 @@ import org.neo4j.ogm.domain.versioned_rel.Template;
 import org.neo4j.ogm.domain.versioned_rel.UsedBy;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.RepeatRule;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
@@ -47,18 +46,16 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
  */
 public class RichRelationTest extends TestContainersTestBase {
 
-    @Rule
-    public RepeatRule repeatRule = new RepeatRule();
 
     private static SessionFactory sessionFactory;
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void prepareSessionFactory() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.mappings", "org.neo4j.ogm.domain.versioned_rel");
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -70,8 +67,8 @@ public class RichRelationTest extends TestContainersTestBase {
      * relationships from the mapping context.
      */
     @Test
-    @RepeatRule.Repeat(times = 20)
-    public void versionedRelationshipsTargetingDifferentEndNodes() {
+    @RepeatedTest(20)
+    void versionedRelationshipsTargetingDifferentEndNodes() {
         final Session localSession = sessionFactory.openSession();
 
         Service serviceA = new Service();
@@ -114,8 +111,9 @@ public class RichRelationTest extends TestContainersTestBase {
         localSession.save(loaded);
     }
 
-    @Test // DATAGRAPH-715
-    public void shouldCreateARichRelation() {
+    // DATAGRAPH-715
+    @Test
+    void shouldCreateARichRelation() {
         Person person = new Person();
         session.save(person);
 
@@ -134,8 +132,9 @@ public class RichRelationTest extends TestContainersTestBase {
         session.save(person, 1);
     }
 
-    @Test // GH-46
-    public void shouldUpdateEndNodeEntityWithoutException() {
+    // GH-46
+    @Test
+    void shouldUpdateEndNodeEntityWithoutException() {
         Person person = new Person();
         session.save(person);
 
@@ -157,8 +156,9 @@ public class RichRelationTest extends TestContainersTestBase {
         session.save(updateArticle, 1);
     }
 
-    @Test // DATAGRAPH-730
-    public void shouldSaveRelationshipEntityWhenNoReferencesToRelationshipEntityOnEitherStartOrEndNode() {
+    // DATAGRAPH-730
+    @Test
+    void shouldSaveRelationshipEntityWhenNoReferencesToRelationshipEntityOnEitherStartOrEndNode() {
 
         RichRelation relation = new RichRelation();
         Person person = new Person();
@@ -181,8 +181,9 @@ public class RichRelationTest extends TestContainersTestBase {
         assertThat(savedArticle).isNotNull();
     }
 
-    @Test // DATAGRAPH-730
-    public void shouldSaveRelationshipEntityWhenReferenceToRelationshipEntityOnStartNodeOnly() {
+    // DATAGRAPH-730
+    @Test
+    void shouldSaveRelationshipEntityWhenReferenceToRelationshipEntityOnStartNodeOnly() {
 
         RichRelation relation = new RichRelation();
 
@@ -208,8 +209,9 @@ public class RichRelationTest extends TestContainersTestBase {
         assertThat(savedArticle).isNotNull();
     }
 
-    @Test // DATAGRAPH-730
-    public void shouldSaveRelationshipEntityWhenReferenceToRelationshipEntityOnEndNodeOnly() {
+    // DATAGRAPH-730
+    @Test
+    void shouldSaveRelationshipEntityWhenReferenceToRelationshipEntityOnEndNodeOnly() {
 
         RichRelation relation = new RichRelation();
 

@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.properties.Place;
 import org.neo4j.ogm.domain.properties.User;
 import org.neo4j.ogm.domain.properties.Visit;
@@ -46,21 +46,21 @@ public class RelationshipEntityPropertiesTest extends TestContainersTestBase {
 
     private Session session;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws IOException {
         // Listing concrete classes because package also contains invalid mapping (for testing)
         String[] classes = new String[] { User.class.getName(), Visit.class.getName(), Place.class.getName() };
         sessionFactory = new SessionFactory(getDriver(), classes);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
     @Test
-    public void shouldSaveAndLoadProperties() throws Exception {
+    void shouldSaveAndLoadProperties() throws Exception {
         User user = new User();
         Place place = new Place();
         Visit visit = new Visit(user, place);
@@ -74,8 +74,9 @@ public class RelationshipEntityPropertiesTest extends TestContainersTestBase {
         assertThat(loaded.getProperties()).containsEntry("note", "some random note about a visit to a place");
     }
 
-    @Test // GH-518
-    public void shouldBeAbleToDeletePropertiesOnRelationshipsAgain() {
+    // GH-518
+    @Test
+    void shouldBeAbleToDeletePropertiesOnRelationshipsAgain() {
         User user = new User();
         user.setName("James Bond");
 

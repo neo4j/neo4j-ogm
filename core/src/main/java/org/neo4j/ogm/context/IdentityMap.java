@@ -37,7 +37,7 @@ import org.neo4j.ogm.metadata.MetaData;
  * @author Michael J. Simons
  * @author Andreas Berger
  */
-class IdentityMap {
+class IdentityMap implements Reminiscence {
 
     // objects with no properties will always hash to this value.
     private static final long SEED = 0xDEADBEEF / (11 * 257);
@@ -67,8 +67,9 @@ class IdentityMap {
      * @param object   the object whose persistable properties we want to hash
      * @param entityId the native id of the entity
      */
-    void remember(Object object, Long entityId) {
-        ClassInfo classInfo = metaData.classInfo(object);
+    @Override
+    public void remember(final Object object, final Long entityId) {
+        final ClassInfo classInfo = metaData.classInfo(object);
         if (metaData.isRelationshipEntity(classInfo.name())) {
             this.relEntityHashes.put(entityId, hash(object, classInfo));
             this.snapshotsOfRelationshipEntities.put(entityId, EntitySnapshot.basedOn(metaData).take(object));
@@ -88,24 +89,26 @@ class IdentityMap {
      * @param entityId the native id of the entity
      * @return true if the object hasn't changed since it was remembered, false otherwise
      */
-    boolean remembered(Object object, Long entityId) {
-
+    @Override
+    public boolean remembered(final Object object, final Long entityId) {
         // Bail out early if the native id is null...
         if (entityId == null) {
             return false;
         }
-
-        ClassInfo classInfo = metaData.classInfo(object);
-        boolean isRelEntity = metaData.isRelationshipEntity(classInfo.name());
-        Map<Long, Long> hashes = isRelEntity ? relEntityHashes : nodeHashes;
-
+        final ClassInfo classInfo = metaData.classInfo(object);
+        final boolean relEntity = metaData.isRelationshipEntity(classInfo.name());
+        Map<Long, Long> hashes;
+        if (relEntity) {
+            hashes = relEntityHashes;
+        } else {
+            hashes = nodeHashes;
+        }
         // ... or a little later when the hashes in question doesnt contain the entities id
         if (!hashes.containsKey(entityId)) {
             return false;
         }
-
-        long actual = hash(object, classInfo);
-        long expected = hashes.get(entityId);
+        final long actual = hash(object, classInfo);
+        final long expected = hashes.get(entityId);
         return actual == expected;
     }
 
@@ -117,22 +120,20 @@ class IdentityMap {
      * @param entityId the native id of the entity
      * @return A snapshot of dynamic labels and properties or an empty optional.
      */
-    Optional<EntitySnapshot> getSnapshotOf(Object entity, Long entityId) {
-
+    @Override
+    public Optional<EntitySnapshot> snapshot(Object entity, Long entityId) {
         EntitySnapshot entitySnapshot;
-
         ClassInfo classInfo = metaData.classInfo(entity);
         if (metaData.isRelationshipEntity(classInfo.name())) {
             entitySnapshot = this.snapshotsOfRelationshipEntities.get(entityId);
         } else {
             entitySnapshot = this.snapshotsOfNodeEntities.get(entityId);
         }
-
         return Optional.ofNullable(entitySnapshot);
     }
 
-    void clear() {
-
+    @Override
+    public void clear() {
         this.nodeHashes.clear();
         this.relEntityHashes.clear();
         this.snapshotsOfNodeEntities.clear();

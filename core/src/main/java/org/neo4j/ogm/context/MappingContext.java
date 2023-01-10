@@ -70,7 +70,7 @@ public class MappingContext {
 
     private final Set<MappedRelationship> relationshipRegister;
 
-    private final IdentityMap identityMap;
+    private final Reminiscence identityMap;
 
     private final MetaData metaData;
 
@@ -251,7 +251,7 @@ public class MappingContext {
      * @return The snapshot or an empty optional if there's no such snapshot.
      */
     Optional<EntitySnapshot> getSnapshotOf(Object entity) {
-        return optionalNativeId(entity).flatMap(id -> identityMap.getSnapshotOf(entity, id));
+        return optionalNativeId(entity).flatMap(id -> identityMap.snapshot(entity, id));
     }
 
     /**

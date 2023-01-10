@@ -86,9 +86,7 @@ public class MappedRelationship implements Mappable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         MappedRelationship that = (MappedRelationship) o;
-
         return startNodeId == that.startNodeId
             && endNodeId == that.endNodeId
             && Objects.equals(relationshipType, that.relationshipType)
@@ -100,6 +98,7 @@ public class MappedRelationship implements Mappable {
         return hash;
     }
 
+    @Override
     public String toString() {
         return String.format("(%s)-[%s:%s]->(%s)", startNodeId, relationshipId, relationshipType, endNodeId);
     }

@@ -29,15 +29,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.neo4j.ogm.context.GraphEntityMapper;
+import org.neo4j.ogm.domain.gh932.EntityWithCompositeConverter;
 import org.neo4j.ogm.domain.properties.SomeNode;
 import org.neo4j.ogm.domain.properties.User;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.LoggerRule;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Frantisek Hartman
@@ -49,9 +57,12 @@ public class PropertiesTest extends TestContainersTestBase {
 
     private Session session;
 
+    @RegisterExtension
+    private final LoggerRule loggerRule = new LoggerRule();
+
     @BeforeAll
     public static void init() {
-        sessionFactory = new SessionFactory(getDriver(), User.class.getName(), SomeNode.class.getName());
+        sessionFactory = new SessionFactory(getDriver(), User.class.getName(), SomeNode.class.getName(), EntityWithCompositeConverter.class.getName());
     }
 
     @BeforeEach
@@ -459,5 +470,33 @@ public class PropertiesTest extends TestContainersTestBase {
 
         assertThat(user.getMyProperties())
             .containsOnlyKeys("prop1", "prop2");
+    }
+
+    // GH-932
+    @Test
+    void shouldResolveNameConflictInCompositeConverter() {
+
+        // ensure the right branch in the condition is hit by verifying the log message
+        Logger logger = (Logger) LoggerFactory.getLogger(GraphEntityMapper.class);
+        Level originalLevel = logger.getLevel();
+        logger.setLevel(Level.INFO);
+
+        try {
+            EntityWithCompositeConverter e = new EntityWithCompositeConverter();
+            EntityWithCompositeConverter.Name n = new EntityWithCompositeConverter.Name();
+            n.setPartialName1("some");
+            n.setPartialName2("entity");
+            e.setName(n);
+            session.save(e);
+            session.clear();
+
+            var loaded = session.load(EntityWithCompositeConverter.class, e.getId());
+            assertThat(loaded).isEqualTo(e);
+
+            assertThat(loggerRule.getFormattedMessages())
+                .containsSequence("Property name is already handled by a CompositeAttributeConverter");
+        } finally {
+            logger.setLevel(originalLevel);
+        }
     }
 }

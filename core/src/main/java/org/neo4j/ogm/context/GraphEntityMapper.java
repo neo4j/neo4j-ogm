@@ -286,6 +286,8 @@ public class GraphEntityMapper {
 
         if (writer == null) {
             logger.debug("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
+        } else if (writer.isComposite()) {
+            logger.info("Property {} is already handled by a CompositeAttributeConverter", property.getKey());
         } else {
             Object value = property.getValue();
             // merge iterable / arrays and co-erce to the correct attribute type

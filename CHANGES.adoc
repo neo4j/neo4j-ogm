@@ -2,6 +2,14 @@
 
 == 4.0
 
+=== 4.0.2
+
+* bugfix: Checking for possible composite converters in `GraphEntityMapper.writeProperty` #932 (thanks @oxisto)
+* docs: Add build status badge to `README.adoc`. #930 (thanks @h1alexbel)
+* refactor: Add missing `@Override` to `toString` of `MappedRelationship`. #929 (thanks @h1alexbel)
+* refactor: Migrate to JUnit 5.
+* docs: Add attribute to fix version in code example.
+
 === 4.0.1
 
 * Fix support for collections in constructor mapping.

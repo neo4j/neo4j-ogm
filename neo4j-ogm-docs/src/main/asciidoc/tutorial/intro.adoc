@@ -10,4 +10,4 @@ We intentionally decided to not depend on any external framework (like Spring or
 to avoid the extra bit of complexity those bring with them.
 As a benefit, we can more focus on the behaviour of Neo4j-OGM.
 
-The complete source code for the application is available on https://github.com/neo4j-ogm/neo4j-ogm-example[Github].
+The complete source code for the application is available on https://github.com/neo4j/neo4j-ogm/tree/master/neo4j-ogm-example[Github].

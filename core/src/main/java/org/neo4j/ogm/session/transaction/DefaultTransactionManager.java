@@ -20,7 +20,6 @@ package org.neo4j.ogm.session.transaction;
 
 import static java.util.Collections.*;
 
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -80,54 +79,6 @@ public class DefaultTransactionManager implements TransactionManager {
     }
 
     /**
-     * Rolls back the specified transaction.
-     * The actual job of rolling back the transaction is left to the relevant driver. if
-     * this is successful, the transaction is detached from this thread. Any new objects
-     * are reset in the session, so that their ids are reset to null.
-     * If the specified transaction is not the correct one for this thread, throws an exception
-     *
-     * @param transaction the transaction to rollback
-     */
-    public void rollback(Transaction transaction) {
-
-        checkIfCurrentAndRemove(transaction, tx -> {
-            List<Object> newlyRegisteredObjects = ((AbstractTransaction) tx).registeredNew();
-            for (Object object : newlyRegisteredObjects) {
-                ((Neo4jSession) session).context().reset(object);
-            }
-            newlyRegisteredObjects.clear();
-        });
-    }
-
-    /**
-     * Commits the specified transaction.
-     * The actual job of committing the transaction is left to the relevant driver. if
-     * this is successful, the transaction is detached from this thread.
-     * If the specified transaction is not the correct one for this thread, throws an exception
-     *
-     * @param transaction the transaction to commit
-     */
-    public void commit(Transaction transaction) {
-
-        checkIfCurrentAndRemove(transaction, tx -> {
-            List<Object> newlyRegisteredObjects = tx.registeredNew();
-            newlyRegisteredObjects.clear();
-        });
-    }
-
-    private void checkIfCurrentAndRemove(Transaction transaction, Consumer<AbstractTransaction> action) {
-        if (transaction != getCurrentTransaction()) {
-            throw new TransactionManagerException("Transaction is not current for this thread");
-        }
-
-        if (transaction instanceof AbstractTransaction) {
-            action.accept((AbstractTransaction) transaction);
-        }
-
-        currentThreadLocalTransaction.remove();
-    }
-
-    /**
      * Returns the current transaction for this thread, or null if none exists
      *
      * @return this thread's transaction
@@ -136,38 +87,20 @@ public class DefaultTransactionManager implements TransactionManager {
         return currentThreadLocalTransaction.get();
     }
 
-    public boolean canCommit() {
+    @Override
+    public void close(Transaction transaction, Consumer<NewObjectNotifier> callback) {
 
-        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
-
-        if (tx == null) {
-            return false;
+        if (transaction != getCurrentTransaction()) {
+            throw new TransactionManagerException("Transaction is not current for this thread");
         }
 
-        if (tx.extensions() == 0) {
-            if (tx.status() == Transaction.Status.COMMIT_PENDING || tx.status() == Transaction.Status.OPEN
-                || tx.status() == Transaction.Status.PENDING) {
-                return true;
+        callback.accept((status, o) -> {
+            if (status == Transaction.Status.ROLLEDBACK) {
+                ((Neo4jSession) session).context().reset(o);
             }
-        }
-        return false;
-    }
+        });
 
-    public boolean canRollback() {
-
-        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
-
-        if (tx == null) {
-            return false;
-        }
-
-        if (tx.extensions() == 0) {
-            if (tx.status() == Transaction.Status.ROLLBACK_PENDING || tx.status() == Transaction.Status.COMMIT_PENDING
-                || tx.status() == Transaction.Status.OPEN || tx.status() == Transaction.Status.PENDING) {
-                return true;
-            }
-        }
-        return false;
+        currentThreadLocalTransaction.remove();
     }
 
     @Override

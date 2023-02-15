@@ -95,15 +95,15 @@ public class Neo4jSession implements Session {
     private LoadStrategy loadStrategy;
     private EntityInstantiator entityInstantiator;
 
-    private Driver driver;
+    private final Driver driver;
     /**
-     * This is the last bookmark returned from the server. The bookmark may consisted of several bookmarks that together
+     * This is the last bookmark returned from the server. The bookmark may consist of several bookmarks that together
      * made the whole bookmark. That is a new feature in the 4.0 Bolt driver. To not break API, we store those values
      * separated by a constant string.
      */
     private String bookmark;
 
-    private Collection<EventListener> registeredEventListeners = new LinkedHashSet<>();
+    private final Collection<EventListener> registeredEventListeners = new LinkedHashSet<>();
 
     private final boolean useStrictQuerying;
 
@@ -587,19 +587,19 @@ public class Neo4jSession implements Session {
             }
 
             T result = function.doInTransaction();
-            if (newTransaction && txManager.canCommit()) {
+            if (newTransaction && transaction.canCommit()) {
                 transaction.commit();
             }
             return result;
         } catch (CypherException e) {
-            if (newTransaction && txManager.canRollback()) {
+            if (newTransaction && transaction.canRollback()) {
                 logger.warn("Error executing query : {} - {}. Rolling back transaction.", e.getCode(),
                     e.getDescription());
                 transaction.rollback();
             }
             throw e;
         } catch (Throwable e) {
-            if (newTransaction && txManager.canRollback()) {
+            if (newTransaction && transaction.canRollback()) {
                 logger.warn("Error executing query : {}. Rolling back transaction.", e.getMessage());
                 transaction.rollback();
             }
@@ -731,16 +731,10 @@ public class Neo4jSession implements Session {
             return new PathNodeLoadClauseBuilder();
         }
 
-        switch (loadStrategy) {
-            case PATH_LOAD_STRATEGY:
-                return new PathNodeLoadClauseBuilder();
-
-            case SCHEMA_LOAD_STRATEGY:
-                return new SchemaNodeLoadClauseBuilder(metaData.getSchema());
-
-            default:
-                throw new IllegalStateException("Unknown loadStrategy " + loadStrategy);
-        }
+        return switch (loadStrategy) {
+            case PATH_LOAD_STRATEGY -> new PathNodeLoadClauseBuilder();
+            case SCHEMA_LOAD_STRATEGY -> new SchemaNodeLoadClauseBuilder(metaData.getSchema());
+        };
     }
 
     private LoadClauseBuilder loadRelationshipClauseBuilder(int depth) {
@@ -748,15 +742,9 @@ public class Neo4jSession implements Session {
             throw new IllegalArgumentException("Can't load unlimited depth for relationships");
         }
 
-        switch (loadStrategy) {
-            case PATH_LOAD_STRATEGY:
-                return new PathRelationshipLoadClauseBuilder();
-
-            case SCHEMA_LOAD_STRATEGY:
-                return new SchemaRelationshipLoadClauseBuilder(metaData.getSchema());
-
-            default:
-                throw new IllegalStateException("Unknown loadStrategy " + loadStrategy);
-        }
+        return switch (loadStrategy) {
+            case PATH_LOAD_STRATEGY -> new PathRelationshipLoadClauseBuilder();
+            case SCHEMA_LOAD_STRATEGY -> new SchemaRelationshipLoadClauseBuilder(metaData.getSchema());
+        };
     }
 }

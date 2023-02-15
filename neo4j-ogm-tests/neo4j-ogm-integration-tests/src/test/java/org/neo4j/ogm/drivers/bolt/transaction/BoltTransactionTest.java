@@ -22,8 +22,11 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.neo4j.ogm.transaction.Transaction.Type.*;
 
+import java.util.function.Consumer;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -34,7 +37,7 @@ public class BoltTransactionTest {
     void commitShouldCloseTransactionAndSession() {
         Transaction nativeTx = openTransactionMock();
         Session nativeSession = openSessionMock(nativeTx);
-        BoltTransaction boltTx = new BoltTransaction(committingTxManager(),  nativeSession, READ_ONLY);
+        BoltTransaction boltTx = new BoltTransaction(transactionManager(),  nativeSession, READ_ONLY);
 
         boltTx.commit();
 
@@ -47,7 +50,7 @@ public class BoltTransactionTest {
     void commitShouldCloseSessionWhenTransactionIsClosed() {
         Transaction nativeTx = closedTransactionMock();
         Session nativeSession = openSessionMock(nativeTx);
-        BoltTransaction boltTx = new BoltTransaction(committingTxManager(),  nativeSession, READ_ONLY);
+        BoltTransaction boltTx = new BoltTransaction(transactionManager(),  nativeSession, READ_ONLY);
 
         try {
             boltTx.commit();
@@ -64,7 +67,7 @@ public class BoltTransactionTest {
         Transaction nativeTx = openTransactionMock();
         doThrow(new RuntimeException("Close failed")).when(nativeTx).close();
         Session nativeSession = openSessionMock(nativeTx);
-        BoltTransaction boltTx = new BoltTransaction(committingTxManager(), nativeSession, READ_ONLY);
+        BoltTransaction boltTx = new BoltTransaction(transactionManager(), nativeSession, READ_ONLY);
 
         try {
             boltTx.commit();
@@ -80,7 +83,7 @@ public class BoltTransactionTest {
     void rollbackShouldCloseTransactionAndSession() {
         Transaction nativeTx = openTransactionMock();
         Session nativeSession = openSessionMock(nativeTx);
-        BoltTransaction boltTx = new BoltTransaction(rollingBackTxManager(), nativeSession, READ_ONLY);
+        BoltTransaction boltTx = new BoltTransaction(transactionManager(), nativeSession, READ_ONLY);
 
         boltTx.rollback();
 
@@ -93,7 +96,7 @@ public class BoltTransactionTest {
     void rollbackShouldCloseSessionWhenTransactionIsClosed() {
         Transaction nativeTx = closedTransactionMock();
         Session nativeSession = openSessionMock(nativeTx);
-        BoltTransaction boltTx = new BoltTransaction(rollingBackTxManager(), nativeSession, READ_ONLY);
+        BoltTransaction boltTx = new BoltTransaction(transactionManager(), nativeSession, READ_ONLY);
 
         boltTx.rollback();
 
@@ -106,7 +109,7 @@ public class BoltTransactionTest {
         Transaction nativeTx = openTransactionMock();
         doThrow(new RuntimeException("Close failed")).when(nativeTx).close();
         Session nativeSession = openSessionMock(nativeTx);
-        BoltTransaction boltTx = new BoltTransaction(rollingBackTxManager(), nativeSession, READ_ONLY);
+        BoltTransaction boltTx = new BoltTransaction(transactionManager(), nativeSession, READ_ONLY);
 
         try {
             boltTx.rollback();
@@ -135,15 +138,16 @@ public class BoltTransactionTest {
         return mock(Transaction.class);
     }
 
-    private static TransactionManager committingTxManager() {
-        TransactionManager txManager = mock(TransactionManager.class);
-        when(txManager.canCommit()).thenReturn(true);
-        return txManager;
-    }
-
-    private static TransactionManager rollingBackTxManager() {
-        TransactionManager txManager = mock(TransactionManager.class);
-        when(txManager.canRollback()).thenReturn(true);
-        return txManager;
+    @SuppressWarnings("unchecked")
+    private static TransactionManager transactionManager() {
+        var mock = mock(TransactionManager.class);
+        doAnswer(i -> {
+            ((Consumer<TransactionManager.NewObjectNotifier>) i.getArgument(1)).accept(
+                (status, entity) -> {
+                    // Ignored
+                });
+            return null;
+        }).when(mock).close(Mockito.any(org.neo4j.ogm.transaction.Transaction.class), Mockito.any(Consumer.class));
+        return mock;
     }
 }

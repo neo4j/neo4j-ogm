@@ -21,6 +21,7 @@ package org.neo4j.ogm.transaction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import org.neo4j.ogm.exception.TransactionException;
 import org.slf4j.Logger;
@@ -58,53 +59,82 @@ public abstract class AbstractTransaction implements Transaction {
         this.transactionManager = transactionManager;
     }
 
-    public void rollback() {
+    @Override
+    public final void rollback() {
 
         long extensions = extendsCount.get();
         logger.debug("Thread {}: Rollback transaction extent: {}", Thread.currentThread().getId(), extensions);
 
         // is this the root transaction ?
         if (extensions == 0) {
-            // transaction can always be rolled back
-            if (transactionManager != null) {
-                transactionManager.rollback(this);
+            transactionManager.close(this, newObjectNotifier -> {
+                rollback0();
+                Consumer<Object> handler = object -> newObjectNotifier.onStatusChanged(Status.ROLLEDBACK, object);
+                registeredNew.forEach(handler);
+                registeredNew.clear();
                 status = Status.ROLLEDBACK;
                 logger.debug("Thread {}: Rolled back", Thread.currentThread().getId());
-            }
+
+            });
         } else {
             logger.debug("Thread {}: Rollback deferred", Thread.currentThread().getId());
             status = Status.ROLLBACK_PENDING;  // a rollback-pending will eventually rollback the entire transaction
         }
     }
 
-    public void commit() {
+    /**
+     * Native implementation of the rollback logic for a specific implementation.
+     */
+    protected abstract void rollback0();
 
-        long extensions = extendsCount.get();
-        logger.debug("Thread {}: Commit transaction extent: {}", Thread.currentThread().getId(), extensions);
+    @Override
+    public final void commit() {
 
-        if (extensions == 0) {
-            if (canCommit()) {
-                if (transactionManager != null) {
-                    transactionManager.commit(this);
+        var extensions = extendsCount.get();
+        if (!canCommit()) {
+            throw new TransactionException("Transaction cannot commit");
+        }
+
+        try {
+            if (extensions == 0) {
+                transactionManager.close(this, newObjectNotifier -> {
+                    commit0();
+                    Consumer<Object> handler = object -> newObjectNotifier.onStatusChanged(Status.COMMITTED, object);
+                    registeredNew.forEach(handler);
+                    registeredNew.clear();
                     status = Status.COMMITTED;
                     logger.debug("Thread {}: Committed", Thread.currentThread().getId());
-                }
-            } else {
-                throw new TransactionException("Transaction cannot commit");
+                });
             }
-        } else {
-            if (status == Status.ROLLBACK_PENDING) {
-                throw new TransactionException("Transaction cannot commit: rollback pending");
-            } else {
-                logger.debug("Thread {}: Commit deferred", Thread.currentThread().getId());
-                status = Status.COMMIT_PENDING;
+        } finally {
+            logger.debug("Thread {}: Commit transaction extent: {}", Thread.currentThread().getId(), extensions);
+            if (extensions > 0) {
+                if (status == Status.ROLLBACK_PENDING) {
+                    throw new TransactionException("Transaction cannot commit: rollback pending");
+                } else {
+                    logger.debug("Thread {}: Commit deferred", Thread.currentThread().getId());
+                    status = Status.COMMIT_PENDING;
+                }
             }
         }
     }
 
+    /**
+    * Native implementation of the commit logic for a specific implementation.
+    */
+    protected abstract void commit0();
+
     @Override
-    public boolean canCommit() {
-        return status == Status.OPEN || status == Status.PENDING || status == Status.COMMIT_PENDING;
+    public final boolean canCommit() {
+        return (status == Status.OPEN || status == Status.PENDING || status == Status.COMMIT_PENDING);
+    }
+
+    @Override
+    public final boolean canRollback() {
+
+        return (status == Transaction.Status.ROLLBACK_PENDING
+            || status == Transaction.Status.COMMIT_PENDING
+            || status == Transaction.Status.OPEN || status == Transaction.Status.PENDING);
     }
 
     /**
@@ -121,10 +151,12 @@ public abstract class AbstractTransaction implements Transaction {
         }
     }
 
+    @Override
     public final Status status() {
         return status;
     }
 
+    @Override
     public boolean isReadOnly() {
         return type == Type.READ_ONLY;
     }
@@ -134,7 +166,8 @@ public abstract class AbstractTransaction implements Transaction {
         return type;
     }
 
-    public void close() {
+    @Override
+    public final void close() {
         long extensions = extendsCount.get();
         logger.debug("Thread {}: Close transaction extent: {}", Thread.currentThread().getId(), extensions);
 
@@ -155,15 +188,7 @@ public abstract class AbstractTransaction implements Transaction {
         }
     }
 
-    public long extensions() {
-        return extendsCount.get();
-    }
-
     public void registerNew(Object persisted) {
         registeredNew.add(persisted);
-    }
-
-    public List<Object> registeredNew() {
-        return registeredNew;
     }
 }

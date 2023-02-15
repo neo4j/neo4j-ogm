@@ -22,7 +22,6 @@ import org.neo4j.driver.Bookmark;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.exceptions.ClientException;
-import org.neo4j.driver.internal.InternalBookmark;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.TransactionException;
@@ -66,9 +65,9 @@ public class BoltTransaction extends AbstractTransaction {
     }
 
     @Override
-    public void rollback() {
+    protected void rollback0() {
         try {
-            if (transactionManager.canRollback()) {
+            if (canRollback()) {
                 LOGGER.debug("Rolling back native transaction: {}", nativeTransaction);
                 if (nativeTransaction.isOpen()) {
                     nativeTransaction.rollback();
@@ -81,24 +80,19 @@ public class BoltTransaction extends AbstractTransaction {
         } catch (Exception e) {
             closeNativeSessionIfPossible();
             throw new TransactionException(e.getLocalizedMessage(), e);
-        } finally {
-            super.rollback();
         }
     }
 
     @Override
-    public void commit() {
-        final boolean canCommit = transactionManager.canCommit();
+    protected void commit0() {
         try {
-            if (canCommit) {
-                LOGGER.debug("Committing native transaction: {}", nativeTransaction);
-                if (nativeTransaction.isOpen()) {
-                    nativeTransaction.commit();
-                    nativeTransaction.close();
-                    nativeSession.close();
-                } else {
-                    throw new IllegalStateException("Transaction is already closed");
-                }
+            LOGGER.debug("Committing native transaction: {}", nativeTransaction);
+            if (nativeTransaction.isOpen()) {
+                nativeTransaction.commit();
+                nativeTransaction.close();
+                nativeSession.close();
+            } else {
+                throw new IllegalStateException("Transaction is already closed");
             }
         } catch (ClientException ce) {
             closeNativeSessionIfPossible();
@@ -110,15 +104,11 @@ public class BoltTransaction extends AbstractTransaction {
             closeNativeSessionIfPossible();
             throw new TransactionException(e.getLocalizedMessage(), e);
         } finally {
-            super.commit();
-            if (canCommit) {
-                Bookmark bookmark = nativeSession.lastBookmark();
+            Bookmark bookmark = nativeSession.lastBookmark();
 
-                if (bookmark != null) {
-                    String bookmarkAsString = String.join(BOOKMARK_SEPARATOR, ((InternalBookmark) bookmark).values());
-                    transactionManager.bookmark(bookmarkAsString);
-                }
-
+            if (bookmark != null) {
+                String bookmarkAsString = String.join(BOOKMARK_SEPARATOR, bookmark.values());
+                transactionManager.bookmark(bookmarkAsString);
             }
         }
     }

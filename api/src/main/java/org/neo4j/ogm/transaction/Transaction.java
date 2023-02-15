@@ -41,6 +41,13 @@ public interface Transaction extends AutoCloseable {
     boolean canCommit();
 
     /**
+     * If this transaction can be rolled back.
+     *
+     * @return true if this transaction can be rolled back
+     */
+    boolean canRollback();
+
+    /**
      * return the status of the current transaction
      *
      * @return the Status value associated with the current transaction

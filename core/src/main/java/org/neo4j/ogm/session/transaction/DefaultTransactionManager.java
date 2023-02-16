@@ -18,16 +18,13 @@
  */
 package org.neo4j.ogm.session.transaction;
 
-import static java.util.Collections.*;
-
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.neo4j.ogm.exception.core.TransactionManagerException;
-import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
 
@@ -36,46 +33,13 @@ import org.neo4j.ogm.transaction.TransactionManager;
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
-public class DefaultTransactionManager implements TransactionManager {
+public final class DefaultTransactionManager extends AbstractTransactionManager implements TransactionManager {
 
-    private final Session session;
-    private final BiFunction<Transaction.Type, Iterable<String>, Transaction> transactionFactory;
     private final ThreadLocal<Transaction> currentThreadLocalTransaction = new ThreadLocal<>();
 
     public DefaultTransactionManager(Session session,
         Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> transactionFactorySupplier) {
-        this.session = session;
-        this.transactionFactory = transactionFactorySupplier.apply(this);
-    }
-
-    /**
-     * Opens a new transaction against a database instance.
-     * Instantiation of the transaction is left to the driver
-     *
-     * @return a new {@link Transaction}
-     */
-    public Transaction openTransaction() {
-        Transaction tx = currentThreadLocalTransaction.get();
-        if (tx == null) {
-            return openTransaction(Transaction.Type.READ_WRITE, emptySet());
-        } else {
-            return openTransaction(tx.type(), emptySet());
-        }
-    }
-
-    /**
-     * Opens a new transaction against a database instance.
-     * Instantiation of the transaction is left to the driver
-     *
-     * @return a new {@link Transaction}
-     */
-    public Transaction openTransaction(Transaction.Type type, Iterable<String> bookmarks) {
-        if (currentThreadLocalTransaction.get() == null) {
-            currentThreadLocalTransaction.set(transactionFactory.apply(type, bookmarks));
-        } else {
-            ((AbstractTransaction) currentThreadLocalTransaction.get()).extend(type);
-        }
-        return currentThreadLocalTransaction.get();
+        super(session, transactionFactorySupplier);
     }
 
     /**
@@ -88,25 +52,24 @@ public class DefaultTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void close(Transaction transaction, Consumer<NewObjectNotifier> callback) {
+    protected Transaction openOrExtend(Supplier<Transaction> opener, UnaryOperator<Transaction> extender) {
+        var current = getCurrentTransaction();
+        if (current == null) {
+            var newTransaction = opener.get();
+            currentThreadLocalTransaction.set(newTransaction);
+            return newTransaction;
+        } else {
+            return extender.apply(current);
+        }
+    }
 
+    @Override
+    protected void removeIfCurrent(Transaction transaction, Runnable action) {
         if (transaction != getCurrentTransaction()) {
             throw new TransactionManagerException("Transaction is not current for this thread");
         }
 
-        callback.accept((status, o) -> {
-            if (status == Transaction.Status.ROLLEDBACK) {
-                ((Neo4jSession) session).context().reset(o);
-            }
-        });
-
+        action.run();
         currentThreadLocalTransaction.remove();
-    }
-
-    @Override
-    public void bookmark(String bookmark) {
-        if (session != null) {
-            session.withBookmark(bookmark);
-        }
     }
 }

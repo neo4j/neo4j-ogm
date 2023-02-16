@@ -19,9 +19,9 @@
 package org.neo4j.ogm.transaction;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 import org.neo4j.ogm.exception.TransactionException;
 import org.slf4j.Logger;
@@ -67,10 +67,9 @@ public abstract class AbstractTransaction implements Transaction {
 
         // is this the root transaction ?
         if (extensions == 0) {
-            transactionManager.close(this, newObjectNotifier -> {
+            transactionManager.close(this, transactionClosedListener -> {
                 rollback0();
-                Consumer<Object> handler = object -> newObjectNotifier.onStatusChanged(Status.ROLLEDBACK, object);
-                registeredNew.forEach(handler);
+                transactionClosedListener.onTransactionClosed(Status.ROLLEDBACK, Collections.unmodifiableList(this.registeredNew));
                 registeredNew.clear();
                 status = Status.ROLLEDBACK;
                 logger.debug("Thread {}: Rolled back", Thread.currentThread().getId());
@@ -97,10 +96,9 @@ public abstract class AbstractTransaction implements Transaction {
 
         try {
             if (extensions == 0) {
-                transactionManager.close(this, newObjectNotifier -> {
+                transactionManager.close(this, transactionClosedLitener -> {
                     commit0();
-                    Consumer<Object> handler = object -> newObjectNotifier.onStatusChanged(Status.COMMITTED, object);
-                    registeredNew.forEach(handler);
+                    transactionClosedLitener.onTransactionClosed(Status.COMMITTED, Collections.unmodifiableList(this.registeredNew));
                     registeredNew.clear();
                     status = Status.COMMITTED;
                     logger.debug("Thread {}: Committed", Thread.currentThread().getId());

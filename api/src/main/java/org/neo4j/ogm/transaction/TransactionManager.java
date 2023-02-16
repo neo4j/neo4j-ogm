@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.transaction;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -50,13 +51,15 @@ public interface TransactionManager {
      * choose to call this or not depending on what actually did cause the closing of a transaction.
      */
     @FunctionalInterface
-    interface NewObjectNotifier {
+    interface TransactionClosedListener {
         /**
          * Indicate a commit event per entity
-         * @param newsStatus the new status
-         * @param entity The newly registered entity
+         *
+         * @param newsStatus         the new status
+         * @param entitiesRegistered A list of entities registered in the transaction being closed. A handler might
+         *                           choose to clean up their state.
          */
-        void onStatusChanged(Transaction.Status newsStatus, Object entity);
+        void onTransactionClosed(Transaction.Status newsStatus, List<Object> entitiesRegistered);
     }
 
     /**
@@ -67,7 +70,7 @@ public interface TransactionManager {
      * @param transaction The transaction to be closed
      * @param callback A callback to be executed prior to detaching the transaction from the thread.
      */
-    void close(Transaction transaction, Consumer<NewObjectNotifier> callback);
+    void close(Transaction transaction, Consumer<TransactionClosedListener> callback);
 
     /**
      * Returns the current transaction for this thread, or null if none exists

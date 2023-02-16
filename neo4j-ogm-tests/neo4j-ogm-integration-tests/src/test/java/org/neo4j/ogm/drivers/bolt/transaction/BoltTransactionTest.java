@@ -142,7 +142,7 @@ public class BoltTransactionTest {
     private static TransactionManager transactionManager() {
         var mock = mock(TransactionManager.class);
         doAnswer(i -> {
-            ((Consumer<TransactionManager.NewObjectNotifier>) i.getArgument(1)).accept(
+            ((Consumer<TransactionManager.TransactionClosedListener>) i.getArgument(1)).accept(
                 (status, entity) -> {
                     // Ignored
                 });

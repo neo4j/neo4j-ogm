@@ -18,11 +18,10 @@
  */
 package org.neo4j.ogm.session.transaction;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.core.TransactionManagerException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.Transaction;
@@ -37,9 +36,8 @@ public final class DefaultTransactionManager extends AbstractTransactionManager 
 
     private final ThreadLocal<Transaction> currentThreadLocalTransaction = new ThreadLocal<>();
 
-    public DefaultTransactionManager(Session session,
-        Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> transactionFactorySupplier) {
-        super(session, transactionFactorySupplier);
+    public DefaultTransactionManager(Driver driver, Session session) {
+        super(driver, session);
     }
 
     /**

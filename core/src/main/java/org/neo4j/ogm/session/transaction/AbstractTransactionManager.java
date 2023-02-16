@@ -21,10 +21,10 @@ package org.neo4j.ogm.session.transaction;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;
@@ -47,10 +47,13 @@ public abstract class AbstractTransactionManager implements TransactionManager {
     private final Session session;
     private final BiFunction<Transaction.Type, Iterable<String>, Transaction> transactionFactory;
 
-    public AbstractTransactionManager(Session session,
-        Function<TransactionManager, BiFunction<Transaction.Type, Iterable<String>, Transaction>> transactionFactorySupplier) {
+    /**
+     * @param driver The driver that will provide native transactions via {@link Driver#getTransactionFactorySupplier()}
+     * @param session The OGM session that requires this transaction manager
+     */
+    protected AbstractTransactionManager(Driver driver, Session session) {
         this.session = session;
-        this.transactionFactory = transactionFactorySupplier.apply(this);
+        this.transactionFactory = driver.getTransactionFactorySupplier().apply(this);
     }
 
     @Override

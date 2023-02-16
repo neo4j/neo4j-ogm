@@ -130,9 +130,7 @@ public abstract class AbstractTransaction implements Transaction {
     @Override
     public final boolean canRollback() {
 
-        return (status == Transaction.Status.ROLLBACK_PENDING
-            || status == Transaction.Status.COMMIT_PENDING
-            || status == Transaction.Status.OPEN || status == Transaction.Status.PENDING);
+        return Transaction.super.canRollback();
     }
 
     /**

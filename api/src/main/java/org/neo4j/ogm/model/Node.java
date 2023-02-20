@@ -66,16 +66,16 @@ public interface Node extends PropertyContainer {
         Map<String, Object> rowMap = new HashMap<>();
         rowMap.put(nodeIdTarget, this.getId());
         Map<String, Object> props = new HashMap<>();
-        for (Property property : this.getPropertyList()) {
+        for (Property<String, Object> property : this.getPropertyList()) {
             // Don't include version property into props, it will be incremented by the query
             if (!property.equals(this.getVersion())) {
-                props.put((String) property.getKey(), property.getValue());
+                props.put(property.getKey(), property.getValue());
             }
         }
         rowMap.put("props", props);
         if (this.hasVersionProperty()) {
-            Property version = this.getVersion();
-            rowMap.put((String) version.getKey(), version.getValue());
+            Property<String, Long> version = this.getVersion();
+            rowMap.put(version.getKey(), version.getValue());
         }
         return rowMap;
     }

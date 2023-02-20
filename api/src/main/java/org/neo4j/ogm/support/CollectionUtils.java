@@ -40,12 +40,13 @@ public final class CollectionUtils {
      * @param thingToIterable A thing that should be iterated over. Can be null.
      * @return An iterable.
      */
+    @SuppressWarnings("unchecked")
     public static Iterable<Object> iterableOf(Object thingToIterable) {
 
         if (thingToIterable == null) {
             return Collections.emptyList();
         } else if (thingToIterable instanceof Iterable) {
-            return ((Iterable) thingToIterable);
+            return ((Iterable<Object>) thingToIterable);
         } else if (thingToIterable.getClass().isArray()) {
             return () -> new ArrayIterator(thingToIterable);
         } else {
@@ -57,11 +58,12 @@ public final class CollectionUtils {
      * @param entryValue A value that is needed as a collection.
      * @return Returns a collection if {@code entryValue} is iterable but not already a collection.
      */
+    @SuppressWarnings("unchecked")
     public static Object materializeIterableIf(Object entryValue) {
 
         if (entryValue instanceof Iterable && !(entryValue instanceof Collection)) {
-            List hlp = new ArrayList<>();
-            ((Iterable) entryValue).forEach(hlp::add);
+            List<Object> hlp = new ArrayList<>();
+            ((Iterable<Object>) entryValue).forEach(hlp::add);
             entryValue = hlp;
         }
         return entryValue;

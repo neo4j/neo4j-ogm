@@ -32,7 +32,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  * @author Luanne Misquitta
  * @author Michael J. Simons
  */
-public final class DefaultTransactionManager extends AbstractTransactionManager implements TransactionManager {
+public final class DefaultTransactionManager extends AbstractTransactionManager {
 
     private final ThreadLocal<Transaction> currentThreadLocalTransaction = new ThreadLocal<>();
 

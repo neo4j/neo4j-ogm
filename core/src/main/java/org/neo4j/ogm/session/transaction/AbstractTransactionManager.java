@@ -36,7 +36,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  * the handling of thread local transactions to various scenarios that might not be able to deal with Thread locals or
  * that are keen on not having them for performance reasons.
  * <p>
- * The implemented methods of the interface are intentionally final so that they are guaranteed to work occoring to the
+ * The implemented methods of the interface are intentionally final so that they are guaranteed to work according to the
  * systems' specification.
  *
  * @author Michael J. Simons
@@ -98,7 +98,7 @@ public abstract class AbstractTransactionManager implements TransactionManager {
 
     /**
      * Opens a new transaction if there is no current via the {@code opener} or passes a current transaction to the
-     * {@coode extender}. The latter will try to extend the transaction if it's compatible.
+     * {@code extender}. The latter will try to extend the transaction if it's compatible.
      *
      * @param opener   The opener of new transaction
      * @param extender The extender trying to create sub transactions

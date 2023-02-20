@@ -2,6 +2,16 @@
 
 == 4.0
 
+=== 4.0.3
+
+* [dependencies] Bump neo4j-java-driver from 5.3.1 to 5.5.0
+* [refactor] Use recent Java compiler plugin.
+* [bug] Remove unused import.
+* [refactor] Add an extension API for custom transaction managers. (#935)
+* [docs] Update link to example project in documentation.
+
+Thanks to @gaurav-bagga for their input and feedback!
+
 === 4.0.2
 
 * bugfix: Checking for possible composite converters in `GraphEntityMapper.writeProperty` #932 (thanks @oxisto)

@@ -23,8 +23,10 @@ import static org.neo4j.ogm.config.AutoIndexMode.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiFunction;
 
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
@@ -34,6 +36,8 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.ReflectionEntityInstantiator;
 import org.neo4j.ogm.session.event.EventListener;
+import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +62,8 @@ public class SessionFactory {
 
     private LoadStrategy loadStrategy = LoadStrategy.SCHEMA_LOAD_STRATEGY;
     private EntityInstantiator entityInstantiator;
+
+    private BiFunction<Driver, Session, TransactionManager> transactionManagerFactory = DefaultTransactionManager::new;
 
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
@@ -149,7 +155,7 @@ public class SessionFactory {
      * @return A new {@link Session}
      */
     public Session openSession() {
-        return new Neo4jSession(metaData, useStrictQuerying, driver, eventListeners, loadStrategy, entityInstantiator);
+        return new Neo4jSession(metaData, useStrictQuerying, driver, eventListeners, loadStrategy, entityInstantiator, transactionManagerFactory);
     }
 
     /**
@@ -202,6 +208,18 @@ public class SessionFactory {
 
     public void setEntityInstantiator(EntityInstantiator entityInstantiator) {
         this.entityInstantiator = entityInstantiator;
+    }
+
+    /**
+     * Use this method to plug in custom transaction managers. We offer {@link org.neo4j.ogm.session.transaction.AbstractTransactionManager}
+     * as a base for your implementation that behaves according to what OGM expects. Support for custom transaction managers
+     * will be done only on a best effort base.
+     *
+     * @param transactionManagerFactory A factory for transaction managers. Must not be {@literal null}
+     */
+    public void setTransactionManagerFactory(
+        BiFunction<Driver, Session, TransactionManager> transactionManagerFactory) {
+        this.transactionManagerFactory = Objects.requireNonNull(transactionManagerFactory, "Transaction manager factory is required.");
     }
 
     /**

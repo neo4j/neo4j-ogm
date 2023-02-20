@@ -61,7 +61,7 @@ public class ClosedTransactionTest extends TestContainersTestBase {
         // The session actually has its own transaction manager, which is btw tied to thread locally to the driver.
         // We could force get the sessions transaction manager or just create a new one here and tie it to the driver.
         // Both feel broken, this here a little less painful, though.
-        transactionManager = new DefaultTransactionManager(session, getDriver().getTransactionFactorySupplier());
+        transactionManager = new DefaultTransactionManager(getDriver(), session);
         tx = transactionManager.openTransaction();
         tx.close();
 

@@ -41,6 +41,18 @@ public interface Transaction extends AutoCloseable {
     boolean canCommit();
 
     /**
+     * If this transaction can be rolled back.
+     *
+     * @return true if this transaction can be rolled back
+     */
+    default boolean canRollback() {
+        var status = status();
+        return (status == Transaction.Status.ROLLBACK_PENDING
+            || status == Transaction.Status.COMMIT_PENDING
+            || status == Transaction.Status.OPEN || status == Transaction.Status.PENDING);
+    }
+
+    /**
      * return the status of the current transaction
      *
      * @return the Status value associated with the current transaction

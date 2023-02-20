@@ -25,7 +25,9 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import org.neo4j.ogm.context.MappingContext;
@@ -65,6 +67,7 @@ import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWork;
 import org.neo4j.ogm.session.transaction.support.TransactionalUnitOfWorkWithoutResult;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +84,7 @@ public class Neo4jSession implements Session {
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
-    private final DefaultTransactionManager txManager;
+    private final TransactionManager txManager;
 
     private final LoadOneDelegate loadOneHandler = new LoadOneDelegate(this);
     private final LoadByTypeDelegate loadByTypeHandler = new LoadByTypeDelegate(this);
@@ -93,40 +96,57 @@ public class Neo4jSession implements Session {
     private final GraphIdDelegate graphIdDelegate = new GraphIdDelegate(this);
 
     private LoadStrategy loadStrategy;
-    private EntityInstantiator entityInstantiator;
+    private final EntityInstantiator entityInstantiator;
 
-    private Driver driver;
+    private final Driver driver;
     /**
-     * This is the last bookmark returned from the server. The bookmark may consisted of several bookmarks that together
+     * This is the last bookmark returned from the server. The bookmark may consist of several bookmarks that together
      * made the whole bookmark. That is a new feature in the 4.0 Bolt driver. To not break API, we store those values
      * separated by a constant string.
      */
     private String bookmark;
 
-    private Collection<EventListener> registeredEventListeners = new LinkedHashSet<>();
+    private final Collection<EventListener> registeredEventListeners = new LinkedHashSet<>();
 
     private final boolean useStrictQuerying;
 
-    public Neo4jSession(MetaData metaData, boolean useStrictQuerying, Driver driver) {
+    public Neo4jSession(
+        MetaData metaData,
+        boolean useStrictQuerying,
+        Driver driver
+    ) {
+        this(metaData, useStrictQuerying, driver, DefaultTransactionManager::new);
+    }
 
+    Neo4jSession(
+        MetaData metaData,
+        boolean useStrictQuerying,
+        Driver driver,
+        BiFunction<Driver, Session, TransactionManager> transactionManagerFactory
+    ) {
+        this(metaData, useStrictQuerying, driver, null, null, null, transactionManagerFactory);
+    }
+
+    Neo4jSession(
+        MetaData metaData,
+        boolean useStrictQuerying,
+        Driver driver,
+        List<EventListener> eventListeners,
+        LoadStrategy loadStrategy,
+        EntityInstantiator entityInstantiator,
+        BiFunction<Driver, Session, TransactionManager> transactionManagerFactory
+    ) {
         this.metaData = metaData;
         this.useStrictQuerying = useStrictQuerying;
         this.driver = driver;
-
         this.mappingContext = new MappingContext(metaData);
-        this.txManager = new DefaultTransactionManager(this, driver.getTransactionFactorySupplier());
-        this.loadStrategy = LoadStrategy.PATH_LOAD_STRATEGY;
-        this.entityInstantiator = new ReflectionEntityInstantiator(metaData);
-    }
+        this.txManager = transactionManagerFactory.apply(driver, this);
+        this.loadStrategy = loadStrategy == null ? LoadStrategy.PATH_LOAD_STRATEGY : loadStrategy;
+        this.entityInstantiator = entityInstantiator == null ? new ReflectionEntityInstantiator(metaData) : entityInstantiator;
 
-    public Neo4jSession(MetaData metaData, boolean useStrictQuerying, Driver driver, List<EventListener> eventListeners,
-        LoadStrategy loadStrategy, EntityInstantiator entityInstantiator) {
-
-        this(metaData, useStrictQuerying, driver);
-        registeredEventListeners.addAll(eventListeners);
-
-        this.loadStrategy = loadStrategy;
-        this.entityInstantiator = entityInstantiator;
+        if (eventListeners != null) {
+            registeredEventListeners.addAll(eventListeners);
+        }
     }
 
     @Override
@@ -139,20 +159,11 @@ public class Neo4jSession implements Session {
     public void notifyListeners(Event event) {
         for (EventListener eventListener : registeredEventListeners) {
             switch (event.getLifeCycle()) {
-                case PRE_SAVE:
-                    eventListener.onPreSave(event);
-                    break;
-                case POST_SAVE:
-                    eventListener.onPostSave(event);
-                    break;
-                case PRE_DELETE:
-                    eventListener.onPreDelete(event);
-                    break;
-                case POST_DELETE:
-                    eventListener.onPostDelete(event);
-                    break;
-                default:
-                    logger.warn("Event not recognised: {}", event);
+                case PRE_SAVE -> eventListener.onPreSave(event);
+                case POST_SAVE -> eventListener.onPostSave(event);
+                case PRE_DELETE -> eventListener.onPreDelete(event);
+                case POST_DELETE -> eventListener.onPostDelete(event);
+                default -> logger.warn("Event not recognised: {}", event);
             }
         }
     }
@@ -587,19 +598,19 @@ public class Neo4jSession implements Session {
             }
 
             T result = function.doInTransaction();
-            if (newTransaction && txManager.canCommit()) {
+            if (newTransaction && transaction.canCommit()) {
                 transaction.commit();
             }
             return result;
         } catch (CypherException e) {
-            if (newTransaction && txManager.canRollback()) {
+            if (newTransaction && transaction.canRollback()) {
                 logger.warn("Error executing query : {} - {}. Rolling back transaction.", e.getCode(),
                     e.getDescription());
                 transaction.rollback();
             }
             throw e;
         } catch (Throwable e) {
-            if (newTransaction && txManager.canRollback()) {
+            if (newTransaction && transaction.canRollback()) {
                 logger.warn("Error executing query : {}. Rolling back transaction.", e.getMessage());
                 transaction.rollback();
             }
@@ -614,6 +625,17 @@ public class Neo4jSession implements Session {
     @Override
     public Transaction getTransaction() {
         return txManager.getCurrentTransaction();
+    }
+
+    /**
+     * This is a convenience method that one can use to access a custom transaction manager that may or may not have
+     * special requirements or additional functionality. While not part of {@link Session session interface}, it is safe
+     * to use after down-casting to {@link Neo4jSession}
+     * @return This sessions transaction manager.
+     * @since 4.0.3
+     */
+    public TransactionManager getTransactionManager() {
+        return this.txManager;
     }
 
     /*
@@ -723,7 +745,7 @@ public class Neo4jSession implements Session {
 
     @Override
     public void setLoadStrategy(LoadStrategy loadStrategy) {
-        this.loadStrategy = loadStrategy;
+        this.loadStrategy = Objects.requireNonNull(loadStrategy, "Load strategy for a session must not be null");
     }
 
     private LoadClauseBuilder loadNodeClauseBuilder(int depth) {
@@ -731,16 +753,10 @@ public class Neo4jSession implements Session {
             return new PathNodeLoadClauseBuilder();
         }
 
-        switch (loadStrategy) {
-            case PATH_LOAD_STRATEGY:
-                return new PathNodeLoadClauseBuilder();
-
-            case SCHEMA_LOAD_STRATEGY:
-                return new SchemaNodeLoadClauseBuilder(metaData.getSchema());
-
-            default:
-                throw new IllegalStateException("Unknown loadStrategy " + loadStrategy);
-        }
+        return switch (loadStrategy) {
+            case PATH_LOAD_STRATEGY -> new PathNodeLoadClauseBuilder();
+            case SCHEMA_LOAD_STRATEGY -> new SchemaNodeLoadClauseBuilder(metaData.getSchema());
+        };
     }
 
     private LoadClauseBuilder loadRelationshipClauseBuilder(int depth) {
@@ -748,15 +764,9 @@ public class Neo4jSession implements Session {
             throw new IllegalArgumentException("Can't load unlimited depth for relationships");
         }
 
-        switch (loadStrategy) {
-            case PATH_LOAD_STRATEGY:
-                return new PathRelationshipLoadClauseBuilder();
-
-            case SCHEMA_LOAD_STRATEGY:
-                return new SchemaRelationshipLoadClauseBuilder(metaData.getSchema());
-
-            default:
-                throw new IllegalStateException("Unknown loadStrategy " + loadStrategy);
-        }
+        return switch (loadStrategy) {
+            case PATH_LOAD_STRATEGY -> new PathRelationshipLoadClauseBuilder();
+            case SCHEMA_LOAD_STRATEGY -> new SchemaRelationshipLoadClauseBuilder(metaData.getSchema());
+        };
     }
 }

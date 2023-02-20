@@ -47,7 +47,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author Vince Bickers
  */
-public abstract class StubHttpDriver extends AbstractConfigurableDriver {
+public abstract class StubDriver extends AbstractConfigurableDriver {
 
     private final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 

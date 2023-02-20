@@ -18,6 +18,9 @@
  */
 package org.neo4j.ogm.transaction;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 /**
  * @author Vince Bickers
  * @author Mark Angrish
@@ -43,28 +46,31 @@ public interface TransactionManager {
     Transaction openTransaction(Transaction.Type type, Iterable<String> bookmarks);
 
     /**
-     * Rolls back the specified transaction.
-     * The actual job of rolling back the transaction is left to the relevant driver. if
-     * this is successful, the transaction is detached from this thread.
-     * If the specified transaction is not the correct one for this thread, throws an exception
-     *
-     * <strong>Warning</strong>: This method is meant to be called from actual transactions only!!!
-     *
-     * @param transaction the transaction to rollback
+     * A handler that can be called per entity during commit or rollback operations. It will we passed
+     * to the callback of the {@link #close(Transaction, Consumer)} operation. Transactions may
+     * choose to call this or not depending on what actually did cause the closing of a transaction.
      */
-    void rollback(Transaction transaction);
+    @FunctionalInterface
+    interface TransactionClosedListener {
+        /**
+         * Indicate a commit event per entity
+         *
+         * @param newsStatus         the new status
+         * @param entitiesRegistered A list of entities registered in the transaction being closed. A handler might
+         *                           choose to clean up their state.
+         */
+        void onTransactionClosed(Transaction.Status newsStatus, List<Object> entitiesRegistered);
+    }
 
     /**
-     * Commits the specified transaction.
-     * The actual job of committing the transaction is left to the relevant driver. if
-     * this is successful, the transaction is detached from this thread.
-     * If the specified transaction is not the correct one for this thread, throws an exception
-     *
-     * <strong>Warning</strong>: This method is meant to be called from actual transactions only!!!
-     *
-     * @param transaction the transaction to commit
+     * Closes the specified transaction if it belongs to the current thread. After the {@code callback} has successfully
+     * been called, the transaction will be detached from this transaction manager and the executing thread.
+     * <p>
+     * The method must throw an exception if the {@code transaction} does not belong to the current thread.
+     * @param transaction The transaction to be closed
+     * @param callback A callback to be executed prior to detaching the transaction from the thread.
      */
-    void commit(Transaction transaction);
+    void close(Transaction transaction, Consumer<TransactionClosedListener> callback);
 
     /**
      * Returns the current transaction for this thread, or null if none exists
@@ -72,10 +78,6 @@ public interface TransactionManager {
      * @return this thread's transaction
      */
     Transaction getCurrentTransaction();
-
-    boolean canCommit();
-
-    boolean canRollback();
 
     void bookmark(String bookmark);
 }

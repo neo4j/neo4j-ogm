@@ -66,8 +66,7 @@ public class TransactionManagerTest extends TestContainersTestBase {
 
     @Test
     void shouldBeAbleToCreateManagedTransaction() {
-        DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
-            getDriver().getTransactionFactorySupplier());
+        DefaultTransactionManager transactionManager = new DefaultTransactionManager(driver, session);
         assertThat(session.getLastBookmark()).isNull();
         try (Transaction tx = transactionManager.openTransaction()) {
             assertThat(tx.status()).isEqualTo(Transaction.Status.OPEN);
@@ -76,8 +75,7 @@ public class TransactionManagerTest extends TestContainersTestBase {
 
     @Test
     void shouldRollbackManagedTransaction() {
-        DefaultTransactionManager transactionManager = new DefaultTransactionManager(session,
-            getDriver().getTransactionFactorySupplier());
+        DefaultTransactionManager transactionManager = new DefaultTransactionManager(driver, session);
         assertThat(session.getLastBookmark()).isNull();
 
         try (Transaction tx = transactionManager.openTransaction()) {

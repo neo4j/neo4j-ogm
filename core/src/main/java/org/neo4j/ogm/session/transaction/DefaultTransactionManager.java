@@ -25,7 +25,6 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.core.TransactionManagerException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.Transaction;
-import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
  * @author Vince Bickers

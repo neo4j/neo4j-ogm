@@ -12,7 +12,7 @@ The minimum required versions are Java 17 and Neo4j 5.x.
 The Auto Index Manager that was responsible for creating indexes and constraints out-of-the-box
 got removed from the Neo4j-OGM.
 +
-Please use tools like https://michael-simons.github.io/neo4j-migrations/current/[Neo4j-Migrations] or https://neo4j.com/labs/liquibase[Liquibase] with the Neo4j-Plugin enabled to
+Please use tools like https://michael-simons.github.io/neo4j-migrations/[Neo4j-Migrations] or https://neo4j.com/labs/liquibase[Liquibase] with the Neo4j-Plugin enabled to
 control your schema. They offer a broader feature set than just focus on indexes and constraints.
 +
 Although the functionality was removed, the interfaces are still available.

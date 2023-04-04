@@ -177,7 +177,7 @@
                         <plugin>spring</plugin>
                         <plugin>no-arg</plugin>
                     </compilerPlugins>
-                    <jvmTarget>${maven.compiler.source}</jvmTarget>
+                    <jvmTarget>${maven.compiler.release}</jvmTarget>
                 </configuration>
                 <executions>
                     <execution>

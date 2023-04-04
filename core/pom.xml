@@ -95,7 +95,7 @@
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
                 <configuration>
-                    <jvmTarget>${maven.compiler.source}</jvmTarget>
+                    <jvmTarget>${maven.compiler.release}</jvmTarget>
                 </configuration>
                 <executions>
                     <execution>

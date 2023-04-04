@@ -4,7 +4,7 @@
 
 === 4.0.5
 
-* [feat: Try to retrieve assigned ids in the optimistic locking checker when internal ids are not available. (#937)
+* [feat] Try to retrieve assigned ids in the optimistic locking checker when internal ids are not available. (#937)
 * [dependencies] Bump neo4j-java-driver from 5.6.0 to 5.7.0
 * [build] Properly configure `jvmTarget` via `${maven.compiler.release}`.
 

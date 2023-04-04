@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 /**
  * Annotation to declare that the mapped entity will control which labels are added to a node. On save the node's
  * labels will equal the contents of the collection property that this label is applied to, plus the class name or
- * or @NodeEntity label property, if applicable.
+ * the @NodeEntity label property, if applicable.
  * If this annotation does not exist or refers to a null property on the mapped entity, then the node's labels
  * will not be managed, that is, left as is.
  *

@@ -94,7 +94,7 @@ Configuration configuration = new Configuration.Builder()
 |======================
 
 A timeout to the database with the Bolt driver can be set by updating your Database's `neo4j.conf`.
-The exact setting to change can be http://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.transaction.timeout[found here].
+The exact setting to change can be https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.transaction.timeout[found here].
 
 
 [[reference:configuration:driver:credentials]]

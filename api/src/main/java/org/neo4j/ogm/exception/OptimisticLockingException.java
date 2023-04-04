@@ -18,10 +18,15 @@
  */
 package org.neo4j.ogm.exception;
 
+import java.io.Serial;
+
 /**
  * Exception from OGM that signifies an optimistic locking failure
  */
 public class OptimisticLockingException extends RuntimeException {
+
+    @Serial
+    private static final long serialVersionUID = 7942721177584953898L;
 
     /**
      * Create exception with given message

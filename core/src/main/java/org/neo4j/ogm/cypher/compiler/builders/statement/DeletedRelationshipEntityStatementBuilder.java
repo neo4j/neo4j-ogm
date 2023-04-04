@@ -78,7 +78,7 @@ public class DeletedRelationshipEntityStatementBuilder implements CypherStatemen
 
             if (firstEdge.hasVersionProperty()) {
                 OptimisticLockingConfig olConfig = new OptimisticLockingConfig(rows.size(),
-                    new String[] { firstEdge.getType() }, firstEdge.getVersion().getKey());
+                    new String[] { firstEdge.getType() }, firstEdge.getVersion().getKey(), firstEdge.getPrimaryIdName());
                 return statementFactory.statement(queryBuilder.toString(), parameters, olConfig);
             }
         }

@@ -90,7 +90,7 @@ public class ExistingRelationshipStatementBuilder implements CypherStatementBuil
             parameters.put("type", "rel");
             if (firstEdge.hasVersionProperty()) {
                 OptimisticLockingConfig olConfig = new OptimisticLockingConfig(rows.size(),
-                    new String[] { firstEdge.getType() }, firstEdge.getVersion().getKey());
+                    new String[] { firstEdge.getType() }, firstEdge.getVersion().getKey(), firstEdge.getPrimaryIdName());
                 return statementFactory.statement(queryBuilder.toString(), parameters, olConfig);
             }
 

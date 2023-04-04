@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
@@ -50,7 +51,8 @@ public class RelationshipDeleteStatements implements DeleteStatements {
         FieldInfo versionField = classInfo.getVersionField();
         Long version = (Long) versionField.read(object);
         OptimisticLockingConfig optimisticLockingConfig = new OptimisticLockingConfig(1,
-            classInfo.staticLabels().toArray(new String[] {}), versionField.property());
+            classInfo.staticLabels().toArray(new String[] {}), versionField.property(),
+            Optional.ofNullable(classInfo.primaryIndexField()).map(FieldInfo::propertyName).orElse(null));
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);

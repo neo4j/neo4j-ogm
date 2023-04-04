@@ -91,7 +91,7 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
 
             if (firstNode.hasVersionProperty()) {
                 OptimisticLockingConfig olConfig = new OptimisticLockingConfig(rows.size(),
-                    firstNode.getLabels(), firstNode.getVersion().getKey());
+                    firstNode.getLabels(), firstNode.getVersion().getKey(), firstNode.getPrimaryIndex());
                 return statementFactory.statement(queryBuilder.toString(), parameters, olConfig);
             }
         }

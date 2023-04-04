@@ -26,11 +26,13 @@ public class OptimisticLockingConfig {
     private final int expectedResultsCount;
     private String[] types;
     private String versionProperty;
+    private final String idProperty;
 
-    public OptimisticLockingConfig(int expectedResultsCount, String[] types, String versionProperty) {
+    public OptimisticLockingConfig(int expectedResultsCount, String[] types, String versionProperty, String idProperty) {
         this.expectedResultsCount = expectedResultsCount;
         this.types = types;
         this.versionProperty = versionProperty;
+        this.idProperty = idProperty;
     }
 
     public int getExpectedResultsCount() {
@@ -43,5 +45,9 @@ public class OptimisticLockingConfig {
 
     public String getVersionProperty() {
         return versionProperty;
+    }
+
+    public String getIdProperty() {
+        return idProperty;
     }
 }

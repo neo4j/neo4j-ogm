@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +49,7 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
 
     @BeforeAll
     public static void setUpClass() {
-        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.locking");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.locking", "org.neo4j.ogm.persistence.examples.locking");
     }
 
     @BeforeEach
@@ -122,6 +123,20 @@ public class NodeOptimisticLockingTest extends TestContainersTestBase {
         // and node should not exist
         Collection<User> users = session.loadAll(User.class);
         assertThat(users).isEmpty();
+    }
+
+    @Test
+    void entitiesWithAssignedIdsFromAnotherSessionShouldAtLeastGiveATryGivingBackTheId() {
+
+        String id = UUID.randomUUID().toString();
+        DetachableEntityWithAssignedId a = new DetachableEntityWithAssignedId(id, "a");
+        session.save(a);
+
+        DetachableEntityWithAssignedId b = new DetachableEntityWithAssignedId(id, "a");
+
+        assertThatExceptionOfType(OptimisticLockingException.class)
+            .isThrownBy(() -> sessionFactory.openSession().save(b))
+            .withMessage("Optimistic locking exception failed. Entity with type='[DetachableEntityWithAssignedId]' and assigned id='%s' had incorrect version null", id);
     }
 
     @Test

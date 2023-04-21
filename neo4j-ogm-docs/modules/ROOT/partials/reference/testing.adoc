@@ -1,0 +1,48 @@
+[[reference:testing]]
+= Testing
+
+There are several options when it comes to testing. You can either choose to use an embedded instance via the xref:reference.adoc#reference:testing:test-harness[Test Harness]
+or make use of external libraries like https://www.testcontainers.org/modules/databases/neo4j/[Testcontainers Neo4j].
+
+[[reference:testing:test-harness]]
+== Test harness
+Doing integration testing with Neo4j-OGM requires a few basic steps :
+
+* Add the `org.neo4j.test:neo4j-harness` artifact to your Maven / Gradle configuration
+* Declare the `Neo4jRule` JUnit rule, to setup a Neo4j test server (JUnit4 and this rule is not necessary to run the Test Harness)
+* Setup Neo4j-OGM configuration and `SessionFactory`
+
+An example of a full running configuration can be found in the https://github.com/neo4j-examples/neo4j-sdn-ogm-issue-report-template/blob/master/ogm-3.0/src/test/java/org/neo4j/ogm/test/OgmTestCase.java[issue templates].
+
+[[reference:testing:log-levels]]
+== Log levels
+
+When running unit tests, it can be useful to see what Neo4j-OGM is doing, and in particular to see the Cypher requests being transferred between your application and the database.
+Neo4j-OGM uses `slf4j` along with _Logback_ as its logging framework and by default the log level for all Neo4j-OGM components is set to WARN, which does not include any Cypher output.
+To change Neo4j-OGM log level, create a file *logback-test.xml* in your test resources folder, configured as shown below:
+
+.logback-test.xml
+[source, xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d %5p %40.40c:%4L - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+      ~ Set the required log level for Neo4j-OGM components here.
+      ~ To just see Cypher statements set the level to "info"
+      ~ For finer-grained diagnostics, set the level to "debug".
+    -->
+    <logger name="org.neo4j.ogm" level="info" />
+
+    <root level="warn">
+        <appender-ref ref="console" />
+    </root>
+
+</configuration>
+----

@@ -2,7 +2,7 @@
 site:
   title: Neo4j Docs Template
   url: https://neo4j.com/docs/add-on
-  start_page: docs-template:ROOT:index.adoc
+  start_page: ogm-manual:ROOT:index.adoc
 
 content:
   sources:

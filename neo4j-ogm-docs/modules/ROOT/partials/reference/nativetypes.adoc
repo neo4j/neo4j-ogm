@@ -15,7 +15,7 @@ The most important property types are
 
 `Number` has two subtypes (`Integer` and `Float`).
 Those are not the Java types with the same name but Neo4j specific types that map to `long` and `double` respectively.
-Please refer to both the https://neo4j.com/docs/cypher-manual/current/syntax/values/[Cypher] and https://neo4j.com/docs/developer-manual/current/drivers/cypher-values/[Java-Driver manual] for further information about the type system.
+Please refer to both the https://neo4j.com/docs/cypher-manual/current/values-and-types/[Cypher] and https://neo4j.com/docs/developer-manual/current/drivers/cypher-values/[Java-Driver manual] for further information about the type system.
 
 While you have to take a bit of care when modelling entities with numeric attributes (in regards of precession and scale),
 mapping of numbers, strings and boolean attributes is pretty much straight forward.
@@ -96,7 +96,7 @@ Please read the next section to learn which concrete classes Neo4j-OGM offers fo
 [[reference:native-property-types:spatial-types]]
 == Mapping of Neo4j spatial types
 
-Neo4j supports four slightly different property types for spatial points, see https://neo4j.com/docs/cypher-manual/current/syntax/spatial/[Spatial values].
+Neo4j supports four slightly different property types for spatial points, see https://neo4j.com/docs/cypher-manual/current/values-and-types/spatial/[Spatial values].
 All variations of the `Point` type are backed by an index and therefore perform very well in queries.
 The main difference between them is the coordinate reference system.
 A point can either be stored in a geographic coordinate system with longitude and latitude or in a cartesian system with x and y.

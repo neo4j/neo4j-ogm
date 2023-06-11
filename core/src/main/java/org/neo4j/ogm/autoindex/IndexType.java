@@ -24,17 +24,27 @@ package org.neo4j.ogm.autoindex;
 enum IndexType {
 
     /**
-     * Single property index
+     * Node single property index
      */
-    SINGLE_INDEX,
+    NODE_SINGLE_INDEX,
 
     /**
-     * Composite index
+     * Relationship single property index
      */
-    COMPOSITE_INDEX,
+    REL_SINGLE_INDEX,
 
     /**
-     * Unique constraint
+     * Node composite index
+     */
+    NODE_COMPOSITE_INDEX,
+
+    /**
+     * Relationship composite index
+     */
+    REL_COMPOSITE_INDEX,
+
+    /**
+     * Node unique constraint
      */
     UNIQUE_CONSTRAINT,
 

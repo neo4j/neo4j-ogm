@@ -51,6 +51,8 @@ class AutoIndex {
     private static final Set<String> ENTITIES_IN_LOOKUP_INDIZES = Collections
         .unmodifiableSet(new HashSet<>(Arrays.asList("node", "relationship")));
 
+    private static final String REL_ENTITY_TYPE = "RELATIONSHIP";
+
     private final String[] properties;
 
     /**
@@ -68,6 +70,8 @@ class AutoIndex {
      */
     private final String description;
 
+    private String indexName;
+
     AutoIndex(IndexType type, String owningType, String[] properties) {
         this.properties = properties;
         this.owningType = owningType;
@@ -80,17 +84,24 @@ class AutoIndex {
         String name = owningType.toLowerCase();
 
         switch (type) {
-            case SINGLE_INDEX:
-                validatePropertiesLength(properties, SINGLE_INDEX);
+            case NODE_SINGLE_INDEX:
+                validatePropertiesLength(properties, NODE_SINGLE_INDEX);
                 return "INDEX ON :`" + owningType + "`(`" + properties[0] + "`)";
+
+            case REL_SINGLE_INDEX:
+                validatePropertiesLength(properties, REL_SINGLE_INDEX);
+                return "INDEX FOR ()-[`" + name + "`:`" + owningType + "`]-() ON (`" + name + "`.`" + properties[0] + "`)";
 
             case UNIQUE_CONSTRAINT:
                 validatePropertiesLength(properties, UNIQUE_CONSTRAINT);
                 return "CONSTRAINT ON (`" + name + "`:`" + owningType + "`) ASSERT `" + name + "`.`" + properties[0]
                     + "` IS UNIQUE";
 
-            case COMPOSITE_INDEX:
+            case NODE_COMPOSITE_INDEX:
                 return buildCompositeIndex(name, owningType, properties);
+
+            case REL_COMPOSITE_INDEX:
+                return buildRelCompositeIndex(name, owningType, properties);
 
             case NODE_KEY_CONSTRAINT:
                 return buildNodeKeyConstraint(name, owningType, properties);
@@ -126,6 +137,18 @@ class AutoIndex {
             .append(owningType)
             .append("`(");
         appendProperties(sb, properties);
+        sb.append(")");
+        return sb.toString();
+    }
+
+    private static String buildRelCompositeIndex(String name, String owningType, String[] properties) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("INDEX FOR ()-[`")
+            .append(name)
+            .append("`:`")
+            .append(owningType)
+            .append("`]-() ON (");
+        appendPropertiesWithNode(sb, name, properties);
         sb.append(")");
         return sb.toString();
     }
@@ -179,12 +202,26 @@ class AutoIndex {
         return type;
     }
 
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public void setIndexName(String indexName) {
+        this.indexName = indexName;
+    }
+
     Statement getCreateStatement() {
         return new RowDataStatement("CREATE " + this.description, emptyMap());
     }
 
     public Statement getDropStatement() {
-        return new RowDataStatement("DROP " + this.description, emptyMap());
+        switch (type) {
+            case REL_SINGLE_INDEX:
+            case REL_COMPOSITE_INDEX:
+                return new RowDataStatement("DROP INDEX " + this.indexName, emptyMap());
+            default:
+                return new RowDataStatement("DROP " + this.description, emptyMap());
+        }
     }
 
     String getDescription() {
@@ -342,9 +379,9 @@ class AutoIndex {
                     properties[i] = properties[i].trim();
                 }
                 if (properties.length > 1) {
-                    return Optional.of(new AutoIndex(IndexType.COMPOSITE_INDEX, label, properties));
+                    return Optional.of(new AutoIndex(IndexType.NODE_COMPOSITE_INDEX, label, properties));
                 } else {
-                    return Optional.of(new AutoIndex(SINGLE_INDEX, label, properties));
+                    return Optional.of(new AutoIndex(NODE_SINGLE_INDEX, label, properties));
                 }
             }
         }
@@ -360,10 +397,20 @@ class AutoIndex {
 
         if (indexRow.containsKey("properties") && indexRow.containsKey("labelsOrTypes") && indexRow.get("labelsOrTypes") instanceof String[]) {
             String[] indexProperties = (String[]) indexRow.get("properties");
-            String indexLabel = ((String[]) indexRow.get("labelsOrTypes"))[0];
+            String indexLabelOrType = ((String[]) indexRow.get("labelsOrTypes"))[0];
+            String entityType = (String) indexRow.get("entityType");
+            AutoIndex autoIndex;
+            if (REL_ENTITY_TYPE.equalsIgnoreCase(entityType)) {
+                String indexName = (String) indexRow.get("name");
+                autoIndex = new AutoIndex(indexProperties.length > 1 ? REL_COMPOSITE_INDEX : REL_SINGLE_INDEX,
+                    indexLabelOrType, indexProperties);
+                autoIndex.setIndexName(indexName);
+            } else {
+                autoIndex = new AutoIndex(indexProperties.length > 1 ? NODE_COMPOSITE_INDEX : NODE_SINGLE_INDEX,
+                    indexLabelOrType, indexProperties);
+            }
 
-            return Optional.of(new AutoIndex(indexProperties.length > 1 ? COMPOSITE_INDEX : SINGLE_INDEX,
-                indexLabel, indexProperties));
+            return Optional.of(autoIndex);
         }
 
         logger.warn("Could not parse index of type {} with description {}", indexType, description);
@@ -400,8 +447,8 @@ class AutoIndex {
 
     public boolean hasOpposite() {
         switch (type) {
-            case SINGLE_INDEX:
-            case COMPOSITE_INDEX:
+            case NODE_SINGLE_INDEX:
+            case NODE_COMPOSITE_INDEX:
             case UNIQUE_CONSTRAINT:
             case NODE_KEY_CONSTRAINT:
                 return true;
@@ -413,17 +460,17 @@ class AutoIndex {
 
     public AutoIndex createOppositeIndex() {
         switch (type) {
-            case SINGLE_INDEX:
+            case NODE_SINGLE_INDEX:
                 return new AutoIndex(UNIQUE_CONSTRAINT, owningType, properties);
 
             case UNIQUE_CONSTRAINT:
-                return new AutoIndex(SINGLE_INDEX, owningType, properties);
+                return new AutoIndex(NODE_SINGLE_INDEX, owningType, properties);
 
-            case COMPOSITE_INDEX:
+            case NODE_COMPOSITE_INDEX:
                 return new AutoIndex(NODE_KEY_CONSTRAINT, owningType, properties);
 
             case NODE_KEY_CONSTRAINT:
-                return new AutoIndex(COMPOSITE_INDEX, owningType, properties);
+                return new AutoIndex(NODE_COMPOSITE_INDEX, owningType, properties);
 
             default:
                 throw new IllegalStateException("Can not create opposite index for type=" + type);

@@ -85,12 +85,12 @@ public class FieldInfo {
      * A computed, optional type in case this field has custom converters.
      * It is lazily computed, depending on the converters that have been set.
      */
-    private volatile Optional<Class<?>> convertedType;
+    private volatile Optional<Class<?>> convertedType = Optional.empty();
 
     /**
      * A lazily computed, optional type in case this field has an identified relationship type.
      */
-    private volatile Optional<String> relationshipType;
+    private volatile Optional<String> relationshipType = Optional.empty();
 
     private final boolean readOnly;
 
@@ -176,10 +176,10 @@ public class FieldInfo {
 
     public String relationship() {
         Optional<String> localRelationshipType = relationshipType;
-        if (localRelationshipType == null) {
+        if (!localRelationshipType.isPresent()) {
             synchronized (this) {
                 localRelationshipType = relationshipType;
-                if (localRelationshipType == null) {
+                if (!localRelationshipType.isPresent()) {
                     localRelationshipType = initRelationship();
                     relationshipType = localRelationshipType;
                 }
@@ -351,10 +351,10 @@ public class FieldInfo {
     public Class<?> convertedType() {
 
         Optional<Class<?>> loadedConvertedType = this.convertedType;
-        if (loadedConvertedType == null) {
+        if (!loadedConvertedType.isPresent()) {
             synchronized (this) {
                 loadedConvertedType = this.convertedType;
-                if (loadedConvertedType == null) {
+                if (!loadedConvertedType.isPresent()) {
                     this.convertedType = computeConvertedType();
                     loadedConvertedType = this.convertedType;
                 }

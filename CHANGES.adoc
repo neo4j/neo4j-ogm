@@ -1,5 +1,9 @@
 = Changes
 
+== 3.2.40
+
+* Improve `Optional` handling in `FieldInfo`.
+
 == 3.2.39
 
 * Allow for classes to be registered dynamically with `DomainInfo`.

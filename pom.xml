@@ -586,7 +586,9 @@
                         <exclude>**/neo4j-ogm-docs/**</exclude>
                         <!-- Files without extension -->
                         <exclude>**/src/test/resources/spi/**</exclude>
-
+                        <!-- Additional paths -->
+                        <exclude>bin/**</exclude>
+                        <exclude>artifacts/**</exclude>
                     </excludes>
                     <dependencyEnforce>true</dependencyEnforce>
                     <dependencyExceptionMessage>One or more dependencies are licensed under a non-approved license.</dependencyExceptionMessage>

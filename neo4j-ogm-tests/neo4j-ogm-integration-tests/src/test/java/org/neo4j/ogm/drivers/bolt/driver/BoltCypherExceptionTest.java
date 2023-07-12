@@ -18,21 +18,34 @@
  */
 package org.neo4j.ogm.drivers.bolt.driver;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.driver.Driver;
 import org.neo4j.ogm.domain.cypher_exception_test.ConstraintedNode;
+import org.neo4j.ogm.drivers.bolt.response.BoltResponse;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.LoggerRule;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michael J. Simons
  */
 public class BoltCypherExceptionTest extends TestContainersTestBase {
+
+    @RegisterExtension
+    public final LoggerRule loggerRule = new LoggerRule();
 
     private static SessionFactory sessionFactory;
 
@@ -61,6 +74,25 @@ public class BoltCypherExceptionTest extends TestContainersTestBase {
             session.save(node);
 
         }).withMessageStartingWith(CONSTRAINT_VIOLATED_MESSAGE_PATTERN);
+    }
+
+    @Test
+    void shouldNotThrowNullPointerExceptionOnMissingNotificationPosition() {
+        Logger logger = (Logger) LoggerFactory.getLogger(BoltResponse.class);
+        Level originalLevel = logger.getLevel();
+        logger.setLevel(Level.INFO);
+
+        try {
+            Session session = sessionFactory.openSession();
+            Map<String, Object> parameters = Map.of("records", List.of(Map.of("a", 1, "b", 2), Map.of("c", 3, "d", 4)));
+            Assertions.assertThatCode(() -> session.query(
+                "CREATE (n:A) CREATE (n)-[:B]->(_v0:C:D) WITH _v0 MATCH (_v4:E {a:\"2\"}) CREATE (_v0)-[:F]->(_v4) FOREACH (record in $records| CREATE (_v0)-[:G]->(_v6:H) SET _v6 = record)",
+                parameters)).doesNotThrowAnyException();
+        } finally {
+            logger.setLevel(originalLevel);
+        }
+
+
     }
 
     @AfterAll

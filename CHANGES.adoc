@@ -1,5 +1,10 @@
 = Changes
 
+== 3.2.41
+
+* [bug] Fix NullPointerException when parsing notification position from BoltResponse (#950)
+
+
 == 3.2.40
 
 * Improve `Optional` handling in `FieldInfo`.

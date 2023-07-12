@@ -124,17 +124,19 @@ public abstract class BoltResponse<T> implements Response {
      * @param forQuery     The query that caused the notification
      * @return A formatted string
      */
-    static String format(Notification notification, String forQuery) {
+    private static String format(Notification notification, String forQuery) {
 
         InputPosition position = notification.position();
+        int lineNumber = position != null ? position.line() : 1;
+        int column = position != null ? position.column() : 1;
 
         StringBuilder queryHint = new StringBuilder();
         String[] lines = forQuery.split("(\r\n|\n)");
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
             queryHint.append("\t").append(line).append(LINE_SEPARATOR);
-            if (i + 1 == position.line()) {
-                queryHint.append("\t").append(Stream.generate(() -> " ").limit(position.column() - 1)
+            if (i + 1 == lineNumber) {
+                queryHint.append("\t").append(Stream.generate(() -> " ").limit(column - 1)
                     .collect(Collectors.joining())).append("^").append(System.lineSeparator());
             }
         }

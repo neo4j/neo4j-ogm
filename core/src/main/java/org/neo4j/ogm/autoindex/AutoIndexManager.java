@@ -266,15 +266,20 @@ public class AutoIndexManager {
             if (needsToBeIndexed(classInfo)) {
 
                 AnnotationInfo relationshipEntityAnnotation = classInfo.annotationsInfo().get(RelationshipEntity.class);
-                boolean isRelationShip = relationshipEntityAnnotation != null;
+                boolean isRelationship = relationshipEntityAnnotation != null;
 
                 // We build the composite index first, to find out whether an @Id or @Index annotated field
                 // is actually decomposed by a MapCompositeConverter AND has a defined composite index.
                 Set<String> decomposedFields = new HashSet<>();
                 for (CompositeIndex index : classInfo.getCompositeIndexes()) {
-                    IndexType type = index.unique() ?
-                        IndexType.NODE_KEY_CONSTRAINT :
-                        isRelationShip ? IndexType.REL_COMPOSITE_INDEX : IndexType.NODE_COMPOSITE_INDEX;
+                    IndexType type;
+                    if (index.unique()) {
+                        type = IndexType.NODE_KEY_CONSTRAINT;
+                    } else if (isRelationship) {
+                        type = IndexType.REL_COMPOSITE_INDEX;
+                    } else {
+                        type = IndexType.NODE_COMPOSITE_INDEX;
+                    }
                     List<String> properties = new ArrayList<>();
                     Stream.of(index.value().length > 0 ? index.value() : index.properties())
                         .forEach(p -> {
@@ -296,7 +301,7 @@ public class AutoIndexManager {
 
                     IndexType type = fieldInfo.isConstraint() ?
                         IndexType.UNIQUE_CONSTRAINT :
-                        isRelationShip ? IndexType.REL_SINGLE_INDEX : IndexType.NODE_SINGLE_INDEX;
+                        isRelationship ? IndexType.REL_SINGLE_INDEX : IndexType.NODE_SINGLE_INDEX;
 
                     if (fieldInfo.hasCompositeConverter()) {
                         if (!decomposedFields.contains(fieldInfo.getName())) {

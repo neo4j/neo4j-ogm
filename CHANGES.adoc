@@ -2,6 +2,10 @@
 
 == 4.0
 
+=== 4.0.6
+
+* [bug] Fix NullPointerException when parsing notification position from BoltResponse (#950)
+
 === 4.0.5
 
 * [feat] Try to retrieve assigned ids in the optimistic locking checker when internal ids are not available. (#937)

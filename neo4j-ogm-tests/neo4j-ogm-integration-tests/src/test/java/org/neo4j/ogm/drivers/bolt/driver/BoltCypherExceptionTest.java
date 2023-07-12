@@ -84,10 +84,9 @@ public class BoltCypherExceptionTest extends TestContainersTestBase {
 
         try {
             Session session = sessionFactory.openSession();
-            Map<String, Object> parameters = Map.of("records", List.of(Map.of("a", 1, "b", 2), Map.of("c", 3, "d", 4)));
             Assertions.assertThatCode(() -> session.query(
-                "CREATE (n:A) CREATE (n)-[:B]->(_v0:C:D) WITH _v0 MATCH (_v4:E {a:\"2\"}) CREATE (_v0)-[:F]->(_v4) FOREACH (record in $records| CREATE (_v0)-[:G]->(_v6:H) SET _v6 = record)",
-                parameters)).doesNotThrowAnyException();
+                "CREATE (_v0:A) WITH _v0 MATCH (_v4:B {a:1}) CREATE (_v0)-[:F]->(_v4) FOREACH (record in []| CREATE (_v6:H) SET _v6 = record)",
+                Map.of())).doesNotThrowAnyException();
         } finally {
             logger.setLevel(originalLevel);
         }

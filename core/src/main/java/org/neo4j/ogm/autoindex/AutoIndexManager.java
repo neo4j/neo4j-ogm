@@ -298,10 +298,14 @@ public class AutoIndexManager {
                 }
 
                 for (FieldInfo fieldInfo : getIndexFields(classInfo)) {
-
-                    IndexType type = fieldInfo.isConstraint() ?
-                        IndexType.UNIQUE_CONSTRAINT :
-                        isRelationship ? IndexType.REL_SINGLE_INDEX : IndexType.NODE_SINGLE_INDEX;
+                    IndexType type;
+                    if (fieldInfo.isConstraint()) {
+                        type = IndexType.UNIQUE_CONSTRAINT;
+                    } else if (isRelationship) {
+                        type = IndexType.REL_SINGLE_INDEX;
+                    } else {
+                        type = IndexType.NODE_SINGLE_INDEX;
+                    }
 
                     if (fieldInfo.hasCompositeConverter()) {
                         if (!decomposedFields.contains(fieldInfo.getName())) {

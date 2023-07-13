@@ -55,8 +55,22 @@ public class AutoIndexTest {
         AutoIndex index = AutoIndex.parseIndex(indexRow, "3.5").get();
         assertThat(index.getOwningType()).isEqualTo("Person");
         assertThat(index.getProperties()).containsOnly("name");
-        assertThat(index.getType()).isEqualTo(IndexType.SINGLE_INDEX);
+        assertThat(index.getType()).isEqualTo(IndexType.NODE_SINGLE_INDEX);
         assertThat(index.getDescription()).isEqualTo("INDEX ON :`Person`(`name`)");
+    }
+
+    @Test
+    public void parseRelationshipIndex() {
+        indexRow.put("entityType", "RELATIONSHIP");
+        indexRow.put("properties", new String[]{"stars"});
+        indexRow.put("labelsOrTypes", new String[]{"LIKED"});
+
+
+        AutoIndex index = AutoIndex.parseIndex(indexRow, "4.3").get();
+        assertThat(index.getOwningType()).isEqualTo("LIKED");
+        assertThat(index.getProperties()).containsOnly("stars");
+        assertThat(index.getType()).isEqualTo(IndexType.REL_SINGLE_INDEX);
+        assertThat(index.getDescription()).isEqualTo("INDEX FOR ()-[`liked`:`LIKED`]-() ON (`liked`.`stars`)");
     }
 
     @Test
@@ -66,8 +80,22 @@ public class AutoIndexTest {
         AutoIndex index = AutoIndex.parseIndex(indexRow, "3.5").get();
         assertThat(index.getOwningType()).isEqualTo("Person");
         assertThat(index.getProperties()).containsOnly("name", "id");
-        assertThat(index.getType()).isEqualTo(IndexType.COMPOSITE_INDEX);
+        assertThat(index.getType()).isEqualTo(IndexType.NODE_COMPOSITE_INDEX);
         assertThat(index.getDescription()).isEqualTo("INDEX ON :`Person`(`name`,`id`)");
+    }
+
+    @Test
+    public void parseRelationshipCompositeIndex() {
+        indexRow.put("entityType", "RELATIONSHIP");
+        indexRow.put("properties", new String[]{"stars", "movies"});
+        indexRow.put("labelsOrTypes", new String[]{"LIKED"});
+
+
+        AutoIndex index = AutoIndex.parseIndex(indexRow, "4.3").get();
+        assertThat(index.getOwningType()).isEqualTo("LIKED");
+        assertThat(index.getProperties()).contains("stars", "movies");
+        assertThat(index.getType()).isEqualTo(IndexType.REL_COMPOSITE_INDEX);
+        assertThat(index.getDescription()).isEqualTo("INDEX FOR ()-[`liked`:`LIKED`]-() ON (`liked`.`stars`,`liked`.`movies`)");
     }
 
     @Test

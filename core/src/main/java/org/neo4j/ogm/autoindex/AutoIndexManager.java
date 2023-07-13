@@ -37,8 +37,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.neo4j.ogm.annotation.CompositeIndex;
+import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
@@ -263,11 +265,21 @@ public class AutoIndexManager {
 
             if (needsToBeIndexed(classInfo)) {
 
+                AnnotationInfo relationshipEntityAnnotation = classInfo.annotationsInfo().get(RelationshipEntity.class);
+                boolean isRelationship = relationshipEntityAnnotation != null;
+
                 // We build the composite index first, to find out whether an @Id or @Index annotated field
                 // is actually decomposed by a MapCompositeConverter AND has a defined composite index.
                 Set<String> decomposedFields = new HashSet<>();
                 for (CompositeIndex index : classInfo.getCompositeIndexes()) {
-                    IndexType type = index.unique() ? IndexType.NODE_KEY_CONSTRAINT : IndexType.COMPOSITE_INDEX;
+                    IndexType type;
+                    if (index.unique()) {
+                        type = IndexType.NODE_KEY_CONSTRAINT;
+                    } else if (isRelationship) {
+                        type = IndexType.REL_COMPOSITE_INDEX;
+                    } else {
+                        type = IndexType.NODE_COMPOSITE_INDEX;
+                    }
                     List<String> properties = new ArrayList<>();
                     Stream.of(index.value().length > 0 ? index.value() : index.properties())
                         .forEach(p -> {
@@ -286,8 +298,14 @@ public class AutoIndexManager {
                 }
 
                 for (FieldInfo fieldInfo : getIndexFields(classInfo)) {
-
-                    IndexType type = fieldInfo.isConstraint() ? IndexType.UNIQUE_CONSTRAINT : IndexType.SINGLE_INDEX;
+                    IndexType type;
+                    if (fieldInfo.isConstraint()) {
+                        type = IndexType.UNIQUE_CONSTRAINT;
+                    } else if (isRelationship) {
+                        type = IndexType.REL_SINGLE_INDEX;
+                    } else {
+                        type = IndexType.NODE_SINGLE_INDEX;
+                    }
 
                     if (fieldInfo.hasCompositeConverter()) {
                         if (!decomposedFields.contains(fieldInfo.getName())) {

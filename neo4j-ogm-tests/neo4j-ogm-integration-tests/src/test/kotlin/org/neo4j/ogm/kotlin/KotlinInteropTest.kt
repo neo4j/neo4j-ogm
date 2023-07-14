@@ -34,8 +34,7 @@ import org.neo4j.ogm.cypher.Filter
 import org.neo4j.ogm.cypher.Filters
 import org.neo4j.ogm.cypher.query.SortOrder
 import org.neo4j.ogm.cypher.query.SortOrder.Direction
-import org.neo4j.ogm.domain.dataclasses.MyNode
-import org.neo4j.ogm.domain.dataclasses.OtherNode
+import org.neo4j.ogm.domain.dataclasses.*
 import org.neo4j.ogm.domain.delegation.KotlinAImpl
 import org.neo4j.ogm.domain.gh696.Lion
 import org.neo4j.ogm.domain.gh696.Zebra
@@ -89,6 +88,27 @@ class KotlinInteropTest {
     }
 
     private val names = listOf("Brian", "Roger", "John", "Freddie", "Farin", "Rod", "Bela")
+
+    @Test
+    fun ignoreRelationshipDefinitionIfDirectRelationshipIsPresent() {
+        val c1 = C("C1")
+        val c2 = C("C2")
+        val b = B("b1", mutableSetOf(c1, c2))
+        val a = A("a1")
+        a.b = mutableSetOf(b)
+
+        var session = sessionFactory.openSession()
+        session.purgeDatabase()
+
+        session.save(a)
+
+        session = sessionFactory.openSession()
+
+        val load = session.load(A::class.java, "a1", -1)
+
+        println(load)
+
+    }
 
     @Before
     fun prepareData() {

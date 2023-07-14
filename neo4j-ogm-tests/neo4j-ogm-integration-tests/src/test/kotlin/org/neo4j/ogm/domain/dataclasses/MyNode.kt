@@ -31,3 +31,35 @@ data class MyNode (
     @Relationship("IS_LINKED_TO", direction = Relationship.OUTGOING)
     val otherNodes: List<OtherNode> = emptyList()
 )
+
+@NodeEntity("AA")
+data class A(
+    @Id val id: String? = null,
+    @Relationship(type = "HAS_B")
+    var b: MutableSet<B> = mutableSetOf()
+)
+
+@RelationshipEntity(type = "HAS_B")
+class HasB @JvmOverloads constructor(
+    @Id @GeneratedValue val id: Long? = null,
+    @StartNode val start: A = A(),
+    @EndNode val end: B = B()
+
+
+) {
+    override fun toString(): String {
+        return "HasB(id=$id, end=$end)"
+    }
+}
+
+@NodeEntity("BB")
+data class B(
+    @Id val id: String? = null,
+    @Relationship(type = "HAS_C")
+    val c: MutableSet<C> = mutableSetOf()
+)
+
+@NodeEntity("CC")
+data class C(
+    @Id val id: String? = null
+)

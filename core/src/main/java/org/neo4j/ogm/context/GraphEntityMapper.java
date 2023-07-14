@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2022 "Neo4j,"
+ * Copyright (c) 2002-2023 "Neo4j,"
  * Neo4j Sweden AB [http://neo4j.com]
  *
  * This file is part of Neo4j.
@@ -320,7 +320,7 @@ public class GraphEntityMapper {
                 mappedRelationshipIds.add(edge.getId());
 
                 // check whether this edge should in fact be handled as a relationship entity
-                ClassInfo relationshipEntityClassInfo = getRelationshipEntity(edge);
+                ClassInfo relationshipEntityClassInfo = getRelationshipEntity(edge, true);
 
                 if (relationshipEntityClassInfo != null) {
                     mapRelationshipEntity(oneToMany, edge, source, target, relationshipEntityClassInfo);
@@ -383,7 +383,7 @@ public class GraphEntityMapper {
 
     private Object createRelationshipEntity(Edge edge, Object startEntity, Object endEntity) {
 
-        ClassInfo relationClassInfo = getRelationshipEntity(edge);
+        ClassInfo relationClassInfo = getRelationshipEntity(edge, false);
         if (relationClassInfo == null) {
             throw new MappingException("Could not find a class to map for relation " + edge);
         }
@@ -564,10 +564,18 @@ public class GraphEntityMapper {
         logger.debug("Unable to map iterable of type: {} onto property of {}", valueType, classInfo.name());
     }
 
-    // Find the correct RE associated with the edge. The edge type may be polymorphic, so we need to do a bit of work
-    // to identify the correct RE to bind to. We must not cache the value when found, because the correct determination
-    // depends on the runtime values of the edge in the mapping context, which may vary for the same edge pattern.
-    private ClassInfo getRelationshipEntity(Edge edge) {
+    /**
+     * Find the correct RE associated with the edge. The edge type may be polymorphic, so we need to do a bit of work
+     * to identify the correct RE to bind to. We must not cache the value when found, because the correct determination
+     * depends on the runtime values of the edge in the mapping context, which may vary for the same edge pattern.
+     *
+     * @param edge edge object
+     * @param strict defines that if there is a relationship on the source side that does not represent
+     *               the relationship entity but a direct relationship, the registered relationship entity
+     *               for this type, source and end node types should not be returned (it will be {@code null}).
+     * @return matching relationship entity {@link ClassInfo}.
+     */
+    private ClassInfo getRelationshipEntity(Edge edge, boolean strict) {
 
         Object source = mappingContext.getNodeEntity(edge.getStartNode());
         Object target = mappingContext.getNodeEntity(edge.getEndNode());
@@ -594,6 +602,18 @@ public class GraphEntityMapper {
 
             if (declaresRelationshipTo(relationshipEntityClass, target.getClass(), edge.getType(), INCOMING)) {
                 return classInfo;
+            }
+        }
+        if (strict) {
+            ClassInfo sourceClassInfo = metadata.classInfo(source);
+            Set<FieldInfo> sourceFieldInfos = sourceClassInfo.candidateRelationshipFields(edge.getType(), OUTGOING, true);
+            if (sourceFieldInfos.size() == 1) {
+                return null;
+            }
+            ClassInfo targetClassInfo = metadata.classInfo(target);
+            Set<FieldInfo> targetFieldInfos = targetClassInfo.candidateRelationshipFields(edge.getType(), INCOMING, true);
+            if (targetFieldInfos.size() == 1) {
+                return null;
             }
         }
         // we've made our best efforts to find the correct RE. If we've failed it means

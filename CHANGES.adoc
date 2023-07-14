@@ -3,7 +3,8 @@
 == 3.2.41
 
 * [bug] Fix NullPointerException when parsing notification position from BoltResponse (#950)
-
+* [feature] Singe/composite index support for relationships (#948)
+* [improvement] Support for direct relationship mapping even if a `@RelationshipEntity` is defined (#951)
 
 == 3.2.40
 

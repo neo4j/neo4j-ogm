@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2022 "Neo4j,"
+ * Copyright (c) 2002-2023 "Neo4j,"
  * Neo4j Sweden AB [http://neo4j.com]
  *
  * This file is part of Neo4j.
@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
 
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.GraphModel;
@@ -36,6 +35,7 @@ import static java.util.stream.Collectors.*;
 /**
  * @author Vince Bickers
  * @author Michael J. Simons
+ * @author Niels Oertel
  */
 public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel> {
 
@@ -96,8 +96,8 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
         };
 
         // although it looks like that the `idsOfResultEntities` will stay empty, they won't, trust us.
-        BiFunction<GraphModel, Long, Boolean> includeModelObject =
-            (graphModel, nativeId) -> idsOfResultEntities.contains(nativeId);
+        EntityFilter includeModelObject =
+            (graphModel, nativeId, isNode) -> idsOfResultEntities.contains(nativeId);
 
         return delegate.map(type, graphResponse, includeModelObject);
     }

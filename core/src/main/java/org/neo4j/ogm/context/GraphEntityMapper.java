@@ -24,7 +24,6 @@ import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -54,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Michael J. Simons
+ * @author Niels Oertel
  */
 public class GraphEntityMapper {
 
@@ -81,7 +81,7 @@ public class GraphEntityMapper {
     }
 
     <T> List<T> map(Class<T> type, Response<GraphModel> listOfGraphModels) {
-        return map(type, listOfGraphModels, (m, n) -> true);
+        return map(type, listOfGraphModels, EntityFilter.INCLUDE_ALWAYS);
     }
 
     /**
@@ -92,7 +92,7 @@ public class GraphEntityMapper {
      * @return The list of entities represented by the list of graph models.
      */
     <T> List<T> map(Class<T> type, Response<GraphModel> graphModelResponse,
-        BiFunction<GraphModel, Long, Boolean> additionalNodeFilter) {
+        EntityFilter additionalEntityFilter) {
 
         // Those are the ids of all mapped nodes.
         Set<Long> mappedNodeIds = new LinkedHashSet<>();
@@ -103,7 +103,7 @@ public class GraphEntityMapper {
 
         // Execute mapping for each individual model
         Consumer<GraphModel> mapContentOfIndividualModel =
-            graphModel -> mapContentOf(graphModel, additionalNodeFilter, returnedNodeIds, mappedRelationshipIds,
+            graphModel -> mapContentOf(graphModel, additionalEntityFilter, returnedNodeIds, mappedRelationshipIds,
                 returnedRelationshipIds, mappedNodeIds);
 
         GraphModel graphModel = null;
@@ -139,20 +139,21 @@ public class GraphEntityMapper {
 
     private void mapContentOf(
         GraphModel graphModel,
-        BiFunction<GraphModel, Long, Boolean> additionalNodeFilter,
+        EntityFilter additionalEntityFilter,
         Set<Long> returnedNodeIds,
         Set<Long> mappedRelationshipIds,
         Set<Long> returnedRelationshipIds,
         Set<Long> mappedNodeIds
     ) {
-        Predicate<Long> includeInResult = id -> additionalNodeFilter.apply(graphModel, id);
+        Predicate<Long> includeNodeInResult = id -> additionalEntityFilter.shouldIncludeModelObject(graphModel, id, true);
+        Predicate<Long> includeRelInResult = id -> additionalEntityFilter.shouldIncludeModelObject(graphModel, id, false);
         try {
             Set<Long> newNodeIds = mapNodes(graphModel);
-            returnedNodeIds.addAll(newNodeIds.stream().filter(includeInResult).collect(toList()));
+            returnedNodeIds.addAll(newNodeIds.stream().filter(includeNodeInResult).collect(toList()));
             mappedNodeIds.addAll(newNodeIds);
 
             newNodeIds = mapRelationships(graphModel);
-            returnedRelationshipIds.addAll(newNodeIds.stream().filter(includeInResult).collect(toList()));
+            returnedRelationshipIds.addAll(newNodeIds.stream().filter(includeRelInResult).collect(toList()));
             mappedRelationshipIds.addAll(newNodeIds);
         } catch (MappingException e) {
             throw e;

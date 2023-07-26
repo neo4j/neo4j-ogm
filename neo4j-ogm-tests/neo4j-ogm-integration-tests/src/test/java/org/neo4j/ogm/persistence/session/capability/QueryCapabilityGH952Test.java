@@ -20,7 +20,7 @@ package org.neo4j.ogm.persistence.session.capability;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Map;
+import java.util.Collections;
 
 import org.assertj.core.api.BDDAssertions;
 import org.junit.Before;
@@ -68,12 +68,12 @@ public class QueryCapabilityGH952Test extends TestContainersTestBase {
         long currentLargestNodeId = session.queryForObject(Long.class, ""//
                 + "MERGE (n1:Dummy{i:0}) "//
                 + "MERGE (n2:Dummy{i:1}) "//
-                + "RETURN id(n2)", Map.of());
+                + "RETURN id(n2)", Collections.emptyMap());
         long currentLargestRelId = session.queryForObject(Long.class, ""//
                 + "MATCH (n1:Dummy{i:0}) "//
                 + "MATCH (n2:Dummy{i:1}) "//
                 + "MERGE (n1)-[r1:FOOBAR{i:0}]->(n2) "//
-                + "RETURN id(r1)", Map.of());
+                + "RETURN id(r1)", Collections.emptyMap());
 
         if (currentLargestNodeId == currentLargestRelId) {
             return currentLargestNodeId + 1L;
@@ -85,7 +85,7 @@ public class QueryCapabilityGH952Test extends TestContainersTestBase {
                         + "MATCH (n1:Dummy{i:0}) "//
                         + "MATCH (n2:Dummy{i:1}) "//
                         + "MERGE (n1)-[r1:FOOBAR{i:$i}]->(n2) "//
-                        + "RETURN id(r1)", Map.of("i", i + 1L));
+                        + "RETURN id(r1)", Collections.singletonMap("i", i + 1L));
             }
             return currentLargestNodeId + 1L;
         } else {
@@ -94,7 +94,7 @@ public class QueryCapabilityGH952Test extends TestContainersTestBase {
             for (long i = 0; i < numNodesToCreate; ++i) {
                 session.queryForObject(Long.class, ""//
                         + "MERGE (n1:Dummy{uuid:'A',i:$i}) "//
-                        + "RETURN id(n2)", Map.of("i", i + 2L));
+                        + "RETURN id(n2)", Collections.singletonMap("i", i + 2L));
             }
             return currentLargestRelId + 1L;
         }
@@ -112,14 +112,14 @@ public class QueryCapabilityGH952Test extends TestContainersTestBase {
                 + "MERGE (b:Book{title:'Moby-Dick', uuid:'AAAA0003'}) "//
                 + "MERGE (h1)-[:PARENT_OF{uuid:'BBBB0001', lastMeeting:1689347516000}]->(h2) "//
                 + "MERGE (b)-[:READ_BY{uuid:'BBBB0002', date:1689693116000}]->(h1)", //
-                Map.of());
+                Collections.emptyMap());
 
         // verify that we reached the expected setup
-        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0001'}) RETURN id(n)", Map.of())).isEqualTo(nextId);
-        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0002'}) RETURN id(n)", Map.of())).isEqualTo(nextId + 1L);
-        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0003'}) RETURN id(n)", Map.of())).isEqualTo(nextId + 2L);
-        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH ()-[r{uuid:'BBBB0001'}]->() RETURN id(r)", Map.of())).isEqualTo(nextId);
-        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH ()-[r{uuid:'BBBB0002'}]->() RETURN id(r)", Map.of()))
+        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0001'}) RETURN id(n)", Collections.emptyMap())).isEqualTo(nextId);
+        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0002'}) RETURN id(n)", Collections.emptyMap())).isEqualTo(nextId + 1L);
+        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0003'}) RETURN id(n)", Collections.emptyMap())).isEqualTo(nextId + 2L);
+        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH ()-[r{uuid:'BBBB0001'}]->() RETURN id(r)", Collections.emptyMap())).isEqualTo(nextId);
+        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH ()-[r{uuid:'BBBB0002'}]->() RETURN id(r)", Collections.emptyMap()))
                 .isEqualTo(nextId + 1L);
 
         // load the relationship entity between Moby-Dick and Jane Doe including the children of Jane
@@ -128,7 +128,7 @@ public class QueryCapabilityGH952Test extends TestContainersTestBase {
                         + "MATCH (b:Book{title:$bookTitle})-[r:READ_BY]->(h:Human) "//
                         + "RETURN"//
                         + "  r, b, h, [[ (h)-[p:PARENT_OF]->(c) | [p, c]]], id(r)", //
-                        Map.of("bookTitle", "Moby-Dick")))//
+                        Collections.singletonMap("bookTitle", "Moby-Dick")))//
                 .hasSize(1)// -> this check fails without the fix for GH-952
                 .allSatisfy(bookReadBy -> {
                     BDDAssertions.assertThat(bookReadBy.getBook().getTitle()).isEqualTo("Moby-Dick");

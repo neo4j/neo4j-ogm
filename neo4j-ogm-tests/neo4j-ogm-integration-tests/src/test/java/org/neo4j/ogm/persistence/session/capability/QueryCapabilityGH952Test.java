@@ -94,7 +94,7 @@ public class QueryCapabilityGH952Test extends TestContainersTestBase {
             for (long i = 0; i < numNodesToCreate; ++i) {
                 session.queryForObject(Long.class, ""//
                         + "MERGE (n1:Dummy{uuid:'A',i:$i}) "//
-                        + "RETURN id(n2)", Collections.singletonMap("i", i + 2L));
+                        + "RETURN id(n1)", Collections.singletonMap("i", i + 2L));
             }
             return currentLargestRelId + 1L;
         }

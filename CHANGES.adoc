@@ -1,5 +1,9 @@
 = Changes
 
+== 3.2.42
+
+* [bug] Correctly filter query results, taking the fact that native ids are only sort of unique for the respecting entity type. (#952)
+
 == 3.2.41
 
 * [bug] Fix NullPointerException when parsing notification position from BoltResponse (#950)

@@ -54,6 +54,20 @@ Thanks to @gaurav-bagga for their input and feedback!
 
 == 3.2
 
+=== 3.2.42
+
+* [bug] Correctly filter query results, taking the fact that native ids are only sort of unique for the respecting entity type. (#952)
+
+=== 3.2.41
+
+* [bug] Fix NullPointerException when parsing notification position from BoltResponse (#950)
+* [feature] Singe/composite index support for relationships (#948)
+* [improvement] Support for direct relationship mapping even if a `@RelationshipEntity` is defined (#951)
+
+=== 3.2.40
+
+* Improve `Optional` handling in `FieldInfo`.
+
 === 3.2.39
 
 * Allow for classes to be registered dynamically with `DomainInfo`.

@@ -276,6 +276,17 @@
 
                 <executions>
                     <execution>
+                        <id>default-test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>org.neo4j.ogm.persistence.session.capability.QueryCapabilityGH952Test</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>test-different-encoding</id>
                         <goals>
                             <goal>test</goal>
@@ -295,6 +306,21 @@
                                 <include>org.neo4j.ogm.persistence.examples.cineasts.annotated.CineastsIntegrationTest
                                 </include>
                                 <include>org.neo4j.ogm.config.ConfigurationTest</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>native-id-tests</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <!--
+                            The tests for correct handling of overlapping native ids for nodes and relationships
+                            (see GH-952) need to be executed on a clean Neo4j instance
+                            -->
+                            <includes>
+                                <include>org.neo4j.ogm.persistence.session.capability.QueryCapabilityGH952Test</include>
                             </includes>
                         </configuration>
                     </execution>

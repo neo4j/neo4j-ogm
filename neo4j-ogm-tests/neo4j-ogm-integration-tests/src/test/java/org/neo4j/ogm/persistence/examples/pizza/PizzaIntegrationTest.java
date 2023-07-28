@@ -37,7 +37,6 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**

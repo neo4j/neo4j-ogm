@@ -32,15 +32,15 @@ import org.neo4j.driver.Driver;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.support.ClassUtils;
 import org.neo4j.ogm.support.FileUtils;
-import org.neo4j.test.TestGraphDatabaseFactory;
 
 /**
  * @author Michael J. Simons
@@ -116,17 +116,20 @@ public class EmbeddedDriverTest {
     @Test
     public void shouldWriteAndReadFromProvidedDatabase() {
 
-        GraphDatabaseService impermanentDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        try(ServerControls serverControls = TestServerBuilders.newInProcessBuilder().newServer()) {
+            GraphDatabaseService impermanentDatabase = serverControls.graph();
+            try (
+                EmbeddedDriver driver = new EmbeddedDriver(impermanentDatabase, null)
+            ) {
 
-        try (EmbeddedDriver driver = new EmbeddedDriver(impermanentDatabase, null)) {
+                GraphDatabaseService databaseService = driver.unwrap(GraphDatabaseService.class);
 
-            GraphDatabaseService databaseService = driver.unwrap(GraphDatabaseService.class);
-
-            try (Transaction tx = databaseService.beginTx()) {
-                databaseService.execute("CREATE (n: Node {name: 'node'})");
-                Result r = databaseService.execute("MATCH (n) RETURN n");
-                assertThat(r.hasNext()).isTrue();
-                tx.success();
+                try (Transaction tx = databaseService.beginTx()) {
+                    databaseService.execute("CREATE (n: Node {name: 'node'})");
+                    Result r = databaseService.execute("MATCH (n) RETURN n");
+                    assertThat(r.hasNext()).isTrue();
+                    tx.success();
+                }
             }
         }
     }

@@ -19,7 +19,6 @@ import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
-import org.omg.PortableInterceptor.INACTIVE;
 
 import static org.assertj.core.api.Assertions.*;
 

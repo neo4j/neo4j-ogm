@@ -1,13 +1,13 @@
 name: ogm-manual
 title: OGM Library
-version: '3.2'
+version: '3.3'
 start_page: ROOT:index.adoc
 nav:
 - modules/ROOT/content-nav.adoc
 asciidoc:
   attributes:
-    neo4j-version: '4.1'
-    neo4j-version-exact: '4.1.10'
+    neo4j-version: '3.5'
+    neo4j-version-exact: '3.5.35'
     neo4j-buildnumber: '4.1'
-    ogm-version: '3.2.42'
-    ogm-doc-version: '3.2'
+    ogm-version: '3.3.0'
+    ogm-doc-version: '3.3'

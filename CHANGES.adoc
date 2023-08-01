@@ -52,6 +52,14 @@ Thanks to @gaurav-bagga for their input and feedback!
 * [dependencies] Upgrade to Neo4j Java Driver 5.2.0
 * [dependencies] Bump most other dependencies to the latest version
 
+== 3.3
+
+=== 3.3.0
+
+First release in the 3.3.x line. No changes compared to the latest 3.2.42 release, but using the latest Neo4j Java 4.4 driver as a baseline dependencies. If you don't manage the driver in your application yourself, this will affect your dependencies as well. By upgrading from a 4.0 driver to the 4.4 driver as baseline, Neo4j-OGM 3.3 effectively drops support for all versions of Neo4j database prior to 3.5.
+
+Future supported versions of Neo4j-OGM will be 3.3 and 4.x. Neo4j-OGM 3.3 is for all projects that still require support for Neo4j 4.4 and 3.5. Neo4j-OGM 4.x is for all projects on Neo4j 4.4 or 5.
+
 == 3.2
 
 === 3.2.42

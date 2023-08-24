@@ -27,10 +27,15 @@ import static org.neo4j.ogm.support.ClassUtils.isEnum;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -123,6 +128,8 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
                 @SuppressWarnings("unchecked") // It is checked by the condition above.
                 EnumStringConverter enumStringConverter = converterCache.computeIfAbsent((Class<? extends Enum<?>>) entryValue.getClass(), EnumStringConverter::new);
                 graphProperties.put(entryKey, enumStringConverter.toGraphProperty((Enum<?>) entryValue));
+            } else if (Set.class.isAssignableFrom(entryValue.getClass())) {
+                graphProperties.put(entryKey, new ArrayList<>((Set<?>) entryValue)); // todo maps more than required
             } else {
                 throw new MappingException("Could not map key=" + entryPrefix + entry.getKey() + ", " +
                     "value=" + entryValue + " (type = " + entryValue.getClass() + ") " +
@@ -166,16 +173,24 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
                 o = new HashMap<>();
                 result.put(keyInstance, o);
             }
-            putToMap(o, propertyKey.substring(delimiterIndex + delimiter.length()), value, nestedFieldType(fieldType));
+            putToMap(o, propertyKey.substring(delimiterIndex + delimiter.length()), value, nestedMapFieldType(fieldType));
         } else {
             Object keyInstance = keyInstanceFromString(propertyKey, getKeyType(fieldType));
 
-            Type valueType = nestedFieldType(fieldType);
+            Type valueType = nestedMapFieldType(fieldType);
             if (valueType != null) {
                 if (value instanceof String && ClassUtils.isEnum(valueType)) {
                     @SuppressWarnings("unchecked")
                     EnumStringConverter enumStringConverter = converterCache.computeIfAbsent((Class<? extends Enum<?>>) valueType, EnumStringConverter::new);
                     value = enumStringConverter.toEntityAttribute((String) value);
+                } else if (valueType instanceof ParameterizedType) {
+                    value = Utils.coerceTypes((Class<?>) nestedCollectionFieldType(valueType), value);
+                    Class<?> rawCollectionType = (Class<?>) ((ParameterizedType) valueType).getRawType();
+                    if (SortedSet.class.isAssignableFrom(rawCollectionType)) {
+                        value = new TreeSet<>((Collection<?>) value);
+                    } else if (Set.class.isAssignableFrom(rawCollectionType)) {
+                        value = new HashSet<>((Collection<?>) value);
+                    }
                 } else {
                     value = Utils.coerceTypes((Class<?>) valueType, value);
                 }
@@ -193,9 +208,17 @@ public class MapCompositeConverter implements CompositeAttributeConverter<Map<?,
         }
     }
 
-    private Type nestedFieldType(Type keyType) {
+    private Type nestedMapFieldType(Type keyType) {
         if (keyType instanceof ParameterizedType) {
             return ((ParameterizedType) keyType).getActualTypeArguments()[1];
+        } else {
+            return null;
+        }
+    }
+
+    private Type nestedCollectionFieldType(Type keyType) {
+        if (keyType instanceof ParameterizedType) {
+            return ((ParameterizedType) keyType).getActualTypeArguments()[0];
         } else {
             return null;
         }

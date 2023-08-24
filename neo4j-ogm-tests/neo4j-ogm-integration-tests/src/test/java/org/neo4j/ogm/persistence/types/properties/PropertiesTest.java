@@ -26,8 +26,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -498,5 +501,39 @@ public class PropertiesTest extends TestContainersTestBase {
         } finally {
             logger.setLevel(originalLevel);
         }
+    }
+
+    @Test //GH-955
+    public void shouldHandleListOfProperties() {
+        User user = new User();
+        Map<String, List<String>> properties = new HashMap<>();
+        properties.put("a", Arrays.asList("a", "b"));
+        properties.put("b", Arrays.asList("c", "d"));
+        user.setListProperties(properties);
+
+        session.save(user);
+        session.clear();
+
+        user = session.load(User.class, user.getId());
+        assertThat(user.getListProperties())
+            .containsOnly(new HashMap.SimpleEntry<>("a", Arrays.asList("a", "b")), new HashMap.SimpleEntry<>("b", Arrays.asList("c", "d")));
+    }
+
+    @Test //GH-955
+    public void shouldHandleSetOfProperties() {
+        User user = new User();
+        Map<String, Set<String>> properties = new HashMap<>();
+        Set<String> a = new HashSet<>(Arrays.asList("a", "b"));
+        Set<String> b = new HashSet<>(Arrays.asList("c", "d"));
+        properties.put("a", a);
+        properties.put("b", b);
+        user.setSetProperties(properties);
+
+        session.save(user);
+        session.clear();
+
+        user = session.load(User.class, user.getId());
+        assertThat(user.getSetProperties())
+            .containsOnly(new HashMap.SimpleEntry<>("a", new HashSet<>(Arrays.asList("a", "b"))), new HashMap.SimpleEntry<>("b", new HashSet<>(Arrays.asList("c", "d"))));
     }
 }

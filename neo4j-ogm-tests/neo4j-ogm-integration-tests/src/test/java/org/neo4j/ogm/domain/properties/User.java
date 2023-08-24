@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,6 +44,7 @@ import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
  */
 @NodeEntity
 public class User {
+
 
     public enum EnumA {VALUE_AA}
 
@@ -89,11 +91,18 @@ public class User {
     @Properties(transformEnumKeysWith = LowerCasePropertiesFilter.class)
     private Map<EnumA, Object> filteredProperties;
 
+    @Properties(prefix = "listProperties", allowCast = true)
+    private Map<String, List<String>> listProperties;
+
+    @Properties(prefix = "setProperties", allowCast = true)
+    private Map<String, Set<String>> setProperties;
+
     @Convert(NoPrefixPropertiesConverter.class)
     private Map<String, Object> manualProperties;
 
     @Relationship(type = "VISITED")
     private Set<Visit> visits;
+
 
     public User() {
     }
@@ -256,6 +265,22 @@ public class User {
     public void setEnumBValuesByEnum(
         Map<EnumA, EnumB> enumBValuesByEnum) {
         this.enumBValuesByEnum = enumBValuesByEnum;
+    }
+
+    public void setListProperties(Map<String, List<String>> listProperties) {
+        this.listProperties = listProperties;
+    }
+
+    public Map<String, List<String>> getListProperties() {
+        return listProperties;
+    }
+
+    public Map<String, Set<String>> getSetProperties() {
+        return setProperties;
+    }
+
+    public void setSetProperties(Map<String, Set<String>> setProperties) {
+        this.setProperties = setProperties;
     }
 
     public static class LowerCasePropertiesFilter implements BiFunction<Phase, String, String> {

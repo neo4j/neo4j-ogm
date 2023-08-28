@@ -23,19 +23,12 @@ import java.time.Instant;
 import java.util.Collections;
 
 import org.assertj.core.api.BDDAssertions;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.domain.gh952.BookWasReadBy;
-import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.LoggerRule;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
-import org.slf4j.LoggerFactory;
-
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
 
 /**
  * This test class is specifically for GH-952 and needs to be executed separately within a clean JVM and new Neo4j
@@ -48,15 +41,7 @@ public class QueryCapabilityGH952Test extends TestContainersTestBase {
     private SessionFactory sessionFactory;
     private Session session;
 
-    static {
-        LoggerContext logCtx = (LoggerContext) LoggerFactory.getILoggerFactory();
-        logCtx.getLogger(Neo4jSession.class).setLevel(Level.DEBUG);
-    }
-
-    @Rule
-    public final LoggerRule loggerRule = new LoggerRule();
-
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh952");
         session = sessionFactory.openSession();
@@ -76,13 +61,13 @@ public class QueryCapabilityGH952Test extends TestContainersTestBase {
                 Collections.emptyMap());
 
         // verify that we reached the expected setup
-        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0001'}) RETURN id(n)", Collections.emptyMap())).isNotNull();
-        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0002'}) RETURN id(n)", Collections.emptyMap())).isNotNull();
-        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0003'}) RETURN id(n)", Collections.emptyMap())).isNotNull();
+        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0001'}) RETURN id(n)", Collections.emptyMap())).isEqualTo(0L);
+        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0002'}) RETURN id(n)", Collections.emptyMap())).isEqualTo(1L);
+        BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH (n{uuid:'AAAA0003'}) RETURN id(n)", Collections.emptyMap())).isEqualTo(2L);
         BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH ()-[r{uuid:'BBBB0001'}]->() RETURN id(r)", Collections.emptyMap()))
-                .isNotNull();
+            .isEqualTo(0L);
         BDDAssertions.assertThat(session.queryForObject(Long.class, "MATCH ()-[r{uuid:'BBBB0002'}]->() RETURN id(r)", Collections.emptyMap()))
-                .isNotNull();
+            .isEqualTo(1L);
 
         // load the relationship entity between Moby-Dick and Jane Doe including the children of Jane
         BDDAssertions.assertThat(//

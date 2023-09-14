@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.domain.convertible.parametrized;
 
-import static org.neo4j.driver.internal.util.Iterables.*;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +36,6 @@ public class StringMapConverter implements AttributeConverter<Map<String, String
 
     @Override
     public Map<String, String> toEntityAttribute(List<String> value) {
-        return map("a", "1", "b", "2", "c", "3");
+        return Map.of("a", "1", "b", "2", "c", "3");
     }
 }

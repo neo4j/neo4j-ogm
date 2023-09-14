@@ -38,6 +38,7 @@ import org.neo4j.ogm.exception.core.MetadataException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.id.UuidStrategy;
+import org.neo4j.ogm.model.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -439,6 +440,16 @@ public class ClassInfo {
             labelFieldMapped = true;
         }
         return null;
+    }
+
+    public Collection<String> dynamicLabelsFrom(Node nodeModel) {
+        Set<String> dynamicLabels = new HashSet<>();
+        for (String label : nodeModel.getLabels()) {
+            if (!staticLabels().contains(label)) {
+                dynamicLabels.add(label);
+            }
+        }
+        return dynamicLabels;
     }
 
     public boolean isRelationshipEntity() {

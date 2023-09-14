@@ -28,11 +28,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.context.MappingSupport;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.model.Node;
+import org.neo4j.ogm.model.PropertyContainer;
+import org.neo4j.ogm.response.model.PropertyModel;
 import org.neo4j.ogm.session.EntityInstantiator;
 
 /**
@@ -58,6 +62,9 @@ public class ReflectionEntityInstantiator implements EntityInstantiator {
             defaultConstructor.setAccessible(true);
             return defaultConstructor.newInstance();
         } catch (SecurityException | IllegalArgumentException | ReflectiveOperationException e) {
+            if (clazz.isRecord()) {
+                return createInstanceWithConstructorArgs(clazz, propertyValues);
+            }
             throw new MappingException("Unable to find default constructor to instantiate " + clazz, e);
         }
     }
@@ -79,11 +86,24 @@ public class ReflectionEntityInstantiator implements EntityInstantiator {
                 return instantiatingConstructor.newInstance();
             }
             Object[] values = new Object[parameters.length];
+            FieldInfo identityField = classInfo.identityFieldOrNull();
+            FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
             for (int i = 0; i < parameters.length; i++) {
                 Parameter parameter = parameters[i];
                 String parameterName = parameter.getName();
                 FieldInfo fieldInfo = classInfo.getFieldInfo(parameterName);
-                values[i] = MappingSupport.convertValue(classInfo, parameterName, fieldInfo.convert(propertyValues.get(parameterName)), fieldInfo);
+                if (fieldInfo.equals(identityField) && fieldInfo.hasAnnotation(GeneratedValue.class) && propertyValues.get(EntityInstantiator.NEO4J_INTERNAL_NODE_MODEL) instanceof PropertyContainer container) {
+                    values[i] = container.getId();
+                } else if (fieldInfo.equals(labelFieldInfo) && propertyValues.get(
+                    EntityInstantiator.NEO4J_INTERNAL_NODE_MODEL) instanceof Node nodeModel) {
+                    var dynamicLabels = classInfo.dynamicLabelsFrom(nodeModel);
+                    var property = PropertyModel.with(labelFieldInfo.getName(), dynamicLabels);
+                    values[i] = MappingSupport.convertValue(classInfo, property.getKey(), property.getValue(),
+                        labelFieldInfo);
+                } else {
+                    values[i] = MappingSupport.convertValue(classInfo, parameterName,
+                        fieldInfo.convert(propertyValues.get(parameterName)), fieldInfo);
+                }
                 propertyValues.remove(parameterName);
             }
             return instantiatingConstructor.newInstance(values);

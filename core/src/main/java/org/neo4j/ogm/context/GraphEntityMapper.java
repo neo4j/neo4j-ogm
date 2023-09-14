@@ -149,11 +149,11 @@ public class GraphEntityMapper {
         Predicate<Long> includeRelInResult = id -> additionalEntityFilter.shouldIncludeModelObject(graphModel, id, false);
         try {
             Set<Long> newNodeIds = mapNodes(graphModel);
-            returnedNodeIds.addAll(newNodeIds.stream().filter(includeNodeInResult).collect(toList()));
+            returnedNodeIds.addAll(newNodeIds.stream().filter(includeNodeInResult).toList());
             mappedNodeIds.addAll(newNodeIds);
 
             newNodeIds = mapRelationships(graphModel);
-            returnedRelationshipIds.addAll(newNodeIds.stream().filter(includeRelInResult).collect(toList()));
+            returnedRelationshipIds.addAll(newNodeIds.stream().filter(includeRelInResult).toList());
             mappedRelationshipIds.addAll(newNodeIds);
         } catch (MappingException e) {
             throw e;
@@ -219,11 +219,13 @@ public class GraphEntityMapper {
                 getCompositeProperties(node.getPropertyList(), clsi).forEach((k, v) -> {
                     allProps.put(k.getName(), v);
                 });
-
+                allProps.put(EntityInstantiator.NEO4J_INTERNAL_NODE_MODEL, node);
                 entity = entityFactory.newObject(clsi.getUnderlyingClass(), allProps);
-                EntityUtils.setIdentity(entity, node.getId(), metadata);
-                setProperties(node.getPropertyList(), entity);
-                setLabels(node, entity);
+                if (!clsi.getUnderlyingClass().isRecord()) {
+                    EntityUtils.setIdentity(entity, node.getId(), metadata);
+                    setProperties(node.getPropertyList(), entity);
+                    setLabels(node, entity);
+                }
                 mappingContext.addNodeEntity(entity, node.getId());
             }
             mappedNodeIds.add(node.getId());
@@ -270,13 +272,7 @@ public class GraphEntityMapper {
         ClassInfo classInfo = metadata.classInfo(instance);
         FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
         if (labelFieldInfo != null) {
-            Collection<String> staticLabels = classInfo.staticLabels();
-            Set<String> dynamicLabels = new HashSet<>();
-            for (String label : nodeModel.getLabels()) {
-                if (!staticLabels.contains(label)) {
-                    dynamicLabels.add(label);
-                }
-            }
+            Collection<String> dynamicLabels = classInfo.dynamicLabelsFrom(nodeModel);
             writeProperty(classInfo, instance, PropertyModel.with(labelFieldInfo.getName(), dynamicLabels));
         }
     }
@@ -390,35 +386,40 @@ public class GraphEntityMapper {
         // also add start and end node as valid constructor values
         allProps.put(relationClassInfo.getStartNodeReader().getName(), startEntity);
         allProps.put(relationClassInfo.getEndNodeReader().getName(), endEntity);
+        allProps.put(EntityInstantiator.NEO4J_INTERNAL_NODE_MODEL, edge);
 
         // create and hydrate the new RE
         Object relationshipEntity = entityFactory
             .newObject(relationClassInfo.getUnderlyingClass(), allProps);
-        EntityUtils.setIdentity(relationshipEntity, edge.getId(), metadata);
-
-        // REs also have properties
-        setProperties(edge.getPropertyList(), relationshipEntity);
+        if (!relationClassInfo.getUnderlyingClass().isRecord()) {
+            EntityUtils.setIdentity(relationshipEntity, edge.getId(), metadata);
+            // REs also have properties
+            setProperties(edge.getPropertyList(), relationshipEntity);
+        }
 
         // register it in the mapping context
         mappingContext.addRelationshipEntity(relationshipEntity, edge.getId());
 
-        // set the start and end entities
-        ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity);
+        // Two different cases here to avoid changing the order
+        if (!relationClassInfo.getUnderlyingClass().isRecord()) {
+            // set the start and end entities
+            ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity);
 
-        FieldInfo startNodeWriter = relEntityInfo.getStartNodeReader();
-        if (startNodeWriter != null) {
-            startNodeWriter.write(relationshipEntity, startEntity);
-        } else {
-            throw new RuntimeException(
-                "Cannot find a writer for the StartNode of relational entity " + relEntityInfo.name());
-        }
+            FieldInfo startNodeWriter = relEntityInfo.getStartNodeReader();
+            if (startNodeWriter != null) {
+                startNodeWriter.write(relationshipEntity, startEntity);
+            } else {
+                throw new RuntimeException(
+                    "Cannot find a writer for the StartNode of relational entity " + relEntityInfo.name());
+            }
 
-        FieldInfo endNodeWriter = relEntityInfo.getEndNodeReader();
-        if (endNodeWriter != null) {
-            endNodeWriter.write(relationshipEntity, endEntity);
-        } else {
-            throw new RuntimeException(
-                "Cannot find a writer for the EndNode of relational entity " + relEntityInfo.name());
+            FieldInfo endNodeWriter = relEntityInfo.getEndNodeReader();
+            if (endNodeWriter != null) {
+                endNodeWriter.write(relationshipEntity, endEntity);
+            } else {
+                throw new RuntimeException(
+                    "Cannot find a writer for the EndNode of relational entity " + relEntityInfo.name());
+            }
         }
 
         return relationshipEntity;
@@ -532,6 +533,7 @@ public class GraphEntityMapper {
      * @param values           the values to map
      * @param relationshipType the relationship type associated with these values
      */
+    @SuppressWarnings("rawtypes")
     private void mapOneToMany(Object instance, Class<?> valueType, Object values, String relationshipType,
         Direction relationshipDirection) {
 
@@ -539,10 +541,10 @@ public class GraphEntityMapper {
 
         FieldInfo writer = EntityAccessManager
             .getIterableField(classInfo, valueType, relationshipType, relationshipDirection);
+        FieldInfo reader = EntityAccessManager
+            .getIterableField(classInfo, valueType, relationshipType, relationshipDirection);
         if (writer != null) {
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-                FieldInfo reader = EntityAccessManager
-                    .getIterableField(classInfo, valueType, relationshipType, relationshipDirection);
                 Object currentValues;
                 if (reader != null) {
                     currentValues = reader.read(instance);
@@ -554,7 +556,16 @@ public class GraphEntityMapper {
                     }
                 }
             }
-            writer.write(instance, values);
+            if (classInfo.getUnderlyingClass().isRecord() && reader.read(instance) instanceof Collection c
+                && values instanceof Iterable it) {
+                c.clear();
+                // Let's hope for the best...
+                // noinspection unchecked
+                it.forEach(c::add);
+            } else {
+                writer.write(instance, values);
+            }
+
             return;
         }
         // this is not necessarily an error. but we can't tell.

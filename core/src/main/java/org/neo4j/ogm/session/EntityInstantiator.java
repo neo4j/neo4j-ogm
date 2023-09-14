@@ -27,6 +27,8 @@ import java.util.Map;
  */
 public interface EntityInstantiator {
 
+    String NEO4J_INTERNAL_NODE_MODEL = "__neo4j_internal_node_model__";
+
     /**
      * Creates an instance of a given class.
      * Ignores the provided propertyValues for compatibility reasons.

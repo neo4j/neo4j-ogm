@@ -19,6 +19,7 @@
 package org.neo4j.ogm.session.delegates;
 
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -60,7 +61,7 @@ public class LoadOneDelegate extends SessionDelegate {
             throw new IllegalArgumentException(type + " is not a managed entity.");
         }
         final FieldInfo primaryIndexField = classInfo.primaryIndexField();
-        if (primaryIndexField != null && !primaryIndexField.isTypeOf(id.getClass())) {
+        if (primaryIndexField != null && !primaryIndexField.isTypeOf(id.getClass()) && !(primaryIndexField.type().isPrimitive() && id.getClass().toString().toLowerCase(Locale.ROOT).contains(primaryIndexField.type().getName()))) {
             throw new IllegalArgumentException(
                 "Supplied id does not match primary index type on supplied class " + type.getName());
         }

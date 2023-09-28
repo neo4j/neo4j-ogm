@@ -126,6 +126,13 @@ for(Actor actor : matrix.getActors()) {
 }
 ----
 
+== Integrations within other frameworks
+
+We do offer two offical integrations:
+
+* The https://github.com/neo4j/neo4j-ogm-quarkus[Neo4j-OGM Quarkus Extension], which works nicely with Quarkus' "do everything and then some" at buildtime-approach
+* The https://github.com/neo4j/neo4j-ogm-spring[Neo4j-OGM Spring Data fork], which provides continued support for Spring Data Neo4j 5, but for modern Spring versions
+
 == Getting Help
 
 The http://neo4j.com/docs/ogm-manual/current/[reference guide] is the best place to get started.

@@ -195,7 +195,7 @@
         <classgraph.version>4.8.162</classgraph.version>
         <jackson.version>2.14.1</jackson.version>
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
-        <junit.version>5.9.1</junit.version>
+        <junit.version>5.10.0</junit.version>
         <kotlin.version>1.9.10</kotlin.version>
         <logback.version>1.4.5</logback.version>
         <neo4j.edition>enterprise</neo4j.edition>

@@ -19,7 +19,8 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.neo4j</groupId>
@@ -201,7 +202,7 @@
         <neo4j.edition>enterprise</neo4j.edition>
         <neo4j-java-driver.version>5.12.0</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
-        <license-maven-plugin.version>4.2.rc2</license-maven-plugin.version>
+        <license-maven-plugin.version>4.3</license-maven-plugin.version>
         <maven-jar-plugin.version>3.0.1</maven-jar-plugin.version>
         <maven-checkstyle-plugin.version>3.3.0</maven-checkstyle-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
@@ -561,42 +562,47 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <header>etc/license.tpl</header>
                     <strictCheck>true</strictCheck>
                     <mapping>
                         <factories>SCRIPT_STYLE</factories>
                     </mapping>
-                    <properties>
-                        <year>2023</year>
-                    </properties>
-                    <includes>
-                        <include>**</include>
-                    </includes>
-                    <excludes>
-                        <exclude>.m2/**</exclude>
-                        <exclude>m2/**</exclude>
-                        <exclude>**/*.adoc</exclude>
-                        <exclude>**/*.conf</exclude>
-                        <exclude>**/*.cql</exclude>
-                        <exclude>**/*.css</exclude>
-                        <exclude>**/*.csv</exclude>
-                        <exclude>**/*.cypher</exclude>
-                        <exclude>**/*.js</exclude>
-                        <exclude>**/*.sh</exclude>
-                        <exclude>**/*.tpl</exclude>
-                        <exclude>**/*.txt</exclude>
-                        <exclude>**/*.yaml</exclude>
-                        <exclude>**/package-info.java</exclude>
-                        <!-- Documentation -->
-                        <exclude>**/neo4j-ogm-docs/**</exclude>
-                        <!-- Files without extension -->
-                        <exclude>**/src/test/resources/spi/**</exclude>
-                        <!-- Additional paths -->
-                        <exclude>bin/**</exclude>
-                        <exclude>artifacts/**</exclude>
-                    </excludes>
+                    <licenseSets>
+                        <licenseSet>
+                            <header>etc/license.tpl</header>
+                            <properties>
+                                <year>2023</year>
+                            </properties>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>.m2/**</exclude>
+                                <exclude>m2/**</exclude>
+                                <exclude>**/*.adoc</exclude>
+                                <exclude>**/*.conf</exclude>
+                                <exclude>**/*.cql</exclude>
+                                <exclude>**/*.css</exclude>
+                                <exclude>**/*.csv</exclude>
+                                <exclude>**/*.cypher</exclude>
+                                <exclude>**/*.js</exclude>
+                                <exclude>**/*.sh</exclude>
+                                <exclude>**/*.tpl</exclude>
+                                <exclude>**/*.txt</exclude>
+                                <exclude>**/*.yaml</exclude>
+                                <exclude>**/package-info.java</exclude>
+                                <!-- Documentation -->
+                                <exclude>**/neo4j-ogm-docs/**</exclude>
+                                <!-- Files without extension -->
+                                <exclude>**/src/test/resources/spi/**</exclude>
+                                <!-- Additional paths -->
+                                <exclude>bin/**</exclude>
+                                <exclude>artifacts/**</exclude>
+                            </excludes>
+                        </licenseSet>
+                    </licenseSets>
                     <dependencyEnforce>true</dependencyEnforce>
-                    <dependencyExceptionMessage>One or more dependencies are licensed under a non-approved license.</dependencyExceptionMessage>
+                    <dependencyExceptionMessage>One or more dependencies are licensed under a non-approved license.
+                    </dependencyExceptionMessage>
                     <dependencyPolicies>
                         <!-- Apache 2 -->
                         <dependencyPolicy>

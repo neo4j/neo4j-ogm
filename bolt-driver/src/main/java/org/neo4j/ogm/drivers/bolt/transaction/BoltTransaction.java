@@ -18,10 +18,14 @@
  */
 package org.neo4j.ogm.drivers.bolt.transaction;
 
+import java.util.Map;
+
 import org.neo4j.driver.Bookmark;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
+import org.neo4j.driver.TransactionConfig;
 import org.neo4j.driver.exceptions.ClientException;
+import org.neo4j.ogm.drivers.bolt.driver.UserAgent;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.TransactionException;
@@ -58,7 +62,8 @@ public class BoltTransaction extends AbstractTransaction {
             newOrExistingNativeTransaction = ((BoltTransaction) currentOGMTransaction).nativeBoltTransaction();
         } else {
             LOGGER.debug("No current transaction, starting a new one");
-            newOrExistingNativeTransaction = nativeSession.beginTransaction();
+            newOrExistingNativeTransaction = nativeSession.beginTransaction(TransactionConfig.builder()
+                .withMetadata(Map.of("app", UserAgent.INSTANCE.toString())).build());
         }
         LOGGER.debug("Native transaction: {}", newOrExistingNativeTransaction);
         return newOrExistingNativeTransaction;

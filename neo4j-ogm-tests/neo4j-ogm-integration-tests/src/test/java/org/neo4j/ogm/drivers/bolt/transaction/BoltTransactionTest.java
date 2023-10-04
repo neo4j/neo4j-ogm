@@ -19,6 +19,7 @@
 package org.neo4j.ogm.drivers.bolt.transaction;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.neo4j.ogm.transaction.Transaction.Type.*;
 
@@ -29,6 +30,7 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
+import org.neo4j.driver.TransactionConfig;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 public class BoltTransactionTest {
@@ -125,6 +127,7 @@ public class BoltTransactionTest {
         Session session = mock(Session.class);
         when(session.isOpen()).thenReturn(true);
         when(session.beginTransaction()).thenReturn(nativeTx);
+        when(session.beginTransaction(any(TransactionConfig.class))).thenReturn(nativeTx);
         return session;
     }
 
@@ -147,7 +150,7 @@ public class BoltTransactionTest {
                     // Ignored
                 });
             return null;
-        }).when(mock).close(Mockito.any(org.neo4j.ogm.transaction.Transaction.class), Mockito.any(Consumer.class));
+        }).when(mock).close(any(org.neo4j.ogm.transaction.Transaction.class), any(Consumer.class));
         return mock;
     }
 }

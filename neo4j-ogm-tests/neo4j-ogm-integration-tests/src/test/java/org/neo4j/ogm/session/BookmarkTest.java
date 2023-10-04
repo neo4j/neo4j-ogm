@@ -39,6 +39,7 @@ import org.neo4j.driver.AccessMode;
 import org.neo4j.driver.Bookmark;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.SessionConfig;
+import org.neo4j.driver.TransactionConfig;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.transaction.Transaction;
@@ -112,7 +113,7 @@ public class BookmarkTest {
     @Test
     public void shouldHaveAvailableBookmark() {
         when(nativeDriver.session(any(SessionConfig.class))).thenReturn(nativeSession);
-        when(nativeSession.beginTransaction().isOpen()).thenReturn(true);
+        when(nativeSession.beginTransaction(any(TransactionConfig.class)).isOpen()).thenReturn(true);
         when(nativeSession.lastBookmark()).thenReturn(Bookmark.from(Collections.singleton("last-bookmark")));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_WRITE);
@@ -133,7 +134,7 @@ public class BookmarkTest {
         multipleBookmarks.addAll(Arrays.asList("bookmark-part1", "bookmark-part2"));
 
         when(nativeDriver.session(any(SessionConfig.class))).thenReturn(nativeSession);
-        when(nativeSession.beginTransaction().isOpen()).thenReturn(true);
+        when(nativeSession.beginTransaction(any(TransactionConfig.class)).isOpen()).thenReturn(true);
         when(nativeSession.lastBookmark()).thenReturn(Bookmark.from(multipleBookmarks));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_WRITE);

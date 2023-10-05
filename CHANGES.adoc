@@ -2,6 +2,39 @@
 
 == 4.0
 
+=== 4.0.7
+
+* [feature] Add dynamic properties support for collections.
+* [feature] Make sure that the usage of Java records does not end in tears.
+* [feature] Add "app" metadata to newly created native Bolt transactions.
+* [improvement] Don't rely on db ids for testing.
+* [bug] Fix tests for GH-957.
+* [bug]: Correctly filter query results, taking the fact that native ids are only sort of unique for the respecting entity type. (#953)
+* [docs] Add links to Quarkus and Spring integrations.
+* [build] Address deprecation warnings of license plugin to have a warning free build.
+* [build] Upgrade Maven wrapper to ASF wrapper 3.2.0 and Maven 3.9.4
+* [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#976)
+* [dependencies] Bump org.apache.maven.plugins:maven-site-plugin from 3.7.1 to 3.12.1 (#975)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle from 10.7.0 to 10.12.4 (#977)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin from 3.1.3 to 4.7.3.6 (#974)
+* [dependencies] Bump org.apache.maven.plugins:maven-source-plugin from 3.0.1 to 3.3.0 (#973)
+* [dependencies] Bump org.junit:junit-bom from 5.9.1 to 5.10.0 (#972)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.4.5 to 1.4.11 (#971)
+* [dependencies] Bump io.mockk:mockk-jvm from 1.13.2 to 1.13.8 (#970)
+* [dependencies] Bump org.apache.maven.plugins:maven-compiler-plugin (#969)
+* [dependencies] Bump org.testcontainers:neo4j from 1.17.6 to 1.19.0 (#968)
+* [dependencies] Bump io.github.classgraph:classgraph from 4.8.156 to 4.8.162 (#967)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter from 2.26.0 to 5.5.0 (#966)
+* [dependencies] Bump org.apache.maven.plugins:maven-checkstyle-plugin (#965)
+* [dependencies] Bump org.jacoco:jacoco-maven-plugin from 0.8.8 to 0.8.10 (#964)
+* [dependencies] Bump com.github.ben-manes.caffeine:caffeine from 2.6.2 to 3.1.8 (#963)
+* [dependencies] Bump org.codehaus.mojo:build-helper-maven-plugin from 3.2.0 to 3.4.0 (#962)
+* [dependencies] Bump kotlin.version from 1.7.21 to 1.9.10 (#961)
+* [dependencies] Bump org.apache.maven.plugins:maven-install-plugin (#960)
+* [dependencies] Bump slf4j.version from 2.0.5 to 2.0.9 (#959)
+* [dependencies] Bump org.apache.commons:commons-lang3 from 3.8 to 3.13.0 (#958)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 5.7.0 to 5.12.0.
+
 === 4.0.6
 
 * [bug] Fix NullPointerException when parsing notification position from BoltResponse (#950)

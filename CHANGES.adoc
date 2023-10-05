@@ -54,6 +54,13 @@ Thanks to @gaurav-bagga for their input and feedback!
 
 == 3.3
 
+=== 3.3.1
+
+* [feature] Add "app" metadata to newly created native Bolt transactions.
+* [bug] Fix tests for GH-957.
+* [feature] Add dynamic properties support for collections.
+* [improvement] Don't rely on db ids for testing.
+
 === 3.3.0
 
 First release in the 3.3.x line. No changes compared to the latest 3.2.42 release, but using the latest Neo4j Java 4.4 driver as a baseline dependencies. If you don't manage the driver in your application yourself, this will affect your dependencies as well. By upgrading from a 4.0 driver to the 4.4 driver as baseline, Neo4j-OGM 3.3 effectively drops support for all versions of Neo4j database prior to 3.5.

@@ -5,7 +5,7 @@
 * [feature] Add "app" metadata to newly created native Bolt transactions.
 * [bug] Fix tests for GH-957.
 * [feature] Add dynamic properties support for collections.
-* [improvement] c5fa0665 Don't rely on db ids for testing.
+* [improvement] Don't rely on db ids for testing.
 
 == 3.3.0
 

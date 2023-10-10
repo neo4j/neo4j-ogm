@@ -124,13 +124,18 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
         this.driverConfig = buildDriverConfig();
         this.credentials = this.configuration.getCredentials();
-        this.database = this.configuration.getDatabase();
-        this.databaseSelectionProvider = this.configuration.getDatabaseSelectionProvider();
-        this.userSelectionProvider = this.configuration.getUserSelectionProvider();
-
+        configureSessionConfig(newConfiguration);
         if (this.configuration.getVerifyConnection()) {
             checkDriverInitialized();
         }
+    }
+
+    public void configureSessionConfig(Configuration newConfiguration) {
+        // since it is still possible that the BoltDriver will get recreated, we have to persist the given config
+        this.configuration = newConfiguration;
+        this.database = this.configuration.getDatabase();
+        this.databaseSelectionProvider = this.configuration.getDatabaseSelectionProvider();
+        this.userSelectionProvider = this.configuration.getUserSelectionProvider();
     }
 
     @Override

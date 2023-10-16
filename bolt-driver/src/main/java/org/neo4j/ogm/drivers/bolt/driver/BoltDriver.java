@@ -42,7 +42,6 @@ import java.util.stream.StreamSupport;
 import org.neo4j.driver.*;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.ServiceUnavailableException;
-import org.neo4j.driver.internal.Scheme;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.DatabaseSelectionProvider;
@@ -67,6 +66,29 @@ import org.slf4j.LoggerFactory;
  */
 public class BoltDriver extends AbstractConfigurableDriver {
 
+    private static final String BOLT_URI_SCHEME = "bolt";
+    private static final String BOLT_HIGH_TRUST_URI_SCHEME = "bolt+s";
+    private static final String BOLT_LOW_TRUST_URI_SCHEME = "bolt+ssc";
+    private static final String NEO4J_URI_SCHEME = "neo4j";
+    private static final String NEO4J_HIGH_TRUST_URI_SCHEME = "neo4j+s";
+    private static final String NEO4J_LOW_TRUST_URI_SCHEME = "neo4j+ssc";
+
+    private static void validateScheme(String scheme) {
+        if (scheme == null) {
+            throw new IllegalArgumentException("Scheme must not be null");
+        }
+        switch (scheme) {
+            case BOLT_URI_SCHEME,
+                BOLT_LOW_TRUST_URI_SCHEME,
+                BOLT_HIGH_TRUST_URI_SCHEME,
+                NEO4J_URI_SCHEME,
+                NEO4J_LOW_TRUST_URI_SCHEME,
+                NEO4J_HIGH_TRUST_URI_SCHEME -> {
+            }
+            default -> throw new IllegalArgumentException("Invalid address format " + scheme);
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
     public static final String CONFIG_PARAMETER_BOLT_LOGGING = "Bolt_Logging";
     private static final Method WITH_IMPERSONATED_USER = findWithImpersonatedUser();
@@ -78,7 +100,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
             return null; // This is fine
         }
     }
-
 
     private final ExceptionTranslator exceptionTranslator = new BoltDriverExceptionTranslator();
 
@@ -168,7 +189,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
         String lowerCaseScheme = scheme.toLowerCase(Locale.ENGLISH);
         try {
-            Scheme.validateScheme(lowerCaseScheme);
+            validateScheme(lowerCaseScheme);
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException(String.format("'%s' is not a supported scheme.", scheme));
         }
@@ -214,6 +235,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     /**
      * Make the 4.0 driver somewhat backward compatible with older configurations
+     *
      * @param uri
      * @return
      */
@@ -244,7 +266,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request request(Transaction transaction) {
-        return new BoltRequest(transaction, this.parameterConversion, new BoltEntityAdapter(typeSystem), getCypherModification());
+        return new BoltRequest(transaction, this.parameterConversion, new BoltEntityAdapter(typeSystem),
+            getCypherModification());
     }
 
     public <T> T unwrap(Class<T> clazz) {
@@ -266,12 +289,15 @@ public class BoltDriver extends AbstractConfigurableDriver {
                 sessionConfigBuilder = sessionConfigBuilder.withDatabase(database);
             }
             // a database selection provider different from null or default will override the database
-            if (this.databaseSelectionProvider != null && this.databaseSelectionProvider != DatabaseSelectionProvider.getDefaultSelectionProvider()) {
-                sessionConfigBuilder = sessionConfigBuilder.withDatabase(databaseSelectionProvider.getDatabaseSelection().getValue());
+            if (this.databaseSelectionProvider != null
+                && this.databaseSelectionProvider != DatabaseSelectionProvider.getDefaultSelectionProvider()) {
+                sessionConfigBuilder = sessionConfigBuilder.withDatabase(
+                    databaseSelectionProvider.getDatabaseSelection().getValue());
             }
             // Avoid the explicit set of the impersonated user if the provided user equals the default user of the connection
             // otherwise we would trigger the overhead of impersonation.
-            if (this.userSelectionProvider != null && this.userSelectionProvider != UserSelectionProvider.getDefaultSelectionProvider()) {
+            if (this.userSelectionProvider != null
+                && this.userSelectionProvider != UserSelectionProvider.getDefaultSelectionProvider()) {
                 setWithImpersonatedUser(sessionConfigBuilder, userSelectionProvider.getUserSelection().getValue());
             }
             boltSession = boltDriver.session(sessionConfigBuilder.build());

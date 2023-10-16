@@ -22,9 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.driver.internal.value.ListValue;
 import org.neo4j.driver.Value;
-import org.neo4j.driver.internal.value.NullValue;
 import org.neo4j.driver.types.Entity;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
@@ -112,11 +110,11 @@ public class BoltEntityAdapter {
 
     private Object toMapped(Value value) {
 
-        if (value == null || value instanceof NullValue) {
+        if (value == null || value.isNull()) {
             return null;
         }
 
-        if (value instanceof ListValue) {
+        if (org.neo4j.driver.types.TypeSystem.getDefault().LIST().isTypeOf(value)) {
             return value.asList(this::toMapped);
         } else {
             Object object = value.asObject();

@@ -586,7 +586,7 @@ public class RelationshipMappingTest extends TestContainersTestBase {
     // GH-666
     @Test
     void shouldNotMessUpNodes() {
-        assertMapping(MessedUpNode1.class, node -> node.getRef(), false);
+        assertMapping(MessedUpNode1.class, MessedUpNode1::getRef, false);
     }
 
     // GH-666
@@ -637,9 +637,9 @@ public class RelationshipMappingTest extends TestContainersTestBase {
         assertThat(result).allSatisfy(row -> {
             assertThat(row).containsKeys("n1");
             if (expectedNode != null) {
-                assertThat(row.get("n1")).extracting("ref").extracting("id").containsExactly(expectedNode.getId());
+                assertThat(row.get("n1")).extracting("ref").extracting("id").isEqualTo(expectedNode.getId());
             } else {
-                assertThat(row.get("n1")).extracting("ref").hasSize(1).containsOnlyNulls();
+                assertThat(row.get("n1")).extracting("ref").isNull();
             }
         });
     }

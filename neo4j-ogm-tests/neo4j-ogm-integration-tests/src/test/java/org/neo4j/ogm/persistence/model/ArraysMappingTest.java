@@ -145,7 +145,6 @@ public class ArraysMappingTest extends TestContainersTestBase {
 
         byte[] primitive = {1, 2, 3, 4, 5};
         Byte[] wrapped = {9, 8, 7, 6, 5};
-        byte[] helloWorld = {104, 101, 108, 108, 111, 64, 119, 111, 114, 108, 100};
 
         EntityWithNativeByteArrays entityWithNativeByteArrays = new EntityWithNativeByteArrays();
         entityWithNativeByteArrays.setPrimitive(primitive);
@@ -163,7 +162,8 @@ public class ArraysMappingTest extends TestContainersTestBase {
         String someTuple = new String(getBytes(result.get("someTuple")), StandardCharsets.UTF_8);
 
         assertThat(primitiveArray).isEqualTo(primitive);
-        assertThat(wrappedArray).isEqualTo(wrapped);
+        assertThat(wrappedArray).containsExactly(wrapped);
+
         assertThat(someTuple).isEqualTo("hello@world");
     }
 

@@ -866,7 +866,7 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
             assertThat(nestedLists).isInstanceOf(Long[][].class);
 
             Long[][] columns = (Long[][]) nestedLists;
-            assertThat(columns).hasSize(4);
+            assertThat(columns.length).isEqualTo(4);
             assertThat(columns[0]).isInstanceOf(Long[].class)
                 .satisfies(c -> assertThat(((Long[]) c)).containsExactly(0L, 1L, 2L));
             assertThat(columns[1]).isInstanceOf(Long[].class)
@@ -938,7 +938,8 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
 
             assertThat(row.get("n"))
                 .isInstanceOf(Teacher.class)
-                .extracting("name").first().isEqualTo("Jim");
+                .extracting("name")
+                .isEqualTo("Jim");
         });
     }
 

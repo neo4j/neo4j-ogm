@@ -187,7 +187,7 @@
         <java-module-name></java-module-name> <!-- to be overridden in sub modules -->
         <java.version>17</java.version>
 
-        <assertj.version>3.11.1</assertj.version>
+        <assertj.version>3.24.2</assertj.version>
         <caffeine.version>3.1.8</caffeine.version>
         <checkstyle.version>10.12.4</checkstyle.version>
         <commons-codec.version>1.11</commons-codec.version>
@@ -226,6 +226,7 @@
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
+        <byte-buddy.version>1.14.8</byte-buddy.version>
     </properties>
 
     <dependencyManagement>
@@ -331,6 +332,13 @@
                 <groupId>org.reactivestreams</groupId>
                 <artifactId>reactive-streams</artifactId>
                 <version>${reactive-streams.version}</version>
+            </dependency>
+
+            <!-- AssertJ and mockk-jvm have different versions -->
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${byte-buddy.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

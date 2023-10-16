@@ -2,6 +2,10 @@
 
 == 4.0
 
+=== 4.0.8
+
+* Make session related config of the BoltDriver available without complete driver reconfiguration.
+
 === 4.0.7
 
 * [feature] Add dynamic properties support for collections.
@@ -87,6 +91,10 @@ Thanks to @gaurav-bagga for their input and feedback!
 
 == 3.3
 
+=== 3.3.2
+
+* Make session related config of the BoltDriver available without complete driver reconfiguration.
+
 === 3.3.1
 
 * [feature] Add "app" metadata to newly created native Bolt transactions.
@@ -101,6 +109,10 @@ First release in the 3.3.x line. No changes compared to the latest 3.2.42 releas
 Future supported versions of Neo4j-OGM will be 3.3 and 4.x. Neo4j-OGM 3.3 is for all projects that still require support for Neo4j 4.4 and 3.5. Neo4j-OGM 4.x is for all projects on Neo4j 4.4 or 5.
 
 == 3.2
+
+=== 3.2.43
+
+* Make session related config of the BoltDriver available without complete driver reconfiguration.
 
 === 3.2.42
 

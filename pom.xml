@@ -25,7 +25,7 @@
 
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
-    <version>4.0.8-SNAPSHOT</version>
+    <version>4.0.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neo4j-OGM</name>
@@ -194,7 +194,7 @@
         <commons-lang3.version>3.13.0</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
         <classgraph.version>4.8.162</classgraph.version>
-        <jackson.version>2.14.1</jackson.version>
+        <jackson.version>2.15.3</jackson.version>
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
         <junit.version>5.10.0</junit.version>
         <kotlin.version>1.9.10</kotlin.version>
@@ -206,8 +206,8 @@
         <maven-jar-plugin.version>3.0.1</maven-jar-plugin.version>
         <maven-checkstyle-plugin.version>3.3.0</maven-checkstyle-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
-        <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+        <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
+        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
         <maven-install-plugin.version>3.1.1</maven-install-plugin.version>
         <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
@@ -217,8 +217,8 @@
         <maven-failsafe-plugin.version>3.1.2</maven-failsafe-plugin.version>
         <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
-        <mockito.version>5.5.0</mockito.version>
-        <scala.version>2.12.13</scala.version>
+        <mockito.version>5.6.0</mockito.version>
+        <scala.version>2.13.12</scala.version>
         <slf4j.version>2.0.9</slf4j.version>
         <spotbugs.plugin.version>4.7.3.6</spotbugs.plugin.version>
 

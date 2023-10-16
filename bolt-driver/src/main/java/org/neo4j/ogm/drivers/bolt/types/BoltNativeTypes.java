@@ -30,13 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.neo4j.driver.internal.value.DateTimeValue;
-import org.neo4j.driver.internal.value.DateValue;
-import org.neo4j.driver.internal.value.DurationValue;
-import org.neo4j.driver.internal.value.LocalDateTimeValue;
-import org.neo4j.driver.internal.value.LocalTimeValue;
-import org.neo4j.driver.internal.value.PointValue;
-import org.neo4j.driver.internal.value.TimeValue;
+import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
 import org.neo4j.driver.types.IsoDuration;
 import org.neo4j.driver.types.Point;
@@ -86,11 +80,11 @@ class BoltNativeTypes implements TypeSystem {
     private static void addJavaTimeFeature(Map<Class<?>, Function> nativeToMappedAdapter,
         Map<Class<?>, Function> mappedToNativeAdapter) {
 
-        nativeToMappedAdapter.put(DateValue.class, Values.ofLocalDate());
-        nativeToMappedAdapter.put(TimeValue.class, Values.ofOffsetTime());
-        nativeToMappedAdapter.put(LocalTimeValue.class, Values.ofLocalTime());
-        nativeToMappedAdapter.put(DateTimeValue.class, Values.ofZonedDateTime());
-        nativeToMappedAdapter.put(LocalDateTimeValue.class, Values.ofLocalDateTime());
+        nativeToMappedAdapter.put(getType("org.neo4j.driver.internal.value.DateValue"), Values.ofLocalDate());
+        nativeToMappedAdapter.put(getType("org.neo4j.driver.internal.value.TimeValue"), Values.ofOffsetTime());
+        nativeToMappedAdapter.put(getType("org.neo4j.driver.internal.value.LocalTimeValue"), Values.ofLocalTime());
+        nativeToMappedAdapter.put(getType("org.neo4j.driver.internal.value.DateTimeValue"), Values.ofZonedDateTime());
+        nativeToMappedAdapter.put(getType("org.neo4j.driver.internal.value.LocalDateTimeValue"), Values.ofLocalDateTime());
 
         nativeToMappedAdapter.put(IsoDuration.class, new TemporalAmountAdapter());
 
@@ -105,7 +99,7 @@ class BoltNativeTypes implements TypeSystem {
         mappedToNativeAdapter.put(TemporalAmount.class, Values::value);
     }
 
-    // Those look the same as in embbedded native types, but the packages are different
+    // Those look the same as in embedded native types, but the packages are different
     @SuppressWarnings("Duplicates")
     private static void addPassthroughForBuildInTypes(Map<Class<?>, Function> mappedToNativeAdapter) {
         /*
@@ -114,15 +108,26 @@ class BoltNativeTypes implements TypeSystem {
             params.put("x", Values.isoDuration(526, 45, 97200, 0).asIsoDuration());
             session.queryForObject(Long.class, "CREATE (s:`DatesTestBase$Sometime` {temporalAmount: $x}) RETURN id(s)",params);
          */
-        mappedToNativeAdapter.put(PointValue.class, Function.identity());
+        mappedToNativeAdapter.put(getType("org.neo4j.driver.internal.value.PointValue"), Function.identity());
 
-        mappedToNativeAdapter.put(DateValue.class, Function.identity());
-        mappedToNativeAdapter.put(TimeValue.class, Function.identity());
-        mappedToNativeAdapter.put(LocalTimeValue.class, Function.identity());
-        mappedToNativeAdapter.put(DateTimeValue.class, Function.identity());
-        mappedToNativeAdapter.put(LocalDateTimeValue.class, Function.identity());
+        mappedToNativeAdapter.put(getType("org.neo4j.driver.internal.value.DateValue"), Function.identity());
+        mappedToNativeAdapter.put(getType("org.neo4j.driver.internal.value.TimeValue"), Function.identity());
+        mappedToNativeAdapter.put(getType("org.neo4j.driver.internal.value.LocalTimeValue"), Function.identity());
+        mappedToNativeAdapter.put(getType("org.neo4j.driver.internal.value.DateTimeValue"), Function.identity());
+        mappedToNativeAdapter.put(getType("org.neo4j.driver.internal.value.LocalDateTimeValue"), Function.identity());
 
-        mappedToNativeAdapter.put(DurationValue.class, Function.identity());
+        mappedToNativeAdapter.put(getType("org.neo4j.driver.internal.value.DurationValue"), Function.identity());
+    }
+
+    // I stopped accessing the internal types due to the JavaDoc tool rightfully complaining about it (despite OGM not being supported on the module path)
+    // We do need those types however in OGM and there is no way around it without rewriting large chunks of the architecture.
+    @SuppressWarnings("unchecked")
+    private static Class<Value> getType(String fqn) {
+        try {
+            return (Class<Value>) Class.forName(fqn);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean supportsAsNativeType(Class<?> clazz) {

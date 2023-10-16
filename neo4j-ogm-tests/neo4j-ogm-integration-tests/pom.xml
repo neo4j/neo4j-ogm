@@ -34,7 +34,7 @@
     <description>Integration tests of Neo4j-OGM Core and API across different transports.</description>
 
     <properties>
-        <testcontainers.version>1.19.0</testcontainers.version>
+        <testcontainers.version>1.19.1</testcontainers.version>
         <visible-assertions.version>2.1.2</visible-assertions.version>
     </properties>
 

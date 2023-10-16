@@ -252,7 +252,8 @@ class KotlinInteropTest {
 
         val nameFilter = Filter("userId", ComparisonOperator.EQUALS, userId).ignoreCase()
         val loadedUsers = sessionFactory.openSession().loadAll(User::class.java, nameFilter);
-        assertThat(loadedUsers).hasSize(1).extracting<StringID>(User::userId).containsOnly(userId)
+        assertThat(loadedUsers).hasSize(1);
+        assertThat(loadedUsers).first().extracting(User::userId).isEqualTo(userId)
 
         val loadedUser = sessionFactory.openSession().queryForObject<User>("MATCH (u:User) RETURN u", mapOf(Pair("userId", userId)))!!
         assertThat(loadedUser).isNotNull().extracting {user -> user.userId}.isEqualTo(userId)

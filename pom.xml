@@ -187,7 +187,7 @@
         <java-module-name></java-module-name> <!-- to be overridden in sub modules -->
         <java.version>17</java.version>
 
-        <assertj.version>3.25.0</assertj.version>
+        <assertj.version>3.25.1</assertj.version>
         <caffeine.version>3.1.8</caffeine.version>
         <checkstyle.version>10.12.7</checkstyle.version>
         <commons-codec.version>1.11</commons-codec.version>

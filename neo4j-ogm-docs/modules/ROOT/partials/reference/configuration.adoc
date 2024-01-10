@@ -226,3 +226,17 @@ Neo4j-OGM uses SLF4J to log statements.
 In production, you can set the log level in a file called *logback.xml* to be found at the root of the classpath.
 Please see the link:http://logback.qos.ch/manual/[Logback manual] for further details.
 
+An important logger is the `BoltResponse` logger.
+It has multiple "sub-logger" for Neo4j notification categories that may come up when using e.g. deprecated features.
+An overview can be seen in the following list.
+
+* org.neo4j.ogm.drivers.bolt.response.BoltResponse.performance
+* org.neo4j.ogm.drivers.bolt.response.BoltResponse.hint
+* org.neo4j.ogm.drivers.bolt.response.BoltResponse.unrecognized
+* org.neo4j.ogm.drivers.bolt.response.BoltResponse.unsupported
+* org.neo4j.ogm.drivers.bolt.response.BoltResponse.deprecation
+* org.neo4j.ogm.drivers.bolt.response.BoltResponse.generic
+* org.neo4j.ogm.drivers.bolt.response.BoltResponse.security
+* org.neo4j.ogm.drivers.bolt.response.BoltResponse.topology
+
+You can still use the `org.neo4j.ogm.drivers.bolt.response.BoltResponse` logger as the main logger and just adjust the details in some details to your needs.

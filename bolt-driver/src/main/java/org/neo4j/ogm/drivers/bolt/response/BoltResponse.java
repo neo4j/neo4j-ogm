@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.neo4j.driver.NotificationCategory;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.exceptions.ClientException;
@@ -41,6 +42,14 @@ import org.slf4j.LoggerFactory;
 public abstract class BoltResponse<T> implements Response {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BoltResponse.class);
+    private static final Logger cypherPerformanceNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.performance");
+    private static final Logger cypherHintNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.hint");
+    private static final Logger cypherUnrecognizedNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.unrecognized");
+    private static final Logger cypherUnsupportedNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.unsupported");
+    private static final Logger cypherDeprecationNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.deprecation");
+    private static final Logger cypherGenericNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.generic");
+    private static final Logger cypherSecurityNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.security");
+    private static final Logger cypherTopologyNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.topology");
 
     protected final Result result;
 
@@ -103,18 +112,48 @@ public abstract class BoltResponse<T> implements Response {
         resultSummary.notifications()
             .forEach(notification -> {
                 Consumer<String> log;
+                Logger logger = notification.category().map(BoltResponse::getLogger)
+                    .orElse(LOGGER);
                 switch (notification.severity()) {
                     case "WARNING":
-                        log = LOGGER::warn;
+                        log = logger::warn;
                         break;
                     case "INFORMATION":
-                        log = LOGGER::info;
+                        log = logger::info;
                         break;
                     default:
-                        log = LOGGER::debug;
+                        log = logger::debug;
                 }
                 log.accept(format(notification, query));
             });
+    }
+
+    private static Logger getLogger(NotificationCategory category) {
+        if (category == NotificationCategory.HINT) {
+            return cypherHintNotificationLog;
+        }
+        if (category == NotificationCategory.DEPRECATION) {
+            return cypherDeprecationNotificationLog;
+        }
+        if (category == NotificationCategory.PERFORMANCE) {
+            return cypherPerformanceNotificationLog;
+        }
+        if (category == NotificationCategory.GENERIC) {
+            return cypherGenericNotificationLog;
+        }
+        if (category == NotificationCategory.UNSUPPORTED) {
+            return cypherUnsupportedNotificationLog;
+        }
+        if (category == NotificationCategory.UNRECOGNIZED) {
+            return cypherUnrecognizedNotificationLog;
+        }
+        if (category == NotificationCategory.SECURITY) {
+            return cypherSecurityNotificationLog;
+        }
+        if (category == NotificationCategory.TOPOLOGY) {
+            return cypherTopologyNotificationLog;
+        }
+        return LOGGER;
     }
 
     /**

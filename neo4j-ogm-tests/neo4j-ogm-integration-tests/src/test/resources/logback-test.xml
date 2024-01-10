@@ -28,7 +28,15 @@
     </appender>
 
     <logger name="org.neo4j.ogm" level="warn"/>
-    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse" level="error"/>
+    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse" level="warn"/>
+    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse.performance" level="error"/>
+    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse.hint" level="error"/>
+    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse.unrecognized" level="error"/>
+    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse.unsupported" level="error"/>
+    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse.deprecation" level="error"/>
+    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse.generic" level="error"/>
+    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse.security" level="error"/>
+    <logger name="org.neo4j.ogm.drivers.bolt.response.BoltResponse.topology" level="error"/>
 
     <root level="warn">
         <appender-ref ref="console"/>

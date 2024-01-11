@@ -402,3 +402,16 @@ Neo4j-OGM uses SLF4J to log statements.
 In production, you can set the log level in a file called *logback.xml* to be found at the root of the classpath.
 Please see the link:http://logback.qos.ch/manual/[Logback manual] for further details.
 
+
+[[reference:configuration:class-loading]]
+== Class loading precedence
+
+In some scenarios and environments (Spring Boot's `@Async` annotated classes/methods, `CompletableFuture` usage, etc.) , it is necessary to declare the used class loading precedence for Neo4j-OGM to use.
+As default, it uses the current thread's context class loader.
+To change this behaviour, the `OGM_CLASS_LOADER` has to be set only once for the `Configuration` class.
+This can be done during configuration of your application or similar.
+
+[source, java, indent=0]
+----
+Configuration.setClassLoaderPrecedence(Configuration.ClassLoaderPrecedence.OGM_CLASS_LOADER);
+----

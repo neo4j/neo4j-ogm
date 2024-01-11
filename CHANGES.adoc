@@ -1,5 +1,8 @@
 = Changes
 
+== 3.2.44
+* Fix class loading problem in async environments.
+
 == 3.2.43
 * Make session related config of the BoltDriver available without complete driver reconfiguration.
 

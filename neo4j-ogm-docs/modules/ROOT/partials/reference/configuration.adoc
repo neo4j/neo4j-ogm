@@ -240,3 +240,16 @@ An overview can be seen in the following list.
 * org.neo4j.ogm.drivers.bolt.response.BoltResponse.topology
 
 You can still use the `org.neo4j.ogm.drivers.bolt.response.BoltResponse` logger as the main logger and just adjust the details in some details to your needs.
+
+[[reference:configuration:class-loading]]
+== Class loading precedence
+
+In some scenarios and environments (Spring Boot's `@Async` annotated classes/methods, `CompletableFuture` usage, etc.) , it is necessary to declare the used class loading precedence for Neo4j-OGM to use.
+As default, it uses the current thread's context class loader.
+To change this behaviour, the `OGM_CLASS_LOADER` has to be set only once for the `Configuration` class.
+This can be done during configuration of your application or similar.
+
+[source, java, indent=0]
+----
+Configuration.setClassLoaderPrecedence(Configuration.ClassLoaderPrecedence.OGM_CLASS_LOADER);
+----

@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.neo4j.ogm.support.ClassUtils;
@@ -65,8 +66,35 @@ public class Configuration {
         OGM_CLASS_LOADER
     }
 
-    public static final ThreadLocal<ClassLoaderPrecedence> CLASS_LOADER_PRECEDENCE = ThreadLocal
-        .withInitial(() -> ClassLoaderPrecedence.CONTEXT_CLASS_LOADER);
+    /**
+     * Set the class loader precedence for interacting with classes during the mapping process.
+     * This is necessary when running Neo4j-OGM in async environments (like {@code CompletableFuture} usage, Spring Boot's @Async , etc.).
+     * In those cases, please use {@link Configuration#setClassLoaderPrecedence(ClassLoaderPrecedence)} with {@link ClassLoaderPrecedence#OGM_CLASS_LOADER}.
+     *
+     * @deprecated The direct access to this static field has been deprecated.
+     * Please use the {@link Configuration#setClassLoaderPrecedence(ClassLoaderPrecedence)} method.
+     */
+    @Deprecated
+    public static final AtomicReference<ClassLoaderPrecedence> CLASS_LOADER_PRECEDENCE = new AtomicReference(ClassLoaderPrecedence.CONTEXT_CLASS_LOADER);
+
+    /**
+     * Set the class loader precedence for interacting with classes during the mapping process.
+     * This is necessary when running Neo4j-OGM in async environments (like {@code CompletableFuture} usage, Spring Boot's @Async , etc.).
+     * In those cases, please use {@link Configuration#setClassLoaderPrecedence(ClassLoaderPrecedence)} with {@link ClassLoaderPrecedence#OGM_CLASS_LOADER}.
+     *
+     */
+    public static void setClassLoaderPrecedence(ClassLoaderPrecedence classLoaderPrecedence) {
+       CLASS_LOADER_PRECEDENCE.set(classLoaderPrecedence);
+    }
+
+    /**
+     * Retrieve the current set class loader precedence that is used for working with classes during the mapping process.
+     *
+     * @return current configured {@link ClassLoaderPrecedence}
+     */
+    public static ClassLoaderPrecedence getClassLoaderPrecedence() {
+        return CLASS_LOADER_PRECEDENCE.get();
+    }
 
     /**
      * @return The classloader to be used by OGM.

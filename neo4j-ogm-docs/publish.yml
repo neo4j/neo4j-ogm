@@ -9,7 +9,7 @@ content:
   - url: https://github.com/neo4j/neo4j-ogm.git
     start_path: neo4j-ogm-docs
     include: neo4j-ogm-docs/
-    branches: ['3.1.x', '3.2.x', 'master']
+    branches: ['3.2.x', '3.3.x', 'master']
     exclude:
     - '!**/_includes/*'
     - '!**/readme.adoc'
@@ -17,7 +17,7 @@ content:
 
 ui:
   bundle:
-    url: https://s3-eu-west-1.amazonaws.com/static-content.neo4j.com/build/ui-bundle-latest.zip
+    url: https://static-content.neo4j.com/build/ui-bundle-latest.zip
     snapshot: true
   output_dir: /assets
 

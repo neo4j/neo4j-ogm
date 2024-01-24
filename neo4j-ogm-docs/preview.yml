@@ -49,7 +49,7 @@ asciidoc:
     includePDF: false
     nonhtmloutput: ""
     experimental: ''
-    copyright: 2022
+    copyright: 2024
     common-license-page-uri: https://neo4j.com/docs/license/
     neo4j-base-uri: https://neo4j.com
     neo4j-docs-base-uri: https://neo4j.com/docs

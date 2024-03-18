@@ -2,6 +2,21 @@
 
 == 4.0
 
+=== 4.0.10
+
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1053)
+* [dependencies] Bump org.apache.maven.plugins:maven-failsafe-plugin (#1040)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1059)
+* [dependencies] Bump org.testcontainers:neo4j from 1.19.3 to 1.19.7 (#1058)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter from 5.8.0 to 5.11.0 (#1056)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver (#1055)
+* [dependencies] Bump org.assertj:assertj-core from 3.25.1 to 3.25.3 (#1051)
+* [dependencies] Bump org.junit:junit-bom from 5.10.1 to 5.10.2 (#1049)
+* [dependencies] Bump slf4j.version from 2.0.10 to 2.0.11 (#1043)
+* [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#1039)
+* Update the copyright year (#1044)
+* Fix UI bundle URL (#1038)
+
 === 4.0.9
 
 * Introduce logging categories. (#989)

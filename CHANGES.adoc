@@ -1,9 +1,15 @@
 = Changes
 
+== 3.2.45
+
+* [dependencies] Bump io.github.classgraph:classgraph (#1073)
+
 == 3.2.44
+
 * Fix class loading problem in async environments.
 
 == 3.2.43
+
 * Make session related config of the BoltDriver available without complete driver reconfiguration.
 
 == 3.2.42

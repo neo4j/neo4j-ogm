@@ -159,6 +159,11 @@ Thanks to @gaurav-bagga for their input and feedback!
 
 == 3.3
 
+=== 3.3.4
+
+* [dependencies] Bump default driver version to latest 4.4.x series.
+* [dependencies] Bump io.github.classgraph:classgraph (#1073)
+
 === 3.3.3
 
 * Fix class loading problem in async environments.
@@ -182,7 +187,11 @@ Future supported versions of Neo4j-OGM will be 3.3 and 4.x. Neo4j-OGM 3.3 is for
 
 == 3.2
 
-== 3.2.44
+=== 3.2.45
+
+* [dependencies] Bump io.github.classgraph:classgraph (#1073)
+
+=== 3.2.44
 
 * Fix class loading problem in async environments.
 

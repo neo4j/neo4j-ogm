@@ -1,5 +1,10 @@
 = Changes
 
+== 3.3.4
+
+* [dependencies] Bump default driver version to latest 4.4.x series.
+* [dependencies] Bump io.github.classgraph:classgraph (#1073)
+
 == 3.3.3
 
 * Fix class loading problem in async environments.

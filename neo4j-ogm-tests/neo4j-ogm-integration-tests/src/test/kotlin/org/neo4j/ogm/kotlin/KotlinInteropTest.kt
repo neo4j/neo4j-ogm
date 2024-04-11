@@ -81,7 +81,7 @@ class KotlinInteropTest {
             )
 
             ObjectMapperFactory.objectMapper()
-                    .registerModule(KotlinModule())
+                    .registerModule(KotlinModule.Builder().build())
                     .registerModule(IdTypesModule())
         }
 

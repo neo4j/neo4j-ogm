@@ -220,7 +220,7 @@
         <mockito.version>5.11.0</mockito.version>
         <scala.version>2.13.13</scala.version>
         <slf4j.version>2.0.12</slf4j.version>
-        <spotbugs.plugin.version>4.8.3.1</spotbugs.plugin.version>
+        <spotbugs.plugin.version>4.8.4.0</spotbugs.plugin.version>
 
         <maven.compiler.debug>true</maven.compiler.debug>
         <maven.compiler.parameters>true</maven.compiler.parameters>

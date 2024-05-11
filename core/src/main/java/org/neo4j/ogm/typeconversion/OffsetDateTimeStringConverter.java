@@ -30,7 +30,7 @@ import java.time.format.DateTimeFormatter;
  * @author Róbert Papp
  * @author Michael J. Simons
  */
-public class OffsettDateTimeStringConverter implements AttributeConverter<OffsetDateTime, String> {
+public class OffsetDateTimeStringConverter implements AttributeConverter<OffsetDateTime, String> {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 

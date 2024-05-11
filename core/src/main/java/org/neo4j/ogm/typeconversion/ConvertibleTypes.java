@@ -138,7 +138,7 @@ public abstract class ConvertibleTypes {
     }
 
     public static AttributeConverter<?, ?> getOffsetDateTimeConverter() {
-        return new OffsettDateTimeStringConverter();
+        return new OffsetDateTimeStringConverter();
     }
 
     public static AttributeConverter<?, ?> getConverterBasedCollectionConverter(AttributeConverter<?, ?> converter,

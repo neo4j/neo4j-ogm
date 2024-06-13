@@ -1,7 +1,7 @@
 # Use this playbook file when you need to build and publish multuple versions of your content together
 site:
   title: Neo4j Docs Template
-  url: https://neo4j.com/docs/add-on
+  url: https://neo4j.com/docs
   start_page: ogm-manual:ROOT:index.adoc
 
 content:

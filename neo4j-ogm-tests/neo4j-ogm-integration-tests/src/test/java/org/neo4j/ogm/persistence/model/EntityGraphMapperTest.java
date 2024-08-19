@@ -39,6 +39,7 @@ import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.cypher.compiler.Compiler;
+import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.domain.blog.Post;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
@@ -58,6 +59,11 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.persistence.examples.versioned_rel_entity.A;
 import org.neo4j.ogm.persistence.examples.versioned_rel_entity.B;
 import org.neo4j.ogm.persistence.examples.versioned_rel_entity.R;
+import org.neo4j.ogm.persistence.model.gh1134.RelEntity;
+import org.neo4j.ogm.persistence.model.gh1134.NodeWithSomewhatInvalidRelationshipDeclaration;
+import org.neo4j.ogm.request.OptimisticLockingConfig;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.request.StatementFactory;
 import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -941,6 +947,37 @@ public class EntityGraphMapperTest extends TestContainersTestBase {
                 .extracting("name")
                 .isEqualTo("Jim");
         });
+    }
+
+    @Test
+    void mappingEntityRefMustCheckForNullRel() {
+
+        mappingMetadata = new MetaData("org.neo4j.ogm.persistence.model.gh1134");
+        mappingContext = new MappingContext(mappingMetadata);
+
+        EntityGraphMapper mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
+        NodeWithSomewhatInvalidRelationshipDeclaration start = new NodeWithSomewhatInvalidRelationshipDeclaration();
+        start.setId("s");
+        NodeWithSomewhatInvalidRelationshipDeclaration end = new NodeWithSomewhatInvalidRelationshipDeclaration();
+        end.setId("e");
+        RelEntity rel = new RelEntity(start, end);
+        start.setRelatedObject(rel);
+
+        Compiler compiler = mapper.map(start).getCompiler();
+        compiler.useStatementFactory(new StatementFactory() {
+            @Override
+            public Statement statement(String statement, Map<String, Object> parameters) {
+                return new CypherQuery(statement, parameters);
+            }
+
+            @Override
+            public Statement statement(String statement, Map<String, Object> parameters,
+                OptimisticLockingConfig config) {
+                return new CypherQuery(statement, parameters);
+            }
+        });
+        assertThat(compiler.createRelationshipsStatements().stream().map(Statement::getStatement)).first()
+            .isEqualTo("UNWIND $rows as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId WITH row,startNode MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`whatever`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, $type as type");
     }
 
     @Test // GH-902

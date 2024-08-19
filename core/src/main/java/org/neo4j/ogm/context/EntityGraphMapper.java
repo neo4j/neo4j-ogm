@@ -425,7 +425,7 @@ public class EntityGraphMapper implements EntityMapper {
 
                 if (isRelationshipEntity(relatedObject)) {
                     ClassInfo declaredObjectInfo = metaData.classInfo(relationshipType);
-                    if (declaredObjectInfo.isAbstract()) {
+                    if (declaredObjectInfo != null && declaredObjectInfo.isAbstract()) {
                         final ClassInfo relatedObjectClassInfo = metaData.classInfo(relatedObject);
                         if (!relatedObjectClassInfo.neo4jName().equals(directedRelationship.type())) {
                             directedRelationship = new DirectedRelationship(relatedObjectClassInfo.neo4jName(),

@@ -28,7 +28,7 @@
     "@neo4j-documentation/remote-include": "^1.0.0"
   },
   "devDependencies": {
-    "express": "^4.19.2",
+    "express": "^4.21.0",
     "nodemon": "^2.0.19"
   }
 }

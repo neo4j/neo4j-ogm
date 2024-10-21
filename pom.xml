@@ -198,7 +198,7 @@
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <junit.version>5.11.0</junit.version>
         <kotlin.version>2.0.20</kotlin.version>
-        <logback.version>1.5.7</logback.version>
+        <logback.version>1.5.11</logback.version>
         <neo4j.edition>enterprise</neo4j.edition>
         <neo4j-java-driver.version>5.24.0</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>

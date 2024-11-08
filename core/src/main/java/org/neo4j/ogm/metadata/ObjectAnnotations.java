@@ -34,6 +34,7 @@ import org.neo4j.ogm.annotation.typeconversion.EnumString;
 import org.neo4j.ogm.annotation.typeconversion.NumberString;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.exception.core.MappingException;
+import org.neo4j.ogm.typeconversion.ConverterInfo;
 import org.neo4j.ogm.typeconversion.DateLongConverter;
 import org.neo4j.ogm.typeconversion.DateStringConverter;
 import org.neo4j.ogm.typeconversion.EnumStringConverter;
@@ -74,7 +75,9 @@ public class ObjectAnnotations {
         return annotations.isEmpty();
     }
 
-    Object getConverter(Class<?> fieldType) {
+    Object getConverter(ConverterInfo converterInfo) {
+
+        Class<?> fieldType = converterInfo.fieldType();
 
         // try to get a custom type converter
         AnnotationInfo customType = get(Convert.class);
@@ -86,6 +89,11 @@ public class ObjectAnnotations {
 
             try {
                 Class<?> clazz = Class.forName(classDescriptor, false, Configuration.getDefaultClassLoader());
+                try {
+                    return clazz.getDeclaredConstructor(ConverterInfo.class).newInstance(converterInfo);
+                } catch (NoSuchMethodException e) {
+                    // Well, ok…
+                }
                 return clazz.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);

@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,6 +43,7 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
 import org.neo4j.ogm.domain.convertible.numbers.Foobar;
+import org.neo4j.ogm.domain.gh1190.MyEntity;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.TimeHolder;
@@ -62,7 +64,7 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
     @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music",
-            "org.neo4j.ogm.domain.convertible.numbers");
+            "org.neo4j.ogm.domain.convertible.numbers", "org.neo4j.ogm.domain.gh1190");
     }
 
     @BeforeEach
@@ -187,7 +189,8 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         verify(timeHolder.getGraphId(), someTime, someLocalDateTime, someLocalDate);
     }
 
-    private void verify(Long graphId, OffsetDateTime expectedOffsetDateTime, LocalDateTime expectedLocalDateTime, LocalDate expectedLocalDate) {
+    private void verify(Long graphId, OffsetDateTime expectedOffsetDateTime, LocalDateTime expectedLocalDateTime,
+        LocalDate expectedLocalDate) {
 
         // opening a new Session to prevent shared data
         TimeHolder reloaded = sessionFactory.openSession().load(TimeHolder.class, graphId);
@@ -200,7 +203,7 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         String localDateTimeValue = null;
         String localDateValue = null;
 
-        try(Driver driver = getNewBoltConnection()) {
+        try (Driver driver = getNewBoltConnection()) {
             try (org.neo4j.driver.Session driverSession = driver.session()) {
                 Record record = driverSession
                     .run("MATCH (n) WHERE id(n) = $id RETURN n", Values.parameters("id", graphId)).single();
@@ -243,8 +246,8 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         localSession = sessionFactory.openSession();
 
         Iterable<Map<String, Object>> result = localSession.query(""
-            + "MATCH (a:Account) WHERE id(a) = $id "
-            + "RETURN a.valueA AS va, a.valueB as vb, a.listOfFoobars as listOfFoobars, a.anotherListOfFoobars as anotherListOfFoobars, a.foobar as foobar, a.notConverter as notConverter",
+                + "MATCH (a:Account) WHERE id(a) = $id "
+                + "RETURN a.valueA AS va, a.valueB as vb, a.listOfFoobars as listOfFoobars, a.anotherListOfFoobars as anotherListOfFoobars, a.foobar as foobar, a.notConverter as notConverter",
             Collections.singletonMap("id", account.getId())
         );
         assertThat(result).hasSize(1);
@@ -268,5 +271,29 @@ public class TypeConversionIntegrationTest extends TestContainersTestBase {
         assertThat(account.getAnotherListOfFoobars().stream().map(Foobar::getValue))
             .containsExactlyInAnyOrder("C", "D");
         assertThat(account.getFoobar().getValue()).isEqualTo("Foobar");
+    }
+
+    @Test // GH-1190
+    void convertersShouldGetAllTheInfo() {
+
+        var other = UUID.randomUUID();
+
+        var myEntity = new MyEntity();
+        myEntity.setOtherUuid(other);
+
+        session.save(myEntity);
+        session.clear();
+
+        var loaded = session.load(MyEntity.class, myEntity.getUuid());
+        assertThat(loaded).isNotNull();
+        assertThat(loaded.getOtherUuid()).isEqualTo(other);
+
+        try (Driver driver = getNewBoltConnection()) {
+            try (org.neo4j.driver.Session driverSession = driver.session()) {
+                Map<String, Object> record = driverSession
+                    .run("MATCH (n:MyEntity) RETURN n").single().get("n").asMap();
+                assertThat(record).containsOnlyKeys("uuid_most", "uuid_least", "otherUuid_most", "otherUuid_least");
+            }
+        }
     }
 }

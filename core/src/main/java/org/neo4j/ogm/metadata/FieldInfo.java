@@ -45,6 +45,7 @@ import org.neo4j.ogm.id.InternalIdStrategy;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
+import org.neo4j.ogm.typeconversion.ConverterInfo;
 import org.neo4j.ogm.typeconversion.MapCompositeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;
 import org.neo4j.ogm.utils.StringUtils;
@@ -114,7 +115,7 @@ public class FieldInfo {
         this.annotations = annotations;
         this.isSupportedNativeType = isSupportedNativeType.test(DescriptorMappings.getType(getTypeDescriptor()));
         if (!this.annotations.isEmpty()) {
-            Object converter = getAnnotations().getConverter(this.fieldType);
+            Object converter = getAnnotations().getConverter(new ConverterInfo(field, this.fieldType, this.property0()));
             if (converter instanceof AttributeConverter) {
                 setPropertyConverter((AttributeConverter<?, ?>) converter);
             } else if (converter instanceof CompositeAttributeConverter) {
@@ -163,15 +164,21 @@ public class FieldInfo {
     // should these two methods be on PropertyReader, RelationshipReader respectively?
     public String property() {
         if (persistableAsProperty()) {
-            if (annotations != null) {
-                AnnotationInfo propertyAnnotation = annotations.get(Property.class);
-                if (propertyAnnotation != null) {
-                    return propertyAnnotation.get(Property.NAME, getName());
-                }
-            }
-            return getName();
+            return property0();
         }
         return null;
+    }
+
+    // extracted here, so that it can be used in the constructor before the (composite) converters are
+    // assigned and #persistableAsProperty becomes possibly true
+    private String property0() {
+        if (annotations != null) {
+            AnnotationInfo propertyAnnotation = annotations.get(Property.class);
+            if (propertyAnnotation != null) {
+                return propertyAnnotation.get(Property.NAME, getName());
+            }
+        }
+        return getName();
     }
 
     public String relationship() {

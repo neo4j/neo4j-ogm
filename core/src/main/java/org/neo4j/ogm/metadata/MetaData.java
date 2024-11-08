@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -204,6 +205,13 @@ public class MetaData {
                 }
             }
             if (resolved.size() > 1) {
+                // if all resolved classes are found in the taxa, and only one of them is a concrete class, we can assume
+                // that one matches the thing to be loaded
+                var interfacesAndClasses = resolved.stream().collect(Collectors.partitioningBy(ClassInfo::isInterface));
+                if (interfacesAndClasses.get(false).size() == 1) {
+                    return interfacesAndClasses.get(false).get(0);
+                }
+
                 // Sort so we always get the same order
                 String[] sorted = Arrays.copyOf(taxa, taxa.length);
                 Arrays.sort(sorted);

@@ -31,6 +31,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.ogm.domain.gh1156.Window;
 import org.neo4j.ogm.domain.pizza.*;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
@@ -357,6 +358,20 @@ public class PizzaIntegrationTest extends TestContainersTestBase {
             assertThat(e.getMessage())
                 .isEqualTo("Multiple classes found in type hierarchy that map to: [Pizza, Studio]");
         }
+    }
+
+    @Test // GH-1156
+    void multipleLabelsButOnlyOneConcreteClassShouldNotFail() {
+        Session sessionWithAmbiguousDomain = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.gh1156")
+            .openSession();
+
+        Window window = new Window();
+
+        sessionWithAmbiguousDomain.save(window);
+        sessionWithAmbiguousDomain.clear();
+
+        var loaded = sessionWithAmbiguousDomain.load(Window.class, window.__id);
+        assertThat(loaded).isNotNull();
     }
 
     @Test

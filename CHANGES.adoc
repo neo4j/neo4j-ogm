@@ -2,6 +2,47 @@
 
 == 4.0
 
+=== 4.0.12
+
+* [build] Test against Neo4j 5.25.1 by default.
+* [dependencies] Bump org.testcontainers:neo4j from 1.20.1 to 1.20.3 (#1196)
+* [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#1197)
+* [dependencies] Bump org.apache.maven.plugins:maven-site-plugin (#1191)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver (#1200)
+* [dependencies] Bump org.apache.maven.plugins:maven-checkstyle-plugin (#1198)
+* [dependencies] Bump org.apache.maven.plugins:maven-failsafe-plugin (#1195)
+* [dependencies] Bump io.mockk:mockk-jvm from 1.13.12 to 1.13.13 (#1194)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1193)
+* [dependencies] Bump kotlin.version from 2.0.20 to 2.0.21 (#1192)
+* [dependencies] Bump io.github.classgraph:classgraph to 4.8.179.
+* [feature] Introduce `ConverterInfo` so that individual converters can get more info about the fields to be converted. (#1190)
+* [bug] fix: Be lenient with ambiguity when checking for resolved classes. (#1156)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter (#1179)
+* [dependencies] Bump org.apache.maven.plugins:maven-javadoc-plugin (#1189)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1188)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1187)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.15.1 to 1.15.10 (#1186)
+* [dependencies] Bump org.junit:junit-bom from 5.11.0 to 5.11.3 (#1184)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.5.7 to 1.5.12 (#1183)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1181)
+* [dependencies] Bump cookie and express in /neo4j-ogm-docs (#1177)
+* [dependencies] Bump com.mycila:license-maven-plugin from 4.5 to 4.6 (#1170)
+* [dependencies] Bump scala.version from 2.13.14 to 2.13.15 (#1166)
+* [dependencies] Bump org.apache.maven.plugins:maven-deploy-plugin (#1151)
+* [dependencies] Bump org.apache.commons:commons-lang3 from 3.16.0 to 3.17.0 (#1154)
+* [dependencies] Bump io.github.classgraph:classgraph (#1160)
+* [dependencies] Bump body-parser and express in /neo4j-ogm-docs (#1159)
+* [dependencies] Bump send and express in /neo4j-ogm-docs (#1158)
+* [dependencies] Bump serve-static and express in /neo4j-ogm-docs (#1157)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.14.19 to 1.15.1 (#1155)
+* [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#1153)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1152)
+* [dependencies] Bump org.apache.maven.plugins:maven-install-plugin (#1150)
+* [dependencies] Bump commons-logging:commons-logging from 1.3.3 to 1.3.4 (#1149)
+* [dependencies] Bump org.apache.maven.plugins:maven-checkstyle-plugin (#1148)
+* [dependencies] Bump kotlin.version from 2.0.10 to 2.0.20 (#1144)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 5.23.0 to 5.24.0.
+
 === 4.0.11
 
 * [bug] Fix `NullPointerException` in `EntityGraphMapper::mapEntityReference` (#1134)

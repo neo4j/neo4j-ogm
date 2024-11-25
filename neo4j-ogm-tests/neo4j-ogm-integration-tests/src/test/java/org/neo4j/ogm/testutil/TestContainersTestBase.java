@@ -92,9 +92,12 @@ public class TestContainersTestBase {
 
             boolean containerReuseSupported = TestcontainersConfiguration
                 .getInstance().environmentSupportsReuse();
+            boolean disableContainerReuse = Boolean.getBoolean("disableContainerReuse");
+            if (disableContainerReuse) {
+                LOGGER.warn("Reuse is explicitly disable");
+            }
             neo4jServer = new Neo4jContainer<>(imageName)
-                .withReuse(containerReuseSupported);
-
+                .withReuse(containerReuseSupported && !disableContainerReuse);
             if (acceptAndUseCommercialEdition) {
                 neo4jServer.withEnv("NEO4J_ACCEPT_LICENSE_AGREEMENT", "yes");
             }

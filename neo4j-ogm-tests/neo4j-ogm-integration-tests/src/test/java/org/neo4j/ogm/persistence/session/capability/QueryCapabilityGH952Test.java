@@ -23,8 +23,11 @@ import java.time.Instant;
 import java.util.Collections;
 
 import org.assertj.core.api.BDDAssertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.neo4j.ogm.domain.gh952.BookWasReadBy;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -36,6 +39,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
  *
  * @author Niels Oertel
  */
+@EnabledIfSystemProperty(named = "GH952NativeIdTest", matches = "true")
 public class QueryCapabilityGH952Test extends TestContainersTestBase {
 
     private SessionFactory sessionFactory;

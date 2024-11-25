@@ -19,7 +19,8 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -264,7 +265,7 @@
                         <goals>
                             <goal>test</goal>
                         </goals>
-                        <configuration>
+                        <configuration combine.self="override">
                             <!--
                             The tests for correct handling of overlapping native ids for nodes and relationships
                             (see GH-952) need to be executed on a clean Neo4j instance
@@ -272,6 +273,11 @@
                             <includes>
                                 <include>org.neo4j.ogm.persistence.session.capability.QueryCapabilityGH952Test</include>
                             </includes>
+                            <systemPropertyVariables>
+                                <neo4j.edition>${neo4j.edition}</neo4j.edition>
+                                <disableContainerReuse>true</disableContainerReuse>
+                                <NEO4J_OGM_NEO4J_IMAGE_NAME>neo4j:5.20</NEO4J_OGM_NEO4J_IMAGE_NAME>
+                            </systemPropertyVariables>
                         </configuration>
                     </execution>
                 </executions>

@@ -2,6 +2,18 @@
 
 == 4.0
 
+=== 4.0.13
+
+* [dependencies] Bump org.apache.maven.plugins:maven-javadoc-plugin (#1210)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1208)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver (#1207)
+* [dependencies] Bump kotlin.version from 2.0.21 to 2.1.0 (#1206)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1205)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver (#1203)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1202)
+* [dependencies] Bump org.testcontainers:neo4j from 1.20.3 to 1.20.4 (#1204)
+* [build] Fix flaky test.
+
 === 4.0.12
 
 * [build] Test against Neo4j 5.25.1 by default.

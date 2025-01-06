@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2002-2024 "Neo4j,"
+    Copyright (c) 2002-2025 "Neo4j,"
     Neo4j Sweden AB [http://neo4j.com]
 
     This file is part of Neo4j.
@@ -578,7 +578,7 @@
                         <licenseSet>
                             <header>etc/license.tpl</header>
                             <properties>
-                                <year>2024</year>
+                                <year>2025</year>
                             </properties>
                             <includes>
                                 <include>**</include>

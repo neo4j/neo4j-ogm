@@ -21,11 +21,14 @@ package org.neo4j.ogm.cypher;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.ogm.domain.music.Node;
+import org.neo4j.ogm.domain.music.RelBetweenNodes;
 import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -99,5 +102,20 @@ public class FilterIntegrationTest extends TestContainersTestBase {
             .hasSize(1)
             .extracting(Studio::getName)
             .containsExactly(emi);
+    }
+
+    @Test // GH-1218
+    public void nestedFiltersOnRelationshipMustBeProperlyConjucted() {
+
+        Filters filters = new Filters(List.of());
+        Filter filter1 = new Filter("id", ComparisonOperator.EQUALS, "my_id");
+        filter1.setNestedPropertyName("start");
+        filter1.setNestedPropertyType(Node.class);
+        Filter filter2 = new Filter("id", ComparisonOperator.EQUALS, "my_id");
+        filter2.setNestedPropertyName("end");
+        filter2.setNestedPropertyType(Node.class);
+        filters.add(filter1);
+        filters.or(filter2);
+        assertThatNoException().isThrownBy(() -> session.loadAll(RelBetweenNodes.class, filters));
     }
 }

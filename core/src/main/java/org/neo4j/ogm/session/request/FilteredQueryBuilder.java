@@ -187,7 +187,7 @@ public class FilteredQueryBuilder {
                     addFilterToList(target, filter);
                 }
             } else {
-                if (relationshipFilters.size() == 0) {
+                if (relationshipFilters.isEmpty()) {
                     filter.setBooleanOperator(BooleanOperator.NONE);
                 } else {
                     if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
@@ -218,9 +218,8 @@ public class FilteredQueryBuilder {
             }
             properties.putAll(filteredQuery.parameters());
         }
-        createNodeMatchSubquery(properties, outgoingFilters, query, "n");
-        createNodeMatchSubquery(properties, incomingFilters, query, "m");
-        createRelationSubquery(type, properties, relationshipFilters, query, initialDirection);
+        createRelationSubquery(type, properties, outgoingFilters, incomingFilters, relationshipFilters, query,
+            initialDirection);
         return query;
     }
 
@@ -249,26 +248,34 @@ public class FilteredQueryBuilder {
     }
 
     private static void createRelationSubquery(String type, Map<String, Object> properties,
-        List<Filter> relationshipFilters, StringBuilder query, Direction initialDirection) {
+        FiltersAtStartNode filtersAtStartNode, FiltersAtStartNode filtersAtEndNode, List<Filter> relationshipFilters,
+        StringBuilder query, Direction initialDirection) {
 
+        var startLabel = filtersAtStartNode.startNodeLabel == null ? "" : ":`%s`".formatted(filtersAtStartNode.startNodeLabel);
+        var endLabel = filtersAtEndNode.startNodeLabel == null ? "" : ":`%s`".formatted(filtersAtEndNode.startNodeLabel);
         if (initialDirection == null || initialDirection == Relationship.OUTGOING) {
-            query.append(String.format("MATCH (n)-[r0:`%s`]->(m) ", type));
+            query.append(String.format("MATCH (n%s)-[r0:`%s`]->(m%s) ", startLabel, type, endLabel));
         } else {
-            query.append(String.format("MATCH (n)<-[r0:`%s`]-(m) ", type));
+            query.append(String.format("MATCH (n%s)<-[r0:`%s`]-(m%s) ", startLabel, type, endLabel));
         }
-        if (relationshipFilters.size() > 0) {
-            query.append("WHERE ");
-            appendFilters(relationshipFilters, "r0", query, properties);
-        }
-    }
 
-    private static void createNodeMatchSubquery(Map<String, Object> properties, FiltersAtStartNode filtersAtStartNode,
-        StringBuilder query, String nodeIdentifier) {
-        String nodeLabel = filtersAtStartNode.startNodeLabel;
-        List<Filter> nodeFilters = filtersAtStartNode.content;
-        if (!(nodeLabel == null || nodeFilters.isEmpty())) {
-            query.append(String.format("MATCH (%s:`%s`) WHERE ", nodeIdentifier, nodeLabel));
-            appendFilters(nodeFilters, nodeIdentifier, query, properties);
+        var hasFiltersAtStart =  !filtersAtStartNode.content.isEmpty();
+        var hasFiltersAtEnd =  !filtersAtEndNode.content.isEmpty();
+        if (!relationshipFilters.isEmpty() || hasFiltersAtStart || hasFiltersAtEnd) {
+            query.append("WHERE ");
+            if (!filtersAtStartNode.content.isEmpty() || !filtersAtEndNode.content.isEmpty()) {
+                query.append("( ");
+                appendFilters(filtersAtStartNode.content, "n", query, properties);
+                if (hasFiltersAtStart && hasFiltersAtEnd && filtersAtEndNode.content.get(0).getBooleanOperator() == BooleanOperator.NONE) {
+                    query.append("AND ");
+                }
+                appendFilters(filtersAtEndNode.content, "m", query, properties);
+                query.append(")");
+                if (!relationshipFilters.isEmpty()) {
+                    query.append(" AND ");
+                }
+            }
+            appendFilters(relationshipFilters, "r0", query, properties);
         }
     }
 

@@ -1,5 +1,11 @@
 = Changes
 
+== 3.2.46
+
+* [bug] Proper conjunct (nested) filters on relationship queries.
+* [dependencies] Bump io.github.classgraph:classgraph to 4.8.179.
+* [bug] Be lenient with ambiguity when checking for resolved classes.
+
 == 3.2.45
 
 * [dependencies] Bump io.github.classgraph:classgraph (#1073)

@@ -2,6 +2,24 @@
 
 == 4.0
 
+=== 4.0.14
+
+* [bug] Proper conjunct (nested) filters on relationship queries.
+* [dependencies] Bump org.assertj:assertj-core from 3.27.2 to 3.27.3 (#1225)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.15.11 to 1.16.1 (#1226)
+* [dependencies] Bump com.github.ben-manes.caffeine:caffeine (#1224)
+* [dependencies] Bump io.mockk:mockk-jvm from 1.13.14 to 1.13.16 (#1223)
+* [dependencies] Bump scala.version from 2.13.15 to 2.13.16 (#1222)
+* [chore] Extend license header to 2025.
+* [dependencies] Bump io.mockk:mockk-jvm from 1.13.13 to 1.13.14 (#1213)
+* [dependencies] Bump org.junit:junit-bom from 5.11.3 to 5.11.4 (#1214)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1217)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter (#1219)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.5.12 to 1.5.16 (#1220)
+* [dependencies] Bump org.assertj:assertj-core from 3.26.3 to 3.27.2 (#1221)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.15.10 to 1.15.11 (#1212)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1211)
+
 === 4.0.13
 
 * [dependencies] Bump org.apache.maven.plugins:maven-javadoc-plugin (#1210)
@@ -284,6 +302,12 @@ Thanks to @gaurav-bagga for their input and feedback!
 
 == 3.3
 
+=== 3.3.5
+
+* [bug] Proper conjunct (nested) filters on relationship queries.
+* [dependencies] Bump io.github.classgraph:classgraph to 4.8.179.
+* [bug] Be lenient with ambiguity when checking for resolved classes.
+
 === 3.3.4
 
 * [dependencies] Bump default driver version to latest 4.4.x series.
@@ -311,6 +335,12 @@ First release in the 3.3.x line. No changes compared to the latest 3.2.42 releas
 Future supported versions of Neo4j-OGM will be 3.3 and 4.x. Neo4j-OGM 3.3 is for all projects that still require support for Neo4j 4.4 and 3.5. Neo4j-OGM 4.x is for all projects on Neo4j 4.4 or 5.
 
 == 3.2
+
+=== 3.2.46
+
+* [bug] Proper conjunct (nested) filters on relationship queries.
+* [dependencies] Bump io.github.classgraph:classgraph to 4.8.179.
+* [bug] Be lenient with ambiguity when checking for resolved classes.
 
 === 3.2.45
 

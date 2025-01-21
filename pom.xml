@@ -22,7 +22,7 @@
 
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
-    <version>3.3.5-SNAPSHOT</version>
+    <version>3.3.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neo4j-OGM</name>

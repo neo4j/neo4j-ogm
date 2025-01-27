@@ -60,10 +60,10 @@ public class DomainInfo {
     private final TypeSystem typeSystem;
 
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
-    private Map<String, List<ClassInfo>> nodeEntitiesByLabel;
-    private Map<String, List<ClassInfo>> relationshipEntitiesByType;
+    private final Map<String, List<ClassInfo>> nodeEntitiesByLabel = new HashMap<>();
+    private final Map<String, List<ClassInfo>> relationshipEntitiesByType = new HashMap<>();
     private final Map<String, List<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
-    // Yep, Optionals as field values are said to be evil, but in this case useful. DomainInfo isn't serializable anyway
+    // Yep, Optionals as field values are said to be evil, but in this case useful. DomainInfo isn't serializable anyway,
     // and we need a marker for a lookup that couldn't be found.
     private final Map<String, Optional<String>> fqnLookup = new ConcurrentHashMap<>();
     private final Set<Class> enumTypes = new HashSet<>();
@@ -96,7 +96,8 @@ public class DomainInfo {
                         continue;
                     }
                     domainInfo.addClass(clazz);
-                } catch (ClassNotFoundException e) {
+                } catch (ClassNotFoundException | NoClassDefFoundError | UnsatisfiedLinkError e) {
+                    // NCDEFE and ULE usually when _all_ packages are scanned in Quarkus
                     LOGGER.warn("Could not load class {}", className);
                 }
             }
@@ -200,32 +201,27 @@ public class DomainInfo {
 
         LOGGER.info("Building byLabel lookup maps");
 
-        Map<String, List<ClassInfo>> temporaryNodeEntitiesByLabel = new HashMap<>();
-        Map<String, List<ClassInfo>> temporaryRelationshipEntitiesByType = new HashMap<>();
 
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
 
             AnnotationInfo nodeEntityAnnotation = classInfo.annotationsInfo().get(NodeEntity.class);
             if (nodeEntityAnnotation != null) {
-                List<ClassInfo> classInfos = temporaryNodeEntitiesByLabel.computeIfAbsent(classInfo.neo4jName(), k -> new ArrayList());
+                List<ClassInfo> classInfos = nodeEntitiesByLabel.computeIfAbsent(classInfo.neo4jName(), k -> new ArrayList<>());
                 classInfos.add(classInfo);
             }
 
             AnnotationInfo relationshipEntityAnnotation = classInfo.annotationsInfo().get(RelationshipEntity.class);
             if (relationshipEntityAnnotation != null) {
-                List<ClassInfo> classInfos = temporaryRelationshipEntitiesByType
-                    .computeIfAbsent(classInfo.neo4jName(), k -> new ArrayList());
+                List<ClassInfo> classInfos = relationshipEntitiesByType
+                    .computeIfAbsent(classInfo.neo4jName(), k -> new ArrayList<>());
                 classInfos.add(classInfo);
             }
         }
-
-        this.nodeEntitiesByLabel = Collections.unmodifiableMap(temporaryNodeEntitiesByLabel);
-        this.relationshipEntitiesByType = Collections.unmodifiableMap(temporaryRelationshipEntitiesByType);
     }
 
     private void buildInterfaceNameToClassInfoMap() {
 
-        LOGGER.info("Building interface class map for {} classes", classNameToClassInfo.values().size());
+        LOGGER.info("Building interface class map for {} classes", classNameToClassInfo.size());
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             LOGGER.debug(" - {} implements {} interfaces", classInfo.simpleName(),
                 classInfo.interfacesInfo().list().size());
@@ -249,6 +245,7 @@ public class DomainInfo {
         buildByLabelLookupMaps();
         buildInterfaceNameToClassInfoMap();
 
+        List<ClassInfo> bogusClasses = new ArrayList<>();
         List<ClassInfo> transientClasses = new ArrayList<>();
 
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
@@ -294,7 +291,17 @@ public class DomainInfo {
         }
 
         LOGGER.debug("Registering converters and deregistering transient fields and methods....");
-        postProcessFields(transientClassesRemoved);
+        postProcessFields(transientClassesRemoved, bogusClasses);
+
+        // Clean up anything that could not be post-processed
+        // These things happens usually in the Quarkus class loader
+        classNameToClassInfo.entrySet().removeIf(e -> bogusClasses.contains(e.getValue()));
+        for (var bogusClass : bogusClasses) {
+            Predicate<Map.Entry<String, List<ClassInfo>>> isBogus = e -> e.getValue().contains(bogusClass);
+            nodeEntitiesByLabel.entrySet().removeIf(isBogus);
+            relationshipEntitiesByType.entrySet().removeIf(isBogus);
+            interfaceNameToClassInfo.entrySet().removeIf(isBogus);
+        }
 
         // TODO 🔥 the "lazy" initialization of the fields seems to be all in vain anyway.
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
@@ -304,7 +311,7 @@ public class DomainInfo {
         LOGGER.info("Post-processing complete");
     }
 
-    private void postProcessFields(Set<Class> transientClassesRemoved) {
+    private void postProcessFields(Set<Class> transientClassesRemoved, List<ClassInfo> bogusClasses) {
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             boolean registerConverters = false;
             if (!classInfo.isEnum() && !classInfo.isInterface()) {
@@ -327,7 +334,12 @@ public class DomainInfo {
                     }
                 }
                 if (registerConverters) {
-                    registerDefaultFieldConverters(classInfo, fieldInfo);
+                    try {
+                        registerDefaultFieldConverters(classInfo, fieldInfo);
+                    } catch (Exception e) {
+                        LOGGER.warn("Could not load class {}", classInfo.name());
+                        bogusClasses.add(classInfo);
+                    }
                 }
             }
         }
@@ -425,11 +437,11 @@ public class DomainInfo {
     }
 
     Map<String, List<ClassInfo>> getNodeEntitiesByLabel() {
-        return nodeEntitiesByLabel;
+        return Collections.unmodifiableMap(nodeEntitiesByLabel);
     }
 
     Map<String, List<ClassInfo>> getRelationshipEntitiesByType() {
-        return relationshipEntitiesByType;
+        return Collections.unmodifiableMap(relationshipEntitiesByType);
     }
 
     private void registerDefaultFieldConverters(ClassInfo classInfo, FieldInfo fieldInfo) {

@@ -2,6 +2,11 @@
 
 == 4.0
 
+=== 4.0.15
+
+* [improvement] Make OGM more resilient against the Quarkus class loader (See https://stackoverflow.com/questions/79390386/new-quarkus-application-not-starting-with-neo4j-ogm-quarkus3-11-0/79391140#79391140[this SO question])
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1227)
+
 === 4.0.14
 
 * [bug] Proper conjunct (nested) filters on relationship queries.

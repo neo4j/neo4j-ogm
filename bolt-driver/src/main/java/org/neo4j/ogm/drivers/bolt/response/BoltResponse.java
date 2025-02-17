@@ -20,10 +20,13 @@ package org.neo4j.ogm.drivers.bolt.response;
 
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.neo4j.driver.NotificationCategory;
+import org.neo4j.driver.NotificationClassification;
+import org.neo4j.driver.NotificationSeverity;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.exceptions.ClientException;
@@ -50,6 +53,8 @@ public abstract class BoltResponse<T> implements Response {
     private static final Logger cypherGenericNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.generic");
     private static final Logger cypherSecurityNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.security");
     private static final Logger cypherTopologyNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.topology");
+
+    private static final Pattern DEPRECATED_ID_PATTERN = Pattern.compile("(?im)The query used a deprecated function: `id`\\.");
 
     protected final Result result;
 
@@ -91,7 +96,7 @@ public abstract class BoltResponse<T> implements Response {
     private static final String LINE_SEPARATOR = System.lineSeparator();
 
     /**
-     * Does some post processing on the giving result summary, especially logging all notifications
+     * Does some post-processing on the giving result summary, especially logging all notifications
      * and potentially query plans.
      *
      * @param resultSummary The result summary to process
@@ -108,52 +113,54 @@ public abstract class BoltResponse<T> implements Response {
             return;
         }
 
+        boolean supressIdDeprecations = Response.SUPPRESS_ID_DEPRECATIONS.getAcquire();
+        Predicate<Notification> isDeprecationWarningForId;
+        try {
+            isDeprecationWarningForId = notification -> supressIdDeprecations
+                && notification.classification().orElse(NotificationClassification.UNRECOGNIZED)
+                == NotificationClassification.DEPRECATION && DEPRECATED_ID_PATTERN.matcher(notification.description())
+                .matches();
+        } finally {
+            Response.SUPPRESS_ID_DEPRECATIONS.setRelease(supressIdDeprecations);
+        }
+
         String query = resultSummary.query().text();
         resultSummary.notifications()
-            .forEach(notification -> {
+            .stream().filter(Predicate.not(isDeprecationWarningForId))
+            .forEach(notification -> notification.severityLevel().ifPresent(severityLevel -> {
+                var category = notification.classification().orElse(null);
+
+                var logger = getLogger(category);
                 Consumer<String> log;
-                Logger logger = notification.category().map(BoltResponse::getLogger)
-                    .orElse(LOGGER);
-                switch (notification.severity()) {
-                    case "WARNING":
-                        log = logger::warn;
-                        break;
-                    case "INFORMATION":
-                        log = logger::info;
-                        break;
-                    default:
-                        log = logger::debug;
+                if (severityLevel == NotificationSeverity.WARNING) {
+                    log = logger::warn;
+                } else if (severityLevel == NotificationSeverity.INFORMATION) {
+                    log = logger::info;
+                } else if (severityLevel == NotificationSeverity.OFF) {
+                    log = (String message) -> {
+                    };
+                } else {
+                    log = logger::debug;
                 }
                 log.accept(format(notification, query));
-            });
+            }));
     }
 
-    private static Logger getLogger(NotificationCategory category) {
-        if (category == NotificationCategory.HINT) {
-            return cypherHintNotificationLog;
+    private static Logger getLogger(NotificationClassification category) {
+        if (category == null) {
+            return LOGGER;
         }
-        if (category == NotificationCategory.DEPRECATION) {
-            return cypherDeprecationNotificationLog;
-        }
-        if (category == NotificationCategory.PERFORMANCE) {
-            return cypherPerformanceNotificationLog;
-        }
-        if (category == NotificationCategory.GENERIC) {
-            return cypherGenericNotificationLog;
-        }
-        if (category == NotificationCategory.UNSUPPORTED) {
-            return cypherUnsupportedNotificationLog;
-        }
-        if (category == NotificationCategory.UNRECOGNIZED) {
-            return cypherUnrecognizedNotificationLog;
-        }
-        if (category == NotificationCategory.SECURITY) {
-            return cypherSecurityNotificationLog;
-        }
-        if (category == NotificationCategory.TOPOLOGY) {
-            return cypherTopologyNotificationLog;
-        }
-        return LOGGER;
+        return switch (category) {
+            case HINT -> cypherHintNotificationLog;
+            case DEPRECATION -> cypherDeprecationNotificationLog;
+            case PERFORMANCE -> cypherPerformanceNotificationLog;
+            case GENERIC -> cypherGenericNotificationLog;
+            case UNSUPPORTED -> cypherUnsupportedNotificationLog;
+            case UNRECOGNIZED -> cypherUnrecognizedNotificationLog;
+            case SECURITY -> cypherSecurityNotificationLog;
+            case TOPOLOGY -> cypherTopologyNotificationLog;
+            default -> LOGGER;
+        };
     }
 
     /**

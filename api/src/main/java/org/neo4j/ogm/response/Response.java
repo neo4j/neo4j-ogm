@@ -21,6 +21,7 @@ package org.neo4j.ogm.response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.neo4j.ogm.model.QueryStatistics;
 
@@ -28,6 +29,12 @@ import org.neo4j.ogm.model.QueryStatistics;
  * @author Vince Bickers
  */
 public interface Response<T> extends AutoCloseable {
+
+    /**
+     * This is a public API introduced to turn the logging of the infamous warning back on.
+     * {@code The query used a deprecated function: `id`.}
+     */
+    AtomicBoolean SUPPRESS_ID_DEPRECATIONS = new AtomicBoolean(true);
 
     T next();
 

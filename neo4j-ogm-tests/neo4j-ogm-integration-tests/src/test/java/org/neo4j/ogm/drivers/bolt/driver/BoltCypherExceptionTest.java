@@ -18,6 +18,8 @@
  */
 package org.neo4j.ogm.drivers.bolt.driver;
 
+import static org.assertj.core.api.Assertions.*;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -26,18 +28,22 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.neo4j.driver.Driver;
 import org.neo4j.ogm.domain.cypher_exception_test.ConstraintedNode;
 import org.neo4j.ogm.drivers.bolt.response.BoltResponse;
 import org.neo4j.ogm.exception.CypherException;
+import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.LoggerRule;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * @author Michael J. Simons
@@ -84,14 +90,67 @@ public class BoltCypherExceptionTest extends TestContainersTestBase {
 
         try {
             Session session = sessionFactory.openSession();
-            Assertions.assertThatCode(() -> session.query(
+            assertThatCode(() -> session.query(
                 "CREATE (_v0:A) WITH _v0 MATCH (_v4:B {a:1}) CREATE (_v0)-[:F]->(_v4) FOREACH (record in []| CREATE (_v6:H) SET _v6 = record)",
                 Map.of())).doesNotThrowAnyException();
         } finally {
             logger.setLevel(originalLevel);
         }
+    }
 
+    @ParameterizedTest // GH-1228
+    @CsvSource(textBlock = """
+        true
+        false
+        null
+        """, nullValues = "null")
+    void idWarningShouldBeSuppressed(Boolean enabled) {
+        Logger logger = (Logger) LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.deprecation");
+        Level originalLevel = logger.getLevel();
+        logger.setLevel(Level.DEBUG);
 
+        Boolean oldValue = null;
+        if(enabled != null) {
+            oldValue = Response.SUPPRESS_ID_DEPRECATIONS.getAndSet(enabled);
+        }
+
+        try {
+            Session session = sessionFactory.openSession();
+            assertThatCode(() -> session.query(
+                "CREATE (n:XXXIdTest) RETURN id(n)",
+                Map.of())).doesNotThrowAnyException();
+            Predicate<String> stringPredicate = msg -> msg.contains(
+                "Neo.ClientNotification.Statement.FeatureDeprecationWarning");
+            if(enabled == null || enabled) {
+                assertThat(loggerRule.getFormattedMessages()).noneMatch(stringPredicate);
+            } else {
+                assertThat(loggerRule.getFormattedMessages()).anyMatch(stringPredicate);
+            }
+        } finally {
+            logger.setLevel(originalLevel);
+            if (oldValue != null) {
+                Response.SUPPRESS_ID_DEPRECATIONS.set(oldValue);
+            }
+        }
+    }
+
+    @Test // GH-1228
+    void otherDeprecationsWarningsShouldNotBeSuppressed() {
+        Logger logger = (Logger) LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.deprecation");
+        Level originalLevel = logger.getLevel();
+        logger.setLevel(Level.DEBUG);
+
+        try {
+            Session session = sessionFactory.openSession();
+            assertThatCode(() -> session.query(
+                "MATCH (n) CALL {WITH n RETURN count(n) AS cnt} RETURN *",
+                Map.of())).doesNotThrowAnyException();
+            assertThat(loggerRule.getFormattedMessages())
+                .anyMatch(msg -> msg.contains("Neo.ClientNotification.Statement.FeatureDeprecationWarning"))
+                .anyMatch(msg -> msg.contains("CALL subquery without a variable scope clause is now deprecated. Use CALL (n) { ... }"));
+        } finally {
+            logger.setLevel(originalLevel);
+        }
     }
 
     @AfterAll

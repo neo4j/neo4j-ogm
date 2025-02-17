@@ -34,4 +34,4 @@ jobs:
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.JRELEASER_TOKEN }}
           JRELEASER_SLACK_WEBHOOK: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
-        run: ./mvnw --no-transfer-progress -Djreleaser jreleaser:announce -pl org.neo4j:neo4j-ogm
+        run: ./mvnw --no-transfer-progress -Djreleaser -DreleaseVersion=$refName jreleaser:announce -pl org.neo4j:neo4j-ogm

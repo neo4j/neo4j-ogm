@@ -9,5 +9,5 @@ asciidoc:
     neo4j-version: '5.25'
     neo4j-version-exact: '5.25.1'
     neo4j-buildnumber: '5.25'
-    ogm-version: '4.0.15'
+    ogm-version: '4.0.16'
     ogm-doc-version: '4.0'

@@ -2,6 +2,17 @@
 
 == 4.0
 
+=== 4.0.16
+
+* [feature] Suppress logging of deprecation warning for `id()` by default.
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.17.0 to 1.17.1 (#1234)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1233)
+* [build: Add announcement notifier.
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver (#1232)
+* [dependencies] Bump commons-logging:commons-logging from 1.3.4 to 1.3.5 (#1231)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.16.1 to 1.17.0 (#1230)
+* [dependencies] Bump kotlin.version from 2.1.0 to 2.1.10 (#1229)
+
 === 4.0.15
 
 * [improvement] Make OGM more resilient against the Quarkus class loader (See https://stackoverflow.com/questions/79390386/new-quarkus-application-not-starting-with-neo4j-ogm-quarkus3-11-0/79391140#79391140[this SO question])

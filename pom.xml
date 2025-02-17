@@ -708,14 +708,13 @@
                             <jreleaser>
                                 <project>
                                     <name>neo4j-ogm</name>
-                                    <versionPattern>CUSTOM</versionPattern>
                                     <version>${releaseVersion}</version>
                                 </project>
                                 <release>
                                     <github>
                                         <owner>neo4j</owner>
-                                        <tagName>{{projectVersion}}</tagName>
-                                        <releaseName>{{projectVersion}}</releaseName>
+                                        <tagName>v{{projectVersion}}</tagName>
+                                        <releaseName>v{{projectVersion}}</releaseName>
                                     </github>
                                 </release>
                                 <announce>

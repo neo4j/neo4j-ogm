@@ -1,0 +1,37 @@
+name: release
+
+on:
+  create:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    if: (github.event_name == 'create' && github.event.ref_type == 'tag')
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Set up JDK'
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: 'Prepare git'
+        run: git config --global core.autocrlf false
+
+      - name: 'Prepare branch name'
+        if: (github.event_name == 'create' && github.event.ref_type == 'tag')
+        run: >
+          echo "refName=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: 'Checkout relevant branch'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.refName }}
+          fetch-depth: 0
+
+      - name: 'Create release'
+        env:
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.JRELEASER_TOKEN }}
+          JRELEASER_SLACK_WEBHOOK: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
+        run: ./mvnw --no-transfer-progress -Djreleaser jreleaser:announce -pl org.neo4j:neo4j-ogm

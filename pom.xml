@@ -196,6 +196,7 @@
         <classgraph.version>4.8.179</classgraph.version>
         <jackson.version>2.18.2</jackson.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <jreleaser-maven-plugin.version>1.16.0</jreleaser-maven-plugin.version>
         <junit.version>5.11.4</junit.version>
         <kotlin.version>2.1.10</kotlin.version>
         <logback.version>1.5.16</logback.version>
@@ -687,6 +688,45 @@
             <properties>
                 <ogm.properties>ogm-bolt.properties</ogm.properties>
             </properties>
+        </profile>
+
+        <profile>
+            <id>jreleaser</id>
+            <activation>
+                <property>
+                    <name>jreleaser</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jreleaser-maven-plugin</artifactId>
+                        <configuration>
+                            <jreleaser>
+                                <project>
+                                    <name>neo4j-ogm</name>
+                                </project>
+                                <release>
+                                    <github>
+                                        <owner>neo4j</owner>
+                                        <tagName>{{projectVersion}}</tagName>
+                                        <releaseName>{{projectVersion}}</releaseName>
+                                    </github>
+                                </release>
+                                <announce>
+                                    <webhooks>
+                                        <slack>
+                                            <active>ALWAYS</active>
+                                            <structuredMessage>true</structuredMessage>
+                                        </slack>
+                                    </webhooks>
+                                </announce>
+                            </jreleaser>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

@@ -19,6 +19,7 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -105,6 +106,9 @@ public class BoltCypherExceptionTest extends TestContainersTestBase {
         null
         """, nullValues = "null")
     void idWarningShouldBeSuppressed(Boolean enabled) {
+
+        assumeTrue(isVersionOrGreater("5"), "This test requires a 5.x or 2025 database");
+
         Logger logger = (Logger) LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.deprecation");
         Level originalLevel = logger.getLevel();
         logger.setLevel(Level.DEBUG);
@@ -136,6 +140,9 @@ public class BoltCypherExceptionTest extends TestContainersTestBase {
 
     @Test // GH-1228
     void otherDeprecationsWarningsShouldNotBeSuppressed() {
+
+        assumeTrue(isVersionOrGreater("5"), "This test requires a 5.x or 2025 database");
+
         Logger logger = (Logger) LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.deprecation");
         Level originalLevel = logger.getLevel();
         logger.setLevel(Level.DEBUG);

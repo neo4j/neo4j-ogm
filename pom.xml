@@ -657,6 +657,11 @@
                             <value>The MIT License (MIT)</value>
                         </dependencyPolicy>
                         <dependencyPolicy>
+                            <type>LICENSE_NAME</type>
+                            <rule>APPROVE</rule>
+                            <value>MIT</value>
+                        </dependencyPolicy>
+                        <dependencyPolicy>
                             <type>ARTIFACT_PATTERN</type>
                             <rule>APPROVE</rule>
                             <value>ch.qos.logback:logback-classic:jar</value>

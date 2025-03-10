@@ -201,7 +201,7 @@
         <kotlin.version>2.1.10</kotlin.version>
         <logback.version>1.5.17</logback.version>
         <neo4j.edition>enterprise</neo4j.edition>
-        <neo4j-java-driver.version>5.28.1</neo4j-java-driver.version>
+        <neo4j-java-driver.version>5.28.2</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
         <license-maven-plugin.version>4.6</license-maven-plugin.version>
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>

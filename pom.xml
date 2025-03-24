@@ -203,7 +203,7 @@
         <neo4j.edition>enterprise</neo4j.edition>
         <neo4j-java-driver.version>5.28.3</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
-        <license-maven-plugin.version>4.6</license-maven-plugin.version>
+        <license-maven-plugin.version>5.0.0</license-maven-plugin.version>
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>

@@ -1,4 +1,4 @@
-:version: 4.0.16
+:version: 4.0.17
 
 image:https://github.com/neo4j/neo4j-ogm/actions/workflows/maven.yml/badge.svg[https://github.com/neo4j/neo4j-ogm/actions/workflows/maven.yml]
 image:https://img.shields.io/maven-central/v/org.neo4j/neo4j-ogm.svg[Maven Central,link=http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.neo4j%22%20AND%20a%3A%22neo4j-ogm%22]

@@ -2,6 +2,22 @@
 
 == 4.0
 
+=== 4.0.18
+
+* [dependencies] Bump io.mockk:mockk-jvm from 1.14.0 to 1.14.2 (#1275)
+* [dependencies] Bump org.jreleaser:jreleaser-maven-plugin (#1274)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1273)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver (#1272)
+* [dependencies] Bump org.testcontainers:neo4j from 1.20.6 to 1.21.0 (#1271)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1270)
+* [dependencies] Bump io.mockk:mockk-jvm from 1.13.17 to 1.14.0 (#1269)
+* [dependencies] Bump org.junit:junit-bom from 5.12.1 to 5.12.2 (#1268)
+* [dependencies] Bump org.jacoco:jacoco-maven-plugin from 0.8.12 to 0.8.13 (#1267)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.17.4 to 1.17.5 (#1266)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1265)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter (#1264)
+
+
 === 4.0.17
 
 * [dependencies] Bump org.apache.maven.plugins:maven-failsafe-plugin (#1262)

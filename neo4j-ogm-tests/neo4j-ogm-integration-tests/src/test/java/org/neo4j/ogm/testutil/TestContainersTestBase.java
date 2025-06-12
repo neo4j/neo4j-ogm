@@ -48,7 +48,7 @@ public class TestContainersTestBase {
 
     public static final String version;
 
-    public static final String DEFAULT_IMAGE = "neo4j:5.25.1";
+    public static final String DEFAULT_IMAGE = "neo4j:5.26.8";
 
     public static final String SYS_PROPERTY_ACCEPT_AND_USE_COMMERCIAL_EDITION = "NEO4J_OGM_NEO4J_ACCEPT_AND_USE_COMMERCIAL_EDITION";
 
@@ -97,6 +97,7 @@ public class TestContainersTestBase {
                 LOGGER.warn("Reuse is explicitly disable");
             }
             neo4jServer = new Neo4jContainer<>(imageName)
+                .waitingFor(Neo4jContainer.WAIT_FOR_BOLT)
                 .withReuse(containerReuseSupported && !disableContainerReuse);
             if (acceptAndUseCommercialEdition) {
                 neo4jServer.withEnv("NEO4J_ACCEPT_LICENSE_AGREEMENT", "yes");

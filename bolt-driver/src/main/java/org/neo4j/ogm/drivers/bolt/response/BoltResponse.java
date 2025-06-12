@@ -54,7 +54,7 @@ public abstract class BoltResponse<T> implements Response {
     private static final Logger cypherSecurityNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.security");
     private static final Logger cypherTopologyNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.topology");
 
-    private static final Pattern DEPRECATED_ID_PATTERN = Pattern.compile("(?im)The query used a deprecated function: `id`\\.");
+    private static final Pattern DEPRECATED_ID_PATTERN = Pattern.compile("(?im)The query used a deprecated function((: `id`\\.)|(\\. \\('id' has been replaced by 'elementId.+))|");
 
     protected final Result result;
 

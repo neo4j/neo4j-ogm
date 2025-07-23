@@ -2,6 +2,30 @@
 
 == 4.0
 
+=== 4.0.19
+
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 5.28.5 to 5.28.9 (#1307)
+* [dependencies] Bump kotlin.version from 2.1.21 to 2.2.0 (#1297)
+* [dependencies] Bump org.jreleaser:jreleaser-maven-plugin (#1296)
+* [dependencies] Bump io.mockk:mockk-jvm from 1.14.4 to 1.14.5 (#1306)
+* [dependencies] Bump io.github.classgraph:classgraph (#1305)
+* [dependencies] Bump org.apache.maven.plugins:maven-enforcer-plugin (#1304)
+* [dependencies] Bump com.github.ben-manes.caffeine:caffeine (#1302)
+* [dependencies] Bump org.apache.commons:commons-lang3 from 3.17.0 to 3.18.0 (#1301)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1295)
+* [dependencies] Bump org.junit:junit-bom from 5.13.2 to 5.13.3 (#1294)
+* [dependencies] Bump org.testcontainers:neo4j from 1.21.0 to 1.21.3 (#1291)
+* [dependencies] Bump com.github.ben-manes.caffeine:caffeine (#1285)
+* [dependencies] Bump org.junit:junit-bom from 5.12.2 to 5.13.2 (#1293)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter (#1278)
+* [dependencies] Bump org.codehaus.mojo:build-helper-maven-plugin (#1284)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1286)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.17.5 to 1.17.6 (#1289)
+* [dependencies] Bump io.mockk:mockk-jvm from 1.14.2 to 1.14.4 (#1290)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle (#1292)
+* [dependencies] Bump kotlin.version from 2.1.20 to 2.1.21 (#1276)
+* [improvement] Make checking for the deprecation message for id more resilient.
+
 === 4.0.18
 
 * [dependencies] Bump io.mockk:mockk-jvm from 1.14.0 to 1.14.2 (#1275)

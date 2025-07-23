@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.neo4j.driver.NotificationCategory;
 import org.neo4j.driver.NotificationClassification;
 import org.neo4j.driver.NotificationSeverity;
 import org.neo4j.driver.Record;
@@ -117,7 +118,7 @@ public abstract class BoltResponse<T> implements Response {
         Predicate<Notification> isDeprecationWarningForId;
         try {
             isDeprecationWarningForId = notification -> supressIdDeprecations
-                && notification.classification().orElse(NotificationClassification.UNRECOGNIZED)
+                && notification.category().orElse(NotificationCategory.UNRECOGNIZED)
                 == NotificationClassification.DEPRECATION && DEPRECATED_ID_PATTERN.matcher(notification.description())
                 .matches();
         } finally {
@@ -128,7 +129,7 @@ public abstract class BoltResponse<T> implements Response {
         resultSummary.notifications()
             .stream().filter(Predicate.not(isDeprecationWarningForId))
             .forEach(notification -> notification.severityLevel().ifPresent(severityLevel -> {
-                var category = notification.classification().orElse(null);
+                var category = notification.category().orElse(null);
 
                 var logger = getLogger(category);
                 Consumer<String> log;
@@ -146,21 +147,33 @@ public abstract class BoltResponse<T> implements Response {
             }));
     }
 
-    private static Logger getLogger(NotificationClassification category) {
-        if (category == null) {
-            return LOGGER;
+    private static Logger getLogger(NotificationCategory category) {
+
+        if (NotificationCategory.HINT.equals(category)) {
+            return cypherHintNotificationLog;
         }
-        return switch (category) {
-            case HINT -> cypherHintNotificationLog;
-            case DEPRECATION -> cypherDeprecationNotificationLog;
-            case PERFORMANCE -> cypherPerformanceNotificationLog;
-            case GENERIC -> cypherGenericNotificationLog;
-            case UNSUPPORTED -> cypherUnsupportedNotificationLog;
-            case UNRECOGNIZED -> cypherUnrecognizedNotificationLog;
-            case SECURITY -> cypherSecurityNotificationLog;
-            case TOPOLOGY -> cypherTopologyNotificationLog;
-            default -> LOGGER;
-        };
+        if (NotificationCategory.DEPRECATION.equals(category)) {
+            return cypherDeprecationNotificationLog;
+        }
+        if (NotificationCategory.PERFORMANCE.equals(category)) {
+            return cypherPerformanceNotificationLog;
+        }
+        if (NotificationCategory.GENERIC.equals(category)) {
+            return cypherGenericNotificationLog;
+        }
+        if (NotificationCategory.UNSUPPORTED.equals(category)) {
+            return cypherUnsupportedNotificationLog;
+        }
+        if (NotificationCategory.UNRECOGNIZED.equals(category)) {
+            return cypherUnrecognizedNotificationLog;
+        }
+        if (NotificationCategory.SECURITY.equals(category)) {
+            return cypherSecurityNotificationLog;
+        }
+        if (NotificationCategory.TOPOLOGY.equals(category)) {
+            return cypherTopologyNotificationLog;
+        }
+        return LOGGER;
     }
 
     /**

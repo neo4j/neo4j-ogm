@@ -48,7 +48,7 @@ public class TestContainersTestBase {
 
     public static final String version;
 
-    public static final String DEFAULT_IMAGE = "neo4j:5.26.8";
+    public static final String DEFAULT_IMAGE = "neo4j:5.26.10";
 
     public static final String SYS_PROPERTY_ACCEPT_AND_USE_COMMERCIAL_EDITION = "NEO4J_OGM_NEO4J_ACCEPT_AND_USE_COMMERCIAL_EDITION";
 

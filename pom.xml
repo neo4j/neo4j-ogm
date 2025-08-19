@@ -198,7 +198,7 @@
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <jreleaser-maven-plugin.version>1.19.0</jreleaser-maven-plugin.version>
         <junit.version>5.13.4</junit.version>
-        <kotlin.version>2.2.0</kotlin.version>
+        <kotlin.version>2.2.10</kotlin.version>
         <logback.version>1.5.18</logback.version>
         <neo4j.edition>enterprise</neo4j.edition>
         <neo4j-java-driver.version>5.28.9</neo4j-java-driver.version>

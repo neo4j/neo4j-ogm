@@ -221,7 +221,7 @@
         <mockito.version>5.19.0</mockito.version>
         <scala.version>2.13.16</scala.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <spotbugs.plugin.version>4.9.3.2</spotbugs.plugin.version>
+        <spotbugs.plugin.version>4.9.4.0</spotbugs.plugin.version>
         <releaseVersion>undefined</releaseVersion>
 
         <maven.compiler.debug>true</maven.compiler.debug>

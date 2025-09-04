@@ -26,6 +26,7 @@ import java.util.List;
 /**
  * @author Vince Bickers
  * @author Jonathan D'Orleans
+ * @author Christopher Quadflieg
  */
 public class SortOrder {
 
@@ -65,12 +66,34 @@ public class SortOrder {
     }
 
     /**
+     * Adds a new {@link SortClause} containing a property ordered by {@link Direction#ASC}.
+     *
+     * @param property   the property ordered by {@link Direction#ASC}
+     * @param ignoreCase whether to ignore case when sorting
+     */
+    public SortOrder add(String property, boolean ignoreCase) {
+        return add(ASC, property, ignoreCase);
+    }
+
+    /**
      * Adds a new {@link SortClause} containing properties ordered by {@link Direction#ASC}.
      *
      * @param properties list of properties ordered by {@link Direction#ASC}
      */
     public SortOrder add(String... properties) {
         return add(ASC, properties);
+    }
+
+    /**
+     * Adds a new {@link SortClause} containing a property ordered by direction.
+     *
+     * @param direction  the specified {@link Direction} can be either ASC or DESC
+     * @param property   the property ordered by direction
+     * @param ignoreCase whether to ignore case when sorting
+     */
+    public SortOrder add(Direction direction, String property, boolean ignoreCase) {
+        sortClauses.add(new SortClause(direction, property, ignoreCase));
+        return this;
     }
 
     /**

@@ -20,15 +20,24 @@ package org.neo4j.ogm.cypher.query;
 
 /**
  * @author Luanne Misquitta
+ * @author Christopher Quadflieg
  */
 public class SortClause {
 
     private final SortOrder.Direction direction;
     private final String[] properties;
+    private final boolean ignoreCase;
 
     SortClause(SortOrder.Direction direction, String... properties) {
         this.direction = direction;
         this.properties = properties;
+        this.ignoreCase = false;
+    }
+
+    SortClause(SortOrder.Direction direction, String property, boolean ignoreCase) {
+        this.direction = direction;
+        this.properties = new String[]{property};
+        this.ignoreCase = ignoreCase;
     }
 
     public String[] getProperties() {
@@ -49,7 +58,13 @@ public class SortClause {
 
         if (properties.length > 0) {
             for (String n : properties) {
+                if (ignoreCase) {
+                    sb.append("toLower(");
+                }
                 sb.append("$.").append(n);
+                if (ignoreCase) {
+                    sb.append(")");
+                }
                 if (direction == SortOrder.Direction.DESC) {
                     sb.append(" DESC");
                 }

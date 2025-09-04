@@ -29,10 +29,12 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
+import org.testcontainers.shaded.org.checkerframework.checker.units.qual.m;
 
 /**
  * @author Vince Bickers
  * @author Jonathan D'Orleans
+ * @author Christopher Quadflieg
  */
 public class RelationshipEntityQuerySortingTest {
 
@@ -103,6 +105,18 @@ public class RelationshipEntityQuerySortingTest {
         String expected = "MATCH ()-[r0:`ORBITS`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
             "ORDER BY r0.type DESC,r0.name MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
             "MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH r0,startPaths + endPaths  AS paths "
+            +
+            "UNWIND paths AS p RETURN DISTINCT p, ID(r0)";
+        assertThat(statement).isEqualTo(expected);
+    }
+
+    @Test
+    void testIgnoreCase() {
+        sortOrder.add("name", true);
+        String statement = query.findByType("ORBITS", 1).setSortOrder(sortOrder).getStatement();
+        String expected = "MATCH ()-[r0:`ORBITS`]-()  WITH DISTINCT(r0) as r0,startnode(r0) AS n, endnode(r0) AS m " +
+            "ORDER BY toLower(r0.name) MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+            "MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH r0,startPaths + endPaths  AS paths "
             +
             "UNWIND paths AS p RETURN DISTINCT p, ID(r0)";
         assertThat(statement).isEqualTo(expected);

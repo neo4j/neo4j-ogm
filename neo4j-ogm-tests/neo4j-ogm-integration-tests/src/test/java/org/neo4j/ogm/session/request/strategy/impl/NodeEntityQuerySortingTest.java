@@ -31,6 +31,7 @@ import org.neo4j.ogm.cypher.query.SortOrder;
 /**
  * @author Vince Bickers
  * @author Jonathan D'Orleans
+ * @author Christopher Quadflieg
  */
 public class NodeEntityQuerySortingTest {
 
@@ -112,6 +113,13 @@ public class NodeEntityQuerySortingTest {
     void testDifferentSortDirections() {
         sortOrder.add(DESC, "age").add("name");
         check("MATCH (n:`Raptor`) WITH n ORDER BY n.age DESC,n.name RETURN n",
+            query.findByType("Raptor", 0).setSortOrder(sortOrder).getStatement());
+    }
+
+    @Test
+    void testIgnoreCase() {
+        sortOrder.add("name", true);
+        check("MATCH (n:`Raptor`) WITH n ORDER BY toLower(n.name) RETURN n",
             query.findByType("Raptor", 0).setSortOrder(sortOrder).getStatement());
     }
 

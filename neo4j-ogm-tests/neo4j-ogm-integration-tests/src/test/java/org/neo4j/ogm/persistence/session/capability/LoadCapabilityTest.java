@@ -764,9 +764,6 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         session.save(anna);
         session.save(bob);
 
-        anna.setFriends(Collections.singleton(charlie));
-        session.save(anna);
-
         Collection<User> allUsers = session.loadAll(User.class,
             new SortOrder().add("firstName", true),
             1);

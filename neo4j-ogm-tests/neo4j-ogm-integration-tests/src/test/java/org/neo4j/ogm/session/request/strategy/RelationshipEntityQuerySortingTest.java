@@ -29,7 +29,6 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.m;
 
 /**
  * @author Vince Bickers

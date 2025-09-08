@@ -72,7 +72,7 @@ public class SortOrder {
      * @param ignoreCase whether to ignore case when sorting
      */
     public SortOrder add(String property, boolean ignoreCase) {
-        return add(ASC, property, ignoreCase);
+        return add(ASC, ignoreCase, property);
     }
 
     /**
@@ -85,15 +85,14 @@ public class SortOrder {
     }
 
     /**
-     * Adds a new {@link SortClause} containing a property ordered by direction.
+     * Adds a new {@link SortClause} containing properties ordered by {@link Direction#ASC},
+     * ignoring the case of the value to sort by.
      *
-     * @param direction  the specified {@link Direction} can be either ASC or DESC
-     * @param property   the property ordered by direction
-     * @param ignoreCase whether to ignore case when sorting
+     * @param ignoreCase flag to indicate if the sorting should be done by ignoring the case.
+     * @param properties list of properties ordered by {@link Direction#ASC}
      */
-    public SortOrder add(Direction direction, String property, boolean ignoreCase) {
-        sortClauses.add(new SortClause(direction, property, ignoreCase));
-        return this;
+    public SortOrder add(boolean ignoreCase, String... properties) {
+        return add(ASC, ignoreCase, properties);
     }
 
     /**
@@ -103,7 +102,19 @@ public class SortOrder {
      * @param properties list of properties ordered by direction
      */
     public SortOrder add(Direction direction, String... properties) {
-        sortClauses.add(new SortClause(direction, properties));
+        add(direction, false, properties);
+        return this;
+    }
+
+    /**
+     * Adds a new {@link SortClause} containing a property ordered by direction.
+     *
+     * @param direction  the specified {@link Direction} can be either ASC or DESC
+     * @param ignoreCase whether to ignore case when sorting
+     * @param properties   the property ordered by direction
+     */
+    public SortOrder add(Direction direction, boolean ignoreCase, String... properties) {
+        sortClauses.add(new SortClause(direction, ignoreCase, properties));
         return this;
     }
 

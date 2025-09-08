@@ -28,16 +28,10 @@ public class SortClause {
     private final String[] properties;
     private final boolean ignoreCase;
 
-    SortClause(SortOrder.Direction direction, String... properties) {
+    SortClause(SortOrder.Direction direction, boolean ignoreCase, String... properties) {
         this.direction = direction;
-        this.properties = properties;
-        this.ignoreCase = false;
-    }
-
-    SortClause(SortOrder.Direction direction, String property, boolean ignoreCase) {
-        this.direction = direction;
-        this.properties = new String[]{property};
         this.ignoreCase = ignoreCase;
+        this.properties = properties;
     }
 
     public String[] getProperties() {
@@ -49,7 +43,7 @@ public class SortClause {
             throw new IllegalArgumentException("Resolved properties count must match existing properties count.");
         }
 
-        return new SortClause(this.direction, resolvedProperties);
+        return new SortClause(this.direction, this.ignoreCase, resolvedProperties);
 
     }
 

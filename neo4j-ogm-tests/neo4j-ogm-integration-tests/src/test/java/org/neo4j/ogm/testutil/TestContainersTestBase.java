@@ -173,7 +173,7 @@ public class TestContainersTestBase {
         String version;
         SessionConfig sessionConfig = SessionConfig.builder().withDefaultAccessMode(AccessMode.READ).build();
         try (Session session = driver.session(sessionConfig)) {
-            version = session.run("CALL dbms.components() YIELD versions").single().get("versions").asList(
+            version = session.run("CALL dbms.components() yield versions, name with versions, name where name = \"Neo4j Kernel\" return versions").single().get("versions").asList(
                 Value::asString).get(0);
         }
         return version.toLowerCase(Locale.ENGLISH);

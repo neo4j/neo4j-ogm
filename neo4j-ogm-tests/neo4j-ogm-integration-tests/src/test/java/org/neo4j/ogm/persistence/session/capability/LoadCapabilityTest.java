@@ -51,6 +51,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 /**
  * @author Luanne Misquitta
  * @author Michael J. Simons
+ * @author Christopher Quadflieg
  */
 public class LoadCapabilityTest extends TestContainersTestBase {
 
@@ -750,6 +751,26 @@ public class LoadCapabilityTest extends TestContainersTestBase {
         assertThat(allUsers)
             .extracting(User::getFirstName)
             .containsExactly("Anna", "Bob", "Charlie");
+    }
+
+    // GH-1322
+    @Test
+    void shouldOrderIgnoringCaseSensitive() {
+        User anna = new User("noone@nowhere.com", "Anna", "Doe");
+        User bob = new User("noone@nowhere.com", "bob", "Doe");
+        User charlie = new User("noone@nowhere.com", "Charlie", "Doe");
+
+        session.save(charlie);
+        session.save(anna);
+        session.save(bob);
+
+        Collection<User> allUsers = session.loadAll(User.class,
+            new SortOrder().add("firstName", true),
+            1);
+
+        assertThat(allUsers)
+            .extracting(User::getFirstName)
+            .containsExactly("Anna", "bob", "Charlie");
     }
 
     // GH-787

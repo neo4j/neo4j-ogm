@@ -20,14 +20,17 @@ package org.neo4j.ogm.cypher.query;
 
 /**
  * @author Luanne Misquitta
+ * @author Christopher Quadflieg
  */
 public class SortClause {
 
     private final SortOrder.Direction direction;
     private final String[] properties;
+    private final boolean ignoreCase;
 
-    SortClause(SortOrder.Direction direction, String... properties) {
+    SortClause(SortOrder.Direction direction, boolean ignoreCase, String... properties) {
         this.direction = direction;
+        this.ignoreCase = ignoreCase;
         this.properties = properties;
     }
 
@@ -40,7 +43,7 @@ public class SortClause {
             throw new IllegalArgumentException("Resolved properties count must match existing properties count.");
         }
 
-        return new SortClause(this.direction, resolvedProperties);
+        return new SortClause(this.direction, this.ignoreCase, resolvedProperties);
 
     }
 
@@ -49,7 +52,13 @@ public class SortClause {
 
         if (properties.length > 0) {
             for (String n : properties) {
+                if (ignoreCase) {
+                    sb.append("toLower(");
+                }
                 sb.append("$.").append(n);
+                if (ignoreCase) {
+                    sb.append(")");
+                }
                 if (direction == SortOrder.Direction.DESC) {
                     sb.append(" DESC");
                 }

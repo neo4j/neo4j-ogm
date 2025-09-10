@@ -2,6 +2,23 @@
 
 == 4.0
 
+=== 4.0.20
+
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1324)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1321)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle from 11.0.0 to 11.0.1 (#1320)
+* [feature] ignoreCase for SortClause (#1323)
+* [improvement] Respect neo4j 2025 for integration tests.
+* [dependencies] Test against latest Neo4j 5.26.
+* [dependencies] Bump kotlin.version from 2.2.0 to 2.2.10 (#1313)
+* [dependencies] Bump org.assertj:assertj-core from 3.27.3 to 3.27.4 (#1310)
+* [dependencies] Bump org.apache.maven.plugins:maven-javadoc-plugin (#1315)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter (#1314)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.17.6 to 1.17.7 (#1312)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle from 10.26.1 to 11.0.0 (#1311)
+* [dependencies] Bump org.junit:junit-bom from 5.13.3 to 5.13.4 (#1309)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1308)
+
 === 4.0.19
 
 * [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 5.28.5 to 5.28.9 (#1307)

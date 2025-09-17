@@ -20,7 +20,6 @@ package org.neo4j.ogm.drivers.bolt.driver;
 
 import static java.util.Objects.*;
 import static java.util.stream.Collectors.*;
-import static org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction.*;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -36,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.neo4j.driver.*;
@@ -418,8 +416,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
     @SuppressWarnings("deprecation")
     static List<Bookmark> bookmarksFromStrings(Iterable<String> bookmarks) {
         return StreamSupport.stream(bookmarks.spliterator(), false)
-            .map(b -> Arrays.stream(b.split(BOOKMARK_SEPARATOR)).collect(
-                collectingAndThen(Collectors.toSet(), Bookmark::from)))
-            .collect(toList());
+            .map(Bookmark::from).toList();
     }
 }

@@ -21,10 +21,6 @@ package org.neo4j.ogm.session;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -67,7 +63,7 @@ public class BookmarkTest {
 
     @Test
     void shouldPassBookmarksToDriver() {
-        Set<String> bookmarkStringRepresentation = new HashSet<>(Arrays.asList("bookmark1", "bookmark2"));
+        Set<String> bookmarkStringRepresentation = Set.of("bookmark1", "bookmark2");
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_ONLY, bookmarkStringRepresentation);
         ArgumentCaptor<SessionConfig> argumentCaptor = ArgumentCaptor.forClass(SessionConfig.class);
@@ -77,32 +73,8 @@ public class BookmarkTest {
         assertThat(sessionConfig.defaultAccessMode()).isEqualTo(AccessMode.READ);
         assertThat(sessionConfig.bookmarks())
             .contains(
-                Bookmark.from(Collections.singleton("bookmark1")),
-                Bookmark.from(Collections.singleton("bookmark2"))
-            );
-
-        transaction.rollback();
-        transaction.close();
-    }
-
-    @Test
-    void shouldPassMultiValueBookmarksToDriver() {
-        Set<String> bookmarkStringRepresentation = new HashSet<>(Arrays.asList("bookmark1", "bookmark2", "bookmark3-part1/_BS_/bookmark3-part2"));
-
-        Transaction transaction = session.beginTransaction(Transaction.Type.READ_ONLY, bookmarkStringRepresentation);
-        ArgumentCaptor<SessionConfig> argumentCaptor = ArgumentCaptor.forClass(SessionConfig.class);
-
-        verify(nativeDriver).session(argumentCaptor.capture());
-
-        Set<String> multipleBookmarks = new HashSet<>();
-        multipleBookmarks.addAll(Arrays.asList("bookmark3-part1", "bookmark3-part2"));
-        SessionConfig sessionConfig = argumentCaptor.getValue();
-        assertThat(sessionConfig.defaultAccessMode()).isEqualTo(AccessMode.READ);
-        assertThat(sessionConfig.bookmarks())
-            .contains(
-                Bookmark.from(Collections.singleton("bookmark1")),
-                Bookmark.from(Collections.singleton("bookmark2")),
-                Bookmark.from(multipleBookmarks)
+                Bookmark.from("bookmark1"),
+                Bookmark.from("bookmark2")
             );
 
         transaction.rollback();
@@ -113,7 +85,7 @@ public class BookmarkTest {
     void shouldHaveAvailableBookmark() {
         when(nativeDriver.session(any(SessionConfig.class))).thenReturn(nativeSession);
         when(nativeSession.beginTransaction(any(TransactionConfig.class)).isOpen()).thenReturn(true);
-        when(nativeSession.lastBookmark()).thenReturn(Bookmark.from(Collections.singleton("last-bookmark")));
+        when(nativeSession.lastBookmarks()).thenReturn(Set.of(Bookmark.from("last-bookmark")));
 
         Transaction transaction = session.beginTransaction(Transaction.Type.READ_WRITE);
 
@@ -124,24 +96,4 @@ public class BookmarkTest {
         assertThat(lastBookmark).isEqualTo("last-bookmark");
     }
 
-    /**
-     * Make sure a bookmark containing multiple values is treated as one, not multiple bookmarks
-     */
-    @Test
-    void shouldDealWithMultiValueBookmarks() {
-        Set<String> multipleBookmarks = new LinkedHashSet<>();
-        multipleBookmarks.addAll(Arrays.asList("bookmark-part1", "bookmark-part2"));
-
-        when(nativeDriver.session(any(SessionConfig.class))).thenReturn(nativeSession);
-        when(nativeSession.beginTransaction(any(TransactionConfig.class)).isOpen()).thenReturn(true);
-        when(nativeSession.lastBookmark()).thenReturn(Bookmark.from(multipleBookmarks));
-
-        Transaction transaction = session.beginTransaction(Transaction.Type.READ_WRITE);
-
-        transaction.commit();
-        transaction.close();
-
-        String lastBookmark = session.getLastBookmark();
-        assertThat(lastBookmark).isEqualTo("bookmark-part1/_BS_/bookmark-part2");
-    }
 }

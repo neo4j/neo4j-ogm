@@ -18,6 +18,7 @@
  */
 package org.neo4j.ogm.drivers.bolt.response;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -25,14 +26,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.neo4j.driver.NotificationCategory;
 import org.neo4j.driver.NotificationClassification;
 import org.neo4j.driver.NotificationSeverity;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.exceptions.ClientException;
-import org.neo4j.driver.summary.InputPosition;
-import org.neo4j.driver.summary.Notification;
+import org.neo4j.driver.summary.GqlNotification;
 import org.neo4j.driver.summary.ResultSummary;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.response.Response;
@@ -46,21 +45,138 @@ import org.slf4j.LoggerFactory;
 public abstract class BoltResponse<T> implements Response {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BoltResponse.class);
-    private static final Logger cypherPerformanceNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.performance");
-    private static final Logger cypherHintNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.hint");
-    private static final Logger cypherUnrecognizedNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.unrecognized");
-    private static final Logger cypherUnsupportedNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.unsupported");
-    private static final Logger cypherDeprecationNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.deprecation");
-    private static final Logger cypherGenericNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.generic");
-    private static final Logger cypherSecurityNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.security");
-    private static final Logger cypherTopologyNotificationLog = LoggerFactory.getLogger("org.neo4j.ogm.drivers.bolt.response.BoltResponse.topology");
+    private static final Logger cypherPerformanceNotificationLog = LoggerFactory.getLogger(
+        "org.neo4j.ogm.drivers.bolt.response.BoltResponse.performance");
+    private static final Logger cypherHintNotificationLog = LoggerFactory.getLogger(
+        "org.neo4j.ogm.drivers.bolt.response.BoltResponse.hint");
+    private static final Logger cypherUnrecognizedNotificationLog = LoggerFactory.getLogger(
+        "org.neo4j.ogm.drivers.bolt.response.BoltResponse.unrecognized");
+    private static final Logger cypherUnsupportedNotificationLog = LoggerFactory.getLogger(
+        "org.neo4j.ogm.drivers.bolt.response.BoltResponse.unsupported");
+    private static final Logger cypherDeprecationNotificationLog = LoggerFactory.getLogger(
+        "org.neo4j.ogm.drivers.bolt.response.BoltResponse.deprecation");
+    private static final Logger cypherGenericNotificationLog = LoggerFactory.getLogger(
+        "org.neo4j.ogm.drivers.bolt.response.BoltResponse.generic");
+    private static final Logger cypherSecurityNotificationLog = LoggerFactory.getLogger(
+        "org.neo4j.ogm.drivers.bolt.response.BoltResponse.security");
+    private static final Logger cypherTopologyNotificationLog = LoggerFactory.getLogger(
+        "org.neo4j.ogm.drivers.bolt.response.BoltResponse.topology");
+    private static final Logger cypherSchemaNotificationLog = LoggerFactory.getLogger(
+        "org.neo4j.ogm.drivers.bolt.response.BoltResponse.schema");
 
-    private static final Pattern DEPRECATED_ID_PATTERN = Pattern.compile("(?im)The query used a deprecated function((: `id`\\.)|(\\. \\('id' has been replaced by 'elementId.+))|");
-
+    private static final List<Pattern> STUFF_THAT_MIGHT_INFORM_THAT_THE_ID_FUNCTION_IS_PROBLEMATIC = Stream.of(
+            "(?im)The query used a deprecated function[.:] \\(?[`']id.+",
+            "(?im).*id is deprecated and will be removed without a replacement\\.",
+            "(?im).*feature deprecated with replacement\\. id is deprecated\\. It is replaced by elementId or consider using an application-generated id\\.")
+        .map(Pattern::compile)
+        .toList();
+    private static final String LINE_SEPARATOR = System.lineSeparator();
     protected final Result result;
 
     BoltResponse(Result result) {
         this.result = result;
+    }
+
+    /**
+     * Does some post-processing on the giving result summary, especially logging all notifications
+     * and potentially query plans.
+     *
+     * @param resultSummary The result summary to process
+     * @return The same, unmodified result summary.
+     */
+    static ResultSummary process(ResultSummary resultSummary) {
+        logNotifications(resultSummary);
+        return resultSummary;
+    }
+
+    private static void logNotifications(ResultSummary resultSummary) {
+
+        if (resultSummary.notifications().isEmpty() || !LOGGER.isWarnEnabled()) {
+            return;
+        }
+
+        boolean supressIdDeprecations = Response.SUPPRESS_ID_DEPRECATIONS.getAcquire();
+        Predicate<GqlNotification> isDeprecationWarningForId;
+        try {
+            isDeprecationWarningForId = notification -> supressIdDeprecations
+                && notification.classification()
+                .filter(cat -> cat == NotificationClassification.UNRECOGNIZED
+                    || cat == NotificationClassification.DEPRECATION)
+                .isPresent()
+                && STUFF_THAT_MIGHT_INFORM_THAT_THE_ID_FUNCTION_IS_PROBLEMATIC.stream()
+                .anyMatch(p -> p.matcher(notification.statusDescription()).matches());
+        } finally {
+            Response.SUPPRESS_ID_DEPRECATIONS.setRelease(supressIdDeprecations);
+        }
+
+        String query = resultSummary.query().text();
+        resultSummary.gqlStatusObjects()
+            .stream()
+            .filter(GqlNotification.class::isInstance)
+            .map(GqlNotification.class::cast)
+            .filter(Predicate.not(isDeprecationWarningForId))
+            .forEach(notification -> notification.severity().ifPresent(severityLevel -> {
+                var category = notification.classification().orElse(null);
+
+                var logger = getLogAccessor(category);
+                Consumer<String> logFunction;
+                if (severityLevel == NotificationSeverity.WARNING) {
+                    logFunction = logger::warn;
+                } else if (severityLevel == NotificationSeverity.INFORMATION) {
+                    logFunction = logger::info;
+                } else if (severityLevel == NotificationSeverity.OFF) {
+                    logFunction = (String message) -> {
+                    };
+                } else {
+                    logFunction = logger::debug;
+                }
+
+                logFunction.accept(BoltResponse.format(notification, query));
+            }));
+    }
+    private static Logger getLogAccessor(NotificationClassification classification) {
+        if (classification == null) {
+            return LOGGER;
+        }
+
+        return switch (classification) {
+            case HINT -> cypherHintNotificationLog;
+            case UNRECOGNIZED -> cypherUnrecognizedNotificationLog;
+            case UNSUPPORTED -> cypherUnsupportedNotificationLog;
+            case PERFORMANCE -> cypherPerformanceNotificationLog;
+            case DEPRECATION -> cypherDeprecationNotificationLog;
+            case SECURITY -> cypherSecurityNotificationLog;
+            case TOPOLOGY -> cypherTopologyNotificationLog;
+            case GENERIC -> cypherGenericNotificationLog;
+            case SCHEMA -> cypherSchemaNotificationLog;
+        };
+    }
+
+
+    /**
+     * Creates a formatted string for a notification issued for a given query.
+     *
+     * @param notification The notification to format
+     * @param forQuery     The query that caused the notification
+     * @return A formatted string
+     */
+    static String format(GqlNotification notification, String forQuery) {
+
+        var position = notification.position().orElse(null);
+
+        StringBuilder queryHint = new StringBuilder();
+        String[] lines = forQuery.split("(\r\n|\n)");
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            queryHint.append("\t").append(line).append(LINE_SEPARATOR);
+            if (position != null && i + 1 == position.line()) {
+                queryHint.append("\t")
+                    .append(Stream.generate(() -> " ").limit(position.column() - 1).collect(Collectors.joining()))
+                    .append("^")
+                    .append(System.lineSeparator());
+            }
+        }
+        return String.format("%s (%s):%n%s", notification.statusDescription(), notification.gqlStatus(), queryHint);
     }
 
     @Override
@@ -92,114 +208,5 @@ public abstract class BoltResponse<T> implements Response {
             }
         }
         return new String[0];
-    }
-
-    private static final String LINE_SEPARATOR = System.lineSeparator();
-
-    /**
-     * Does some post-processing on the giving result summary, especially logging all notifications
-     * and potentially query plans.
-     *
-     * @param resultSummary The result summary to process
-     * @return The same, unmodified result summary.
-     */
-    static ResultSummary process(ResultSummary resultSummary) {
-        logNotifications(resultSummary);
-        return resultSummary;
-    }
-
-    private static void logNotifications(ResultSummary resultSummary) {
-
-        if (resultSummary.notifications().isEmpty() || !LOGGER.isWarnEnabled()) {
-            return;
-        }
-
-        boolean supressIdDeprecations = Response.SUPPRESS_ID_DEPRECATIONS.getAcquire();
-        Predicate<Notification> isDeprecationWarningForId;
-        try {
-            isDeprecationWarningForId = notification -> supressIdDeprecations
-                && notification.category().orElse(NotificationCategory.UNRECOGNIZED)
-                == NotificationClassification.DEPRECATION && DEPRECATED_ID_PATTERN.matcher(notification.description())
-                .matches();
-        } finally {
-            Response.SUPPRESS_ID_DEPRECATIONS.setRelease(supressIdDeprecations);
-        }
-
-        String query = resultSummary.query().text();
-        resultSummary.notifications()
-            .stream().filter(Predicate.not(isDeprecationWarningForId))
-            .forEach(notification -> notification.severityLevel().ifPresent(severityLevel -> {
-                var category = notification.category().orElse(null);
-
-                var logger = getLogger(category);
-                Consumer<String> log;
-                if (severityLevel == NotificationSeverity.WARNING) {
-                    log = logger::warn;
-                } else if (severityLevel == NotificationSeverity.INFORMATION) {
-                    log = logger::info;
-                } else if (severityLevel == NotificationSeverity.OFF) {
-                    log = (String message) -> {
-                    };
-                } else {
-                    log = logger::debug;
-                }
-                log.accept(format(notification, query));
-            }));
-    }
-
-    private static Logger getLogger(NotificationCategory category) {
-
-        if (NotificationCategory.HINT.equals(category)) {
-            return cypherHintNotificationLog;
-        }
-        if (NotificationCategory.DEPRECATION.equals(category)) {
-            return cypherDeprecationNotificationLog;
-        }
-        if (NotificationCategory.PERFORMANCE.equals(category)) {
-            return cypherPerformanceNotificationLog;
-        }
-        if (NotificationCategory.GENERIC.equals(category)) {
-            return cypherGenericNotificationLog;
-        }
-        if (NotificationCategory.UNSUPPORTED.equals(category)) {
-            return cypherUnsupportedNotificationLog;
-        }
-        if (NotificationCategory.UNRECOGNIZED.equals(category)) {
-            return cypherUnrecognizedNotificationLog;
-        }
-        if (NotificationCategory.SECURITY.equals(category)) {
-            return cypherSecurityNotificationLog;
-        }
-        if (NotificationCategory.TOPOLOGY.equals(category)) {
-            return cypherTopologyNotificationLog;
-        }
-        return LOGGER;
-    }
-
-    /**
-     * Creates a formatted string for a notification issued for a given query.
-     *
-     * @param notification The notification to format
-     * @param forQuery     The query that caused the notification
-     * @return A formatted string
-     */
-    private static String format(Notification notification, String forQuery) {
-
-        InputPosition position = notification.position();
-        int lineNumber = position != null ? position.line() : 1;
-        int column = position != null ? position.column() : 1;
-
-        StringBuilder queryHint = new StringBuilder();
-        String[] lines = forQuery.split("(\r\n|\n)");
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-            queryHint.append("\t").append(line).append(LINE_SEPARATOR);
-            if (i + 1 == lineNumber) {
-                queryHint.append("\t").append(Stream.generate(() -> " ").limit(column - 1)
-                    .collect(Collectors.joining())).append("^").append(System.lineSeparator());
-            }
-        }
-        return String.format("%s: %s%n%s%s", notification.code(), notification.title(), queryHint,
-            notification.description());
     }
 }

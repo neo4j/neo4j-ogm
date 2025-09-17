@@ -109,12 +109,10 @@ public class BoltTransaction extends AbstractTransaction {
             closeNativeSessionIfPossible();
             throw new TransactionException(e.getLocalizedMessage(), e);
         } finally {
-            Bookmark bookmark = nativeSession.lastBookmark();
+            var bookmarks = nativeSession.lastBookmarks();
 
-            if (bookmark != null) {
-                String bookmarkAsString = String.join(BOOKMARK_SEPARATOR, bookmark.values());
+            String bookmarkAsString = String.join(BOOKMARK_SEPARATOR, bookmarks.stream().map(Bookmark::value).toList());
                 transactionManager.bookmark(bookmarkAsString);
-            }
         }
     }
 

@@ -44,6 +44,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -123,8 +124,10 @@ public class BoltCypherExceptionTest extends TestContainersTestBase {
             assertThatCode(() -> session.query(
                 "CREATE (n:XXXIdTest) RETURN id(n)",
                 Map.of())).doesNotThrowAnyException();
-            Predicate<String> stringPredicate = msg -> msg.contains(
-                "Neo.ClientNotification.Statement.FeatureDeprecationWarning");
+            // 01N42 is the old polyfill (spotted in 5.21)
+            var expectedCodes = Set.of("01N00", "01N01", "01N02", "01N42");
+            Predicate<String> stringPredicate = msg -> expectedCodes.stream().anyMatch(msg::contains);
+
             if(enabled == null || enabled) {
                 assertThat(loggerRule.getFormattedMessages()).noneMatch(stringPredicate);
             } else {
@@ -153,8 +156,8 @@ public class BoltCypherExceptionTest extends TestContainersTestBase {
                 "MATCH (n) CALL {WITH n RETURN count(n) AS cnt} RETURN *",
                 Map.of())).doesNotThrowAnyException();
             assertThat(loggerRule.getFormattedMessages())
-                .anyMatch(msg -> msg.contains("Neo.ClientNotification.Statement.FeatureDeprecationWarning"))
-                .anyMatch(msg -> msg.contains("CALL subquery without a variable scope clause is now deprecated. Use CALL (n) { ... }"));
+                .anyMatch(msg -> msg.contains("01N00"))
+                .anyMatch(msg -> msg.contains("CALL subquery without a variable scope clause is deprecated. Use CALL (n) { ... }"));
         } finally {
             logger.setLevel(originalLevel);
         }

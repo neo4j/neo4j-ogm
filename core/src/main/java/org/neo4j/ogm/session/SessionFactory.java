@@ -19,7 +19,6 @@
 package org.neo4j.ogm.session;
 
 import static java.util.Objects.*;
-import static org.neo4j.ogm.config.AutoIndexMode.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -89,18 +88,12 @@ public class SessionFactory {
      * The package names passed to this constructor should not contain wildcards or trailing full stops, for example,
      * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
      * and you can also specify fully-qualified class names if you want to cherry pick particular classes.
-     * </p>
-     * Indexes will also be checked or built unless auto index mode is set to <code>NONE</code>.
      *
      * @param configuration The baseConfiguration to use
      * @param packages      The packages to scan for domain objects. They will be merged with the configuration.
      */
     public SessionFactory(Configuration configuration, String... packages) {
         this(newConfiguredDriverInstance(configuration), configuration.mergeBasePackagesWith(packages));
-
-        if (configuration.getAutoIndex() != NONE) {
-            runAutoIndexManager(configuration);
-        }
     }
 
     /**
@@ -116,7 +109,7 @@ public class SessionFactory {
      * Indexes will not be automatically created.
      *
      * @param driver            driver to be used with this SessionFactory
-     * @param useStrictQuerying Flag wether to use strict querying or not. Overwrites configuration settings (from the driver).
+     * @param useStrictQuerying Flag whether to use strict querying or not. Overwrites configuration settings (from the driver).
      * @param packages          The packages to scan for domain objects
      */
     public SessionFactory(Driver driver, boolean useStrictQuerying, String... packages) {
@@ -133,8 +126,10 @@ public class SessionFactory {
      * factory. This method can be run multiple times.
      *
      * @param configuration only used to configure aspects of the auto-index manager, not for the session factory at this point.
+     * @deprecated No replacement
      */
-    public final void runAutoIndexManager(Configuration configuration) {
+    @Deprecated(forRemoval = true)
+    public final void runAutoIndexManager(@SuppressWarnings("unused") Configuration configuration) {
         LOGGER.warn("The auto index manager is not supported in Neo4j-OGM 4+. No indexes will get created.");
     }
 

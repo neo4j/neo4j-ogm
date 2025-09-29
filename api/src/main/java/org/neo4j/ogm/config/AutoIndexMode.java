@@ -22,7 +22,9 @@ package org.neo4j.ogm.config;
  * Denotes the types of auto indexing that can be done by the OGM at startup.
  *
  * @author Mark Angrish
+ * @deprecated No replacement
  */
+@Deprecated(forRemoval = true)
 public enum AutoIndexMode {
     /**
      * No indexing will be performed.

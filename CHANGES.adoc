@@ -2,6 +2,20 @@
 
 == 4.0
 
+=== 4.0.21
+
+* [refactor] Mark all auto index deprecated references as deprecated for removal.
+* [dependencies] Bump kotlin.version from 2.2.10 to 2.2.20 (#1326)
+* [dependencies] Bump org.apache.maven.plugins:maven-failsafe-plugin (#1328)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle from 11.0.1 to 11.1.0 (#1336)
+* [dependencies] Bump org.apache.commons:commons-lang3 from 3.18.0 to 3.19.0 (#1335)
+* [dependencies] Bump org.assertj:assertj-core from 3.27.4 to 3.27.6 (#1334)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1333)
+* [dependencies] Bump org.apache.maven.plugins:maven-javadoc-plugin (#1332)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter (#1331)
+* [dependencies] Bump org.apache.maven.plugins:maven-compiler-plugin (#1330)
+* [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#1327)
+
 === 4.0.20
 
 * [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1324)

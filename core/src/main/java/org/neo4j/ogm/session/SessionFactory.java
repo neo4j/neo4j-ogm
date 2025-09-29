@@ -18,8 +18,6 @@
  */
 package org.neo4j.ogm.session;
 
-import static java.util.Objects.*;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
@@ -122,18 +120,6 @@ public class SessionFactory {
     }
 
     /**
-     * Opens a session and runs the auto-index manager with the given configuration and the metadata configured in this
-     * factory. This method can be run multiple times.
-     *
-     * @param configuration only used to configure aspects of the auto-index manager, not for the session factory at this point.
-     * @deprecated No replacement
-     */
-    @Deprecated(forRemoval = true)
-    public final void runAutoIndexManager(@SuppressWarnings("unused") Configuration configuration) {
-        LOGGER.warn("The auto index manager is not supported in Neo4j-OGM 4+. No indexes will get created.");
-    }
-
-    /**
      * Retrieves the meta-data that was built up when this {@link SessionFactory} was constructed.
      *
      * @return The underlying {@link MetaData}
@@ -233,7 +219,7 @@ public class SessionFactory {
      * @param strategy {@link org.neo4j.ogm.id.IdStrategy} to use
      */
     public void register(IdStrategy strategy) {
-        requireNonNull(strategy);
+        Objects.requireNonNull(strategy);
         for (ClassInfo classInfo : metaData.persistentEntities()) {
             if (strategy.getClass().equals(classInfo.idStrategyClass())) {
                 classInfo.registerIdGenerationStrategy(strategy);

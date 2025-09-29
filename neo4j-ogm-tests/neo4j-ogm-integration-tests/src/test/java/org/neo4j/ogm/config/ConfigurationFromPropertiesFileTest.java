@@ -40,7 +40,6 @@ public class ConfigurationFromPropertiesFileTest {
         Configuration configuration = new Configuration.Builder(
             new ClasspathConfigurationSource("ogm-simple.properties")).build();
 
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
         assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
         assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
@@ -54,7 +53,6 @@ public class ConfigurationFromPropertiesFileTest {
         FileConfigurationSource source = new FileConfigurationSource(file.getAbsolutePath());
         Configuration configuration = new Configuration.Builder(source).build();
 
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
         assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
         assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
@@ -66,7 +64,6 @@ public class ConfigurationFromPropertiesFileTest {
         FileConfigurationSource source = new FileConfigurationSource(file.toURI().toString());
         Configuration configuration = new Configuration.Builder(source).build();
 
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
         assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
         assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
@@ -103,7 +100,6 @@ public class ConfigurationFromPropertiesFileTest {
         Configuration configuration = new Configuration.Builder(
             new ClasspathConfigurationSource("application.properties")).build();
 
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.NONE);
         assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         assertThat(configuration.getCredentials().credentials().toString()).isEqualTo("bmVvNGo6cGFzc3dvcmQ=");
         assertThat(configuration.getURI()).isEqualTo("http://localhost:7474");
@@ -115,7 +111,6 @@ public class ConfigurationFromPropertiesFileTest {
         Configuration configuration = new Configuration.Builder(
             new ClasspathConfigurationSource("ogm-namespace.properties")).build();
 
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.DUMP);
         assertThat(configuration.getDumpDir()).isEqualTo("hello");
         assertThat(configuration.getDumpFilename()).isEqualTo("generated-indexes2.cql");
         assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");

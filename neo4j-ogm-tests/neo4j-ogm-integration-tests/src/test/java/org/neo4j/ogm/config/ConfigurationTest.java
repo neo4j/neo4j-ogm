@@ -37,7 +37,6 @@ public class ConfigurationTest {
     void shouldConfigureProgrammatically() {
         Configuration.Builder builder = new Configuration.Builder();
 
-        builder.autoIndex("assert");
         builder.generatedIndexesOutputDir("dir");
         builder.generatedIndexesOutputFilename("filename");
         builder.credentials("fred", "flintstone");
@@ -50,7 +49,6 @@ public class ConfigurationTest {
 
         Configuration configuration = builder.build();
 
-        assertThat(configuration.getAutoIndex()).isEqualTo(AutoIndexMode.ASSERT);
         assertThat(configuration.getDumpDir()).isEqualTo("dir");
         assertThat(configuration.getDumpFilename()).isEqualTo("filename");
         assertThat(configuration.getDriverClassName()).isEqualTo("org.neo4j.ogm.drivers.http.driver.HttpDriver");

@@ -70,11 +70,7 @@ public class Configuration {
      * Set the class loader precedence for interacting with classes during the mapping process.
      * This is necessary when running Neo4j-OGM in async environments (like {@code CompletableFuture} usage, Spring Boot's @Async , etc.).
      * In those cases, please use {@link Configuration#setClassLoaderPrecedence(ClassLoaderPrecedence)} with {@link ClassLoaderPrecedence#OGM_CLASS_LOADER}.
-     *
-     * @deprecated The direct access to this static field has been deprecated.
-     * Please use the {@link Configuration#setClassLoaderPrecedence(ClassLoaderPrecedence)} method.
      */
-    @Deprecated
     private static final AtomicReference<ClassLoaderPrecedence> CLASS_LOADER_PRECEDENCE = new AtomicReference(ClassLoaderPrecedence.CONTEXT_CLASS_LOADER);
 
     /**
@@ -127,7 +123,6 @@ public class Configuration {
     private String encryptionLevel;
     private String trustStrategy;
     private String trustCertFile;
-    private AutoIndexMode autoIndex;
     private String generatedIndexesOutputDir;
     private String generatedIndexesOutputFilename;
     /**
@@ -171,7 +166,6 @@ public class Configuration {
         this.trustCertFile = builder.trustCertFile;
         this.connectionLivenessCheckTimeout = builder.connectionLivenessCheckTimeout;
         this.verifyConnection = builder.verifyConnection != null ? builder.verifyConnection : false;
-        this.autoIndex = builder.autoIndex != null ? AutoIndexMode.fromString(builder.autoIndex) : AutoIndexMode.NONE;
         this.generatedIndexesOutputDir =
             builder.generatedIndexesOutputDir != null ? builder.generatedIndexesOutputDir : ".";
         this.generatedIndexesOutputFilename = builder.generatedIndexesOutputFilename != null ?
@@ -224,15 +218,6 @@ public class Configuration {
             throw new RuntimeException("Could not configure supplied URI in Configuration", e);
         }
         return null;
-    }
-
-    /**
-     * @return the auto index mode
-     * @deprecated no replacement
-     */
-    @Deprecated(forRemoval = true)
-    public AutoIndexMode getAutoIndex() {
-        return autoIndex;
     }
 
     public String getDumpDir() {
@@ -362,7 +347,6 @@ public class Configuration {
             Objects.equals(encryptionLevel, that.encryptionLevel) &&
             Objects.equals(trustStrategy, that.trustStrategy) &&
             Objects.equals(trustCertFile, that.trustCertFile) &&
-            autoIndex == that.autoIndex &&
             Objects.equals(generatedIndexesOutputDir, that.generatedIndexesOutputDir) &&
             Objects.equals(generatedIndexesOutputFilename, that.generatedIndexesOutputFilename) &&
             Objects.equals(neo4jConfLocation, that.neo4jConfLocation) &&
@@ -377,7 +361,7 @@ public class Configuration {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(uri, connectionPoolSize, encryptionLevel, trustStrategy, trustCertFile, autoIndex,
+        int result = Objects.hash(uri, connectionPoolSize, encryptionLevel, trustStrategy, trustCertFile,
             generatedIndexesOutputDir, generatedIndexesOutputFilename, neo4jConfLocation, driverName, credentials,
             connectionLivenessCheckTimeout, verifyConnection, useNativeTypes);
         result = 31 * result + Arrays.hashCode(basePackages);
@@ -401,7 +385,6 @@ public class Configuration {
         private static final String TRUST_CERT_FILE = "trust.certificate.file";
         private static final String CONNECTION_LIVENESS_CHECK_TIMEOUT = "connection.liveness.check.timeout";
         private static final String VERIFY_CONNECTION = "verify.connection";
-        private static final String AUTO_INDEX = "indexes.auto";
         private static final String GENERATED_INDEXES_OUTPUT_DIR = "indexes.auto.dump.dir";
         private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
         private static final String NEO4J_CONF_LOCATION = "neo4j.conf.location";
@@ -416,7 +399,6 @@ public class Configuration {
         private String trustCertFile;
         private Integer connectionLivenessCheckTimeout;
         private Boolean verifyConnection;
-        private String autoIndex;
         private String generatedIndexesOutputDir;
         private String generatedIndexesOutputFilename;
         private String neo4jConfLocation;
@@ -473,9 +455,6 @@ public class Configuration {
                     case VERIFY_CONNECTION:
                         this.verifyConnection = Boolean.valueOf(value);
                         break;
-                    case AUTO_INDEX:
-                        this.autoIndex = value;
-                        break;
                     case GENERATED_INDEXES_OUTPUT_DIR:
                         this.generatedIndexesOutputDir = value;
                         break;
@@ -516,7 +495,6 @@ public class Configuration {
                 .trustCertFile(builder.trustCertFile)
                 .connectionLivenessCheckTimeout(builder.connectionLivenessCheckTimeout)
                 .verifyConnection(builder.verifyConnection)
-                .autoIndex(builder.autoIndex)
                 .generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
                 .generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
                 .neo4jConfLocation(builder.neo4jConfLocation)
@@ -616,19 +594,6 @@ public class Configuration {
          */
         public Builder verifyConnection(Boolean verifyConnection) {
             this.verifyConnection = verifyConnection;
-            return this;
-        }
-
-        /**
-         * Auto index config, for possible values see {@link org.neo4j.ogm.config.AutoIndexMode}
-         *
-         * @param autoIndex auto index config
-         * @return the changed builder
-         * @deprecated The usage of this tool is deprecated. Please use a proper migration tooling, like neo4j-migrations or liquibase with the Neo4j plugin. The build-in auto index manager only supports Neo4j 4.4 and higher.
-         */
-        @Deprecated(forRemoval = true)
-        public Builder autoIndex(String autoIndex) {
-            this.autoIndex = autoIndex;
             return this;
         }
 

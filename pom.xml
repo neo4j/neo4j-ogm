@@ -645,6 +645,11 @@
                             <rule>APPROVE</rule>
                             <value>Apache 2.0</value>
                         </dependencyPolicy>
+                        <dependencyPolicy>
+                            <type>LICENSE_NAME</type>
+                            <rule>APPROVE</rule>
+                            <value>Apache-2.0</value>
+                        </dependencyPolicy>
                         <!-- MIT -->
                         <dependencyPolicy>
                             <type>LICENSE_NAME</type>

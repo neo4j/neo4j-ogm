@@ -66,7 +66,6 @@ public class RichRelationTest extends TestContainersTestBase {
      * influence each others version properties through the process of removing obsolete
      * relationships from the mapping context.
      */
-    @Test
     @RepeatedTest(20)
     void versionedRelationshipsTargetingDifferentEndNodes() {
         final Session localSession = sessionFactory.openSession();

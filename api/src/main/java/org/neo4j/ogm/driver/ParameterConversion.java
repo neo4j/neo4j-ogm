@@ -24,7 +24,6 @@ import java.util.Map;
 import org.neo4j.ogm.config.ObjectMapperFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Abstraction over the parameter conversion.
@@ -42,13 +41,14 @@ public interface ParameterConversion {
 
         INSTANCE;
 
-        private static final ObjectMapper OBJECT_MAPPER = ObjectMapperFactory.objectMapper();
-        private static final TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
-        };
+        private static final ThreadLocal<TypeReference<HashMap<String, Object>>> MAP_TYPE_REF =
+            ThreadLocal.withInitial(() ->
+                new TypeReference<>() {
+                });
 
         @Override
         public Map<String, Object> convertParameters(final Map<String, Object> originalParameter) {
-            return OBJECT_MAPPER.convertValue(originalParameter, MAP_TYPE_REF);
+            return ObjectMapperFactory.objectMapper().convertValue(originalParameter, MAP_TYPE_REF.get());
         }
     }
 

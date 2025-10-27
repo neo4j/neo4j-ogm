@@ -69,7 +69,9 @@ class TypeSystemBasedParameterConversion implements ParameterConversion {
             }
         });
 
-        convertedParameter.putAll(fallback.convertParameters(unconvertedParameter));
+        if (!unconvertedParameter.isEmpty()) {
+            convertedParameter.putAll(fallback.convertParameters(unconvertedParameter));
+        }
         return convertedParameter;
     }
 

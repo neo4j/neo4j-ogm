@@ -189,7 +189,7 @@
 
         <assertj.version>3.27.6</assertj.version>
         <caffeine.version>3.2.2</caffeine.version>
-        <checkstyle.version>11.1.0</checkstyle.version>
+        <checkstyle.version>12.1.1</checkstyle.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.19.0</commons-lang3.version>
         <commons-logging.version>1.3.5</commons-logging.version>

@@ -188,7 +188,7 @@
         <java.version>17</java.version>
 
         <assertj.version>3.27.6</assertj.version>
-        <caffeine.version>3.2.2</caffeine.version>
+        <caffeine.version>3.2.3</caffeine.version>
         <checkstyle.version>12.1.2</checkstyle.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>

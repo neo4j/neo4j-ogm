@@ -283,6 +283,7 @@ public class MappingContext {
         primaryIdToRelationship.clear();
         nodeEntityRegister.clear();
         primaryIndexNodeRegister.clear();
+        primaryIdToNativeId.clear();
         relationshipEntityRegister.clear();
     }
 

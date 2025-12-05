@@ -2,6 +2,42 @@
 
 == 5.0
 
+=== 5.0.1
+
+* [dependencies] Update Maven wrapper.
+* [dependencies] Remove managed scala library.
+* [dependencies] Bump org.apache.maven.plugins:maven-source-plugin (#1369)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle from 12.1.2 to 12.2.0 (#1368)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.18.1 to 1.18.2 (#1367)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1365)
+* [docs] Remove sitemap extension from docs playbooks (#1364)
+* [dependencies] Bump com.github.ben-manes.caffeine:caffeine (#1360)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 6.0.1 to 6.0.2 (#1362)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.5.20 to 1.5.21 (#1361)
+* [dependencies] Bump org.apache.commons:commons-lang3 from 3.19.0 to 3.20.0 (#1359)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.17.8 to 1.18.1 (#1358)
+* [dependencies] Bump org.apache.maven.plugins:maven-jar-plugin (#1357)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle from 12.1.1 to 12.1.2 (#1356)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1354)
+* [dependencies] Bump org.jreleaser:jreleaser-maven-plugin (#1353)
+* [dependencies] Bump kotlin.version from 2.2.20 to 2.2.21 (#1350)
+* [dependencies] Bump org.junit:junit-bom from 6.0.0 to 6.0.1 (#1352)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle from 11.1.0 to 12.1.1 (#1351)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1348)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.5.19 to 1.5.20 (#1347)
+* [dependencies] Bump io.github.classgraph:classgraph (#1346)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.17.7 to 1.17.8 (#1345)
+* [dependencies] Bump org.jacoco:jacoco-maven-plugin from 0.8.13 to 0.8.14 (#1343)
+* [refactor] Make sure that Jacksons ObjectMapper is as lazy loaded as possible.
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.5.18 to 1.5.19 (#1342)
+* [dependencies] Bump org.junit:junit-bom from 5.13.4 to 6.0.0 (#1341)
+* [dependencies] Bump io.mockk:mockk-jvm from 1.14.5 to 1.14.6 (#1340)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 6.0.0 to 6.0.1 (#1339)
+* [dependencies] Bump org.apache.maven.plugins:maven-enforcer-plugin (#1338)
+* [dependencies] Bump scala.version from 2.13.16 to 2.13.17 (#1337)
+* [fix ]Remove duplicated `@Test`-annotation.
+
+
 === 5.0.0
 
 The 5.0.x series of Neo4j-OGM uses the 6 series of the Neo4j Java driver underneath. It is not compatible with the previous major version 5 of the driver.

@@ -25,7 +25,7 @@
 
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
-    <version>5.0.1-SNAPSHOT</version>
+    <version>5.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Neo4j-OGM</name>

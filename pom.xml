@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2002-2025 "Neo4j,"
+    Copyright (c) 2002-2026 "Neo4j,"
     Neo4j Sweden AB [http://neo4j.com]
 
     This file is part of Neo4j.
@@ -196,10 +196,10 @@
         <classgraph.version>4.8.184</classgraph.version>
         <jackson.version>2.20.1</jackson.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
-        <jreleaser-maven-plugin.version>1.21.0</jreleaser-maven-plugin.version>
+        <jreleaser-maven-plugin.version>1.22.0</jreleaser-maven-plugin.version>
         <junit.version>6.0.1</junit.version>
         <kotlin.version>2.3.0</kotlin.version>
-        <logback.version>1.5.21</logback.version>
+        <logback.version>1.5.23</logback.version>
         <neo4j.edition>enterprise</neo4j.edition>
         <neo4j-java-driver.version>6.0.2</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
@@ -218,7 +218,7 @@
         <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
         <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
-        <mockito.version>5.20.0</mockito.version>
+        <mockito.version>5.21.0</mockito.version>
         <slf4j.version>2.0.17</slf4j.version>
         <spotbugs.plugin.version>4.9.8.2</spotbugs.plugin.version>
         <releaseVersion>undefined</releaseVersion>
@@ -227,7 +227,7 @@
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
-        <byte-buddy.version>1.18.2</byte-buddy.version>
+        <byte-buddy.version>1.18.3</byte-buddy.version>
     </properties>
 
     <dependencyManagement>
@@ -567,7 +567,7 @@
                         <licenseSet>
                             <header>etc/license.tpl</header>
                             <properties>
-                                <year>2025</year>
+                                <year>2026</year>
                             </properties>
                             <includes>
                                 <include>**</include>

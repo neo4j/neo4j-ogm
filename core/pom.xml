@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2002-2025 "Neo4j,"
+    Copyright (c) 2002-2026 "Neo4j,"
     Neo4j Sweden AB [http://neo4j.com]
 
     This file is part of Neo4j.
@@ -36,7 +36,7 @@
 
     <properties>
         <java-module-name>org.neo4j.ogm.core</java-module-name>
-        <mockk.version>1.14.6</mockk.version>
+        <mockk.version>1.14.7</mockk.version>
     </properties>
 
     <dependencies>
@@ -71,6 +71,12 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
 

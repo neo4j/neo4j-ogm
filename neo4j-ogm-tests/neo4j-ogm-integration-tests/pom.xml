@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2002-2025 "Neo4j,"
+    Copyright (c) 2002-2026 "Neo4j,"
     Neo4j Sweden AB [http://neo4j.com]
 
     This file is part of Neo4j.
@@ -35,7 +35,7 @@
     <description>Integration tests of Neo4j-OGM Core and API across different transports.</description>
 
     <properties>
-        <testcontainers.version>1.21.3</testcontainers.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
         <visible-assertions.version>2.1.2</visible-assertions.version>
         <java-module-name>org.neo4j.ogm.it</java-module-name>
     </properties>

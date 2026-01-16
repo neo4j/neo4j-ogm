@@ -2,6 +2,22 @@
 
 == 5.0
 
+=== 5.0.2
+
+* [dependencies]: Bump ch.qos.logback:logback-classic from 1.5.23 to 1.5.24 (#1383)
+* [dependencies]: Bump com.puppycrawl.tools:checkstyle from 12.2.0 to 12.3.1 (#1382)
+* [dependencies]: Bump org.junit:junit-bom from 6.0.1 to 6.0.2 (#1381)
+* [dependencies] Bump kotlin.version from 2.2.21 to 2.3.0 (#1376)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter (#1371)
+* [dependencies] Bump org.testcontainers:neo4j from 1.21.3 to 1.21.4 (#1374)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.18.2 to 1.18.3 (#1375)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.5.21 to 1.5.23 (#1377)
+* [dependencies] Bump qs and express in /neo4j-ogm-docs (#1378)
+* [dependencies] Bump io.mockk:mockk-jvm from 1.14.6 to 1.14.7 (#1370)
+* [dependencies] Bump org.jreleaser:jreleaser-maven-plugin (#1380)
+* [chore] Extend license header to 2026.
+
+
 === 5.0.1
 
 * [dependencies] Update Maven wrapper.

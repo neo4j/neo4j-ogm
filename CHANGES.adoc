@@ -2,11 +2,24 @@
 
 == 5.0
 
+=== 5.0.3
+
+* [refactor] Don't keep a thread local reference of the Jackson `TypeReference` around. (#1395)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.5.24 to 1.5.31 (#1398)
+* [dependencies] Bump org.junit:junit-bom from 6.0.2 to 6.0.3 (#1396)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.18.3 to 1.18.5 (#1397)
+* [dependencies] Bump kotlin.version from 2.3.0 to 2.3.10 (#1393)
+* [dependencies] Bump io.mockk:mockk-jvm from 1.14.7 to 1.14.9 (#1392)
+* [dependencies] Bump org.apache.maven.plugins:maven-compiler-plugin (#1391)
+* [dependencies] Bump org.assertj:assertj-core from 3.27.6 to 3.27.7 (#1388)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1384)
+
+
 === 5.0.2
 
-* [dependencies]: Bump ch.qos.logback:logback-classic from 1.5.23 to 1.5.24 (#1383)
-* [dependencies]: Bump com.puppycrawl.tools:checkstyle from 12.2.0 to 12.3.1 (#1382)
-* [dependencies]: Bump org.junit:junit-bom from 6.0.1 to 6.0.2 (#1381)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.5.23 to 1.5.24 (#1383)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle from 12.2.0 to 12.3.1 (#1382)
+* [dependencies] Bump org.junit:junit-bom from 6.0.1 to 6.0.2 (#1381)
 * [dependencies] Bump kotlin.version from 2.2.21 to 2.3.0 (#1376)
 * [dependencies] Bump org.mockito:mockito-junit-jupiter (#1371)
 * [dependencies] Bump org.testcontainers:neo4j from 1.21.3 to 1.21.4 (#1374)

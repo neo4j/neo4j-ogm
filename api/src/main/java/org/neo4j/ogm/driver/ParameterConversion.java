@@ -41,14 +41,9 @@ public interface ParameterConversion {
 
         INSTANCE;
 
-        private static final ThreadLocal<TypeReference<HashMap<String, Object>>> MAP_TYPE_REF =
-            ThreadLocal.withInitial(() ->
-                new TypeReference<>() {
-                });
-
         @Override
         public Map<String, Object> convertParameters(final Map<String, Object> originalParameter) {
-            return ObjectMapperFactory.objectMapper().convertValue(originalParameter, MAP_TYPE_REF.get());
+            return ObjectMapperFactory.objectMapper().convertValue(originalParameter, new TypeReference<HashMap<String, Object>>() { });
         }
     }
 

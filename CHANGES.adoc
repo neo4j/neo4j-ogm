@@ -2,6 +2,19 @@
 
 == 5.0
 
+=== 5.0.4
+
+* [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#1402)
+* [dependencies] Bump commons-logging:commons-logging from 1.3.5 to 1.3.6 (#1409)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter (#1407)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.18.5 to 1.18.7 (#1406)
+* [dependencies] Bump org.jreleaser:jreleaser-maven-plugin (#1405)
+* [dependencies] Bump minimatch in /neo4j-ogm-docs (#1404)
+* [dependencies] Bump org.apache.maven.plugins:maven-failsafe-plugin (#1401)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1400)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 6.0.2 to 6.0.3 (#1399)
+
+
 === 5.0.3
 
 * [refactor] Don't keep a thread local reference of the Jackson `TypeReference` around. (#1395)

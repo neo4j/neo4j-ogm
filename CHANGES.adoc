@@ -2,6 +2,23 @@
 
 == 5.0
 
+=== 5.0.5
+
+From this release on the Neo4j-OGM is tested against Neo4j 2026.
+
+* Upgrade build to use Testcontainers 2.x
+* build: Test against latest 2026 Neo4j version.
+* [dependencies] Bump org.mockito:mockito-junit-jupiter (#1410)
+* [dependencies] Bump kotlin.version from 2.3.10 to 2.3.20 (#1411)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1412)
+* [dependencies] Bump picomatch from 2.3.1 to 2.3.2 in /neo4j-ogm-docs (#1413)
+* [dependencies] Bump convict from 6.2.4 to 6.2.5 in /neo4j-ogm-docs (#1414)
+* [dependencies] Bump handlebars from 4.7.7 to 4.7.9 in /neo4j-ogm-docs (#1415)
+* [dependencies] Bump brace-expansion in /neo4j-ogm-docs (#1416)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 6.0.3 to 6.0.4 (#1417)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1418)
+
+
 === 5.0.4
 
 * [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#1402)

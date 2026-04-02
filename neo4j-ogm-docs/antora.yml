@@ -6,8 +6,8 @@ nav:
 - modules/ROOT/content-nav.adoc
 asciidoc:
   attributes:
-    neo4j-version: '5.26'
-    neo4j-version-exact: '5.26.12'
-    neo4j-buildnumber: '5.26'
-    ogm-version: '5.0.4'
+    neo4j-version: '2026.03'
+    neo4j-version-exact: '2026.03.1'
+    neo4j-buildnumber: '2026.03'
+    ogm-version: '5.0.5'
     ogm-doc-version: '5.0'

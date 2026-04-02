@@ -55,7 +55,7 @@ class KotlinInteropTest {
 
         private lateinit var sessionFactory: SessionFactory
 
-        private val container = Neo4jContainer("neo4j:5")
+        private val container = Neo4jContainer("neo4j:2026.03.1")
 
         @BeforeClass
         @JvmStatic

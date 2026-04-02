@@ -19,7 +19,7 @@
 package org.neo4j.ogm.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.neo4j.ogm.domain.delegation.KotlinAImpl
 import org.neo4j.ogm.metadata.MetaData
 

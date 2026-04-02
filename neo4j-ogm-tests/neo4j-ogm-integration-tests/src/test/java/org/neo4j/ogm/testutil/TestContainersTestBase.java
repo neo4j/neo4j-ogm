@@ -33,7 +33,7 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.Neo4jContainer;
+import org.testcontainers.neo4j.Neo4jContainer;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
 /**
@@ -96,7 +96,7 @@ public class TestContainersTestBase {
             if (disableContainerReuse) {
                 LOGGER.warn("Reuse is explicitly disable");
             }
-            neo4jServer = new Neo4jContainer<>(imageName)
+            neo4jServer = new Neo4jContainer(imageName)
                 .waitingFor(Neo4jContainer.WAIT_FOR_BOLT)
                 .withReuse(containerReuseSupported && !disableContainerReuse);
             if (acceptAndUseCommercialEdition) {

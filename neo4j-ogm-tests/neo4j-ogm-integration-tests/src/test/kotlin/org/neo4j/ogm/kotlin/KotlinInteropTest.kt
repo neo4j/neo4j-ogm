@@ -20,7 +20,11 @@ package org.neo4j.ogm.kotlin
 
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.neo4j.driver.*
 import org.neo4j.ogm.config.Configuration
 import org.neo4j.ogm.config.ObjectMapperFactory
@@ -40,7 +44,7 @@ import org.neo4j.ogm.domain.gh822.StringID
 import org.neo4j.ogm.domain.gh822.User
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver
 import org.neo4j.ogm.session.*
-import org.testcontainers.containers.Neo4jContainer
+import org.testcontainers.neo4j.Neo4jContainer
 import kotlin.test.assertNotNull
 
 /**
@@ -57,7 +61,7 @@ class KotlinInteropTest {
 
         private val container = Neo4jContainer("neo4j:2026.03.1")
 
-        @BeforeClass
+        @BeforeAll
         @JvmStatic
         fun setup() {
             container.start();
@@ -85,7 +89,7 @@ class KotlinInteropTest {
                     .registerModule(IdTypesModule())
         }
 
-        @AfterClass
+        @AfterAll
         @JvmStatic
         fun tearDown() {
             sessionFactory.close()
@@ -95,7 +99,7 @@ class KotlinInteropTest {
 
     private val names = listOf("Brian", "Roger", "John", "Freddie", "Farin", "Rod", "Bela")
 
-    @Before
+    @BeforeEach
     fun prepareData() {
 
         driver.session().use {
@@ -109,7 +113,7 @@ class KotlinInteropTest {
         }
     }
 
-    @After
+    @AfterEach
     fun purgeData() {
 
         driver.session().use { it.run("MATCH (n) DETACH DELETE n").consume() }

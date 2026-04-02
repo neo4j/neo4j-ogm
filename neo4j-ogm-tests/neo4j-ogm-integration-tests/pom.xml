@@ -35,10 +35,22 @@
     <description>Integration tests of Neo4j-OGM Core and API across different transports.</description>
 
     <properties>
-        <testcontainers.version>1.21.4</testcontainers.version>
+        <testcontainers.version>2.0.4</testcontainers.version>
         <visible-assertions.version>2.1.2</visible-assertions.version>
         <java-module-name>org.neo4j.ogm.it</java-module-name>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
@@ -135,23 +147,8 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>neo4j</artifactId>
-            <version>${testcontainers.version}</version>
+            <artifactId>testcontainers-neo4j</artifactId>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jetbrains</groupId>
-                    <artifactId>annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-compress</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.xml.bind</groupId>
-                    <artifactId>jaxb-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 

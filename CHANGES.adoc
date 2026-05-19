@@ -2,6 +2,17 @@
 
 == 5.0
 
+=== 5.0.6
+
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.18.7 to 1.18.8 (#1419)
+* [dependencies] Bump kotlin.version from 2.3.20 to 2.3.21 (#1421)
+* [dependencies] Bump org.testcontainers:testcontainers-bom (#1422)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 6.0.4 to 6.1.0 (#1423)
+* [dependencies] Bump com.github.ben-manes.caffeine:caffeine (#1424)
+* [dependencies] Bump org.jreleaser:jreleaser-maven-plugin (#1425)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1426)
+* [dependencies] Bump slf4j.version from 2.0.17 to 2.0.18 (#1427)
+
 === 5.0.5
 
 From this release on the Neo4j-OGM is tested against Neo4j 2026.

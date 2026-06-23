@@ -2,6 +2,22 @@
 
 == 5.0
 
+=== 5.0.7
+
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 6.1.0 to 6.2.0
+* [dependencies] Bump kotlin.version from 2.3.21 to 2.4.0 (#1438)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1434)
+* [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#1435)
+* [dependencies] Bump qs and express in /neo4j-ogm-docs (#1429)
+* [dependencies] Bump org.apache.maven.plugins:maven-site-plugin (#1430)
+* [dependencies] Bump org.apache.maven.plugins:maven-enforcer-plugin (#1431)
+* [dependencies] Bump org.junit:junit-bom from 6.0.3 to 6.1.0 (#1432)
+* [dependencies] Bump io.mockk:mockk-jvm from 1.14.9 to 1.14.11 (#1433)
+* [dependencies] Bump org.apache.maven.plugins:maven-failsafe-plugin (#1437)
+* [dependencies] Bump org.jacoco:jacoco-maven-plugin from 0.8.14 to 0.8.15 (#1439)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.5.32 to 1.5.34 (#1440)
+
+
 === 5.0.6
 
 * [dependencies] Bump net.bytebuddy:byte-buddy from 1.18.7 to 1.18.8 (#1419)
@@ -12,6 +28,7 @@
 * [dependencies] Bump org.jreleaser:jreleaser-maven-plugin (#1425)
 * [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1426)
 * [dependencies] Bump slf4j.version from 2.0.17 to 2.0.18 (#1427)
+
 
 === 5.0.5
 

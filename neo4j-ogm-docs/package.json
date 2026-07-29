@@ -19,8 +19,8 @@
   "author": "Neo4j",
   "license": "ISC",
   "dependencies": {
-    "@antora/cli": "^3.1.2",
-    "@antora/site-generator-default": "^3.1.2",
+    "@antora/cli": "^3.1.15",
+    "@antora/site-generator-default": "^3.1.15",
     "@neo4j-antora/antora-modify-sitemaps": "^0.4.4",
     "@neo4j-antora/antora-page-roles": "^0.3.1",
     "@neo4j-antora/antora-table-footnotes": "^0.3.2",
@@ -29,6 +29,6 @@
   },
   "devDependencies": {
     "express": "^4.22.2",
-    "nodemon": "^2.0.19"
+    "nodemon": "^3.1.14"
   }
 }

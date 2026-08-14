@@ -196,7 +196,7 @@
         <classgraph.version>4.8.186</classgraph.version>
         <jackson.version>2.22.1</jackson.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
-        <jreleaser-maven-plugin.version>1.24.0</jreleaser-maven-plugin.version>
+        <jreleaser-maven-plugin.version>1.25.0</jreleaser-maven-plugin.version>
         <junit.version>6.1.2</junit.version>
         <kotlin.version>2.4.10</kotlin.version>
         <logback.version>1.6.1</logback.version>

@@ -71,7 +71,7 @@ public class Configuration {
      * This is necessary when running Neo4j-OGM in async environments (like {@code CompletableFuture} usage, Spring Boot's @Async , etc.).
      * In those cases, please use {@link Configuration#setClassLoaderPrecedence(ClassLoaderPrecedence)} with {@link ClassLoaderPrecedence#OGM_CLASS_LOADER}.
      */
-    private static final AtomicReference<ClassLoaderPrecedence> CLASS_LOADER_PRECEDENCE = new AtomicReference(ClassLoaderPrecedence.CONTEXT_CLASS_LOADER);
+    private static final AtomicReference<ClassLoaderPrecedence> CLASS_LOADER_PRECEDENCE = new AtomicReference<>(ClassLoaderPrecedence.CONTEXT_CLASS_LOADER);
 
     /**
      * Set the class loader precedence for interacting with classes during the mapping process.
@@ -199,8 +199,13 @@ public class Configuration {
     private void parseAndSetParametersFromURI(URI parsedUri) {
         String userInfo = parsedUri.getUserInfo();
         if (userInfo != null) {
-            String[] userPass = userInfo.split(":");
-            credentials = new UsernamePasswordCredentials(userPass[0], userPass[1]);
+             int separator = userInfo.indexOf(':');
+            if (separator < 0) {
+                throw new RuntimeException(
+                    "URI credentials must be supplied as 'username:password'");
+            }
+            credentials = new UsernamePasswordCredentials(userInfo.substring(0, separator),
+                userInfo.substring(separator + 1));
             this.uri = parsedUri.toString().replace(parsedUri.getUserInfo() + "@", "");
         }
         if (getDriverClassName() == null) {

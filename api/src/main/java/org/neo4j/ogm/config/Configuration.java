@@ -199,8 +199,8 @@ public class Configuration {
     private void parseAndSetParametersFromURI(URI parsedUri) {
         String userInfo = parsedUri.getUserInfo();
         if (userInfo != null) {
-             int separator = userInfo.indexOf(':');
-            if (separator < 0) {
+            int separator = userInfo.indexOf(':');
+            if (separator <= 0 || separator == userInfo.length() - 1) {
                 throw new RuntimeException(
                     "URI credentials must be supplied as 'username:password'");
             }

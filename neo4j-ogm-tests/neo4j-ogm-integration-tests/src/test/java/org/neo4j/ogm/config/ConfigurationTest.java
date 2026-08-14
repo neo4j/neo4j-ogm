@@ -111,7 +111,7 @@ public class ConfigurationTest {
         String password = "password";
         Configuration dbConfig = new Configuration.Builder().uri("bolt://" + username + ":" + password + "@localhost")
             .build();
-        Credentials credentials = dbConfig.getCredentials();
+        Credentials<?> credentials = dbConfig.getCredentials();
         UsernamePasswordCredentials basic = (UsernamePasswordCredentials) credentials;
         assertThat(basic).isNotNull();
         assertThat(basic.getUsername()).isEqualTo(username);
@@ -131,6 +131,25 @@ public class ConfigurationTest {
         assertThat(credentials).isNotNull();
         assertThat(credentials.getUsername()).isEqualTo(expectedUsername);
         assertThat(credentials.getPassword()).isEqualTo(expectedPassword);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "bolt://neo4j:pa%3Ass@localhost:7687/some/path?query=value#fragment, neo4j, pa:ss, bolt://localhost:7687/some/path?query=value#fragment",
+        "bolt://neo4j:pa%3A%3Ass%3A@localhost:7687/db, neo4j, pa::ss:, bolt://localhost:7687/db",
+        "bolt://neo4j:password@localhost:7687/some/path?a=1&b=2, neo4j, password, bolt://localhost:7687/some/path?a=1&b=2",
+        "http://someuser:p%40ss%23word@localhost:8080/path/to/db?x=1#section, someuser, p@ss#word, http://localhost:8080/path/to/db?x=1#section"
+    })
+    void shouldRebuildUriWithoutCredentialsRetainingRemainingParts(String uri, String expectedUsername,
+        String expectedPassword, String expectedUri) {
+
+        Configuration configuration = new Configuration.Builder().uri(uri).build();
+
+        UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) configuration.getCredentials();
+        assertThat(credentials).isNotNull();
+        assertThat(credentials.getUsername()).isEqualTo(expectedUsername);
+        assertThat(credentials.getPassword()).isEqualTo(expectedPassword);
+        assertThat(configuration.getURI()).isEqualTo(expectedUri);
     }
 
     @ParameterizedTest

@@ -206,7 +206,13 @@ public class Configuration {
             }
             credentials = new UsernamePasswordCredentials(userInfo.substring(0, separator),
                 userInfo.substring(separator + 1));
-            this.uri = parsedUri.toString().replace(parsedUri.getUserInfo() + "@", "");
+            try {
+                this.uri = new URI(parsedUri.getScheme(), null, parsedUri.getHost(),
+                    parsedUri.getPort(), parsedUri.getPath(), parsedUri.getQuery(),
+                    parsedUri.getFragment()).toString();
+            } catch (URISyntaxException e) {
+                throw new RuntimeException("Could not rebuild URI without credentials", e);
+            }
         }
         if (getDriverClassName() == null) {
             this.driverName = Drivers.getDriverFor(parsedUri.getScheme()).driverClassName();

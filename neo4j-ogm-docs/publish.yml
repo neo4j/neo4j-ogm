@@ -30,6 +30,8 @@ asciidoc:
   - "@neo4j-documentation/macros"
   - "@neo4j-antora/antora-table-footnotes"
   attributes:
+    page-tabs: drivers-apis@
+    page-tabs-index: 35
     page-theme: docs
     page-type: Docs
     page-search-type: Docs

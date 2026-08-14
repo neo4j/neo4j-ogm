@@ -193,18 +193,18 @@
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-logging.version>1.4.0</commons-logging.version>
-        <classgraph.version>4.8.184</classgraph.version>
+        <classgraph.version>4.8.186</classgraph.version>
         <jackson.version>2.22.1</jackson.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <jreleaser-maven-plugin.version>1.24.0</jreleaser-maven-plugin.version>
-        <junit.version>6.1.1</junit.version>
+        <junit.version>6.1.2</junit.version>
         <kotlin.version>2.4.0</kotlin.version>
-        <logback.version>1.5.37</logback.version>
+        <logback.version>1.6.1</logback.version>
         <neo4j.edition>enterprise</neo4j.edition>
         <neo4j-java-driver.version>6.2.0</neo4j-java-driver.version>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
-        <license-maven-plugin.version>5.0.0</license-maven-plugin.version>
-        <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
+        <license-maven-plugin.version>5.1.1</license-maven-plugin.version>
+        <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
@@ -220,14 +220,14 @@
         <reactive-streams.version>1.0.4</reactive-streams.version>
         <mockito.version>5.23.0</mockito.version>
         <slf4j.version>2.0.18</slf4j.version>
-        <spotbugs.plugin.version>4.10.2.0</spotbugs.plugin.version>
+        <spotbugs.plugin.version>4.10.3.0</spotbugs.plugin.version>
         <releaseVersion>undefined</releaseVersion>
 
         <maven.compiler.debug>true</maven.compiler.debug>
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
-        <byte-buddy.version>1.18.10</byte-buddy.version>
+        <byte-buddy.version>1.18.11</byte-buddy.version>
     </properties>
 
     <dependencyManagement>

@@ -25,6 +25,9 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * @author Vince Bickers
@@ -113,6 +116,34 @@ public class ConfigurationTest {
         assertThat(basic).isNotNull();
         assertThat(basic.getUsername()).isEqualTo(username);
         assertThat(basic.getPassword()).isEqualTo(password);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "bolt://neo4j:pa%3Ass@localhost:7687, neo4j, pa:ss",
+        "bolt://neo4j:pa%3A%3Ass%3A@localhost:7687, neo4j, pa::ss:",
+        "bolt://neo4j:password@localhost:7687, neo4j, password"
+    })
+    void shouldNotTruncatePasswordsContainingColons(String uri, String expectedUsername, String expectedPassword) {
+        Configuration configuration = new Configuration.Builder().uri(uri).build();
+
+        UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) configuration.getCredentials();
+        assertThat(credentials).isNotNull();
+        assertThat(credentials.getUsername()).isEqualTo(expectedUsername);
+        assertThat(credentials.getPassword()).isEqualTo(expectedPassword);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "bolt://neo4j@localhost:7687",
+        "bolt://neo4j:@localhost:7687",
+        "bolt://:secret@localhost:7687",
+        "http://someuser@localhost:8080"
+    })
+    void shouldFailOnIncompleteUserInfo(String uri) {
+        assertThatExceptionOfType(RuntimeException.class)
+            .isThrownBy(() -> new Configuration.Builder().uri(uri).build())
+            .withMessage("URI credentials must be supplied as 'username:password'");
     }
 
     @Test

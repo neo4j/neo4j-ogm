@@ -18,7 +18,6 @@
  */
 package org.neo4j.ogm.config;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -119,40 +118,40 @@ public class Configuration {
     }
 
     private String uri;
-    private int connectionPoolSize;
-    private String encryptionLevel;
-    private String trustStrategy;
-    private String trustCertFile;
-    private String generatedIndexesOutputDir;
-    private String generatedIndexesOutputFilename;
+    private final int connectionPoolSize;
+    private final String encryptionLevel;
+    private final String trustStrategy;
+    private final String trustCertFile;
+    private final String generatedIndexesOutputDir;
+    private final String generatedIndexesOutputFilename;
     /**
      * The url of a neo4j.conf (properties) file to configure the embedded driver.
      */
-    private String neo4jConfLocation;
+    private final String neo4jConfLocation;
     private String driverName;
-    private Credentials credentials;
-    private Integer connectionLivenessCheckTimeout;
-    private Boolean verifyConnection;
-    private Boolean useNativeTypes;
-    private Map<String, Object> customProperties;
+    private Credentials<?> credentials;
+    private final Integer connectionLivenessCheckTimeout;
+    private final Boolean verifyConnection;
+    private final Boolean useNativeTypes;
+    private final Map<String, Object> customProperties;
     /**
      * This flag instructs OGM to use all static labels when querying domain objects. Until 3.1.16 only the label of the
      * concrete domain has been used to query domain objects in inheritance scenarios. When storing those objects again,
      * OGM writes all labels in any case.
      * <p>
      * Using all reachable, static labels in a class hierarchy for querying and thus enforcing strict queries is the default
-     * in Neo4j-OGM 4.0. Use this flag to restore the old behaviour.
+     * in Neo4j-OGM 4.0. Use this flag to restore the old behavior.
      */
-    private Boolean useStrictQuerying;
+    private final Boolean useStrictQuerying;
     /**
      * Base packages to scan for annotated components. They will be merged into a unique list
      * of packages with the programmatically registered packages to scan.
      */
-    private String[] basePackages;
-    private String database;
+    private final String[] basePackages;
+    private final String database;
 
-    private DatabaseSelectionProvider databaseSelectionProvider;
-    private UserSelectionProvider userSelectionProvider;
+    private final DatabaseSelectionProvider databaseSelectionProvider;
+    private final UserSelectionProvider userSelectionProvider;
 
     /**
      * Protected constructor of the Configuration class.
@@ -271,10 +270,6 @@ public class Configuration {
         return verifyConnection;
     }
 
-    public String getNeo4jConfLocation() {
-        return this.neo4jConfLocation;
-    }
-
     public String getDatabase() {
         return database;
     }
@@ -309,12 +304,7 @@ public class Configuration {
         return isEmbeddedHA;
     }
 
-    public URL getResourceUrl(String resourceLocation) throws FileNotFoundException {
-
-        return ConfigurationUtils.getResourceUrl(resourceLocation);
-    }
-
-    public Credentials getCredentials() {
+    public Credentials<?> getCredentials() {
         return credentials;
     }
 
@@ -339,7 +329,7 @@ public class Configuration {
         String[] set2 = Optional.ofNullable(anotherSetOfBasePackages).orElseGet(() -> new String[0]);
 
         return Stream.concat(Arrays.stream(set1), Arrays.stream(set2))
-            .filter(s -> s != null)
+            .filter(Objects::nonNull)
             .distinct()
             .toArray(String[]::new);
     }
@@ -349,10 +339,9 @@ public class Configuration {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Configuration)) {
+        if (!(o instanceof Configuration that)) {
             return false;
         }
-        Configuration that = (Configuration) o;
         return connectionPoolSize == that.connectionPoolSize &&
             Objects.equals(uri, that.uri) &&
             Objects.equals(encryptionLevel, that.encryptionLevel) &&
@@ -387,7 +376,6 @@ public class Configuration {
 
         // Those are the keys inside ogm.properties, not configuration values.
         private static final String URI = "URI";
-        private static final String URIS = "URIS";
         private static final String USERNAME = "username";
         private static final String PASSWORD = "password";
         private static final String CONNECTION_POOL_SIZE = "connection.pool.size";
@@ -476,14 +464,14 @@ public class Configuration {
                         this.neo4jConfLocation = value;
                         break;
                     case USE_NATIVE_TYPES:
-                        this.useNativeTypes = Boolean.valueOf(value);
+                        this.useNativeTypes = Boolean.parseBoolean(value);
                         break;
                     case BASE_PACKAGES:
                         this.basePackages = splitValue(entry.getValue());
                         break;
                     case USE_STRICT_QUERYING:
                         if (!(value == null || value.isEmpty())) {
-                            this.useStrictQuerying = Boolean.valueOf(value);
+                            this.useStrictQuerying = Boolean.parseBoolean(value);
                         }
                         break;
                     case DATABASE:
@@ -525,13 +513,12 @@ public class Configuration {
 
         private static String[] splitValue(Object value) {
 
-            if (!(value instanceof String)) {
+            if (!(value instanceof String stringValue)) {
                 throw new IllegalArgumentException(
                     "Cannot split values of type other than java.lang.String (was " + value.getClass() + ").");
             }
 
-            String stringValue = (String) value;
-            if (stringValue == null || stringValue.trim().isEmpty()) {
+            if (stringValue.isBlank()) {
                 return new String[0];
             }
 

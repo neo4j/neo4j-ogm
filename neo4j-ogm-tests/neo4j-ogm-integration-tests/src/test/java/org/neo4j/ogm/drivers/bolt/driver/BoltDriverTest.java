@@ -30,6 +30,7 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.exceptions.ServiceUnavailableException;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.session.SessionFactory;
 
 /**
@@ -64,6 +65,25 @@ public class BoltDriverTest {
                 .isThrownBy(() -> BoltDriver.isSimpleScheme(invalidScheme))
                 .withMessage("'%s' is not a supported scheme.", invalidScheme);
         }
+    }
+
+    @Test
+    void shouldFailEarlyOnInvalidEncryptionLevel() {
+
+        Configuration configuration = new Configuration.Builder()
+            .uri("bolt://localhost:7687")
+            .encryptionLevel("REQUIRE")
+            .verifyConnection(false)
+            .build();
+
+        BoltDriver boltDriver = new BoltDriver();
+
+        assertThatExceptionOfType(ConnectionException.class)
+            .isThrownBy(() -> boltDriver.configure(configuration))
+            .withCauseInstanceOf(IllegalArgumentException.class)
+            .withRootCauseExactlyInstanceOf(IllegalArgumentException.class)
+            .satisfies(e -> assertThat(e.getCause())
+                .hasMessage("Invalid encryptionLevel 'REQUIRE'. Supported values are: REQUIRED, NONE."));
     }
 
     @Test

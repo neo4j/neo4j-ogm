@@ -102,7 +102,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
     private final ExceptionTranslator exceptionTranslator = new BoltDriverExceptionTranslator();
 
     private volatile Driver boltDriver;
-    private Credentials credentials;
+    private Credentials<?> credentials;
     private Config driverConfig;
     /**
      * The database to use, defaults to {@literal null} (Use Neo4j default).
@@ -271,7 +271,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
     public <T> T unwrap(Class<T> clazz) {
 
         if (clazz == Driver.class) {
-            return (T) boltDriver;
+            return clazz.cast(boltDriver);
         } else {
             return super.unwrap(clazz);
         }
@@ -364,11 +364,21 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     private void applyEncryptionAndTrustSettings(Config.ConfigBuilder configBuilder) {
-        if (configuration.getEncryptionLevel() != null && "REQUIRED"
-            .equals(configuration.getEncryptionLevel().toUpperCase(Locale.ENGLISH).trim())) {
-            configBuilder.withEncryption();
-        } else {
+        String level = configuration.getEncryptionLevel();
+        if (level == null) {
             configBuilder.withoutEncryption();
+        } else {
+            switch (level.toUpperCase(Locale.ENGLISH).trim()) {
+                case "REQUIRED":
+                    configBuilder.withEncryption();
+                    break;
+                case "NONE":
+                    configBuilder.withoutEncryption();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid encryptionLevel '" + level
+                        + "'. Supported values are: REQUIRED, NONE.");
+            }
         }
 
         Config.TrustStrategy.Strategy trustStrategy;

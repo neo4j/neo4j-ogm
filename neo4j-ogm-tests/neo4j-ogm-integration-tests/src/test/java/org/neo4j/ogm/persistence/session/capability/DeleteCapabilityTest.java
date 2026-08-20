@@ -22,10 +22,17 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.domain.l1.Article;
+import org.neo4j.ogm.domain.l1.Author;
+import org.neo4j.ogm.domain.l1.Content;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Recording;
 import org.neo4j.ogm.session.Session;
@@ -34,6 +41,7 @@ import org.neo4j.ogm.testutil.TestContainersTestBase;
 
 /**
  * @author vince
+ * @author Michael J. Simons
  */
 public class DeleteCapabilityTest extends TestContainersTestBase {
 
@@ -43,7 +51,8 @@ public class DeleteCapabilityTest extends TestContainersTestBase {
 
     @BeforeAll
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music");
+        sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.l1",
+            "org.neo4j.ogm.domain.l3");
     }
 
     @BeforeEach
@@ -110,5 +119,46 @@ public class DeleteCapabilityTest extends TestContainersTestBase {
         long entityCount = session.countEntitiesOfType(Album.class);
         assertThat(entityCount).isEqualTo(count);
         session.clear(); // ...also for the subsequent calls in the test methods
+    }
+
+    @Test // L1
+    void deleteFiltersAreSaveWithoutLabel() {
+        Album album = new Album();
+        session.save(album);
+        assertEntityCount(1);
+
+        session.query(
+            "CREATE (a:Author {name: 'Michael'}) <-[:AUTHORED_BY]- (c:Article {name: 'JSpecify and NullAway: A fresh take on nullsafety in the Java world'})",
+            Map.of());
+        session.query("CREATE (a:Author {name: 'Bob'})",
+            Map.of());
+
+        session.clear();
+        assertThat(session.countEntitiesOfType(Article.class)).isOne();
+        assertThat(session.countEntitiesOfType(Author.class)).isEqualTo(2L);
+
+        Filter filter = new Filter("name", ComparisonOperator.EQUALS, "Bob");
+        filter.setNestedPropertyName("author");
+        filter.setNestedPropertyType(Author.class);
+        filter.setOwnerEntityType(Content.class);
+        session.delete(Content.class, new Filters(filter), false);
+
+        session.clear();
+        assertEntityCount(1);
+        assertThat(session.countEntitiesOfType(Article.class)).isOne();
+        assertThat(session.countEntitiesOfType(Author.class)).isEqualTo(2L);
+    }
+
+    @Test // L3
+    void deletionOfSameClassNameShouldNotDeleteWrongRecords() {
+
+        session.query("CREATE (a:Order {name: 'Order A'}) RETURN id(a) AS id", Map.of());
+        session.query("CREATE (a:SalesOrder {name: 'Order B'}) RETURN id(a) AS id", Map.of());
+
+        session.delete(org.neo4j.ogm.domain.l3.b.Order.class, new Filters(), false);
+
+        session.clear();
+        assertThat(session.countEntitiesOfType(org.neo4j.ogm.domain.l3.a.Order.class)).isOne();
+        assertThat(session.countEntitiesOfType(org.neo4j.ogm.domain.l3.b.Order.class)).isZero();
     }
 }

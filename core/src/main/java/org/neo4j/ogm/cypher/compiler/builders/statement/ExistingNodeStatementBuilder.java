@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
+import org.neo4j.ogm.internal.SchemaNames;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Statement;
@@ -53,7 +54,7 @@ public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
         final Map<String, Object> parameters = new HashMap<>();
         final StringBuilder queryBuilder = new StringBuilder();
 
-        if (existingNodes != null && existingNodes.size() > 0) {
+        if (existingNodes != null && !existingNodes.isEmpty()) {
             Node firstNode = existingNodes.iterator().next();
 
             queryBuilder
@@ -65,18 +66,18 @@ public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
 
             Set<String> previousDynamicLabels = firstNode.getPreviousDynamicLabels();
             for (String label : previousDynamicLabels) {
-                queryBuilder.append(String.format(" REMOVE n:`%s` ", label));
+                queryBuilder.append("REMOVE n:").append(SchemaNames.sanitize(label, true).orElseThrow()).append(" ");
             }
 
             queryBuilder.append(firstNode.createPropertyRemovalFragment("n"));
 
             queryBuilder.append("SET n");
             for (String label : firstNode.getLabels()) {
-                queryBuilder.append(":`").append(label).append("`");
+                queryBuilder.append(":").append(SchemaNames.sanitize(label, true).orElseThrow());
             }
 
             queryBuilder.append(" SET n += row.props RETURN row.nodeId as ref, ID(n) as id, $type as type");
-            List<Map> rows = existingNodes.stream().map(node -> node.toRow("nodeId")).collect(toList());
+            List<Map<?, ?>> rows = existingNodes.stream().map(node -> node.toRow("nodeId")).collect(toList());
             parameters.put("type", "node");
             parameters.put("rows", rows);
 

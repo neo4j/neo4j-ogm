@@ -216,6 +216,8 @@
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
+        <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
+        <neo4j-cypher-dsl.version>2025.3.0</neo4j-cypher-dsl.version>
         <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
         <mockito.version>5.23.0</mockito.version>
@@ -266,6 +268,14 @@
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
                 <version>${caffeine.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.neo4j</groupId>
+                <artifactId>neo4j-cypher-dsl-bom</artifactId>
+                <version>${neo4j-cypher-dsl.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!--Testing  Dependencies -->
@@ -420,6 +430,11 @@
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <version>${license-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>${maven-shade-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
+import org.neo4j.ogm.internal.SchemaNames;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.request.OptimisticLockingConfig;
 import org.neo4j.ogm.request.Statement;
@@ -56,7 +57,7 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
         final Map<String, Object> parameters = new HashMap<>();
         final StringBuilder queryBuilder = new StringBuilder();
 
-        if (newNodes != null && newNodes.size() > 0) {
+        if (newNodes != null && !newNodes.isEmpty()) {
             Node firstNode = newNodes.iterator().next();
 
             queryBuilder.append("UNWIND $rows as row ");
@@ -69,12 +70,15 @@ public class NewNodeStatementBuilder implements CypherStatementBuilder {
             }
 
             for (String label : firstNode.getLabels()) {
-                queryBuilder.append(":`").append(label).append("`");
+                queryBuilder.append(":").append(SchemaNames.sanitize(label, true).orElseThrow());
             }
 
             if (hasPrimaryIndex) {
                 String propertiesToMergeOn = Arrays.stream(firstNode.getPrimaryIndex().split(PROPERTY_SEPARATOR))
-                    .map(p -> p + ": row.props." + p)
+                    .map(p -> {
+                        var pq = SchemaNames.sanitize(p, true).orElseThrow();
+                        return pq + ": row.props." + pq;
+                    })
                     .collect(joining(",", "{", "}"));
                 queryBuilder.append(propertiesToMergeOn);
             }

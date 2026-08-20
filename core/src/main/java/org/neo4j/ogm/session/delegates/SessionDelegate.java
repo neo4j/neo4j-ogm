@@ -33,6 +33,7 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.FilterWithRelationship;
 import org.neo4j.ogm.cypher.query.SortClause;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.internal.SchemaNames;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -51,11 +52,11 @@ abstract class SessionDelegate {
         this.session = session;
     }
 
-    SortOrder sortOrderWithResolvedProperties(Class entityType, SortOrder sortOrder) {
+    SortOrder sortOrderWithResolvedProperties(Class<?> entityType, SortOrder sortOrder) {
         return SortOrder.fromSortClauses(sortClausesWithResolvedProperties(entityType, sortOrder));
     }
 
-    void resolvePropertyAnnotations(Class entityType, Iterable<Filter> filters) {
+    void resolvePropertyAnnotations(Class<?> entityType, Iterable<Filter> filters) {
         for (Filter filter : filters) {
             if (filter.getOwnerEntityType() == null) {
                 filter.setOwnerEntityType(entityType);
@@ -77,10 +78,11 @@ abstract class SessionDelegate {
                     filter.setNestedRelationshipEntity(true);
                 }
             } else if (filter.isDeepNested()) {
-                Class parentOwnerType = filter.getOwnerEntityType();
+                Class<?> parentOwnerType = filter.getOwnerEntityType();
                 for (Filter.NestedPathSegment nestedPathSegment : filter.getNestedPath()) {
                     resolveRelationshipType(parentOwnerType, nestedPathSegment);
-                    ClassInfo nestedClassInfo = session.metaData().classInfo(nestedPathSegment.getPropertyType().getName());
+                    ClassInfo nestedClassInfo = session.metaData()
+                        .classInfo(nestedPathSegment.getPropertyType().getName());
                     nestedPathSegment.setNestedEntityTypeLabel(session.metaData().entityType(nestedClassInfo.name()));
                     if (session.metaData().isRelationshipEntity(nestedClassInfo.name())) {
                         nestedPathSegment.setNestedRelationshipEntity(true);
@@ -92,7 +94,7 @@ abstract class SessionDelegate {
         }
     }
 
-    <X extends Object> X convertIfNeeded(ClassInfo classInfo, X id) {
+    <X> X convertIfNeeded(ClassInfo classInfo, X id) {
         if (classInfo.hasPrimaryIndexField()) {
             FieldInfo primaryIndexField = classInfo.primaryIndexField();
             if (primaryIndexField.hasPropertyConverter()) {
@@ -104,7 +106,7 @@ abstract class SessionDelegate {
         return id;
     }
 
-    <X extends Object> Collection<X> convertIfNeeded(ClassInfo classInfo, Collection<X> ids) {
+    <X> Collection<X> convertIfNeeded(ClassInfo classInfo, Collection<X> ids) {
         if (classInfo.hasPrimaryIndexField()) {
             Function<Object, Object> converter = null;
             if (classInfo.primaryIndexField().hasPropertyConverter()) {
@@ -127,7 +129,7 @@ abstract class SessionDelegate {
         updateRelationship(filter, fieldInfo, defaultRelationshipType);
     }
 
-    private void resolveRelationshipType(Class parentOwnerType, Filter.NestedPathSegment segment) {
+    private void resolveRelationshipType(Class<?> parentOwnerType, Filter.NestedPathSegment segment) {
         ClassInfo classInfo = session.metaData().classInfo(parentOwnerType.getName());
         FieldInfo fieldInfo = classInfo.relationshipFieldByName(segment.getPropertyName());
 
@@ -155,7 +157,7 @@ abstract class SessionDelegate {
         }
     }
 
-    private List<SortClause> sortClausesWithResolvedProperties(Class entityType, SortOrder sortOrder) {
+    private List<SortClause> sortClausesWithResolvedProperties(Class<?> entityType, SortOrder sortOrder) {
 
         List<SortClause> sortClausesWithResolvedProperties = new ArrayList<>();
 
@@ -173,15 +175,11 @@ abstract class SessionDelegate {
         return sortClausesWithResolvedProperties;
     }
 
-    private String escapedResolvedProperty(Class entityType, SortClause sortClause, int i) {
-        final String escapedProperty = "`%s`";
-
-        return String
-            .format(escapedProperty, resolvePropertyName(entityType, sortClause.getProperties()[i])
-            );
+    private String escapedResolvedProperty(Class<?> entityType, SortClause sortClause, int i) {
+        return SchemaNames.sanitize(resolvePropertyName(entityType, sortClause.getProperties()[i]), true).orElseThrow();
     }
 
-    private String resolvePropertyName(Class entityType, String propertyName) {
+    private String resolvePropertyName(Class<?> entityType, String propertyName) {
         ClassInfo classInfo = session.metaData().classInfo(entityType.getName());
         FieldInfo fieldInfo = classInfo.propertyFieldByName(propertyName);
         if (fieldInfo != null && fieldInfo.getAnnotations() != null) {

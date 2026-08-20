@@ -24,6 +24,7 @@ import java.util.function.UnaryOperator;
 
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.PropertyValueTransformer;
+import org.neo4j.ogm.internal.SchemaNames;
 
 /**
  * @author Gerrit Meier
@@ -60,7 +61,7 @@ public class NativeDistanceComparison implements FilterFunction<DistanceFromNati
     public String expression(String nodeIdentifier, String filteredProperty,
         UnaryOperator<String> createUniqueParameterName) {
 
-        String pointPropertyOfEntity = nodeIdentifier + "." + filteredProperty;
+        String pointPropertyOfEntity = nodeIdentifier + "." + SchemaNames.sanitize(filteredProperty, true).orElseThrow();
         String comparisonOperator = operator.getValue();
 
         return String.format(

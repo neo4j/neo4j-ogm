@@ -94,13 +94,7 @@ public class MetaData {
             return classInfo;
         }
 
-        classInfo = domainInfo.getClassSimpleName(name);
-        if (classInfo != null) {
-            return classInfo;
-        }
-
-        // not found
-        return null;
+        return domainInfo.getClassSimpleName(name);
     }
 
     /**

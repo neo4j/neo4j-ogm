@@ -104,7 +104,8 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             "org.neo4j.ogm.domain.gh726",
             "org.neo4j.ogm.domain.gh851",
             "org.neo4j.ogm.domain.gh875",
-            "org.neo4j.ogm.domain.sdn2306"
+            "org.neo4j.ogm.domain.sdn2306",
+            "org.neo4j.ogm.domain.l3"
         );
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -1058,5 +1059,19 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             }
         }
         return false;
+    }
+
+    @Test // L3
+    void countShouldUseCorrectType() {
+
+        session.query("CREATE (a:Order {name: 'Order A'}) RETURN id(a) AS id", Map.of());
+
+        session.clear();
+        assertThat(session.countEntitiesOfType(org.neo4j.ogm.domain.l3.a.Order.class)).isOne();
+        assertThat(session.countEntitiesOfType(org.neo4j.ogm.domain.l3.b.Order.class)).isZero();
+
+        session.clear();
+        assertThat(session.count(org.neo4j.ogm.domain.l3.a.Order.class, new Filters())).isOne();
+        assertThat(session.count(org.neo4j.ogm.domain.l3.b.Order.class, new Filters())).isZero();
     }
 }

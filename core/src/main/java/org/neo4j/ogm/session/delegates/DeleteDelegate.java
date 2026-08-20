@@ -63,11 +63,11 @@ public class DeleteDelegate extends SessionDelegate {
 
     /**
      * Deletes all nodes of a given type. They will get discovered by using the matching label for that type.
-     * To avoid a delete of every node in the database the method will abort the delete operation if no label
+     * To avoid the deletion of every node in the database the method will abort the delete operation if no label
      * can be determined.
      *
-     * @param type  The type of the nodes/objects to be deleted.
-     * @param <T>   The type to work with
+     * @param type The type of the nodes/objects to be deleted.
+     * @param <T>  The type to work with
      */
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
@@ -83,7 +83,7 @@ public class DeleteDelegate extends SessionDelegate {
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
             session.notifyListeners(new PersistenceEvent(type, Event.TYPE.PRE_DELETE));
             session.doInTransaction(() -> {
-                try (Response<RowModel> response = session.requestHandler().execute(query)) {
+                try (Response<RowModel> ignored = session.requestHandler().execute(query)) {
                     session.context().removeType(type);
                     if (session.eventsEnabled()) {
                         session.notifyListeners(new PersistenceEvent(type, Event.TYPE.POST_DELETE));
@@ -97,9 +97,16 @@ public class DeleteDelegate extends SessionDelegate {
 
     public <T> Object delete(Class<T> clazz, Iterable<Filter> filters, boolean listResults) {
 
-        ClassInfo classInfo = session.metaData().classInfo(clazz.getSimpleName());
+        ClassInfo classInfo = session.metaData().classInfo(clazz.getName());
 
         if (classInfo != null) {
+
+            String entityLabel = classInfo.neo4jName();
+            if (entityLabel == null) {
+                session.warn("Unable to find database label for entity " + clazz.getName()
+                    + " : aborting delete to avoid an unlabelled, database-wide delete.");
+                return listResults ? Collections.emptyList() : 0L;
+            }
 
             resolvePropertyAnnotations(clazz, filters);
 
@@ -187,9 +194,10 @@ public class DeleteDelegate extends SessionDelegate {
                     .filter(possibleId -> possibleId >= 0)
                     .orElseGet(() -> {
                         session.warn(String.format(
-                                "Instance of class %s has to be reloaded to be deleted. This can happen if the session has " +
+                            "Instance of class %s has to be reloaded to be deleted. This can happen if the session has "
+                                +
                                 "been cleared between loading and deleting or using an object from a different transaction.",
-                                object.getClass())
+                            object.getClass())
                         );
                         return classInfo.getPrimaryIndexOrIdReader().apply(object)
                             .map(primaryIndexOrId -> session.load(object.getClass(), (Serializable) primaryIndexOrId))

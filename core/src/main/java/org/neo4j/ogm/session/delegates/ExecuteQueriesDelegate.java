@@ -287,7 +287,7 @@ public class ExecuteQueriesDelegate extends SessionDelegate {
 
     public long count(Class<?> clazz, Iterable<Filter> filters) {
 
-        ClassInfo classInfo = session.metaData().classInfo(clazz.getSimpleName());
+        ClassInfo classInfo = session.metaData().classInfo(clazz.getName());
 
         if (classInfo != null) {
 

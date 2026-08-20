@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import org.neo4j.cypherdsl.support.schema_name.SchemaNames;
 import org.neo4j.ogm.model.PropertyContainer;
 
 /**
@@ -63,7 +64,7 @@ abstract class AbstractPropertyContainer implements PropertyContainer {
         }
 
         return propertiesToBeRemoved.stream()
-            .map(s -> String.format("%s.`%s`", variable, s))
+            .map(s -> String.format("%s.%s", variable, SchemaNames.sanitize(s, true).orElseThrow()))
             .collect(Collectors.joining(",", " REMOVE ", " "));
     }
 }

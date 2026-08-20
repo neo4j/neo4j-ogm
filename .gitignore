@@ -16,3 +16,5 @@ build/
 devenv.local
 .vscode/
 build.log
+dependency-reduced-pom.xml
+.flattened-pom.xml

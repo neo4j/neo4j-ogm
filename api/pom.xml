@@ -64,5 +64,47 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-cypher-dsl-schema-name-support</artifactId>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.neo4j:neo4j-cypher-dsl-schema-name-support</include>
+                                </includes>
+                            </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.neo4j.cypherdsl.support.schema_name</pattern>
+                                    <shadedPattern>org.neo4j.ogm.internal</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <createSourcesJar>true</createSourcesJar>
+                            <filters>
+                                <filter>
+                                    <artifact>org.neo4j:neo4j-cypher-dsl-schema-name-support</artifact>
+                                    <includes>
+                                        <include>**/SchemaNames*class</include>
+                                    </includes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

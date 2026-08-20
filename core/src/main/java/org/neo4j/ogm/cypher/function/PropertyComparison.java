@@ -27,6 +27,7 @@ import java.util.function.UnaryOperator;
 
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.PropertyValueTransformer;
+import org.neo4j.ogm.internal.SchemaNames;
 
 /**
  * @author Jasper Blues
@@ -57,15 +58,17 @@ public class PropertyComparison implements FilterFunction<Object> {
     public String expression(String nodeIdentifier, String filteredProperty,
         UnaryOperator<String> createUniqueParameterName) {
 
+        var safeFilteredProperty = SchemaNames.sanitize(filteredProperty, true).orElseThrow();
+
         if (operator == IS_NULL) {
-            return String.format("%s.`%s` IS NULL ", nodeIdentifier, filteredProperty);
+            return String.format("%s.%s IS NULL ", nodeIdentifier, safeFilteredProperty);
         } else if (operator == EXISTS) {
-            return String.format("%s.`%s` IS NOT NULL ", nodeIdentifier, filteredProperty);
+            return String.format("%s.%s IS NOT NULL ", nodeIdentifier, safeFilteredProperty);
         } else if (operator == IS_TRUE) {
-            return String.format("%s.`%s` = true ", nodeIdentifier, filteredProperty);
+            return String.format("%s.%s = true ", nodeIdentifier, safeFilteredProperty);
         } else {
-            return String.format("%s.`%s` %s $`%s` ", nodeIdentifier, filteredProperty,
-                operator.getValue(), createUniqueParameterName.apply(PARAMETER_NAME));
+            return String.format("%s.%s %s $%s ", nodeIdentifier, safeFilteredProperty,
+                operator.getValue(), SchemaNames.sanitize(createUniqueParameterName.apply(PARAMETER_NAME), true).orElseThrow());
         }
     }
 

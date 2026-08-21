@@ -1054,8 +1054,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
     }
 
     private static boolean checkForMichal(Map<String, Object> result) {
-        if (result.get("n") instanceof User) {
-            User u = (User) result.get("n");
+        if (result.get("n") instanceof User u) {
             if (u.getName().equals("Michal")) {
                 assertThat(u.getFriends()).hasSize(1);
                 assertThat(u.getFriends().iterator().next().getName()).isEqualTo("Vince");

@@ -326,11 +326,10 @@ public class MultiStatementCypherCompiler implements Compiler {
             if (!relsByType.containsKey(relationshipBuilder.type())) {
                 relsByType.put(relationshipBuilder.type(), new HashSet<>());
             }
-            //Replace the node ids
+            // Replace the node ids
             RelationshipModel edge = (RelationshipModel) relationshipBuilder.edge();
             edge.setStartNode(context.getId(edge.getStartNode()));
             edge.setEndNode(context.getId(edge.getEndNode()));
-            relsByType.get(relationshipBuilder.type()).add(edge);
             relsByType.get(relationshipBuilder.type()).add(edge);
         }
         return relsByType;

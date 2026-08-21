@@ -53,11 +53,16 @@ abstract class AbstractPropertyContainer implements PropertyContainer {
         this.previousDynamicCompositeProperties = new HashSet<>(previousDynamicCompositeProperties);
     }
 
+    protected Set<String> propertiesToBeRemoved() {
+        Set<String> propertiesToBeRemoved = new HashSet<>(this.previousDynamicCompositeProperties);
+        propertiesToBeRemoved.removeAll(this.currentDynamicCompositeProperties);
+        return propertiesToBeRemoved;
+    }
+
     @Override
     public String createPropertyRemovalFragment(String variable) {
 
-        Set<String> propertiesToBeRemoved = new HashSet<>(this.previousDynamicCompositeProperties);
-        propertiesToBeRemoved.removeAll(this.currentDynamicCompositeProperties);
+        Set<String> propertiesToBeRemoved = propertiesToBeRemoved();
 
         if (propertiesToBeRemoved.isEmpty()) {
             return "";

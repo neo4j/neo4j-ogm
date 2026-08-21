@@ -21,18 +21,22 @@ package org.neo4j.ogm.persistence.session.capability;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.cypher.compiler.CompileContext;
+import org.neo4j.ogm.domain.escaping.Thing;
 import org.neo4j.ogm.domain.gh787.EntityWithCustomIdConverter;
 import org.neo4j.ogm.domain.gh787.MyVeryOwnIdType;
 import org.neo4j.ogm.domain.gh789.Entity;
@@ -59,7 +63,7 @@ public class SaveCapabilityTest extends TestContainersTestBase {
     @BeforeEach
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.music",
-            "org.neo4j.ogm.domain.gh787", "org.neo4j.ogm.domain.gh789");
+            "org.neo4j.ogm.domain.gh787", "org.neo4j.ogm.domain.gh789", "org.neo4j.ogm.domain.escaping");
         session = sessionFactory.openSession();
         session.purgeDatabase();
         aerosmith = new Artist("Aerosmith");
@@ -101,7 +105,7 @@ public class SaveCapabilityTest extends TestContainersTestBase {
     // GH-84
     @Test
     void saveCollectionShouldSaveArrays() {
-        Artist[] artists = new Artist[]{aerosmith, bonJovi, defLeppard};
+        Artist[] artists = new Artist[] { aerosmith, bonJovi, defLeppard };
         session.save(artists);
         session.clear();
         assertThat(session.countEntitiesOfType(Artist.class)).isEqualTo(3);
@@ -230,5 +234,44 @@ public class SaveCapabilityTest extends TestContainersTestBase {
 
         entity = session.load(Entity.class, entity.getKey());
         assertThat(entity.getSome()).isEqualTo("Some value");
+    }
+
+    @RepeatedTest(failureThreshold = 1, value = 32)
+    void updateOfRemovedPropertiesMustBeDeterministic() {
+
+        var a = new Thing();
+        a.addAttr("reviewer", "bob");
+        a.addAttr("priority", "high");
+
+        var entities = new ArrayList<Thing>();
+        var random = ThreadLocalRandom.current();
+        var pick = random.nextInt(0, 99);
+        for (int i = 0; i < 100; ++i) {
+            var b = new Thing();
+            b.addAttr("reviewer", "ann");
+            entities.add(b);
+            if (i == pick) {
+                entities.add(a);
+            }
+        }
+
+        session.save(entities);
+        session.clear();
+
+        entities = new ArrayList<>(session.loadAll(Thing.class));
+        var id = a.getId();
+        a = entities.stream().filter(e -> e.getId().equals(id)).findFirst().orElseThrow();
+        for (Thing e : entities) {
+            if (e != a && random.nextInt() % 2 == 0) {
+                e.addAttr("reviewer", "New Bob");
+            }
+        }
+        a.removeAttr("priority");
+
+        session.save(entities);
+        session.clear();
+
+        a = session.load(Thing.class, a.getId());
+        assertThat(a.getAttrs()).doesNotContainKey("priority");
     }
 }

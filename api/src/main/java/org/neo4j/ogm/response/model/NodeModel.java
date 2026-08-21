@@ -135,10 +135,10 @@ public class NodeModel extends AbstractPropertyContainer implements Node {
 
     @Override
     public String labelSignature() {
-        return Stream.concat(
+        return Stream.concat(Stream.concat(
             Arrays.stream(labels),
             Optional.ofNullable(previousDynamicLabels).orElseGet(HashSet::new).stream()
-        ).distinct().collect(joining(","));
+        ), propertiesToBeRemoved().stream()).distinct().collect(joining(","));
     }
 
     @Override

@@ -28,8 +28,12 @@ import org.neo4j.ogm.annotation.Properties;
 
 @NodeEntity
 public class Thing {
-    @Id @GeneratedValue Long id;
-    @Properties Map<String, Object> attrs = new HashMap<>();
+
+    @Id @GeneratedValue
+    private Long id;
+
+    @Properties
+    private final Map<String, Object> attrs = new HashMap<>();
 
     public Long getId() {
         return id;

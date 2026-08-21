@@ -45,11 +45,14 @@ import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.query.Pagination;
+import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Pet;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.domain.f10.Stuff;
 import org.neo4j.ogm.domain.gh726.package_a.SameClass;
 import org.neo4j.ogm.domain.gh851.Airport;
 import org.neo4j.ogm.domain.gh851.Flight;
@@ -105,6 +108,7 @@ public class QueryCapabilityTest extends TestContainersTestBase {
             "org.neo4j.ogm.domain.gh851",
             "org.neo4j.ogm.domain.gh875",
             "org.neo4j.ogm.domain.sdn2306",
+            "org.neo4j.ogm.domain.f10",
             "org.neo4j.ogm.domain.l3"
         );
         session = sessionFactory.openSession();
@@ -1073,5 +1077,24 @@ public class QueryCapabilityTest extends TestContainersTestBase {
         session.clear();
         assertThat(session.count(org.neo4j.ogm.domain.l3.a.Order.class, new Filters())).isOne();
         assertThat(session.count(org.neo4j.ogm.domain.l3.b.Order.class, new Filters())).isZero();
+    }
+
+    @Test // F10
+    void shouldBeAbleToSortOnFunkyPropertyNames() {
+
+        session.query("""
+            WITH range(1, 5) AS r
+            UNWIND r AS v  WITH v ORDER by randomUUID()
+            CREATE (s:Stuff {name: 'Item ' + v, `price$usd`: v*1.10}) RETURN s
+            """, Map.of());
+        session.clear();
+
+        var stuff = session.loadAll(Stuff.class, new SortOrder().asc("priceUsd"), new Pagination(0,20));
+        assertThat(stuff)
+            .hasSize(5)
+            .map(Stuff::getName)
+            .containsExactly("Item 1", "Item 2", "Item 3", "Item 4", "Item 5");
+
+
     }
 }

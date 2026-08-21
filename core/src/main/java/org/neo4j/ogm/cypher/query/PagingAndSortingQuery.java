@@ -26,6 +26,7 @@ import java.util.Map;
  * just use {@link CypherQuery}
  *
  * @author Vince Bickers
+ * @author Michael J. Simons
  */
 public class PagingAndSortingQuery implements PagingAndSorting {
 
@@ -61,16 +62,16 @@ public class PagingAndSortingQuery implements PagingAndSorting {
     }
 
     public String getStatement() {
-        String sorting = sortOrder().asString();
 
         StringBuilder sb = new StringBuilder();
         sb.append(matchClause);
 
+        String sorting = sortOrder().asString(variable);
         if (!sorting.isEmpty()) {
-            sb.append(sorting.replace("$", variable));
+            sb.append(sorting);
         }
         if (pagination != null) {
-            sb.append(pagination.toString());
+            sb.append(pagination);
         }
         sb.append(this.returnClause);
         if (needsRowResult()) {

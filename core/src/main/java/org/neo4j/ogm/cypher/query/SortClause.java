@@ -47,7 +47,7 @@ public class SortClause {
 
     }
 
-    String asString() {
+    String asString(String variable) {
         StringBuilder sb = new StringBuilder();
 
         if (properties.length > 0) {
@@ -55,7 +55,7 @@ public class SortClause {
                 if (ignoreCase) {
                     sb.append("toLower(");
                 }
-                sb.append("$.").append(n);
+                sb.append(variable).append(".").append(n);
                 if (ignoreCase) {
                     sb.append(")");
                 }

@@ -147,12 +147,12 @@ public class SortOrder {
         return !sortClauses.isEmpty();
     }
 
-    public String asString() {
+    public String asString(String variable) {
         StringBuilder sb = new StringBuilder();
         if (!sortClauses.isEmpty()) {
             sb.append(" ORDER BY ");
             for (SortClause ordering : sortClauses) {
-                sb.append(ordering.asString());
+                sb.append(ordering.asString(variable));
                 sb.append(",");
             }
             sb.deleteCharAt(sb.length() - 1);

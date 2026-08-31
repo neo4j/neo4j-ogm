@@ -231,7 +231,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <maven.version>3.9.16</maven.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
-        <byte-buddy.version>1.18.11</byte-buddy.version>
+        <byte-buddy.version>1.18.12</byte-buddy.version>
     </properties>
 
     <dependencyManagement>

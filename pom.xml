@@ -185,11 +185,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <java-module-name></java-module-name> <!-- to be overridden in sub modules -->
+        <java-build.version>26</java-build.version>
         <java.version>17</java.version>
 
         <assertj.version>3.27.7</assertj.version>
         <caffeine.version>3.2.4</caffeine.version>
-        <checkstyle.version>12.3.1</checkstyle.version>
+        <checkstyle.version>14.0.0</checkstyle.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-logging.version>1.4.0</commons-logging.version>
@@ -228,6 +229,7 @@
         <maven.compiler.debug>true</maven.compiler.debug>
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <maven.compiler.release>${java.version}</maven.compiler.release>
+        <maven.version>3.9.16</maven.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <byte-buddy.version>1.18.11</byte-buddy.version>
     </properties>
@@ -470,9 +472,12 @@
                         <id>enforce</id>
                         <configuration>
                             <rules>
-                                <DependencyConvergence/>
+                                <DependencyConvergence />
+                                <requireJavaVersion>
+                                    <version>${java-build.version}</version>
+                                </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>3.5.4</version>
+                                    <version>${maven.version}</version>
                                 </requireMavenVersion>
                             </rules>
                         </configuration>

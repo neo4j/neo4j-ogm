@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.8.0
         with:
           distribution: zulu
-          java-version: 17
+          java-version: 26
       - name: Run Maven build
         run: >
           ./mvnw --no-transfer-progress clean verify

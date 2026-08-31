@@ -193,7 +193,7 @@
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-logging.version>1.4.0</commons-logging.version>
-        <classgraph.version>4.8.192</classgraph.version>
+        <classgraph.version>4.8.194</classgraph.version>
         <jackson.version>2.22.1</jackson.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <jreleaser-maven-plugin.version>1.25.0</jreleaser-maven-plugin.version>

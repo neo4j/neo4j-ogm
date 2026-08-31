@@ -20,7 +20,7 @@ package org.neo4j.ogm.session.event;
 
 /**
  * Specialized {@link Event} which is fired before an entity is saved. If the application receives an {@link Event} that
- * returns {@link }Type#POST_SAVE} from {@link Event#getLifeCycle()}, the event can safely be down casted.
+ * returns {@link Event.TYPE#POST_SAVE} from {@link Event#getLifeCycle()}, the event can safely be downcast.
  *
  * @author Michael J. Simons
  * @since 3.2.11

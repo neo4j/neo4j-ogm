@@ -61,10 +61,10 @@ public abstract class AbstractConfigurableDriver implements Driver {
      * Set of classes that are supported natively without implicit or explicit (native type support) conversion.
      * The set is not meant to be used outside this package, so it was put into the concrete driver class and not
      * on the {@link TypeSystem} interface.
-     * </p>
+     * <p>
      * The byte array ({@code byte[]} has been excluded here as OGM should use {@code org.neo4j.ogm.typeconversion.ByteArrayBase64Converter}
      * by default.
-     * </p>
+     * <p>
      * {@link List} and {@link Map} have both been excluded, as the {@link TypeSystemBasedParameterConversion} takes care of that.
      */
     static final Set<Class<?>> DEFAULT_SUPPORTED_TYPES =

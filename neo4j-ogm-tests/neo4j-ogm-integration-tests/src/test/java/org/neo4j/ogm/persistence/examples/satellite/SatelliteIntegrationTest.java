@@ -37,7 +37,6 @@ import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.TestContainersTestBase;
 import org.neo4j.ogm.testutil.TestUtils;
 import org.neo4j.ogm.transaction.Transaction;
@@ -54,13 +53,13 @@ public class SatelliteIntegrationTest extends TestContainersTestBase {
     @BeforeAll
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(getDriver(), "org.neo4j.ogm.domain.satellites");
-        Session initialSession = sessionFactory.openSession();
-        initialSession.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/satellites.cql").toString(), Collections.emptyMap());
     }
 
     @BeforeEach
     public void init() throws IOException {
         session = sessionFactory.openSession();
+        session.purgeDatabase();
+        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/satellites.cql").toString(), Collections.emptyMap());
     }
 
     @Test

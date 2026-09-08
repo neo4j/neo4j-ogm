@@ -2,6 +2,17 @@
 
 == 5.0
 
+=== 5.0.10
+
+* [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#1483)
+* [dependencies] Bump js-yaml, @antora/cli and @antora/site-generator-default (#1489)
+* [dependencies] Bump org.apache.maven.plugins:maven-compiler-plugin (#1484)
+* [dependencies] Bump org.apache.maven.plugins:maven-failsafe-plugin (#1485)
+* [dependencies] Bump org.jreleaser:jreleaser-maven-plugin (#1486)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle from 14.0.0 to 14.1.0 (#1487)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.18.12 to 1.18.13 (#1488)
+
+
 === 5.0.9
 
 The build has been moved to JDK 26, while being still compiled for JDK 17. Only dependency updates, no other changes.

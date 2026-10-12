@@ -2,6 +2,35 @@
 
 == 5.0
 
+=== 5.0.11
+
+* [dependencies] Bump org.neo4j:neo4j-cypher-dsl-bom to 2025.3.5.
+* [dependencies] Bump kotlin.version from 2.4.20 to 2.4.21 (#1507)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1506)
+* [dependencies] Bump io.github.classgraph:classgraph (#1508)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.6.3 to 1.6.5 (#1509)
+* [dependencies] Bump org.mockito:mockito-junit-jupiter (#1510)
+* [dependencies] Bump org.apache.maven:apache-maven from 3.9.16 to 3.10.0 (#1511)
+* [dependencies] Bump com.puppycrawl.tools:checkstyle from 14.1.0 to 14.3.0 (#1512)
+* [dependencies] Bump org.apache.commons:commons-lang3 from 3.20.0 to 3.21.0 (#1513)
+* [dependencies] Bump org.neo4j:neo4j-cypher-dsl-bom (#1514)
+* [dependencies] Bump org.neo4j.driver:neo4j-java-driver from 6.2.1 to 6.3.0 (#1515)
+* [dependencies] Bump slf4j.version from 2.0.18 to 2.0.20 (#1493)
+* [dependencies] Bump org.apache.maven.plugins:maven-install-plugin (#1496)
+* [dependencies] Bump org.codehaus.mojo:build-helper-maven-plugin (#1497)
+* [dependencies] Bump brace-expansion in /neo4j-ogm-docs (#1503)
+* [dependencies] Bump proxy-addr from 2.0.7 to 2.0.8 in /neo4j-ogm-docs (#1504)
+* [dependencies] Bump handlebars from 4.7.9 to 4.7.10 in /neo4j-ogm-docs (#1505)
+* [dependencies] Bump kotlin.version from 2.4.10 to 2.4.20 (#1491)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1494)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.18.13 to 1.18.14 (#1498)
+* [dependencies] Bump org.neo4j:neo4j-cypher-dsl-bom (#1499)
+* [dependencies] Bump org.apache.maven.plugins:maven-deploy-plugin (#1500)
+* [dependencies] Bump com.github.ben-manes.caffeine:caffeine (#1501)
+* [dependencies] Bump io.github.classgraph:classgraph (#1502)
+* Upgrade surefire plugin to 3.6.0 (#1490)
+
+
 === 5.0.10
 
 * [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#1483)

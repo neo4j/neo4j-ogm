@@ -1,5 +1,23 @@
 = Changes
 
+== 5.1
+
+=== 5.1.0
+
+* Upgrade to Classgraph 5.x. (Reason for us to do a minor bump, no breaking changes on our surface though)
+* [dependencies] Bump org.apache.maven.plugins:maven-failsafe-plugin (#1520)
+* [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1522)
+* [dependencies] Bump qs and express in /neo4j-ogm-docs (#1528)
+* [dependencies] Bump com.github.spotbugs:spotbugs-maven-plugin (#1518)
+* [dependencies] Bump com.github.ben-manes.caffeine:caffeine (#1519)
+* [dependencies] Bump org.apache.maven.plugins:maven-surefire-plugin (#1521)
+* [dependencies] Bump org.apache.maven.plugins:maven-enforcer-plugin (#1523)
+* [dependencies] Bump ch.qos.logback:logback-classic from 1.6.5 to 1.6.6 (#1524)
+* [dependencies] Bump org.jacoco:jacoco-maven-plugin from 0.8.15 to 0.8.16 (#1526)
+* [dependencies] Bump net.bytebuddy:byte-buddy from 1.18.14 to 1.18.16 (#1527)
+
+We are testing now by default against Neo4j 2026.10.
+
 == 5.0
 
 === 5.0.11

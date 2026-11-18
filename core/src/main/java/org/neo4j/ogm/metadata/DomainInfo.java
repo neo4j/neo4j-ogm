@@ -127,8 +127,10 @@ public class DomainInfo {
 
     private static List<String> useClassgraph(String[] packagesOrClasses) {
 
-        // .enableExternalClasses() is not needed, as the super classes are loaded anywhere when the class is loaded.
         try (ScanResult scanResult = new ClassGraph()
+            .enableClasspath()
+            .enableNonSystemModules()
+            .enableClassInfo()
             .ignoreClassVisibility()
             .acceptPackages(packagesOrClasses)
             .acceptClasses(packagesOrClasses)

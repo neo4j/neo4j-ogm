@@ -2,9 +2,13 @@
 
 == 5.1
 
+=== 5.1.1
+
+We cannot make ClassGraph 5.x to work on GraalVM with Neo4j-OGM and need to rollback. Sorry about the hassel.
+
 === 5.1.0
 
-* Upgrade to Classgraph 5.x. (Reason for us to do a minor bump, no breaking changes on our surface though)
+* Upgrade to ClassGraph 5.x. (Reason for us to do a minor bump, no breaking changes on our surface though)
 * [dependencies] Bump org.apache.maven.plugins:maven-failsafe-plugin (#1520)
 * [dependencies] Bump com.fasterxml.jackson:jackson-bom (#1522)
 * [dependencies] Bump qs and express in /neo4j-ogm-docs (#1528)

@@ -189,7 +189,7 @@
         <java.version>17</java.version>
 
         <assertj.version>3.27.7</assertj.version>
-        <caffeine.version>3.3.0</caffeine.version>
+        <caffeine.version>3.3.1</caffeine.version>
         <checkstyle.version>14.3.0</checkstyle.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.21.0</commons-lang3.version>
